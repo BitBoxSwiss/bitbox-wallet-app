@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
@@ -20,24 +21,30 @@ const (
 	clientProtocolVersion = "1.1"
 )
 
-type rpcClient interface {
+// RPCClient describes the methods needed to communicate with an RPC server.
+type RPCClient interface {
 	Method(func([]byte) error, func(error), string, ...interface{}) error
 	MethodSync(interface{}, string, ...interface{}) error
 	SubscribeNotifications(string, func([]byte)) error
 }
 
+// ElectrumClient is a high level API access to an ElectrumX server.
+// See https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst.
 type ElectrumClient struct {
-	rpc rpcClient
+	rpc RPCClient
 
 	addressNotificationCallbacks     map[string]func(string) error
 	addressNotificationCallbacksLock sync.RWMutex
 }
 
-func NewElectrumClient(rpcClient rpcClient) (*ElectrumClient, error) {
+// NewElectrumClient creates a new Electrum client.
+func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 	electrumClient := &ElectrumClient{
 		rpc: rpcClient,
 		addressNotificationCallbacks: map[string]func(string) error{},
 	}
+	// Install a callback for the address notifications, which directs the response to callbacks
+	// installed by AddressSubscribe().
 	if err := rpcClient.SubscribeNotifications(
 		"blockchain.address.subscribe",
 		func(responseBytes []byte) {
@@ -67,7 +74,23 @@ func NewElectrumClient(rpcClient rpcClient) (*ElectrumClient, error) {
 	); err != nil {
 		return nil, err
 	}
+
+	go electrumClient.ping()
+
 	return electrumClient, nil
+}
+
+// ping periodically pings the server to keep the connection alive.
+func (client *ElectrumClient) ping() {
+	for {
+		log.Println("pinging the electrum server")
+		_, err := client.ServerVersion()
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		time.Sleep(time.Minute)
+	}
 }
 
 type ServerVersion struct {

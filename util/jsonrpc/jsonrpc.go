@@ -19,6 +19,8 @@ type callbacks struct {
 	cleanup func(error)
 }
 
+// RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
+// remote notifications.
 type RPCClient struct {
 	conn                  io.ReadWriteCloser
 	msgID                 int
@@ -30,6 +32,7 @@ type RPCClient struct {
 	notificationsCallbacksLock sync.RWMutex
 }
 
+// NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
 func NewRPCClient(conn io.ReadWriteCloser) (*RPCClient, error) {
 	client := &RPCClient{
 		conn:                   conn,
@@ -129,6 +132,10 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 	}
 }
 
+// Method sends invokes the remote method with the provided parameters. The success callback is
+// called with the response. cleanup is called afterwards in any case. The error passed to the
+// cleanup callback can be nil (no error) or non-nil (general error or the error returned from the
+// success callback.
 func (client *RPCClient) Method(
 	success func([]byte) error,
 	cleanup func(error),
@@ -158,6 +165,8 @@ func (client *RPCClient) Method(
 	return client.send(jsonText)
 }
 
+// MethodSync is the same as method, but blocks until the response is available. The result is
+// json-deserialized into response.
 func (client *RPCClient) MethodSync(response interface{}, method string, params ...interface{}) error {
 	responseChan := make(chan []byte)
 	if err := client.Method(
@@ -180,6 +189,8 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 	}
 }
 
+// SubscribeNotifications installs a callback for a method which is called with notifications from
+// the server.
 func (client *RPCClient) SubscribeNotifications(method string, callback func([]byte)) error {
 	client.notificationsCallbacksLock.Lock()
 	defer client.notificationsCallbacksLock.Unlock()
