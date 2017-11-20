@@ -200,7 +200,8 @@ func (wallet *DeterministicWallet) SendTx(recipientAddress string, amount btcuti
 		wire.NewTxOut(int64(amount), pkScript),
 		wallet.minRelayFee,
 		func() ([]byte, error) {
-			return txscript.PayToAddrScript(wallet.changeAddresses.GetUnused())
+			script, err := txscript.PayToAddrScript(wallet.changeAddresses.GetUnused().Address)
+			return script, errp.WithStack(err)
 		},
 		random,
 	)
