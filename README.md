@@ -53,6 +53,26 @@ Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` i
 
 In the project root, run `make init`.
 
+## Electrum Bitcoin Testnet Backend
+
+At the moment, `localhost:51001` is hardcoded for the Electrum backend. Sync `bitcoind -testnet` and
+run [ElectrumX](https://github.com/kyuupichan/electrumx/) like this:
+
+
+```sh
+RPC_PORT=8002 PEER_DISCOVERY= TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
+```
+
+The .bitcoin/bitcoin.conf should have txindex enabled:
+
+```
+rpcuser=<rpcuser>
+rpcpassword=<rpcpassword>
+txindex=1
+```
+
+See the [Electrumx HowTo](https://github.com/kyuupichan/electrumx/blob/master/docs/HOWTO.rst).
+
 ## Development Workflow
 
 I develop the UI inside Chromium, for quick development and its devtools, even if the final app is
