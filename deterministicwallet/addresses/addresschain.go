@@ -76,7 +76,7 @@ func (addresses AddressChain) UnusedTailCount() int {
 	return count
 }
 
-func (addresses AddressChain) Contains(checkAddress btcutil.Address) bool {
+func (addresses *AddressChain) Contains(checkAddress btcutil.Address) bool {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
 		if checkAddress.String() == address.String() {
