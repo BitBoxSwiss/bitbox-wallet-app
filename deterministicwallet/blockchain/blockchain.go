@@ -9,10 +9,9 @@ import (
 )
 
 type Interface interface {
-	AddressGetHistory(string, func([]*client.TX) error, func(error)) error
+	ScriptHashGetHistory(string, func([]*client.TX) error, func(error)) error
 	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error
-	AddressSubscribe(string, func(string) error, func(error)) error
-	AddressListUnspent(address string) ([]*client.UTXO, error)
+	ScriptHashSubscribe(string, func(string) error, func(error)) error
 	HeadersSubscribe() (*client.Header, error)
 	TransactionBroadcast([]byte) error
 	RelayFee() (btcutil.Amount, error)

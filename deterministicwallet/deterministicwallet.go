@@ -116,8 +116,8 @@ func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, s
 	}
 
 	done := wallet.synchronizer.IncRequestsCounter()
-	return wallet.blockchain.AddressGetHistory(
-		address.EncodeAddress(),
+	return wallet.blockchain.ScriptHashGetHistory(
+		address.ScriptHash(),
 		func(history []*client.TX) error {
 			func() {
 				defer wallet.RLock()()
@@ -139,8 +139,8 @@ func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, s
 func (wallet *DeterministicWallet) addAddress(change bool) error {
 	address := wallet.addresses(change).AddAddress(wallet.net)
 	done := wallet.synchronizer.IncRequestsCounter()
-	return wallet.blockchain.AddressSubscribe(
-		address.EncodeAddress(),
+	return wallet.blockchain.ScriptHashSubscribe(
+		address.ScriptHash(),
 		func(status string) error { return wallet.onAddressStatus(address, status) },
 		func(error) { done() },
 	)
@@ -200,8 +200,7 @@ func (wallet *DeterministicWallet) SendTx(recipientAddress string, amount btcuti
 		wire.NewTxOut(int64(amount), pkScript),
 		wallet.minRelayFee,
 		func() ([]byte, error) {
-			script, err := txscript.PayToAddrScript(wallet.changeAddresses.GetUnused().Address)
-			return script, errp.WithStack(err)
+			return wallet.changeAddresses.GetUnused().PkScript(), nil
 		},
 		random,
 	)

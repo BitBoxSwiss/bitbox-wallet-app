@@ -33,20 +33,20 @@ type RPCClient interface {
 type ElectrumClient struct {
 	rpc RPCClient
 
-	addressNotificationCallbacks     map[string]func(string) error
-	addressNotificationCallbacksLock sync.RWMutex
+	scriptHashNotificationCallbacks     map[string]func(string) error
+	scriptHashNotificationCallbacksLock sync.RWMutex
 }
 
 // NewElectrumClient creates a new Electrum client.
 func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 	electrumClient := &ElectrumClient{
 		rpc: rpcClient,
-		addressNotificationCallbacks: map[string]func(string) error{},
+		scriptHashNotificationCallbacks: map[string]func(string) error{},
 	}
-	// Install a callback for the address notifications, which directs the response to callbacks
-	// installed by AddressSubscribe().
+	// Install a callback for the scripthash notifications, which directs the response to callbacks
+	// installed by ScriptHashSubscribe().
 	if err := rpcClient.SubscribeNotifications(
-		"blockchain.address.subscribe",
+		"blockchain.scripthash.subscribe",
 		func(responseBytes []byte) {
 			// TODO example responsebytes, use for unit testing:
 			// "[\"mn31QqyuBum6PFS7VFyo8oUL8Yc8G8MHZA\", \"3b98a4b9bed1312f4f53a1c6c9276b0ad8be68c57a5bcbe651688e4f4191b521\"]"
@@ -59,11 +59,11 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 				electrumClient.handleError(errp.New("unexpected response"))
 				return
 			}
-			address := response[0]
+			scriptHash := response[0]
 			status := response[1]
-			electrumClient.addressNotificationCallbacksLock.RLock()
-			callback, ok := electrumClient.addressNotificationCallbacks[address]
-			electrumClient.addressNotificationCallbacksLock.RUnlock()
+			electrumClient.scriptHashNotificationCallbacksLock.RLock()
+			callback, ok := electrumClient.scriptHashNotificationCallbacks[scriptHash]
+			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
 			if ok {
 				if err := callback(status); err != nil {
 					electrumClient.handleError(err)
@@ -136,10 +136,10 @@ type Balance struct {
 	Unconfirmed int64 `json:"unconfirmed"`
 }
 
-// AddressGetBalance does the blockchain.address.get_balance() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainaddressget_balance
-func (client *ElectrumClient) AddressGetBalance(
-	address string,
+// ScriptHashGetBalance does the blockchain.scripthash.get_balance() RPC call.
+// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashget_balance
+func (client *ElectrumClient) ScriptHashGetBalance(
+	scriptHashHex string,
 	success func(*Balance) error,
 	cleanup func(error)) error {
 	return client.rpc.Method(
@@ -151,8 +151,8 @@ func (client *ElectrumClient) AddressGetBalance(
 			return success(response)
 		},
 		cleanup,
-		"blockchain.address.get_balance",
-		address)
+		"blockchain.scripthash.get_balance",
+		scriptHashHex)
 }
 
 type TX struct {
@@ -161,10 +161,10 @@ type TX struct {
 	Fee    *int64 `json:"fee"`
 }
 
-// AddressGetHistory does the blockchain.address.get_history() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainaddressget_history
-func (client *ElectrumClient) AddressGetHistory(
-	address string,
+// ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
+// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashget_history
+func (client *ElectrumClient) ScriptHashGetHistory(
+	scriptHashHex string,
 	success func([]*TX) error,
 	cleanup func(error),
 ) error {
@@ -177,20 +177,20 @@ func (client *ElectrumClient) AddressGetHistory(
 			return success(txs)
 		},
 		cleanup,
-		"blockchain.address.get_history",
-		address)
+		"blockchain.scripthash.get_history",
+		scriptHashHex)
 }
 
-// AddressSubscribe does the blockchain.address.subscribe() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainaddresssubscribe
-func (client *ElectrumClient) AddressSubscribe(
-	address string,
+// ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
+// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashsubscribe
+func (client *ElectrumClient) ScriptHashSubscribe(
+	scriptHashHex string,
 	success func(string) error,
 	cleanup func(error),
 ) error {
-	client.addressNotificationCallbacksLock.Lock()
-	client.addressNotificationCallbacks[address] = success
-	client.addressNotificationCallbacksLock.Unlock()
+	client.scriptHashNotificationCallbacksLock.Lock()
+	client.scriptHashNotificationCallbacks[scriptHashHex] = success
+	client.scriptHashNotificationCallbacksLock.Unlock()
 	return client.rpc.Method(
 		func(responseBytes []byte) error {
 			var response *string
@@ -203,8 +203,8 @@ func (client *ElectrumClient) AddressSubscribe(
 			return success(*response)
 		},
 		cleanup,
-		"blockchain.address.subscribe",
-		address)
+		"blockchain.scripthash.subscribe",
+		scriptHashHex)
 }
 
 func parseTX(rawTXHex string) (*wire.MsgTx, error) {
@@ -286,11 +286,11 @@ type UTXO struct {
 	Height int    `json:"height"`
 }
 
-// AddressListUnspent does the blockchain.address.listunspent() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainaddresslistunspent
-func (client *ElectrumClient) AddressListUnspent(address string) ([]*UTXO, error) {
+// ScriptHashListUnspent does the blockchain.address.listunspent() RPC call.
+// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashlistunspent
+func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UTXO, error) {
 	response := []*UTXO{}
-	err := client.rpc.MethodSync(&response, "blockchain.address.listunspent", address)
+	err := client.rpc.MethodSync(&response, "blockchain.scripthash.listunspent", scriptHashHex)
 	return response, err
 }
 

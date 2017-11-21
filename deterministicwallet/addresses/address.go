@@ -7,6 +7,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/electrum/client"
 )
@@ -44,4 +45,17 @@ func (address *Address) Status() string {
 
 func (address *Address) isUsed() bool {
 	return len(address.History) != 0
+}
+
+func (address *Address) PkScript() []byte {
+	script, err := txscript.PayToAddrScript(address.Address)
+	if err != nil {
+		// Can't fail.
+		panic(err)
+	}
+	return script
+}
+
+func (address *Address) ScriptHash() string {
+	return chainhash.HashH(address.PkScript()).String()
 }
