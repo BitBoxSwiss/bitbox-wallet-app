@@ -15,4 +15,5 @@ type Interface interface {
 	HeadersSubscribe() (*client.Header, error)
 	TransactionBroadcast([]byte) error
 	RelayFee() (btcutil.Amount, error)
+	EstimateFee(int, func(btcutil.Amount) error, func(error)) error
 }

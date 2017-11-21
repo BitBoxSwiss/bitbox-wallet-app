@@ -8,10 +8,12 @@ import (
 	"regexp"
 	"strconv"
 
+	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/shiftdevices/godbb/deterministicwallet"
 	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"
@@ -31,11 +33,13 @@ type WalletInterface interface {
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string) error
 	Transactions() ([]*transactions.Transaction, error)
-	ClassifyTransaction(*transactions.Transaction) (
+	ClassifyTransaction(*wire.MsgTx) (
 		transactions.TxType, btcutil.Amount, *btcutil.Amount, error)
 	Balance() (*transactions.Balance, error)
-	SendTx(string, btcutil.Amount) error
+	SendTx(string, btcutil.Amount, deterministicwallet.FeeTargetCode) error
 	Start() <-chan knot.Event
+	FeeTargets() ([]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error)
+	TxFees(btcutil.Amount, deterministicwallet.FeeTargetCode) (btcutil.Amount, error)
 }
 
 type Handlers struct {
@@ -80,6 +84,8 @@ func NewHandlers(
 	apiRouter.HandleFunc("/wallet/btc/transactions", apiMiddleware(handlers.getWalletTransactions)).Methods("GET")
 	apiRouter.HandleFunc("/wallet/btc/balance", apiMiddleware(handlers.getWalletBalance)).Methods("GET")
 	apiRouter.HandleFunc("/wallet/btc/sendtx", apiMiddleware(handlers.postWalletSendTx)).Methods("POST")
+	apiRouter.HandleFunc("/wallet/btc/fee-targets", apiMiddleware(handlers.getWalletFeeTargets)).Methods("GET")
+	apiRouter.HandleFunc("/wallet/btc/tx-fee", apiMiddleware(handlers.getWalletTxFee)).Methods("POST")
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
 	// Serve static files for the UI.
@@ -209,7 +215,7 @@ func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, e
 		return nil, err
 	}
 	for _, tx := range txs {
-		txType, txAmount, txFee, err := handlers.wallet.ClassifyTransaction(tx)
+		txType, txAmount, txFee, err := handlers.wallet.ClassifyTransaction(tx.TX)
 		var feeString = ""
 		if txFee != nil {
 			feeString = txFee.String()
@@ -249,6 +255,10 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 		return nil, errp.WithStack(err)
 	}
 	address := jsonBody["address"]
+	feeTargetCode, err := deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
+	if err != nil {
+		return nil, err
+	}
 	amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -257,10 +267,52 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.wallet.SendTx(address, btcAmount); err != nil {
+	if err := handlers.wallet.SendTx(address, btcAmount, feeTargetCode); err != nil {
 		return nil, err
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) getWalletTxFee(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	feeTargetCode, err := deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
+	if err != nil {
+		return nil, err
+	}
+	amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	btcAmount, err := btcutil.NewAmount(amount)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	fee, err := handlers.wallet.TxFees(btcAmount, feeTargetCode)
+	if err != nil {
+		return nil, err
+	}
+	return fee.String(), nil
+}
+
+func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, error) {
+	feeTargets, defaultFeeTarget, err := handlers.wallet.FeeTargets()
+	if err != nil {
+		return nil, err
+	}
+	result := []map[string]interface{}{}
+	for _, feeTarget := range feeTargets {
+		result = append(result,
+			map[string]interface{}{
+				"code": feeTarget.Code,
+			})
+	}
+	return map[string]interface{}{
+		"feeTargets":       result,
+		"defaultFeeTarget": defaultFeeTarget,
+	}, nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-import { apiGet } from '../../util';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
@@ -10,27 +9,125 @@ import 'preact-material-components/Textfield/style.css';
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
 
+import Select from 'preact-material-components/Select';
+import 'preact-material-components/List/style.css';
+import 'preact-material-components/Menu/style.css';
+import 'preact-material-components/Select/style.css';
+
 import WaitDialog from '../../components/wait-dialog';
 
 import List from 'preact-material-components/List';
 import 'preact-material-components/List/style.css';
 
-import { apiPost } from '../../util';
+import { apiGet, apiPost } from '../../util';
+
+class FeeTargets extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            feeTargets: null,
+            feeTarget: null
+        };
+    }
+
+    componentDidMount() {
+        if(this.props.walletInitialized) {
+            this.updateFeeTargets();
+        }
+    }
+
+    componentWillReceiveProps({ walletInitialized }) {
+        if(walletInitialized && !this.props.walletInitialized) {
+            this.updateFeeTargets();
+        }
+    }
+
+    updateFeeTargets = () => {
+        apiGet("wallet/btc/fee-targets").then(({ feeTargets, defaultFeeTarget }) => {
+            this.setState({
+                feeTargets: feeTargets
+            });
+            this.setFeeTarget(defaultFeeTarget);
+        });
+    }
+
+    handleFeeTargetChange = event => {
+        this.setFeeTarget(this.state.feeTargets[event.target.selectedIndex].code);
+    }
+
+    setFeeTarget = feeTarget => {
+        this.setState({ feeTarget: feeTarget });
+        this.props.onFeeTargetChange(feeTarget);
+    }
+
+    render({ amount }, { feeTargets, feeTarget }) {
+        if(!feeTargets) {
+            return (
+                <span>Fetching fee data</span>
+            );
+        }
+        const option = target => <option
+        value={ target.code }
+        className="mdc-list-item"
+        selected={ feeTarget == target.code }
+            >{ target.code }</option>;
+        return (
+            <select
+              disabled={!amount}
+              id="feeTarget"
+              className="mdc-list"
+              onChange={this.handleFeeTargetChange}
+              >{ feeTargets && feeTargets.map(option) }
+            </select>
+        );
+    }
+}
 
 class SendButton extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            feeTarget: null
+        };
+    }
+
     send = () => {
         this.waitDialog.MDComponent.show();
-        apiPost("wallet/btc/sendtx", {
-            address: this.state.recipientAddress,
-            amount: this.state.amount
-        }).then(() => { this.waitDialog.MDComponent.close(); });
+        apiPost("wallet/btc/sendtx", this.txInput()).then(() => { this.waitDialog.MDComponent.close(); });
     };
+
+    txInput = () => {
+        return {
+            address: this.state.recipientAddress,
+            amount: this.state.amount,
+            feeTarget: this.state.feeTarget
+        };
+    }
+
+    validateAndDisplayFee = () => {
+        this.setState({ fee: null });
+        const txInput = this.txInput();
+        if(!txInput.feeTarget || !txInput.amount) {
+            // TODO proper validation
+            return;
+        }
+        apiPost("wallet/btc/tx-fee", txInput).then(fee => {
+            this.setState({ fee: fee });
+        });
+    }
 
     handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
+        this.setState({
+            [event.target.id]: event.target.value,
+            fee: null
+        });
     };
 
-    render({}, { recipientAddress, amount }) {
+    render({ walletInitialized }, { fee, recipientAddress, amount }) {
+        let Fee = () => {
+            if(!fee) return;
+            return <span> Fee: { fee }</span>;
+        };
         return (
             <div>
               <Button primary={true} raised={true} onClick={()=>{
@@ -58,8 +155,14 @@ class SendButton extends Component {
                       helptext="Please enter the BTC amount to send"
                       helptextPersistent={true}
                       onInput={this.handleFormChange}
+                      onChange={this.validateAndDisplayFee}
                       value={amount}
                       />
+                    <FeeTargets
+                      amount={amount}
+                      walletInitialized={walletInitialized}
+                      onFeeTargetChange={feeTarget => { this.setState({ feeTarget: feeTarget }); this.validateAndDisplayFee(); }}
+                      /><Fee/>
                   </p>
                 </Dialog.Body>
                 <Dialog.Footer>
@@ -137,7 +240,7 @@ export default class Wallet extends Component {
         return (
             <div>
               <h1>Wallet</h1>
-              <p><SendButton/></p>
+              <p><SendButton walletInitialized={walletInitialized}/></p>
               <h2>Amount</h2>
               { balance.confirmed } { balance.unconfirmed && <span>({balance.unconfirmed})</span> }
               <h2>Transactions</h2>

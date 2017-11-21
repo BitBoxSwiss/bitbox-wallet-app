@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"log"
 	"math/rand"
+	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -12,6 +13,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/davecgh/go-spew/spew"
 
 	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	"github.com/shiftdevices/godbb/deterministicwallet/blockchain"
@@ -43,6 +45,38 @@ type HDKeyStoreInterface interface {
 	SignInterface
 }
 
+type FeeTargetCode string
+
+func NewFeeTargetCode(code string) (FeeTargetCode, error) {
+	switch code {
+	case string(FeeTargetCodeLow):
+	case string(FeeTargetCodeEconomy):
+	case string(FeeTargetCodeNormal):
+	case string(FeeTargetCodeHigh):
+	default:
+		return "", errp.Newf("unrecognized fee code %s", code)
+	}
+	return FeeTargetCode(code), nil
+}
+
+const (
+	FeeTargetCodeLow     FeeTargetCode = "low"
+	FeeTargetCodeEconomy               = "economy"
+	FeeTargetCodeNormal                = "normal"
+	FeeTargetCodeHigh                  = "high"
+
+	defaultFeeTarget = FeeTargetCodeNormal
+)
+
+type FeeTarget struct {
+	// Blocks is the target number of blocks in which the tx should be confirmed.
+	Blocks int
+	// Code is the identifier for the UI.
+	Code FeeTargetCode
+	// FeeRatePerKb is the fee rate needed for this target. Can be nil until populated.
+	FeeRatePerKb *btcutil.Amount
+}
+
 type DeterministicWallet struct {
 	locker.Locker
 
@@ -58,6 +92,9 @@ type DeterministicWallet struct {
 	transactions *transactions.Transactions
 
 	synchronizer *synchronizer.Synchronizer
+
+	// The
+	feeTargets []*FeeTarget
 }
 
 func NewDeterministicWallet(
@@ -85,6 +122,12 @@ func NewDeterministicWallet(
 		blockchain:   blockchain,
 		minRelayFee:  minRelayFee,
 		synchronizer: synchronizer,
+		feeTargets: []*FeeTarget{
+			{Blocks: 25, Code: FeeTargetCodeEconomy},
+			{Blocks: 10, Code: FeeTargetCodeLow},
+			{Blocks: 5, Code: FeeTargetCodeNormal},
+			{Blocks: 2, Code: FeeTargetCodeHigh},
+		},
 	}
 
 	wallet.receiveAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), gapLimit, 0)
@@ -92,7 +135,38 @@ func NewDeterministicWallet(
 	wallet.transactions = transactions.NewTransactions(
 		net, synchronizer, blockchain, wallet.changeAddresses.Contains)
 
+	wallet.updateFeeTargets()
+
 	return wallet, nil
+}
+
+func (wallet *DeterministicWallet) updateFeeTargets() {
+	// Synchronous for now. TODO: make async to not block the UI.
+	wg := sync.WaitGroup{}
+	for _, feeTarget := range wallet.feeTargets {
+		func(feeTarget *FeeTarget) {
+			wg.Add(1)
+			err := wallet.blockchain.EstimateFee(
+				feeTarget.Blocks,
+				func(feeRatePerKb btcutil.Amount) error {
+					feeTarget.FeeRatePerKb = &feeRatePerKb
+					log.Printf("fee estimate per kb for %d blocks: %s", feeTarget.Blocks, feeRatePerKb)
+					wg.Done()
+					return nil
+				},
+				func(error) {},
+			)
+			if err != nil {
+				// TODO
+				panic(err)
+			}
+		}(feeTarget)
+	}
+	wg.Wait()
+}
+
+func (wallet *DeterministicWallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
+	return wallet.feeTargets, defaultFeeTarget
 }
 
 func (wallet *DeterministicWallet) Balance() *transactions.Balance {
@@ -179,13 +253,26 @@ func (wallet *DeterministicWallet) Transactions() []*transactions.Transaction {
 	return wallet.transactions.Transactions()
 }
 
-func (wallet *DeterministicWallet) ClassifyTransaction(tx *transactions.Transaction) (
+func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
 	transactions.TxType, btcutil.Amount, *btcutil.Amount) {
 	return wallet.transactions.ClassifyTransaction(tx)
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
-func (wallet *DeterministicWallet) SendTx(recipientAddress string, amount btcutil.Amount) error {
+func (wallet *DeterministicWallet) SendTx(
+	recipientAddress string, amount btcutil.Amount, feeTargetCode FeeTargetCode) error {
+
+	var feeTarget *FeeTarget
+	for _, target := range wallet.feeTargets {
+		if target.Code == feeTargetCode {
+			feeTarget = target
+			break
+		}
+	}
+	if feeTarget == nil || feeTarget.FeeRatePerKb == nil {
+		panic("fee target must exist")
+	}
+
 	address, err := btcutil.DecodeAddress(recipientAddress, wallet.net)
 	if err != nil {
 		return errp.WithStack(err)
@@ -198,7 +285,7 @@ func (wallet *DeterministicWallet) SendTx(recipientAddress string, amount btcuti
 	transaction, selectedOutPoints, err := maketx.NewTx(
 		wallet.transactions.UnspentOutputs(),
 		wire.NewTxOut(int64(amount), pkScript),
-		wallet.minRelayFee,
+		*feeTarget.FeeRatePerKb,
 		func() ([]byte, error) {
 			return wallet.changeAddresses.GetUnused().PkScript(), nil
 		},
@@ -217,4 +304,41 @@ func (wallet *DeterministicWallet) SendTx(recipientAddress string, amount btcuti
 	rawTX := &bytes.Buffer{}
 	_ = transaction.SerializeNoWitness(rawTX)
 	return wallet.blockchain.TransactionBroadcast(rawTX.Bytes())
+}
+
+// TxFees returns the fee that will be paid for a transaction of a certain amount and fee target.
+func (wallet *DeterministicWallet) TxFees(amount btcutil.Amount, feeTargetCode FeeTargetCode) (
+	btcutil.Amount, error) {
+
+	var feeTarget *FeeTarget
+	for _, target := range wallet.feeTargets {
+		if target.Code == feeTargetCode {
+			feeTarget = target
+			break
+		}
+	}
+	if feeTarget == nil || feeTarget.FeeRatePerKb == nil {
+		panic("fee target must exist")
+	}
+
+	// Dummy recipient, we won't sent the tx, just return the fee.
+	pkScript := wallet.receiveAddresses.GetUnused().PkScript()
+	transaction, _, err := maketx.NewTx(
+		wallet.transactions.UnspentOutputs(),
+		wire.NewTxOut(int64(amount), pkScript),
+		*feeTarget.FeeRatePerKb,
+		func() ([]byte, error) {
+			return wallet.changeAddresses.GetUnused().PkScript(), nil
+		},
+		random,
+	)
+	if err != nil {
+		return 0, err
+	}
+	txType, sentAmount, fee := wallet.ClassifyTransaction(transaction)
+	if txType != transactions.TxTypeSend || fee == nil {
+		spew.Dump(txType, sentAmount, amount, fee)
+		panic("wrong tx format")
+	}
+	return *fee, nil
 }

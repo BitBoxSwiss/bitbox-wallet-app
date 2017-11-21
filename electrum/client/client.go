@@ -317,3 +317,31 @@ func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 	}
 	return btcutil.NewAmount(response)
 }
+
+// EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
+// blocks.
+// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainestimatefee
+func (client *ElectrumClient) EstimateFee(
+	number int,
+	success func(btcutil.Amount) error,
+	cleanup func(error),
+) error {
+	return client.rpc.Method(
+		func(responseBytes []byte) error {
+			var fee float64
+			if err := json.Unmarshal(responseBytes, &fee); err != nil {
+				return errp.WithStack(err)
+			}
+			if fee == -1 {
+				return errp.New("fee could not be estimated")
+			}
+			amount, err := btcutil.NewAmount(fee)
+			if err != nil {
+				return err
+			}
+			return success(amount)
+		},
+		cleanup,
+		"blockchain.estimatefee",
+		number)
+}

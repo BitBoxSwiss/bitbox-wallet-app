@@ -287,12 +287,12 @@ func (s byHeight) Less(i, j int) bool {
 }
 func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
-type TxType int
+type TxType string
 
 const (
-	TxTypeReceive = iota
-	TxTypeSend
-	TxTypeSendSelf
+	TxTypeReceive  TxType = "receive"
+	TxTypeSend            = "send"
+	TxTypeSendSelf        = "sendSelf"
 )
 
 // ClassifyTransaction checks what kind of transaction we have, and the amount/fee
@@ -300,12 +300,12 @@ const (
 // 1) Receive: some outputs are ours, not all inputs are ours. Amount is the amount received (positive). Fee unavailable.
 // 2) Send: all inputs are ours, some outputs are not. Amount is the amound sent (positive). Fee is returned.
 // 3) Send self: all inputs and all outputs are ours. Amount is the amount sent to self. Fee is returned.
-func (transactions *Transactions) ClassifyTransaction(tx *Transaction) (
+func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
 	TxType, btcutil.Amount, *btcutil.Amount) {
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
-	for _, txIn := range tx.TX.TxIn {
+	for _, txIn := range tx.TxIn {
 		if spentOut, ok := transactions.outputs[txIn.PreviousOutPoint]; ok {
 			sumOurInputs += btcutil.Amount(spentOut.Value)
 		} else {
@@ -314,10 +314,10 @@ func (transactions *Transactions) ClassifyTransaction(tx *Transaction) (
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
 	allOutputsOurs := true
-	for index, txOut := range tx.TX.TxOut {
+	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
 		if output, ok := transactions.outputs[wire.OutPoint{
-			Hash:  tx.TXHash,
+			Hash:  tx.TxHash(),
 			Index: uint32(index),
 		}]; ok {
 			if transactions.isChangeAddress(output.Address) {

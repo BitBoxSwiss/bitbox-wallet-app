@@ -2,6 +2,7 @@ package knot
 
 import (
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/communication"
@@ -94,10 +95,10 @@ func (knot *Knot) Transactions() ([]*transactions.Transaction, error) {
 	return knot.bitcoinWallet.Transactions(), nil
 }
 
-func (knot *Knot) ClassifyTransaction(tx *transactions.Transaction) (
+func (knot *Knot) ClassifyTransaction(tx *wire.MsgTx) (
 	transactions.TxType, btcutil.Amount, *btcutil.Amount, error) {
 	if knot.bitcoinWallet == nil {
-		return 0, 0, nil, errp.New("wallet not yet initialized")
+		return "", 0, nil, errp.New("wallet not yet initialized")
 	}
 	txType, amount, fee := knot.bitcoinWallet.ClassifyTransaction(tx)
 	return txType, amount, fee, nil
@@ -110,11 +111,29 @@ func (knot *Knot) Balance() (*transactions.Balance, error) {
 	return knot.bitcoinWallet.Balance(), nil
 }
 
-func (knot *Knot) SendTx(address string, amount btcutil.Amount) error {
+func (knot *Knot) SendTx(
+	address string, amount btcutil.Amount, feeTargetCode deterministicwallet.FeeTargetCode) error {
 	if knot.bitcoinWallet == nil {
 		return errp.New("wallet not yet initialized")
 	}
-	return knot.bitcoinWallet.SendTx(address, amount)
+	return knot.bitcoinWallet.SendTx(address, amount, feeTargetCode)
+}
+
+func (knot *Knot) TxFees(amount btcutil.Amount, feeTargetCode deterministicwallet.FeeTargetCode) (
+	btcutil.Amount, error) {
+	if knot.bitcoinWallet == nil {
+		return 0, errp.New("wallet not yet initialized")
+	}
+	return knot.bitcoinWallet.TxFees(amount, feeTargetCode)
+}
+
+func (knot *Knot) FeeTargets() (
+	[]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error) {
+	if knot.bitcoinWallet == nil {
+		return nil, "", errp.New("wallet not yet initialized")
+	}
+	feeTargets, defaultFeeTarget := knot.bitcoinWallet.FeeTargets()
+	return feeTargets, defaultFeeTarget, nil
 }
 
 func (knot *Knot) SetPassword(password string) error {
