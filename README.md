@@ -23,10 +23,10 @@ Studio / XCode project. This is not part of this repo yet.
 - `cmd/`: Go projects which generate binaries are here.
 - `cmd/servewallet/`: a development aid which serves the static web ui and the http api it talks
   to. See below.
-- `vendor/`: Go dependencies, managed by the `dep` tool (see the Development section below).
+- `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
 - `electrum/`: A json rpc client library, talking to Electrum servers.
 - `dbbdevice/`: Library to detect and talk to digital bitboxes. High level API access.
-- `deterministicwallet/`: Local HD wallet, sourcing blockchain index from an arbitary
+- `deterministicwallet/`: Local HD wallet, sourcing blockchain index from an arbitrary
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
 - `knot/`: The library that ties it all together. Uses the above packages to create a wallet talking
   Electrum using the DBB for signing, and serve a high level HTTP API to control it.
