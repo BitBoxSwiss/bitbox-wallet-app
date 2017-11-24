@@ -60,7 +60,8 @@ run [ElectrumX](https://github.com/kyuupichan/electrumx/) like this:
 
 
 ```sh
-RPC_PORT=8002 PEER_DISCOVERY= TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
+$ mkdir ~/.electrumx-testnet
+$ RPC_PORT=8002 PEER_DISCOVERY= TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
 ```
 
 The .bitcoin/bitcoin.conf should have txindex enabled:
