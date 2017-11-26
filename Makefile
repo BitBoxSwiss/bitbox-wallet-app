@@ -16,3 +16,8 @@ webdev:
 qt:
 	make generate
 	make -C frontends/qt
+
+dockerinit:
+	docker build --force-rm -t godbb .
+dockerdev:
+	./scripts/dockerdev.sh

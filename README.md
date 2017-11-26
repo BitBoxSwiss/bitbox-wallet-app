@@ -61,7 +61,7 @@ run [ElectrumX](https://github.com/kyuupichan/electrumx/) like this:
 
 ```sh
 $ mkdir ~/.electrumx-testnet
-$ RPC_PORT=8002 PEER_DISCOVERY= TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
+$ RPC_PORT=8002 PEER_DISCOVERY= HOST=0.0.0.0 TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
 ```
 
 The .bitcoin/bitcoin.conf should have txindex enabled:
@@ -82,7 +82,7 @@ compiled into a standalone app.
 To do this, I run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a
 devtool which serves the HTTP API.
 
-In a different terminal, I run `make webdev` to serve the UI on
+In a different terminal (screen or tmux recommended!), I run `make webdev` to serve the UI on
 [localhost:8080](http://localhost:8080). Changes to the web code in `frontends/web/` is
 automatically reloaded by this, also for quick development.
 
@@ -93,3 +93,13 @@ and visiting [localhost:8082](http://localhost:8082), which is the port on which
 static content.
 
 To build the standalone desktop app, run `make qt`.
+
+## Develop using Docker
+
+The Dockerfile provides a Ubuntu container with the whole environment preconfigured. To set it up,
+run `make dockerinit`, which builds the Docker image (this takes a while).
+
+After that, `make dockerdev` enters the container (a shell inside an Ubuntu virtual machine), where
+you can perform the same steps as in the previous section (`make servewallet` and `make
+webdev`). Running `make dockerdev` multiple times shares the same container. You can edit the code
+in your usual editor in the host and compile inside the container.

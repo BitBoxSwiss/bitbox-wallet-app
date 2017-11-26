@@ -64,6 +64,9 @@ func (knot *Knot) Reset() (bool, error) {
 func (knot *Knot) initWallets() error {
 	net := &chaincfg.TestNet3Params
 	electrumClient, err := electrum.NewElectrumClient()
+	if err != nil {
+		return err
+	}
 	keystore, err := keystore.NewDBBKeyStore(knot.device, "m/44'/1'/0'", net)
 	if err != nil {
 		return err
