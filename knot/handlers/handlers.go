@@ -36,10 +36,11 @@ type WalletInterface interface {
 	ClassifyTransaction(*wire.MsgTx) (
 		transactions.TxType, btcutil.Amount, *btcutil.Amount, error)
 	Balance() (*transactions.Balance, error)
-	SendTx(string, btcutil.Amount, deterministicwallet.FeeTargetCode) error
+	SendTx(string, deterministicwallet.SendAmount, deterministicwallet.FeeTargetCode) error
 	Start() <-chan knot.Event
 	FeeTargets() ([]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error)
-	TxFees(btcutil.Amount, deterministicwallet.FeeTargetCode) (btcutil.Amount, error)
+	TxProposal(deterministicwallet.SendAmount, deterministicwallet.FeeTargetCode) (
+		btcutil.Amount, btcutil.Amount, error)
 }
 
 type Handlers struct {
@@ -85,7 +86,7 @@ func NewHandlers(
 	apiRouter.HandleFunc("/wallet/btc/balance", apiMiddleware(handlers.getWalletBalance)).Methods("GET")
 	apiRouter.HandleFunc("/wallet/btc/sendtx", apiMiddleware(handlers.postWalletSendTx)).Methods("POST")
 	apiRouter.HandleFunc("/wallet/btc/fee-targets", apiMiddleware(handlers.getWalletFeeTargets)).Methods("GET")
-	apiRouter.HandleFunc("/wallet/btc/tx-fee", apiMiddleware(handlers.getWalletTxFee)).Methods("POST")
+	apiRouter.HandleFunc("/wallet/btc/tx-proposal", apiMiddleware(handlers.getWalletTxProposal)).Methods("POST")
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
 	// Serve static files for the UI.
@@ -249,52 +250,70 @@ func (handlers *Handlers) getWalletBalance(r *http.Request) (interface{}, error)
 	}, nil
 }
 
-func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
+type sendTxInput struct {
+	address       string
+	sendAmount    deterministicwallet.SendAmount
+	feeTargetCode deterministicwallet.FeeTargetCode
+}
+
+func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
+		return errp.WithStack(err)
+	}
+	input.address = jsonBody["address"]
+	var err error
+	input.feeTargetCode, err = deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
+	if err != nil {
+		return err
+	}
+	if jsonBody["sendAll"] == "yes" {
+		input.sendAmount = deterministicwallet.NewSendAmountAll()
+	} else {
+		amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		btcAmount, err := btcutil.NewAmount(amount)
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		input.sendAmount, err = deterministicwallet.NewSendAmount(btcAmount)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
+	input := &sendTxInput{}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	address := jsonBody["address"]
-	feeTargetCode, err := deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
-	if err != nil {
-		return nil, err
-	}
-	amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	btcAmount, err := btcutil.NewAmount(amount)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	if err := handlers.wallet.SendTx(address, btcAmount, feeTargetCode); err != nil {
+
+	if err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode); err != nil {
 		return nil, err
 	}
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getWalletTxFee(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, error) {
+	input := &sendTxInput{}
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	feeTargetCode, err := deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
+	outputAmount, fee, err := handlers.wallet.TxProposal(
+		input.sendAmount,
+		input.feeTargetCode,
+	)
 	if err != nil {
 		return nil, err
 	}
-	amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	btcAmount, err := btcutil.NewAmount(amount)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	fee, err := handlers.wallet.TxFees(btcAmount, feeTargetCode)
-	if err != nil {
-		return nil, err
-	}
-	return fee.String(), nil
+	return map[string]string{
+		"amount": outputAmount.String(),
+		"fee":    fee.String(),
+	}, nil
 }
 
 func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, error) {

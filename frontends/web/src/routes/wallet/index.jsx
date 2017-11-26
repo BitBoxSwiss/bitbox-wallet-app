@@ -14,6 +14,10 @@ import 'preact-material-components/List/style.css';
 import 'preact-material-components/Menu/style.css';
 import 'preact-material-components/Select/style.css';
 
+import Checkbox from 'preact-material-components/Checkbox';
+import Formfield from 'preact-material-components/Formfield';
+import 'preact-material-components/Checkbox/style.css';
+
 import WaitDialog from '../../components/wait-dialog';
 
 import List from 'preact-material-components/List';
@@ -60,7 +64,7 @@ class FeeTargets extends Component {
         this.props.onFeeTargetChange(feeTarget);
     }
 
-    render({ amount }, { feeTargets, feeTarget }) {
+    render({ disabled }, { feeTargets, feeTarget }) {
         if(!feeTargets) {
             return (
                 <span>Fetching fee data</span>
@@ -73,7 +77,7 @@ class FeeTargets extends Component {
             >{ target.code }</option>;
         return (
             <select
-              disabled={!amount}
+              disabled={disabled}
               id="feeTarget"
               className="mdc-list"
               onChange={this.handleFeeTargetChange}
@@ -87,7 +91,10 @@ class SendButton extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            feeTarget: null
+            feeTarget: null,
+            proposedFee: null,
+            proposedAmount: null,
+            sendAll: false
         };
     }
 
@@ -100,33 +107,40 @@ class SendButton extends Component {
         return {
             address: this.state.recipientAddress,
             amount: this.state.amount,
-            feeTarget: this.state.feeTarget
+            feeTarget: this.state.feeTarget,
+            sendAll: this.state.sendAll ? "yes" : "no"
         };
     }
 
     validateAndDisplayFee = () => {
-        this.setState({ fee: null });
+        this.setState({ proposedFee: null });
         const txInput = this.txInput();
-        if(!txInput.feeTarget || !txInput.amount) {
+        if(!txInput.feeTarget || (txInput.sendAll == "no" && !txInput.amount)) {
             // TODO proper validation
             return;
         }
-        apiPost("wallet/btc/tx-fee", txInput).then(fee => {
-            this.setState({ fee: fee });
+        apiPost("wallet/btc/tx-proposal", txInput).then(({ amount, fee }) => {
+            this.setState({ proposedFee: fee, proposedAmount: amount });
         });
     }
 
     handleFormChange = event => {
+        let value = event.target.value;
+        if(event.target.id == "sendAll") {
+            value = event.target.checked;
+        } else {
+            value = event.target.value;
+        }
         this.setState({
-            [event.target.id]: event.target.value,
-            fee: null
+            [event.target.id]: value,
+            proposedFee: null
         });
     };
 
-    render({ walletInitialized }, { fee, recipientAddress, amount }) {
+    render({ walletInitialized }, { proposedFee, recipientAddress, proposedAmount, amount, sendAll }) {
         let Fee = () => {
-            if(!fee) return;
-            return <span> Fee: { fee }</span>;
+            if(!proposedFee) return;
+            return <span> Fee: { proposedFee }</span>;
         };
         return (
             <div>
@@ -151,15 +165,23 @@ class SendButton extends Component {
                     <Textfield
                       autoFocus
                       id="amount"
-                      label="Amount BTC"
+                      label={ sendAll ? "" : "Amount BTC" }
                       helptext="Please enter the BTC amount to send"
                       helptextPersistent={true}
                       onInput={this.handleFormChange}
                       onChange={this.validateAndDisplayFee}
-                      value={amount}
+                      disabled={sendAll}
+                      value={sendAll ? proposedAmount : amount}
                       />
+                    <Formfield>
+                      <Checkbox
+                        id="sendAll"
+                        onChange={event => { this.handleFormChange(event); this.validateAndDisplayFee(); }}
+                        />
+                      <label for="send-all">Max</label>
+                    </Formfield>
                     <FeeTargets
-                      amount={amount}
+                      disabled={!amount && !sendAll}
                       walletInitialized={walletInitialized}
                       onFeeTargetChange={feeTarget => { this.setState({ feeTarget: feeTarget }); this.validateAndDisplayFee(); }}
                       /><Fee/>

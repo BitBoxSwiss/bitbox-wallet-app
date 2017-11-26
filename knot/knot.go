@@ -112,19 +112,22 @@ func (knot *Knot) Balance() (*transactions.Balance, error) {
 }
 
 func (knot *Knot) SendTx(
-	address string, amount btcutil.Amount, feeTargetCode deterministicwallet.FeeTargetCode) error {
+	address string,
+	amount deterministicwallet.SendAmount,
+	feeTargetCode deterministicwallet.FeeTargetCode) error {
 	if knot.bitcoinWallet == nil {
 		return errp.New("wallet not yet initialized")
 	}
 	return knot.bitcoinWallet.SendTx(address, amount, feeTargetCode)
 }
 
-func (knot *Knot) TxFees(amount btcutil.Amount, feeTargetCode deterministicwallet.FeeTargetCode) (
-	btcutil.Amount, error) {
+func (knot *Knot) TxProposal(
+	amount deterministicwallet.SendAmount, feeTargetCode deterministicwallet.FeeTargetCode) (
+	btcutil.Amount, btcutil.Amount, error) {
 	if knot.bitcoinWallet == nil {
-		return 0, errp.New("wallet not yet initialized")
+		return 0, 0, errp.New("wallet not yet initialized")
 	}
-	return knot.bitcoinWallet.TxFees(amount, feeTargetCode)
+	return knot.bitcoinWallet.TxProposal(amount, feeTargetCode)
 }
 
 func (knot *Knot) FeeTargets() (

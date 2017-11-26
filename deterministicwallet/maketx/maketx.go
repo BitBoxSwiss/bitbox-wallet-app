@@ -34,6 +34,36 @@ func coinSelection(
 	return outputsSum, selectedOutPoints, nil
 }
 
+func NewTxSpendAll(
+	spendableOutputs map[wire.OutPoint]*wire.TxOut,
+	outputPkScript []byte,
+	feePerKb btcutil.Amount) (btcutil.Amount, *wire.MsgTx, []wire.OutPoint, error) {
+
+	selectedOutPoints := []wire.OutPoint{}
+	inputs := []*wire.TxIn{}
+	outputsSum := btcutil.Amount(0)
+	for outPoint, output := range spendableOutputs {
+		outPoint := outPoint // avoid reference reuse due to range loop
+		selectedOutPoints = append(selectedOutPoints, outPoint)
+		outputsSum += btcutil.Amount(output.Value)
+		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
+	}
+	output := wire.NewTxOut(0, outputPkScript)
+	txSize := EstimateSerializeSize(len(selectedOutPoints), []*wire.TxOut{output}, false)
+	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize)
+	if outputsSum < maxRequiredFee {
+		return 0, nil, nil, errp.New("insufficient funds for fee")
+	}
+	output = wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
+	unsignedTransaction := &wire.MsgTx{
+		Version:  wire.TxVersion,
+		TxIn:     inputs,
+		TxOut:    []*wire.TxOut{output},
+		LockTime: 0,
+	}
+	return btcutil.Amount(output.Value), unsignedTransaction, selectedOutPoints, nil
+}
+
 func NewTx(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
