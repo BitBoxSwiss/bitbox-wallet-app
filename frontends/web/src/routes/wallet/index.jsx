@@ -178,7 +178,7 @@ class SendButton extends Component {
                         id="sendAll"
                         onChange={event => { this.handleFormChange(event); this.validateAndDisplayFee(); }}
                         />
-                      <label for="send-all">Max</label>
+                      <label for="sendAll">Max</label>
                     </Formfield>
                     <FeeTargets
                       disabled={!amount && !sendAll}
@@ -208,6 +208,7 @@ export default class Wallet extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            walletInitialized: props.walletInitialized,
             transactions: [],
             balance: {
                 confirmed: "",
@@ -216,9 +217,16 @@ export default class Wallet extends Component {
         };
     }
 
+    componentWillReceiveProps(props) {
+        this.setState({ walletInitialized: props.walletInitialized });
+    }
+
     componentDidMount() {
         this.props.registerOnWalletChanged(this.onWalletChanged);
-        this.onWalletChanged();
+        apiGet("wallet/btc/state").then(state => {
+            this.setState({ walletInitialized: state == "initialized" });
+            this.onWalletChanged();
+        });
     }
 
     componentWillUnmount() {
@@ -226,7 +234,7 @@ export default class Wallet extends Component {
     }
 
     onWalletChanged = () => {
-        if(this.props.walletInitialized) {
+        if(this.state.walletInitialized) {
             apiGet("wallet/btc/transactions").then(transactions => {
                 this.setState({ transactions: transactions });
             });
@@ -236,7 +244,7 @@ export default class Wallet extends Component {
         }
     }
 
-    render({ walletInitialized }, { transactions, balance }) {
+    render({}, { walletInitialized, transactions, balance }) {
         const renderTransactions = transactions => {
             if(!walletInitialized) {
                 return (

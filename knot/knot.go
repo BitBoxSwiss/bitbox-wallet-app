@@ -81,6 +81,13 @@ func (knot *Knot) initWallets() error {
 	return nil
 }
 
+func (knot *Knot) WalletState() string {
+	if knot.bitcoinWallet == nil {
+		return "uninitialized"
+	}
+	return "initialized"
+}
+
 func (knot *Knot) Login(password string) error {
 	if err := knot.device.Login(password); err != nil {
 		return err

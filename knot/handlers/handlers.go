@@ -41,6 +41,7 @@ type WalletInterface interface {
 	FeeTargets() ([]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error)
 	TxProposal(deterministicwallet.SendAmount, deterministicwallet.FeeTargetCode) (
 		btcutil.Amount, btcutil.Amount, error)
+	WalletState() string
 }
 
 type Handlers struct {
@@ -87,6 +88,7 @@ func NewHandlers(
 	apiRouter.HandleFunc("/wallet/btc/sendtx", apiMiddleware(handlers.postWalletSendTx)).Methods("POST")
 	apiRouter.HandleFunc("/wallet/btc/fee-targets", apiMiddleware(handlers.getWalletFeeTargets)).Methods("GET")
 	apiRouter.HandleFunc("/wallet/btc/tx-proposal", apiMiddleware(handlers.getWalletTxProposal)).Methods("POST")
+	apiRouter.HandleFunc("/wallet/btc/state", apiMiddleware(handlers.getWalletState)).Methods("GET")
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
 	// Serve static files for the UI.
@@ -314,6 +316,10 @@ func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, err
 		"amount": outputAmount.String(),
 		"fee":    fee.String(),
 	}, nil
+}
+
+func (handlers *Handlers) getWalletState(r *http.Request) (interface{}, error) {
+	return handlers.wallet.WalletState(), nil
 }
 
 func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, error) {
