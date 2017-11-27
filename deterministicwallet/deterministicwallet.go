@@ -32,6 +32,17 @@ func init() {
 	random = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
+type Interface interface {
+	Transactions() []*transactions.Transaction
+	ClassifyTransaction(*wire.MsgTx) (
+		transactions.TxType, btcutil.Amount, *btcutil.Amount)
+	Balance() *transactions.Balance
+	SendTx(string, SendAmount, FeeTargetCode) error
+	FeeTargets() ([]*FeeTarget, FeeTargetCode)
+	TxProposal(SendAmount, FeeTargetCode) (
+		btcutil.Amount, btcutil.Amount, error)
+}
+
 type SignInterface interface {
 	Sign([][]byte, []string) ([]btcec.Signature, error)
 }

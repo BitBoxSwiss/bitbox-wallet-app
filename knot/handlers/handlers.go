@@ -6,25 +6,23 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
-	"strconv"
 
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
+	walletHandlers "github.com/shiftdevices/godbb/deterministicwallet/handlers"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
 )
 
-type WalletInterface interface {
+type KnotInterface interface {
 	XPub() (string, error)
 	DeviceState() string
 	Reset() (bool, error)
+	OnWalletInit(f func(deterministicwallet.Interface))
 	Login(string) error
 	SetPassword(string) error
 	CreateWallet(string) error
@@ -32,63 +30,64 @@ type WalletInterface interface {
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string) error
-	Transactions() ([]*transactions.Transaction, error)
-	ClassifyTransaction(*wire.MsgTx) (
-		transactions.TxType, btcutil.Amount, *btcutil.Amount, error)
-	Balance() (*transactions.Balance, error)
-	SendTx(string, deterministicwallet.SendAmount, deterministicwallet.FeeTargetCode) error
 	Start() <-chan knot.Event
-	FeeTargets() ([]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error)
-	TxProposal(deterministicwallet.SendAmount, deterministicwallet.FeeTargetCode) (
-		btcutil.Amount, btcutil.Amount, error)
-	WalletState() string
 }
 
 type Handlers struct {
 	Router *mux.Router
-	wallet WalletInterface
+	knot   KnotInterface
 	// apiPort is the port on which this API will run. It is fed into the static javascript app
 	// that is served, so the client knows where to connect to.
 	apiPort           int
-	walletEvents      <-chan knot.Event
+	knotEvents        <-chan knot.Event
 	websocketUpgrader websocket.Upgrader
 }
 
 func NewHandlers(
-	wallet WalletInterface,
+	knot KnotInterface,
 	apiPort int,
 ) *Handlers {
 	router := mux.NewRouter()
 	handlers := &Handlers{
 		Router:  router,
-		wallet:  wallet,
+		knot:    knot,
 		apiPort: apiPort,
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		walletEvents: wallet.Start(),
+		knotEvents: knot.Start(),
+	}
+
+	getApiRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
+		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
+			return subrouter.HandleFunc(path, apiMiddleware(f))
+		}
+
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/xpub", apiMiddleware(handlers.getXPubHandler)).Methods("GET")
-	apiRouter.HandleFunc("/deviceState", apiMiddleware(handlers.getDeviceStateHandler)).Methods("GET")
-	apiRouter.HandleFunc("/reset-device", apiMiddleware(handlers.postResetDeviceHandler)).Methods("POST")
-	apiRouter.HandleFunc("/login", apiMiddleware(handlers.postLoginHandler)).Methods("POST")
-	apiRouter.HandleFunc("/set-password", apiMiddleware(handlers.postSetPasswordHandler)).Methods("POST")
-	apiRouter.HandleFunc("/create-wallet", apiMiddleware(handlers.postCreateWalletHandler)).Methods("POST")
+	apiHandleFunc := getApiRouter(apiRouter)
+	apiHandleFunc("/xpub", handlers.getXPubHandler).Methods("GET")
+	apiHandleFunc("/deviceState", handlers.getDeviceStateHandler).Methods("GET")
+	apiHandleFunc("/reset-device", handlers.postResetDeviceHandler).Methods("POST")
+	apiHandleFunc("/login", handlers.postLoginHandler).Methods("POST")
+	apiHandleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
+	apiHandleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 
-	apiRouter.HandleFunc("/backups/list", apiMiddleware(handlers.getBackupListHandler)).Methods("GET")
-	apiRouter.HandleFunc("/backups/erase", apiMiddleware(handlers.postBackupsEraseHandler)).Methods("POST")
-	apiRouter.HandleFunc("/backups/restore", apiMiddleware(handlers.postBackupsRestoreHandler)).Methods("POST")
-	apiRouter.HandleFunc("/backups/create", apiMiddleware(handlers.postBackupsCreateHandler)).Methods("POST")
-	apiRouter.HandleFunc("/wallet/btc/transactions", apiMiddleware(handlers.getWalletTransactions)).Methods("GET")
-	apiRouter.HandleFunc("/wallet/btc/balance", apiMiddleware(handlers.getWalletBalance)).Methods("GET")
-	apiRouter.HandleFunc("/wallet/btc/sendtx", apiMiddleware(handlers.postWalletSendTx)).Methods("POST")
-	apiRouter.HandleFunc("/wallet/btc/fee-targets", apiMiddleware(handlers.getWalletFeeTargets)).Methods("GET")
-	apiRouter.HandleFunc("/wallet/btc/tx-proposal", apiMiddleware(handlers.getWalletTxProposal)).Methods("POST")
-	apiRouter.HandleFunc("/wallet/btc/state", apiMiddleware(handlers.getWalletState)).Methods("GET")
+	apiHandleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
+	apiHandleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
+	apiHandleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
+	apiHandleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
+
+	walletHandlers_ := walletHandlers.NewHandlers(
+		getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
+	)
+	knot.OnWalletInit(func(wallet deterministicwallet.Interface) {
+		walletHandlers_.Init(wallet)
+	})
+
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
 	// Serve static files for the UI.
@@ -120,15 +119,15 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 }
 
 func (handlers *Handlers) getXPubHandler(r *http.Request) (interface{}, error) {
-	return handlers.wallet.XPub()
+	return handlers.knot.XPub()
 }
 
 func (handlers *Handlers) getDeviceStateHandler(r *http.Request) (interface{}, error) {
-	return handlers.wallet.DeviceState(), nil
+	return handlers.knot.DeviceState(), nil
 }
 
 func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, error) {
-	didReset, err := handlers.wallet.Reset()
+	didReset, err := handlers.knot.Reset()
 	if err != nil {
 		return nil, err
 	}
@@ -141,7 +140,7 @@ func (handlers *Handlers) postLoginHandler(r *http.Request) (interface{}, error)
 		return nil, errp.WithStack(err)
 	}
 	password := jsonBody["password"]
-	if err := handlers.wallet.Login(password); err != nil {
+	if err := handlers.knot.Login(password); err != nil {
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
@@ -153,7 +152,7 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 		return nil, errp.WithStack(err)
 	}
 	password := jsonBody["password"]
-	if err := handlers.wallet.SetPassword(password); err != nil {
+	if err := handlers.knot.SetPassword(password); err != nil {
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
@@ -165,14 +164,14 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 		return nil, errp.WithStack(err)
 	}
 	walletName := jsonBody["walletName"]
-	if err := handlers.wallet.CreateWallet(walletName); err != nil {
+	if err := handlers.knot.CreateWallet(walletName); err != nil {
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }
 
 func (handlers *Handlers) getBackupListHandler(r *http.Request) (interface{}, error) {
-	sdCardInserted, backupList, err := handlers.wallet.BackupList()
+	sdCardInserted, backupList, err := handlers.knot.BackupList()
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +187,7 @@ func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{},
 		return nil, errp.WithStack(err)
 	}
 	filename := jsonBody["filename"]
-	return nil, handlers.wallet.EraseBackup(filename)
+	return nil, handlers.knot.EraseBackup(filename)
 }
 
 func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{}, error) {
@@ -196,7 +195,7 @@ func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	didRestore, err := handlers.wallet.RestoreBackup(jsonBody["password"], jsonBody["filename"])
+	didRestore, err := handlers.knot.RestoreBackup(jsonBody["password"], jsonBody["filename"])
 	if err != nil {
 		return nil, err
 	}
@@ -208,136 +207,7 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return nil, handlers.wallet.CreateBackup(jsonBody["backupName"])
-}
-
-func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, error) {
-	result := []map[string]interface{}{}
-	txs, err := handlers.wallet.Transactions()
-	if err != nil {
-		return nil, err
-	}
-	for _, tx := range txs {
-		txType, txAmount, txFee, err := handlers.wallet.ClassifyTransaction(tx.TX)
-		var feeString = ""
-		if txFee != nil {
-			feeString = txFee.String()
-		}
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, map[string]interface{}{
-			"id":     tx.TX.TxHash().String(),
-			"height": tx.Height,
-			"type": map[transactions.TxType]string{
-				transactions.TxTypeReceive:  "receive",
-				transactions.TxTypeSend:     "send",
-				transactions.TxTypeSendSelf: "send_to_self",
-			}[txType],
-			"amount": txAmount.String(),
-			"fee":    feeString,
-		})
-	}
-	return result, nil
-}
-
-func (handlers *Handlers) getWalletBalance(r *http.Request) (interface{}, error) {
-	balance, err := handlers.wallet.Balance()
-	if err != nil {
-		return nil, err
-	}
-	return map[string]string{
-		"confirmed":   balance.Confirmed.Format(btcutil.AmountBTC),
-		"unconfirmed": balance.Unconfirmed.Format(btcutil.AmountBTC),
-	}, nil
-}
-
-type sendTxInput struct {
-	address       string
-	sendAmount    deterministicwallet.SendAmount
-	feeTargetCode deterministicwallet.FeeTargetCode
-}
-
-func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
-	jsonBody := map[string]string{}
-	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
-		return errp.WithStack(err)
-	}
-	input.address = jsonBody["address"]
-	var err error
-	input.feeTargetCode, err = deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
-	if err != nil {
-		return err
-	}
-	if jsonBody["sendAll"] == "yes" {
-		input.sendAmount = deterministicwallet.NewSendAmountAll()
-	} else {
-		amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
-		if err != nil {
-			return errp.WithStack(err)
-		}
-		btcAmount, err := btcutil.NewAmount(amount)
-		if err != nil {
-			return errp.WithStack(err)
-		}
-		input.sendAmount, err = deterministicwallet.NewSendAmount(btcAmount)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{}
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
-	if err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode); err != nil {
-		return nil, err
-	}
-	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{}
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	outputAmount, fee, err := handlers.wallet.TxProposal(
-		input.sendAmount,
-		input.feeTargetCode,
-	)
-	if err != nil {
-		return nil, err
-	}
-	return map[string]string{
-		"amount": outputAmount.String(),
-		"fee":    fee.String(),
-	}, nil
-}
-
-func (handlers *Handlers) getWalletState(r *http.Request) (interface{}, error) {
-	return handlers.wallet.WalletState(), nil
-}
-
-func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, error) {
-	feeTargets, defaultFeeTarget, err := handlers.wallet.FeeTargets()
-	if err != nil {
-		return nil, err
-	}
-	result := []map[string]interface{}{}
-	for _, feeTarget := range feeTargets {
-		result = append(result,
-			map[string]interface{}{
-				"code": feeTarget.Code,
-			})
-	}
-	return map[string]interface{}{
-		"feeTargets":       result,
-		"defaultFeeTarget": defaultFeeTarget,
-	}, nil
+	return nil, handlers.knot.CreateBackup(jsonBody["backupName"])
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
@@ -356,7 +226,7 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 				select {
 				case <-quitChan:
 					return
-				case event := <-handlers.walletEvents:
+				case event := <-handlers.knotEvents:
 					sendChan <- jsonp.MustMarshal(map[string]string{
 						"type": event.Type,
 						"data": event.Data,

@@ -2,13 +2,10 @@ package knot
 
 import (
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
 	"github.com/shiftdevices/godbb/electrum"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -18,6 +15,7 @@ type Knot struct {
 
 	device        *dbbdevice.DBBDevice
 	bitcoinWallet *deterministicwallet.DeterministicWallet
+	onWalletInit  func(deterministicwallet.Interface)
 }
 
 type Event struct {
@@ -29,6 +27,10 @@ func NewKnot() *Knot {
 	return &Knot{
 		events: make(chan Event),
 	}
+}
+
+func (knot *Knot) OnWalletInit(f func(deterministicwallet.Interface)) {
+	knot.onWalletInit = f
 }
 
 func (knot *Knot) XPub() (string, error) {
@@ -78,14 +80,8 @@ func (knot *Knot) initWallets() error {
 	}
 	knot.bitcoinWallet.EnsureAddresses()
 	knot.events <- Event{Type: "wallet", Data: "initialized"}
+	knot.onWalletInit(knot.bitcoinWallet)
 	return nil
-}
-
-func (knot *Knot) WalletState() string {
-	if knot.bitcoinWallet == nil {
-		return "uninitialized"
-	}
-	return "initialized"
 }
 
 func (knot *Knot) Login(password string) error {
@@ -94,30 +90,6 @@ func (knot *Knot) Login(password string) error {
 	}
 	return knot.initWallets()
 }
-
-func (knot *Knot) Transactions() ([]*transactions.Transaction, error) {
-	if knot.bitcoinWallet == nil {
-		return nil, errp.New("wallet not yet initialized")
-	}
-	return knot.bitcoinWallet.Transactions(), nil
-}
-
-func (knot *Knot) ClassifyTransaction(tx *wire.MsgTx) (
-	transactions.TxType, btcutil.Amount, *btcutil.Amount, error) {
-	if knot.bitcoinWallet == nil {
-		return "", 0, nil, errp.New("wallet not yet initialized")
-	}
-	txType, amount, fee := knot.bitcoinWallet.ClassifyTransaction(tx)
-	return txType, amount, fee, nil
-}
-
-func (knot *Knot) Balance() (*transactions.Balance, error) {
-	if knot.bitcoinWallet == nil {
-		return nil, errp.New("wallet not yet initialized")
-	}
-	return knot.bitcoinWallet.Balance(), nil
-}
-
 func (knot *Knot) SendTx(
 	address string,
 	amount deterministicwallet.SendAmount,
@@ -126,24 +98,6 @@ func (knot *Knot) SendTx(
 		return errp.New("wallet not yet initialized")
 	}
 	return knot.bitcoinWallet.SendTx(address, amount, feeTargetCode)
-}
-
-func (knot *Knot) TxProposal(
-	amount deterministicwallet.SendAmount, feeTargetCode deterministicwallet.FeeTargetCode) (
-	btcutil.Amount, btcutil.Amount, error) {
-	if knot.bitcoinWallet == nil {
-		return 0, 0, errp.New("wallet not yet initialized")
-	}
-	return knot.bitcoinWallet.TxProposal(amount, feeTargetCode)
-}
-
-func (knot *Knot) FeeTargets() (
-	[]*deterministicwallet.FeeTarget, deterministicwallet.FeeTargetCode, error) {
-	if knot.bitcoinWallet == nil {
-		return nil, "", errp.New("wallet not yet initialized")
-	}
-	feeTargets, defaultFeeTarget := knot.bitcoinWallet.FeeTargets()
-	return feeTargets, defaultFeeTarget, nil
 }
 
 func (knot *Knot) SetPassword(password string) error {
@@ -197,6 +151,7 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 func (knot *Knot) unregister(deviceID string) {
 	if deviceID == knot.device.DeviceID() {
 		knot.device = nil
+		knot.bitcoinWallet = nil
 		knot.events <- Event{Type: "deviceState", Data: knot.DeviceState()}
 	}
 }
