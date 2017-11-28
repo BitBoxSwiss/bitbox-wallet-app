@@ -7,7 +7,6 @@ import (
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
 	"github.com/shiftdevices/godbb/electrum"
-	"github.com/shiftdevices/godbb/util/errp"
 )
 
 type Knot struct {
@@ -89,15 +88,6 @@ func (knot *Knot) Login(password string) error {
 		return err
 	}
 	return knot.initWallets()
-}
-func (knot *Knot) SendTx(
-	address string,
-	amount deterministicwallet.SendAmount,
-	feeTargetCode deterministicwallet.FeeTargetCode) error {
-	if knot.bitcoinWallet == nil {
-		return errp.New("wallet not yet initialized")
-	}
-	return knot.bitcoinWallet.SendTx(address, amount, feeTargetCode)
 }
 
 func (knot *Knot) SetPassword(password string) error {
