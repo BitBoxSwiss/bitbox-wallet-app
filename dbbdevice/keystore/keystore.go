@@ -5,6 +5,8 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/dbbdevice"
+	"github.com/shiftdevices/godbb/deterministicwallet"
+	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // DBBKeyStore represents a HD account (for example m/44'/0'/0'), providing the account's xpub and a
@@ -35,11 +37,13 @@ func NewDBBKeyStore(
 }
 
 // XPub returns the xpub of the account.
+// Implements deterministicwallet
 func (keystore *DBBKeyStore) XPub() *hdkeychain.ExtendedKey {
 	return keystore.xpub
 }
 
 // Sign wraps DBBDevice.Sign for signing with keys from the HD account.
+// Implements deterministicwallet.HDKeyStoreInterface.
 func (keystore *DBBKeyStore) Sign(
 	signatureHashes [][]byte,
 	relativeKeyPaths []string,
@@ -48,5 +52,12 @@ func (keystore *DBBKeyStore) Sign(
 	for i, path := range relativeKeyPaths {
 		keyPaths[i] = keystore.keyPath + "/" + path
 	}
-	return keystore.device.Sign(signatureHashes, keyPaths)
+	signatures, err := keystore.device.Sign(signatureHashes, keyPaths)
+	if err != nil {
+		if dbbdevice.IsErrorAbort(err) {
+			return nil, errp.WithStack(deterministicwallet.ErrUserAborted)
+		}
+		return nil, err
+	}
+	return signatures, nil
 }

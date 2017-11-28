@@ -8,4 +8,5 @@ var (
 	New       = errors.New
 	Newf      = errors.Errorf
 	WithStack = errors.WithStack
+	Cause     = errors.Cause
 )

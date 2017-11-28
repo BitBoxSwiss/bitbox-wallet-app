@@ -158,12 +158,12 @@ class SendButton extends Component {
                       helptext="Please enter the address of the recipient"
                       helptextPersistent={true}
                       onInput={this.handleFormChange}
+                      onChange={this.validateAndDisplayFee}
                       value={recipientAddress}
                       />
                   </p>
                   <p>
                     <Textfield
-                      autoFocus
                       id="amount"
                       label={ sendAll ? "" : "Amount BTC" }
                       helptext="Please enter the BTC amount to send"

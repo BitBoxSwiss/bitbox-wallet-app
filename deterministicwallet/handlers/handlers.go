@@ -113,7 +113,11 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 		return nil, errp.WithStack(err)
 	}
 
-	if err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode); err != nil {
+	err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode)
+	if errp.Cause(err) == deterministicwallet.ErrUserAborted {
+		return map[string]interface{}{"success": false}, nil
+	}
+	if err != nil {
 		return nil, err
 	}
 	return map[string]interface{}{"success": true}, nil

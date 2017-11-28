@@ -1,6 +1,7 @@
 package deterministicwallet
 
 import (
+	"errors"
 	"log"
 	"math/rand"
 	"sync"
@@ -44,13 +45,13 @@ type Interface interface {
 	GetUnusedReceiveAddress() btcutil.Address
 }
 
-type SignInterface interface {
-	Sign([][]byte, []string) ([]btcec.Signature, error)
-}
+var ErrUserAborted = errors.New("aborted")
 
 type HDKeyStoreInterface interface {
 	XPub() *hdkeychain.ExtendedKey
-	SignInterface
+	// Sign signs every hash with a private key at the corresponding keypath.
+	// If the user aborts the signing process, ErrUserAborted is returned.
+	Sign(hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 }
 
 type FeeTargetCode string

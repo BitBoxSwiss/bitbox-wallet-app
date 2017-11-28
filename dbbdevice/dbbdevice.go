@@ -292,11 +292,16 @@ func (dbb *DBBDevice) CreateWallet(walletName string) error {
 	return nil
 }
 
+func IsErrorAbort(err error) bool {
+	dbbErr, ok := err.(*communication.DBBErr)
+	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
+}
+
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
 // by the user.
 func (dbb *DBBDevice) RestoreBackup(backupPassword, filename string) (bool, error) {
 	err := dbb.seed(dbb.password, backupPassword, "backup", filename)
-	if dbbErr, ok := err.(*communication.DBBErr); ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout) {
+	if IsErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {

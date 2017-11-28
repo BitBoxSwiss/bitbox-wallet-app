@@ -10,7 +10,7 @@ import (
 
 // SignTransaction signs all inputs. It assumes all outputs spent belong to this wallet.
 func SignTransaction(
-	sign SignInterface,
+	sign HDKeyStoreInterface,
 	transaction *wire.MsgTx,
 	previousOutputs []*transactions.TxOut,
 ) error {
