@@ -11,6 +11,10 @@ function extConfig(key, defaultValue) {
 
 const apiPort = extConfig('{{ API_PORT }}', '8082');
 
+export function apiURL(endpoint) {
+    return "http://localhost:" + apiPort + "/api/" + endpoint;
+}
+
 export function apiWebsocket(msgCallback) {
     const socket = new WebSocket('ws://localhost:' + apiPort + '/api/events');
     socket.onopen = function(event) {
@@ -41,7 +45,7 @@ function handleError(json) {
 }
 
 export function apiGet(endpoint) {
-    return fetch("http://localhost:" + apiPort + "/api/" + endpoint).
+    return fetch(apiURL(endpoint)).
         then(r => r.json()).then(handleError);
 }
 

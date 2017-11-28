@@ -16,6 +16,7 @@ import (
 	"github.com/shiftdevices/godbb/knot/binweb"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	qrcode "github.com/skip2/go-qrcode"
 )
 
 type KnotInterface interface {
@@ -69,6 +70,7 @@ func NewHandlers(
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiHandleFunc := getApiRouter(apiRouter)
+	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 	apiHandleFunc("/xpub", handlers.getXPubHandler).Methods("GET")
 	apiHandleFunc("/deviceState", handlers.getDeviceStateHandler).Methods("GET")
 	apiHandleFunc("/reset-device", handlers.postResetDeviceHandler).Methods("POST")
@@ -116,6 +118,17 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)
 	}
+}
+
+func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
+	data := r.URL.Query().Get("data")
+	qr, err := qrcode.New(data, qrcode.Medium)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "image/png")
+	qr.Write(256, w)
 }
 
 func (handlers *Handlers) getXPubHandler(r *http.Request) (interface{}, error) {

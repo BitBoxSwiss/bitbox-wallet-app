@@ -70,6 +70,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/skip2/go-qrcode"
+  packages = [".","bitset","reedsolomon"]
+  revision = "695fc75a09738f9be56aaa3aecfd7dac28e66b63"
+
+[[projects]]
+  branch = "master"
   name = "github.com/skratchdot/open-golang"
   packages = ["open"]
   revision = "75fb7ed4208cf72d323d7d02fd1a5964a7a9073c"
@@ -101,6 +107,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d9beafb883fe47d3adfa211a1209814000694fc7bbaf4c33c91e45cc75c1524d"
+  inputs-digest = "21eeb1d2e6122d24e60a7ee5a62e12eccc7cdaf1fa0939180d90fedee1b8486d"
   solver-name = "gps-cdcl"
   solver-version = 1

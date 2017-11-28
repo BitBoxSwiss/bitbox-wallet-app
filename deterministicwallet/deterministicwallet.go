@@ -41,6 +41,7 @@ type Interface interface {
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(SendAmount, FeeTargetCode) (
 		btcutil.Amount, btcutil.Amount, error)
+	GetUnusedReceiveAddress() btcutil.Address
 }
 
 type SignInterface interface {
@@ -263,4 +264,8 @@ func (wallet *DeterministicWallet) Transactions() []*transactions.Transaction {
 func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
 	transactions.TxType, btcutil.Amount, *btcutil.Amount) {
 	return wallet.transactions.ClassifyTransaction(tx)
+}
+
+func (wallet *DeterministicWallet) GetUnusedReceiveAddress() btcutil.Address {
+	return wallet.receiveAddresses.GetUnused().Address
 }

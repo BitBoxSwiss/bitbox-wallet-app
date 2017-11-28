@@ -23,7 +23,7 @@ import WaitDialog from '../../components/wait-dialog';
 import List from 'preact-material-components/List';
 import 'preact-material-components/List/style.css';
 
-import { apiGet, apiPost } from '../../util';
+import { apiURL, apiGet, apiPost } from '../../util';
 
 class FeeTargets extends Component {
     constructor(props) {
@@ -143,7 +143,7 @@ class SendButton extends Component {
             return <span> Fee: { proposedFee }</span>;
         };
         return (
-            <div>
+            <span>
               <Button primary={true} raised={true} onClick={()=>{
                     this.dialog.MDComponent.show();
                 }}>Send</Button>
@@ -199,10 +199,54 @@ class SendButton extends Component {
                   <p>Long touch = confirm</p>
                 </WaitDialog.Body>
               </WaitDialog>
-            </div>
+            </span>
         );
     }
 }
+
+function QRCode({ data }) {
+    return (
+        <img
+          width={256}
+          src={apiURL("qr?data=" + encodeURIComponent(data))}
+          />
+    );
+}
+
+class ReceiveButton extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render({ receiveAddress }) {
+        return (
+            <span>
+              <Button primary={true} raised={true} onClick={()=>{
+                    this.dialog.MDComponent.show();
+                }}>Receive</Button>
+              <Dialog ref={dialog=>{this.dialog=dialog;}} onAccept={this.send}>
+                <Dialog.Header>Receive</Dialog.Header>
+                <Dialog.Body>
+                  <center>
+                    <Textfield
+                      size="34"
+                      autoFocus
+                      readonly={true}
+                      onInput={this.handleFormChange}
+                      onFocus={event => event.target.select() }
+                      value={receiveAddress}
+                      />
+                      <p><QRCode data={receiveAddress}/></p>
+                  </center>
+                </Dialog.Body>
+                <Dialog.Footer>
+                  <Dialog.FooterButton cancel={true}>Close</Dialog.FooterButton>
+                </Dialog.Footer>
+              </Dialog>
+            </span>
+        );
+    }
+};
 
 export default class Wallet extends Component {
     constructor(props) {
@@ -213,7 +257,8 @@ export default class Wallet extends Component {
             balance: {
                 confirmed: "",
                 unconfirmed: ""
-            }
+            },
+            receiveAddress: null
         };
     }
 
@@ -241,10 +286,13 @@ export default class Wallet extends Component {
             apiGet("wallet/btc/balance").then(balance => {
                 this.setState({ balance: balance });
             });
+            apiGet("wallet/btc/receive-address").then(address => {
+                this.setState({ receiveAddress: address });
+            });
         }
     }
 
-    render({}, { walletInitialized, transactions, balance }) {
+    render({}, { walletInitialized, transactions, balance, receiveAddress }) {
         const renderTransactions = transactions => {
             if(!walletInitialized) {
                 return (
@@ -270,7 +318,11 @@ export default class Wallet extends Component {
         return (
             <div>
               <h1>Wallet</h1>
-              <p><SendButton walletInitialized={walletInitialized}/></p>
+              <p>
+                <SendButton walletInitialized={walletInitialized}/>
+                &nbsp;
+                <ReceiveButton receiveAddress={receiveAddress}/>
+              </p>
               <h2>Amount</h2>
               { balance.confirmed } { balance.unconfirmed && <span>({balance.unconfirmed})</span> }
               <h2>Transactions</h2>

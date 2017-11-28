@@ -70,7 +70,6 @@ export default class App extends Component {
                     this.setState({ walletInitialized: true });
                 }
             case "sync":
-                console.log(data.data);
                 if(data.data == "done") {
                     if(this.onWalletChanged) {
                         this.onWalletChanged();

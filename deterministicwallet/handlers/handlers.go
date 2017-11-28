@@ -27,6 +27,7 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.getWalletFeeTargets).Methods("GET")
 	handleFunc("/tx-proposal", handlers.getWalletTxProposal).Methods("POST")
 	handleFunc("/state", handlers.getWalletState).Methods("GET")
+	handleFunc("/receive-address", handlers.getReceiveAddress).Methods("GET")
 	return handlers
 }
 
@@ -152,4 +153,8 @@ func (handlers *Handlers) getWalletState(r *http.Request) (interface{}, error) {
 		return "uninitialized", nil
 	}
 	return "initialized", nil
+}
+
+func (handlers *Handlers) getReceiveAddress(r *http.Request) (interface{}, error) {
+	return handlers.wallet.GetUnusedReceiveAddress().EncodeAddress(), nil
 }
