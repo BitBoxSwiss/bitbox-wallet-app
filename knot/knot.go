@@ -12,9 +12,10 @@ import (
 type Knot struct {
 	events chan Event
 
-	device        *dbbdevice.DBBDevice
-	bitcoinWallet *deterministicwallet.DeterministicWallet
-	onWalletInit  func(deterministicwallet.Interface)
+	device         *dbbdevice.DBBDevice
+	bitcoinWallet  *deterministicwallet.DeterministicWallet
+	onWalletInit   func(deterministicwallet.Interface)
+	onWalletUninit func()
 }
 
 type Event struct {
@@ -30,6 +31,10 @@ func NewKnot() *Knot {
 
 func (knot *Knot) OnWalletInit(f func(deterministicwallet.Interface)) {
 	knot.onWalletInit = f
+}
+
+func (knot *Knot) OnWalletUninit(f func()) {
+	knot.onWalletUninit = f
 }
 
 func (knot *Knot) XPub() (string, error) {
@@ -81,6 +86,12 @@ func (knot *Knot) initWallets() error {
 	knot.events <- Event{Type: "wallet", Data: "initialized"}
 	knot.onWalletInit(knot.bitcoinWallet)
 	return nil
+}
+
+func (knot *Knot) uninitWallets() {
+	knot.bitcoinWallet = nil
+	knot.events <- Event{Type: "wallet", Data: "uninitialized"}
+	knot.onWalletUninit()
 }
 
 func (knot *Knot) Login(password string) error {
@@ -141,7 +152,7 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 func (knot *Knot) unregister(deviceID string) {
 	if deviceID == knot.device.DeviceID() {
 		knot.device = nil
-		knot.bitcoinWallet = nil
+		knot.uninitWallets()
 		knot.events <- Event{Type: "deviceState", Data: knot.DeviceState()}
 	}
 }

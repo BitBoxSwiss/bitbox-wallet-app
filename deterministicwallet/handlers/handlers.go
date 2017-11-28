@@ -35,6 +35,10 @@ func (handlers *Handlers) Init(wallet deterministicwallet.Interface) {
 	handlers.wallet = wallet
 }
 
+func (handlers *Handlers) Uninit() {
+	handlers.wallet = nil
+}
+
 func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
 	txs := handlers.wallet.Transactions()

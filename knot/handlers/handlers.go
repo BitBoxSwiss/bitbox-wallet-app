@@ -24,6 +24,7 @@ type KnotInterface interface {
 	DeviceState() string
 	Reset() (bool, error)
 	OnWalletInit(f func(deterministicwallet.Interface))
+	OnWalletUninit(f func())
 	Login(string) error
 	SetPassword(string) error
 	CreateWallet(string) error
@@ -88,6 +89,9 @@ func NewHandlers(
 	)
 	knot.OnWalletInit(func(wallet deterministicwallet.Interface) {
 		walletHandlers_.Init(wallet)
+	})
+	knot.OnWalletUninit(func() {
+		walletHandlers_.Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)

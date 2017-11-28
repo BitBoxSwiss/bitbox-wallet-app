@@ -68,6 +68,8 @@ export default class App extends Component {
             case "wallet":
                 if(data.data == "initialized") {
                     this.setState({ walletInitialized: true });
+                } else if(data.data == "uninitialized") {
+                    this.setState({ walletInitialized: false });
                 }
             case "sync":
                 if(data.data == "done") {
