@@ -35,7 +35,7 @@ export default class ManageBackups extends Component {
     }
 
     refresh = () => {
-        apiGet("backups/list").then(({ sdCardInserted, backupList }) => {
+        apiGet("device/backups/list").then(({ sdCardInserted, backupList }) => {
             this.setState({
                 selectedBackup: null,
                 sdCardInserted: sdCardInserted,
@@ -93,7 +93,7 @@ class EraseButton extends Component {
         if(!filename) {
             return;
         }
-        apiPost("backups/erase", { filename: filename }).then(() => {
+        apiPost("device/backups/erase", { filename: filename }).then(() => {
             this.props.onErase();
         });
     }
@@ -148,7 +148,7 @@ class CreateButton extends Component {
             return;
         }
         this.setState({ waiting: true });
-        apiPost("backups/create", { backupName: this.state.backupName }).then(() => {
+        apiPost("device/backups/create", { backupName: this.state.backupName }).then(() => {
             this.props.onCreate();
         }).catch(() => {}).then(() => {
             this.setState({
@@ -223,7 +223,7 @@ class RestoreButton extends Component {
         }
         this.confirmDialog.MDComponent.close();
         this.waitDialog.MDComponent.show();
-        apiPost("backups/restore", {
+        apiPost("device/backups/restore", {
             password: this.state.password,
             filename: this.props.selectedBackup
         }).catch(() => {}).then(() => {

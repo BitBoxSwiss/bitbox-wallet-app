@@ -268,8 +268,8 @@ export default class Wallet extends Component {
 
     componentDidMount() {
         this.props.registerOnWalletChanged(this.onWalletChanged);
-        apiGet("wallet/btc/state").then(state => {
-            this.setState({ walletInitialized: state == "initialized" });
+        apiGet("wallet/btc/status").then(status => {
+            this.setState({ walletInitialized: status == "initialized" });
             this.onWalletChanged();
         });
     }

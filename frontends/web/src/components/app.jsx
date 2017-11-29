@@ -14,7 +14,7 @@ import style from './style';
 
 import { apiGet, apiWebsocket } from '../util';
 
-const DeviceState = Object.freeze({
+const DeviceStatus = Object.freeze({
     UNREGISTERED: "unregistered",
     INITIALIZED: "initialized",
     UNINITIALIZED: "uninitialized",
@@ -48,7 +48,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            deviceState: DeviceState.UNREGISTERED,
+            deviceStatus: DeviceStatus.UNREGISTERED,
             walletInitialized: false
         };
     }
@@ -62,7 +62,7 @@ export default class App extends Component {
     };
 
     componentDidMount() {
-        apiGet("deviceState").then(this.handleDeviceStateChange);
+        apiGet("device/status").then(this.handleDeviceStatusChange);
         apiWebsocket(data => {
             switch(data.type) {
             case "wallet":
@@ -78,32 +78,32 @@ export default class App extends Component {
                     }
                 }
                 break;
-            case "deviceState":
-                this.handleDeviceStateChange(data.data);
+            case "deviceStatus":
+                this.handleDeviceStatusChange(data.data);
                 break;
             }
         });
     }
 
-    handleDeviceStateChange = deviceState => {
-        this.setState({deviceState: deviceState});
+    handleDeviceStatusChange = deviceStatus => {
+        this.setState({deviceStatus: deviceStatus});
     }
 
-    render({}, { walletInitialized, deviceState }) {
-        switch(deviceState) {
-        case DeviceState.UNREGISTERED:
+    render({}, { walletInitialized, deviceStatus }) {
+        switch(deviceStatus) {
+        case DeviceStatus.UNREGISTERED:
             return (
                 <Dialog>
                   Waiting for device...
                 </Dialog>
             );
-        case DeviceState.INITIALIZED:
+        case DeviceStatus.INITIALIZED:
             return <Login/>;
-        case DeviceState.UNINITIALIZED:
+        case DeviceStatus.UNINITIALIZED:
             return <Initialize/>;
-        case DeviceState.LOGGED_IN:
+        case DeviceStatus.LOGGED_IN:
             return <Seed/>;
-        case DeviceState.SEEDED:
+        case DeviceStatus.SEEDED:
             return <Seeded
             registerOnWalletChanged={onWalletChanged => {this.onWalletChanged = onWalletChanged;}}
             walletInitialized={walletInitialized}

@@ -3,7 +3,6 @@ package knot
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/shiftdevices/godbb/dbbdevice"
-	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
 	"github.com/shiftdevices/godbb/electrum"
@@ -16,6 +15,8 @@ type Knot struct {
 	bitcoinWallet  *deterministicwallet.DeterministicWallet
 	onWalletInit   func(deterministicwallet.Interface)
 	onWalletUninit func()
+	onDeviceInit   func(dbbdevice.Interface)
+	onDeviceUninit func()
 }
 
 type Event struct {
@@ -37,6 +38,9 @@ func (knot *Knot) OnWalletUninit(f func()) {
 	knot.onWalletUninit = f
 }
 
+func (knot *Knot) OnDeviceInit(f func(dbbdevice.Interface)) {
+	knot.onDeviceInit = f
+}
 func (knot *Knot) XPub() (string, error) {
 	xpub, err := knot.device.XPub("m/")
 	if err != nil {
@@ -45,20 +49,13 @@ func (knot *Knot) XPub() (string, error) {
 	return xpub.String(), nil
 }
 
+func (knot *Knot) OnDeviceUninit(f func()) {
+	knot.onDeviceUninit = f
+}
+
 func (knot *Knot) Start() <-chan Event {
 	go knot.listenHID()
 	return knot.events
-}
-
-func (knot *Knot) DeviceState() string {
-	if knot.device == nil {
-		return "unregistered"
-	}
-	return knot.device.Status()
-}
-
-func (knot *Knot) Reset() (bool, error) {
-	return knot.device.Reset()
 }
 
 func (knot *Knot) initWallets() error {
@@ -97,56 +94,19 @@ func (knot *Knot) uninitWallets() {
 	knot.onWalletUninit()
 }
 
-func (knot *Knot) Login(password string) error {
-	if err := knot.device.Login(password); err != nil {
-		return err
-	}
-	return knot.initWallets()
-}
-
-func (knot *Knot) SetPassword(password string) error {
-	return knot.device.SetPassword(password)
-}
-
-func (knot *Knot) CreateWallet(walletName string) error {
-	return knot.device.CreateWallet(walletName)
-}
-
-func (knot *Knot) RestoreBackup(password, filename string) (bool, error) {
-	return knot.device.RestoreBackup(password, filename)
-}
-
-func (knot *Knot) CreateBackup(backupName string) error {
-	return knot.device.CreateBackup(backupName)
-}
-
-// BackupList returns a list of backup filenames. It also returns whether or not the SD card was
-// inserted.
-func (knot *Knot) BackupList() (bool, []string, error) {
-	backupList, err := knot.device.BackupList()
-	if dbbErr, ok := err.(*communication.DBBErr); ok && dbbErr.Code == dbbdevice.ErrSDCard {
-		return false, nil, nil
-	}
-	if err != nil {
-		return false, nil, err
-	}
-	return true, backupList, nil
-}
-
-func (knot *Knot) EraseBackup(filename string) error {
-	return knot.device.EraseBackup(filename)
-}
-
 func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 	knot.device = device
+	knot.onDeviceInit(device)
 	knot.device.SetOnEvent(func(event string) {
 		switch event {
+		case "login":
+			knot.initWallets()
 		case "statusChanged":
-			knot.events <- Event{Type: "deviceState", Data: knot.DeviceState()}
+			knot.events <- Event{Type: "deviceStatus", Data: knot.device.Status()}
 		}
 	})
 	select {
-	case knot.events <- Event{Type: "deviceState", Data: knot.DeviceState()}:
+	case knot.events <- Event{Type: "deviceStatus", Data: knot.device.Status()}:
 	default:
 	}
 	return nil
@@ -155,8 +115,9 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 func (knot *Knot) unregister(deviceID string) {
 	if deviceID == knot.device.DeviceID() {
 		knot.device = nil
+		knot.onDeviceUninit()
 		knot.uninitWallets()
-		knot.events <- Event{Type: "deviceState", Data: knot.DeviceState()}
+		knot.events <- Event{Type: "deviceStatus", Data: "unregistered"}
 	}
 }
 

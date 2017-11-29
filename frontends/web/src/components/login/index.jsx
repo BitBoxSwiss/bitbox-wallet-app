@@ -45,7 +45,7 @@ export default class Login extends Component {
         this.setState({
             state: this.stateEnum.WAITING
         });
-        apiPost("login", { password: this.state.password }).then(data => {
+        apiPost("device/login", { password: this.state.password }).then(data => {
             if(!data.success) {
                 this.setState({ state: this.stateEnum.ERROR, error: data.errorMessage });
             }

@@ -10,28 +10,22 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/shiftdevices/godbb/dbbdevice"
+	deviceHandlers "github.com/shiftdevices/godbb/dbbdevice/handlers"
 	"github.com/shiftdevices/godbb/deterministicwallet"
 	walletHandlers "github.com/shiftdevices/godbb/deterministicwallet/handlers"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )
 
 type KnotInterface interface {
 	XPub() (string, error)
-	DeviceState() string
-	Reset() (bool, error)
 	OnWalletInit(f func(deterministicwallet.Interface))
 	OnWalletUninit(f func())
-	Login(string) error
-	SetPassword(string) error
-	CreateWallet(string) error
-	BackupList() (bool, []string, error)
-	EraseBackup(string) error
-	RestoreBackup(string, string) (bool, error)
-	CreateBackup(string) error
+	OnDeviceInit(f func(dbbdevice.Interface))
+	OnDeviceUninit(f func())
 	Start() <-chan knot.Event
 }
 
@@ -73,16 +67,6 @@ func NewHandlers(
 	apiHandleFunc := getApiRouter(apiRouter)
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 	apiHandleFunc("/xpub", handlers.getXPubHandler).Methods("GET")
-	apiHandleFunc("/deviceState", handlers.getDeviceStateHandler).Methods("GET")
-	apiHandleFunc("/reset-device", handlers.postResetDeviceHandler).Methods("POST")
-	apiHandleFunc("/login", handlers.postLoginHandler).Methods("POST")
-	apiHandleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
-	apiHandleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
-
-	apiHandleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
-	apiHandleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
-	apiHandleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
-	apiHandleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
 
 	walletHandlers_ := walletHandlers.NewHandlers(
 		getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
@@ -92,6 +76,16 @@ func NewHandlers(
 	})
 	knot.OnWalletUninit(func() {
 		walletHandlers_.Uninit()
+	})
+
+	deviceHandlers_ := deviceHandlers.NewHandlers(
+		getApiRouter(apiRouter.PathPrefix("/device").Subrouter()),
+	)
+	knot.OnDeviceInit(func(device dbbdevice.Interface) {
+		deviceHandlers_.Init(device)
+	})
+	knot.OnDeviceUninit(func() {
+		deviceHandlers_.Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
@@ -137,94 +131,6 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 
 func (handlers *Handlers) getXPubHandler(r *http.Request) (interface{}, error) {
 	return handlers.knot.XPub()
-}
-
-func (handlers *Handlers) getDeviceStateHandler(r *http.Request) (interface{}, error) {
-	return handlers.knot.DeviceState(), nil
-}
-
-func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, error) {
-	didReset, err := handlers.knot.Reset()
-	if err != nil {
-		return nil, err
-	}
-	return map[string]interface{}{"didReset": didReset}, nil
-}
-
-func (handlers *Handlers) postLoginHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	password := jsonBody["password"]
-	if err := handlers.knot.Login(password); err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
-	}
-	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	password := jsonBody["password"]
-	if err := handlers.knot.SetPassword(password); err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
-	}
-	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	walletName := jsonBody["walletName"]
-	if err := handlers.knot.CreateWallet(walletName); err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
-	}
-	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) getBackupListHandler(r *http.Request) (interface{}, error) {
-	sdCardInserted, backupList, err := handlers.knot.BackupList()
-	if err != nil {
-		return nil, err
-	}
-	return map[string]interface{}{
-		"sdCardInserted": sdCardInserted,
-		"backupList":     backupList,
-	}, nil
-}
-
-func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	filename := jsonBody["filename"]
-	return nil, handlers.knot.EraseBackup(filename)
-}
-
-func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	didRestore, err := handlers.knot.RestoreBackup(jsonBody["password"], jsonBody["filename"])
-	if err != nil {
-		return nil, err
-	}
-	return map[string]interface{}{"didRestore": didRestore}, nil
-}
-
-func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	return nil, handlers.knot.CreateBackup(jsonBody["backupName"])
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {

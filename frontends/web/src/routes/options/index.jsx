@@ -16,7 +16,7 @@ import { apiPost } from '../../util';
 class ResetButton extends Component {
     resetDevice = () => {
         this.waitDialog.MDComponent.show();
-        apiPost("reset-device").then(() => { this.waitDialog.MDComponent.close(); });
+        apiPost("device/reset").then(() => { this.waitDialog.MDComponent.close(); });
     };
 
     render() {

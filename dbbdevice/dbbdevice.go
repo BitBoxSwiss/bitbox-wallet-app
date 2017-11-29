@@ -40,6 +40,18 @@ type CommunicationInterface interface {
 	Close()
 }
 
+type Interface interface {
+	Status() string
+	SetPassword(string) error
+	CreateWallet(string) error
+	Login(string) error
+	Reset() (bool, error)
+	EraseBackup(string) error
+	RestoreBackup(string, string) (bool, error)
+	CreateBackup(string) error
+	BackupList() ([]string, error)
+}
+
 // DBBDevice provides the API to communicate with the digital bitbox.
 type DBBDevice struct {
 	deviceID      string
@@ -107,7 +119,7 @@ func (dbb *DBBDevice) onStatusChanged() {
 	}
 }
 
-// Status returns the device status. See (TODO: use proper types for the status)
+// Status returns the device state. See (TODO: use proper types for the state)
 func (dbb *DBBDevice) Status() string {
 	if dbb.seeded {
 		return "seeded"
@@ -230,6 +242,9 @@ func (dbb *DBBDevice) Login(password string) error {
 	dbb.password = password
 	dbb.seeded = deviceInfo.Seeded
 	dbb.onStatusChanged()
+	if dbb.onEvent != nil {
+		dbb.onEvent("login")
+	}
 	return nil
 }
 
@@ -295,6 +310,11 @@ func (dbb *DBBDevice) CreateWallet(walletName string) error {
 func IsErrorAbort(err error) bool {
 	dbbErr, ok := err.(*communication.DBBErr)
 	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
+}
+
+func IsErrorSDCard(err error) bool {
+	dbbErr, ok := err.(*communication.DBBErr)
+	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrSDCard)
 }
 
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
