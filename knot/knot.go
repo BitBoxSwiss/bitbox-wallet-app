@@ -41,13 +41,6 @@ func (knot *Knot) OnWalletUninit(f func()) {
 func (knot *Knot) OnDeviceInit(f func(dbbdevice.Interface)) {
 	knot.onDeviceInit = f
 }
-func (knot *Knot) XPub() (string, error) {
-	xpub, err := knot.device.XPub("m/")
-	if err != nil {
-		return "", err
-	}
-	return xpub.String(), nil
-}
 
 func (knot *Knot) OnDeviceUninit(f func()) {
 	knot.onDeviceUninit = f

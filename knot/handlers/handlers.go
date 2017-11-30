@@ -21,7 +21,6 @@ import (
 )
 
 type KnotInterface interface {
-	XPub() (string, error)
 	OnWalletInit(f func(deterministicwallet.Interface))
 	OnWalletUninit(f func())
 	OnDeviceInit(f func(dbbdevice.Interface))
@@ -64,9 +63,7 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiHandleFunc := getApiRouter(apiRouter)
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
-	apiHandleFunc("/xpub", handlers.getXPubHandler).Methods("GET")
 
 	walletHandlers_ := walletHandlers.NewHandlers(
 		getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
@@ -127,10 +124,6 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "image/png")
 	qr.Write(256, w)
-}
-
-func (handlers *Handlers) getXPubHandler(r *http.Request) (interface{}, error) {
-	return handlers.knot.XPub()
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
