@@ -67,7 +67,7 @@ func (wallet *DeterministicWallet) newTx(
 	if err != nil {
 		return 0, nil, nil, err
 	}
-	return amount.amount, transaction, selectedOutPoints, err
+	return amount.amount, transaction, selectedOutPoints, nil
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.

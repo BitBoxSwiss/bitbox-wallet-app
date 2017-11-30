@@ -3,11 +3,23 @@ package maketx
 import (
 	"errors"
 	"math/rand"
+	"sort"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/util/errp"
 )
+
+type byValue struct {
+	outPoints []wire.OutPoint
+	outputs   map[wire.OutPoint]*wire.TxOut
+}
+
+func (p *byValue) Len() int { return len(p.outPoints) }
+func (p *byValue) Less(i, j int) bool {
+	return p.outputs[p.outPoints[i]].Value < p.outputs[p.outPoints[j]].Value
+}
+func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[j], p.outPoints[i] }
 
 func coinSelection(
 	minAmount btcutil.Amount,
@@ -17,7 +29,7 @@ func coinSelection(
 	for outPoint := range outputs {
 		outPoints = append(outPoints, outPoint)
 	}
-	//sort.Sort(sort.Reverse(byAmount(outPoints)))
+	sort.Sort(sort.Reverse(&byValue{outPoints, outputs}))
 	selectedOutPoints := []wire.OutPoint{}
 	outputsSum := btcutil.Amount(0)
 
