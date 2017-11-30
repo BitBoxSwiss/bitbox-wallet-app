@@ -12,7 +12,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/dbbdevice"
 	deviceHandlers "github.com/shiftdevices/godbb/dbbdevice/handlers"
-	"github.com/shiftdevices/godbb/deterministicwallet"
 	walletHandlers "github.com/shiftdevices/godbb/deterministicwallet/handlers"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"
@@ -21,11 +20,11 @@ import (
 )
 
 type KnotInterface interface {
-	OnWalletInit(f func(deterministicwallet.Interface))
-	OnWalletUninit(f func())
+	OnWalletInit(f func(*knot.Wallet))
+	OnWalletUninit(f func(*knot.Wallet))
 	OnDeviceInit(f func(dbbdevice.Interface))
 	OnDeviceUninit(f func())
-	Start() <-chan knot.Event
+	Start() <-chan interface{}
 }
 
 type Handlers struct {
@@ -34,25 +33,25 @@ type Handlers struct {
 	// apiPort is the port on which this API will run. It is fed into the static javascript app
 	// that is served, so the client knows where to connect to.
 	apiPort           int
-	knotEvents        <-chan knot.Event
+	knotEvents        <-chan interface{}
 	websocketUpgrader websocket.Upgrader
 }
 
 func NewHandlers(
-	knot KnotInterface,
+	knot_ KnotInterface,
 	apiPort int,
 ) *Handlers {
 	router := mux.NewRouter()
 	handlers := &Handlers{
 		Router:  router,
-		knot:    knot,
+		knot:    knot_,
 		apiPort: apiPort,
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		knotEvents: knot.Start(),
+		knotEvents: knot_.Start(),
 	}
 
 	getApiRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -65,23 +64,29 @@ func NewHandlers(
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 
-	walletHandlers_ := walletHandlers.NewHandlers(
-		getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
-	)
-	knot.OnWalletInit(func(wallet deterministicwallet.Interface) {
-		walletHandlers_.Init(wallet)
+	walletHandlers_ := map[string]*walletHandlers.Handlers{
+		"tbtc": walletHandlers.NewHandlers(
+			getApiRouter(apiRouter.PathPrefix("/wallet/tbtc").Subrouter()),
+		),
+		"btc": walletHandlers.NewHandlers(
+			getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
+		),
+	}
+
+	knot_.OnWalletInit(func(wallet *knot.Wallet) {
+		walletHandlers_[wallet.Code].Init(wallet.Wallet)
 	})
-	knot.OnWalletUninit(func() {
-		walletHandlers_.Uninit()
+	knot_.OnWalletUninit(func(wallet *knot.Wallet) {
+		walletHandlers_[wallet.Code].Uninit()
 	})
 
 	deviceHandlers_ := deviceHandlers.NewHandlers(
 		getApiRouter(apiRouter.PathPrefix("/device").Subrouter()),
 	)
-	knot.OnDeviceInit(func(device dbbdevice.Interface) {
+	knot_.OnDeviceInit(func(device dbbdevice.Interface) {
 		deviceHandlers_.Init(device)
 	})
-	knot.OnDeviceUninit(func() {
+	knot_.OnDeviceUninit(func() {
 		deviceHandlers_.Uninit()
 	})
 
@@ -143,10 +148,7 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 				case <-quitChan:
 					return
 				case event := <-handlers.knotEvents:
-					sendChan <- jsonp.MustMarshal(map[string]string{
-						"type": event.Type,
-						"data": event.Data,
-					})
+					sendChan <- jsonp.MustMarshal(event)
 				}
 			}
 		}

@@ -16,4 +16,5 @@ type Interface interface {
 	TransactionBroadcast([]byte) error
 	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int, func(btcutil.Amount) error, func(error)) error
+	Close()
 }

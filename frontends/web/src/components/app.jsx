@@ -2,7 +2,7 @@ import { Component } from 'preact';
 import { Router } from 'preact-router';
 
 import Header from './header';
-import Wallet from '../routes/wallet';
+import Wallets from '../routes/wallet';
 import Options from '../routes/options';
 import Dialog from './dialog';
 import Login from './login';
@@ -23,15 +23,18 @@ const DeviceStatus = Object.freeze({
 });
 
 class Seeded extends Component {
-    render({ walletInitialized, registerOnWalletChanged }) {
+    constructor(props) {
+        super(props);
+    }
+
+    render({ registerOnWalletEvent }) {
         return (
             <div class={style.container}>
               <Header/>
               <Router onChange={this.handleRoute}>
-                <Wallet
+                <Wallets
                   path="/"
-                  registerOnWalletChanged={registerOnWalletChanged}
-                  walletInitialized={walletInitialized}
+                  registerOnWalletEvent={registerOnWalletEvent}
                   />
                 <Options path="/options/"/>
                 <ManageBackups
@@ -48,8 +51,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            deviceStatus: DeviceStatus.UNREGISTERED,
-            walletInitialized: false
+            deviceStatus: DeviceStatus.UNREGISTERED
         };
     }
 
@@ -66,16 +68,8 @@ export default class App extends Component {
         apiWebsocket(data => {
             switch(data.type) {
             case "wallet":
-                if(data.data == "initialized") {
-                    this.setState({ walletInitialized: true });
-                } else if(data.data == "uninitialized") {
-                    this.setState({ walletInitialized: false });
-                }
-            case "sync":
-                if(data.data == "done") {
-                    if(this.onWalletChanged) {
-                        this.onWalletChanged();
-                    }
+                if(this.onWalletEvent) {
+                    this.onWalletEvent(data);
                 }
                 break;
             case "deviceStatus":
@@ -89,7 +83,7 @@ export default class App extends Component {
         this.setState({deviceStatus: deviceStatus});
     }
 
-    render({}, { walletInitialized, deviceStatus }) {
+    render({}, { deviceStatus }) {
         switch(deviceStatus) {
         case DeviceStatus.UNREGISTERED:
             return (
@@ -105,8 +99,7 @@ export default class App extends Component {
             return <Seed/>;
         case DeviceStatus.SEEDED:
             return <Seeded
-            registerOnWalletChanged={onWalletChanged => {this.onWalletChanged = onWalletChanged;}}
-            walletInitialized={walletInitialized}
+            registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
                 />;
         };
     }

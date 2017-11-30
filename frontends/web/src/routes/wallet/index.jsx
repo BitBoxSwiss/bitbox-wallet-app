@@ -47,7 +47,7 @@ class FeeTargets extends Component {
     }
 
     updateFeeTargets = () => {
-        apiGet("wallet/btc/fee-targets").then(({ feeTargets, defaultFeeTarget }) => {
+        apiGet("wallet/" + this.props.walletCode + "/fee-targets").then(({ feeTargets, defaultFeeTarget }) => {
             this.setState({
                 feeTargets: feeTargets
             });
@@ -100,7 +100,7 @@ class SendButton extends Component {
 
     send = () => {
         this.waitDialog.MDComponent.show();
-        apiPost("wallet/btc/sendtx", this.txInput()).then(() => { this.waitDialog.MDComponent.close(); });
+        apiPost("wallet/" + this.props.walletCode + "/sendtx", this.txInput()).then(() => { this.waitDialog.MDComponent.close(); });
     };
 
     txInput = () => {
@@ -119,7 +119,7 @@ class SendButton extends Component {
             // TODO proper validation
             return;
         }
-        apiPost("wallet/btc/tx-proposal", txInput).then(({ amount, fee }) => {
+        apiPost("wallet/" + this.props.walletCode + "/tx-proposal", txInput).then(({ amount, fee }) => {
             this.setState({ proposedFee: fee, proposedAmount: amount });
         });
     }
@@ -137,7 +137,7 @@ class SendButton extends Component {
         });
     };
 
-    render({ walletInitialized }, { proposedFee, recipientAddress, proposedAmount, amount, sendAll }) {
+    render({ walletCode, walletInitialized }, { proposedFee, recipientAddress, proposedAmount, amount, sendAll }) {
         let Fee = () => {
             if(!proposedFee) return;
             return <span> Fee: { proposedFee }</span>;
@@ -181,6 +181,7 @@ class SendButton extends Component {
                       <label for="sendAll">Max</label>
                     </Formfield>
                     <FeeTargets
+                      walletCode={walletCode}
                       disabled={!amount && !sendAll}
                       walletInitialized={walletInitialized}
                       onFeeTargetChange={feeTarget => { this.setState({ feeTarget: feeTarget }); this.validateAndDisplayFee(); }}
@@ -229,7 +230,7 @@ class ReceiveButton extends Component {
                 <Dialog.Body>
                   <center>
                     <Textfield
-                      size="34"
+                      size="36"
                       autoFocus
                       readonly={true}
                       onInput={this.handleFormChange}
@@ -248,11 +249,11 @@ class ReceiveButton extends Component {
     }
 };
 
-export default class Wallet extends Component {
+class Wallet extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            walletInitialized: props.walletInitialized,
+            walletInitialized: false,
             transactions: [],
             balance: {
                 confirmed: "",
@@ -262,37 +263,49 @@ export default class Wallet extends Component {
         };
     }
 
-    componentWillReceiveProps(props) {
-        this.setState({ walletInitialized: props.walletInitialized });
-    }
-
     componentDidMount() {
-        this.props.registerOnWalletChanged(this.onWalletChanged);
-        apiGet("wallet/btc/status").then(status => {
+        this.props.registerOnWalletEvent(this.onWalletEvent.bind(this));
+        apiGet("wallet/" + this.props.walletCode + "/status").then(status => {
             this.setState({ walletInitialized: status == "initialized" });
             this.onWalletChanged();
         });
     }
 
     componentWillUnmount() {
-        this.props.registerOnWalletChanged(null);
+        this.props.registerOnWalletEvent(null);
+    }
+
+    onWalletEvent = data => {
+        switch(data.data) {
+        case "initialized":
+            this.setState({ walletInitialized: true });
+            break;
+        case "uninitialized":
+            this.setState({ walletInitialized: false });
+            break;
+        case "syncdone":
+            this.onWalletChanged();
+            break;
+        }
     }
 
     onWalletChanged = () => {
         if(this.state.walletInitialized) {
-            apiGet("wallet/btc/transactions").then(transactions => {
+            apiGet("wallet/" + this.props.walletCode + "/transactions").then(transactions => {
                 this.setState({ transactions: transactions });
             });
-            apiGet("wallet/btc/balance").then(balance => {
+            apiGet("wallet/" + this.props.walletCode + "/balance").then(balance => {
                 this.setState({ balance: balance });
             });
-            apiGet("wallet/btc/receive-address").then(address => {
+            apiGet("wallet/" + this.props.walletCode + "/receive-address").then(address => {
                 this.setState({ receiveAddress: address });
             });
         }
     }
 
-    render({}, { walletInitialized, transactions, balance, receiveAddress }) {
+    render({show, walletCode}, { walletInitialized, transactions, balance, receiveAddress }) {
+        if(!show) return;
+
         const renderTransactions = transactions => {
             if(!walletInitialized) {
                 return (
@@ -317,9 +330,11 @@ export default class Wallet extends Component {
         const renderTransaction = transaction => <List.Item>{ transaction.id } - Height { transaction.height } - Amount { transaction.amount } - Fee { transaction.fee } - Type { transaction.type }</List.Item>;
         return (
             <div>
-              <h1>Wallet</h1>
+              <h2>{walletCode}</h2>
               <p>
-                <SendButton walletInitialized={walletInitialized}/>
+                <SendButton
+                  walletCode={walletCode}
+                  walletInitialized={walletInitialized}/>
                 &nbsp;
                 <ReceiveButton receiveAddress={receiveAddress}/>
               </p>
@@ -327,6 +342,54 @@ export default class Wallet extends Component {
               { balance.confirmed } { balance.unconfirmed && <span>({balance.unconfirmed})</span> }
               <h2>Transactions</h2>
               { renderTransactions(transactions) }
+            </div>
+        );
+    }
+}
+
+export default class Wallets extends Component {
+    constructor(props) {
+        super(props);
+        this.onWalletEvents = {};
+        this.state = {
+            activeCoin: "tbtc"
+        }
+    }
+
+    componentDidMount() {
+        this.props.registerOnWalletEvent(function(data) {
+            if(this.onWalletEvents[data.code]) {
+                this.onWalletEvents[data.code](data);
+            } else {
+                console.log("ignoring event for wallet " + data.code);
+            }
+        }.bind(this));
+    }
+
+    render({}, { activeCoin }) {
+        const this_ = this;
+        function CoinLink({code}) {
+            return (
+                <Button primary={true} raised={true} onClick={()=>{
+                    this_.setState({ activeCoin: code });
+                }}>{this.props.children}</Button>
+            );
+        }
+        return (
+            <div>
+              <CoinLink code="tbtc">Bitcoin Testnet</CoinLink>
+              &nbsp;
+              <CoinLink code="btc">Bitcoin</CoinLink>
+              <Wallet
+                walletCode="tbtc"
+                show={activeCoin == "tbtc"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tbtc"] = onWalletEvent; }}
+                />
+              <Wallet
+                walletCode="btc"
+                show={activeCoin == "btc"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc"] = onWalletEvent; }}
+                  />
             </div>
         );
     }

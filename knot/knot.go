@@ -1,6 +1,8 @@
 package knot
 
 import (
+	"fmt"
+
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
@@ -8,33 +10,87 @@ import (
 	"github.com/shiftdevices/godbb/electrum"
 )
 
-type Knot struct {
-	events chan Event
-
-	device         *dbbdevice.DBBDevice
-	bitcoinWallet  *deterministicwallet.DeterministicWallet
-	onWalletInit   func(deterministicwallet.Interface)
-	onWalletUninit func()
-	onDeviceInit   func(dbbdevice.Interface)
-	onDeviceUninit func()
+type Wallet struct {
+	Code   string
+	Wallet deterministicwallet.Interface
 }
 
-type Event struct {
-	Type string
-	Data string
+func (wallet *Wallet) init(knot *Knot) error {
+	var electrumServer string
+	var net *chaincfg.Params
+	var walletDerivationPath = ""
+	switch wallet.Code {
+	case "tbtc":
+		net = &chaincfg.TestNet3Params
+		walletDerivationPath = "m/44'/1'/0'"
+		electrumServer = electrum.TestServer
+	case "btc":
+		net = &chaincfg.MainNetParams
+		walletDerivationPath = "m/44'/0'/0'"
+		electrumServer = electrum.Server
+	default:
+		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
+	}
+	electrumClient, err := electrum.NewElectrumClient(electrumServer)
+	if err != nil {
+		return err
+	}
+	keystore, err := keystore.NewDBBKeyStore(knot.device, walletDerivationPath, net)
+	if err != nil {
+		return err
+	}
+	wallet.Wallet, err = deterministicwallet.NewDeterministicWallet(
+		net,
+		keystore,
+		electrumClient,
+		func(event interface{}) {
+			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: event.(string)}
+		},
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type Knot struct {
+	events chan interface{}
+
+	device         *dbbdevice.DBBDevice
+	onWalletInit   func(*Wallet)
+	onWalletUninit func(*Wallet)
+	onDeviceInit   func(dbbdevice.Interface)
+	onDeviceUninit func()
+
+	wallets []*Wallet
+}
+
+type event struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
+type walletEvent struct {
+	Type string `json:"type"`
+	Code string `json:"code"`
+	Data string `json:"data"`
 }
 
 func NewKnot() *Knot {
 	return &Knot{
-		events: make(chan Event),
+		events: make(chan interface{}),
+		wallets: []*Wallet{
+			&Wallet{Code: "tbtc"},
+			&Wallet{Code: "btc"},
+		},
 	}
 }
 
-func (knot *Knot) OnWalletInit(f func(deterministicwallet.Interface)) {
+func (knot *Knot) OnWalletInit(f func(*Wallet)) {
 	knot.onWalletInit = f
 }
 
-func (knot *Knot) OnWalletUninit(f func()) {
+func (knot *Knot) OnWalletUninit(f func(*Wallet)) {
 	knot.onWalletUninit = f
 }
 
@@ -45,61 +101,45 @@ func (knot *Knot) OnDeviceInit(f func(dbbdevice.Interface)) {
 func (knot *Knot) OnDeviceUninit(f func()) {
 	knot.onDeviceUninit = f
 }
-
-func (knot *Knot) Start() <-chan Event {
+func (knot *Knot) Start() <-chan interface{} {
 	go knot.listenHID()
 	return knot.events
 }
 
 func (knot *Knot) initWallets() error {
-	net := &chaincfg.TestNet3Params
-	electrumClient, err := electrum.NewElectrumClient()
-	if err != nil {
-		return err
+	for _, wallet := range knot.wallets {
+		if err := wallet.init(knot); err != nil {
+			return err
+		}
+		knot.onWalletInit(wallet)
+		wallet.Wallet.Init()
 	}
-	keystore, err := keystore.NewDBBKeyStore(knot.device, "m/44'/1'/0'", net)
-	if err != nil {
-		return err
-	}
-	knot.bitcoinWallet, err = deterministicwallet.NewDeterministicWallet(
-		net,
-		keystore,
-		electrumClient,
-		func() {
-			knot.events <- Event{Type: "sync", Data: "start"}
-		},
-		func() {
-			knot.events <- Event{Type: "sync", Data: "done"}
-		},
-	)
-	if err != nil {
-		return err
-	}
-	knot.bitcoinWallet.EnsureAddresses()
-	knot.events <- Event{Type: "wallet", Data: "initialized"}
-	knot.onWalletInit(knot.bitcoinWallet)
 	return nil
 }
 
 func (knot *Knot) uninitWallets() {
-	knot.bitcoinWallet = nil
-	knot.events <- Event{Type: "wallet", Data: "uninitialized"}
-	knot.onWalletUninit()
+	for _, wallet := range knot.wallets {
+		if wallet.Wallet != nil {
+			knot.onWalletUninit(wallet)
+			wallet.Wallet.Close()
+			wallet.Wallet = nil
+		}
+	}
 }
 
 func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 	knot.device = device
 	knot.onDeviceInit(device)
-	knot.device.SetOnEvent(func(event string) {
-		switch event {
+	knot.device.SetOnEvent(func(ev string) {
+		switch ev {
 		case "login":
 			knot.initWallets()
 		case "statusChanged":
-			knot.events <- Event{Type: "deviceStatus", Data: knot.device.Status()}
+			knot.events <- event{Type: "deviceStatus", Data: knot.device.Status()}
 		}
 	})
 	select {
-	case knot.events <- Event{Type: "deviceStatus", Data: knot.device.Status()}:
+	case knot.events <- event{Type: "deviceStatus", Data: knot.device.Status()}:
 	default:
 	}
 	return nil
@@ -110,7 +150,7 @@ func (knot *Knot) unregister(deviceID string) {
 		knot.device = nil
 		knot.onDeviceUninit()
 		knot.uninitWallets()
-		knot.events <- Event{Type: "deviceStatus", Data: "unregistered"}
+		knot.events <- event{Type: "deviceStatus", Data: "unregistered"}
 	}
 }
 

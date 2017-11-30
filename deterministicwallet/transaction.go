@@ -79,6 +79,9 @@ func (wallet *DeterministicWallet) SendTx(
 	if err != nil {
 		return errp.WithStack(err)
 	}
+	if !address.IsForNet(wallet.net) {
+		return errp.New("invalid address for this network")
+	}
 	_, transaction, selectedOutPoints, err := wallet.newTx(
 		address,
 		amount,

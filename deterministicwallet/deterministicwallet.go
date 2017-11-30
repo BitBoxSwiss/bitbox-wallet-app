@@ -33,6 +33,8 @@ func init() {
 }
 
 type Interface interface {
+	Init()
+	Close()
 	Transactions() []*transactions.Transaction
 	ClassifyTransaction(*wire.MsgTx) (
 		transactions.TxType, btcutil.Amount, *btcutil.Amount)
@@ -101,16 +103,16 @@ type DeterministicWallet struct {
 
 	synchronizer *synchronizer.Synchronizer
 
-	// The
 	feeTargets []*FeeTarget
+
+	onEvent func(interface{})
 }
 
 func NewDeterministicWallet(
 	net *chaincfg.Params,
 	keystore HDKeyStoreInterface,
 	blockchain blockchain.Interface,
-	onSyncStarted func(),
-	onSyncFinished func(),
+	onEvent func(interface{}),
 ) (*DeterministicWallet, error) {
 	xpub := keystore.XPub()
 	if xpub.IsPrivate() {
@@ -123,7 +125,10 @@ func NewDeterministicWallet(
 	if err != nil {
 		return nil, err
 	}
-	synchronizer := synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished)
+	synchronizer := synchronizer.NewSynchronizer(
+		func() { onEvent("syncstarted") },
+		func() { onEvent("syncdone") },
+	)
 	wallet := &DeterministicWallet{
 		net:          net,
 		keystore:     keystore,
@@ -136,6 +141,7 @@ func NewDeterministicWallet(
 			{Blocks: 5, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
+		onEvent: onEvent,
 	}
 
 	wallet.receiveAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), gapLimit, 0)
@@ -143,9 +149,18 @@ func NewDeterministicWallet(
 	wallet.transactions = transactions.NewTransactions(
 		net, synchronizer, blockchain, wallet.changeAddresses.Contains)
 
-	wallet.updateFeeTargets()
-
 	return wallet, nil
+}
+
+func (wallet *DeterministicWallet) Init() {
+	wallet.updateFeeTargets()
+	wallet.onEvent("initialized")
+	wallet.EnsureAddresses()
+}
+
+func (wallet *DeterministicWallet) Close() {
+	wallet.blockchain.Close()
+	wallet.onEvent("uninitialized")
 }
 
 func (wallet *DeterministicWallet) updateFeeTargets() {

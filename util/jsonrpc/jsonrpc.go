@@ -27,6 +27,7 @@ type RPCClient struct {
 	msgIDLock             sync.Mutex
 	responseCallbacks     map[int]callbacks
 	responseCallbacksLock sync.RWMutex
+	close                 bool
 
 	notificationsCallbacks     map[string]func([]byte)
 	notificationsCallbacksLock sync.RWMutex
@@ -51,7 +52,7 @@ func (client *RPCClient) handleError(err error) {
 func (client *RPCClient) read(callback func([]byte)) {
 	defer client.conn.Close()
 	reader := bufio.NewReader(client.conn)
-	for {
+	for !client.close {
 		line, err := reader.ReadBytes(byte('\n'))
 		if err != nil {
 			panic(err)
@@ -204,4 +205,8 @@ func (client *RPCClient) SubscribeNotifications(method string, callback func([]b
 func (client *RPCClient) send(msg []byte) error {
 	_, err := client.conn.Write(msg)
 	return errp.WithStack(err)
+}
+
+func (client *RPCClient) Close() {
+	client.close = true
 }

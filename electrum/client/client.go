@@ -26,6 +26,7 @@ type RPCClient interface {
 	Method(func([]byte) error, func(error), string, ...interface{}) error
 	MethodSync(interface{}, string, ...interface{}) error
 	SubscribeNotifications(string, func([]byte)) error
+	Close()
 }
 
 // ElectrumClient is a high level API access to an ElectrumX server.
@@ -35,6 +36,8 @@ type ElectrumClient struct {
 
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
+
+	close bool
 }
 
 // NewElectrumClient creates a new Electrum client.
@@ -82,7 +85,7 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 
 // ping periodically pings the server to keep the connection alive.
 func (client *ElectrumClient) ping() {
-	for {
+	for !client.close {
 		log.Println("pinging the electrum server")
 		_, err := client.ServerVersion()
 		if err != nil {
@@ -344,4 +347,9 @@ func (client *ElectrumClient) EstimateFee(
 		cleanup,
 		"blockchain.estimatefee",
 		number)
+}
+
+func (client *ElectrumClient) Close() {
+	client.close = true
+	client.rpc.Close()
 }
