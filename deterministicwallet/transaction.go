@@ -40,7 +40,7 @@ func (wallet *DeterministicWallet) newTx(
 		}
 	}
 	if feeTarget == nil || feeTarget.FeeRatePerKb == nil {
-		panic("fee target must exist")
+		return 0, nil, nil, errp.New("fee could not be estimated")
 	}
 
 	pkScript, err := txscript.PayToAddrScript(address)

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"math/rand"
-	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -150,20 +149,16 @@ func NewDeterministicWallet(
 }
 
 func (wallet *DeterministicWallet) updateFeeTargets() {
-	// Synchronous for now. TODO: make async to not block the UI.
-	wg := sync.WaitGroup{}
 	for _, feeTarget := range wallet.feeTargets {
 		func(feeTarget *FeeTarget) {
-			wg.Add(1)
 			err := wallet.blockchain.EstimateFee(
 				feeTarget.Blocks,
 				func(feeRatePerKb btcutil.Amount) error {
 					feeTarget.FeeRatePerKb = &feeRatePerKb
 					log.Printf("fee estimate per kb for %d blocks: %s", feeTarget.Blocks, feeRatePerKb)
-					wg.Done()
 					return nil
 				},
-				func(error) {},
+				func(err error) {},
 			)
 			if err != nil {
 				// TODO
@@ -171,7 +166,6 @@ func (wallet *DeterministicWallet) updateFeeTargets() {
 			}
 		}(feeTarget)
 	}
-	wg.Wait()
 }
 
 func (wallet *DeterministicWallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
