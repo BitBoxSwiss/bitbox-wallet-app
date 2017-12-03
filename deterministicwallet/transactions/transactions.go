@@ -15,16 +15,20 @@ import (
 	"github.com/shiftdevices/godbb/util/locker"
 )
 
+// TxOut is a transaction output which is part of the wallet.
 type TxOut struct {
 	*wire.TxOut
 	Address btcutil.Address
 }
 
+// TxIn is a transaction input which is part of the wallet. The transaction hash of the transaction
+// this input was found in is also recorded.
 type TxIn struct {
 	*wire.TxIn
 	txHash chainhash.Hash
 }
 
+// Transaction is a transaction touchign the wallet.
 type Transaction struct {
 	TXHash    chainhash.Hash
 	TX        *wire.MsgTx
@@ -32,6 +36,8 @@ type Transaction struct {
 	Addresses map[string]struct{}
 }
 
+// Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
+// outputs, etc.
 type Transactions struct {
 	locker.Locker
 
@@ -50,6 +56,7 @@ type Transactions struct {
 	isChangeAddress func(btcutil.Address) bool
 }
 
+// NewTransactions creates a new instance of Transactios.
 func NewTransactions(
 	net *chaincfg.Params,
 	synchronizer *synchronizer.Synchronizer,
@@ -147,10 +154,13 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	}
 }
 
+// Output returns an output belonging to the wallet. Returns nil if the output is not part of the
+// wallet.
 func (transactions *Transactions) Output(outPoint wire.OutPoint) *TxOut {
 	return transactions.outputs[outPoint]
 }
 
+// UnspentOutputs returns all unspent outputs of the wallet.
 func (transactions *Transactions) UnspentOutputs() map[wire.OutPoint]*wire.TxOut {
 	result := map[wire.OutPoint]*wire.TxOut{}
 	for outPoint, txOut := range transactions.outputs {
@@ -166,6 +176,9 @@ func (transactions *Transactions) removeTransaction(txHash chainhash.Hash) {
 	delete(transactions.transactions, txHash)
 }
 
+// UpdateAddressHistory should be called when initializing a wallet address, or when the history of
+// an address changes (a new transaction that touches it appears or disappears). The transactions
+// are downloaded and indexed.
 func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, txs []*client.TX) {
 	defer transactions.Lock()()
 
@@ -240,11 +253,13 @@ func (transactions *Transactions) doForTransaction(
 	}
 }
 
+// Balance contains the confirmed and unconfirmed balance of the wallet.
 type Balance struct {
 	Confirmed   btcutil.Amount
 	Unconfirmed btcutil.Amount
 }
 
+// Balance computes the confirmed and unconfirmed balance of the wallet.
 func (transactions *Transactions) Balance() *Balance {
 	defer transactions.RLock()()
 	var confirmed int64
@@ -287,12 +302,16 @@ func (s byHeight) Less(i, j int) bool {
 }
 func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
+// TxType is a type of transaction. See the TxType* constants.
 type TxType string
 
 const (
-	TxTypeReceive  TxType = "receive"
-	TxTypeSend            = "send"
-	TxTypeSendSelf        = "sendSelf"
+	// TxTypeReceive is a tx which sends funds to our wallet.
+	TxTypeReceive TxType = "receive"
+	// TxTypeSend is a tx which sends funds out of our wallet.
+	TxTypeSend = "send"
+	// TxTypeSendSelf is a tx from out wallet to our wallet.
+	TxTypeSendSelf = "sendSelf"
 )
 
 // ClassifyTransaction checks what kind of transaction we have, and the amount/fee
@@ -351,6 +370,7 @@ func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
 	return txType, result, feeP
 }
 
+// Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions() []*Transaction {
 	defer transactions.RLock()()
 	txs := []*Transaction{}

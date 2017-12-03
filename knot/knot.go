@@ -11,6 +11,16 @@ import (
 	"github.com/shiftdevices/godbb/knot/coins/ltc"
 )
 
+// Interface is the API of the knot.
+type Interface interface {
+	OnWalletInit(f func(*Wallet))
+	OnWalletUninit(f func(*Wallet))
+	OnDeviceInit(f func(dbbdevice.Interface))
+	OnDeviceUninit(f func())
+	Start() <-chan interface{}
+}
+
+// Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
 	Code   string
 	Wallet deterministicwallet.Interface
@@ -62,6 +72,18 @@ func (wallet *Wallet) init(knot *Knot) error {
 	return nil
 }
 
+type event struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
+}
+
+type walletEvent struct {
+	Type string `json:"type"`
+	Code string `json:"code"`
+	Data string `json:"data"`
+}
+
+// Knot ties everything together and is the main starting point to use the godbb library.
 type Knot struct {
 	events chan interface{}
 
@@ -74,17 +96,7 @@ type Knot struct {
 	wallets []*Wallet
 }
 
-type event struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
-}
-
-type walletEvent struct {
-	Type string `json:"type"`
-	Code string `json:"code"`
-	Data string `json:"data"`
-}
-
+// NewKnot creates a new Knot.
 func NewKnot() *Knot {
 	return &Knot{
 		events: make(chan interface{}),
@@ -97,21 +109,28 @@ func NewKnot() *Knot {
 	}
 }
 
+// OnWalletInit installs a callback to be called when a wallet is initialized.
 func (knot *Knot) OnWalletInit(f func(*Wallet)) {
 	knot.onWalletInit = f
 }
 
+// OnWalletUninit installs a callback to be called when a wallet is stopped.
 func (knot *Knot) OnWalletUninit(f func(*Wallet)) {
 	knot.onWalletUninit = f
 }
 
+// OnDeviceInit installs a callback to be called when a device is initialized.
 func (knot *Knot) OnDeviceInit(f func(dbbdevice.Interface)) {
 	knot.onDeviceInit = f
 }
 
+// OnDeviceUninit installs a callback to be called when a device is uninitialized.
 func (knot *Knot) OnDeviceUninit(f func()) {
 	knot.onDeviceUninit = f
 }
+
+// Start starts the background services. It returns a channel of events to handle by the library
+// client.
 func (knot *Knot) Start() <-chan interface{} {
 	go knot.listenHID()
 	return knot.events

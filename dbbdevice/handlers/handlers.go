@@ -9,10 +9,12 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// Handlers provides a web api to the dbbdevice.
 type Handlers struct {
 	device dbbdevice.Interface
 }
 
+// NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route) *Handlers {
 	handlers := &Handlers{}
@@ -30,10 +32,13 @@ func NewHandlers(
 	return handlers
 }
 
+// Init installs a dbbdevice as a base for the web api. This needs to be called before any requests
+// are made.
 func (handlers *Handlers) Init(device dbbdevice.Interface) {
 	handlers.device = device
 }
 
+// Uninit removes the device. After this, not requests should be made.
 func (handlers *Handlers) Uninit() {
 	handlers.device = nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/shiftdevices/godbb/dbbdevice/communication"
 )
 
+// DeviceInfos returns a slice of all found bitbox devices.
 func DeviceInfos() []hid.DeviceInfo {
 	deviceInfos := []hid.DeviceInfo{}
 	for _, deviceInfo := range hid.Enumerate(vendorID, productID) {
@@ -18,6 +19,7 @@ func DeviceInfos() []hid.DeviceInfo {
 	return deviceInfos
 }
 
+// Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
 	device *DBBDevice
 
@@ -25,6 +27,8 @@ type Manager struct {
 	onUnregister func(string)
 }
 
+// NewManager creates a new Manager. onRegister is called when a device has been
+// inserted. onUnregister is called when the device has been removed.
 func NewManager(
 	onRegister func(*DBBDevice) error,
 	onUnregister func(string),
@@ -56,6 +60,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	return nil
 }
 
+// ListenHID listens for inserted/removed devices forever. Run this in a goroutine.
 func (manager *Manager) ListenHID() {
 	for {
 		deviceInfos := DeviceInfos()

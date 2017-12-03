@@ -46,6 +46,7 @@ func coinSelection(
 	return outputsSum, selectedOutPoints, nil
 }
 
+// NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
@@ -76,6 +77,8 @@ func NewTxSpendAll(
 	return btcutil.Amount(output.Value), unsignedTransaction, selectedOutPoints, nil
 }
 
+// NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
+// the unspent outputs is selected to cover the needed amount. A change output is added if needed.
 func NewTx(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,

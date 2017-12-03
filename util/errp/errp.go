@@ -5,8 +5,12 @@ package errp
 import "github.com/pkg/errors"
 
 var (
-	New       = errors.New
-	Newf      = errors.Errorf
+	// New wraps errors.New
+	New = errors.New
+	// Newf wraps errors.Newf
+	Newf = errors.Errorf
+	// WithStack wraps errors.WithStack
 	WithStack = errors.WithStack
-	Cause     = errors.Cause
+	// Cause wraps errors.Cause
+	Cause = errors.Cause
 )

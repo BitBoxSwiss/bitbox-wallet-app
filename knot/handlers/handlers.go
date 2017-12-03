@@ -19,17 +19,10 @@ import (
 	qrcode "github.com/skip2/go-qrcode"
 )
 
-type KnotInterface interface {
-	OnWalletInit(f func(*knot.Wallet))
-	OnWalletUninit(f func(*knot.Wallet))
-	OnDeviceInit(f func(dbbdevice.Interface))
-	OnDeviceUninit(f func())
-	Start() <-chan interface{}
-}
-
+// Handlers provides a web api to the knot.
 type Handlers struct {
 	Router *mux.Router
-	knot   KnotInterface
+	knot   knot.Interface
 	// apiPort is the port on which this API will run. It is fed into the static javascript app
 	// that is served, so the client knows where to connect to.
 	apiPort           int
@@ -37,24 +30,25 @@ type Handlers struct {
 	websocketUpgrader websocket.Upgrader
 }
 
+// NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	knot_ KnotInterface,
+	theKnot knot.Interface,
 	apiPort int,
 ) *Handlers {
 	router := mux.NewRouter()
 	handlers := &Handlers{
 		Router:  router,
-		knot:    knot_,
+		knot:    theKnot,
 		apiPort: apiPort,
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		knotEvents: knot_.Start(),
+		knotEvents: theKnot.Start(),
 	}
 
-	getApiRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
+	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
 			return subrouter.HandleFunc(path, apiMiddleware(f))
 		}
@@ -64,36 +58,36 @@ func NewHandlers(
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 
-	walletHandlers_ := map[string]*walletHandlers.Handlers{
+	theWalletHandlers := map[string]*walletHandlers.Handlers{
 		"tbtc": walletHandlers.NewHandlers(
-			getApiRouter(apiRouter.PathPrefix("/wallet/tbtc").Subrouter()),
+			getAPIRouter(apiRouter.PathPrefix("/wallet/tbtc").Subrouter()),
 		),
 		"btc": walletHandlers.NewHandlers(
-			getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
+			getAPIRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
 		),
 		"tltc": walletHandlers.NewHandlers(
-			getApiRouter(apiRouter.PathPrefix("/wallet/tltc").Subrouter()),
+			getAPIRouter(apiRouter.PathPrefix("/wallet/tltc").Subrouter()),
 		),
 		"ltc": walletHandlers.NewHandlers(
-			getApiRouter(apiRouter.PathPrefix("/wallet/ltc").Subrouter()),
+			getAPIRouter(apiRouter.PathPrefix("/wallet/ltc").Subrouter()),
 		),
 	}
 
-	knot_.OnWalletInit(func(wallet *knot.Wallet) {
-		walletHandlers_[wallet.Code].Init(wallet.Wallet)
+	theKnot.OnWalletInit(func(wallet *knot.Wallet) {
+		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
 	})
-	knot_.OnWalletUninit(func(wallet *knot.Wallet) {
-		walletHandlers_[wallet.Code].Uninit()
+	theKnot.OnWalletUninit(func(wallet *knot.Wallet) {
+		theWalletHandlers[wallet.Code].Uninit()
 	})
 
-	deviceHandlers_ := deviceHandlers.NewHandlers(
-		getApiRouter(apiRouter.PathPrefix("/device").Subrouter()),
+	theDeviceHandlers := deviceHandlers.NewHandlers(
+		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()),
 	)
-	knot_.OnDeviceInit(func(device dbbdevice.Interface) {
-		deviceHandlers_.Init(device)
+	theKnot.OnDeviceInit(func(device dbbdevice.Interface) {
+		theDeviceHandlers.Init(device)
 	})
-	knot_.OnDeviceUninit(func() {
-		deviceHandlers_.Uninit()
+	theKnot.OnDeviceUninit(func() {
+		theDeviceHandlers.Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)

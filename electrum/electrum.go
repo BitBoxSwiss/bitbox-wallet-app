@@ -12,8 +12,10 @@ import (
 	"github.com/shiftdevices/godbb/util/jsonrpc"
 )
 
+// Server is a temporary default bitcoin electrum server.
 var Server = "E-X.not.fyi:50002"
 
+// TestServer is a temporary default bitcoin testnet electrum server.
 var TestServer = "testnetnode.arihanc.com:51002"
 
 //var testServer = "testnet.hsmiths.com:53012"
@@ -45,6 +47,8 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 	return conn, errp.WithStack(err)
 }
 
+// NewElectrumClient connects to an Electrum server and returns a ElectrumClient instance to
+// communicate with it.
 func NewElectrumClient(server string) (*client.ElectrumClient, error) {
 	tlsConn, err := newTLSConnection(server)
 	if err != nil {

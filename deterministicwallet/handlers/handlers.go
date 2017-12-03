@@ -13,10 +13,12 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// Handlers provides a web api to the wallet.
 type Handlers struct {
 	wallet deterministicwallet.Interface
 }
 
+// NewHandlers creates a new Handlers instance.
 func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route) *Handlers {
 	handlers := &Handlers{}
@@ -31,10 +33,13 @@ func NewHandlers(
 	return handlers
 }
 
+// Init installs a wallet as a base for the web api. This needs to be called before any requests are
+// made.
 func (handlers *Handlers) Init(wallet deterministicwallet.Interface) {
 	handlers.wallet = wallet
 }
 
+// Uninit removes the wallet. After this, not requests should be made.
 func (handlers *Handlers) Uninit() {
 	handlers.wallet = nil
 }

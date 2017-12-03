@@ -12,11 +12,13 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// SendAmount is either a concrete amount, or "all"/"max".
 type SendAmount struct {
 	amount  btcutil.Amount
 	sendAll bool
 }
 
+// NewSendAmount creates a new SendAmount based on a concrete amount.
 func NewSendAmount(amount btcutil.Amount) (SendAmount, error) {
 	if amount <= 0 {
 		return SendAmount{}, errp.New("invalid amount")
@@ -24,6 +26,7 @@ func NewSendAmount(amount btcutil.Amount) (SendAmount, error) {
 	return SendAmount{amount: amount, sendAll: false}, nil
 }
 
+// NewSendAmountAll creates a new Sendall-amount.
 func NewSendAmountAll() SendAmount {
 	return SendAmount{amount: 0, sendAll: true}
 }

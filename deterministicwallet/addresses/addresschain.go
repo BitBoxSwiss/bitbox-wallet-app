@@ -76,6 +76,7 @@ func (addresses AddressChain) UnusedTailCount() int {
 	return count
 }
 
+// Contains returns whether the address is part of the address chain.
 func (addresses *AddressChain) Contains(checkAddress btcutil.Address) bool {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {

@@ -23,23 +23,29 @@ const (
 	hwwCMD            = u2fHIDVendorFirst | 0x01
 )
 
-type readWriteCloser interface {
+// ReadWriteCloser is the same as io.ReadWriteCloser, but the Close() function not returning an
+// error.
+type ReadWriteCloser interface {
 	io.ReadWriter
 	Close()
 }
 
+// Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
+// as USB packets, following the ISO 7816-4 standard.
 type Communication struct {
-	device readWriteCloser
+	device ReadWriteCloser
 	mutex  sync.Mutex
 }
 
-func NewCommunication(device readWriteCloser) *Communication {
+// NewCommunication creates a new Communication.
+func NewCommunication(device ReadWriteCloser) *Communication {
 	return &Communication{
 		device: device,
 		mutex:  sync.Mutex{},
 	}
 }
 
+// Close closes the underlying device.
 func (communication *Communication) Close() {
 	communication.device.Close()
 }
@@ -113,6 +119,7 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	return data.Bytes(), nil
 }
 
+// SendPlain sends an unecrypted message. The response is json-deserialized into a map.
 func (communication *Communication) SendPlain(msg string) (map[string]interface{}, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -132,15 +139,19 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 	return jsonResult, nil
 }
 
+// DBBErr wraps an error by the bitbox.
 type DBBErr struct {
 	message string
 	Code    float64
 }
 
+// Error implements the error interface.
 func (d DBBErr) Error() string {
 	return d.message
 }
 
+// SendEncrypt sends an encrypted message. The resposne is json-deserialized into a map. If the
+// response contains an error field, it is returned as a DBBErr.
 func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
 	secret := chainhash.DoubleHashB([]byte(password))
 	cipherText, err := encrypt(secret, []byte(msg))

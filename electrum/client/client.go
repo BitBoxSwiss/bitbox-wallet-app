@@ -1,5 +1,5 @@
 // Package client implements an Electrum JSON RPC client.
-// See https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst
+// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst
 package client
 
 import (
@@ -30,7 +30,7 @@ type RPCClient interface {
 }
 
 // ElectrumClient is a high level API access to an ElectrumX server.
-// See https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst.
+// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst.
 type ElectrumClient struct {
 	rpc RPCClient
 
@@ -96,11 +96,13 @@ func (client *ElectrumClient) ping() {
 	}
 }
 
+// ServerVersion is returned by ServerVersion().
 type ServerVersion struct {
 	Version         string
 	ProtocolVersion string
 }
 
+// UnmarshalJSON implements the json.Unmarshaler interface.
 func (version *ServerVersion) UnmarshalJSON(b []byte) error {
 	slice := []string{}
 	if err := json.Unmarshal(b, &slice); err != nil {
@@ -122,25 +124,27 @@ func (client *ElectrumClient) ServerVersion() (*ServerVersion, error) {
 	return response, err
 }
 
+// ServerFeatures is returned by ServerFeatures().
 type ServerFeatures struct {
 	GenesisHash string `json:"genesis_hash"`
 }
 
 // ServerFeatures does the server.features() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#serverfeatures
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#serverfeatures
 func (client *ElectrumClient) ServerFeatures() (*ServerFeatures, error) {
 	response := &ServerFeatures{}
 	err := client.rpc.MethodSync(response, "server.features")
 	return response, err
 }
 
+// Balance is returned by ScriptHashGetBalance().
 type Balance struct {
 	Confirmed   int64 `json:"confirmed"`
 	Unconfirmed int64 `json:"unconfirmed"`
 }
 
 // ScriptHashGetBalance does the blockchain.scripthash.get_balance() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashget_balance
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_balance
 func (client *ElectrumClient) ScriptHashGetBalance(
 	scriptHashHex string,
 	success func(*Balance) error,
@@ -158,6 +162,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 		scriptHashHex)
 }
 
+// TX is returned by ScriptHashGetHistory.
 type TX struct {
 	Height int    `json:"height"`
 	TXHash TXHash `json:"tx_hash"`
@@ -165,7 +170,7 @@ type TX struct {
 }
 
 // ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashget_history
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex string,
 	success func([]*TX) error,
@@ -185,7 +190,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 }
 
 // ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashsubscribe
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashsubscribe
 func (client *ElectrumClient) ScriptHashSubscribe(
 	scriptHashHex string,
 	success func(string) error,
@@ -222,6 +227,8 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 	return tx, nil
 }
 
+// TransactionGet downloads a transaction.
+// See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionget
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
@@ -248,12 +255,13 @@ func (client *ElectrumClient) handleError(err error) {
 	log.Println(err)
 }
 
+// Header is returned by HeadersSubscribe().
 type Header struct {
 	BlockHeight int `json:"block_height"`
 }
 
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainheaderssubscribe
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
 func (client *ElectrumClient) HeadersSubscribe() (*Header, error) {
 	response := &Header{}
 	err := client.rpc.MethodSync(
@@ -262,12 +270,15 @@ func (client *ElectrumClient) HeadersSubscribe() (*Header, error) {
 	return response, err
 }
 
+// TXHash wraps chainhash.Hash for json deserialization.
 type TXHash chainhash.Hash
 
+// Hash returns the wrapped hash.
 func (txHash *TXHash) Hash() chainhash.Hash {
 	return chainhash.Hash(*txHash)
 }
 
+// UnmarshalJSON implements the json.Unmarshaler interface.
 func (txHash *TXHash) UnmarshalJSON(jsonBytes []byte) error {
 	var txHashStr string
 	if err := json.Unmarshal(jsonBytes, &txHashStr); err != nil {
@@ -290,7 +301,7 @@ type UTXO struct {
 }
 
 // ScriptHashListUnspent does the blockchain.address.listunspent() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainscripthashlistunspent
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashlistunspent
 func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UTXO, error) {
 	response := []*UTXO{}
 	err := client.rpc.MethodSync(&response, "blockchain.scripthash.listunspent", scriptHashHex)
@@ -298,7 +309,7 @@ func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UT
 }
 
 // TransactionBroadcast does the blockchain.transaction.broadcast() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchaintransactionbroadcast
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionbroadcast
 func (client *ElectrumClient) TransactionBroadcast(rawTX []byte) error {
 	rawTXHex := hex.EncodeToString(rawTX)
 	var response string
@@ -312,7 +323,7 @@ func (client *ElectrumClient) TransactionBroadcast(rawTX []byte) error {
 }
 
 // RelayFee does the blockchain.relayfee() RPC call.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainrelayfee
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
 func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 	var response float64
 	if err := client.rpc.MethodSync(&response, "blockchain.relayfee"); err != nil {
@@ -323,7 +334,7 @@ func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
 // blocks.
-// https://github.com/kyuupichan/electrumx/blob/master/docs/PROTOCOL.rst#blockchainestimatefee
+// https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
 	success func(btcutil.Amount) error,
@@ -349,6 +360,7 @@ func (client *ElectrumClient) EstimateFee(
 		number)
 }
 
+// Close closes the connection.
 func (client *ElectrumClient) Close() {
 	client.close = true
 	client.rpc.Close()

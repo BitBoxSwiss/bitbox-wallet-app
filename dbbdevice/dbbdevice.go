@@ -25,11 +25,11 @@ const (
 	// ErrIONoPassword is returned when no password has been configured.
 	ErrIONoPassword = 101
 	// ErrTouchAbort is returned when the user short-touches the button.
-	ErrTouchAbort = 600
-	// ErrTouchTimeout is returned when the user does not confirm or abort for 30s.
-	ErrTouchTimeout = 601
+	errTouchAbort = 600
+	// errTouchTimeout is returned when the user does not confirm or abort for 30s.
+	errTouchTimeout = 601
 	// ErrSDCard is returned when the SD card is needed, but not inserted.
-	ErrSDCard = 400
+	errSDCard = 400
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
@@ -40,6 +40,7 @@ type CommunicationInterface interface {
 	Close()
 }
 
+// Interface is the API of a DBBDevice
 type Interface interface {
 	Status() string
 	SetPassword(string) error
@@ -307,14 +308,16 @@ func (dbb *DBBDevice) CreateWallet(walletName string) error {
 	return nil
 }
 
+// IsErrorAbort returns whether the user aborted the operation.
 func IsErrorAbort(err error) bool {
 	dbbErr, ok := err.(*communication.DBBErr)
-	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
+	return ok && (dbbErr.Code == errTouchAbort || dbbErr.Code == errTouchTimeout)
 }
 
+// IsErrorSDCard returns whether the SD card was not inserted during an operation that requires it.
 func IsErrorSDCard(err error) bool {
 	dbbErr, ok := err.(*communication.DBBErr)
-	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrSDCard)
+	return ok && dbbErr.Code == errSDCard
 }
 
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
@@ -360,7 +363,7 @@ func (dbb *DBBDevice) Blink(password string) error {
 // Reset resets the device. Returns true if erased and false if aborted by the user.
 func (dbb *DBBDevice) Reset() (bool, error) {
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.password)
-	if dbbErr, ok := err.(*communication.DBBErr); ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout) {
+	if IsErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {

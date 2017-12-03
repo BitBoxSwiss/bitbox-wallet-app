@@ -8,6 +8,8 @@ import (
 	"github.com/shiftdevices/godbb/electrum/client"
 )
 
+// Interface is the interface to a blockchain index backend. Currently geared to Electrum, though
+// other backends can implement the same interface.
 type Interface interface {
 	ScriptHashGetHistory(string, func([]*client.TX) error, func(error)) error
 	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error

@@ -32,6 +32,7 @@ func init() {
 	random = rand.New(rand.NewSource(time.Now().UnixNano()))
 }
 
+// Interface is the API of a DeterministicWallet.
 type Interface interface {
 	Init()
 	Close()
@@ -46,8 +47,11 @@ type Interface interface {
 	GetUnusedReceiveAddress() btcutil.Address
 }
 
+// ErrUserAborted is returned when a signing operation is aborted by the user. See
+// HDKeyStoreInterface.
 var ErrUserAborted = errors.New("aborted")
 
+// HDKeyStoreInterface is the interface needed to sign hashes based on derivations from an xpub.
 type HDKeyStoreInterface interface {
 	XPub() *hdkeychain.ExtendedKey
 	// Sign signs every hash with a private key at the corresponding keypath.
@@ -55,8 +59,10 @@ type HDKeyStoreInterface interface {
 	Sign(hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 }
 
+// FeeTargetCode is the ID of a fee target. See the FeeTargetCode* constants.x
 type FeeTargetCode string
 
+// NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
 func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	switch code {
 	case string(FeeTargetCodeLow):
@@ -70,14 +76,19 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 }
 
 const (
-	FeeTargetCodeLow     FeeTargetCode = "low"
-	FeeTargetCodeEconomy               = "economy"
-	FeeTargetCodeNormal                = "normal"
-	FeeTargetCodeHigh                  = "high"
+	// FeeTargetCodeLow is the low priority fee target.
+	FeeTargetCodeLow FeeTargetCode = "low"
+	// FeeTargetCodeEconomy is the economy priority fee target.
+	FeeTargetCodeEconomy = "economy"
+	// FeeTargetCodeNormal is the normal priority fee target.
+	FeeTargetCodeNormal = "normal"
+	// FeeTargetCodeHigh is the high priority fee target.
+	FeeTargetCodeHigh = "high"
 
 	defaultFeeTarget = FeeTargetCodeNormal
 )
 
+// FeeTarget contains the fee rate for a specific fee target.
 type FeeTarget struct {
 	// Blocks is the target number of blocks in which the tx should be confirmed.
 	Blocks int
@@ -87,6 +98,7 @@ type FeeTarget struct {
 	FeeRatePerKb *btcutil.Amount
 }
 
+// DeterministicWallet is a wallet whose addresses are derived from an xpub.
 type DeterministicWallet struct {
 	locker.Locker
 
@@ -108,6 +120,7 @@ type DeterministicWallet struct {
 	onEvent func(interface{})
 }
 
+// NewDeterministicWallet creats a new DeterministicWallet.
 func NewDeterministicWallet(
 	net *chaincfg.Params,
 	keystore HDKeyStoreInterface,
@@ -152,12 +165,14 @@ func NewDeterministicWallet(
 	return wallet, nil
 }
 
+// Init initializes the wallet.
 func (wallet *DeterministicWallet) Init() {
 	wallet.updateFeeTargets()
 	wallet.onEvent("initialized")
 	wallet.EnsureAddresses()
 }
 
+// Close stops the wallet, including the blockchain connection.
 func (wallet *DeterministicWallet) Close() {
 	wallet.blockchain.Close()
 	wallet.onEvent("uninitialized")
@@ -183,10 +198,12 @@ func (wallet *DeterministicWallet) updateFeeTargets() {
 	}
 }
 
+// FeeTargets returns the fee targets and the default fee target.
 func (wallet *DeterministicWallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
 	return wallet.feeTargets, defaultFeeTarget
 }
 
+// Balance wraps transaction.Transactions.Balance()
 func (wallet *DeterministicWallet) Balance() *transactions.Balance {
 	return wallet.transactions.Balance()
 }
@@ -267,15 +284,19 @@ func (wallet *DeterministicWallet) ensureAddresses() error {
 	return syncSequence(true, changeGapLimit)
 }
 
+// Transactions wraps transaction.Transactions.Transactions()
 func (wallet *DeterministicWallet) Transactions() []*transactions.Transaction {
 	return wallet.transactions.Transactions()
 }
 
+// ClassifyTransaction wraps transaction.Transactions.ClassifyTransaction()
 func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
 	transactions.TxType, btcutil.Amount, *btcutil.Amount) {
 	return wallet.transactions.ClassifyTransaction(tx)
 }
 
+// GetUnusedReceiveAddress returns a fresh receive address.
 func (wallet *DeterministicWallet) GetUnusedReceiveAddress() btcutil.Address {
+	defer wallet.RLock()()
 	return wallet.receiveAddresses.GetUnused().Address
 }

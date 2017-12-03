@@ -6,6 +6,7 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// FreePort returns a random unused port.
 func FreePort() (int, error) {
 	listener, err := net.Listen("tcp", "localhost:0")
 	if err != nil {

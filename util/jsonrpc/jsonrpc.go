@@ -207,6 +207,7 @@ func (client *RPCClient) send(msg []byte) error {
 	return errp.WithStack(err)
 }
 
+// Close shuts down the connection.
 func (client *RPCClient) Close() {
 	client.close = true
 }
