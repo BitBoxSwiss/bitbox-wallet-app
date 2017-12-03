@@ -380,6 +380,10 @@ export default class Wallets extends Component {
               <CoinLink code="tbtc">Bitcoin Testnet</CoinLink>
               &nbsp;
               <CoinLink code="btc">Bitcoin</CoinLink>
+              &nbsp;
+              <CoinLink code="tltc">Litecoin Testnet</CoinLink>
+              &nbsp;
+              <CoinLink code="ltc">Litecoin</CoinLink>
               <Wallet
                 walletCode="tbtc"
                 show={activeCoin == "tbtc"}
@@ -389,6 +393,16 @@ export default class Wallets extends Component {
                 walletCode="btc"
                 show={activeCoin == "btc"}
                 registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc"] = onWalletEvent; }}
+              />
+              <Wallet
+                walletCode="tltc"
+                show={activeCoin == "tltc"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tltc"] = onWalletEvent; }}
+              />
+              <Wallet
+                walletCode="ltc"
+                show={activeCoin == "ltc"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["ltc"] = onWalletEvent; }}
                   />
             </div>
         );

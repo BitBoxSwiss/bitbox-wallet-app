@@ -8,6 +8,7 @@ import (
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
 	"github.com/shiftdevices/godbb/electrum"
+	"github.com/shiftdevices/godbb/knot/coins/ltc"
 )
 
 type Wallet struct {
@@ -28,6 +29,14 @@ func (wallet *Wallet) init(knot *Knot) error {
 		net = &chaincfg.MainNetParams
 		walletDerivationPath = "m/44'/0'/0'"
 		electrumServer = electrum.Server
+	case "tltc":
+		net = &ltc.TestNet4Params
+		walletDerivationPath = "m/44'/1'/0'"
+		electrumServer = "electrum-ltc.bysh.me:51002"
+	case "ltc":
+		net = &ltc.MainNetParams
+		walletDerivationPath = "m/44'/2'/0'"
+		electrumServer = "ltc01.knas.systems:50004"
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
@@ -82,6 +91,8 @@ func NewKnot() *Knot {
 		wallets: []*Wallet{
 			&Wallet{Code: "tbtc"},
 			&Wallet{Code: "btc"},
+			&Wallet{Code: "tltc"},
+			&Wallet{Code: "ltc"},
 		},
 	}
 }

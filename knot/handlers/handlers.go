@@ -71,6 +71,12 @@ func NewHandlers(
 		"btc": walletHandlers.NewHandlers(
 			getApiRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
 		),
+		"tltc": walletHandlers.NewHandlers(
+			getApiRouter(apiRouter.PathPrefix("/wallet/tltc").Subrouter()),
+		),
+		"ltc": walletHandlers.NewHandlers(
+			getApiRouter(apiRouter.PathPrefix("/wallet/ltc").Subrouter()),
+		),
 	}
 
 	knot_.OnWalletInit(func(wallet *knot.Wallet) {
