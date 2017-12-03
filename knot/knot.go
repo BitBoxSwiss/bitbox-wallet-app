@@ -50,7 +50,7 @@ func (wallet *Wallet) init(knot *Knot) error {
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer)
+	electrumClient, err := electrum.NewElectrumClient(electrumServer, true)
 	if err != nil {
 		return err
 	}

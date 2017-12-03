@@ -3,6 +3,8 @@ WEBROOT:=`pwd`/frontends/web
 
 init:
 	cd vendor/github.com/vektra/mockery && go install ./...
+	go get -u gopkg.in/alecthomas/gometalinter.v1
+	gometalinter.v1 --install
 	go get -u github.com/jteeuwen/go-bindata/...
 	make generate
 servewallet:
@@ -16,7 +18,8 @@ webdev:
 qt:
 	make generate
 	make -C frontends/qt
-
+ci:
+	./scripts/ci.sh
 dockerinit:
 	docker build --force-rm -t godbb .
 dockerdev:

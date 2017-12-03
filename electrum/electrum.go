@@ -2,6 +2,7 @@ package electrum
 
 import (
 	"crypto/tls"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -49,12 +50,22 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 
 // NewElectrumClient connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumClient(server string) (*client.ElectrumClient, error) {
-	tlsConn, err := newTLSConnection(server)
-	if err != nil {
-		return nil, err
+func NewElectrumClient(server string, tls bool) (*client.ElectrumClient, error) {
+	var conn io.ReadWriteCloser
+	if tls {
+		var err error
+		conn, err = newTLSConnection(server)
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		var err error
+		conn, err = newTCPConnection(server)
+		if err != nil {
+			return nil, err
+		}
 	}
-	rpcClient, err := jsonrpc.NewRPCClient(tlsConn)
+	rpcClient, err := jsonrpc.NewRPCClient(conn)
 	if err != nil {
 		return nil, err
 	}

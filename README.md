@@ -94,6 +94,8 @@ static content.
 
 To build the standalone desktop app, run `make qt`.
 
+Run `make ci` to run all static analysis tools and tests.
+
 ## Develop using Docker
 
 The Dockerfile provides a Ubuntu container with the whole environment preconfigured. To set it up,

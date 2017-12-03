@@ -120,11 +120,6 @@ var testNet4GenesisHash = chainhash.Hash([chainhash.HashSize]byte{ // Make go ve
 	0xd9, 0x51, 0x28, 0x4b, 0x5a, 0x62, 0x66, 0x49,
 })
 
-// testNet3GenesisMerkleRoot is the hash of the first transaction in the genesis
-// block for the test network (version 3).  It is the same as the merkle root
-// for the main network.
-var testNet3GenesisMerkleRoot = genesisMerkleRoot
-
 // testNet4GenesisMerkleRoot is the hash of the first transaction in the genesis
 // block for the test network (version 4).  It is the same as the merkle root
 // for the main network.

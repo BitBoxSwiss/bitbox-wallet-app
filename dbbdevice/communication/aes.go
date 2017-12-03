@@ -56,7 +56,7 @@ func decrypt(key []byte, text string) ([]byte, error) {
 	}
 
 	if (len(decodedMsg) % aes.BlockSize) != 0 {
-		return nil, errp.New("blocksize must be multipe of decoded message length")
+		return nil, errp.New("blocksize must be multiple of decoded message length")
 	}
 
 	iv := decodedMsg[:aes.BlockSize]

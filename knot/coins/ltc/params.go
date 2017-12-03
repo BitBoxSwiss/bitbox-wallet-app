@@ -27,11 +27,6 @@ var (
 	// can have for the regression test network.  It is the value 2^255 - 1.
 	regressionPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 255), bigOne)
 
-	// testNet3PowLimit is the highest proof of work value a Litecoin block
-	// can have for the test network (version 3).  It is the value
-	// 2^224 - 1.
-	testNet3PowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 224), bigOne)
-
 	// testNet4PowLimit is the highest proof of work value a Litecoin block
 	// can have for the test network (version 4).
 	testNet4PowLimit, _ = new(big.Int).SetString("0x0fffff000000000000000000000000000000000000000000000000000000", 0)
@@ -50,12 +45,12 @@ const (
 	DeploymentTestDummy = iota
 
 	// DeploymentCSV defines the rule change deployment ID for the CSV
-	// soft-fork package. The CSV package includes the depolyment of BIPS
+	// soft-fork package. The CSV package includes the deployment of BIPS
 	// 68, 112, and 113.
 	DeploymentCSV
 
 	// DeploymentSegwit defines the rule change deployment ID for the
-	// Segragated Witness (segwit) soft-fork package. The segwit package
+	// Segregated Witness (segwit) soft-fork package. The segwit package
 	// includes the deployment of BIPS 141, 142, 144, 145, 147 and 173.
 	DeploymentSegwit
 
@@ -72,11 +67,11 @@ var MainNetParams = chaincfg.Params{
 	Net:         MainNet,
 	DefaultPort: "9333",
 	DNSSeeds: []chaincfg.DNSSeed{
-		{"seed-a.litecoin.loshan.co.uk", true},
-		{"dnsseed.thrasher.io", true},
-		{"dnsseed.litecointools.com", false},
-		{"dnsseed.litecoinpool.org", false},
-		{"dnsseed.koin-project.com", false},
+		{Host: "seed-a.litecoin.loshan.co.uk", HasFiltering: true},
+		{Host: "dnsseed.thrasher.io", HasFiltering: true},
+		{Host: "dnsseed.litecointools.com", HasFiltering: false},
+		{Host: "dnsseed.litecoinpool.org", HasFiltering: false},
+		{Host: "dnsseed.koin-project.com", HasFiltering: false},
 	},
 
 	// Chain parameters
@@ -98,22 +93,22 @@ var MainNetParams = chaincfg.Params{
 
 	// Checkpoints ordered from oldest to newest.
 	Checkpoints: []chaincfg.Checkpoint{
-		{1500, newHashFromStr("841a2965955dd288cfa707a755d05a54e45f8bd476835ec9af4402a2b59a2967")},
-		{4032, newHashFromStr("9ce90e427198fc0ef05e5905ce3503725b80e26afd35a987965fd7e3d9cf0846")},
-		{8064, newHashFromStr("eb984353fc5190f210651f150c40b8a4bab9eeeff0b729fcb3987da694430d70")},
-		{16128, newHashFromStr("602edf1859b7f9a6af809f1d9b0e6cb66fdc1d4d9dcd7a4bec03e12a1ccd153d")},
-		{23420, newHashFromStr("d80fdf9ca81afd0bd2b2a90ac3a9fe547da58f2530ec874e978fce0b5101b507")},
-		{50000, newHashFromStr("69dc37eb029b68f075a5012dcc0419c127672adb4f3a32882b2b3e71d07a20a6")},
-		{80000, newHashFromStr("4fcb7c02f676a300503f49c764a89955a8f920b46a8cbecb4867182ecdb2e90a")},
-		{120000, newHashFromStr("bd9d26924f05f6daa7f0155f32828ec89e8e29cee9e7121b026a7a3552ac6131")},
-		{161500, newHashFromStr("dbe89880474f4bb4f75c227c77ba1cdc024991123b28b8418dbbf7798471ff43")},
-		{179620, newHashFromStr("2ad9c65c990ac00426d18e446e0fd7be2ffa69e9a7dcb28358a50b2b78b9f709")},
-		{240000, newHashFromStr("7140d1c4b4c2157ca217ee7636f24c9c73db39c4590c4e6eab2e3ea1555088aa")},
-		{383640, newHashFromStr("2b6809f094a9215bafc65eb3f110a35127a34be94b7d0590a096c3f126c6f364")},
-		{409004, newHashFromStr("487518d663d9f1fa08611d9395ad74d982b667fbdc0e77e9cf39b4f1355908a3")},
-		{456000, newHashFromStr("bf34f71cc6366cd487930d06be22f897e34ca6a40501ac7d401be32456372004")},
-		{638902, newHashFromStr("15238656e8ec63d28de29a8c75fcf3a5819afc953dcd9cc45cecc53baec74f38")},
-		{721000, newHashFromStr("198a7b4de1df9478e2463bd99d75b714eab235a2e63e741641dc8a759a9840e5")},
+		{Height: 1500, Hash: newHashFromStr("841a2965955dd288cfa707a755d05a54e45f8bd476835ec9af4402a2b59a2967")},
+		{Height: 4032, Hash: newHashFromStr("9ce90e427198fc0ef05e5905ce3503725b80e26afd35a987965fd7e3d9cf0846")},
+		{Height: 8064, Hash: newHashFromStr("eb984353fc5190f210651f150c40b8a4bab9eeeff0b729fcb3987da694430d70")},
+		{Height: 16128, Hash: newHashFromStr("602edf1859b7f9a6af809f1d9b0e6cb66fdc1d4d9dcd7a4bec03e12a1ccd153d")},
+		{Height: 23420, Hash: newHashFromStr("d80fdf9ca81afd0bd2b2a90ac3a9fe547da58f2530ec874e978fce0b5101b507")},
+		{Height: 50000, Hash: newHashFromStr("69dc37eb029b68f075a5012dcc0419c127672adb4f3a32882b2b3e71d07a20a6")},
+		{Height: 80000, Hash: newHashFromStr("4fcb7c02f676a300503f49c764a89955a8f920b46a8cbecb4867182ecdb2e90a")},
+		{Height: 120000, Hash: newHashFromStr("bd9d26924f05f6daa7f0155f32828ec89e8e29cee9e7121b026a7a3552ac6131")},
+		{Height: 161500, Hash: newHashFromStr("dbe89880474f4bb4f75c227c77ba1cdc024991123b28b8418dbbf7798471ff43")},
+		{Height: 179620, Hash: newHashFromStr("2ad9c65c990ac00426d18e446e0fd7be2ffa69e9a7dcb28358a50b2b78b9f709")},
+		{Height: 240000, Hash: newHashFromStr("7140d1c4b4c2157ca217ee7636f24c9c73db39c4590c4e6eab2e3ea1555088aa")},
+		{Height: 383640, Hash: newHashFromStr("2b6809f094a9215bafc65eb3f110a35127a34be94b7d0590a096c3f126c6f364")},
+		{Height: 409004, Hash: newHashFromStr("487518d663d9f1fa08611d9395ad74d982b667fbdc0e77e9cf39b4f1355908a3")},
+		{Height: 456000, Hash: newHashFromStr("bf34f71cc6366cd487930d06be22f897e34ca6a40501ac7d401be32456372004")},
+		{Height: 638902, Hash: newHashFromStr("15238656e8ec63d28de29a8c75fcf3a5819afc953dcd9cc45cecc53baec74f38")},
+		{Height: 721000, Hash: newHashFromStr("198a7b4de1df9478e2463bd99d75b714eab235a2e63e741641dc8a759a9840e5")},
 	},
 
 	// Consensus rule change deployments.
@@ -171,9 +166,9 @@ var TestNet4Params = chaincfg.Params{
 	Net:         TestNet4,
 	DefaultPort: "19335",
 	DNSSeeds: []chaincfg.DNSSeed{
-		{"testnet-seed.litecointools.com", false},
-		{"seed-b.litecoin.loshan.co.uk", true},
-		{"dnsseed-testnet.thrasher.io", true},
+		{Host: "testnet-seed.litecointools.com", HasFiltering: false},
+		{Host: "seed-b.litecoin.loshan.co.uk", HasFiltering: true},
+		{Host: "dnsseed-testnet.thrasher.io", HasFiltering: true},
 	},
 
 	// Chain parameters
@@ -195,11 +190,11 @@ var TestNet4Params = chaincfg.Params{
 
 	// Checkpoints ordered from oldest to newest.
 	Checkpoints: []chaincfg.Checkpoint{
-		{26115, newHashFromStr("817d5b509e91ab5e439652eee2f59271bbc7ba85021d720cdb6da6565b43c14f")},
-		{43928, newHashFromStr("7d86614c153f5ef6ad878483118ae523e248cd0dd0345330cb148e812493cbb4")},
-		{69296, newHashFromStr("66c2f58da3cfd282093b55eb09c1f5287d7a18801a8ff441830e67e8771010df")},
-		{99949, newHashFromStr("8dd471cb5aecf5ead91e7e4b1e932c79a0763060f8d93671b6801d115bfc6cde")},
-		{159256, newHashFromStr("ab5b0b9968842f5414804591119d6db829af606864b1959a25d6f5c114afb2b7")},
+		{Height: 26115, Hash: newHashFromStr("817d5b509e91ab5e439652eee2f59271bbc7ba85021d720cdb6da6565b43c14f")},
+		{Height: 43928, Hash: newHashFromStr("7d86614c153f5ef6ad878483118ae523e248cd0dd0345330cb148e812493cbb4")},
+		{Height: 69296, Hash: newHashFromStr("66c2f58da3cfd282093b55eb09c1f5287d7a18801a8ff441830e67e8771010df")},
+		{Height: 99949, Hash: newHashFromStr("8dd471cb5aecf5ead91e7e4b1e932c79a0763060f8d93671b6801d115bfc6cde")},
+		{Height: 159256, Hash: newHashFromStr("ab5b0b9968842f5414804591119d6db829af606864b1959a25d6f5c114afb2b7")},
 	},
 
 	// Consensus rule change deployments.
