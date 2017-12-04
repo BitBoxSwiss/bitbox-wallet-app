@@ -22,4 +22,5 @@ gometalinter.v1 \
     -E misspell \
     -E structcheck \
     -E varcheck \
+    -E errcheck \
     ./...

@@ -50,7 +50,7 @@ func (client *RPCClient) handleError(err error) {
 }
 
 func (client *RPCClient) read(callback func([]byte)) {
-	defer client.conn.Close()
+	defer func() { _ = client.conn.Close() }()
 	reader := bufio.NewReader(client.conn)
 	for !client.close {
 		line, err := reader.ReadBytes(byte('\n'))

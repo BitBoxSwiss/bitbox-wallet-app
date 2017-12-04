@@ -68,17 +68,27 @@ func (communication *Communication) sendFrame(msg string) error {
 	readBuffer := bytes.NewBuffer([]byte(msg))
 	// init frame
 	header := new(bytes.Buffer)
-	binary.Write(header, binary.BigEndian, uint32(hwwCID))
-	binary.Write(header, binary.BigEndian, uint8(hwwCMD))
-	binary.Write(header, binary.BigEndian, uint16(dataLen&0xFFFF))
+	if err := binary.Write(header, binary.BigEndian, uint32(hwwCID)); err != nil {
+		return err
+	}
+	if err := binary.Write(header, binary.BigEndian, uint8(hwwCMD)); err != nil {
+		return err
+	}
+	if err := binary.Write(header, binary.BigEndian, uint16(dataLen&0xFFFF)); err != nil {
+		return err
+	}
 	if err := send(header.Bytes(), readBuffer); err != nil {
 		return err
 	}
 	for seq := 0; readBuffer.Len() > 0; seq++ {
 		// cont frame
 		header = new(bytes.Buffer)
-		binary.Write(header, binary.BigEndian, uint32(hwwCID))
-		binary.Write(header, binary.BigEndian, uint8(seq))
+		if err := binary.Write(header, binary.BigEndian, uint32(hwwCID)); err != nil {
+			return err
+		}
+		if err := binary.Write(header, binary.BigEndian, uint8(seq)); err != nil {
+			return err
+		}
 		if err := send(header.Bytes(), readBuffer); err != nil {
 			return err
 		}

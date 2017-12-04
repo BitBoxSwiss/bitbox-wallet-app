@@ -63,7 +63,7 @@ func runWebsocket(conn *websocket.Conn) (chan []byte, <-chan struct{}) {
 					return
 				}
 			case <-ticker.C:
-				conn.SetWriteDeadline(time.Now().Add(writeWait))
+				_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
 				if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 					return
 				}

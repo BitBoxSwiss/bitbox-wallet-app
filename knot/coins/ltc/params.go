@@ -15,25 +15,13 @@ import (
 // These variables are the chain proof-of-work limit parameters for each default
 // network.
 var (
-	// bigOne is 1 represented as a big.Int.  It is defined here to avoid
-	// the overhead of creating it multiple times.
-	bigOne = big.NewInt(1)
-
 	// mainPowLimit is the highest proof of work value a Litecoin block can
 	// have for the main network.
 	mainPowLimit, _ = new(big.Int).SetString("0x0fffff000000000000000000000000000000000000000000000000000000", 0)
 
-	// regressionPowLimit is the highest proof of work value a Litecoin block
-	// can have for the regression test network.  It is the value 2^255 - 1.
-	regressionPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 255), bigOne)
-
 	// testNet4PowLimit is the highest proof of work value a Litecoin block
 	// can have for the test network (version 4).
 	testNet4PowLimit, _ = new(big.Int).SetString("0x0fffff000000000000000000000000000000000000000000000000000000", 0)
-
-	// simNetPowLimit is the highest proof of work value a Litecoin block
-	// can have for the simulation test network.  It is the value 2^255 - 1.
-	simNetPowLimit = new(big.Int).Sub(new(big.Int).Lsh(bigOne, 255), bigOne)
 )
 
 // Constants that define the deployment offset in the deployments field of the

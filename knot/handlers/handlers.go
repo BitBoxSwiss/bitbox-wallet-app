@@ -128,7 +128,7 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "image/png")
-	qr.Write(256, w)
+	_ = qr.Write(256, w)
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
