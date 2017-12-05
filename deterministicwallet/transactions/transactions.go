@@ -321,6 +321,7 @@ const (
 // 3) Send self: all inputs and all outputs are ours. Amount is the amount sent to self. Fee is returned.
 func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
 	TxType, btcutil.Amount, *btcutil.Amount) {
+	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true

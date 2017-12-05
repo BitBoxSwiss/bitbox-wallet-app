@@ -46,7 +46,7 @@ func (wallet *Wallet) init(knot *Knot) error {
 	case "ltc":
 		net = &ltc.MainNetParams
 		walletDerivationPath = "m/44'/2'/0'"
-		electrumServer = "ltc01.knas.systems:50004"
+		electrumServer = "electrumx.nmdps.net:9434"
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}

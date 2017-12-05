@@ -3,6 +3,7 @@ package addresses
 import (
 	"fmt"
 
+	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -10,62 +11,67 @@ import (
 
 // AddressChain manages a chain of addresses derived from an xpub.
 type AddressChain struct {
-	addresses  []*Address
 	xpub       *hdkeychain.ExtendedKey
+	net        *chaincfg.Params
 	gapLimit   int
 	chainIndex uint32
+	addresses  []*Address
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub.
-func NewAddressChain(xpub *hdkeychain.ExtendedKey, gapLimit int, chainIndex uint32) *AddressChain {
+func NewAddressChain(
+	xpub *hdkeychain.ExtendedKey,
+	net *chaincfg.Params,
+	gapLimit int,
+	chainIndex uint32) *AddressChain {
 	chainXPub, err := xpub.Child(chainIndex)
 	if err != nil {
 		panic(err)
 	}
 	return &AddressChain{
-		addresses:  []*Address{},
 		xpub:       chainXPub,
+		net:        net,
 		gapLimit:   gapLimit,
 		chainIndex: chainIndex,
+		addresses:  []*Address{},
 	}
 }
 
-// GetUnused returns the first unused address.
+// GetUnused returns the first unused address. EnsureAddresses() must be called beforehand.
 func (addresses AddressChain) GetUnused() *Address {
-	if addresses.UnusedTailCount() != addresses.gapLimit {
+	if addresses.unusedTailCount() != addresses.gapLimit {
 		panic("concurrency error; addresses not synced correctly")
 	}
 	return addresses.addresses[len(addresses.addresses)-addresses.gapLimit]
 }
 
-func (addresses AddressChain) childXPub(index uint32) *hdkeychain.ExtendedKey {
+func (addresses AddressChain) getPubKey(index uint32) *btcec.PublicKey {
 	xpub, err := addresses.xpub.Child(index)
 	if err != nil {
 		panic(err)
 	}
-	return xpub
+	publicKey, err := xpub.ECPubKey()
+	if err != nil {
+		panic(err)
+	}
+	return publicKey
 }
 
-// AddAddress appends a new address at the end of the chain.
-func (addresses *AddressChain) AddAddress(net *chaincfg.Params) *Address {
+// addAddress appends a new address at the end of the chain.
+func (addresses *AddressChain) addAddress() *Address {
 	index := len(addresses.addresses)
-	childXPub := addresses.childXPub(uint32(index))
-	address, err := childXPub.Address(net)
-	if err != nil {
-		panic(err)
-	}
-	publicKey, err := childXPub.ECPubKey()
-	if err != nil {
-		panic(err)
-	}
-	addressWithPK := NewAddress(address, publicKey, fmt.Sprintf("%d/%d", addresses.chainIndex, index))
+	publicKey := addresses.getPubKey(uint32(index))
+	addressWithPK := NewAddress(
+		publicKey,
+		addresses.net,
+		fmt.Sprintf("%d/%d", addresses.chainIndex, index))
 	addresses.addresses = append(addresses.addresses, addressWithPK)
 	return addressWithPK
 
 }
 
-// UnusedTailCount returns the number of unused addresses at the end of the chain.
-func (addresses AddressChain) UnusedTailCount() int {
+// unusedTailCount returns the number of unused addresses at the end of the chain.
+func (addresses AddressChain) unusedTailCount() int {
 	count := 0
 	for i := len(addresses.addresses) - 1; i >= 0; i-- {
 		if addresses.addresses[i].isUsed() {
@@ -85,4 +91,15 @@ func (addresses *AddressChain) Contains(checkAddress btcutil.Address) bool {
 		}
 	}
 	return false
+}
+
+// EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
+// ones, and returns the new addresses.
+func (addresses *AddressChain) EnsureAddresses() []*Address {
+	addedAddresses := []*Address{}
+	unusedAddressCount := addresses.unusedTailCount()
+	for i := 0; i < addresses.gapLimit-unusedAddressCount; i++ {
+		addedAddresses = append(addedAddresses, addresses.addAddress())
+	}
+	return addedAddresses
 }

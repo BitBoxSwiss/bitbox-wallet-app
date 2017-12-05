@@ -157,8 +157,8 @@ func NewDeterministicWallet(
 		onEvent: onEvent,
 	}
 
-	wallet.receiveAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), gapLimit, 0)
-	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), changeGapLimit, 1)
+	wallet.receiveAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, gapLimit, 0)
+	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1)
 	wallet.transactions = transactions.NewTransactions(
 		net, synchronizer, blockchain, wallet.changeAddresses.Contains)
 
@@ -243,45 +243,37 @@ func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, s
 	)
 }
 
-// addAddress adds a new address to the wallet and subscribes to changes to it (see
-// onAddressStatus).
-func (wallet *DeterministicWallet) addAddress(change bool) error {
-	address := wallet.addresses(change).AddAddress(wallet.net)
-	done := wallet.synchronizer.IncRequestsCounter()
-	return wallet.blockchain.ScriptHashSubscribe(
-		address.ScriptHash(),
-		func(status string) error { return wallet.onAddressStatus(address, status) },
-		func(error) { done() },
-	)
-}
-
 // EnsureAddresses is the entry point of syncing up the wallet. It extends the receive and change
 // address chains to discover all funds, with respect to the gap limit. In the end, there are
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
 func (wallet *DeterministicWallet) EnsureAddresses() {
 	defer wallet.Lock()()
-	if err := wallet.ensureAddresses(); err != nil {
-		// TODO
-		panic(err)
-	}
-}
-
-func (wallet *DeterministicWallet) ensureAddresses() error {
-	// TODO: move into addresses.AddressChain
-	syncSequence := func(change bool, gapLimit int) error {
-		unusedAddressCount := wallet.addresses(change).UnusedTailCount()
-		for i := 0; i < gapLimit-unusedAddressCount; i++ {
-			if err := wallet.addAddress(change); err != nil {
+	syncSequence := func(change bool) error {
+		for _, address := range wallet.addresses(change).EnsureAddresses() {
+			if err := wallet.subscribeAddress(address); err != nil {
 				return err
 			}
 		}
 		return nil
 	}
-	if err := syncSequence(false, gapLimit); err != nil {
-		return err
+	if err := syncSequence(false); err != nil {
+		// TODO
+		panic(err)
 	}
-	return syncSequence(true, changeGapLimit)
+	if err := syncSequence(true); err != nil {
+		// TODO
+		panic(err)
+	}
+}
+
+func (wallet *DeterministicWallet) subscribeAddress(address *addresses.Address) error {
+	done := wallet.synchronizer.IncRequestsCounter()
+	return wallet.blockchain.ScriptHashSubscribe(
+		address.ScriptHash(),
+		func(status string) error { return wallet.onAddressStatus(address, status) },
+		func(error) { done() },
+	)
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
