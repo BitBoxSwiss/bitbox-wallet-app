@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"log"
 	"sync"
 	"time"
@@ -169,16 +170,33 @@ type TX struct {
 	Fee    *int64 `json:"fee"`
 }
 
+// TxHistory is returned by ScriptHashGetHistory.
+type TxHistory []*TX
+
+// Status encodes the status of the address history as a hash, according to the Electrum
+// specification.
+// https://github.com/kyuupichan/electrumx/blob/b01139bb93a7b0cfbd45b64e170223f4871a4a87/docs/PROTOCOL.rst#blockchainaddresssubscribe
+func (history TxHistory) Status() string {
+	if len(history) == 0 {
+		return ""
+	}
+	status := bytes.Buffer{}
+	for _, tx := range history {
+		status.WriteString(fmt.Sprintf("%s:%d:", tx.TXHash.Hash().String(), tx.Height))
+	}
+	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
+}
+
 // ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex string,
-	success func([]*TX) error,
+	success func(TxHistory) error,
 	cleanup func(error),
 ) error {
 	return client.rpc.Method(
 		func(responseBytes []byte) error {
-			txs := []*TX{}
+			txs := TxHistory{}
 			if err := json.Unmarshal(responseBytes, &txs); err != nil {
 				return errp.WithStack(err)
 			}

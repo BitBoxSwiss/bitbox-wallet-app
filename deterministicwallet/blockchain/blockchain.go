@@ -11,7 +11,7 @@ import (
 // Interface is the interface to a blockchain index backend. Currently geared to Electrum, though
 // other backends can implement the same interface.
 type Interface interface {
-	ScriptHashGetHistory(string, func([]*client.TX) error, func(error)) error
+	ScriptHashGetHistory(string, func(client.TxHistory) error, func(error)) error
 	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error
 	ScriptHashSubscribe(string, func(string) error, func(error)) error
 	HeadersSubscribe() (*client.Header, error)

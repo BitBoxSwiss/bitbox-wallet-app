@@ -3,6 +3,8 @@ package addresses
 import (
 	"fmt"
 
+	"github.com/shiftdevices/godbb/util/errp"
+
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
@@ -18,12 +20,19 @@ type AddressChain struct {
 	addresses  []*Address
 }
 
-// NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub.
+// NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub. xpub
+// must be public (neutered) and the xpub type must match the passed net.
 func NewAddressChain(
 	xpub *hdkeychain.ExtendedKey,
 	net *chaincfg.Params,
 	gapLimit int,
 	chainIndex uint32) *AddressChain {
+	if xpub.IsPrivate() {
+		panic("Extended key is private! Only public keys are accepted")
+	}
+	if !xpub.IsForNet(net) {
+		panic(errp.New("xpub does not match provided net"))
+	}
 	chainXPub, err := xpub.Child(chainIndex)
 	if err != nil {
 		panic(err)

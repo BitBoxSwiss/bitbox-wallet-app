@@ -39,27 +39,6 @@ func TestNewAddress(t *testing.T) {
 	require.True(t, address.IsForNet(net))
 }
 
-func TestStatus(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath)
-	require.Equal(t, "", address.Status())
-
-	tx2 := &client.TX{
-		Height: 12,
-		TXHash: client.TXHash(chainhash.HashH([]byte("tx2"))),
-		Fee:    nil,
-	}
-
-	address.History = []*client.TX{tx1}
-	require.Equal(t,
-		"5ac1b066322843c5cb9160e8079dd759eddf6f1fd60645d6bf54942dcba00d09",
-		address.Status())
-
-	address.History = []*client.TX{tx1, tx2}
-	require.Equal(t,
-		"9783fa8a2f1c89652022e0bb435f302ee8b856961dd979ee083435c65384f314",
-		address.Status())
-}
-
 func TestPkScript(t *testing.T) {
 	address := addresses.NewAddress(pk, net, keyPath)
 	require.Equal(t, payToAddrScript, address.PkScript())

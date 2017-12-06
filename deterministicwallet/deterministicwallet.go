@@ -52,6 +52,7 @@ type Interface interface {
 var ErrUserAborted = errors.New("aborted")
 
 // HDKeyStoreInterface is the interface needed to sign hashes based on derivations from an xpub.
+//go:generate mockery -name HDKeyStoreInterface
 type HDKeyStoreInterface interface {
 	XPub() *hdkeychain.ExtendedKey
 	// Sign signs every hash with a private key at the corresponding keypath.
@@ -106,8 +107,6 @@ type DeterministicWallet struct {
 	keystore   HDKeyStoreInterface
 	blockchain blockchain.Interface
 
-	minRelayFee btcutil.Amount
-
 	receiveAddresses *addresses.AddressChain
 	changeAddresses  *addresses.AddressChain
 
@@ -134,10 +133,6 @@ func NewDeterministicWallet(
 	if !xpub.IsForNet(net) {
 		return nil, errp.New("xpub does not match provided net")
 	}
-	minRelayFee, err := blockchain.RelayFee()
-	if err != nil {
-		return nil, err
-	}
 	synchronizer := synchronizer.NewSynchronizer(
 		func() { onEvent("syncstarted") },
 		func() { onEvent("syncdone") },
@@ -146,7 +141,6 @@ func NewDeterministicWallet(
 		net:          net,
 		keystore:     keystore,
 		blockchain:   blockchain,
-		minRelayFee:  minRelayFee,
 		synchronizer: synchronizer,
 		feeTargets: []*FeeTarget{
 			{Blocks: 25, Code: FeeTargetCodeEconomy},
@@ -169,7 +163,7 @@ func NewDeterministicWallet(
 func (wallet *DeterministicWallet) Init() {
 	wallet.updateFeeTargets()
 	wallet.onEvent("initialized")
-	wallet.EnsureAddresses()
+	wallet.ensureAddresses()
 }
 
 // Close stops the wallet, including the blockchain connection.
@@ -219,7 +213,7 @@ func (wallet *DeterministicWallet) addresses(change bool) *addresses.AddressChai
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
 func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, status string) error {
-	if status == address.Status() {
+	if status == address.History.Status() {
 		// Address didn't change.
 		return nil
 	}
@@ -227,27 +221,27 @@ func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, s
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashGetHistory(
 		address.ScriptHash(),
-		func(history []*client.TX) error {
+		func(history client.TxHistory) error {
 			func() {
-				defer wallet.RLock()()
+				defer wallet.Lock()()
 				address.History = history
-				if address.Status() != status {
+				if address.History.Status() != status {
 					log.Println("client status should match after sync")
 				}
 				wallet.transactions.UpdateAddressHistory(address, history)
 			}()
-			wallet.EnsureAddresses()
+			wallet.ensureAddresses()
 			return nil
 		},
 		func(error) { done() },
 	)
 }
 
-// EnsureAddresses is the entry point of syncing up the wallet. It extends the receive and change
+// ensureAddresses is the entry point of syncing up the wallet. It extends the receive and change
 // address chains to discover all funds, with respect to the gap limit. In the end, there are
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
-func (wallet *DeterministicWallet) EnsureAddresses() {
+func (wallet *DeterministicWallet) ensureAddresses() {
 	defer wallet.Lock()()
 	syncSequence := func(change bool) error {
 		for _, address := range wallet.addresses(change).EnsureAddresses() {
