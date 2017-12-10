@@ -261,6 +261,7 @@ type Balance struct {
 
 // Balance computes the confirmed and unconfirmed balance of the wallet.
 func (transactions *Transactions) Balance() *Balance {
+	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	var confirmed int64
 	var unconfirmed int64
@@ -373,6 +374,7 @@ func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions() []*Transaction {
+	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	txs := []*Transaction{}
 	for _, transaction := range transactions.transactions {

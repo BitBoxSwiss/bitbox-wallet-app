@@ -283,6 +283,7 @@ func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
 
 // GetUnusedReceiveAddress returns a fresh receive address.
 func (wallet *DeterministicWallet) GetUnusedReceiveAddress() btcutil.Address {
+	wallet.synchronizer.WaitSynchronized()
 	defer wallet.RLock()()
 	return wallet.receiveAddresses.GetUnused().Address
 }
