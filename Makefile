@@ -6,6 +6,7 @@ init:
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	gometalinter.v1 --install
 	go get -u github.com/jteeuwen/go-bindata/...
+	dep ensure
 	make generate
 servewallet:
 	cd cmd/servewallet && go install ./... && servewallet

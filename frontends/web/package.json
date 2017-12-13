@@ -16,14 +16,18 @@
     "build/*"
   ],
   "devDependencies": {
+    "babel-plugin-module-resolver": "^3.0.0",
     "eslint": "^4.5.0",
     "eslint-config-synacor": "^1.1.0",
     "if-env": "^1.0.0",
     "preact-cli": "^2.0.0"
   },
   "dependencies": {
+    "i18next": "^10.2.1",
     "preact": "^8.2.1",
+    "preact-compat": "^3.17.0",
     "preact-material-components": "^1.2.3",
-    "preact-router": "^2.5.5"
+    "preact-router": "^2.5.5",
+    "react-i18next": "^7.1.1"
   }
 }

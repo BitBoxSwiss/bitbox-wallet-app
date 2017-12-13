@@ -23,6 +23,8 @@ import WaitDialog from '../../components/wait-dialog';
 import List from 'preact-material-components/List';
 import 'preact-material-components/List/style.css';
 
+import { translate } from 'react-i18next';
+
 import { apiURL, apiGet, apiPost } from '../../util';
 
 class FeeTargets extends Component {
@@ -347,6 +349,7 @@ class Wallet extends Component {
     }
 }
 
+@translate()
 export default class Wallets extends Component {
     constructor(props) {
         super(props);

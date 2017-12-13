@@ -1,6 +1,5 @@
 import { Component } from 'preact';
 import { Router } from 'preact-router';
-
 import Header from './header';
 import Wallets from '../routes/wallet';
 import Options from '../routes/options';
@@ -11,6 +10,8 @@ import Initialize from './initialize';
 import ManageBackups from './manage-backups';
 
 import style from './style';
+
+import { translate } from 'react-i18next';
 
 import { apiGet, apiWebsocket } from '../util';
 
@@ -47,6 +48,7 @@ class Seeded extends Component {
     }
 }
 
+@translate()
 export default class App extends Component {
     constructor(props) {
         super(props);

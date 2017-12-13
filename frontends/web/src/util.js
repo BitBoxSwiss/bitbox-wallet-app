@@ -11,6 +11,8 @@ function extConfig(key, defaultValue) {
 
 const apiPort = extConfig('{{ API_PORT }}', '8082');
 
+export const userLanguage = extConfig('{{ LANG }}', 'en');
+
 export function apiURL(endpoint) {
     return "http://localhost:" + apiPort + "/api/" + endpoint;
 }

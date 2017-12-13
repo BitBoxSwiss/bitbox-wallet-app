@@ -7,8 +7,13 @@ import 'preact-material-components/Button/style.css';
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
+import LanguageSwitcher from '../language-switcher';
+
+import { translate } from 'react-i18next';
+
 import { apiPost } from '../../util';
 
+@translate()
 export default class Login extends Component {
     stateEnum = Object.freeze({
         DEFAULT: "default",
@@ -20,7 +25,10 @@ export default class Login extends Component {
         super(props);
         this.state = {
             state: this.stateEnum.DEFAULT,
-            error: "",
+            errorMessage: "",
+            errorCode: null,
+            remainingAttempts: null,
+            needsLongTouch: false,
             password: ""
         };
     }
@@ -47,24 +55,39 @@ export default class Login extends Component {
         });
         apiPost("device/login", { password: this.state.password }).then(data => {
             if(!data.success) {
-                this.setState({ state: this.stateEnum.ERROR, error: data.errorMessage });
+                if(data.code) {
+                    this.setState({ errorCode: data.code });
+                }
+                if(data.remainingAttempts) {
+                    this.setState({ remainingAttempts: data.remainingAttempts });
+                }
+                if(data.needsLongTouch) {
+                    this.setState({ needsLongTouch: data.needsLongTouch });
+                }
+                this.setState({ state: this.stateEnum.ERROR, errorMessage: data.errorMessage });
             }
         });
         this.setState({ password: ""});
     };
 
-    render({}, state) {
+    render({t}, state) {
         var FormSubmissionState = props => {
             switch(props.state) {
             case this.stateEnum.DEFAULT:
                 break;
             case this.stateEnum.WAITING:
                 return (
-                    <div>Unlocking...</div>
+                    <div>{t("dbb.unlocking")}</div>
                 );
             case this.stateEnum.ERROR:
                 return (
-                    <div>{props.error}</div>
+                    <div>
+                      {t(`dbb.error.${props.errorCode}`, {
+                          defaultValue: props.errorMessage,
+                          remainingAttempts: props.remainingAttempts,
+                          context: props.needsLongTouch ? "touch" : "normal"
+                      })}
+                    </div>
                 );
             }
             return null;
@@ -72,15 +95,16 @@ export default class Login extends Component {
 
         return (
             <Dialog>
+              <LanguageSwitcher/>
               <form onsubmit={this.handleSubmit}>
                 <div>
                   <Textfield
                     autoFocus
                     id="password"
                     type="password"
-                    label="Password"
+                    label={t("Password")}
                     disabled={state.state == this.stateEnum.WAITING}
-                    helptext="Please enter your password to log in"
+                    helptext={t("Please enter your password to log in")}
                     helptextPersistent={true}
                     onInput={this.handleFormChange}
                     value={state.password}
@@ -92,7 +116,7 @@ export default class Login extends Component {
                     primary={true}
                     raised={true}
                     disabled={!this.validate() || state.state == this.stateEnum.WAITING}
-                    >Login</Button>
+                    >{t("Login")}</Button>
                 </div>
                 <FormSubmissionState {...state}/>
               </form>

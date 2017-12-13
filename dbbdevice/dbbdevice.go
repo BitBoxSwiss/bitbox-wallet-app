@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math/big"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -45,7 +46,7 @@ type Interface interface {
 	Status() string
 	SetPassword(string) error
 	CreateWallet(string) error
-	Login(string) error
+	Login(string) (bool, string, error)
 	Reset() (bool, error)
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
@@ -234,11 +235,22 @@ func (dbb *DBBDevice) SetPassword(password string) error {
 }
 
 // Login validates the password. This needs to be called before using any API call except for Ping()
-// and SetPassord().
-func (dbb *DBBDevice) Login(password string) error {
+// and SetPassord(). It returns whether the next login attempt requires a long-touch, and the number
+// of remaining attempts.
+func (dbb *DBBDevice) Login(password string) (bool, string, error) {
 	deviceInfo, err := dbb.deviceInfo(password)
 	if err != nil {
-		return err
+		var remainingAttempts string
+		var needsLongTouch bool
+		if dbbErr, ok := err.(*communication.DBBErr); ok {
+			groups := regexp.MustCompile(`(\d+) attempts remain before`).
+				FindStringSubmatch(dbbErr.Error())
+			if len(groups) == 2 {
+				remainingAttempts = groups[1]
+			}
+			needsLongTouch = strings.Contains(dbbErr.Error(), "next")
+		}
+		return needsLongTouch, remainingAttempts, err
 	}
 	dbb.password = password
 	dbb.seeded = deviceInfo.Seeded
@@ -246,7 +258,7 @@ func (dbb *DBBDevice) Login(password string) error {
 	if dbb.onEvent != nil {
 		dbb.onEvent("login")
 	}
-	return nil
+	return false, "", nil
 }
 
 func stretchKey(key string) string {

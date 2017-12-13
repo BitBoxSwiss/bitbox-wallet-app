@@ -64,3 +64,11 @@ required = ["github.com/vektra/mockery"]
 [[constraint]]
   branch = "master"
   name = "github.com/skip2/go-qrcode"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/cloudfoundry-attic/jibber_jabber"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/text"

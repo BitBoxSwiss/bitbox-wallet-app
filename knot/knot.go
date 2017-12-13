@@ -3,7 +3,10 @@ package knot
 import (
 	"fmt"
 
+	"golang.org/x/text/language"
+
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
@@ -13,6 +16,7 @@ import (
 
 // Interface is the API of the knot.
 type Interface interface {
+	UserLanguage() language.Tag
 	OnWalletInit(f func(*Wallet))
 	OnWalletUninit(f func(*Wallet))
 	OnDeviceInit(f func(dbbdevice.Interface))
@@ -107,6 +111,20 @@ func NewKnot() *Knot {
 			&Wallet{Code: "ltc"},
 		},
 	}
+}
+
+// UserLanguage returns the language the UI should be presented in to the user.
+func (knot *Knot) UserLanguage() language.Tag {
+	userLocale, err := jibber_jabber.DetectIETF()
+	if err != nil {
+		return language.English
+	}
+	languages := []language.Tag{
+		language.English,
+		language.German,
+	}
+	tag, _, _ := language.NewMatcher(languages).Match(language.Make(userLocale))
+	return tag
 }
 
 // OnWalletInit installs a callback to be called when a wallet is initialized.

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/dbbdevice"
+	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -74,14 +75,26 @@ func (handlers *Handlers) getDeviceStatusHandler(r *http.Request) (interface{}, 
 	return handlers.device.Status(), nil
 }
 
+func maybeDBBErr(err error) map[string]interface{} {
+	result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
+	if dbbErr, ok := err.(*communication.DBBErr); ok {
+		result["code"] = dbbErr.Code
+	}
+	return result
+}
+
 func (handlers *Handlers) postLoginHandler(r *http.Request) (interface{}, error) {
 	jsonBody := map[string]string{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	password := jsonBody["password"]
-	if err := handlers.device.Login(password); err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
+	needsLongTouch, remainingAttempts, err := handlers.device.Login(password)
+	if err != nil {
+		result := maybeDBBErr(err)
+		result["remainingAttempts"] = remainingAttempts
+		result["needsLongTouch"] = needsLongTouch
+		return result, nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }
