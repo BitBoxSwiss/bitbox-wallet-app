@@ -15,7 +15,7 @@ type Interface interface {
 	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error
 	ScriptHashSubscribe(string, func(string) error, func(error)) error
 	HeadersSubscribe() (*client.Header, error)
-	TransactionBroadcast([]byte) error
+	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
 	EstimateFee(int, func(btcutil.Amount) error, func(error)) error
 	Close()

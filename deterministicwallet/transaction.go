@@ -1,8 +1,6 @@
 package deterministicwallet
 
 import (
-	"bytes"
-
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -100,9 +98,7 @@ func (wallet *DeterministicWallet) SendTx(
 	if err := SignTransaction(wallet.keystore, transaction, previousOutputs); err != nil {
 		return err
 	}
-	rawTX := &bytes.Buffer{}
-	_ = transaction.SerializeNoWitness(rawTX)
-	return wallet.blockchain.TransactionBroadcast(rawTX.Bytes())
+	return wallet.blockchain.TransactionBroadcast(transaction)
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in

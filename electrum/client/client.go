@@ -328,13 +328,17 @@ func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UT
 
 // TransactionBroadcast does the blockchain.transaction.broadcast() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionbroadcast
-func (client *ElectrumClient) TransactionBroadcast(rawTX []byte) error {
-	rawTXHex := hex.EncodeToString(rawTX)
+func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) error {
+	rawTX := &bytes.Buffer{}
+	_ = transaction.Serialize(rawTX)
+	rawTXHex := hex.EncodeToString(rawTX.Bytes())
 	var response string
 	if err := client.rpc.MethodSync(&response, "blockchain.transaction.broadcast", rawTXHex); err != nil {
 		return err
 	}
-	if response != chainhash.DoubleHashH(rawTX).String() {
+	// TxHash() deviates from the hash of rawTXHex in case of a segwit tx. The stripped transaction
+	// ID is used.
+	if response != transaction.TxHash().String() {
 		return errp.New(response)
 	}
 	return nil
