@@ -20,17 +20,19 @@ func TestNewAddressChain(t *testing.T) {
 	xprv.SetNet(net)
 
 	// Can't pass a private key.
-	require.Panics(t, func() { addresses.NewAddressChain(xprv, net, 6, 0) })
+	require.Panics(t,
+		func() { addresses.NewAddressChain(xprv, net, 6, 0, addresses.AddressTypeP2PKH) })
 
 	// Can't pass with the wrong net.
 	xpub, err := xprv.Neuter()
 	require.NoError(t, err)
 	xpub.SetNet(&chaincfg.MainNetParams)
-	require.Panics(t, func() { addresses.NewAddressChain(xpub, net, 6, 0) })
+	require.Panics(t,
+		func() { addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH) })
 
 	// Public and matching net.
 	xpub.SetNet(net)
-	addresses.NewAddressChain(xpub, net, 6, 0)
+	addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH)
 }
 
 type addressChainTestSuite struct {
@@ -51,7 +53,8 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.gapLimit = 6
 	s.chainIndex = 1
 	s.xpub = xpub
-	s.addresses = addresses.NewAddressChain(xpub, net, s.gapLimit, s.chainIndex)
+	s.addresses = addresses.NewAddressChain(
+		xpub, net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH)
 }
 
 func TestAddressChainTestSuite(t *testing.T) {
@@ -84,7 +87,7 @@ func (s *addressChainTestSuite) TestContains() {
 	require.Len(s.T(), newAddresses, 1)
 	require.True(s.T(), s.addresses.Contains(newAddresses[0]))
 
-	address := addresses.NewAddress(pk, net, keyPath)
+	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH)
 	require.False(s.T(), s.addresses.Contains(address))
 }
 
@@ -111,7 +114,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 		return publicKey
 	}
 	for index, address := range newAddresses {
-		require.Equal(s.T(), getPubKey(index), address.PublicKey)
+		require.Equal(s.T(), getPubKey(index), address.TstPublicKey())
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	newAddresses2 := s.addresses.EnsureAddresses()

@@ -10,6 +10,7 @@ import (
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
+	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	"github.com/shiftdevices/godbb/electrum"
 	"github.com/shiftdevices/godbb/knot/coins/ltc"
 )
@@ -34,23 +35,38 @@ func (wallet *Wallet) init(knot *Knot) error {
 	var electrumServer string
 	var net *chaincfg.Params
 	var walletDerivationPath = ""
+	var addressType addresses.AddressType
 	switch wallet.Code {
 	case "tbtc":
 		net = &chaincfg.TestNet3Params
 		walletDerivationPath = "m/44'/1'/0'"
 		electrumServer = electrum.TestServer
+		addressType = addresses.AddressTypeP2PKH
+	case "tbtc-p2wpkh-p2sh":
+		net = &chaincfg.TestNet3Params
+		walletDerivationPath = "m/49'/1'/0'"
+		electrumServer = electrum.TestServer
+		addressType = addresses.AddressTypeP2WPKHP2SH
 	case "btc":
 		net = &chaincfg.MainNetParams
 		walletDerivationPath = "m/44'/0'/0'"
 		electrumServer = electrum.Server
+		addressType = addresses.AddressTypeP2PKH
+	case "btc-p2wpkh-p2sh":
+		net = &chaincfg.MainNetParams
+		walletDerivationPath = "m/49'/0'/0'"
+		electrumServer = electrum.Server
+		addressType = addresses.AddressTypeP2WPKHP2SH
 	case "tltc":
 		net = &ltc.TestNet4Params
 		walletDerivationPath = "m/44'/1'/0'"
-		electrumServer = "electrum-ltc.bysh.me:51002"
+		electrumServer = "electrum.ltc.xurious.com:51002"
+		addressType = addresses.AddressTypeP2PKH
 	case "ltc":
 		net = &ltc.MainNetParams
-		walletDerivationPath = "m/44'/2'/0'"
+		walletDerivationPath = "m/49'/2'/0'"
 		electrumServer = "electrumx.nmdps.net:9434"
+		addressType = addresses.AddressTypeP2WPKHP2SH
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
@@ -66,6 +82,7 @@ func (wallet *Wallet) init(knot *Knot) error {
 		net,
 		keystore,
 		electrumClient,
+		addressType,
 		func(event interface{}) {
 			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: event.(string)}
 		},
@@ -106,7 +123,9 @@ func NewKnot() *Knot {
 		events: make(chan interface{}),
 		wallets: []*Wallet{
 			&Wallet{Code: "tbtc"},
+			&Wallet{Code: "tbtc-p2wpkh-p2sh"},
 			&Wallet{Code: "btc"},
+			&Wallet{Code: "btc-p2wpkh-p2sh"},
 			&Wallet{Code: "tltc"},
 			&Wallet{Code: "ltc"},
 		},

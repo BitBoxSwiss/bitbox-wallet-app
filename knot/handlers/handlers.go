@@ -52,29 +52,22 @@ func NewHandlers(
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
 			return subrouter.HandleFunc(path, apiMiddleware(f))
 		}
-
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 
-	theWalletHandlers := map[string]*walletHandlers.Handlers{
-		"tbtc": walletHandlers.NewHandlers(
-			getAPIRouter(apiRouter.PathPrefix("/wallet/tbtc").Subrouter()),
-		),
-		"btc": walletHandlers.NewHandlers(
-			getAPIRouter(apiRouter.PathPrefix("/wallet/btc").Subrouter()),
-		),
-		"tltc": walletHandlers.NewHandlers(
-			getAPIRouter(apiRouter.PathPrefix("/wallet/tltc").Subrouter()),
-		),
-		"ltc": walletHandlers.NewHandlers(
-			getAPIRouter(apiRouter.PathPrefix("/wallet/ltc").Subrouter()),
-		),
-	}
+	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 
 	theKnot.OnWalletInit(func(wallet *knot.Wallet) {
-		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
+		handlers, ok := theWalletHandlers[wallet.Code]
+		if !ok {
+			// First time; init the handlers for the registered wallet.
+			handlers = walletHandlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
+			theWalletHandlers[wallet.Code] = handlers
+		}
+		handlers.Init(wallet.Wallet)
 	})
 	theKnot.OnWalletUninit(func(wallet *knot.Wallet) {
 		theWalletHandlers[wallet.Code].Uninit()

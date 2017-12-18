@@ -355,7 +355,7 @@ export default class Wallets extends Component {
         this.onWalletEvents = {};
         this.state = {
             activeCoin: "tbtc"
-        }
+        };
     }
 
     componentDidMount() {
@@ -381,7 +381,11 @@ export default class Wallets extends Component {
             <div>
               <CoinLink code="tbtc">Bitcoin Testnet</CoinLink>
               &nbsp;
+              <CoinLink code="tbtc-p2wpkh-p2sh">Bitcoin Testnet Segwit</CoinLink>
+              &nbsp;
               <CoinLink code="btc">Bitcoin</CoinLink>
+              &nbsp;
+              <CoinLink code="btc-p2wpkh-p2sh">Bitcoin Segwit</CoinLink>
               &nbsp;
               <CoinLink code="tltc">Litecoin Testnet</CoinLink>
               &nbsp;
@@ -392,10 +396,20 @@ export default class Wallets extends Component {
                 registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tbtc"] = onWalletEvent; }}
                 />
               <Wallet
+                walletCode="tbtc-p2wpkh-p2sh"
+                show={activeCoin == "tbtc-p2wpkh-p2sh"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tbtc-p2wpkh-p2sh"] = onWalletEvent; }}
+                />
+              <Wallet
                 walletCode="btc"
                 show={activeCoin == "btc"}
                 registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc"] = onWalletEvent; }}
               />
+              <Wallet
+                walletCode="btc-p2wpkh-p2sh"
+                show={activeCoin == "btc-p2wpkh-p2sh"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc-p2wpkh-p2sh"] = onWalletEvent; }}
+                />
               <Wallet
                 walletCode="tltc"
                 show={activeCoin == "tltc"}

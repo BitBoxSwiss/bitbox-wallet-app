@@ -124,6 +124,7 @@ func NewDeterministicWallet(
 	net *chaincfg.Params,
 	keystore HDKeyStoreInterface,
 	blockchain blockchain.Interface,
+	addressType addresses.AddressType,
 	onEvent func(interface{}),
 ) (*DeterministicWallet, error) {
 	xpub := keystore.XPub()
@@ -151,8 +152,9 @@ func NewDeterministicWallet(
 		onEvent: onEvent,
 	}
 
-	wallet.receiveAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, gapLimit, 0)
-	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1)
+	wallet.receiveAddresses = addresses.NewAddressChain(
+		wallet.keystore.XPub(), net, gapLimit, 0, addressType)
+	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1, addressType)
 	wallet.transactions = transactions.NewTransactions(
 		net, synchronizer, blockchain, wallet.changeAddresses.Contains)
 

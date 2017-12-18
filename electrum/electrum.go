@@ -17,7 +17,7 @@ import (
 var Server = "E-X.not.fyi:50002"
 
 // TestServer is a temporary default bitcoin testnet electrum server.
-var TestServer = "testnetnode.arihanc.com:51002"
+var TestServer = "testnet.hsmiths.com:53012"
 
 //var testServer = "testnet.hsmiths.com:53012"
 

@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/deterministicwallet"
+	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/deterministicwallet/blockchain/mocks"
 	"github.com/shiftdevices/godbb/deterministicwallet/mocks"
 	"github.com/stretchr/testify/require"
@@ -39,6 +40,7 @@ func (s *walletSuite) SetupTest() {
 		s.net,
 		&s.keystoreMock,
 		&s.blockchainMock,
+		addresses.AddressTypeP2PKH,
 		s.onEvent,
 	)
 	if err != nil {

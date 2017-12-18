@@ -13,11 +13,12 @@ import (
 
 // AddressChain manages a chain of addresses derived from an xpub.
 type AddressChain struct {
-	xpub       *hdkeychain.ExtendedKey
-	net        *chaincfg.Params
-	gapLimit   int
-	chainIndex uint32
-	addresses  []*Address
+	xpub        *hdkeychain.ExtendedKey
+	net         *chaincfg.Params
+	gapLimit    int
+	chainIndex  uint32
+	addressType AddressType
+	addresses   []*Address
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub. xpub
@@ -26,7 +27,9 @@ func NewAddressChain(
 	xpub *hdkeychain.ExtendedKey,
 	net *chaincfg.Params,
 	gapLimit int,
-	chainIndex uint32) *AddressChain {
+	chainIndex uint32,
+	addressType AddressType,
+) *AddressChain {
 	if xpub.IsPrivate() {
 		panic("Extended key is private! Only public keys are accepted")
 	}
@@ -38,11 +41,12 @@ func NewAddressChain(
 		panic(err)
 	}
 	return &AddressChain{
-		xpub:       chainXPub,
-		net:        net,
-		gapLimit:   gapLimit,
-		chainIndex: chainIndex,
-		addresses:  []*Address{},
+		xpub:        chainXPub,
+		net:         net,
+		gapLimit:    gapLimit,
+		chainIndex:  chainIndex,
+		addressType: addressType,
+		addresses:   []*Address{},
 	}
 }
 
@@ -73,7 +77,9 @@ func (addresses *AddressChain) addAddress() *Address {
 	addressWithPK := NewAddress(
 		publicKey,
 		addresses.net,
-		fmt.Sprintf("%d/%d", addresses.chainIndex, index))
+		fmt.Sprintf("%d/%d", addresses.chainIndex, index),
+		addresses.addressType,
+	)
 	addresses.addresses = append(addresses.addresses, addressWithPK)
 	return addressWithPK
 

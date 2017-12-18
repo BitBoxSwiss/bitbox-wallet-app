@@ -6,6 +6,7 @@ import (
 
 	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
+	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // SignTransaction signs all inputs. It assumes all outputs spent belong to this wallet.
@@ -19,13 +20,28 @@ func SignTransaction(
 	}
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
+	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index := range transaction.TxIn {
 		spentOutput := previousOutputs[index]
-		signatureHash, err := txscript.CalcSignatureHash(
-			spentOutput.PkScript, txscript.SigHashAll, transaction, index)
-		if err != nil {
-			return err
+		address := spentOutput.Address.(*addresses.Address)
+		isSegwit, subScript := address.SigHashData()
+		var signatureHash []byte
+		if isSegwit {
+			var err error
+			signatureHash, err = txscript.CalcWitnessSigHash(
+				subScript, sigHashes, txscript.SigHashAll, transaction, index, spentOutput.Value)
+			if err != nil {
+				return err
+			}
+		} else {
+			var err error
+			signatureHash, err = txscript.CalcSignatureHash(
+				subScript, txscript.SigHashAll, transaction, index)
+			if err != nil {
+				return err
+			}
 		}
+
 		signatureHashes = append(signatureHashes, signatureHash)
 		keyPaths = append(keyPaths, spentOutput.Address.(*addresses.Address).KeyPath)
 	}
@@ -38,35 +54,30 @@ func SignTransaction(
 	}
 	for index, input := range transaction.TxIn {
 		spentOutput := previousOutputs[index]
+		address := spentOutput.Address.(*addresses.Address)
 		signature := signatures[index]
-		sigScript, err := txscript.NewScriptBuilder().
-			AddData(append(signature.Serialize(), byte(txscript.SigHashAll))).
-			AddData(spentOutput.Address.(*addresses.Address).PublicKey.SerializeCompressed()).
-			Script()
-		if err != nil {
-			return err
-		}
-		input.SignatureScript = sigScript
+		input.SignatureScript, input.Witness = address.InputData(signature)
 	}
 	// Sanity check: see if the created transaction is valid.
-	if err := txValidityCheck(transaction, previousOutputs); err != nil {
+	if err := txValidityCheck(transaction, previousOutputs, sigHashes); err != nil {
 		panic(err)
 	}
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs []*transactions.TxOut) error {
+func txValidityCheck(transaction *wire.MsgTx, previousOutputs []*transactions.TxOut,
+	sigHashes *txscript.TxSigHashes) error {
 	for index := range transaction.TxIn {
 		engine, err := txscript.NewEngine(
 			previousOutputs[index].PkScript,
 			transaction,
 			index,
-			txscript.StandardVerifyFlags, nil, nil, previousOutputs[index].Value)
+			txscript.StandardVerifyFlags, nil, sigHashes, previousOutputs[index].Value)
 		if err != nil {
-			return err
+			return errp.WithStack(err)
 		}
 		if err := engine.Execute(); err != nil {
-			return err
+			return errp.WithStack(err)
 		}
 	}
 	return nil

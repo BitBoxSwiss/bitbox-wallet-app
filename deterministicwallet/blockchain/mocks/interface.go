@@ -47,7 +47,7 @@ var (
 //             ScriptHashSubscribeFunc: func(in1 string, in2 func(string) error, in3 func(error)) error {
 // 	               panic("TODO: mock out the ScriptHashSubscribe method")
 //             },
-//             TransactionBroadcastFunc: func(in1 []byte) error {
+//             TransactionBroadcastFunc: func(in1 *wire.MsgTx) error {
 // 	               panic("TODO: mock out the TransactionBroadcast method")
 //             },
 //             TransactionGetFunc: func(in1 chainhash.Hash, in2 func(*wire.MsgTx) error, in3 func(error)) error {
@@ -79,7 +79,7 @@ type InterfaceMock struct {
 	ScriptHashSubscribeFunc func(in1 string, in2 func(string) error, in3 func(error)) error
 
 	// TransactionBroadcastFunc mocks the TransactionBroadcast method.
-	TransactionBroadcastFunc func(in1 []byte) error
+	TransactionBroadcastFunc func(in1 *wire.MsgTx) error
 
 	// TransactionGetFunc mocks the TransactionGet method.
 	TransactionGetFunc func(in1 chainhash.Hash, in2 func(*wire.MsgTx) error, in3 func(error)) error
@@ -125,7 +125,7 @@ type InterfaceMock struct {
 		// TransactionBroadcast holds details about calls to the TransactionBroadcast method.
 		TransactionBroadcast []struct {
 			// In1 is the in1 argument value.
-			In1 []byte
+			In1 *wire.MsgTx
 		}
 		// TransactionGet holds details about calls to the TransactionGet method.
 		TransactionGet []struct {
@@ -335,12 +335,12 @@ func (mock *InterfaceMock) ScriptHashSubscribeCalls() []struct {
 }
 
 // TransactionBroadcast calls TransactionBroadcastFunc.
-func (mock *InterfaceMock) TransactionBroadcast(in1 []byte) error {
+func (mock *InterfaceMock) TransactionBroadcast(in1 *wire.MsgTx) error {
 	if mock.TransactionBroadcastFunc == nil {
 		panic("moq: InterfaceMock.TransactionBroadcastFunc is nil but Interface.TransactionBroadcast was just called")
 	}
 	callInfo := struct {
-		In1 []byte
+		In1 *wire.MsgTx
 	}{
 		In1: in1,
 	}
@@ -354,10 +354,10 @@ func (mock *InterfaceMock) TransactionBroadcast(in1 []byte) error {
 // Check the length with:
 //     len(mockedInterface.TransactionBroadcastCalls())
 func (mock *InterfaceMock) TransactionBroadcastCalls() []struct {
-	In1 []byte
+	In1 *wire.MsgTx
 } {
 	var calls []struct {
-		In1 []byte
+		In1 *wire.MsgTx
 	}
 	lockInterfaceMockTransactionBroadcast.RLock()
 	calls = mock.calls.TransactionBroadcast
