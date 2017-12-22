@@ -47,7 +47,12 @@ developer. Until that time:
   - Install with `go get -u github.com/golang/dep/cmd/dep`.
 - [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports) - integrate with your editor to
   automatically format the code and import packages.
+  - Install with `go get -u golang.org/x/tools/cmd/goimports`.
 - [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
+- [Qt5](https://www.qt.io)
+  - Install on OSX: `brew install qt5 && brew link qt5`
+
+Make sure $GOPATH is set and $GOPAH/bin is in your $PATH
 
 Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` is usually `~/go`).
 
