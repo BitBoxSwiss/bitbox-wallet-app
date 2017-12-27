@@ -130,8 +130,6 @@ class SendButton extends Component {
         let value = event.target.value;
         if(event.target.id == "sendAll") {
             value = event.target.checked;
-        } else {
-            value = event.target.value;
         }
         this.setState({
             [event.target.id]: value,
@@ -179,6 +177,7 @@ class SendButton extends Component {
                       <Checkbox
                         id="sendAll"
                         onChange={event => { this.handleFormChange(event); this.validateAndDisplayFee(); }}
+                        checked={sendAll}
                         />
                       <label for="sendAll">Max</label>
                     </Formfield>

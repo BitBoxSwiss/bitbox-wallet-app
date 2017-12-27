@@ -1,10 +1,13 @@
 import { Component } from 'preact';
 import Dialog from '../dialog';
+import PasswordInput from '../password';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
+
+import Checkbox from 'preact-material-components/Checkbox';
+import Formfield from 'preact-material-components/Formfield';
+import 'preact-material-components/Checkbox/style.css';
 
 import { apiPost } from '../../util';
 
@@ -21,6 +24,7 @@ export default class Initialize extends Component {
             state: this.stateEnum.DEFAULT,
             password: "",
             passwordRepeat: "",
+            seePlaintext: false,
             error: ""
         };
     }
@@ -30,7 +34,11 @@ export default class Initialize extends Component {
     }
 
     handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
+        let value = event.target.value;
+        if(event.target.type == "checkbox") {
+            value = event.target.checked;
+        }
+        this.setState({ [event.target.id]: value });
     };
 
     handleSubmit = event => {
@@ -74,10 +82,10 @@ export default class Initialize extends Component {
               <p>Please set a password to interact with your device</p>
               <form onsubmit={this.handleSubmit}>
                 <div>
-                  <Textfield
+                  <PasswordInput
                     autoFocus
                     id="password"
-                    type="password"
+                    seePlaintext={state.seePlaintext}
                     label="Password"
                     disabled={state.state == this.stateEnum.WAITING}
                     onInput={this.handleFormChange}
@@ -85,15 +93,23 @@ export default class Initialize extends Component {
                     />
                 </div>
                 <div>
-                  <Textfield
+                  <PasswordInput
                     id="passwordRepeat"
-                    type="password"
+                    seePlaintext={state.seePlaintext}
                     label="Repeat Password"
                     disabled={state.state == this.stateEnum.WAITING}
                     onInput={this.handleFormChange}
                     value={state.passwordRepeat}
                     />
                 </div>
+                <Formfield>
+                  <Checkbox
+                    id="seePlaintext"
+                    onChange={this.handleFormChange}
+                    checked={state.seePlaintext}
+                    />
+                  <label for="seePlaintext">See Plaintext</label>
+                </Formfield>
                 <div>
                   <Button
                     type="submit"

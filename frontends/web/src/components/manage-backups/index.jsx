@@ -15,6 +15,7 @@ import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
 import WaitDialog from '../../components/wait-dialog';
+import PasswordInput from '../password';
 
 import { apiGet, apiPost } from '../../util';
 
@@ -248,7 +249,7 @@ class RestoreButton extends Component {
                 <Dialog.Header>Restore {selectedBackup}</Dialog.Header>
                 <form ref={form=>{this.form=form;}} onSubmit={this.restore}>
                   <Dialog.Body>
-                    <Textfield
+                    <PasswordInput
                       autoFocus
                       id="password"
                       type="password"
