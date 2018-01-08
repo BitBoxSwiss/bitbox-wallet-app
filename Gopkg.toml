@@ -34,10 +34,6 @@ required = ["github.com/vektra/mockery"]
   name = "github.com/karalabe/hid"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/skratchdot/open-golang"
-
-[[constraint]]
   name = "github.com/gorilla/mux"
   version = "1.5.0"
 
