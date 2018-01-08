@@ -33,10 +33,6 @@ export default class Login extends Component {
         };
     }
 
-    componentDidMount() {
-        console.log(this.password);
-    }
-
     handleFormChange = event => {
         this.setState({ [event.target.id]: event.target.value });
     };

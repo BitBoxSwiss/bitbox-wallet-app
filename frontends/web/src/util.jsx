@@ -11,14 +11,18 @@ function extConfig(key, defaultValue) {
 
 const apiPort = extConfig('{{ API_PORT }}', '8082');
 
+function isTLS() {
+    return document.URL.startsWith("https://");
+}
+
 export const userLanguage = extConfig('{{ LANG }}', 'en');
 
 export function apiURL(endpoint) {
-    return "http://localhost:" + apiPort + "/api/" + endpoint;
+    return (isTLS() ? "https://" : "http://") + "localhost:" + apiPort + "/api/" + endpoint;
 }
 
 export function apiWebsocket(msgCallback) {
-    const socket = new WebSocket('ws://localhost:' + apiPort + '/api/events');
+    const socket = new WebSocket((isTLS() ? "wss://" : "ws://") + "localhost:" + apiPort + "/api/events");
     socket.onopen = function(event) {
         socket.send('Hello Server!');
     };
