@@ -32,7 +32,7 @@ export function apiWebsocket(msgCallback) {
     };
     socket.onclose = function(event) {
         console.log("close");
-    }
+    };
 }
 
 function handleError(json) {
@@ -53,7 +53,7 @@ export function apiGet(endpoint) {
 
 export function apiPost(endpoint, body) {
     return fetch(
-        "http://localhost:" + apiPort + "/api/" + endpoint,
+        apiURL(endpoint),
         {
             method: "POST",
             body: JSON.stringify(body)
