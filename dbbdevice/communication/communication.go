@@ -25,20 +25,15 @@ const (
 
 // ReadWriteCloser is the same as io.ReadWriteCloser, but the Close() function not returning an
 // error.
-type ReadWriteCloser interface {
-	io.ReadWriter
-	Close()
-}
-
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
 // as USB packets, following the ISO 7816-4 standard.
 type Communication struct {
-	device ReadWriteCloser
+	device io.ReadWriteCloser
 	mutex  sync.Mutex
 }
 
 // NewCommunication creates a new Communication.
-func NewCommunication(device ReadWriteCloser) *Communication {
+func NewCommunication(device io.ReadWriteCloser) *Communication {
 	return &Communication{
 		device: device,
 		mutex:  sync.Mutex{},
@@ -47,7 +42,9 @@ func NewCommunication(device ReadWriteCloser) *Communication {
 
 // Close closes the underlying device.
 func (communication *Communication) Close() {
-	communication.device.Close()
+	if err := communication.device.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func (communication *Communication) sendFrame(msg string) error {

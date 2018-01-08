@@ -60,7 +60,7 @@
   branch = "master"
   name = "github.com/karalabe/hid"
   packages = ["."]
-  revision = "f00545f9f3748e591590be3732d913c77525b10f"
+  revision = "93a94ab6671087f0768f1d4e701c0ec14f449df9"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -113,6 +113,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2f0ad996782291339cdb6429d113af3ac5f36311f50165c6243ee9909d3f9597"
+  inputs-digest = "3ce7e34541ec48ed4f11425bdd600c1af40dc5e0474601a161e4c26123a5ffdf"
   solver-name = "gps-cdcl"
   solver-version = 1
