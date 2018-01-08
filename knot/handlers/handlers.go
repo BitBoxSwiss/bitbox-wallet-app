@@ -93,7 +93,7 @@ func NewHandlers(
 				if err != nil {
 					return nil, err
 				}
-				if regexp.MustCompile(`^bundle\..+\.js$`).MatchString(name) {
+				if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {
 					// TODO: move function elsewhere, use the template package.
 					body = bytes.Replace(body, []byte("{{ API_PORT }}"), []byte(fmt.Sprintf("%d", handlers.apiPort)), -1)
 					body = bytes.Replace(body, []byte("{{ LANG }}"), []byte(theKnot.UserLanguage().String()), -1)
