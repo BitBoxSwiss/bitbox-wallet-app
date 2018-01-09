@@ -15,7 +15,7 @@ import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
 import WaitDialog from '../../components/wait-dialog';
-import PasswordInput from '../password';
+import { PasswordRepeatInput } from '../password';
 
 import { apiGet, apiPost } from '../../util';
 
@@ -205,7 +205,7 @@ class RestoreButton extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            password: ""
+            password: null
         };
     }
 
@@ -228,7 +228,9 @@ class RestoreButton extends Component {
             password: this.state.password,
             filename: this.props.selectedBackup
         }).catch(() => {}).then(() => {
-            this.setState({ password: "" });
+            if(this.passwordInput) {
+                this.passwordInput.clear();
+            }
             this.waitDialog.MDComponent.close();
         });
     }
@@ -249,16 +251,14 @@ class RestoreButton extends Component {
                 <Dialog.Header>Restore {selectedBackup}</Dialog.Header>
                 <form ref={form=>{this.form=form;}} onSubmit={this.restore}>
                   <Dialog.Body>
-                    <PasswordInput
-                      autoFocus
-                      id="password"
-                      type="password"
-                      label="Password"
-                      helptext="Please enter the same password as when the backup was created."
-                      helptextPersistent={true}
-                      onInput={this.handleFormChange}
-                      value={password}
-                      />
+                    <div>
+                      <PasswordRepeatInput
+                        ref={ref => { this.passwordInput = ref; }}
+                        helptext="Please enter the same password as when the backup was created."
+                        helptextPersistent={true}
+                        onValidPassword={password => this.setState({ password: password })}
+                        />
+                    </div>
                   </Dialog.Body>
                   <Dialog.Footer>
                     <Dialog.FooterButton
