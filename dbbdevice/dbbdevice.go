@@ -44,6 +44,7 @@ type CommunicationInterface interface {
 // Interface is the API of a DBBDevice
 type Interface interface {
 	Status() string
+	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
 	CreateWallet(string) error
 	Login(string) (bool, string, error)

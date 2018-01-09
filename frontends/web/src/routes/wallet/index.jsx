@@ -366,6 +366,11 @@ export default class Wallets extends Component {
                 console.log("ignoring event for wallet " + data.code);
             }
         }.bind(this));
+        apiGet("device/info").then(({ sdcard }) => {
+            if(sdcard) {
+                alert("TODO nice msg: keep the SD card stored securely unless you want to manage backups");
+            }
+        });
     }
 
     render({}, { activeCoin }) {

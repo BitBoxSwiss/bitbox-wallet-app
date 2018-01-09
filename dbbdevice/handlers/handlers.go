@@ -21,6 +21,7 @@ func NewHandlers(
 	handlers := &Handlers{}
 
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
+	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
@@ -73,6 +74,10 @@ func (handlers *Handlers) getDeviceStatusHandler(r *http.Request) (interface{}, 
 		return "unregistered", nil
 	}
 	return handlers.device.Status(), nil
+}
+
+func (handlers *Handlers) getDeviceInfoHandler(r *http.Request) (interface{}, error) {
+	return handlers.device.DeviceInfo()
 }
 
 func maybeDBBErr(err error) map[string]interface{} {
