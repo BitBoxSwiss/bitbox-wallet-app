@@ -24,10 +24,24 @@ const (
 	changeGapLimit = 6
 )
 
+// Event instances are sent to the onEvent callback.
+type Event string
+
+const (
+	// EventStatusChanged is fired when the status changes. Check the status using Initialized().
+	EventStatusChanged Event = "statusChanged"
+	// EventSyncStarted is fired when syncing with the blockchain starts. This happens in the very
+	// beginning for the initial sync, and repeatedly afterwards when the wallet is updated (new
+	// transactions, confirmations, etc.).
+	EventSyncStarted Event = "syncstarted"
+	// EventSyncDone follows EventSyncStarted.
+	EventSyncDone Event = "syncdone"
+)
+
 // Interface is the API of a DeterministicWallet.
 type Interface interface {
 	Init()
-	InitialSyncDone() bool
+	Initialized() bool
 	Close()
 	Transactions() []*transactions.Transaction
 	ClassifyTransaction(*wire.MsgTx) (
@@ -110,7 +124,7 @@ type DeterministicWallet struct {
 	feeTargets []*FeeTarget
 
 	initialSyncDone bool
-	onEvent         func(interface{})
+	onEvent         func(Event)
 }
 
 // NewDeterministicWallet creats a new DeterministicWallet.
@@ -119,7 +133,7 @@ func NewDeterministicWallet(
 	keystore HDKeyStoreInterface,
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
-	onEvent func(interface{}),
+	onEvent func(Event),
 ) (*DeterministicWallet, error) {
 	xpub := keystore.XPub()
 	if xpub.IsPrivate() {
@@ -143,13 +157,13 @@ func NewDeterministicWallet(
 		onEvent:         onEvent,
 	}
 	synchronizer := synchronizer.NewSynchronizer(
-		func() { onEvent("syncstarted") },
+		func() { onEvent(EventSyncStarted) },
 		func() {
 			if !wallet.initialSyncDone {
-				onEvent("initialized")
 				wallet.initialSyncDone = true
+				onEvent(EventStatusChanged)
 			}
-			onEvent("syncdone")
+			onEvent(EventSyncDone)
 		},
 	)
 	wallet.synchronizer = synchronizer
@@ -168,16 +182,17 @@ func (wallet *DeterministicWallet) Init() {
 	wallet.ensureAddresses()
 }
 
-// InitialSyncDone indicates whether the wallet has loaded and finished the initial sync of the
+// Initialized indicates whether the wallet has loaded and finished the initial sync of the
 // addresses.
-func (wallet *DeterministicWallet) InitialSyncDone() bool {
+func (wallet *DeterministicWallet) Initialized() bool {
 	return wallet.initialSyncDone
 }
 
 // Close stops the wallet, including the blockchain connection.
 func (wallet *DeterministicWallet) Close() {
 	wallet.blockchain.Close()
-	wallet.onEvent("uninitialized")
+	wallet.initialSyncDone = false
+	wallet.onEvent(EventStatusChanged)
 }
 
 func (wallet *DeterministicWallet) updateFeeTargets() {
@@ -217,7 +232,7 @@ func (wallet *DeterministicWallet) addresses(change bool) *addresses.AddressChai
 	return wallet.receiveAddresses
 }
 
-// onAddressStatus is called when the status (tx history) of an address might have changed. It is
+// onAddressStatus is called when the staytus (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
 func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, status string) error {

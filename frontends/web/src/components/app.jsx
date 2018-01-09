@@ -66,7 +66,7 @@ export default class App extends Component {
     };
 
     componentDidMount() {
-        apiGet("device/status").then(this.handleDeviceStatusChange);
+        this.onDeviceStatusChanged();
         apiWebsocket(data => {
             switch(data.type) {
             case "wallet":
@@ -74,15 +74,21 @@ export default class App extends Component {
                     this.onWalletEvent(data);
                 }
                 break;
-            case "deviceStatus":
-                this.handleDeviceStatusChange(data.data);
+            case "device":
+                switch(data.data) {
+                case "statusChanged":
+                    this.onDeviceStatusChanged();
+                    break;
+                }
                 break;
             }
         });
     }
 
-    handleDeviceStatusChange = deviceStatus => {
-        this.setState({deviceStatus: deviceStatus});
+    onDeviceStatusChanged = () => {
+        apiGet("device/status").then(deviceStatus => {
+            this.setState({deviceStatus: deviceStatus});
+        });
     }
 
     render({}, { deviceStatus }) {

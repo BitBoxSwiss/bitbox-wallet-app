@@ -33,6 +33,14 @@ const (
 	errSDCard = 400
 )
 
+// Event instances are sent to the onEvent callback.
+type Event string
+
+const (
+	// EventStatusChanged is fired when the status changes. Check the status using Status().
+	EventStatusChanged Event = "statusChanged"
+)
+
 // CommunicationInterface contains functions needed to communicate with the device.
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
@@ -59,7 +67,7 @@ type Interface interface {
 type DBBDevice struct {
 	deviceID      string
 	communication CommunicationInterface
-	onEvent       func(string)
+	onEvent       func(Event)
 
 	// If set, the device  is configured with a password.
 	initialized bool
@@ -112,13 +120,13 @@ func (dbb *DBBDevice) DeviceID() string {
 }
 
 // SetOnEvent installs a callback which is called for various events.
-func (dbb *DBBDevice) SetOnEvent(onEvent func(string)) {
+func (dbb *DBBDevice) SetOnEvent(onEvent func(Event)) {
 	dbb.onEvent = onEvent
 }
 
 func (dbb *DBBDevice) onStatusChanged() {
 	if dbb.onEvent != nil {
-		dbb.onEvent("statusChanged")
+		dbb.onEvent(EventStatusChanged)
 	}
 }
 

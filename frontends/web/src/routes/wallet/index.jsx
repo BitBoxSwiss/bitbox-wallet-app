@@ -266,10 +266,7 @@ class Wallet extends Component {
 
     componentDidMount() {
         this.props.registerOnWalletEvent(this.onWalletEvent.bind(this));
-        apiGet("wallet/" + this.props.walletCode + "/status").then(status => {
-            this.setState({ walletInitialized: status == "initialized" });
-            this.onWalletChanged();
-        });
+        this.onStatusChanged();
     }
 
     componentWillUnmount() {
@@ -278,16 +275,20 @@ class Wallet extends Component {
 
     onWalletEvent = data => {
         switch(data.data) {
-        case "initialized":
-            this.setState({ walletInitialized: true });
-            break;
-        case "uninitialized":
-            this.setState({ walletInitialized: false });
+        case "statusChanged":
+            this.onStatusChanged();
             break;
         case "syncdone":
             this.onWalletChanged();
             break;
         }
+    }
+
+    onStatusChanged = () => {
+        apiGet("wallet/" + this.props.walletCode + "/status").then(initialized => {
+            this.setState({ walletInitialized: initialized });
+            this.onWalletChanged();
+        });
     }
 
     onWalletChanged = () => {

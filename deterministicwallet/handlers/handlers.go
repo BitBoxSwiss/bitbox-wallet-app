@@ -162,10 +162,10 @@ func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, err
 }
 
 func (handlers *Handlers) getWalletStatus(r *http.Request) (interface{}, error) {
-	if handlers.wallet == nil || !handlers.wallet.InitialSyncDone() {
-		return "uninitialized", nil
+	if handlers.wallet == nil {
+		return false, nil
 	}
-	return "initialized", nil
+	return handlers.wallet.Initialized(), nil
 }
 
 func (handlers *Handlers) getReceiveAddress(r *http.Request) (interface{}, error) {

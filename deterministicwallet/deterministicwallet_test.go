@@ -20,13 +20,13 @@ type walletSuite struct {
 	net            *chaincfg.Params
 	keystoreMock   mocks.HDKeyStoreInterface
 	blockchainMock blockchainMock.InterfaceMock
-	onEvent        func(interface{})
+	onEvent        func(deterministicwallet.Event)
 	wallet         *deterministicwallet.DeterministicWallet
 }
 
 func (s *walletSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
-	s.onEvent = func(interface{}) {}
+	s.onEvent = func(deterministicwallet.Event) {}
 	var err error
 
 	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"

@@ -88,13 +88,13 @@ func (wallet *Wallet) init(knot *Knot) error {
 		keystore,
 		electrumClient,
 		addressType,
-		func(event interface{}) {
-			if event.(string) == "initialized" {
+		func(event deterministicwallet.Event) {
+			if event == deterministicwallet.EventStatusChanged && wallet.Wallet.Initialized() {
 				log.Printf("wallet sync time for %s: %s\n",
 					wallet.Code,
 					time.Now().Sub(knot.walletsSyncStart))
 			}
-			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: event.(string)}
+			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
 		},
 	)
 	if err != nil {
@@ -103,7 +103,7 @@ func (wallet *Wallet) init(knot *Knot) error {
 	return nil
 }
 
-type event struct {
+type deviceEvent struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
 }
@@ -224,9 +224,9 @@ func (knot *Knot) uninitWallets() {
 func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 	knot.device = device
 	knot.onDeviceInit(device)
-	knot.device.SetOnEvent(func(ev string) {
-		switch ev {
-		case "statusChanged":
+	knot.device.SetOnEvent(func(event dbbdevice.Event) {
+		switch event {
+		case dbbdevice.EventStatusChanged:
 			status := knot.device.Status()
 			if status == "seeded" {
 				knot.uninitWallets()
@@ -237,11 +237,15 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 					}
 				}()
 			}
-			knot.events <- event{Type: "deviceStatus", Data: status}
+			knot.events <- deviceEvent{Type: "device", Data: string(event)}
 		}
 	})
+	// When the device is plugged in, we send the statusChanged event so that the UI recognizes that
+	// (change from unplugged to plugged). The device instance itself only sends events for other
+	// status changes after that. This should be cleaned up by splitting the plug/unplug events to
+	// the device manager.
 	select {
-	case knot.events <- event{Type: "deviceStatus", Data: knot.device.Status()}:
+	case knot.events <- deviceEvent{Type: "device", Data: string(dbbdevice.EventStatusChanged)}:
 	default:
 	}
 	return nil
@@ -252,7 +256,7 @@ func (knot *Knot) unregister(deviceID string) {
 		knot.device = nil
 		knot.onDeviceUninit()
 		knot.uninitWallets()
-		knot.events <- event{Type: "deviceStatus", Data: "unregistered"}
+		knot.events <- deviceEvent{Type: "device", Data: string(dbbdevice.EventStatusChanged)}
 	}
 }
 
