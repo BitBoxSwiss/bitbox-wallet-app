@@ -2,6 +2,9 @@ package knot
 
 import (
 	"fmt"
+	"log"
+	"sync"
+	"time"
 
 	"golang.org/x/text/language"
 
@@ -13,10 +16,12 @@ import (
 	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	"github.com/shiftdevices/godbb/electrum"
 	"github.com/shiftdevices/godbb/knot/coins/ltc"
+	"github.com/shiftdevices/godbb/util/locker"
 )
 
 // Interface is the API of the knot.
 type Interface interface {
+	Wallets() []*Wallet
 	UserLanguage() language.Tag
 	OnWalletInit(f func(*Wallet))
 	OnWalletUninit(f func(*Wallet))
@@ -27,8 +32,9 @@ type Interface interface {
 
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
-	Code   string
-	Wallet deterministicwallet.Interface
+	Code          string
+	Wallet        deterministicwallet.Interface
+	firstSyncDone bool
 }
 
 func (wallet *Wallet) init(knot *Knot) error {
@@ -84,6 +90,14 @@ func (wallet *Wallet) init(knot *Knot) error {
 		electrumClient,
 		addressType,
 		func(event interface{}) {
+			if event.(string) == "syncdone" {
+				if !wallet.firstSyncDone {
+					wallet.firstSyncDone = true
+					log.Printf("wallet sync time for %s: %s\n",
+						wallet.Code,
+						time.Now().Sub(knot.walletsSyncStart))
+				}
+			}
 			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: event.(string)}
 		},
 	)
@@ -114,7 +128,9 @@ type Knot struct {
 	onDeviceInit   func(dbbdevice.Interface)
 	onDeviceUninit func()
 
-	wallets []*Wallet
+	wallets          []*Wallet
+	walletsLock      locker.Locker
+	walletsSyncStart time.Time
 }
 
 // NewKnot creates a new Knot.
@@ -130,6 +146,10 @@ func NewKnot() *Knot {
 			&Wallet{Code: "ltc"},
 		},
 	}
+}
+
+func (knot *Knot) Wallets() []*Wallet {
+	return knot.wallets
 }
 
 // UserLanguage returns the language the UI should be presented in to the user.
@@ -174,20 +194,31 @@ func (knot *Knot) Start() <-chan interface{} {
 }
 
 func (knot *Knot) initWallets() error {
+	defer knot.walletsLock.Lock()()
+	wg := sync.WaitGroup{}
+	knot.walletsSyncStart = time.Now()
 	for _, wallet := range knot.wallets {
-		if err := wallet.init(knot); err != nil {
-			return err
-		}
-		knot.onWalletInit(wallet)
-		wallet.Wallet.Init()
+		wg.Add(1)
+		go func(wallet *Wallet) {
+			defer wg.Done()
+			if err := wallet.init(knot); err != nil {
+				// TODO
+				panic(err)
+			}
+			knot.onWalletInit(wallet)
+			wallet.Wallet.Init()
+		}(wallet)
 	}
+	wg.Wait()
 	return nil
 }
 
 func (knot *Knot) uninitWallets() {
+	defer knot.walletsLock.Lock()()
 	for _, wallet := range knot.wallets {
 		if wallet.Wallet != nil {
 			knot.onWalletUninit(wallet)
+			wallet.firstSyncDone = false
 			wallet.Wallet.Close()
 			wallet.Wallet = nil
 		}
@@ -203,10 +234,12 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 			status := knot.device.Status()
 			if status == "seeded" {
 				knot.uninitWallets()
-				if err := knot.initWallets(); err != nil {
-					// TODO
-					panic(err)
-				}
+				go func() {
+					if err := knot.initWallets(); err != nil {
+						// TODO
+						panic(err)
+					}
+				}()
 			}
 			knot.events <- event{Type: "deviceStatus", Data: status}
 		}

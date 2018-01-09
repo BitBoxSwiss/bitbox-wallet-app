@@ -58,16 +58,13 @@ func NewHandlers(
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
+	for _, wallet := range theKnot.Wallets() {
+		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
+			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
+	}
 
 	theKnot.OnWalletInit(func(wallet *knot.Wallet) {
-		handlers, ok := theWalletHandlers[wallet.Code]
-		if !ok {
-			// First time; init the handlers for the registered wallet.
-			handlers = walletHandlers.NewHandlers(getAPIRouter(
-				apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
-			theWalletHandlers[wallet.Code] = handlers
-		}
-		handlers.Init(wallet.Wallet)
+		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
 	})
 	theKnot.OnWalletUninit(func(wallet *knot.Wallet) {
 		theWalletHandlers[wallet.Code].Uninit()
