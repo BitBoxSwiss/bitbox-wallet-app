@@ -162,7 +162,7 @@ func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, err
 }
 
 func (handlers *Handlers) getWalletStatus(r *http.Request) (interface{}, error) {
-	if handlers.wallet == nil {
+	if handlers.wallet == nil || !handlers.wallet.InitialSyncDone() {
 		return "uninitialized", nil
 	}
 	return "initialized", nil

@@ -315,7 +315,7 @@ class Wallet extends Component {
                     </div>
                 );
             }
-            if(!transactions) {
+            if(transactions.length == 0) {
                 return (
                     <div>
                       No transactions yet.

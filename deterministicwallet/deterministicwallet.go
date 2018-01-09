@@ -27,6 +27,7 @@ const (
 // Interface is the API of a DeterministicWallet.
 type Interface interface {
 	Init()
+	InitialSyncDone() bool
 	Close()
 	Transactions() []*transactions.Transaction
 	ClassifyTransaction(*wire.MsgTx) (
@@ -108,7 +109,8 @@ type DeterministicWallet struct {
 
 	feeTargets []*FeeTarget
 
-	onEvent func(interface{})
+	initialSyncDone bool
+	onEvent         func(interface{})
 }
 
 // NewDeterministicWallet creats a new DeterministicWallet.
@@ -126,24 +128,31 @@ func NewDeterministicWallet(
 	if !xpub.IsForNet(net) {
 		return nil, errp.New("xpub does not match provided net")
 	}
-	synchronizer := synchronizer.NewSynchronizer(
-		func() { onEvent("syncstarted") },
-		func() { onEvent("syncdone") },
-	)
 	wallet := &DeterministicWallet{
-		net:          net,
-		keystore:     keystore,
-		blockchain:   blockchain,
-		synchronizer: synchronizer,
+		net:        net,
+		keystore:   keystore,
+		blockchain: blockchain,
+
 		feeTargets: []*FeeTarget{
 			{Blocks: 25, Code: FeeTargetCodeEconomy},
 			{Blocks: 10, Code: FeeTargetCodeLow},
 			{Blocks: 5, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
-		onEvent: onEvent,
+		initialSyncDone: false,
+		onEvent:         onEvent,
 	}
-
+	synchronizer := synchronizer.NewSynchronizer(
+		func() { onEvent("syncstarted") },
+		func() {
+			if !wallet.initialSyncDone {
+				onEvent("initialized")
+				wallet.initialSyncDone = true
+			}
+			onEvent("syncdone")
+		},
+	)
+	wallet.synchronizer = synchronizer
 	wallet.receiveAddresses = addresses.NewAddressChain(
 		wallet.keystore.XPub(), net, gapLimit, 0, addressType)
 	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1, addressType)
@@ -156,8 +165,13 @@ func NewDeterministicWallet(
 // Init initializes the wallet.
 func (wallet *DeterministicWallet) Init() {
 	wallet.updateFeeTargets()
-	wallet.onEvent("initialized")
 	wallet.ensureAddresses()
+}
+
+// InitialSyncDone indicates whether the wallet has loaded and finished the initial sync of the
+// addresses.
+func (wallet *DeterministicWallet) InitialSyncDone() bool {
+	return wallet.initialSyncDone
 }
 
 // Close stops the wallet, including the blockchain connection.

@@ -32,9 +32,8 @@ type Interface interface {
 
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
-	Code          string
-	Wallet        deterministicwallet.Interface
-	firstSyncDone bool
+	Code   string
+	Wallet deterministicwallet.Interface
 }
 
 func (wallet *Wallet) init(knot *Knot) error {
@@ -90,13 +89,10 @@ func (wallet *Wallet) init(knot *Knot) error {
 		electrumClient,
 		addressType,
 		func(event interface{}) {
-			if event.(string) == "syncdone" {
-				if !wallet.firstSyncDone {
-					wallet.firstSyncDone = true
-					log.Printf("wallet sync time for %s: %s\n",
-						wallet.Code,
-						time.Now().Sub(knot.walletsSyncStart))
-				}
+			if event.(string) == "initialized" {
+				log.Printf("wallet sync time for %s: %s\n",
+					wallet.Code,
+					time.Now().Sub(knot.walletsSyncStart))
 			}
 			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: event.(string)}
 		},
@@ -218,7 +214,6 @@ func (knot *Knot) uninitWallets() {
 	for _, wallet := range knot.wallets {
 		if wallet.Wallet != nil {
 			knot.onWalletUninit(wallet)
-			wallet.firstSyncDone = false
 			wallet.Wallet.Close()
 			wallet.Wallet = nil
 		}
