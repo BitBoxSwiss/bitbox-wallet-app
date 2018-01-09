@@ -256,9 +256,6 @@ func (dbb *DBBDevice) Login(password string) (bool, string, error) {
 	dbb.password = password
 	dbb.seeded = deviceInfo.Seeded
 	dbb.onStatusChanged()
-	if dbb.onEvent != nil {
-		dbb.onEvent("login")
-	}
 	return false, "", nil
 }
 

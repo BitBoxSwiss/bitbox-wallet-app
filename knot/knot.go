@@ -199,13 +199,16 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 	knot.onDeviceInit(device)
 	knot.device.SetOnEvent(func(ev string) {
 		switch ev {
-		case "login":
-			if err := knot.initWallets(); err != nil {
-				// TODO
-				panic(err)
-			}
 		case "statusChanged":
-			knot.events <- event{Type: "deviceStatus", Data: knot.device.Status()}
+			status := knot.device.Status()
+			if status == "seeded" {
+				knot.uninitWallets()
+				if err := knot.initWallets(); err != nil {
+					// TODO
+					panic(err)
+				}
+			}
+			knot.events <- event{Type: "deviceStatus", Data: status}
 		}
 	})
 	select {
