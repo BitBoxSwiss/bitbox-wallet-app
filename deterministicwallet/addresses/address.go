@@ -26,6 +26,7 @@ type Address struct {
 	addressType AddressType
 }
 
+// AddressType indicates which type of output should be produced.
 type AddressType string
 
 const (

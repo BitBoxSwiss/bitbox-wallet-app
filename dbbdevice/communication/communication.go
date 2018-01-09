@@ -23,8 +23,6 @@ const (
 	hwwCMD            = u2fHIDVendorFirst | 0x01
 )
 
-// ReadWriteCloser is the same as io.ReadWriteCloser, but the Close() function not returning an
-// error.
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
 // as USB packets, following the ISO 7816-4 standard.
 type Communication struct {

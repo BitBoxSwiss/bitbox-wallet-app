@@ -144,6 +144,7 @@ func NewKnot() *Knot {
 	}
 }
 
+// Wallets returns the supported wallets.
 func (knot *Knot) Wallets() []*Wallet {
 	return knot.wallets
 }
