@@ -3,6 +3,7 @@ package deterministicwallet
 import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcutil/txsort"
 
 	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
 	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
@@ -67,6 +68,9 @@ func SignTransaction(
 
 func txValidityCheck(transaction *wire.MsgTx, previousOutputs []*transactions.TxOut,
 	sigHashes *txscript.TxSigHashes) error {
+	if !txsort.IsSorted(transaction) {
+		return errp.New("tx not bip69 conformant")
+	}
 	for index := range transaction.TxIn {
 		engine, err := txscript.NewEngine(
 			previousOutputs[index].PkScript,

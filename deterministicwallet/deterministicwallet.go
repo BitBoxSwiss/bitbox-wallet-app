@@ -3,8 +3,6 @@ package deterministicwallet
 import (
 	"errors"
 	"log"
-	"math/rand"
-	"time"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -25,12 +23,6 @@ const (
 	gapLimit       = 20
 	changeGapLimit = 6
 )
-
-var random *rand.Rand
-
-func init() {
-	random = rand.New(rand.NewSource(time.Now().UnixNano()))
-}
 
 // Interface is the API of a DeterministicWallet.
 type Interface interface {

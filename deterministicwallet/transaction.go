@@ -63,7 +63,6 @@ func (wallet *DeterministicWallet) newTx(
 		func() ([]byte, error) {
 			return wallet.changeAddresses.GetUnused().PkScript(), nil
 		},
-		random,
 	)
 	if err != nil {
 		return 0, nil, nil, err

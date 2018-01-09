@@ -2,11 +2,11 @@ package maketx
 
 import (
 	"errors"
-	"math/rand"
 	"sort"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcutil/txsort"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -74,6 +74,7 @@ func NewTxSpendAll(
 		TxOut:    []*wire.TxOut{output},
 		LockTime: 0,
 	}
+	txsort.InPlaceSort(unsignedTransaction)
 	return btcutil.Amount(output.Value), unsignedTransaction, selectedOutPoints, nil
 }
 
@@ -84,7 +85,6 @@ func NewTx(
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
 	getChangePKScript func() ([]byte, error),
-	random *rand.Rand,
 ) (*wire.MsgTx, []wire.OutPoint, error) {
 	targetAmount := btcutil.Amount(output.Value)
 	outputs := []*wire.TxOut{output}
@@ -129,14 +129,8 @@ func NewTx(
 			}
 			changeOutput := wire.NewTxOut(int64(changeAmount), changePKScript)
 			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut, changeOutput)
-			// Put change output in a random position.
-			numOutputs := len(unsignedTransaction.TxOut)
-			newChangeIndex := random.Intn(numOutputs)
-			unsignedTransaction.TxOut[numOutputs-1], unsignedTransaction.TxOut[newChangeIndex] =
-				unsignedTransaction.TxOut[newChangeIndex], unsignedTransaction.TxOut[numOutputs-1]
-
 		}
-
+		txsort.InPlaceSort(unsignedTransaction)
 		return unsignedTransaction, selectedOutPoints, nil
 	}
 }
