@@ -9,6 +9,7 @@ gometalinter.v1 \
     --vendored-linters \
     --vendor \
     --disable-all \
+    -E test \
     -E golint \
     -E vet \
     -E vetshadow \
