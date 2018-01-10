@@ -27,6 +27,7 @@ type Interface interface {
 	OnWalletUninit(f func(*Wallet))
 	OnDeviceInit(f func(dbbdevice.Interface))
 	OnDeviceUninit(f func())
+	DeviceRegistered() bool
 	Start() <-chan interface{}
 }
 
@@ -107,6 +108,8 @@ type deviceEvent struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
 }
+
+type devicesEvent deviceEvent
 
 type walletEvent struct {
 	Type string `json:"type"`
@@ -210,6 +213,10 @@ func (knot *Knot) initWallets() error {
 	return nil
 }
 
+func (knot *Knot) DeviceRegistered() bool {
+	return knot.device != nil
+}
+
 func (knot *Knot) uninitWallets() {
 	defer knot.walletsLock.Lock()()
 	for _, wallet := range knot.wallets {
@@ -240,12 +247,8 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 			knot.events <- deviceEvent{Type: "device", Data: string(event)}
 		}
 	})
-	// When the device is plugged in, we send the statusChanged event so that the UI recognizes that
-	// (change from unplugged to plugged). The device instance itself only sends events for other
-	// status changes after that. This should be cleaned up by splitting the plug/unplug events to
-	// the device manager.
 	select {
-	case knot.events <- deviceEvent{Type: "device", Data: string(dbbdevice.EventStatusChanged)}:
+	case knot.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}:
 	default:
 	}
 	return nil
@@ -256,7 +259,7 @@ func (knot *Knot) unregister(deviceID string) {
 		knot.device = nil
 		knot.onDeviceUninit()
 		knot.uninitWallets()
-		knot.events <- deviceEvent{Type: "device", Data: string(dbbdevice.EventStatusChanged)}
+		knot.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
 	}
 }
 

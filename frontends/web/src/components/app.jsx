@@ -16,7 +16,6 @@ import { translate } from 'react-i18next';
 import { apiGet, apiWebsocket } from '../util';
 
 const DeviceStatus = Object.freeze({
-    UNREGISTERED: "unregistered",
     INITIALIZED: "initialized",
     UNINITIALIZED: "uninitialized",
     LOGGED_IN: "logged_in",
@@ -53,7 +52,8 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            deviceStatus: DeviceStatus.UNREGISTERED
+            deviceRegistered: false,
+            deviceStatus: null
         };
     }
 
@@ -66,12 +66,19 @@ export default class App extends Component {
     };
 
     componentDidMount() {
-        this.onDeviceStatusChanged();
+        this.onDevicesRegisteredChanged();
         apiWebsocket(data => {
             switch(data.type) {
             case "wallet":
                 if(this.onWalletEvent) {
                     this.onWalletEvent(data);
+                }
+                break;
+            case "devices":
+                switch(data.data) {
+                case "registeredChanged":
+                    this.onDevicesRegisteredChanged();
+                    break;
                 }
                 break;
             case "device":
@@ -85,20 +92,30 @@ export default class App extends Component {
         });
     }
 
-    onDeviceStatusChanged = () => {
-        apiGet("device/status").then(deviceStatus => {
-            this.setState({deviceStatus: deviceStatus});
+    onDevicesRegisteredChanged = () => {
+        apiGet("devices/registered").then(registered => {
+            this.setState({deviceRegistered: registered});
+            this.onDeviceStatusChanged();
         });
     }
 
-    render({}, { deviceStatus }) {
-        switch(deviceStatus) {
-        case DeviceStatus.UNREGISTERED:
+    onDeviceStatusChanged = () => {
+        if(this.state.deviceRegistered) {
+            apiGet("device/status").then(deviceStatus => {
+                this.setState({deviceStatus: deviceStatus});
+            });
+        }
+    }
+
+    render({}, { deviceRegistered, deviceStatus }) {
+        if(!deviceRegistered) {
             return (
                 <Dialog>
                   Waiting for device...
                 </Dialog>
             );
+        }
+        switch(deviceStatus) {
         case DeviceStatus.INITIALIZED:
             return <Login/>;
         case DeviceStatus.UNINITIALIZED:

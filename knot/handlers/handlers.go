@@ -57,6 +57,9 @@ func NewHandlers(
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
 
+	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
+	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
+
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 	for _, wallet := range theKnot.Wallets() {
 		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
@@ -120,6 +123,10 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "image/png")
 	_ = qr.Write(256, w)
+}
+
+func (handlers *Handlers) getDevicesRegisteredHandler(r *http.Request) (interface{}, error) {
+	return handlers.knot.DeviceRegistered(), nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {

@@ -70,9 +70,6 @@ func (handlers *Handlers) getBackupListHandler(r *http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) getDeviceStatusHandler(r *http.Request) (interface{}, error) {
-	if handlers.device == nil {
-		return "unregistered", nil
-	}
 	return handlers.device.Status(), nil
 }
 
