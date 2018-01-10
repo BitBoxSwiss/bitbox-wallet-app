@@ -94,9 +94,7 @@ func NewHandlers(
 					return nil, err
 				}
 				if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {
-					// TODO: move function elsewhere, use the template package.
-					body = bytes.Replace(body, []byte("{{ API_PORT }}"), []byte(fmt.Sprintf("%d", handlers.apiPort)), -1)
-					body = bytes.Replace(body, []byte("{{ LANG }}"), []byte(theKnot.UserLanguage().String()), -1)
+					body = handlers.interpolateConstants(body)
 				}
 				return body, nil
 			},
@@ -106,6 +104,18 @@ func NewHandlers(
 		}))
 
 	return handlers
+}
+
+func (handlers *Handlers) interpolateConstants(body []byte) []byte {
+	for _, info := range []struct {
+		key, value string
+	}{
+		{"API_PORT", fmt.Sprintf("%d", handlers.apiPort)},
+		{"LANG", handlers.knot.UserLanguage().String()},
+	} {
+		body = bytes.Replace(body, []byte(fmt.Sprintf("{{ %s }}", info.key)), []byte(info.value), -1)
+	}
+	return body
 }
 
 func writeJSON(w http.ResponseWriter, value interface{}) {
