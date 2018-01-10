@@ -108,7 +108,7 @@ export default class App extends Component {
     }
 
     render({}, { deviceRegistered, deviceStatus }) {
-        if(!deviceRegistered) {
+        if(!deviceRegistered || !deviceStatus) {
             return (
                 <Dialog>
                   Waiting for device...

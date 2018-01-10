@@ -33,6 +33,24 @@ const (
 	errSDCard = 400
 )
 
+// Status represents the device status.
+type Status string
+
+const (
+	// StatusUninitialized is the uninitialized device, i.e. unseeded and no password set.
+	// Use SetPassword() to proceed to StatusLoggedIn.
+	StatusUninitialized Status = "uninitialized"
+	// StatusInitialized means the password was set and the device was seeded. Use Login() to
+	// proceed to StatusSeeded.
+	StatusInitialized Status = "initialized"
+	// StatusLoggedIn means device authentication was successful, but the device is not yet
+	// seeded. Use CreateWallet() or RestoreBackup() to seed and proceed to StatusSeeded.
+	StatusLoggedIn Status = "logged_in"
+	// StatusSeeded means we are authenticated, and the device is seeded. We are ready to use
+	// XPub(), Sign() etc.
+	StatusSeeded Status = "seeded"
+)
+
 // Event instances are sent to the onEvent callback.
 type Event string
 
@@ -51,7 +69,7 @@ type CommunicationInterface interface {
 
 // Interface is the API of a DBBDevice
 type Interface interface {
-	Status() string
+	Status() Status
 	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
 	CreateWallet(string) error
@@ -130,18 +148,18 @@ func (dbb *DBBDevice) onStatusChanged() {
 	}
 }
 
-// Status returns the device state. See (TODO: use proper types for the state)
-func (dbb *DBBDevice) Status() string {
+// Status returns the device state. See the Status* constants.
+func (dbb *DBBDevice) Status() Status {
 	if dbb.seeded {
-		return "seeded"
+		return StatusSeeded
 	}
 	if dbb.password != "" {
-		return "logged_in"
+		return StatusLoggedIn
 	}
 	if dbb.initialized {
-		return "initialized"
+		return StatusInitialized
 	}
-	return "uninitialized"
+	return StatusUninitialized
 }
 
 // Close closes the HID device.

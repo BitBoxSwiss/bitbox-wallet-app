@@ -39,7 +39,7 @@ func TestDBBTestSuite(t *testing.T) {
 }
 
 func (s *dbbTestSuite) TestNewDBBDevice() {
-	require.Equal(s.T(), "uninitialized", s.dbb.Status())
+	require.Equal(s.T(), dbbdevice.StatusUninitialized, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) TestDeviceID() {
@@ -58,7 +58,7 @@ func jsonArgumentMatcher(expected map[string]interface{}) interface{} {
 
 func (s *dbbTestSuite) TestSetPassword() {
 	require.NoError(s.T(), s.login())
-	require.Equal(s.T(), "logged_in", s.dbb.Status())
+	require.Equal(s.T(), dbbdevice.StatusLoggedIn, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) login() error {

@@ -234,8 +234,7 @@ func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
 	knot.device.SetOnEvent(func(event dbbdevice.Event) {
 		switch event {
 		case dbbdevice.EventStatusChanged:
-			status := knot.device.Status()
-			if status == "seeded" {
+			if knot.device.Status() == dbbdevice.StatusSeeded {
 				knot.uninitWallets()
 				go func() {
 					if err := knot.initWallets(); err != nil {
