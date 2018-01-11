@@ -13,11 +13,11 @@ type BlockchainInterface struct {
 }
 
 // AddressGetHistory provides a mock function with given fields: _a0, _a1, _a2
-func (_m *BlockchainInterface) AddressGetHistory(_a0 string, _a1 func([]*client.TX) error, _a2 func(error)) error {
+func (_m *BlockchainInterface) AddressGetHistory(_a0 string, _a1 func([]*client.TxInfo) error, _a2 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, func([]*client.TX) error, func(error)) error); ok {
+	if rf, ok := ret.Get(0).(func(string, func([]*client.TxInfo) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)

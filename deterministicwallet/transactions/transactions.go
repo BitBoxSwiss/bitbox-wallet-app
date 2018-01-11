@@ -1,6 +1,7 @@
 package transactions
 
 import (
+	"log"
 	"sort"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -28,7 +29,7 @@ type TxIn struct {
 	txHash chainhash.Hash
 }
 
-// Transaction is a transaction touchign the wallet.
+// Transaction is a transaction touching the wallet.
 type Transaction struct {
 	TXHash    chainhash.Hash
 	TX        *wire.MsgTx
@@ -45,10 +46,14 @@ type Transactions struct {
 	transactions   map[chainhash.Hash]*Transaction
 	requestedTXs   map[chainhash.Hash][]func(*wire.MsgTx)
 	addressHistory map[string][]chainhash.Hash
-	// inputs are referenced by the outputs they spend.
+	// inputs contains all inputs of all transactions that touch our wallet. It includes all inputs
+	// that spend an output of our wallet, and more.  The inputs are referenced by the outputs they
+	// spend.
+	//
 	// TODO: store slice of inputs along with the txhash they appear in. If there are more than one,
 	// a double spend is detected.
-	inputs  map[wire.OutPoint]*TxIn
+	inputs map[wire.OutPoint]*TxIn
+	// outputs contains all outputs which belong to the wallet.
 	outputs map[wire.OutPoint]*TxOut
 
 	synchronizer    *synchronizer.Synchronizer
@@ -56,7 +61,7 @@ type Transactions struct {
 	isChangeAddress func(btcutil.Address) bool
 }
 
-// NewTransactions creates a new instance of Transactios.
+// NewTransactions creates a new instance of Transactions.
 func NewTransactions(
 	net *chaincfg.Params,
 	synchronizer *synchronizer.Synchronizer,
@@ -114,14 +119,20 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	tx *wire.MsgTx) {
 	// Gather transaction inputs that spend outputs of the given address.
 	for _, txIn := range tx.TxIn {
-		// We might process the same tx multiple times for different addresses. Since the current
-		// address was unknown previously, we go through all inputs to check if it is spending from
-		// this address.
-		if _, outputOK := transactions.outputs[txIn.PreviousOutPoint]; outputOK {
-			transactions.inputs[txIn.PreviousOutPoint] = &TxIn{
-				TxIn:   txIn,
-				txHash: txHash,
-			}
+		// Since transactions can be processed in any order, and we might process the same tx
+		// multiple times for different addresses, we index all inputs, even those that didn't
+		// originate from our wallet. At this stage we don't know if it is one of our own inputs,
+		// since the output that it spends might be indexed later.
+		if existingTxIn, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && existingTxIn.txHash != txHash {
+			log.Printf("double spend detected of output %s. (tx %s and %s)\n",
+				txIn.PreviousOutPoint,
+				existingTxIn.txHash,
+				txHash,
+			)
+		}
+		transactions.inputs[txIn.PreviousOutPoint] = &TxIn{
+			TxIn:   txIn,
+			txHash: txHash,
 		}
 	}
 	// Gather transaction outputs that belong to us.
@@ -179,9 +190,8 @@ func (transactions *Transactions) removeTransaction(txHash chainhash.Hash) {
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
-func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, txs []*client.TX) {
+func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, txs []*client.TxInfo) {
 	defer transactions.Lock()()
-
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}

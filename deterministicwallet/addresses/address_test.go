@@ -21,7 +21,7 @@ var (
 		0x56, 0xd6, 0x3a, 0xa2, 0xe5, 0xab, 0xe1, 0xa6, 0x41, 0xb7, 0x88, 0xac}
 	pk, _ = btcec.ParsePubKey(pkBytes, btcec.S256())
 	net   = &chaincfg.TestNet3Params
-	tx1   = &client.TX{
+	tx1   = &client.TxInfo{
 		Height: 10,
 		TXHash: client.TXHash(chainhash.HashH([]byte("tx1"))),
 		Fee:    nil,

@@ -22,7 +22,7 @@ func SignTransaction(
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	sigHashes := txscript.NewTxSigHashes(transaction)
-	for index := range transaction.TxIn {
+	for index, txIn := range transaction.TxIn {
 		spentOutput := previousOutputs[index]
 		address := spentOutput.Address.(*addresses.Address)
 		isSegwit, subScript := address.SigHashData()
