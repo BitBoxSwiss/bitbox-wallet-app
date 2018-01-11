@@ -417,15 +417,30 @@ func (dbb *DBBDevice) Reset() (bool, error) {
 
 // XPub returns the extended publickey at the path.
 func (dbb *DBBDevice) XPub(path string) (*hdkeychain.ExtendedKey, error) {
-	reply, err := dbb.sendKV("xpub", path, dbb.password)
+	getXPub := func() (*hdkeychain.ExtendedKey, error) {
+		reply, err := dbb.sendKV("xpub", path, dbb.password)
+		if err != nil {
+			return nil, err
+		}
+		xpubStr, ok := reply["xpub"].(string)
+		if !ok {
+			return nil, errp.New("unexpected reply")
+		}
+		return hdkeychain.NewKeyFromString(xpubStr)
+	}
+	// Call the device twice, to reduce the likelihood of a hardware error.
+	xpub1, err := getXPub()
 	if err != nil {
 		return nil, err
 	}
-	xpubStr, ok := reply["xpub"].(string)
-	if !ok {
-		return nil, errp.New("unexpected reply")
+	xpub2, err := getXPub()
+	if err != nil {
+		return nil, err
 	}
-	return hdkeychain.NewKeyFromString(xpubStr)
+	if xpub1.String() != xpub2.String() {
+		return nil, errp.New("critical: the device returned inconsistent xpubs.")
+	}
+	return xpub1, nil
 }
 
 // Random generates a 16 byte random number, hex encoded.. typ can be either "true" or "pseudo".
