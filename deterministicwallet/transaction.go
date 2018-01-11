@@ -90,9 +90,9 @@ func (wallet *DeterministicWallet) SendTx(
 	if err != nil {
 		return err
 	}
-	previousOutputs := make([]*transactions.TxOut, len(selectedOutPoints))
-	for i, outPoint := range selectedOutPoints {
-		previousOutputs[i] = wallet.transactions.Output(outPoint)
+	previousOutputs := map[wire.OutPoint]*transactions.TxOut{}
+	for _, outPoint := range selectedOutPoints {
+		previousOutputs[outPoint] = wallet.transactions.Output(outPoint)
 	}
 	if err := SignTransaction(wallet.keystore, transaction, previousOutputs); err != nil {
 		return err

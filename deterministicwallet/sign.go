@@ -14,16 +14,16 @@ import (
 func SignTransaction(
 	sign HDKeyStoreInterface,
 	transaction *wire.MsgTx,
-	previousOutputs []*transactions.TxOut,
+	previousOutputs map[wire.OutPoint]*transactions.TxOut,
 ) error {
-	if len(previousOutputs) != len(transaction.TxIn) {
-		panic("output/input mismatch; there needs to be exactly one output being spent ber input")
-	}
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index, txIn := range transaction.TxIn {
-		spentOutput := previousOutputs[index]
+		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
+		if !ok {
+			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
+		}
 		address := spentOutput.Address.(*addresses.Address)
 		isSegwit, subScript := address.SigHashData()
 		var signatureHash []byte
@@ -54,7 +54,7 @@ func SignTransaction(
 		panic("number of signatures doesn't match number of inputs")
 	}
 	for index, input := range transaction.TxIn {
-		spentOutput := previousOutputs[index]
+		spentOutput := previousOutputs[input.PreviousOutPoint]
 		address := spentOutput.Address.(*addresses.Address)
 		signature := signatures[index]
 		input.SignatureScript, input.Witness = address.InputData(signature)
@@ -66,17 +66,21 @@ func SignTransaction(
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs []*transactions.TxOut,
+func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]*transactions.TxOut,
 	sigHashes *txscript.TxSigHashes) error {
 	if !txsort.IsSorted(transaction) {
 		return errp.New("tx not bip69 conformant")
 	}
-	for index := range transaction.TxIn {
+	for index, txIn := range transaction.TxIn {
+		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
+		if !ok {
+			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
+		}
 		engine, err := txscript.NewEngine(
-			previousOutputs[index].PkScript,
+			spentOutput.PkScript,
 			transaction,
 			index,
-			txscript.StandardVerifyFlags, nil, sigHashes, previousOutputs[index].Value)
+			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value)
 		if err != nil {
 			return errp.WithStack(err)
 		}
