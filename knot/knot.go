@@ -213,6 +213,7 @@ func (knot *Knot) initWallets() error {
 	return nil
 }
 
+// DeviceRegistered returns whether a device is plugged in.
 func (knot *Knot) DeviceRegistered() bool {
 	return knot.device != nil
 }
