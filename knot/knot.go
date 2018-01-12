@@ -34,45 +34,29 @@ type Interface interface {
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
 	Code   string
+	Name   string
 	Wallet deterministicwallet.Interface
+
+	net                  *chaincfg.Params
+	walletDerivationPath string
+	addressType          addresses.AddressType
 }
 
 func (wallet *Wallet) init(knot *Knot) error {
 	var electrumServer string
-	var net *chaincfg.Params
-	var walletDerivationPath = ""
-	var addressType addresses.AddressType
 	switch wallet.Code {
 	case "tbtc":
-		net = &chaincfg.TestNet3Params
-		walletDerivationPath = "m/44'/1'/0'"
 		electrumServer = electrum.TestServer
-		addressType = addresses.AddressTypeP2PKH
 	case "tbtc-p2wpkh-p2sh":
-		net = &chaincfg.TestNet3Params
-		walletDerivationPath = "m/49'/1'/0'"
 		electrumServer = electrum.TestServer
-		addressType = addresses.AddressTypeP2WPKHP2SH
 	case "btc":
-		net = &chaincfg.MainNetParams
-		walletDerivationPath = "m/44'/0'/0'"
 		electrumServer = electrum.Server
-		addressType = addresses.AddressTypeP2PKH
 	case "btc-p2wpkh-p2sh":
-		net = &chaincfg.MainNetParams
-		walletDerivationPath = "m/49'/0'/0'"
 		electrumServer = electrum.Server
-		addressType = addresses.AddressTypeP2WPKHP2SH
 	case "tltc-p2wpkh-p2sh":
-		net = &ltc.TestNet4Params
-		walletDerivationPath = "m/49'/1'/0'"
 		electrumServer = "electrum.ltc.xurious.com:51002"
-		addressType = addresses.AddressTypeP2WPKHP2SH
 	case "ltc-p2wpkh-p2sh":
-		net = &ltc.MainNetParams
-		walletDerivationPath = "m/49'/2'/0'"
 		electrumServer = "electrumx.nmdps.net:9434"
-		addressType = addresses.AddressTypeP2WPKHP2SH
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
@@ -80,15 +64,15 @@ func (wallet *Wallet) init(knot *Knot) error {
 	if err != nil {
 		return err
 	}
-	keystore, err := keystore.NewDBBKeyStore(knot.device, walletDerivationPath, net)
+	keystore, err := keystore.NewDBBKeyStore(knot.device, wallet.walletDerivationPath, wallet.net)
 	if err != nil {
 		return err
 	}
 	wallet.Wallet, err = deterministicwallet.NewDeterministicWallet(
-		net,
+		wallet.net,
 		keystore,
 		electrumClient,
-		addressType,
+		wallet.addressType,
 		func(event deterministicwallet.Event) {
 			if event == deterministicwallet.EventStatusChanged && wallet.Wallet.Initialized() {
 				log.Printf("wallet sync time for %s: %s\n",
@@ -137,12 +121,48 @@ func NewKnot() *Knot {
 	return &Knot{
 		events: make(chan interface{}),
 		wallets: []*Wallet{
-			&Wallet{Code: "tbtc"},
-			&Wallet{Code: "tbtc-p2wpkh-p2sh"},
-			&Wallet{Code: "btc"},
-			&Wallet{Code: "btc-p2wpkh-p2sh"},
-			&Wallet{Code: "tltc-p2wpkh-p2sh"},
-			&Wallet{Code: "ltc-p2wpkh-p2sh"},
+			&Wallet{
+				Code:                 "tbtc",
+				Name:                 "Bitcoin Testnet",
+				net:                  &chaincfg.TestNet3Params,
+				walletDerivationPath: "m/44'/1'/0'",
+				addressType:          addresses.AddressTypeP2PKH,
+			},
+			&Wallet{
+				Code:                 "tbtc-p2wpkh-p2sh",
+				Name:                 "Bitcoin Testnet Segwit",
+				net:                  &chaincfg.TestNet3Params,
+				walletDerivationPath: "m/49'/1'/0'",
+				addressType:          addresses.AddressTypeP2WPKHP2SH,
+			},
+			&Wallet{
+				Code:                 "btc",
+				Name:                 "Bitcoin",
+				net:                  &chaincfg.MainNetParams,
+				walletDerivationPath: "m/44'/0'/0'",
+				addressType:          addresses.AddressTypeP2PKH,
+			},
+			&Wallet{
+				Code:                 "btc-p2wpkh-p2sh",
+				Name:                 "Bitcoin Segwit",
+				net:                  &chaincfg.MainNetParams,
+				walletDerivationPath: "m/49'/0'/0'",
+				addressType:          addresses.AddressTypeP2WPKHP2SH,
+			},
+			&Wallet{
+				Code:                 "tltc-p2wpkh-p2sh",
+				Name:                 "Litecoin Testnet",
+				net:                  &ltc.TestNet4Params,
+				walletDerivationPath: "m/49'/1'/0'",
+				addressType:          addresses.AddressTypeP2WPKHP2SH,
+			},
+			&Wallet{
+				Code:                 "ltc-p2wpkh-p2sh",
+				Name:                 "Litecoin",
+				net:                  &ltc.MainNetParams,
+				walletDerivationPath: "m/49'/2'/0'",
+				addressType:          addresses.AddressTypeP2WPKHP2SH,
+			},
 		},
 	}
 }
