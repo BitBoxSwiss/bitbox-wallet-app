@@ -44,7 +44,7 @@ type Transactions struct {
 	net            *chaincfg.Params
 	transactions   map[chainhash.Hash]*Transaction
 	requestedTXs   map[chainhash.Hash][]func(*wire.MsgTx)
-	addressHistory map[string][]chainhash.Hash
+	addressHistory map[string]map[chainhash.Hash]struct{}
 	// inputs contains all inputs of all transactions that touch our wallet. It includes all inputs
 	// that spend an output of our wallet, and more.  The inputs are referenced by the outputs they
 	// spend.
@@ -70,7 +70,7 @@ func NewTransactions(
 	return &Transactions{
 		net:            net,
 		transactions:   map[chainhash.Hash]*Transaction{},
-		addressHistory: map[string][]chainhash.Hash{},
+		addressHistory: map[string]map[chainhash.Hash]struct{}{},
 		requestedTXs:   map[chainhash.Hash][]func(*wire.MsgTx){},
 		outputs:        map[wire.OutPoint]*TxOut{},
 		inputs:         map[wire.OutPoint]*TxIn{},
@@ -85,13 +85,7 @@ func (transactions *Transactions) processTxForAddress(
 	address btcutil.Address, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
 	// Don't process the tx if it is not found in the address history. It could have been removed
 	// from the history before this function was called.
-	found := false
-	for _, txHashInHistory := range transactions.addressHistory[address.String()] {
-		if txHashInHistory == txHash {
-			found = true
-		}
-	}
-	if !found {
+	if _, found := transactions.addressHistory[address.String()][txHash]; !found {
 		return
 	}
 
@@ -198,7 +192,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		// TODO
 		panic(errp.New("duplicate tx ids in address history returned by server"))
 	}
-	for _, txHash := range transactions.addressHistory[address.String()] {
+	for txHash := range transactions.addressHistory[address.String()] {
 		if _, txOK := txsSet[txHash]; txOK {
 			continue
 		}
@@ -211,11 +205,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		}
 	}
 
-	txHashes := make([]chainhash.Hash, len(txs))
-	for i := 0; i < len(txs); i++ {
-		txHashes[i] = txs[i].TXHash.Hash()
-	}
-	transactions.addressHistory[address.String()] = txHashes
+	transactions.addressHistory[address.String()] = txsSet
 
 	for _, txInfo := range txs {
 		func(txHash chainhash.Hash, height int) {
