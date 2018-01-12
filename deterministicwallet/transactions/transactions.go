@@ -31,7 +31,6 @@ type TxIn struct {
 
 // Transaction is a transaction touching the wallet.
 type Transaction struct {
-	TXHash    chainhash.Hash
 	TX        *wire.MsgTx
 	Height    int
 	Addresses map[string]struct{}
@@ -99,7 +98,6 @@ func (transactions *Transactions) processTxForAddress(
 	transaction, ok := transactions.transactions[txHash]
 	if !ok {
 		transaction = &Transaction{
-			TXHash:    txHash,
 			TX:        tx,
 			Height:    height,
 			Addresses: map[string]struct{}{},
