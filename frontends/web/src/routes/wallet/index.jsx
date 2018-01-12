@@ -393,9 +393,9 @@ export default class Wallets extends Component {
               &nbsp;
               <CoinLink code="btc-p2wpkh-p2sh">Bitcoin Segwit</CoinLink>
               &nbsp;
-              <CoinLink code="tltc">Litecoin Testnet</CoinLink>
+              <CoinLink code="tltc-p2wpkh-p2sh">Litecoin Testnet</CoinLink>
               &nbsp;
-              <CoinLink code="ltc">Litecoin</CoinLink>
+              <CoinLink code="ltc-p2wpkh-p2sh">Litecoin</CoinLink>
               <Wallet
                 walletCode="tbtc"
                 show={activeCoin == "tbtc"}
@@ -417,14 +417,14 @@ export default class Wallets extends Component {
                 registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc-p2wpkh-p2sh"] = onWalletEvent; }}
                 />
               <Wallet
-                walletCode="tltc"
-                show={activeCoin == "tltc"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tltc"] = onWalletEvent; }}
+                walletCode="tltc-p2wpkh-p2sh"
+                show={activeCoin == "tltc-p2wpkh-p2sh"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tltc-p2wpkh-p2sh"] = onWalletEvent; }}
               />
               <Wallet
-                walletCode="ltc"
-                show={activeCoin == "ltc"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["ltc"] = onWalletEvent; }}
+                walletCode="ltc-p2wpkh-p2sh"
+                show={activeCoin == "ltc-p2wpkh-p2sh"}
+                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["ltc-p2wpkh-p2sh"] = onWalletEvent; }}
                   />
             </div>
         );

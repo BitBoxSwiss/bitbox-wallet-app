@@ -63,12 +63,12 @@ func (wallet *Wallet) init(knot *Knot) error {
 		walletDerivationPath = "m/49'/0'/0'"
 		electrumServer = electrum.Server
 		addressType = addresses.AddressTypeP2WPKHP2SH
-	case "tltc":
+	case "tltc-p2wpkh-p2sh":
 		net = &ltc.TestNet4Params
-		walletDerivationPath = "m/44'/1'/0'"
+		walletDerivationPath = "m/49'/1'/0'"
 		electrumServer = "electrum.ltc.xurious.com:51002"
-		addressType = addresses.AddressTypeP2PKH
-	case "ltc":
+		addressType = addresses.AddressTypeP2WPKHP2SH
+	case "ltc-p2wpkh-p2sh":
 		net = &ltc.MainNetParams
 		walletDerivationPath = "m/49'/2'/0'"
 		electrumServer = "electrumx.nmdps.net:9434"
@@ -141,8 +141,8 @@ func NewKnot() *Knot {
 			&Wallet{Code: "tbtc-p2wpkh-p2sh"},
 			&Wallet{Code: "btc"},
 			&Wallet{Code: "btc-p2wpkh-p2sh"},
-			&Wallet{Code: "tltc"},
-			&Wallet{Code: "ltc"},
+			&Wallet{Code: "tltc-p2wpkh-p2sh"},
+			&Wallet{Code: "ltc-p2wpkh-p2sh"},
 		},
 	}
 }
