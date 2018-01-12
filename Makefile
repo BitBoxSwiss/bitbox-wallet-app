@@ -9,7 +9,7 @@ init:
 	dep ensure
 	make generate
 servewallet:
-	cd cmd/servewallet && go install ./... && servewallet
+	go install ./cmd/servewallet/... && servewallet
 generate:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
