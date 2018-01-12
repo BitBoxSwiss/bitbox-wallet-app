@@ -262,7 +262,7 @@ func (dbb *DBBDevice) SetPassword(password string) error {
 }
 
 // Login validates the password. This needs to be called before using any API call except for Ping()
-// and SetPassord(). It returns whether the next login attempt requires a long-touch, and the number
+// and SetPassword(). It returns whether the next login attempt requires a long-touch, and the number
 // of remaining attempts.
 func (dbb *DBBDevice) Login(password string) (bool, string, error) {
 	deviceInfo, err := dbb.deviceInfo(password)
