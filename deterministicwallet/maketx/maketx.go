@@ -10,6 +10,17 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// TxProposal is the data needed for a new transaction to be able to display it and sign it.
+type TxProposal struct {
+	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
+	Amount btcutil.Amount
+	// Fee is the mining fee used.
+	Fee         btcutil.Amount
+	Transaction *wire.MsgTx
+	// SelectedOutPoints are the outputs that are used to cover the amount and the fee.
+	SelectedOutPoints []wire.OutPoint
+}
+
 type byValue struct {
 	outPoints []wire.OutPoint
 	outputs   map[wire.OutPoint]*wire.TxOut
@@ -50,7 +61,7 @@ func coinSelection(
 func NewTxSpendAll(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
-	feePerKb btcutil.Amount) (btcutil.Amount, *wire.MsgTx, []wire.OutPoint, error) {
+	feePerKb btcutil.Amount) (*TxProposal, error) {
 
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
@@ -65,7 +76,7 @@ func NewTxSpendAll(
 	txSize := EstimateSerializeSize(len(selectedOutPoints), []*wire.TxOut{output}, false)
 	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize)
 	if outputsSum < maxRequiredFee {
-		return 0, nil, nil, errp.New("insufficient funds for fee")
+		return nil, errp.New("insufficient funds for fee")
 	}
 	output = wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{
@@ -75,7 +86,12 @@ func NewTxSpendAll(
 		LockTime: 0,
 	}
 	txsort.InPlaceSort(unsignedTransaction)
-	return btcutil.Amount(output.Value), unsignedTransaction, selectedOutPoints, nil
+	return &TxProposal{
+		Amount:            btcutil.Amount(output.Value),
+		Fee:               maxRequiredFee,
+		Transaction:       unsignedTransaction,
+		SelectedOutPoints: selectedOutPoints,
+	}, nil
 }
 
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
@@ -85,7 +101,7 @@ func NewTx(
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
 	getChangePKScript func() ([]byte, error),
-) (*wire.MsgTx, []wire.OutPoint, error) {
+) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
 	outputs := []*wire.TxOut{output}
 	estimatedSize := EstimateSerializeSize(1, outputs, true)
@@ -97,7 +113,7 @@ func NewTx(
 			spendableOutputs,
 		)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		txSize := EstimateSerializeSize(len(selectedOutPoints), outputs, true)
@@ -118,19 +134,29 @@ func NewTx(
 			LockTime: 0,
 		}
 		changeAmount := selectedOutputsSum - targetAmount - maxRequiredFee
-		if changeAmount != 0 && !IsDustAmount(changeAmount, P2PKHPkScriptSize, feePerKb) {
+		changeIsDust := IsDustAmount(changeAmount, P2PKHPkScriptSize, feePerKb)
+		finalFee := maxRequiredFee
+		if changeIsDust {
+			finalFee = selectedOutputsSum - targetAmount
+		}
+		if changeAmount != 0 && !changeIsDust {
 			changePKScript, err := getChangePKScript()
 			if err != nil {
-				return nil, nil, err
+				return nil, err
 			}
 			if len(changePKScript) > P2PKHPkScriptSize {
-				return nil, nil, errors.New("fee estimation requires change " +
+				return nil, errors.New("fee estimation requires change " +
 					"scripts no larger than P2PKH output scripts")
 			}
 			changeOutput := wire.NewTxOut(int64(changeAmount), changePKScript)
 			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut, changeOutput)
 		}
 		txsort.InPlaceSort(unsignedTransaction)
-		return unsignedTransaction, selectedOutPoints, nil
+		return &TxProposal{
+			Amount:            targetAmount,
+			Fee:               finalFee,
+			Transaction:       unsignedTransaction,
+			SelectedOutPoints: selectedOutPoints,
+		}, nil
 	}
 }
