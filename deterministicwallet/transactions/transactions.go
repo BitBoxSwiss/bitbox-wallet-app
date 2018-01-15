@@ -33,7 +33,7 @@ type TxIn struct {
 type Transaction struct {
 	TX        *wire.MsgTx
 	Height    int
-	Addresses map[string]struct{}
+	addresses map[string]struct{}
 }
 
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
@@ -94,12 +94,12 @@ func (transactions *Transactions) processTxForAddress(
 		transaction = &Transaction{
 			TX:        tx,
 			Height:    height,
-			Addresses: map[string]struct{}{},
+			addresses: map[string]struct{}{},
 		}
 		transactions.transactions[txHash] = transaction
 	}
 
-	transaction.Addresses[address.String()] = struct{}{}
+	transaction.addresses[address.String()] = struct{}{}
 	transaction.Height = height
 	transactions.processInputsAndOutputsForAddress(address, txHash, tx)
 }
@@ -198,8 +198,8 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		}
 		// A tx was previously in the address history but is not anymore.
 		if txEntry, ok := transactions.transactions[txHash]; ok {
-			delete(txEntry.Addresses, address.String())
-			if len(txEntry.Addresses) == 0 {
+			delete(txEntry.addresses, address.String())
+			if len(txEntry.addresses) == 0 {
 				transactions.removeTransaction(txHash)
 			}
 		}
