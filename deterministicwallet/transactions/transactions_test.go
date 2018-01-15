@@ -83,7 +83,6 @@ func (s *transactionsSuite) SetupTest() {
 		s.net,
 		s.synchronizer,
 		s.blockchainMock,
-		func(btcutil.Address) bool { return false },
 	)
 }
 

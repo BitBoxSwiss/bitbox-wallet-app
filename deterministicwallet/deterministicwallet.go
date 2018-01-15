@@ -171,7 +171,7 @@ func NewDeterministicWallet(
 		wallet.keystore.XPub(), net, gapLimit, 0, addressType)
 	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1, addressType)
 	wallet.transactions = transactions.NewTransactions(
-		net, synchronizer, blockchain, wallet.changeAddresses.Contains)
+		net, synchronizer, blockchain)
 
 	return wallet, nil
 }
@@ -301,7 +301,7 @@ func (wallet *DeterministicWallet) Transactions() []*transactions.Transaction {
 // ClassifyTransaction wraps transaction.Transactions.ClassifyTransaction()
 func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
 	transactions.TxType, btcutil.Amount, *btcutil.Amount) {
-	return wallet.transactions.ClassifyTransaction(tx)
+	return wallet.transactions.ClassifyTransaction(tx, wallet.changeAddresses.Contains)
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.

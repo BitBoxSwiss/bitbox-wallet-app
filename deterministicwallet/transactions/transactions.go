@@ -55,9 +55,8 @@ type Transactions struct {
 	// outputs contains all outputs which belong to the wallet.
 	outputs map[wire.OutPoint]*TxOut
 
-	synchronizer    *synchronizer.Synchronizer
-	blockchain      blockchain.Interface
-	isChangeAddress func(btcutil.Address) bool
+	synchronizer *synchronizer.Synchronizer
+	blockchain   blockchain.Interface
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -65,7 +64,6 @@ func NewTransactions(
 	net *chaincfg.Params,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
-	isChangeAddress func(btcutil.Address) bool,
 ) *Transactions {
 	return &Transactions{
 		net:            net,
@@ -75,9 +73,8 @@ func NewTransactions(
 		outputs:        map[wire.OutPoint]*TxOut{},
 		inputs:         map[wire.OutPoint]*TxIn{},
 
-		synchronizer:    synchronizer,
-		blockchain:      blockchain,
-		isChangeAddress: isChangeAddress,
+		synchronizer: synchronizer,
+		blockchain:   blockchain,
 	}
 }
 
@@ -318,7 +315,9 @@ const (
 // 1) Receive: some outputs are ours, not all inputs are ours. Amount is the amount received (positive). Fee unavailable.
 // 2) Send: all inputs are ours, some outputs are not. Amount is the amound sent (positive). Fee is returned.
 // 3) Send self: all inputs and all outputs are ours. Amount is the amount sent to self. Fee is returned.
-func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
+func (transactions *Transactions) ClassifyTransaction(
+	tx *wire.MsgTx,
+	isChangeAddress func(btcutil.Address) bool) (
 	TxType, btcutil.Amount, *btcutil.Amount) {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
@@ -339,7 +338,7 @@ func (transactions *Transactions) ClassifyTransaction(tx *wire.MsgTx) (
 			Hash:  tx.TxHash(),
 			Index: uint32(index),
 		}]; ok {
-			if transactions.isChangeAddress(output.Address) {
+			if isChangeAddress(output.Address) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
