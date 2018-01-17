@@ -1,6 +1,14 @@
 #!/bin/bash -e
 
+# use `ci.sh --fast` to only run fast checkers.
+if [ "$1" == "--fast" ]; then
+    fast="--fast"
+else
+    fast=""
+fi
+
 gometalinter.v1 \
+    "$fast" \
     --concurrency 3 \
     --skip=mocks \
     --skip=binweb \

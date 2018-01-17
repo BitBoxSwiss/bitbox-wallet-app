@@ -21,6 +21,8 @@ qt:
 	make -C frontends/qt
 ci:
 	./scripts/ci.sh
+ci-fast:
+	./scripts/ci.sh --fast
 dockerinit:
 	docker build --force-rm -t godbb .
 dockerdev:
