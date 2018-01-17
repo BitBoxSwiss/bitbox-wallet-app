@@ -154,12 +154,27 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	}
 }
 
-// UnspentOutputs returns all unspent outputs of the wallet.
-func (transactions *Transactions) UnspentOutputs() map[wire.OutPoint]*TxOut {
+func (transactions *Transactions) allInputsOurs(transaction *wire.MsgTx) bool {
+	for _, txIn := range transaction.TxIn {
+		if _, ok := transactions.outputs[txIn.PreviousOutPoint]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
+// SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
+// include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
+// ourselves.
+func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
+	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	result := map[wire.OutPoint]*TxOut{}
 	for outPoint, txOut := range transactions.outputs {
-		if _, ok := transactions.inputs[outPoint]; !ok {
+		tx := transactions.transactions[outPoint.Hash]
+		confirmed := tx.Height > 0
+		_, spent := transactions.inputs[outPoint]
+		if !spent && (confirmed || transactions.allInputsOurs(tx.TX)) {
 			result[outPoint] = txOut
 		}
 	}

@@ -51,7 +51,7 @@ func (wallet *DeterministicWallet) newTx(
 	if err != nil {
 		return nil, nil, errp.WithStack(err)
 	}
-	utxo := wallet.transactions.UnspentOutputs()
+	utxo := wallet.transactions.SpendableOutputs()
 	wireUTXO := make(map[wire.OutPoint]*wire.TxOut, len(utxo))
 	for outPoint, txOut := range utxo {
 		wireUTXO[outPoint] = txOut.TxOut
