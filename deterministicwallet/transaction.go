@@ -29,9 +29,12 @@ func NewSendAmountAll() SendAmount {
 	return SendAmount{amount: 0, sendAll: true}
 }
 
+// newTx creates a new tx to the given recipient address. It also returns a set of used wallet
+// outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
+// transaction.
 func (wallet *DeterministicWallet) newTx(
 	address btcutil.Address, amount SendAmount, feeTargetCode FeeTargetCode) (
-	*maketx.TxProposal, error) {
+	map[wire.OutPoint]*transactions.TxOut, *maketx.TxProposal, error) {
 
 	var feeTarget *FeeTarget
 	for _, target := range wallet.feeTargets {
@@ -41,28 +44,35 @@ func (wallet *DeterministicWallet) newTx(
 		}
 	}
 	if feeTarget == nil || feeTarget.FeeRatePerKb == nil {
-		return nil, errp.New("fee could not be estimated")
+		return nil, nil, errp.New("fee could not be estimated")
 	}
 
 	pkScript, err := txscript.PayToAddrScript(address)
 	if err != nil {
-		return nil, errp.WithStack(err)
+		return nil, nil, errp.WithStack(err)
+	}
+	utxo := wallet.transactions.UnspentOutputs()
+	wireUTXO := make(map[wire.OutPoint]*wire.TxOut, len(utxo))
+	for outPoint, txOut := range utxo {
+		wireUTXO[outPoint] = txOut.TxOut
 	}
 	if amount.sendAll {
-		return maketx.NewTxSpendAll(
-			wallet.transactions.UnspentOutputs(),
+		txProposal, err := maketx.NewTxSpendAll(
+			wireUTXO,
 			pkScript,
 			*feeTarget.FeeRatePerKb,
 		)
+		return utxo, txProposal, err
 	}
-	return maketx.NewTx(
-		wallet.transactions.UnspentOutputs(),
+	txProposal, err := maketx.NewTx(
+		wireUTXO,
 		wire.NewTxOut(int64(amount.amount), pkScript),
 		*feeTarget.FeeRatePerKb,
 		func() ([]byte, error) {
 			return wallet.changeAddresses.GetUnused().PkScript(), nil
 		},
 	)
+	return utxo, txProposal, err
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
@@ -77,7 +87,7 @@ func (wallet *DeterministicWallet) SendTx(
 	if !address.IsForNet(wallet.net) {
 		return errp.New("invalid address for this network")
 	}
-	txProposal, err := wallet.newTx(
+	utxo, txProposal, err := wallet.newTx(
 		address,
 		amount,
 		feeTargetCode,
@@ -85,11 +95,7 @@ func (wallet *DeterministicWallet) SendTx(
 	if err != nil {
 		return err
 	}
-	previousOutputs := map[wire.OutPoint]*transactions.TxOut{}
-	for _, outPoint := range txProposal.SelectedOutPoints {
-		previousOutputs[outPoint] = wallet.transactions.Output(outPoint)
-	}
-	if err := SignTransaction(wallet.keystore, txProposal.Transaction, previousOutputs); err != nil {
+	if err := SignTransaction(wallet.keystore, txProposal.Transaction, utxo); err != nil {
 		return err
 	}
 	return wallet.blockchain.TransactionBroadcast(txProposal.Transaction)
@@ -102,7 +108,7 @@ func (wallet *DeterministicWallet) TxProposal(amount SendAmount, feeTargetCode F
 
 	// Dummy recipient, we won't sent the tx, just return the fee.
 	recipientAddress := wallet.receiveAddresses.GetUnused().Address
-	txProposal, err := wallet.newTx(
+	_, txProposal, err := wallet.newTx(
 		recipientAddress,
 		amount,
 		feeTargetCode,

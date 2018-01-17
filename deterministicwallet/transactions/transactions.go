@@ -154,18 +154,13 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	}
 }
 
-// Output returns an output belonging to the wallet. Returns nil if the output is not part of the
-// wallet.
-func (transactions *Transactions) Output(outPoint wire.OutPoint) *TxOut {
-	return transactions.outputs[outPoint]
-}
-
 // UnspentOutputs returns all unspent outputs of the wallet.
-func (transactions *Transactions) UnspentOutputs() map[wire.OutPoint]*wire.TxOut {
-	result := map[wire.OutPoint]*wire.TxOut{}
+func (transactions *Transactions) UnspentOutputs() map[wire.OutPoint]*TxOut {
+	defer transactions.RLock()()
+	result := map[wire.OutPoint]*TxOut{}
 	for outPoint, txOut := range transactions.outputs {
 		if _, ok := transactions.inputs[outPoint]; !ok {
-			result[outPoint] = txOut.TxOut
+			result[outPoint] = txOut
 		}
 	}
 	return result

@@ -10,7 +10,8 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
-// SignTransaction signs all inputs. It assumes all outputs spent belong to this wallet.
+// SignTransaction signs all inputs. It assumes all outputs spent belong to this
+// wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func SignTransaction(
 	sign HDKeyStoreInterface,
 	transaction *wire.MsgTx,
