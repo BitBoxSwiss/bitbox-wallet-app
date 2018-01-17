@@ -20,22 +20,28 @@ import (
 type BlockchainMock struct {
 	blockchainMock.InterfaceMock
 	transactions            map[chainhash.Hash]*wire.MsgTx
-	transactionGetCallbacks []func()
+	transactionGetCallbacks map[chainhash.Hash][]func()
 }
 
 func NewBlockchainMock() *BlockchainMock {
 	blockchainMock := &BlockchainMock{
 		transactions:            map[chainhash.Hash]*wire.MsgTx{},
-		transactionGetCallbacks: []func(){},
+		transactionGetCallbacks: map[chainhash.Hash][]func(){},
 	}
 	return blockchainMock
 }
 
-func (blockchain *BlockchainMock) CallTransactionGetCallbacks() {
-	callbacks := blockchain.transactionGetCallbacks
-	blockchain.transactionGetCallbacks = []func(){}
+func (blockchain *BlockchainMock) CallTransactionGetCallbacks(txHash chainhash.Hash) {
+	callbacks := blockchain.transactionGetCallbacks[txHash]
+	delete(blockchain.transactionGetCallbacks, txHash)
 	for _, callback := range callbacks {
 		callback()
+	}
+}
+
+func (blockchain *BlockchainMock) CallAllTransactionGetCallbacks() {
+	for txHash := range blockchain.transactionGetCallbacks {
+		blockchain.CallTransactionGetCallbacks(txHash)
 	}
 }
 
@@ -58,7 +64,11 @@ func (blockchain *BlockchainMock) TransactionGet(
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
 	}
-	blockchain.transactionGetCallbacks = append(blockchain.transactionGetCallbacks,
+	callbacks, ok := blockchain.transactionGetCallbacks[txHash]
+	if !ok {
+		callbacks = []func(){}
+	}
+	blockchain.transactionGetCallbacks[txHash] = append(callbacks,
 		func() {
 			cleanup(success(tx))
 		})
@@ -94,7 +104,7 @@ func TestTransactionsSuite(t *testing.T) {
 
 func (s *transactionsSuite) updateAddressHistory(address btcutil.Address, txs []*client.TxInfo) {
 	s.transactions.UpdateAddressHistory(address, txs)
-	s.blockchainMock.CallTransactionGetCallbacks()
+	s.blockchainMock.CallAllTransactionGetCallbacks()
 }
 
 func newTx(
@@ -119,20 +129,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	expectedAmount := btcutil.Amount(123)
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
 	tx2 := newTx(chainhash.HashH(nil), 1, address, expectedAmount)
-	txs := map[chainhash.Hash]*wire.MsgTx{
-		tx1.TxHash(): tx1,
-		tx2.TxHash(): tx2,
-	}
-	txCallbacks := map[chainhash.Hash]func(){}
-	s.blockchainMock.TransactionGetFunc = func(
-		txHash chainhash.Hash,
-		success func(*wire.MsgTx) error,
-		cleanup func(error)) error {
-		txCallbacks[txHash] = func() {
-			cleanup(success(txs[txHash]))
-		}
-		return nil
-	}
+	s.blockchainMock.RegisterTxs(tx1, tx2)
 	var syncStarted, syncFinished bool
 	onSyncStarted := func() {
 		if syncStarted {
@@ -153,10 +150,10 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	})
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
-	txCallbacks[tx1.TxHash()]()
+	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
-	txCallbacks[tx2.TxHash()]()
+	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
 	require.True(s.T(), syncStarted)
 	require.True(s.T(), syncFinished)
 }
@@ -202,30 +199,15 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	address2 := addresses[1]
 	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
 	tx2 := newTx(tx1.TxHash(), 0, address2, 123)
-	txs := map[chainhash.Hash]*wire.MsgTx{
-		tx1.TxHash(): tx1,
-		tx2.TxHash(): tx2,
-	}
-	txCallbacks := map[chainhash.Hash]func(){}
-	s.blockchainMock.TransactionGetFunc = func(
-		txHash chainhash.Hash,
-		success func(*wire.MsgTx) error,
-		cleanup func(error)) error {
-		txCallbacks[txHash] = func() {
-			cleanup(success(txs[txHash]))
-		}
-		return nil
-	}
+	s.blockchainMock.RegisterTxs(tx1, tx2)
 	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 0},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
 	})
-	f1 := txCallbacks[tx1.TxHash()]
-	f2 := txCallbacks[tx2.TxHash()]
 	// Process tx2 (the spend) before tx1 (the funding). This should result in a zero balance, as
 	// the received funds are spent.
-	f2()
-	f1()
+	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
+	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
 	require.Equal(s.T(),
 		&transactions.Balance{Confirmed: 0, Unconfirmed: 0},
 		s.transactions.Balance(),
