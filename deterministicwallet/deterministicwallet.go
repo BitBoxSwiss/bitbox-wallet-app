@@ -6,7 +6,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 
@@ -43,9 +42,7 @@ type Interface interface {
 	Init()
 	Initialized() bool
 	Close()
-	Transactions() []*transactions.Transaction
-	ClassifyTransaction(*wire.MsgTx) (
-		transactions.TxType, btcutil.Amount, *btcutil.Amount)
+	Transactions() []*transactions.TxInfo
 	Balance() *transactions.Balance
 	SendTx(string, SendAmount, FeeTargetCode) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
@@ -294,14 +291,8 @@ func (wallet *DeterministicWallet) subscribeAddress(address *addresses.Address) 
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (wallet *DeterministicWallet) Transactions() []*transactions.Transaction {
-	return wallet.transactions.Transactions()
-}
-
-// ClassifyTransaction wraps transaction.Transactions.ClassifyTransaction()
-func (wallet *DeterministicWallet) ClassifyTransaction(tx *wire.MsgTx) (
-	transactions.TxType, btcutil.Amount, *btcutil.Amount) {
-	return wallet.transactions.ClassifyTransaction(tx, wallet.changeAddresses.Contains)
+func (wallet *DeterministicWallet) Transactions() []*transactions.TxInfo {
+	return wallet.transactions.Transactions(wallet.changeAddresses.Contains)
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.

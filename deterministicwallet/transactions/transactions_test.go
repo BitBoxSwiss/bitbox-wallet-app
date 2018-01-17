@@ -176,7 +176,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		},
 		s.transactions.UnspentOutputs(),
 	)
-	transactions := s.transactions.Transactions()
+	transactions := s.transactions.Transactions(func(btcutil.Address) bool { return false })
 	require.Len(s.T(), transactions, 1)
 	require.Equal(s.T(), tx1, transactions[0].TX)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)

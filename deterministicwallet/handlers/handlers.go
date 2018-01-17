@@ -47,21 +47,20 @@ func (handlers *Handlers) Uninit() {
 func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
 	txs := handlers.wallet.Transactions()
-	for _, tx := range txs {
-		txType, txAmount, txFee := handlers.wallet.ClassifyTransaction(tx.TX)
+	for _, txInfo := range txs {
 		var feeString = ""
-		if txFee != nil {
-			feeString = txFee.String()
+		if txInfo.Fee != nil {
+			feeString = txInfo.Fee.String()
 		}
 		result = append(result, map[string]interface{}{
-			"id":     tx.TX.TxHash().String(),
-			"height": tx.Height,
+			"id":     txInfo.TX.TxHash().String(),
+			"height": txInfo.Height,
 			"type": map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
-			}[txType],
-			"amount": txAmount.String(),
+			}[txInfo.Type],
+			"amount": txInfo.Amount.String(),
 			"fee":    feeString,
 		})
 	}

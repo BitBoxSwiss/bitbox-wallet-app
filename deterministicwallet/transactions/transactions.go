@@ -284,7 +284,7 @@ func (transactions *Transactions) Balance() *Balance {
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
 // height. Special case for unconfirmed transactions (height <=0), which come last.
-type byHeight []*Transaction
+type byHeight []*TxInfo
 
 func (s byHeight) Len() int { return len(s) }
 func (s byHeight) Less(i, j int) bool {
@@ -310,20 +310,26 @@ const (
 	TxTypeSendSelf = "sendSelf"
 )
 
-// ClassifyTransaction checks what kind of transaction we have, and the amount/fee
-// included. Currently, the wallet supports three kinds:
-// 1) Receive: some outputs are ours, not all inputs are ours. Amount is the amount received (positive). Fee unavailable.
-// 2) Send: all inputs are ours, some outputs are not. Amount is the amound sent (positive). Fee is returned.
-// 3) Send self: all inputs and all outputs are ours. Amount is the amount sent to self. Fee is returned.
-func (transactions *Transactions) ClassifyTransaction(
-	tx *wire.MsgTx,
-	isChangeAddress func(btcutil.Address) bool) (
-	TxType, btcutil.Amount, *btcutil.Amount) {
+// TxInfo contains additional tx information to display to the user.
+type TxInfo struct {
+	*Transaction
+	Type TxType
+	// Amount is always >0 and is the amount received or sent (not including the fee).
+	Amount btcutil.Amount
+	// Fee is nil if for a receiving tx (TxTypeReceive). The fee is only displayed (and relevant)
+	// when sending funds from the wallet.
+	Fee *btcutil.Amount
+}
+
+// txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
+func (transactions *Transactions) txInfo(
+	tx *Transaction,
+	isChangeAddress func(btcutil.Address) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
-	for _, txIn := range tx.TxIn {
+	for _, txIn := range tx.TX.TxIn {
 		if spentOut, ok := transactions.outputs[txIn.PreviousOutPoint]; ok {
 			sumOurInputs += btcutil.Amount(spentOut.Value)
 		} else {
@@ -332,10 +338,10 @@ func (transactions *Transactions) ClassifyTransaction(
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
 	allOutputsOurs := true
-	for index, txOut := range tx.TxOut {
+	for index, txOut := range tx.TX.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
 		if output, ok := transactions.outputs[wire.OutPoint{
-			Hash:  tx.TxHash(),
+			Hash:  tx.TX.TxHash(),
 			Index: uint32(index),
 		}]; ok {
 			if isChangeAddress(output.Address) {
@@ -366,16 +372,22 @@ func (transactions *Transactions) ClassifyTransaction(
 		txType = TxTypeReceive
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
-	return txType, result, feeP
+	return &TxInfo{
+		Transaction: tx,
+		Type:        txType,
+		Amount:      result,
+		Fee:         feeP,
+	}
 }
 
 // Transactions returns an ordered list of transactions.
-func (transactions *Transactions) Transactions() []*Transaction {
+func (transactions *Transactions) Transactions(
+	isChangeAddress func(btcutil.Address) bool) []*TxInfo {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
-	txs := []*Transaction{}
+	txs := []*TxInfo{}
 	for _, transaction := range transactions.transactions {
-		txs = append(txs, transaction)
+		txs = append(txs, transactions.txInfo(transaction, isChangeAddress))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs
