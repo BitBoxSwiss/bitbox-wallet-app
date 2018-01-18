@@ -258,37 +258,36 @@ func (transactions *Transactions) doForTransaction(
 	}
 }
 
-// Balance contains the confirmed and unconfirmed balance of the wallet.
+// Balance contains the available and incoming balance of the wallet.
 type Balance struct {
-	Confirmed   btcutil.Amount
-	Unconfirmed btcutil.Amount
+	// Available funds are all confirmed funds which are not spent by any tx. Exception: unconfirmed
+	// transactions that spend from the wallet are available.
+	Available btcutil.Amount
+	// Incoming balance are unconfirmed funds coming into the wallet.
+	Incoming btcutil.Amount
 }
 
 // Balance computes the confirmed and unconfirmed balance of the wallet.
 func (transactions *Transactions) Balance() *Balance {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
-	var confirmed int64
-	var unconfirmed int64
+	var available, incoming int64
 	for outPoint, txOut := range transactions.outputs {
-		txHeight := transactions.transactions[outPoint.Hash].Height
-		if txHeight > 0 {
-			confirmed += txOut.Value
-		} else {
-			unconfirmed += txOut.Value
+		// What is spent can not be available nor incoming.
+		if _, spent := transactions.inputs[outPoint]; spent {
+			continue
 		}
-		if input, spent := transactions.inputs[outPoint]; spent {
-			txHeight := transactions.transactions[input.txHash].Height
-			if txHeight > 0 {
-				confirmed -= txOut.Value
-			} else {
-				unconfirmed -= txOut.Value
-			}
+		tx := transactions.transactions[outPoint.Hash]
+		confirmed := tx.Height > 0
+		if confirmed || transactions.allInputsOurs(tx.TX) {
+			available += txOut.Value
+		} else {
+			incoming += txOut.Value
 		}
 	}
 	return &Balance{
-		Confirmed:   btcutil.Amount(confirmed),
-		Unconfirmed: btcutil.Amount(unconfirmed),
+		Available: btcutil.Amount(available),
+		Incoming:  btcutil.Amount(incoming),
 	}
 }
 

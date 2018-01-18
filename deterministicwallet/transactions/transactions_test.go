@@ -170,7 +170,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		{TXHash: client.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Confirmed: expectedAmount, Unconfirmed: 0},
+		&transactions.Balance{Available: expectedAmount, Incoming: 0},
 		s.transactions.Balance(),
 	)
 	utxo := &transactions.TxOut{
@@ -209,7 +209,7 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
 	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
 	require.Equal(s.T(),
-		&transactions.Balance{Confirmed: 0, Unconfirmed: 0},
+		&transactions.Balance{Available: 0, Incoming: 0},
 		s.transactions.Balance(),
 	)
 }
@@ -272,4 +272,63 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	require.NotContains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx22.TxHash(), Index: 0})
 	// Output from the spend tx address available.
 	require.Contains(s.T(), spendableOutputs, wire.OutPoint{Hash: tx22_spend.TxHash(), Index: 0})
+}
+
+func (s *transactionsSuite) TestBalance() {
+	require.Equal(s.T(), &transactions.Balance{Available: 0, Incoming: 0}, s.transactions.Balance())
+	addresses := s.addressChain.EnsureAddresses()
+	address1 := addresses[0]
+	otherAddress := addresses[2]
+	expectedAmount := btcutil.Amount(123)
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, expectedAmount)
+	tx1_spend := newTx(tx1.TxHash(), 0, otherAddress, expectedAmount)
+	expectedAmount2 := btcutil.Amount(456)
+	tx2 := newTx(chainhash.HashH(nil), 1, address1, expectedAmount2)
+	tx2_spend := newTx(tx2.TxHash(), 0, address1, expectedAmount2)
+	s.blockchainMock.RegisterTxs(tx1, tx1_spend, tx2, tx2_spend)
+	// Incoming.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 0},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 0, Incoming: expectedAmount},
+		s.transactions.Balance())
+	// Confirm it, plus another one incoming.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: expectedAmount, Incoming: expectedAmount2},
+		s.transactions.Balance())
+	// Spend funds that came from tx1, first unconfirmed. Available balance decreases.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 0},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
+		s.transactions.Balance())
+	// Confirm it.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 10},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
+		s.transactions.Balance())
+	// Spend the unconfirmed incoming tx to an internal address, unconfirmed (can't confirm until
+	// the first one is). The funds are still available as we own the unconfirmed output.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx2_spend.TxHash()), Height: 0},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: expectedAmount2, Incoming: 0},
+		s.transactions.Balance())
+
 }

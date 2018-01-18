@@ -257,8 +257,9 @@ class Wallet extends Component {
             walletInitialized: false,
             transactions: [],
             balance: {
-                confirmed: "",
-                unconfirmed: ""
+                available: "",
+                incoming: "",
+                hasIncoming: false
             },
             receiveAddress: null
         };
@@ -341,7 +342,7 @@ class Wallet extends Component {
                 <ReceiveButton receiveAddress={receiveAddress}/>
               </p>
               <h2>Amount</h2>
-              { balance.confirmed } { balance.unconfirmed && <span>({balance.unconfirmed})</span> }
+              Available balance to spend: { balance.available } { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
               <h2>Transactions</h2>
               { renderTransactions(transactions) }
             </div>

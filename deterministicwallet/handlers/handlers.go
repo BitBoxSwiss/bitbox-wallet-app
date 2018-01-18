@@ -69,9 +69,10 @@ func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, e
 
 func (handlers *Handlers) getWalletBalance(r *http.Request) (interface{}, error) {
 	balance := handlers.wallet.Balance()
-	return map[string]string{
-		"confirmed":   balance.Confirmed.Format(btcutil.AmountBTC),
-		"unconfirmed": balance.Unconfirmed.Format(btcutil.AmountBTC),
+	return map[string]interface{}{
+		"available":   balance.Available.Format(btcutil.AmountBTC),
+		"incoming":    balance.Incoming.Format(btcutil.AmountBTC),
+		"hasIncoming": balance.Incoming != 0,
 	}, nil
 }
 
