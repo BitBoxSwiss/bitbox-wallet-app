@@ -140,7 +140,9 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 	if err := json.Unmarshal(reply, &jsonResult); err != nil {
 		return nil, errors.WithStack(err)
 	}
-	// TODO: return DBBErr as in SendEncrypt
+	if err := maybeDBBErr(jsonResult); err != nil {
+		return nil, err
+	}
 	return jsonResult, nil
 }
 
@@ -153,6 +155,21 @@ type DBBErr struct {
 // Error implements the error interface.
 func (d DBBErr) Error() string {
 	return d.message
+}
+
+func maybeDBBErr(jsonResult map[string]interface{}) error {
+	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
+		errMsg, ok := errMap["message"].(string)
+		if !ok {
+			return errors.New("unexpected reply")
+		}
+		errCode, ok := errMap["code"].(float64)
+		if !ok {
+			return errors.New("unexpected reply")
+		}
+		return &DBBErr{message: errMsg, Code: errCode}
+	}
+	return nil
 }
 
 // SendEncrypt sends an encrypted message. The resposne is json-deserialized into a map. If the
@@ -177,16 +194,8 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 			return nil, errors.WithStack(err)
 		}
 	}
-	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
-		errMsg, ok := errMap["message"].(string)
-		if !ok {
-			return nil, errors.New("unexpected reply")
-		}
-		errCode, ok := errMap["code"].(float64)
-		if !ok {
-			return nil, errors.New("unexpected reply")
-		}
-		return nil, &DBBErr{message: errMsg, Code: errCode}
+	if err := maybeDBBErr(jsonResult); err != nil {
+		return nil, err
 	}
 	return jsonResult, nil
 }

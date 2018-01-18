@@ -5,8 +5,13 @@ import { PasswordRepeatInput } from '../password';
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
+import LanguageSwitcher from '../language-switcher';
+
+import { translate } from 'react-i18next';
+
 import { apiPost } from '../../util';
 
+@translate()
 export default class Initialize extends Component {
     stateEnum = Object.freeze({
         DEFAULT: "default",
@@ -19,7 +24,8 @@ export default class Initialize extends Component {
         this.state = {
             password: null,
             state: this.stateEnum.DEFAULT,
-            error: ""
+            errorCode: null,
+            errorMessage: ""
         };
     }
 
@@ -39,12 +45,15 @@ export default class Initialize extends Component {
                     this.passwordInput.clear();
                 }
             } else {
-                this.setState({ state: this.stateEnum.ERROR, error: data.errorMessage });
+                if(data.code) {
+                    this.setState({ errorCode: data.code });
+                }
+                this.setState({ state: this.stateEnum.ERROR, errorMessage: data.errorMessage });
             }
         });
     };
 
-    render({}, state) {
+    render({t}, state) {
         var FormSubmissionState = props => {
             switch(props.state) {
             case this.stateEnum.DEFAULT:
@@ -55,7 +64,11 @@ export default class Initialize extends Component {
                 );
             case this.stateEnum.ERROR:
                 return (
-                    <div>{props.error}</div>
+                    <div>
+                      {t(`dbb.error.${props.errorCode}`, {
+                          defaultValue: props.errorMessage
+                      })}
+                    </div>
                 );
             }
             return null;
@@ -63,6 +76,7 @@ export default class Initialize extends Component {
 
         return (
             <Dialog>
+              <LanguageSwitcher/>
               <p>Please set a password to interact with your device</p>
               <form onsubmit={this.handleSubmit}>
                 <PasswordRepeatInput

@@ -52,7 +52,7 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 	}
 	password := jsonBody["password"]
 	if err := handlers.device.SetPassword(password); err != nil {
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
+		return maybeDBBErr(err), nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }

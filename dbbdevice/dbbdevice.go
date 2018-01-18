@@ -254,7 +254,7 @@ func (dbb *DBBDevice) SetPassword(password string) error {
 		return err
 	}
 	if reply["password"] != "success" {
-		return errp.New("error setting password")
+		return errp.New("unexpected reply")
 	}
 	dbb.password = password
 	dbb.onStatusChanged()
