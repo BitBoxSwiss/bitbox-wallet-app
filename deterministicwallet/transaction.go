@@ -56,23 +56,30 @@ func (wallet *DeterministicWallet) newTx(
 	for outPoint, txOut := range utxo {
 		wireUTXO[outPoint] = txOut.TxOut
 	}
+	var txProposal *maketx.TxProposal
 	if amount.sendAll {
-		txProposal, err := maketx.NewTxSpendAll(
+		txProposal, err = maketx.NewTxSpendAll(
 			wireUTXO,
 			pkScript,
 			*feeTarget.FeeRatePerKb,
 		)
-		return utxo, txProposal, err
+		if err != nil {
+			return nil, nil, err
+		}
+	} else {
+		txProposal, err = maketx.NewTx(
+			wireUTXO,
+			wire.NewTxOut(int64(amount.amount), pkScript),
+			*feeTarget.FeeRatePerKb,
+			func() ([]byte, error) {
+				return wallet.changeAddresses.GetUnused().PkScript(), nil
+			},
+		)
+		if err != nil {
+			return nil, nil, err
+		}
 	}
-	txProposal, err := maketx.NewTx(
-		wireUTXO,
-		wire.NewTxOut(int64(amount.amount), pkScript),
-		*feeTarget.FeeRatePerKb,
-		func() ([]byte, error) {
-			return wallet.changeAddresses.GetUnused().PkScript(), nil
-		},
-	)
-	return utxo, txProposal, err
+	return utxo, txProposal, nil
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.

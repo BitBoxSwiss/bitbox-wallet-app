@@ -16,7 +16,6 @@ func TestNewAddressChain(t *testing.T) {
 	xprvSerialized := "xprv9s21ZrQH143K2UBLkdzwqFV6PXipLq4VWMAcJNPUGcWiGbvpjNPAjiiVaBddzafxkPBqxQoNcLWNh5RkPLdPThhsAzLkuHBBjfZdriiyqaZ"
 	xprv, err := hdkeychain.NewKeyFromString(xprvSerialized)
 	require.NoError(t, err)
-	net := &chaincfg.TestNet3Params
 	xprv.SetNet(net)
 
 	// Can't pass a private key.
@@ -49,7 +48,6 @@ func (s *addressChainTestSuite) SetupTest() {
 	if err != nil || xpub.IsPrivate() {
 		panic(err)
 	}
-	net := &chaincfg.TestNet3Params
 	s.gapLimit = 6
 	s.chainIndex = 1
 	s.xpub = xpub

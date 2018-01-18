@@ -17,6 +17,7 @@ gometalinter.v1 \
     --vendored-linters \
     --vendor \
     --disable-all \
+    --tests \
     -E test \
     -E golint \
     -E vet \

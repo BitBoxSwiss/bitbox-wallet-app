@@ -113,8 +113,10 @@ func newTx(
 	toAddress *addresses.Address,
 	amount btcutil.Amount) *wire.MsgTx {
 	return &wire.MsgTx{
-		Version:  wire.TxVersion,
-		TxIn:     []*wire.TxIn{wire.NewTxIn(&wire.OutPoint{fromTxHash, fromTxIndex}, nil, nil)},
+		Version: wire.TxVersion,
+		TxIn: []*wire.TxIn{
+			wire.NewTxIn(&wire.OutPoint{Hash: fromTxHash, Index: fromTxIndex}, nil, nil),
+		},
 		TxOut:    []*wire.TxOut{wire.NewTxOut(int64(amount), toAddress.PkScript())},
 		LockTime: 0,
 	}
