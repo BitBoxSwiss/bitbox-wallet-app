@@ -7,6 +7,7 @@ ENV GOPATH /opt/go
 ENV GOROOT /opt/go_dist/go
 ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 
-RUN go get golang.org/x/tools/cmd/goimports
+ADD Makefile /tmp/
+RUN make -C /tmp/ envinit
 
 CMD ["bash"]

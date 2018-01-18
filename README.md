@@ -110,3 +110,6 @@ After that, `make dockerdev` enters the container (a shell inside an Ubuntu virt
 you can perform the same steps as in the previous section (`make servewallet` and `make
 webdev`). Running `make dockerdev` multiple times shares the same container. You can edit the code
 in your usual editor in the host and compile inside the container.
+
+For the first time after `make dockerinit`, enter the image with `make dockerdev` and run `make
+init` to initialize the repo.

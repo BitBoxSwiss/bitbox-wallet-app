@@ -1,11 +1,15 @@
 SHELL:=/bin/bash
 WEBROOT:=`pwd`/frontends/web
 
-init:
-	cd vendor/github.com/vektra/mockery && go install ./...
+envinit:
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	gometalinter.v1 --install
+	go get -u github.com/golang/dep/cmd/dep
+	go get golang.org/x/tools/cmd/goimports
 	go get -u github.com/jteeuwen/go-bindata/...
+init:
+	make envinit
+	cd vendor/github.com/vektra/mockery && go install ./...
 	dep ensure
 	make generate
 servewallet:
