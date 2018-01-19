@@ -332,5 +332,68 @@ func (s *transactionsSuite) TestBalance() {
 	require.Equal(s.T(),
 		&transactions.Balance{Available: expectedAmount2, Incoming: 0},
 		s.transactions.Balance())
+}
 
+func (s *transactionsSuite) TestRemoveTransaction() {
+	addresses := s.addressChain.EnsureAddresses()
+	address1 := addresses[0]
+	address2 := addresses[1]
+	tx1 := newTx(chainhash.HashH(nil), 0, address1, 12)
+	tx2 := newTx(chainhash.HashH(nil), 1, address2, 34)
+	// tx3 touches both address1 and address2. It also spends the output of tx1.
+	tx3 := newTx(tx1.TxHash(), 0, address1, 2)
+	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PkScript()))
+	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},
+	})
+	s.updateAddressHistory(address2, []*client.TxInfo{
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
+		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
+		s.transactions.Balance())
+	// Remove tx3 from the history of address1. It is still referenced by address2, so the index
+	// does not change.
+	s.updateAddressHistory(address1, []*client.TxInfo{
+		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
+		s.transactions.Balance())
+	require.Len(s.T(),
+		s.transactions.Transactions(func(btcutil.Address) bool { return false }),
+		3)
+	// Remove tx3 from the history of address2. Now it's not referenced anymore and disappears.
+	s.updateAddressHistory(address2, []*client.TxInfo{
+		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
+	})
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 12 + 34, Incoming: 0},
+		s.transactions.Balance())
+	require.Len(s.T(),
+		s.transactions.Transactions(func(btcutil.Address) bool { return false }),
+		2)
+}
+
+// TestRemoveTransactionPendingDownload tests that a tx can be removed from the address history
+// while it is still pending to be indexed.
+func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
+	address := s.addressChain.EnsureAddresses()[0]
+	tx := newTx(chainhash.HashH(nil), 0, address, 123)
+	s.blockchainMock.RegisterTxs(tx)
+	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
+		{TXHash: client.TXHash(tx.TxHash()), Height: 0},
+	})
+	// Callback for processing the tx is not called yet. We remove the tx.
+	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{})
+	// Process the tx now. It should not be indexed anymore.
+	s.blockchainMock.CallAllTransactionGetCallbacks()
+	require.Equal(s.T(),
+		&transactions.Balance{Available: 0, Incoming: 0},
+		s.transactions.Balance())
+	require.Empty(s.T(),
+		s.transactions.Transactions(func(btcutil.Address) bool { return false }))
 }

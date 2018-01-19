@@ -181,9 +181,34 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 	return result
 }
 
-func (transactions *Transactions) removeTransaction(txHash chainhash.Hash) {
-	// TODO delete inputs/outputs
-	delete(transactions.transactions, txHash)
+func (transactions *Transactions) removeTxForAddress(address btcutil.Address, txHash chainhash.Hash) {
+	transaction, ok := transactions.transactions[txHash]
+	if !ok {
+		// Not yet indexed.
+		return
+	}
+
+	delete(transaction.addresses, address.String())
+	if len(transaction.addresses) == 0 {
+		// Tx is not touching any of our outputs anymore. Remove.
+
+		for _, txIn := range transaction.TX.TxIn {
+			delete(transactions.inputs, txIn.PreviousOutPoint)
+		}
+
+		// Remove the outputs added by this tx.
+		for index := range transaction.TX.TxOut {
+			outPoint := wire.OutPoint{
+				Hash:  txHash,
+				Index: uint32(index),
+			}
+			if _, ok := transactions.outputs[outPoint]; ok {
+				delete(transactions.outputs, outPoint)
+			}
+		}
+
+		delete(transactions.transactions, txHash)
+	}
 }
 
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
@@ -203,13 +228,10 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		if _, txOK := txsSet[txHash]; txOK {
 			continue
 		}
-		// A tx was previously in the address history but is not anymore.
-		if txEntry, ok := transactions.transactions[txHash]; ok {
-			delete(txEntry.addresses, address.String())
-			if len(txEntry.addresses) == 0 {
-				transactions.removeTransaction(txHash)
-			}
-		}
+		// A tx was previously in the address history but is not anymore.  If the tx was already
+		// downloaded and indexed, it will be removed.  If it is currently downloading (enqueued for
+		// indexing), it will not be processed.
+		transactions.removeTxForAddress(address, txHash)
 	}
 
 	transactions.addressHistory[address.String()] = txsSet
