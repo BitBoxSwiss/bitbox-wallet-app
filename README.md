@@ -58,26 +58,28 @@ Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` i
 
 In the project root, run `make init`.
 
-## Electrum Bitcoin Testnet Backend
+## ElectrumX Backend
 
-At the moment, `localhost:51001` is hardcoded for the Electrum backend. Sync `bitcoind -testnet` and
-run [ElectrumX](https://github.com/kyuupichan/electrumx/) like this:
+We run ElectrumX backends on a devserver. The host/ports are currently hardcoded. Below is the
+reference for how they are deployed.
 
-
-```sh
-$ mkdir ~/.electrumx-testnet
-$ RPC_PORT=8002 PEER_DISCOVERY= HOST=0.0.0.0 TCP_PORT=51001 DB_DIRECTORY=~/.electrumx-testnet DAEMON_URL="<rpcuser>:<rpcwassword>@127.0.0.1" COIN=BitcoinSegwit NET=testnet /path/to/electrumx_server.py
-```
-
-The .bitcoin/bitcoin.conf should have txindex enabled:
+The Bitcoin node needs to be synced with the following settings (`.bitcoin/bitcoin.conf`):
 
 ```
+testnet=1
 rpcuser=<rpcuser>
 rpcpassword=<rpcpassword>
 txindex=1
 ```
 
-See the [Electrumx HowTo](https://github.com/kyuupichan/electrumx/blob/master/docs/HOWTO.rst).
+ElectrumX can can be run like this (similar settings for mainnet and other coins):
+
+```sh
+docker run -v /home/<user>/.electrumx-btc-testnet:/data -e DAEMON_URL="<rpcuser>:<rpspassword>@<host-ip>:18332" -e COIN=BitcoinSegwit -e NET=testnet -e RPC_PORT=18002 -e PEER_DISCOVERY= -e HOST=0.0.0.0 -e RPC_HOST=0.0.0.0 -e TCP_PORT=51001 -e SSL_PORT=51002 -p 51002:51002 -p 18002:18002 lukechilds/electrumx
+```
+
+`<host-ip>` should be the IP of your machine (check `ip addr`), not `localhost`, as that refers to
+the docker image.
 
 ## Development Workflow
 

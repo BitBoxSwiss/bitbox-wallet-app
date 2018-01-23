@@ -19,6 +19,14 @@ import (
 	"github.com/shiftdevices/godbb/util/locker"
 )
 
+const (
+	// dev server for now
+	electrumServerBitcoinTestnet  = "176.9.28.202:51002"
+	electrumServerBitcoinMainnet  = "176.9.28.202:50002"
+	electrumServerLitecoinTestnet = "176.9.28.202:51004"
+	electrumServerLitecoinMainnet = "176.9.28.202:50004"
+)
+
 // Interface is the API of the knot.
 type Interface interface {
 	Wallets() []*Wallet
@@ -46,17 +54,17 @@ func (wallet *Wallet) init(knot *Knot) error {
 	var electrumServer string
 	switch wallet.Code {
 	case "tbtc":
-		electrumServer = electrum.TestServer
+		electrumServer = electrumServerBitcoinTestnet
 	case "tbtc-p2wpkh-p2sh":
-		electrumServer = electrum.TestServer
+		electrumServer = electrumServerBitcoinTestnet
 	case "btc":
-		electrumServer = electrum.Server
+		electrumServer = electrumServerBitcoinMainnet
 	case "btc-p2wpkh-p2sh":
-		electrumServer = electrum.Server
+		electrumServer = electrumServerBitcoinMainnet
 	case "tltc-p2wpkh-p2sh":
-		electrumServer = "electrum.ltc.xurious.com:51002"
+		electrumServer = electrumServerLitecoinTestnet
 	case "ltc-p2wpkh-p2sh":
-		electrumServer = "electrumx.nmdps.net:9434"
+		electrumServer = electrumServerLitecoinMainnet
 	default:
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
