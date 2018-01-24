@@ -1,7 +1,6 @@
 #include <string>
-
 #include <QApplication>
-#include <QWebEngineView>
+#include <QWebView>
 // #include <QNetworkAccessManager>
 // #include <QNetworkReply>
 
@@ -21,7 +20,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     int port = serve();
-    QWebEngineView view;
+    QWebView view;
     view.show();
     view.load(QUrl((std::string("http://localhost:") + std::to_string(port)).c_str()));
 

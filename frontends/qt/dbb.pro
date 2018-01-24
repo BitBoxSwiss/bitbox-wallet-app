@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT       += webenginewidgets
+QT       += webkitwidgets
 
 TARGET = dbb
 TEMPLATE = app

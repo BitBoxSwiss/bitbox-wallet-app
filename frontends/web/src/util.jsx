@@ -1,3 +1,17 @@
+if (!String.prototype.startsWith) {
+	String.prototype.startsWith = function(search, pos) {
+		return this.substr(!pos || pos < 0 ? 0 : +pos, search.length) === search;
+	};
+}
+if (!String.prototype.endsWith) {
+	String.prototype.endsWith = function(search, this_len) {
+		if (this_len === undefined || this_len > this.length) {
+			this_len = this.length;
+		}
+        return this.substring(this_len - search.length, this_len) === search;
+	};
+}
+
 // extConfig is a way to set config values which which are inserted
 // externally by templating engines (code generation). A default value
 // is provided in case the file wasn't generated but used directly,
@@ -11,7 +25,6 @@ function extConfig(key, defaultValue) {
 }
 
 const apiPort = extConfig('{{ API_PORT }}', '8082');
-
 function isTLS() {
     return document.URL.startsWith("https://");
 }
