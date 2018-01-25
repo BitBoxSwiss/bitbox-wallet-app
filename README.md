@@ -115,3 +115,7 @@ in your usual editor in the host and compile inside the container.
 
 For the first time after `make dockerinit`, enter the image with `make dockerdev` and run `make
 init` to initialize the repo.
+
+To execute `make servewallet/webdev` insider the container, but from the host, use this:
+
+`$ ./scripts/docker_exec.sh servewallet/webdev`
