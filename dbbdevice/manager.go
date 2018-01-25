@@ -44,11 +44,6 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	if err != nil {
 		return err
 	}
-	// Sleep a bit to wait for the device to initialize. Sending commands too early means the
-	// internal memory might not be initialized, and we run into the password retry check, requiring
-	// a long touch by the user.  TODO: fix in the firmware, then remove this sleep.
-	time.Sleep(1 * time.Second)
-
 	device, err := NewDBBDevice(deviceInfo.Path, communication.NewCommunication(hidDevice))
 	if err != nil {
 		return err

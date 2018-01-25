@@ -29,8 +29,10 @@ const (
 	errTouchAbort = 600
 	// errTouchTimeout is returned when the user does not confirm or abort for 30s.
 	errTouchTimeout = 601
-	// ErrSDCard is returned when the SD card is needed, but not inserted.
+	// errSDCard is returned when the SD card is needed, but not inserted.
 	errSDCard = 400
+	// errInitializing is returned when the device is still booting up.
+	errInitializing = 503
 )
 
 // Status represents the device status.
@@ -124,9 +126,20 @@ func NewDBBDevice(
 
 		closed: false,
 	}
-	initialized, err := dbbDevice.Ping()
-	if err != nil {
-		return nil, err
+
+	// Ping to check if the device is initialized. Sometimes, booting takes a couple of seonds, so
+	// repeat the command until it is ready.
+	var initialized bool
+	for i := 0; i < 20; i++ {
+		var err error
+		initialized, err = dbbDevice.Ping()
+		if err != nil {
+			if dbbErr, ok := err.(*communication.DBBErr); ok && dbbErr.Code == errInitializing {
+				time.Sleep(500 * time.Millisecond)
+				continue
+			}
+			return nil, err
+		}
 	}
 	dbbDevice.initialized = initialized
 	return dbbDevice, nil
