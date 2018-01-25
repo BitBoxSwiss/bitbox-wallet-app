@@ -1,6 +1,8 @@
 SHELL:=/bin/bash
 WEBROOT:=`pwd`/frontends/web
 
+catch:
+	@echo "Choose a make target."
 envinit:
 	go get -u gopkg.in/alecthomas/gometalinter.v1
 	gometalinter.v1 --install
