@@ -127,7 +127,12 @@ func NewDBBDevice(
 		closed: false,
 	}
 
-	// Ping to check if the device is initialized. Sometimes, booting takes a couple of seonds, so
+	// Sleep a bit to wait for the device to initialize. Sending commands too early means the
+	// internal memory might not be initialized, and we run into the password retry check, requiring
+	// a long touch by the user.  TODO: fix in the firmware, then remove this sleep.
+	time.Sleep(1 * time.Second)
+
+	// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds, so
 	// repeat the command until it is ready.
 	var initialized bool
 	for i := 0; i < 20; i++ {
@@ -140,6 +145,7 @@ func NewDBBDevice(
 			}
 			return nil, err
 		}
+		break
 	}
 	dbbDevice.initialized = initialized
 	return dbbDevice, nil
