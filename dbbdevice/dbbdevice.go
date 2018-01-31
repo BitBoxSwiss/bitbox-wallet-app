@@ -344,10 +344,30 @@ func backupFilename(backupName string) string {
 	return fmt.Sprintf("%s-%s.pdf", backupName, time.Now().Format("2006-01-02-15-04-05"))
 }
 
+// SetName sets the device name. Retrieve the device name using DeviceInfo().
+func (dbb *DBBDevice) SetName(name string) error {
+	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(name) {
+		return errp.New("invalid wallet name")
+	}
+	reply, err := dbb.send(
+		map[string]interface{}{
+			"name": name,
+		},
+		dbb.password)
+	if err != nil {
+		return err
+	}
+	newName, ok := reply["name"].(string)
+	if !ok || len(newName) == 0 || newName != name {
+		return errp.New("unexpected result")
+	}
+	return nil
+}
+
 // CreateWallet creates a new wallet and stores a backup containing `walletName` in the
 // filename. The password used for the backup is the same as the one for the device.
 func (dbb *DBBDevice) CreateWallet(walletName string) error {
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,64}$`).MatchString(walletName) {
+	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
 	if err := dbb.seed(
