@@ -172,7 +172,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 	return nil
 }
 
-// SendEncrypt sends an encrypted message. The resposne is json-deserialized into a map. If the
+// SendEncrypt sends an encrypted message. The response is json-deserialized into a map. If the
 // response contains an error field, it is returned as a DBBErr.
 func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
 	secret := chainhash.DoubleHashB([]byte(password))
