@@ -102,7 +102,7 @@ type DBBDevice struct {
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
 	Version   string `json:"version"`
-	Serial    string `json:"Serial"`
+	Serial    string `json:"serial"`
 	ID        string `json:"id"`
 	TFA       string `json:"TFA"`
 	Bootlock  bool   `json:"bootlock"`
