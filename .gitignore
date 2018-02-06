@@ -4,3 +4,5 @@ frontends/qt/build/
 vendor/
 knot/bindings/dbbdesktop/dbbdesktop.h
 knot/bindings/dbbdesktop/dbbdesktop.a
+knot/binweb/assets.go
+cmd/playground/
