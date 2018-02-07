@@ -13,4 +13,8 @@ var (
 	WithStack = errors.WithStack
 	// Cause wraps errors.Cause
 	Cause = errors.Cause
+	// Wrap wraps errors.Wrap
+	Wrap = errors.Wrap
+	// WithMessage wraps errors.WithMessage
+	WithMessage = errors.WithMessage
 )
