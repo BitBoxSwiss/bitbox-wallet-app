@@ -2,10 +2,13 @@ package dbbdevice
 
 import (
 	"log"
+	"regexp"
 	"time"
 
 	"github.com/karalabe/hid"
 	"github.com/shiftdevices/godbb/dbbdevice/communication"
+	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/semver"
 )
 
 // DeviceInfos returns a slice of all found bitbox devices.
@@ -40,11 +43,21 @@ func NewManager(
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
+	match := regexp.MustCompile("v([0-9]+\\.[0-9]+\\.[0-9]+)").FindStringSubmatch(deviceInfo.Serial)
+	if len(match) != 2 {
+		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
+	}
+	firmwareVersion, err := semver.NewSemVerFromString(match[1])
+	if err != nil {
+		return err
+	}
+
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
 		return err
 	}
-	device, err := NewDBBDevice(deviceInfo.Path, communication.NewCommunication(hidDevice))
+
+	device, err := NewDBBDevice(deviceInfo.Path, firmwareVersion, communication.NewCommunication(hidDevice))
 	if err != nil {
 		return err
 	}

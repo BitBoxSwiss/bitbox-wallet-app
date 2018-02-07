@@ -7,9 +7,14 @@ import (
 
 	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/dbbdevice/mocks"
+	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+)
+
+var (
+	firmwareVersion = semver.NewSemVer(2, 2, 3)
 )
 
 const (
@@ -29,7 +34,7 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).
 		Once()
-	dbb, err := dbbdevice.NewDBBDevice(deviceID, s.mockCommunication)
+	dbb, err := dbbdevice.NewDBBDevice(deviceID, firmwareVersion, s.mockCommunication)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
 }

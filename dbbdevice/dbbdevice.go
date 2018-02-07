@@ -16,7 +16,13 @@ import (
 	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/shiftdevices/godbb/util/semver"
 	"golang.org/x/crypto/pbkdf2"
+)
+
+var (
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 3)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
 )
 
 const (
@@ -83,6 +89,21 @@ type Interface interface {
 	BackupList() ([]string, error)
 }
 
+// DeviceInfo is the data returned from the device info api call.
+type DeviceInfo struct {
+	Version   string `json:"version"`
+	Serial    string `json:"serial"`
+	ID        string `json:"id"`
+	TFA       string `json:"TFA"`
+	Bootlock  bool   `json:"bootlock"`
+	Name      string `json:"name"`
+	SDCard    bool   `json:"sdcard"`
+	Lock      bool   `json:"lock"`
+	U2F       bool   `json:"U2F"`
+	U2FHijack bool   `json:"U2F_hijack"`
+	Seeded    bool   `json:"seeded"`
+}
+
 // DBBDevice provides the API to communicate with the digital bitbox.
 type DBBDevice struct {
 	deviceID      string
@@ -99,29 +120,16 @@ type DBBDevice struct {
 	closed bool
 }
 
-// DeviceInfo is the data returned from the device info api call.
-type DeviceInfo struct {
-	Version   string `json:"version"`
-	Serial    string `json:"serial"`
-	ID        string `json:"id"`
-	TFA       string `json:"TFA"`
-	Bootlock  bool   `json:"bootlock"`
-	Name      string `json:"name"`
-	SDCard    bool   `json:"sdcard"`
-	Lock      bool   `json:"lock"`
-	U2F       bool   `json:"U2F"`
-	U2FHijack bool   `json:"U2F_hijack"`
-	Seeded    bool   `json:"seeded"`
-}
+// NewDBBDevice creates a new instance of DBBDevice.
+// communicationInterface is used for transporting messages to/from the device.
+func NewDBBDevice(deviceID string, firmwareVersion *semver.SemVer, communicationInterface CommunicationInterface) (*DBBDevice, error) {
+	if !firmwareVersion.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
+		return nil, errp.Newf("The firmware version '%s' is not supported.", firmwareVersion)
+	}
 
-// NewDBBDevice creates a new instance of DBBDevice. deviceCommunication is used as for transporting
-// messages to/from the device..
-func NewDBBDevice(
-	deviceID string,
-	deviceCommunication CommunicationInterface) (*DBBDevice, error) {
 	dbbDevice := &DBBDevice{
 		deviceID:      deviceID,
-		communication: deviceCommunication,
+		communication: communicationInterface,
 		onEvent:       nil,
 
 		closed: false,
