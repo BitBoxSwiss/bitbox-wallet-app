@@ -10,6 +10,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/pkg/errors"
+	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -146,17 +147,6 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 	return jsonResult, nil
 }
 
-// DBBErr wraps an error by the bitbox.
-type DBBErr struct {
-	message string
-	Code    float64
-}
-
-// Error implements the error interface.
-func (d DBBErr) Error() string {
-	return d.message
-}
-
 func maybeDBBErr(jsonResult map[string]interface{}) error {
 	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
 		errMsg, ok := errMap["message"].(string)
@@ -167,7 +157,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 		if !ok {
 			return errors.New("unexpected reply")
 		}
-		return &DBBErr{message: errMsg, Code: errCode}
+		return dbbdevice.NewError(errMsg, errCode)
 	}
 	return nil
 }

@@ -1,4 +1,4 @@
-package dbbdevice
+package communication
 
 import (
 	"log"
@@ -6,9 +6,14 @@ import (
 	"time"
 
 	"github.com/karalabe/hid"
-	"github.com/shiftdevices/godbb/dbbdevice/communication"
+	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/semver"
+)
+
+const (
+	vendorID  = 0x03eb
+	productID = 0x2402
 )
 
 // DeviceInfos returns a slice of all found bitbox devices.
@@ -24,16 +29,16 @@ func DeviceInfos() []hid.DeviceInfo {
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
-	device *DBBDevice
+	device *dbbdevice.DBBDevice
 
-	onRegister   func(*DBBDevice) error
+	onRegister   func(*dbbdevice.DBBDevice) error
 	onUnregister func(string)
 }
 
 // NewManager creates a new Manager. onRegister is called when a device has been
 // inserted. onUnregister is called when the device has been removed.
 func NewManager(
-	onRegister func(*DBBDevice) error,
+	onRegister func(*dbbdevice.DBBDevice) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
@@ -57,7 +62,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		return err
 	}
 
-	device, err := NewDBBDevice(deviceInfo.Path, firmwareVersion, communication.NewCommunication(hidDevice))
+	device, err := dbbdevice.NewDBBDevice(deviceInfo.Path, firmwareVersion, NewCommunication(hidDevice))
 	if err != nil {
 		return err
 	}
