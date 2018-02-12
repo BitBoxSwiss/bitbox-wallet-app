@@ -1,4 +1,4 @@
-package communication
+package usb
 
 import (
 	"bytes"
@@ -10,7 +10,8 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/pkg/errors"
-	"github.com/shiftdevices/godbb/dbbdevice"
+	"github.com/shiftdevices/godbb/devices/bitbox"
+	"github.com/shiftdevices/godbb/util/aes"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -157,7 +158,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 		if !ok {
 			return errors.New("unexpected reply")
 		}
-		return dbbdevice.NewError(errMsg, errCode)
+		return bitbox.NewError(errMsg, errCode)
 	}
 	return nil
 }
@@ -166,7 +167,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 // response contains an error field, it is returned as a DBBErr.
 func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
 	secret := chainhash.DoubleHashB([]byte(password))
-	cipherText, err := encrypt(secret, []byte(msg))
+	cipherText, err := aes.Encrypt(secret, []byte(msg))
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +176,7 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		return nil, err
 	}
 	if cipherText, ok := jsonResult["ciphertext"].(string); ok {
-		plainText, err := decrypt(secret, cipherText)
+		plainText, err := aes.Decrypt(secret, cipherText)
 		if err != nil {
 			return nil, err
 		}

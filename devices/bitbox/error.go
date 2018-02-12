@@ -1,4 +1,4 @@
-package dbbdevice
+package bitbox
 
 const (
 	// ErrIONoPassword is returned when no password has been configured.

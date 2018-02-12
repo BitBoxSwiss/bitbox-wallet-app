@@ -10,9 +10,8 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	"github.com/shiftdevices/godbb/dbbdevice"
-	deviceHandlers "github.com/shiftdevices/godbb/dbbdevice/handlers"
 	walletHandlers "github.com/shiftdevices/godbb/deterministicwallet/handlers"
+	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"
 	"github.com/shiftdevices/godbb/util/jsonp"
@@ -73,10 +72,10 @@ func NewHandlers(
 		theWalletHandlers[wallet.Code].Uninit()
 	})
 
-	theDeviceHandlers := deviceHandlers.NewHandlers(
+	theDeviceHandlers := bitbox.NewHandlers(
 		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()),
 	)
-	theKnot.OnDeviceInit(func(device dbbdevice.Interface) {
+	theKnot.OnDeviceInit(func(device bitbox.Interface) {
 		theDeviceHandlers.Init(device)
 	})
 	theKnot.OnDeviceUninit(func() {

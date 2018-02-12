@@ -1,12 +1,12 @@
-package dbbdevice_test
+package bitbox_test
 
 import (
 	"encoding/json"
 	"reflect"
 	"testing"
 
-	"github.com/shiftdevices/godbb/dbbdevice"
-	"github.com/shiftdevices/godbb/dbbdevice/mocks"
+	"github.com/shiftdevices/godbb/devices/bitbox"
+	"github.com/shiftdevices/godbb/devices/bitbox/mocks"
 	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -26,7 +26,7 @@ const (
 type dbbTestSuite struct {
 	suite.Suite
 	mockCommunication *mocks.CommunicationInterface
-	dbb               *dbbdevice.DBBDevice
+	dbb               *bitbox.Device
 }
 
 func (s *dbbTestSuite) SetupTest() {
@@ -34,7 +34,7 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).
 		Once()
-	dbb, err := dbbdevice.NewDBBDevice(deviceID, firmwareVersion, s.mockCommunication)
+	dbb, err := bitbox.NewDevice(deviceID, firmwareVersion, s.mockCommunication)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
 }
@@ -44,7 +44,7 @@ func TestDBBTestSuite(t *testing.T) {
 }
 
 func (s *dbbTestSuite) TestNewDBBDevice() {
-	require.Equal(s.T(), dbbdevice.StatusUninitialized, s.dbb.Status())
+	require.Equal(s.T(), bitbox.StatusUninitialized, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) TestDeviceID() {
@@ -63,7 +63,7 @@ func jsonArgumentMatcher(expected map[string]interface{}) interface{} {
 
 func (s *dbbTestSuite) TestSetPassword() {
 	require.NoError(s.T(), s.login())
-	require.Equal(s.T(), dbbdevice.StatusLoggedIn, s.dbb.Status())
+	require.Equal(s.T(), bitbox.StatusLoggedIn, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) login() error {

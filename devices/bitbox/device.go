@@ -1,5 +1,5 @@
-// Package dbbdevice is the API to the physical device.
-package dbbdevice
+// Package bitbox contains the API to the physical device.
+package bitbox
 
 import (
 	"crypto/sha512"
@@ -40,7 +40,7 @@ type CommunicationInterface interface {
 	Close()
 }
 
-// Interface is the API of a DBBDevice
+// Interface is the API of a Device
 type Interface interface {
 	Status() Status
 	DeviceInfo() (*DeviceInfo, error)
@@ -69,30 +69,32 @@ type DeviceInfo struct {
 	Seeded    bool   `json:"seeded"`
 }
 
-// DBBDevice provides the API to communicate with the digital bitbox.
-type DBBDevice struct {
+// Device provides the API to communicate with the digital bitbox.
+type Device struct {
 	deviceID      string
 	communication CommunicationInterface
 	onEvent       func(Event)
 
 	// If set, the device  is configured with a password.
 	initialized bool
+
 	// If set, the user is "logged in".
 	password string
+
 	// If set, the device contains a wallet.
 	seeded bool
 
 	closed bool
 }
 
-// NewDBBDevice creates a new instance of DBBDevice.
+// NewDevice creates a new instance of Device.
 // communication is used for transporting messages to/from the device.
-func NewDBBDevice(deviceID string, firmwareVersion *semver.SemVer, communication CommunicationInterface) (*DBBDevice, error) {
+func NewDevice(deviceID string, firmwareVersion *semver.SemVer, communication CommunicationInterface) (*Device, error) {
 	if !firmwareVersion.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
 		return nil, errp.Newf("The firmware version '%s' is not supported.", firmwareVersion)
 	}
 
-	dbbDevice := &DBBDevice{
+	device := &Device{
 		deviceID:      deviceID,
 		communication: communication,
 		onEvent:       nil,
@@ -110,7 +112,7 @@ func NewDBBDevice(deviceID string, firmwareVersion *semver.SemVer, communication
 	var initialized bool
 	for i := 0; i < 20; i++ {
 		var err error
-		initialized, err = dbbDevice.Ping()
+		initialized, err = device.Ping()
 		if err != nil {
 			if dbbErr, ok := err.(*Error); ok && dbbErr.Code == ErrInitializing {
 				time.Sleep(500 * time.Millisecond)
@@ -120,28 +122,28 @@ func NewDBBDevice(deviceID string, firmwareVersion *semver.SemVer, communication
 		}
 		break
 	}
-	dbbDevice.initialized = initialized
-	return dbbDevice, nil
+	device.initialized = initialized
+	return device, nil
 }
 
 // DeviceID returns the device ID (provided when it was created in the constructor).
-func (dbb *DBBDevice) DeviceID() string {
+func (dbb *Device) DeviceID() string {
 	return dbb.deviceID
 }
 
 // SetOnEvent installs a callback which is called for various events.
-func (dbb *DBBDevice) SetOnEvent(onEvent func(Event)) {
+func (dbb *Device) SetOnEvent(onEvent func(Event)) {
 	dbb.onEvent = onEvent
 }
 
-func (dbb *DBBDevice) onStatusChanged() {
+func (dbb *Device) onStatusChanged() {
 	if dbb.onEvent != nil {
 		dbb.onEvent(EventStatusChanged)
 	}
 }
 
 // Status returns the device state. See the Status* constants.
-func (dbb *DBBDevice) Status() Status {
+func (dbb *Device) Status() Status {
 	if dbb.seeded {
 		return StatusSeeded
 	}
@@ -155,12 +157,12 @@ func (dbb *DBBDevice) Status() Status {
 }
 
 // Close closes the HID device.
-func (dbb *DBBDevice) Close() {
+func (dbb *Device) Close() {
 	dbb.communication.Close()
 	dbb.closed = true
 }
 
-func (dbb *DBBDevice) sendPlain(key, val string) (map[string]interface{}, error) {
+func (dbb *Device) sendPlain(key, val string) (map[string]interface{}, error) {
 	jsonText, err := json.Marshal(map[string]string{key: val})
 	if err != nil {
 		return nil, err
@@ -168,15 +170,15 @@ func (dbb *DBBDevice) sendPlain(key, val string) (map[string]interface{}, error)
 	return dbb.communication.SendPlain(string(jsonText))
 }
 
-func (dbb *DBBDevice) send(value interface{}, password string) (map[string]interface{}, error) {
+func (dbb *Device) send(value interface{}, password string) (map[string]interface{}, error) {
 	return dbb.communication.SendEncrypt(string(jsonp.MustMarshal(value)), password)
 }
 
-func (dbb *DBBDevice) sendKV(key, value, password string) (map[string]interface{}, error) {
+func (dbb *Device) sendKV(key, value, password string) (map[string]interface{}, error) {
 	return dbb.send(map[string]string{key: value}, password)
 }
 
-func (dbb *DBBDevice) deviceInfo(password string) (*DeviceInfo, error) {
+func (dbb *Device) deviceInfo(password string) (*DeviceInfo, error) {
 	reply, err := dbb.sendKV("device", "info", password)
 	if err != nil {
 		return nil, err
@@ -224,12 +226,12 @@ func (dbb *DBBDevice) deviceInfo(password string) (*DeviceInfo, error) {
 }
 
 // DeviceInfo gets device information.
-func (dbb *DBBDevice) DeviceInfo() (*DeviceInfo, error) {
+func (dbb *Device) DeviceInfo() (*DeviceInfo, error) {
 	return dbb.deviceInfo(dbb.password)
 }
 
 // Ping returns true if the device is initialized, and false if it is not.
-func (dbb *DBBDevice) Ping() (bool, error) {
+func (dbb *Device) Ping() (bool, error) {
 	reply, err := dbb.sendPlain("ping", "")
 	if err != nil {
 		return false, err
@@ -240,7 +242,7 @@ func (dbb *DBBDevice) Ping() (bool, error) {
 
 // SetPassword defines a password for the device. This only works on a fresh device. If a password
 // has already been configured, a new one cannot be set until the device is reset.
-func (dbb *DBBDevice) SetPassword(password string) error {
+func (dbb *Device) SetPassword(password string) error {
 	reply, err := dbb.sendPlain("password", password)
 	if err != nil {
 		return err
@@ -256,7 +258,7 @@ func (dbb *DBBDevice) SetPassword(password string) error {
 // Login validates the password. This needs to be called before using any API call except for Ping()
 // and SetPassword(). It returns whether the next login attempt requires a long-touch, and the number
 // of remaining attempts.
-func (dbb *DBBDevice) Login(password string) (bool, string, error) {
+func (dbb *Device) Login(password string) (bool, string, error) {
 	deviceInfo, err := dbb.deviceInfo(password)
 	if err != nil {
 		var remainingAttempts string
@@ -290,7 +292,7 @@ func stretchKey(key string) string {
 		sha512.New))
 }
 
-func (dbb *DBBDevice) seed(devicePassword, backupPassword, source, filename string) error {
+func (dbb *Device) seed(devicePassword, backupPassword, source, filename string) error {
 	if source != "create" && source != "backup" {
 		panic(`source must be "create" or "backup"`)
 	}
@@ -318,7 +320,7 @@ func backupFilename(backupName string) string {
 }
 
 // SetName sets the device name. Retrieve the device name using DeviceInfo().
-func (dbb *DBBDevice) SetName(name string) error {
+func (dbb *Device) SetName(name string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(name) {
 		return errp.New("invalid wallet name")
 	}
@@ -339,7 +341,7 @@ func (dbb *DBBDevice) SetName(name string) error {
 
 // CreateWallet creates a new wallet and stores a backup containing `walletName` in the
 // filename. The password used for the backup is the same as the one for the device.
-func (dbb *DBBDevice) CreateWallet(walletName string) error {
+func (dbb *Device) CreateWallet(walletName string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
@@ -370,7 +372,7 @@ func IsErrorSDCard(err error) bool {
 
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
 // by the user.
-func (dbb *DBBDevice) RestoreBackup(backupPassword, filename string) (bool, error) {
+func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) {
 	err := dbb.seed(dbb.password, backupPassword, "backup", filename)
 	if IsErrorAbort(err) {
 		return false, nil
@@ -384,7 +386,7 @@ func (dbb *DBBDevice) RestoreBackup(backupPassword, filename string) (bool, erro
 }
 
 // CreateBackup creates a new backup of the current device seed on the SD card.
-func (dbb *DBBDevice) CreateBackup(backupName string) error {
+func (dbb *Device) CreateBackup(backupName string) error {
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
@@ -403,13 +405,13 @@ func (dbb *DBBDevice) CreateBackup(backupName string) error {
 }
 
 // Blink flashes the LED.
-func (dbb *DBBDevice) Blink(password string) error {
+func (dbb *Device) Blink(password string) error {
 	_, err := dbb.sendKV("led", "abort", password)
 	return err
 }
 
 // Reset resets the device. Returns true if erased and false if aborted by the user.
-func (dbb *DBBDevice) Reset() (bool, error) {
+func (dbb *Device) Reset() (bool, error) {
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.password)
 	if IsErrorAbort(err) {
 		return false, nil
@@ -428,7 +430,7 @@ func (dbb *DBBDevice) Reset() (bool, error) {
 }
 
 // XPub returns the extended publickey at the path.
-func (dbb *DBBDevice) XPub(path string) (*hdkeychain.ExtendedKey, error) {
+func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 	getXPub := func() (*hdkeychain.ExtendedKey, error) {
 		reply, err := dbb.sendKV("xpub", path, dbb.password)
 		if err != nil {
@@ -456,7 +458,7 @@ func (dbb *DBBDevice) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 }
 
 // Random generates a 16 byte random number, hex encoded.. typ can be either "true" or "pseudo".
-func (dbb *DBBDevice) Random(typ string) (string, error) {
+func (dbb *Device) Random(typ string) (string, error) {
 	if typ != "true" && typ != "pseudo" {
 		panic("needs to be true or pseudo")
 	}
@@ -475,7 +477,7 @@ func (dbb *DBBDevice) Random(typ string) (string, error) {
 }
 
 // BackupList returns a list of backup filenames.
-func (dbb *DBBDevice) BackupList() ([]string, error) {
+func (dbb *Device) BackupList() ([]string, error) {
 	reply, err := dbb.sendKV("backup", "list", dbb.password)
 	if err != nil {
 		return nil, err
@@ -496,7 +498,7 @@ func (dbb *DBBDevice) BackupList() ([]string, error) {
 }
 
 // EraseBackup deletes a backup.
-func (dbb *DBBDevice) EraseBackup(filename string) error {
+func (dbb *Device) EraseBackup(filename string) error {
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
@@ -514,7 +516,7 @@ func (dbb *DBBDevice) EraseBackup(filename string) error {
 }
 
 // LockBootloader locks the bootloader.
-func (dbb *DBBDevice) LockBootloader() error {
+func (dbb *Device) LockBootloader() error {
 	reply, err := dbb.sendKV("bootloader", "lock", dbb.password)
 	if err != nil {
 		return err
@@ -527,7 +529,7 @@ func (dbb *DBBDevice) LockBootloader() error {
 
 // Sign returns signatures for the provided hashes. The private keys used to sign them are derived
 // using the provided keyPaths.
-func (dbb *DBBDevice) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
 	if len(signatureHashes) != len(keyPaths) {
 		panic("len of keyPaths must match len of signatureHashes")
 	}

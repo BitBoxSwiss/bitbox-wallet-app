@@ -4,8 +4,8 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/dbbdevice"
 	"github.com/shiftdevices/godbb/deterministicwallet"
+	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -13,7 +13,7 @@ import (
 // signing function for keys derived from it. It exists mainly because the path to the account is
 // hardened, which means the device expects derivation paths from the master
 type DBBKeyStore struct {
-	device  *dbbdevice.DBBDevice
+	device  *bitbox.Device
 	keyPath string
 
 	xpub *hdkeychain.ExtendedKey
@@ -21,7 +21,7 @@ type DBBKeyStore struct {
 
 // NewDBBKeyStore creates a new HD keystore. keyPath is the path to the account.
 func NewDBBKeyStore(
-	device *dbbdevice.DBBDevice, keyPath string, net *chaincfg.Params) (*DBBKeyStore, error) {
+	device *bitbox.Device, keyPath string, net *chaincfg.Params) (*DBBKeyStore, error) {
 	xpub, err := device.XPub(keyPath)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (keystore *DBBKeyStore) Sign(
 	}
 	signatures, err := keystore.device.Sign(signatureHashes, keyPaths)
 	if err != nil {
-		if dbbdevice.IsErrorAbort(err) {
+		if bitbox.IsErrorAbort(err) {
 			return nil, errp.WithStack(deterministicwallet.ErrUserAborted)
 		}
 		return nil, err

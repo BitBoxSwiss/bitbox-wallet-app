@@ -1,4 +1,4 @@
-package communication
+package aes
 
 import (
 	"bytes"
@@ -11,13 +11,15 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
-func pad(src []byte) []byte {
+// Pad pads the given bytes.
+func Pad(src []byte) []byte {
 	padding := aes.BlockSize - len(src)%aes.BlockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(src, padtext...)
 }
 
-func unpad(src []byte) ([]byte, error) {
+// Unpad unpads the given bytes.
+func Unpad(src []byte) ([]byte, error) {
 	length := len(src)
 	unpadding := int(src[length-1])
 
@@ -28,13 +30,14 @@ func unpad(src []byte) ([]byte, error) {
 	return src[:(length - unpadding)], nil
 }
 
-func encrypt(key []byte, text []byte) (string, error) {
+// Encrypt encrypts the given text with the given key.
+func Encrypt(key []byte, text []byte) (string, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return "", errp.WithStack(err)
 	}
 
-	msg := pad(text)
+	msg := Pad(text)
 	ciphertext := make([]byte, aes.BlockSize+len(msg))
 	iv := ciphertext[:aes.BlockSize]
 	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
@@ -44,7 +47,8 @@ func encrypt(key []byte, text []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(ciphertext), nil
 }
 
-func decrypt(key []byte, text string) ([]byte, error) {
+// Decrypt decrypts the given text with the given key.
+func Decrypt(key []byte, text string) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -62,5 +66,5 @@ func decrypt(key []byte, text string) ([]byte, error) {
 	iv := decodedMsg[:aes.BlockSize]
 	msg := decodedMsg[aes.BlockSize:]
 	cipher.NewCBCDecrypter(block, iv).CryptBlocks(msg, msg)
-	return unpad(msg)
+	return Unpad(msg)
 }
