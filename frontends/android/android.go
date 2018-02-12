@@ -1,4 +1,4 @@
-package dbbmobile
+package android
 
 import (
 	"log"
