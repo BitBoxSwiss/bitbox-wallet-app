@@ -6,7 +6,6 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/dbbdevice"
-	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -79,7 +78,7 @@ func (handlers *Handlers) getDeviceInfoHandler(r *http.Request) (interface{}, er
 
 func maybeDBBErr(err error) map[string]interface{} {
 	result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-	if dbbErr, ok := err.(*communication.DBBErr); ok {
+	if dbbErr, ok := err.(*dbbdevice.Error); ok {
 		result["code"] = dbbErr.Code
 	}
 	return result

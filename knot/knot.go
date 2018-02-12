@@ -11,6 +11,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/dbbdevice"
+	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/dbbdevice/keystore"
 	"github.com/shiftdevices/godbb/deterministicwallet"
 	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
@@ -292,5 +293,5 @@ func (knot *Knot) unregister(deviceID string) {
 }
 
 func (knot *Knot) listenHID() {
-	dbbdevice.NewManager(knot.register, knot.unregister).ListenHID()
+	communication.NewManager(knot.register, knot.unregister).ListenHID()
 }

@@ -13,44 +13,15 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/dbbdevice/communication"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/shiftdevices/godbb/util/semver"
 	"golang.org/x/crypto/pbkdf2"
 )
 
-const (
-	vendorID  = 0x03eb
-	productID = 0x2402
-
-	// ErrIONoPassword is returned when no password has been configured.
-	ErrIONoPassword = 101
-	// ErrTouchAbort is returned when the user short-touches the button.
-	errTouchAbort = 600
-	// errTouchTimeout is returned when the user does not confirm or abort for 30s.
-	errTouchTimeout = 601
-	// errSDCard is returned when the SD card is needed, but not inserted.
-	errSDCard = 400
-	// errInitializing is returned when the device is still booting up.
-	errInitializing = 503
-)
-
-// Status represents the device status.
-type Status string
-
-const (
-	// StatusUninitialized is the uninitialized device, i.e. unseeded and no password set.
-	// Use SetPassword() to proceed to StatusLoggedIn.
-	StatusUninitialized Status = "uninitialized"
-	// StatusInitialized means the password was set and the device was seeded. Use Login() to
-	// proceed to StatusSeeded.
-	StatusInitialized Status = "initialized"
-	// StatusLoggedIn means device authentication was successful, but the device is not yet
-	// seeded. Use CreateWallet() or RestoreBackup() to seed and proceed to StatusSeeded.
-	StatusLoggedIn Status = "logged_in"
-	// StatusSeeded means we are authenticated, and the device is seeded. We are ready to use
-	// XPub(), Sign() etc.
-	StatusSeeded Status = "seeded"
+var (
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 3)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
 )
 
 // Event instances are sent to the onEvent callback.
@@ -83,6 +54,21 @@ type Interface interface {
 	BackupList() ([]string, error)
 }
 
+// DeviceInfo is the data returned from the device info api call.
+type DeviceInfo struct {
+	Version   string `json:"version"`
+	Serial    string `json:"serial"`
+	ID        string `json:"id"`
+	TFA       string `json:"TFA"`
+	Bootlock  bool   `json:"bootlock"`
+	Name      string `json:"name"`
+	SDCard    bool   `json:"sdcard"`
+	Lock      bool   `json:"lock"`
+	U2F       bool   `json:"U2F"`
+	U2FHijack bool   `json:"U2F_hijack"`
+	Seeded    bool   `json:"seeded"`
+}
+
 // DBBDevice provides the API to communicate with the digital bitbox.
 type DBBDevice struct {
 	deviceID      string
@@ -99,29 +85,16 @@ type DBBDevice struct {
 	closed bool
 }
 
-// DeviceInfo is the data returned from the device info api call.
-type DeviceInfo struct {
-	Version   string `json:"version"`
-	Serial    string `json:"serial"`
-	ID        string `json:"id"`
-	TFA       string `json:"TFA"`
-	Bootlock  bool   `json:"bootlock"`
-	Name      string `json:"name"`
-	SDCard    bool   `json:"sdcard"`
-	Lock      bool   `json:"lock"`
-	U2F       bool   `json:"U2F"`
-	U2FHijack bool   `json:"U2F_hijack"`
-	Seeded    bool   `json:"seeded"`
-}
+// NewDBBDevice creates a new instance of DBBDevice.
+// communication is used for transporting messages to/from the device.
+func NewDBBDevice(deviceID string, firmwareVersion *semver.SemVer, communication CommunicationInterface) (*DBBDevice, error) {
+	if !firmwareVersion.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
+		return nil, errp.Newf("The firmware version '%s' is not supported.", firmwareVersion)
+	}
 
-// NewDBBDevice creates a new instance of DBBDevice. deviceCommunication is used as for transporting
-// messages to/from the device..
-func NewDBBDevice(
-	deviceID string,
-	deviceCommunication CommunicationInterface) (*DBBDevice, error) {
 	dbbDevice := &DBBDevice{
 		deviceID:      deviceID,
-		communication: deviceCommunication,
+		communication: communication,
 		onEvent:       nil,
 
 		closed: false,
@@ -139,7 +112,7 @@ func NewDBBDevice(
 		var err error
 		initialized, err = dbbDevice.Ping()
 		if err != nil {
-			if dbbErr, ok := err.(*communication.DBBErr); ok && dbbErr.Code == errInitializing {
+			if dbbErr, ok := err.(*Error); ok && dbbErr.Code == ErrInitializing {
 				time.Sleep(500 * time.Millisecond)
 				continue
 			}
@@ -288,7 +261,7 @@ func (dbb *DBBDevice) Login(password string) (bool, string, error) {
 	if err != nil {
 		var remainingAttempts string
 		var needsLongTouch bool
-		if dbbErr, ok := err.(*communication.DBBErr); ok {
+		if dbbErr, ok := err.(*Error); ok {
 			groups := regexp.MustCompile(`(\d+) attempts remain before`).
 				FindStringSubmatch(dbbErr.Error())
 			if len(groups) == 2 {
@@ -385,14 +358,14 @@ func (dbb *DBBDevice) CreateWallet(walletName string) error {
 
 // IsErrorAbort returns whether the user aborted the operation.
 func IsErrorAbort(err error) bool {
-	dbbErr, ok := err.(*communication.DBBErr)
-	return ok && (dbbErr.Code == errTouchAbort || dbbErr.Code == errTouchTimeout)
+	dbbErr, ok := err.(*Error)
+	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
 }
 
 // IsErrorSDCard returns whether the SD card was not inserted during an operation that requires it.
 func IsErrorSDCard(err error) bool {
-	dbbErr, ok := err.(*communication.DBBErr)
-	return ok && dbbErr.Code == errSDCard
+	dbbErr, ok := err.(*Error)
+	return ok && dbbErr.Code == ErrSDCard
 }
 
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
