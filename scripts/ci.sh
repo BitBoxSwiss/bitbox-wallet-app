@@ -7,6 +7,8 @@ else
     fast=""
 fi
 
+go build ./...
+
 gometalinter.v1 \
     "$fast" \
     --concurrency 3 \
