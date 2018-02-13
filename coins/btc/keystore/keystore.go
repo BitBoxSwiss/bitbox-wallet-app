@@ -4,7 +4,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/deterministicwallet"
+	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -43,7 +43,7 @@ func (keystore *DBBKeyStore) XPub() *hdkeychain.ExtendedKey {
 }
 
 // Sign wraps DBBDevice.Sign for signing with keys from the HD account.
-// Implements deterministicwallet.HDKeyStoreInterface.
+// Implements btc.HDKeyStoreInterface.
 func (keystore *DBBKeyStore) Sign(
 	signatureHashes [][]byte,
 	relativeKeyPaths []string,
@@ -55,7 +55,7 @@ func (keystore *DBBKeyStore) Sign(
 	signatures, err := keystore.device.Sign(signatureHashes, keyPaths)
 	if err != nil {
 		if bitbox.IsErrorAbort(err) {
-			return nil, errp.WithStack(deterministicwallet.ErrUserAborted)
+			return nil, errp.WithStack(btc.ErrUserAborted)
 		}
 		return nil, err
 	}

@@ -7,8 +7,8 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/stretchr/testify/require"
 )
 

@@ -7,7 +7,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 )
 
 // Address is a HD address of a wallet, containing the info needed to receive funds on it and to

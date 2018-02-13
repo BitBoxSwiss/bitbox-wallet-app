@@ -10,13 +10,13 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
-	"github.com/shiftdevices/godbb/deterministicwallet/keystore"
+	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/coins/btc/keystore"
+	"github.com/shiftdevices/godbb/coins/ltc"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/usb"
-	"github.com/shiftdevices/godbb/electrum"
-	"github.com/shiftdevices/godbb/knot/coins/ltc"
 	"github.com/shiftdevices/godbb/util/locker"
 )
 
@@ -44,7 +44,7 @@ type Interface interface {
 type Wallet struct {
 	Code   string
 	Name   string
-	Wallet deterministicwallet.Interface
+	Wallet btc.Interface
 
 	net                  *chaincfg.Params
 	walletDerivationPath string
@@ -77,13 +77,13 @@ func (wallet *Wallet) init(knot *Knot) error {
 	if err != nil {
 		return err
 	}
-	wallet.Wallet, err = deterministicwallet.NewDeterministicWallet(
+	wallet.Wallet, err = btc.NewDeterministicWallet(
 		wallet.net,
 		keystore,
 		electrumClient,
 		wallet.addressType,
-		func(event deterministicwallet.Event) {
-			if event == deterministicwallet.EventStatusChanged && wallet.Wallet.Initialized() {
+		func(event btc.Event) {
+			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
 				log.Printf("wallet sync time for %s: %s\n",
 					wallet.Code,
 					time.Now().Sub(knot.walletsSyncStart))

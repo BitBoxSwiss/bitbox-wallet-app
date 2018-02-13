@@ -1,12 +1,12 @@
-package deterministicwallet
+package btc
 
 import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 
-	"github.com/shiftdevices/godbb/deterministicwallet/maketx"
-	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
+	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 

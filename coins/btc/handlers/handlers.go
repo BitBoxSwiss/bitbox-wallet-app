@@ -7,15 +7,14 @@ import (
 
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
-
-	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
+	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // Handlers provides a web api to the wallet.
 type Handlers struct {
-	wallet deterministicwallet.Interface
+	wallet btc.Interface
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -35,7 +34,7 @@ func NewHandlers(
 
 // Init installs a wallet as a base for the web api. This needs to be called before any requests are
 // made.
-func (handlers *Handlers) Init(wallet deterministicwallet.Interface) {
+func (handlers *Handlers) Init(wallet btc.Interface) {
 	handlers.wallet = wallet
 }
 
@@ -78,8 +77,8 @@ func (handlers *Handlers) getWalletBalance(r *http.Request) (interface{}, error)
 
 type sendTxInput struct {
 	address       string
-	sendAmount    deterministicwallet.SendAmount
-	feeTargetCode deterministicwallet.FeeTargetCode
+	sendAmount    btc.SendAmount
+	feeTargetCode btc.FeeTargetCode
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -89,12 +88,12 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody["address"]
 	var err error
-	input.feeTargetCode, err = deterministicwallet.NewFeeTargetCode(jsonBody["feeTarget"])
+	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"])
 	if err != nil {
 		return err
 	}
 	if jsonBody["sendAll"] == "yes" {
-		input.sendAmount = deterministicwallet.NewSendAmountAll()
+		input.sendAmount = btc.NewSendAmountAll()
 	} else {
 		amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
 		if err != nil {
@@ -104,7 +103,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		if err != nil {
 			return errp.WithStack(err)
 		}
-		input.sendAmount, err = deterministicwallet.NewSendAmount(btcAmount)
+		input.sendAmount, err = btc.NewSendAmount(btcAmount)
 		if err != nil {
 			return err
 		}
@@ -119,7 +118,7 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 	}
 
 	err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode)
-	if errp.Cause(err) == deterministicwallet.ErrUserAborted {
+	if errp.Cause(err) == btc.ErrUserAborted {
 		return map[string]interface{}{"success": false}, nil
 	}
 	if err != nil {

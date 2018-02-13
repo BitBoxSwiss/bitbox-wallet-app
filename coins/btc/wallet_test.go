@@ -1,4 +1,4 @@
-package deterministicwallet_test
+package btc_test
 
 import (
 	"testing"
@@ -6,10 +6,10 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
-	blockchainMock "github.com/shiftdevices/godbb/deterministicwallet/blockchain/mocks"
-	"github.com/shiftdevices/godbb/deterministicwallet/mocks"
+	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	blockchainMock "github.com/shiftdevices/godbb/coins/btc/blockchain/mocks"
+	"github.com/shiftdevices/godbb/coins/btc/mocks"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -20,13 +20,13 @@ type walletSuite struct {
 	net            *chaincfg.Params
 	keystoreMock   mocks.HDKeyStoreInterface
 	blockchainMock blockchainMock.InterfaceMock
-	onEvent        func(deterministicwallet.Event)
-	wallet         *deterministicwallet.DeterministicWallet
+	onEvent        func(btc.Event)
+	wallet         *btc.DeterministicWallet
 }
 
 func (s *walletSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
-	s.onEvent = func(deterministicwallet.Event) {}
+	s.onEvent = func(btc.Event) {}
 	var err error
 
 	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"
@@ -36,7 +36,7 @@ func (s *walletSuite) SetupTest() {
 	}
 
 	s.keystoreMock.On("XPub").Return(xpub)
-	s.wallet, err = deterministicwallet.NewDeterministicWallet(
+	s.wallet, err = btc.NewDeterministicWallet(
 		s.net,
 		&s.keystoreMock,
 		&s.blockchainMock,

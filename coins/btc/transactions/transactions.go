@@ -9,9 +9,9 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/deterministicwallet/blockchain"
-	"github.com/shiftdevices/godbb/deterministicwallet/synchronizer"
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/blockchain"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 )

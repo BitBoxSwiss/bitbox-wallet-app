@@ -9,7 +9,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 )
 
 var (

@@ -5,7 +5,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonrpc"
 )

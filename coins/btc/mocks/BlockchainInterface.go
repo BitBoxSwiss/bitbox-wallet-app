@@ -2,7 +2,7 @@
 package mocks
 
 import chainhash "github.com/btcsuite/btcd/chaincfg/chainhash"
-import client "github.com/shiftdevices/godbb/electrum/client"
+import client "github.com/shiftdevices/godbb/coins/btc/electrum/client"
 
 import mock "github.com/stretchr/testify/mock"
 import wire "github.com/btcsuite/btcd/wire"

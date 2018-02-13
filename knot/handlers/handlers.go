@@ -10,7 +10,7 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
-	walletHandlers "github.com/shiftdevices/godbb/deterministicwallet/handlers"
+	walletHandlers "github.com/shiftdevices/godbb/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/knot"
 	"github.com/shiftdevices/godbb/knot/binweb"

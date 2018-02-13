@@ -3,7 +3,7 @@ package test
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
 )
 
 // NewAddressChain returns an AddressChain for convenience in testing.

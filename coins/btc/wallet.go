@@ -1,4 +1,4 @@
-package deterministicwallet
+package btc
 
 import (
 	"errors"
@@ -9,11 +9,11 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
-	"github.com/shiftdevices/godbb/deterministicwallet/blockchain"
-	"github.com/shiftdevices/godbb/deterministicwallet/synchronizer"
-	"github.com/shiftdevices/godbb/deterministicwallet/transactions"
-	"github.com/shiftdevices/godbb/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/blockchain"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/synchronizer"
+	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 )
