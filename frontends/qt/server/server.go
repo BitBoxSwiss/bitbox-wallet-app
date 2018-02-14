@@ -1,4 +1,4 @@
-package main
+package server
 
 import "C"
 
@@ -7,19 +7,18 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/shiftdevices/godbb/knot"
-	"github.com/shiftdevices/godbb/knot/handlers"
+	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/util/freeport"
 )
 
-//export serve
+// This function lets C code start the backend.
 func serve() int {
 	port, err := freeport.FreePort()
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Port:", port)
-	handlers := handlers.NewHandlers(knot.NewKnot(), port)
+	handlers := backend.NewHandlers(backend.NewBackend(), port)
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf("localhost:%d", port), handlers.Router)
 		if err != nil {
@@ -27,7 +26,4 @@ func serve() int {
 		}
 	}()
 	return port
-}
-
-func main() {
 }

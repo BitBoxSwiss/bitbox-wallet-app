@@ -1,5 +1,5 @@
 all:
-	make -C ../../knot/bindings/dbbdesktop/
+	make -C server/
 	mkdir -p build
 	qmake -o build/Makefile
 	make -C build

@@ -4,7 +4,7 @@
 // #include <QNetworkAccessManager>
 // #include <QNetworkReply>
 
-#include <dbbdesktop.h>
+#include <server.h>
 
 // class BridgedNetworkAccessManager : public QNetworkAccessManager {
 // public:

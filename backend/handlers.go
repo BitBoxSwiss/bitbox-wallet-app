@@ -1,4 +1,11 @@
-package handlers
+package backend
+
+// The following go:generate command compiles the static web assets into a Go package, so that they
+// are built into the binary. The WEBASSETS env var must be set and point to the folder containing
+// the web assets.
+
+//go:generate echo $WEBASSETS
+//go:generate go-bindata -pkg $GOPACKAGE -o assets.go -prefix $WEBASSETS $WEBASSETS
 
 import (
 	"bytes"
@@ -12,39 +19,37 @@ import (
 	"github.com/gorilla/websocket"
 	walletHandlers "github.com/shiftdevices/godbb/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/devices/bitbox"
-	"github.com/shiftdevices/godbb/knot"
-	"github.com/shiftdevices/godbb/knot/binweb"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )
 
-// Handlers provides a web api to the knot.
+// Handlers provides a web api to the backend.
 type Handlers struct {
-	Router *mux.Router
-	knot   knot.Interface
+	Router  *mux.Router
+	backend Interface
 	// apiPort is the port on which this API will run. It is fed into the static javascript app
 	// that is served, so the client knows where to connect to.
 	apiPort           int
-	knotEvents        <-chan interface{}
+	backendEvents     <-chan interface{}
 	websocketUpgrader websocket.Upgrader
 }
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	theKnot knot.Interface,
+	theBackend Interface,
 	apiPort int,
 ) *Handlers {
 	router := mux.NewRouter()
 	handlers := &Handlers{
 		Router:  router,
-		knot:    theKnot,
+		backend: theBackend,
 		apiPort: apiPort,
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		knotEvents: theKnot.Start(),
+		backendEvents: theBackend.Start(),
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -60,25 +65,25 @@ func NewHandlers(
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
-	for _, wallet := range theKnot.Wallets() {
+	for _, wallet := range theBackend.Wallets() {
 		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
 			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
 	}
 
-	theKnot.OnWalletInit(func(wallet *knot.Wallet) {
+	theBackend.OnWalletInit(func(wallet *Wallet) {
 		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
 	})
-	theKnot.OnWalletUninit(func(wallet *knot.Wallet) {
+	theBackend.OnWalletUninit(func(wallet *Wallet) {
 		theWalletHandlers[wallet.Code].Uninit()
 	})
 
 	theDeviceHandlers := bitbox.NewHandlers(
 		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()),
 	)
-	theKnot.OnDeviceInit(func(device bitbox.Interface) {
+	theBackend.OnDeviceInit(func(device bitbox.Interface) {
 		theDeviceHandlers.Init(device)
 	})
-	theKnot.OnDeviceUninit(func() {
+	theBackend.OnDeviceUninit(func() {
 		theDeviceHandlers.Uninit()
 	})
 
@@ -88,7 +93,7 @@ func NewHandlers(
 	router.Handle("/{rest:.*}",
 		http.FileServer(&assetfs.AssetFS{
 			Asset: func(name string) ([]byte, error) {
-				body, err := binweb.Asset(name)
+				body, err := Asset(name)
 				if err != nil {
 					return nil, err
 				}
@@ -97,8 +102,8 @@ func NewHandlers(
 				}
 				return body, nil
 			},
-			AssetDir:  binweb.AssetDir,
-			AssetInfo: binweb.AssetInfo,
+			AssetDir:  AssetDir,
+			AssetInfo: AssetInfo,
 			Prefix:    "",
 		}))
 
@@ -110,7 +115,7 @@ func (handlers *Handlers) interpolateConstants(body []byte) []byte {
 		key, value string
 	}{
 		{"API_PORT", fmt.Sprintf("%d", handlers.apiPort)},
-		{"LANG", handlers.knot.UserLanguage().String()},
+		{"LANG", handlers.backend.UserLanguage().String()},
 	} {
 		body = bytes.Replace(body, []byte(fmt.Sprintf("{{ %s }}", info.key)), []byte(info.value), -1)
 	}
@@ -135,7 +140,7 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(r *http.Request) (interface{}, error) {
-	return handlers.knot.DeviceRegistered(), nil
+	return handlers.backend.DeviceRegistered(), nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +159,7 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 				select {
 				case <-quitChan:
 					return
-				case event := <-handlers.knotEvents:
+				case event := <-handlers.backendEvents:
 					sendChan <- jsonp.MustMarshal(event)
 				}
 			}

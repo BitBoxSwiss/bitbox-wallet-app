@@ -1,8 +1,8 @@
-node_modules/
-frontends/web/build/
-frontends/qt/build/
-vendor/
-knot/bindings/dbbdesktop/dbbdesktop.h
-knot/bindings/dbbdesktop/dbbdesktop.a
-knot/binweb/assets.go
-cmd/playground/
+/backend/assets.go
+/cmd/playground/
+/frontends/qt/server/server.h
+/frontends/qt/server/server.a
+/frontends/qt/build/
+/frontends/web/build/
+/frontends/web/node_modules/
+/vendor/
