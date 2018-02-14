@@ -25,10 +25,10 @@ Studio / XCode project. This is not part of this repo yet.
   to. See below.
 - `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
 - `electrum/`: A json rpc client library, talking to Electrum servers.
-- `dbbdevice/`: Library to detect and talk to digital bitboxes. High level API access.
-- `deterministicwallet/`: Local HD wallet, sourcing blockchain index from an arbitrary
+- `devices/bitbox/`: Library to detect and talk to digital bitboxes. High level API access.
+- `coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
-- `knot/`: The library that ties it all together. Uses the above packages to create a wallet talking
+- `backend/`: The library that ties it all together. Uses the above packages to create a wallet talking
   Electrum using the DBB for signing, and serve a high level HTTP API to control it.
 - `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
 - `frontends/web/`: home of the preact UI.
@@ -36,9 +36,6 @@ Studio / XCode project. This is not part of this repo yet.
 ## Set up the development environment
 
 The below instructions assume a unix environment.
-
-I plan to add a Dockerfile, so the following steps don't have to be repeated by every
-developer. Until that time:
 
 ### Requirements
 
