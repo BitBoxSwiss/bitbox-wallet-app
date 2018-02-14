@@ -28,16 +28,16 @@ SOURCES += \
 
 HEADERS +=
 
-INCLUDEPATH += ../../../knot/bindings/dbbdesktop/
+INCLUDEPATH += server/
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
 unix:!macx {
-    LIBS += ../../../knot/bindings/dbbdesktop/dbbdesktop.a
+    LIBS += server/server.a
 }
 
 unix:macx {
     # Those frameworks are needed for Go's http/net packages.
     # Waiting for https://github.com/golang/go/issues/11258 to be able to automatically capture link flags.
     LIBS += -framework CoreFoundation -framework Security
-    LIBS += ../../../knot/bindings/dbbdesktop/dbbdesktop.a
+    LIBS += server/server.a
 }

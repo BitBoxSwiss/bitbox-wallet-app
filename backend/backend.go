@@ -1,8 +1,6 @@
-package knot
+package backend
 
 import (
-	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -10,25 +8,14 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/coins/btc/electrum"
-	"github.com/shiftdevices/godbb/coins/btc/keystore"
 	"github.com/shiftdevices/godbb/coins/ltc"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
 )
 
-const (
-	// dev server for now
-	electrumServerBitcoinTestnet  = "176.9.28.202:51002"
-	electrumServerBitcoinMainnet  = "176.9.28.202:50002"
-	electrumServerLitecoinTestnet = "176.9.28.202:51004"
-	electrumServerLitecoinMainnet = "176.9.28.202:50004"
-)
-
-// Interface is the API of the knot.
+// Interface is the API of the backend.
 type Interface interface {
 	Wallets() []*Wallet
 	UserLanguage() language.Tag
@@ -38,63 +25,6 @@ type Interface interface {
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
 	Start() <-chan interface{}
-}
-
-// Wallet wraps a wallet of a specific coin identified by Code.
-type Wallet struct {
-	Code   string
-	Name   string
-	Wallet btc.Interface
-
-	net                  *chaincfg.Params
-	walletDerivationPath string
-	addressType          addresses.AddressType
-}
-
-func (wallet *Wallet) init(knot *Knot) error {
-	var electrumServer string
-	switch wallet.Code {
-	case "tbtc":
-		electrumServer = electrumServerBitcoinTestnet
-	case "tbtc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinTestnet
-	case "btc":
-		electrumServer = electrumServerBitcoinMainnet
-	case "btc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinMainnet
-	case "tltc-p2wpkh-p2sh":
-		electrumServer = electrumServerLitecoinTestnet
-	case "ltc-p2wpkh-p2sh":
-		electrumServer = electrumServerLitecoinMainnet
-	default:
-		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
-	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer, true)
-	if err != nil {
-		return err
-	}
-	keystore, err := keystore.NewDBBKeyStore(knot.device, wallet.walletDerivationPath, wallet.net)
-	if err != nil {
-		return err
-	}
-	wallet.Wallet, err = btc.NewDeterministicWallet(
-		wallet.net,
-		keystore,
-		electrumClient,
-		wallet.addressType,
-		func(event btc.Event) {
-			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
-				log.Printf("wallet sync time for %s: %s\n",
-					wallet.Code,
-					time.Now().Sub(knot.walletsSyncStart))
-			}
-			knot.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
-		},
-	)
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 type deviceEvent struct {
@@ -110,8 +40,8 @@ type walletEvent struct {
 	Data string `json:"data"`
 }
 
-// Knot ties everything together and is the main starting point to use the godbb library.
-type Knot struct {
+// Backend ties everything together and is the main starting point to use the godbb library.
+type Backend struct {
 	events chan interface{}
 
 	device         *bitbox.Device
@@ -125,9 +55,9 @@ type Knot struct {
 	walletsSyncStart time.Time
 }
 
-// NewKnot creates a new Knot.
-func NewKnot() *Knot {
-	return &Knot{
+// NewBackend creates a new Backend.
+func NewBackend() *Backend {
+	return &Backend{
 		events: make(chan interface{}),
 		wallets: []*Wallet{
 			&Wallet{
@@ -177,12 +107,12 @@ func NewKnot() *Knot {
 }
 
 // Wallets returns the supported wallets.
-func (knot *Knot) Wallets() []*Wallet {
-	return knot.wallets
+func (backend *Backend) Wallets() []*Wallet {
+	return backend.wallets
 }
 
 // UserLanguage returns the language the UI should be presented in to the user.
-func (knot *Knot) UserLanguage() language.Tag {
+func (backend *Backend) UserLanguage() language.Tag {
 	userLocale, err := jibber_jabber.DetectIETF()
 	if err != nil {
 		return language.English
@@ -196,45 +126,45 @@ func (knot *Knot) UserLanguage() language.Tag {
 }
 
 // OnWalletInit installs a callback to be called when a wallet is initialized.
-func (knot *Knot) OnWalletInit(f func(*Wallet)) {
-	knot.onWalletInit = f
+func (backend *Backend) OnWalletInit(f func(*Wallet)) {
+	backend.onWalletInit = f
 }
 
 // OnWalletUninit installs a callback to be called when a wallet is stopped.
-func (knot *Knot) OnWalletUninit(f func(*Wallet)) {
-	knot.onWalletUninit = f
+func (backend *Backend) OnWalletUninit(f func(*Wallet)) {
+	backend.onWalletUninit = f
 }
 
 // OnDeviceInit installs a callback to be called when a device is initialized.
-func (knot *Knot) OnDeviceInit(f func(bitbox.Interface)) {
-	knot.onDeviceInit = f
+func (backend *Backend) OnDeviceInit(f func(bitbox.Interface)) {
+	backend.onDeviceInit = f
 }
 
 // OnDeviceUninit installs a callback to be called when a device is uninitialized.
-func (knot *Knot) OnDeviceUninit(f func()) {
-	knot.onDeviceUninit = f
+func (backend *Backend) OnDeviceUninit(f func()) {
+	backend.onDeviceUninit = f
 }
 
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
-func (knot *Knot) Start() <-chan interface{} {
-	go knot.listenHID()
-	return knot.events
+func (backend *Backend) Start() <-chan interface{} {
+	go backend.listenHID()
+	return backend.events
 }
 
-func (knot *Knot) initWallets() error {
-	defer knot.walletsLock.Lock()()
+func (backend *Backend) initWallets() error {
+	defer backend.walletsLock.Lock()()
 	wg := sync.WaitGroup{}
-	knot.walletsSyncStart = time.Now()
-	for _, wallet := range knot.wallets {
+	backend.walletsSyncStart = time.Now()
+	for _, wallet := range backend.wallets {
 		wg.Add(1)
 		go func(wallet *Wallet) {
 			defer wg.Done()
-			if err := wallet.init(knot); err != nil {
+			if err := wallet.init(backend); err != nil {
 				// TODO
 				panic(err)
 			}
-			knot.onWalletInit(wallet)
+			backend.onWalletInit(wallet)
 			wallet.Wallet.Init()
 		}(wallet)
 	}
@@ -243,55 +173,55 @@ func (knot *Knot) initWallets() error {
 }
 
 // DeviceRegistered returns whether a device is plugged in.
-func (knot *Knot) DeviceRegistered() bool {
-	return knot.device != nil
+func (backend *Backend) DeviceRegistered() bool {
+	return backend.device != nil
 }
 
-func (knot *Knot) uninitWallets() {
-	defer knot.walletsLock.Lock()()
-	for _, wallet := range knot.wallets {
+func (backend *Backend) uninitWallets() {
+	defer backend.walletsLock.Lock()()
+	for _, wallet := range backend.wallets {
 		if wallet.Wallet != nil {
-			knot.onWalletUninit(wallet)
+			backend.onWalletUninit(wallet)
 			wallet.Wallet.Close()
 			wallet.Wallet = nil
 		}
 	}
 }
 
-func (knot *Knot) register(device *bitbox.Device) error {
-	knot.device = device
-	knot.onDeviceInit(device)
-	knot.device.SetOnEvent(func(event bitbox.Event) {
+func (backend *Backend) register(device *bitbox.Device) error {
+	backend.device = device
+	backend.onDeviceInit(device)
+	backend.device.SetOnEvent(func(event bitbox.Event) {
 		switch event {
 		case bitbox.EventStatusChanged:
-			if knot.device.Status() == bitbox.StatusSeeded {
-				knot.uninitWallets()
+			if backend.device.Status() == bitbox.StatusSeeded {
+				backend.uninitWallets()
 				go func() {
-					if err := knot.initWallets(); err != nil {
+					if err := backend.initWallets(); err != nil {
 						// TODO
 						panic(err)
 					}
 				}()
 			}
-			knot.events <- deviceEvent{Type: "device", Data: string(event)}
+			backend.events <- deviceEvent{Type: "device", Data: string(event)}
 		}
 	})
 	select {
-	case knot.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}:
+	case backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}:
 	default:
 	}
 	return nil
 }
 
-func (knot *Knot) unregister(deviceID string) {
-	if deviceID == knot.device.DeviceID() {
-		knot.device = nil
-		knot.onDeviceUninit()
-		knot.uninitWallets()
-		knot.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
+func (backend *Backend) unregister(deviceID string) {
+	if deviceID == backend.device.DeviceID() {
+		backend.device = nil
+		backend.onDeviceUninit()
+		backend.uninitWallets()
+		backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
 	}
 }
 
-func (knot *Knot) listenHID() {
-	usb.NewManager(knot.register, knot.unregister).ListenHID()
+func (backend *Backend) listenHID() {
+	usb.NewManager(backend.register, backend.unregister).ListenHID()
 }
