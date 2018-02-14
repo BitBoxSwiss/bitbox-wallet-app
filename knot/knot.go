@@ -10,13 +10,13 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/shiftdevices/godbb/dbbdevice"
-	"github.com/shiftdevices/godbb/dbbdevice/communication"
-	"github.com/shiftdevices/godbb/dbbdevice/keystore"
-	"github.com/shiftdevices/godbb/deterministicwallet"
-	"github.com/shiftdevices/godbb/deterministicwallet/addresses"
-	"github.com/shiftdevices/godbb/electrum"
-	"github.com/shiftdevices/godbb/knot/coins/ltc"
+	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/coins/btc/keystore"
+	"github.com/shiftdevices/godbb/coins/ltc"
+	"github.com/shiftdevices/godbb/devices/bitbox"
+	"github.com/shiftdevices/godbb/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
 )
 
@@ -34,7 +34,7 @@ type Interface interface {
 	UserLanguage() language.Tag
 	OnWalletInit(f func(*Wallet))
 	OnWalletUninit(f func(*Wallet))
-	OnDeviceInit(f func(dbbdevice.Interface))
+	OnDeviceInit(f func(bitbox.Interface))
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
 	Start() <-chan interface{}
@@ -44,7 +44,7 @@ type Interface interface {
 type Wallet struct {
 	Code   string
 	Name   string
-	Wallet deterministicwallet.Interface
+	Wallet btc.Interface
 
 	net                  *chaincfg.Params
 	walletDerivationPath string
@@ -77,13 +77,13 @@ func (wallet *Wallet) init(knot *Knot) error {
 	if err != nil {
 		return err
 	}
-	wallet.Wallet, err = deterministicwallet.NewDeterministicWallet(
+	wallet.Wallet, err = btc.NewDeterministicWallet(
 		wallet.net,
 		keystore,
 		electrumClient,
 		wallet.addressType,
-		func(event deterministicwallet.Event) {
-			if event == deterministicwallet.EventStatusChanged && wallet.Wallet.Initialized() {
+		func(event btc.Event) {
+			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
 				log.Printf("wallet sync time for %s: %s\n",
 					wallet.Code,
 					time.Now().Sub(knot.walletsSyncStart))
@@ -114,10 +114,10 @@ type walletEvent struct {
 type Knot struct {
 	events chan interface{}
 
-	device         *dbbdevice.DBBDevice
+	device         *bitbox.Device
 	onWalletInit   func(*Wallet)
 	onWalletUninit func(*Wallet)
-	onDeviceInit   func(dbbdevice.Interface)
+	onDeviceInit   func(bitbox.Interface)
 	onDeviceUninit func()
 
 	wallets          []*Wallet
@@ -206,7 +206,7 @@ func (knot *Knot) OnWalletUninit(f func(*Wallet)) {
 }
 
 // OnDeviceInit installs a callback to be called when a device is initialized.
-func (knot *Knot) OnDeviceInit(f func(dbbdevice.Interface)) {
+func (knot *Knot) OnDeviceInit(f func(bitbox.Interface)) {
 	knot.onDeviceInit = f
 }
 
@@ -258,13 +258,13 @@ func (knot *Knot) uninitWallets() {
 	}
 }
 
-func (knot *Knot) register(device *dbbdevice.DBBDevice) error {
+func (knot *Knot) register(device *bitbox.Device) error {
 	knot.device = device
 	knot.onDeviceInit(device)
-	knot.device.SetOnEvent(func(event dbbdevice.Event) {
+	knot.device.SetOnEvent(func(event bitbox.Event) {
 		switch event {
-		case dbbdevice.EventStatusChanged:
-			if knot.device.Status() == dbbdevice.StatusSeeded {
+		case bitbox.EventStatusChanged:
+			if knot.device.Status() == bitbox.StatusSeeded {
 				knot.uninitWallets()
 				go func() {
 					if err := knot.initWallets(); err != nil {
@@ -293,5 +293,5 @@ func (knot *Knot) unregister(deviceID string) {
 }
 
 func (knot *Knot) listenHID() {
-	communication.NewManager(knot.register, knot.unregister).ListenHID()
+	usb.NewManager(knot.register, knot.unregister).ListenHID()
 }
