@@ -139,7 +139,7 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 	_ = qr.Write(256, w)
 }
 
-func (handlers *Handlers) getDevicesRegisteredHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.DeviceRegistered(), nil
 }
 

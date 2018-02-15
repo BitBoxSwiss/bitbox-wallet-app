@@ -11,8 +11,8 @@ import (
 	"github.com/shiftdevices/godbb/util/freeport"
 )
 
-// This function lets C code start the backend.
-func serve() int {
+// Serve lets C code start the backend.
+func Serve() int {
 	port, err := freeport.FreePort()
 	if err != nil {
 		log.Fatal(err)

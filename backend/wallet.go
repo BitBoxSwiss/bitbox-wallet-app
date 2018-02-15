@@ -66,13 +66,10 @@ func (wallet *Wallet) init(backend *Backend) error {
 			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
 				log.Printf("wallet sync time for %s: %s\n",
 					wallet.Code,
-					time.Now().Sub(backend.walletsSyncStart))
+					time.Since(backend.walletsSyncStart))
 			}
 			backend.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
 		},
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }

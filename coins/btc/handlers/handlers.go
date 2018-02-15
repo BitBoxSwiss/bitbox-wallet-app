@@ -43,7 +43,7 @@ func (handlers *Handlers) Uninit() {
 	handlers.wallet = nil
 }
 
-func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
 	txs := handlers.wallet.Transactions()
 	for _, txInfo := range txs {
@@ -66,7 +66,7 @@ func (handlers *Handlers) getWalletTransactions(r *http.Request) (interface{}, e
 	return result, nil
 }
 
-func (handlers *Handlers) getWalletBalance(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getWalletBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.wallet.Balance()
 	return map[string]interface{}{
 		"available":   balance.Available.Format(btcutil.AmountBTC),
@@ -145,7 +145,7 @@ func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, err
 	}, nil
 }
 
-func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getWalletFeeTargets(_ *http.Request) (interface{}, error) {
 	feeTargets, defaultFeeTarget := handlers.wallet.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
@@ -160,13 +160,13 @@ func (handlers *Handlers) getWalletFeeTargets(r *http.Request) (interface{}, err
 	}, nil
 }
 
-func (handlers *Handlers) getWalletStatus(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) {
 	if handlers.wallet == nil {
 		return false, nil
 	}
 	return handlers.wallet.Initialized(), nil
 }
 
-func (handlers *Handlers) getReceiveAddress(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
 	return handlers.wallet.GetUnusedReceiveAddress().EncodeAddress(), nil
 }

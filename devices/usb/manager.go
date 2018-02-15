@@ -48,7 +48,7 @@ func NewManager(
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
-	match := regexp.MustCompile("v([0-9]+\\.[0-9]+\\.[0-9]+)").FindStringSubmatch(deviceInfo.Serial)
+	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
 		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
 	}

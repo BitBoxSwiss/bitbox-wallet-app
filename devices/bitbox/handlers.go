@@ -55,7 +55,7 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getBackupListHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, error) {
 	backupList, err := handlers.device.BackupList()
 	sdCardInserted := !IsErrorSDCard(err)
 	if sdCardInserted && err != nil {
@@ -67,11 +67,11 @@ func (handlers *Handlers) getBackupListHandler(r *http.Request) (interface{}, er
 	}, nil
 }
 
-func (handlers *Handlers) getDeviceStatusHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getDeviceStatusHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.Status(), nil
 }
 
-func (handlers *Handlers) getDeviceInfoHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.DeviceInfo()
 }
 
@@ -140,7 +140,7 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	return nil, handlers.device.CreateBackup(jsonBody["backupName"])
 }
 
-func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {
 	didReset, err := handlers.device.Reset()
 	if err != nil {
 		return nil, err
