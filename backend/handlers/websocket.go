@@ -1,4 +1,4 @@
-package backend
+package handlers
 
 import (
 	"log"

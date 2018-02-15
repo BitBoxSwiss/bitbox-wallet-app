@@ -1,16 +1,17 @@
-package bitbox
+package handlers
 
 import (
 	"encoding/json"
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // Handlers provides a web api to the dbbdevice.
 type Handlers struct {
-	device Interface
+	device bitbox.Interface
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -34,7 +35,7 @@ func NewHandlers(
 
 // Init installs a dbbdevice as a base for the web api. This needs to be called before any requests
 // are made.
-func (handlers *Handlers) Init(device Interface) {
+func (handlers *Handlers) Init(device bitbox.Interface) {
 	handlers.device = device
 }
 
@@ -57,7 +58,7 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 
 func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, error) {
 	backupList, err := handlers.device.BackupList()
-	sdCardInserted := !IsErrorSDCard(err)
+	sdCardInserted := !bitbox.IsErrorSDCard(err)
 	if sdCardInserted && err != nil {
 		return nil, err
 	}
@@ -77,7 +78,7 @@ func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, er
 
 func maybeDBBErr(err error) map[string]interface{} {
 	result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-	if dbbErr, ok := err.(*Error); ok {
+	if dbbErr, ok := err.(*bitbox.Error); ok {
 		result["code"] = dbbErr.Code
 	}
 	return result

@@ -1,4 +1,4 @@
-package backend
+package handlers
 
 // The following go:generate command compiles the static web assets into a Go package, so that they
 // are built into the binary. The WEBASSETS env var must be set and point to the folder containing
@@ -17,8 +17,10 @@ import (
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
+	"github.com/shiftdevices/godbb/backend"
 	walletHandlers "github.com/shiftdevices/godbb/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/devices/bitbox"
+	bitboxHandlers "github.com/shiftdevices/godbb/devices/bitbox/handlers"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )
@@ -26,7 +28,7 @@ import (
 // Handlers provides a web api to the backend.
 type Handlers struct {
 	Router  *mux.Router
-	backend Interface
+	backend backend.Interface
 	// apiPort is the port on which this API will run. It is fed into the static javascript app
 	// that is served, so the client knows where to connect to.
 	apiPort           int
@@ -36,7 +38,7 @@ type Handlers struct {
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	theBackend Interface,
+	theBackend backend.Interface,
 	apiPort int,
 ) *Handlers {
 	router := mux.NewRouter()
@@ -70,14 +72,14 @@ func NewHandlers(
 			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
 	}
 
-	theBackend.OnWalletInit(func(wallet *Wallet) {
+	theBackend.OnWalletInit(func(wallet *backend.Wallet) {
 		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
 	})
-	theBackend.OnWalletUninit(func(wallet *Wallet) {
+	theBackend.OnWalletUninit(func(wallet *backend.Wallet) {
 		theWalletHandlers[wallet.Code].Uninit()
 	})
 
-	theDeviceHandlers := bitbox.NewHandlers(
+	theDeviceHandlers := bitboxHandlers.NewHandlers(
 		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()),
 	)
 	theBackend.OnDeviceInit(func(device bitbox.Interface) {
@@ -93,7 +95,7 @@ func NewHandlers(
 	router.Handle("/{rest:.*}",
 		http.FileServer(&assetfs.AssetFS{
 			Asset: func(name string) ([]byte, error) {
-				body, err := Asset(name)
+				body, err := backend.Asset(name)
 				if err != nil {
 					return nil, err
 				}
@@ -102,8 +104,8 @@ func NewHandlers(
 				}
 				return body, nil
 			},
-			AssetDir:  AssetDir,
-			AssetInfo: AssetInfo,
+			AssetDir:  backend.AssetDir,
+			AssetInfo: backend.AssetInfo,
 			Prefix:    "",
 		}))
 

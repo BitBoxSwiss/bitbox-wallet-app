@@ -1,4 +1,4 @@
-package server
+package main
 
 import "C"
 
@@ -8,17 +8,18 @@ import (
 	"net/http"
 
 	"github.com/shiftdevices/godbb/backend"
+	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/freeport"
 )
 
-// Serve lets C code start the backend.
-func Serve() int {
+//export serve
+func serve() int {
 	port, err := freeport.FreePort()
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Port:", port)
-	handlers := backend.NewHandlers(backend.NewBackend(), port)
+	handlers := backendHandlers.NewHandlers(backend.NewBackend(), port)
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf("localhost:%d", port), handlers.Router)
 		if err != nil {
@@ -26,4 +27,8 @@ func Serve() int {
 		}
 	}()
 	return port
+}
+
+// Don't remove - needed for the C compilation.
+func main() {
 }
