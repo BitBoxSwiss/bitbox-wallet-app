@@ -13,13 +13,12 @@ gometalinter.v1 \
     "$fast" \
     --concurrency 3 \
     --skip=mocks \
-    --skip=binweb \
-    --skip=dbbdesktop \
     --deadline=600s \
     --vendored-linters \
     --vendor \
     --disable-all \
     --tests \
+    --exclude=assets.go \
     -E test \
     -E golint \
     -E vet \
