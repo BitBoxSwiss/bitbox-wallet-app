@@ -71,8 +71,5 @@ func (wallet *Wallet) init(backend *Backend) error {
 			backend.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
 		},
 	)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
