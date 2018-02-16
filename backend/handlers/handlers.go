@@ -95,7 +95,7 @@ func NewHandlers(
 	router.Handle("/{rest:.*}",
 		http.FileServer(&assetfs.AssetFS{
 			Asset: func(name string) ([]byte, error) {
-				body, err := backend.Asset(name)
+				body, err := Asset(name)
 				if err != nil {
 					return nil, err
 				}
@@ -104,8 +104,8 @@ func NewHandlers(
 				}
 				return body, nil
 			},
-			AssetDir:  backend.AssetDir,
-			AssetInfo: backend.AssetInfo,
+			AssetDir:  AssetDir,
+			AssetInfo: AssetInfo,
 			Prefix:    "",
 		}))
 

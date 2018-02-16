@@ -1,4 +1,4 @@
-/backend/assets.go
+/backend/handlers/assets.go
 /cmd/playground/
 /frontends/qt/server/server.h
 /frontends/qt/server/server.a
