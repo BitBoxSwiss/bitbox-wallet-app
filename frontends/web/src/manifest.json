@@ -1,6 +1,6 @@
 {
-  "name": "LOL",
-  "short_name": "LOL",
+  "name": "Digital Bitbox",
+  "short_name": "Bitbox",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
