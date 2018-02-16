@@ -62,6 +62,7 @@ func NewHandlers(
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
+	getAPIRouter(apiRouter)("/version", handlers.getVersion).Methods("GET")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -128,6 +129,10 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)
 	}
+}
+
+func (handlers *Handlers) getVersion(_ *http.Request) (interface{}, error) {
+	return backend.Version.String(), nil
 }
 
 func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {

@@ -13,6 +13,12 @@ import (
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/shiftdevices/godbb/util/semver"
+)
+
+var (
+	// Version of the backend as displayed to the user.
+	Version = semver.NewSemVer(0, 1, 0)
 )
 
 // Interface is the API of the backend.
