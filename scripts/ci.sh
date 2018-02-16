@@ -19,6 +19,7 @@ gometalinter.v1 \
     --disable-all \
     --tests \
     --exclude=assets.go \
+    --exclude=server.go \
     -E test \
     -E golint \
     -E vet \
