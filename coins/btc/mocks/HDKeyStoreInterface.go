@@ -2,7 +2,6 @@
 package mocks
 
 import btcec "github.com/btcsuite/btcd/btcec"
-
 import hdkeychain "github.com/btcsuite/btcutil/hdkeychain"
 import mock "github.com/stretchr/testify/mock"
 
