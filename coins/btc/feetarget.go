@@ -5,7 +5,7 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
-// FeeTargetCode is the ID of a fee target. See the FeeTargetCode* constants.x
+// FeeTargetCode models the code of a fee target. See the constants below.
 type FeeTargetCode string
 
 // NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
@@ -16,7 +16,7 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	case string(FeeTargetCodeNormal):
 	case string(FeeTargetCodeHigh):
 	default:
-		return "", errp.Newf("unrecognized fee code %s", code)
+		return "", errp.Newf("unrecognized fee target code %s", code)
 	}
 	return FeeTargetCode(code), nil
 }
@@ -24,22 +24,27 @@ func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 const (
 	// FeeTargetCodeLow is the low priority fee target.
 	FeeTargetCodeLow FeeTargetCode = "low"
+
 	// FeeTargetCodeEconomy is the economy priority fee target.
-	FeeTargetCodeEconomy = "economy"
+	FeeTargetCodeEconomy FeeTargetCode = "economy"
+
 	// FeeTargetCodeNormal is the normal priority fee target.
-	FeeTargetCodeNormal = "normal"
+	FeeTargetCodeNormal FeeTargetCode = "normal"
+
 	// FeeTargetCodeHigh is the high priority fee target.
-	FeeTargetCodeHigh = "high"
+	FeeTargetCodeHigh FeeTargetCode = "high"
 
 	defaultFeeTarget = FeeTargetCodeNormal
 )
 
 // FeeTarget contains the fee rate for a specific fee target.
 type FeeTarget struct {
-	// Blocks is the target number of blocks in which the tx should be confirmed.
+	// Blocks is the target number of blocks in which the transaction should be confirmed.
 	Blocks int
+
 	// Code is the identifier for the UI.
 	Code FeeTargetCode
+
 	// FeeRatePerKb is the fee rate needed for this target. Can be nil until populated.
 	FeeRatePerKb *btcutil.Amount
 }
