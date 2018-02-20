@@ -57,7 +57,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
-	wallet.Wallet, err = btc.NewDeterministicWallet(
+	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
 		keystore,
 		electrumClient,

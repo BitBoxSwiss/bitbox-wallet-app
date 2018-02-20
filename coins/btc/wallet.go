@@ -37,7 +37,7 @@ const (
 	EventSyncDone Event = "syncdone"
 )
 
-// Interface is the API of a DeterministicWallet.
+// Interface is the API of a Wallet.
 type Interface interface {
 	Init()
 	Initialized() bool
@@ -103,8 +103,8 @@ type FeeTarget struct {
 	FeeRatePerKb *btcutil.Amount
 }
 
-// DeterministicWallet is a wallet whose addresses are derived from an xpub.
-type DeterministicWallet struct {
+// Wallet is a wallet whose addresses are derived from an xpub.
+type Wallet struct {
 	locker.Locker
 
 	net        *chaincfg.Params
@@ -124,14 +124,14 @@ type DeterministicWallet struct {
 	onEvent         func(Event)
 }
 
-// NewDeterministicWallet creats a new DeterministicWallet.
-func NewDeterministicWallet(
+// NewWallet creats a new Wallet.
+func NewWallet(
 	net *chaincfg.Params,
 	keystore HDKeyStoreInterface,
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
-) (*DeterministicWallet, error) {
+) (*Wallet, error) {
 	xpub := keystore.XPub()
 	if xpub.IsPrivate() {
 		return nil, errp.New("Extended key is private! Only public keys are accepted")
@@ -139,7 +139,7 @@ func NewDeterministicWallet(
 	if !xpub.IsForNet(net) {
 		return nil, errp.New("xpub does not match provided net")
 	}
-	wallet := &DeterministicWallet{
+	wallet := &Wallet{
 		net:        net,
 		keystore:   keystore,
 		blockchain: blockchain,
@@ -174,25 +174,25 @@ func NewDeterministicWallet(
 }
 
 // Init initializes the wallet.
-func (wallet *DeterministicWallet) Init() {
+func (wallet *Wallet) Init() {
 	wallet.updateFeeTargets()
 	wallet.ensureAddresses()
 }
 
 // Initialized indicates whether the wallet has loaded and finished the initial sync of the
 // addresses.
-func (wallet *DeterministicWallet) Initialized() bool {
+func (wallet *Wallet) Initialized() bool {
 	return wallet.initialSyncDone
 }
 
 // Close stops the wallet, including the blockchain connection.
-func (wallet *DeterministicWallet) Close() {
+func (wallet *Wallet) Close() {
 	wallet.blockchain.Close()
 	wallet.initialSyncDone = false
 	wallet.onEvent(EventStatusChanged)
 }
 
-func (wallet *DeterministicWallet) updateFeeTargets() {
+func (wallet *Wallet) updateFeeTargets() {
 	for _, feeTarget := range wallet.feeTargets {
 		func(feeTarget *FeeTarget) {
 			err := wallet.blockchain.EstimateFee(
@@ -213,16 +213,16 @@ func (wallet *DeterministicWallet) updateFeeTargets() {
 }
 
 // FeeTargets returns the fee targets and the default fee target.
-func (wallet *DeterministicWallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
+func (wallet *Wallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
 	return wallet.feeTargets, defaultFeeTarget
 }
 
 // Balance wraps transaction.Transactions.Balance()
-func (wallet *DeterministicWallet) Balance() *transactions.Balance {
+func (wallet *Wallet) Balance() *transactions.Balance {
 	return wallet.transactions.Balance()
 }
 
-func (wallet *DeterministicWallet) addresses(change bool) *addresses.AddressChain {
+func (wallet *Wallet) addresses(change bool) *addresses.AddressChain {
 	if change {
 		return wallet.changeAddresses
 	}
@@ -232,7 +232,7 @@ func (wallet *DeterministicWallet) addresses(change bool) *addresses.AddressChai
 // onAddressStatus is called when the staytus (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
-func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, status string) error {
+func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string) error {
 	if status == address.History.Status() {
 		// Address didn't change.
 		return nil
@@ -261,7 +261,7 @@ func (wallet *DeterministicWallet) onAddressStatus(address *addresses.Address, s
 // address chains to discover all funds, with respect to the gap limit. In the end, there are
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
-func (wallet *DeterministicWallet) ensureAddresses() {
+func (wallet *Wallet) ensureAddresses() {
 	defer wallet.Lock()()
 	syncSequence := func(change bool) error {
 		for _, address := range wallet.addresses(change).EnsureAddresses() {
@@ -281,7 +281,7 @@ func (wallet *DeterministicWallet) ensureAddresses() {
 	}
 }
 
-func (wallet *DeterministicWallet) subscribeAddress(address *addresses.Address) error {
+func (wallet *Wallet) subscribeAddress(address *addresses.Address) error {
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashSubscribe(
 		address.ScriptHash(),
@@ -291,12 +291,12 @@ func (wallet *DeterministicWallet) subscribeAddress(address *addresses.Address) 
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (wallet *DeterministicWallet) Transactions() []*transactions.TxInfo {
+func (wallet *Wallet) Transactions() []*transactions.TxInfo {
 	return wallet.transactions.Transactions(wallet.changeAddresses.Contains)
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.
-func (wallet *DeterministicWallet) GetUnusedReceiveAddress() btcutil.Address {
+func (wallet *Wallet) GetUnusedReceiveAddress() btcutil.Address {
 	wallet.synchronizer.WaitSynchronized()
 	defer wallet.RLock()()
 	return wallet.receiveAddresses.GetUnused().Address

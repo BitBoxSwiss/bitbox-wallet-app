@@ -32,7 +32,7 @@ func NewSendAmountAll() SendAmount {
 // newTx creates a new tx to the given recipient address. It also returns a set of used wallet
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
 // transaction.
-func (wallet *DeterministicWallet) newTx(
+func (wallet *Wallet) newTx(
 	address btcutil.Address, amount SendAmount, feeTargetCode FeeTargetCode) (
 	map[wire.OutPoint]*transactions.TxOut, *maketx.TxProposal, error) {
 
@@ -83,7 +83,7 @@ func (wallet *DeterministicWallet) newTx(
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
-func (wallet *DeterministicWallet) SendTx(
+func (wallet *Wallet) SendTx(
 	recipientAddress string,
 	amount SendAmount,
 	feeTargetCode FeeTargetCode) error {
@@ -110,7 +110,7 @@ func (wallet *DeterministicWallet) SendTx(
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in
 // the UI (the output amount and the fee).
-func (wallet *DeterministicWallet) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
+func (wallet *Wallet) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
 	btcutil.Amount, btcutil.Amount, error) {
 
 	// Dummy recipient, we won't sent the tx, just return the fee.

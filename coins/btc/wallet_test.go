@@ -21,7 +21,7 @@ type walletSuite struct {
 	keystoreMock   mocks.HDKeyStoreInterface
 	blockchainMock blockchainMock.InterfaceMock
 	onEvent        func(btc.Event)
-	wallet         *btc.DeterministicWallet
+	wallet         *btc.Wallet
 }
 
 func (s *walletSuite) SetupTest() {
@@ -36,7 +36,7 @@ func (s *walletSuite) SetupTest() {
 	}
 
 	s.keystoreMock.On("XPub").Return(xpub)
-	s.wallet, err = btc.NewDeterministicWallet(
+	s.wallet, err = btc.NewWallet(
 		s.net,
 		&s.keystoreMock,
 		&s.blockchainMock,

@@ -37,7 +37,7 @@ func NewDBBKeyStore(
 }
 
 // XPub returns the xpub of the account.
-// Implements deterministicwallet
+// Implements wallet
 func (keystore *DBBKeyStore) XPub() *hdkeychain.ExtendedKey {
 	return keystore.xpub
 }
