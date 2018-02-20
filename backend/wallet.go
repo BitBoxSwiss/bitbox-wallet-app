@@ -52,7 +52,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
-	keyStore, err := btc.NewRelativeKeyStore(backend.device, wallet.walletDerivationPath)
+	keyStore, err := newRelativeKeyStore(backend.device, wallet.walletDerivationPath)
 	if err != nil {
 		return err
 	}
