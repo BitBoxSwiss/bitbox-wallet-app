@@ -18,7 +18,7 @@ type walletSuite struct {
 	suite.Suite
 
 	net            *chaincfg.Params
-	keystoreMock   mocks.HDKeyStoreInterface
+	keyStoreMock   mocks.KeyStoreWithoutKeyDerivation
 	blockchainMock blockchainMock.InterfaceMock
 	onEvent        func(btc.Event)
 	wallet         *btc.Wallet
@@ -35,10 +35,10 @@ func (s *walletSuite) SetupTest() {
 		panic(err)
 	}
 
-	s.keystoreMock.On("XPub").Return(xpub)
+	s.keyStoreMock.On("XPub").Return(xpub)
 	s.wallet, err = btc.NewWallet(
 		s.net,
-		&s.keystoreMock,
+		&s.keyStoreMock,
 		&s.blockchainMock,
 		addresses.AddressTypeP2PKH,
 		s.onEvent,

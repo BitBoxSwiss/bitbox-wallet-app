@@ -9,7 +9,6 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/electrum"
-	"github.com/shiftdevices/godbb/coins/btc/keystore"
 )
 
 const (
@@ -53,13 +52,13 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
-	keystore, err := keystore.NewDBBKeyStore(backend.device, wallet.walletDerivationPath, wallet.net)
+	keyStore, err := btc.NewRelativeKeyStore(backend.device, wallet.walletDerivationPath)
 	if err != nil {
 		return err
 	}
 	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
-		keystore,
+		keyStore,
 		electrumClient,
 		wallet.addressType,
 		func(event btc.Event) {

@@ -102,7 +102,7 @@ func (wallet *Wallet) SendTx(
 	if err != nil {
 		return err
 	}
-	if err := SignTransaction(wallet.keystore, txProposal.Transaction, utxo); err != nil {
+	if err := SignTransaction(wallet.keyStore, txProposal.Transaction, utxo); err != nil {
 		return err
 	}
 	return wallet.blockchain.TransactionBroadcast(txProposal.Transaction)

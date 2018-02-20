@@ -13,7 +13,7 @@ import (
 // SignTransaction signs all inputs. It assumes all outputs spent belong to this
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func SignTransaction(
-	sign HDKeyStoreInterface,
+	keyStore KeyStoreWithoutKeyDerivation,
 	transaction *wire.MsgTx,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
 ) error {
@@ -47,7 +47,7 @@ func SignTransaction(
 		signatureHashes = append(signatureHashes, signatureHash)
 		keyPaths = append(keyPaths, spentOutput.Address.(*addresses.Address).KeyPath)
 	}
-	signatures, err := sign.Sign(signatureHashes, keyPaths)
+	signatures, err := keyStore.Sign(signatureHashes, keyPaths)
 	if err != nil {
 		return err
 	}

@@ -1,13 +1,10 @@
 package btc
 
 import (
-	"errors"
 	"log"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/hdkeychain"
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/blockchain"
@@ -36,25 +33,12 @@ type Interface interface {
 	GetUnusedReceiveAddress() btcutil.Address
 }
 
-// ErrUserAborted is returned when a signing operation is aborted by the user. See
-// HDKeyStoreInterface.
-var ErrUserAborted = errors.New("aborted")
-
-// HDKeyStoreInterface is the interface needed to sign hashes based on derivations from an xpub.
-//go:generate mockery -name HDKeyStoreInterface
-type HDKeyStoreInterface interface {
-	XPub() *hdkeychain.ExtendedKey
-	// Sign signs every hash with a private key at the corresponding keypath.
-	// If the user aborts the signing process, ErrUserAborted is returned.
-	Sign(hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
-}
-
 // Wallet is a wallet whose addresses are derived from an xpub.
 type Wallet struct {
 	locker.Locker
 
 	net        *chaincfg.Params
-	keystore   HDKeyStoreInterface
+	keyStore   KeyStoreWithoutKeyDerivation
 	blockchain blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
@@ -73,21 +57,19 @@ type Wallet struct {
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,
-	keystore HDKeyStoreInterface,
+	keyStore KeyStoreWithoutKeyDerivation,
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 ) (*Wallet, error) {
-	xpub := keystore.XPub()
+	xpub := keyStore.XPub()
+	xpub.SetNet(net)
 	if xpub.IsPrivate() {
 		return nil, errp.New("Extended key is private! Only public keys are accepted")
 	}
-	if !xpub.IsForNet(net) {
-		return nil, errp.New("xpub does not match provided net")
-	}
 	wallet := &Wallet{
 		net:        net,
-		keystore:   keystore,
+		keyStore:   keyStore,
 		blockchain: blockchain,
 
 		feeTargets: []*FeeTarget{
@@ -111,8 +93,8 @@ func NewWallet(
 	)
 	wallet.synchronizer = synchronizer
 	wallet.receiveAddresses = addresses.NewAddressChain(
-		wallet.keystore.XPub(), net, gapLimit, 0, addressType)
-	wallet.changeAddresses = addresses.NewAddressChain(wallet.keystore.XPub(), net, changeGapLimit, 1, addressType)
+		wallet.keyStore.XPub(), net, gapLimit, 0, addressType)
+	wallet.changeAddresses = addresses.NewAddressChain(wallet.keyStore.XPub(), net, changeGapLimit, 1, addressType)
 	wallet.transactions = transactions.NewTransactions(
 		net, synchronizer, blockchain)
 
