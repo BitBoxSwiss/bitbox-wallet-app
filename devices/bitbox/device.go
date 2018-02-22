@@ -30,6 +30,9 @@ type Event string
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged Event = "statusChanged"
+
+	// The amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
+	signatureBatchSize = 15
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
@@ -527,12 +530,16 @@ func (dbb *Device) LockBootloader() error {
 	return nil
 }
 
-// Sign returns signatures for the provided hashes. The private keys used to sign them are derived
-// using the provided keyPaths.
-func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+// signBatch signs a batch of at most 15 signatures. The method returns signatures for the provided hashes.
+// The private keys used to sign them are derived using the provided keyPaths.
+func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[string]interface{}, error) {
 	if len(signatureHashes) != len(keyPaths) {
-		panic("len of keyPaths must match len of signatureHashes")
+		panic("length of keyPaths must match length of signatureHashes")
 	}
+	if len(signatureHashes) > signatureBatchSize {
+		panic(fmt.Sprintf("only up to %d signature hashes can be signed in one batch", signatureBatchSize))
+	}
+
 	data := []map[string]string{}
 	for i, signatureHash := range signatureHashes {
 		data = append(data, map[string]string{
@@ -555,32 +562,54 @@ func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Si
 	if err != nil {
 		return nil, err
 	}
-	sigs, ok := reply["sign"].([]interface{})
-	if !ok {
-		return nil, errp.New("unexpected response")
+	return reply, nil
+}
+
+// Sign returns signatures for the provided hashes. The private keys used to sign them are derived
+// using the provided keyPaths.
+func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+	if len(signatureHashes) != len(keyPaths) {
+		panic("len of keyPaths must match len of signatureHashes")
+	}
+	if len(signatureHashes) == 0 {
+		panic("non-empty list of signature hashes and keypaths expected")
 	}
 	signatures := []btcec.Signature{}
-	for _, sig := range sigs {
-		sigMap, ok := sig.(map[string]interface{})
+	for i := 0; i < len(signatureHashes); i = i + signatureBatchSize {
+		upper := i + signatureBatchSize
+		if upper > len(signatureHashes) {
+			upper = len(signatureHashes)
+		}
+		reply, err := dbb.signBatch(signatureHashes[i:upper], keyPaths[i:upper])
+		if err != nil {
+			return nil, err
+		}
+		sigs, ok := reply["sign"].([]interface{})
 		if !ok {
 			return nil, errp.New("unexpected response")
 		}
-		hexSig, ok := sigMap["sig"].(string)
-		if !ok {
-			return nil, errp.New("unexpected response")
+		for _, sig := range sigs {
+			sigMap, ok := sig.(map[string]interface{})
+			if !ok {
+				return nil, errp.New("unexpected response")
+			}
+			hexSig, ok := sigMap["sig"].(string)
+			if !ok {
+				return nil, errp.New("unexpected response")
+			}
+			if len(hexSig) != 128 {
+				return nil, errp.New("unexpected response")
+			}
+			sigR, ok := big.NewInt(0).SetString(hexSig[:64], 16)
+			if !ok {
+				return nil, errp.New("unexpected response")
+			}
+			sigS, ok := big.NewInt(0).SetString(hexSig[64:], 16)
+			if !ok {
+				return nil, errp.New("unexpected response")
+			}
+			signatures = append(signatures, btcec.Signature{R: sigR, S: sigS})
 		}
-		if len(hexSig) != 128 {
-			return nil, errp.New("unexpected response")
-		}
-		sigR, ok := big.NewInt(0).SetString(hexSig[:64], 16)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		sigS, ok := big.NewInt(0).SetString(hexSig[64:], 16)
-		if !ok {
-			return nil, errp.New("unexpected response")
-		}
-		signatures = append(signatures, btcec.Signature{R: sigR, S: sigS})
 	}
 	return signatures, nil
 }
