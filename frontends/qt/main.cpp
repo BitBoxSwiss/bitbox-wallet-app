@@ -1,6 +1,10 @@
 #include <string>
 #include <QApplication>
 #include <QWebView>
+#include <QSslSocket>
+#include <QSsl>
+#include <QRegExp>
+#include <QSslCertificate>
 // #include <QNetworkAccessManager>
 // #include <QNetworkReply>
 
@@ -20,9 +24,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     int port = serve();
+    QSslSocket::addDefaultCaCertificates("config/server.pem", QSsl::Pem, QRegExp::Wildcard);
     QWebView view;
     view.show();
-    view.load(QUrl((std::string("http://localhost:") + std::to_string(port)).c_str()));
+    view.load(QUrl((std::string("https://localhost:") + std::to_string(port)).c_str()));
 
     // BridgedNetworkAccessManager bridgedNetworkAccessManager;
     // view.page()->setNetworkAccessManager(&bridgedNetworkAccessManager);
