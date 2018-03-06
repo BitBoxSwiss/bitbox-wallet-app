@@ -132,7 +132,9 @@ func (s *dbbTestSuite) TestSignZero() {
 	).
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
 		Twice()
-	s.dbb.Sign([][]byte{}, []string{})
+	// Return value can be ignored as the function panics.
+	_, _ = s.dbb.Sign([][]byte{}, []string{})
+
 }
 
 func (s *dbbTestSuite) TestSignSingle() {

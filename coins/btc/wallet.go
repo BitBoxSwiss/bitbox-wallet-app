@@ -81,7 +81,7 @@ func NewWallet(
 		initialSyncDone: false,
 		onEvent:         onEvent,
 	}
-	synchronizer := synchronizer.NewSynchronizer(
+	wallet.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
 		func() {
 			if !wallet.initialSyncDone {
@@ -91,10 +91,9 @@ func NewWallet(
 			onEvent(EventSyncDone)
 		},
 	)
-	wallet.synchronizer = synchronizer
 	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType)
 	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType)
-	wallet.transactions = transactions.NewTransactions(net, synchronizer, blockchain)
+	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain)
 
 	return wallet, nil
 }
