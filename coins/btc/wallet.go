@@ -92,11 +92,9 @@ func NewWallet(
 		},
 	)
 	wallet.synchronizer = synchronizer
-	wallet.receiveAddresses = addresses.NewAddressChain(
-		wallet.keyStore.XPub(), net, gapLimit, 0, addressType)
-	wallet.changeAddresses = addresses.NewAddressChain(wallet.keyStore.XPub(), net, changeGapLimit, 1, addressType)
-	wallet.transactions = transactions.NewTransactions(
-		net, synchronizer, blockchain)
+	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType)
+	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType)
+	wallet.transactions = transactions.NewTransactions(net, synchronizer, blockchain)
 
 	return wallet, nil
 }
