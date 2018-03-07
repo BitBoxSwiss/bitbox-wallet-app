@@ -33,6 +33,8 @@ func NewHandlers(
 	handleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
 	handleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
 	handleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
+	handleFunc("/bootloader/upgrade-firmware",
+		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
 
 	return handlers
 }
@@ -167,4 +169,8 @@ func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, 
 		return nil, err
 	}
 	return map[string]interface{}{"didReset": didReset}, nil
+}
+
+func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(r *http.Request) (interface{}, error) {
+	return nil, handlers.device.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
 }

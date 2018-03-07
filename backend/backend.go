@@ -212,8 +212,8 @@ func (backend *Backend) Register(device bitbox.Interface) error {
 					}
 				}()
 			}
-			backend.events <- deviceEvent{Type: "device", Data: string(event)}
 		}
+		backend.events <- deviceEvent{Type: "device", Data: string(event)}
 	})
 	select {
 	case backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}:

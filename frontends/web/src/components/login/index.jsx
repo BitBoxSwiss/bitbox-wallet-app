@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+
 import Dialog from '../dialog';
 
 import Button from 'preact-material-components/Button';

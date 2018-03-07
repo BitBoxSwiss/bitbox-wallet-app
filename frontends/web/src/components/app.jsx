@@ -8,6 +8,7 @@ import Header from './header';
 import Wallets from '../routes/wallet';
 import Options from '../routes/options';
 import Dialog from './dialog';
+import Bootloader from './bootloader';
 import Login from './login';
 import Seed from './seed';
 import Initialize from './initialize';
@@ -20,6 +21,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost, apiWebsocket } from '../util';
 
 const DeviceStatus = Object.freeze({
+    BOOTLOADER: "bootloader",
     INITIALIZED: "initialized",
     UNINITIALIZED: "uninitialized",
     LOGGED_IN: "logged_in",
@@ -91,6 +93,9 @@ export default class App extends Component {
                     this.onDeviceStatusChanged();
                     break;
                 }
+                if(this.onBootloaderEvent) {
+                    this.onBootloaderEvent(data);
+                }
                 break;
             }
         });
@@ -127,6 +132,10 @@ export default class App extends Component {
             );
         }
         switch(deviceStatus) {
+        case DeviceStatus.BOOTLOADER:
+            return <Bootloader
+            registerOnEvent={onEvent => {this.onBootloaderEvent = onEvent;}}
+                />;
         case DeviceStatus.INITIALIZED:
             return <Login/>;
         case DeviceStatus.UNINITIALIZED:
