@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 	"math/big"
 	"regexp"
 	"strings"
@@ -319,6 +320,13 @@ func (dbb *Device) Login(password string) (bool, string, error) {
 	dbb.password = password
 	dbb.seeded = deviceInfo.Seeded
 	dbb.onStatusChanged()
+
+	if !deviceInfo.Bootlock {
+		log.Printf("device bootloader is unlocked; locking now")
+		if err := dbb.LockBootloader(); err != nil {
+			return false, "", err
+		}
+	}
 	return false, "", nil
 }
 
