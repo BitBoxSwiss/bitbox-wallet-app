@@ -115,6 +115,16 @@ func (ks *SoftwareBasedKeyStore) Sign(signatureHashes [][]byte, keyPaths []strin
 	return signatures, nil
 }
 
+// LockBootloader is not supported.
+func (ks *SoftwareBasedKeyStore) LockBootloader() error {
+	panic("LockBootloader not supported.")
+}
+
+// UnlockBootloader is not supported.
+func (ks *SoftwareBasedKeyStore) UnlockBootloader() error {
+	panic("LockBootloader not supported.")
+}
+
 // DeviceID returns a pseudo device ID.
 func (ks *SoftwareBasedKeyStore) DeviceID() string {
 	return DeviceID
@@ -128,6 +138,11 @@ func (ks *SoftwareBasedKeyStore) SetOnEvent(listener func(bitbox.Event)) {
 // Status always returns that this fake BitBox is seeded.
 func (ks *SoftwareBasedKeyStore) Status() bitbox.Status {
 	return ks.status
+}
+
+// BootloaderStatus always returns an error (only firmware mode supported).
+func (ks *SoftwareBasedKeyStore) BootloaderStatus() (*bitbox.BootloaderStatus, error) {
+	return nil, errp.New("device is not in bootloader mode")
 }
 
 // Sets the status of the key store and notifies the listener if set.
@@ -201,4 +216,9 @@ func (ks *SoftwareBasedKeyStore) CreateBackup(string) error {
 // BackupList is not supported.
 func (ks *SoftwareBasedKeyStore) BackupList() ([]string, error) {
 	panic("BackupList not supported.")
+}
+
+// BootloaderUpgradeFirmware is not supported.
+func (ks *SoftwareBasedKeyStore) BootloaderUpgradeFirmware([]byte) error {
+	panic("BootloaderUpgradeFirmware not supported.")
 }

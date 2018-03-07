@@ -20,12 +20,16 @@ func NewHandlers(
 	handlers := &Handlers{}
 
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
+	handleFunc("/bootloader-status", handlers.getBootloaderStatusHandler).Methods("GET")
 	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
+	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
 	handleFunc("/reset", handlers.postResetDeviceHandler).Methods("POST")
 	handleFunc("/login", handlers.postLoginHandler).Methods("POST")
+	handleFunc("/lock-bootloader", handlers.postLockBootloaderHandler).Methods("POST")
+	handleFunc("/unlock-bootloader", handlers.postUnlockBootloaderHandler).Methods("POST")
 	handleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
 	handleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
 	handleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
@@ -72,8 +76,16 @@ func (handlers *Handlers) getDeviceStatusHandler(_ *http.Request) (interface{}, 
 	return handlers.device.Status(), nil
 }
 
+func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.BootloaderStatus()
+}
+
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.DeviceInfo()
+}
+
+func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
+	return "v" + bitbox.BundledFirmwareVersion().String(), nil
 }
 
 func maybeDBBErr(err error) map[string]interface{} {
@@ -110,6 +122,14 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postLockBootloaderHandler(r *http.Request) (interface{}, error) {
+	return nil, handlers.device.LockBootloader()
+}
+
+func (handlers *Handlers) postUnlockBootloaderHandler(r *http.Request) (interface{}, error) {
+	return nil, handlers.device.UnlockBootloader()
 }
 
 func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{}, error) {

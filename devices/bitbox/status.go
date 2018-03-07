@@ -4,6 +4,10 @@ package bitbox
 type Status string
 
 const (
+	// StatusBootloader means that the device is in bootloader mode, and the bootloader API can be
+	// used.
+	StatusBootloader Status = "bootloader"
+
 	// StatusUninitialized is the uninitialized device, i.e. unseeded and no password set.
 	// Use SetPassword() to proceed to StatusLoggedIn.
 	StatusUninitialized Status = "uninitialized"

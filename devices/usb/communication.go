@@ -126,6 +126,37 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	return data.Bytes(), nil
 }
 
+// SendBootloader sends a message in the format the bootloader expects and fetches the response.
+func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	const (
+		maxSendLen = 4098
+		maxReadLen = 256
+	)
+	if len(msg) > maxSendLen {
+		panic("message too long")
+	}
+	var buf bytes.Buffer
+	buf.WriteByte(0)
+	buf.Write(msg)
+	buf.Write(bytes.Repeat([]byte{0}, maxSendLen-len(msg)))
+	_, err := communication.device.Write(buf.Bytes())
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	var read bytes.Buffer
+	for read.Len() < maxReadLen {
+		currentRead := make([]byte, maxReadLen)
+		readLen, err := communication.device.Read(currentRead)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		read.Write(currentRead[:readLen])
+	}
+	return bytes.TrimRight(read.Bytes(), "\x00\t\r\n"), nil
+}
+
 // SendPlain sends an unecrypted message. The response is json-deserialized into a map.
 func (communication *Communication) SendPlain(msg string) (map[string]interface{}, error) {
 	communication.mutex.Lock()

@@ -54,6 +54,7 @@ func NewManager(
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
+	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
 		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
@@ -68,7 +69,12 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		return err
 	}
 
-	device, err := bitbox.NewDevice(deviceInfo.Path, firmwareVersion, NewCommunication(hidDevice))
+	device, err := bitbox.NewDevice(
+		deviceInfo.Path,
+		bootloader,
+		firmwareVersion,
+		NewCommunication(hidDevice),
+	)
 	if err != nil {
 		return err
 	}

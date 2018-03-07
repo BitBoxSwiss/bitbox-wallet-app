@@ -20,8 +20,8 @@ import (
 )
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 3)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 2)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
 )
 
 // Event instances are sent to the onEvent callback.
@@ -30,6 +30,9 @@ type Event string
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged Event = "statusChanged"
+
+	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status using BootloaderStatus().
+	EventBootloaderStatusChanged Event = "bootloaderStatusChanged"
 
 	// The amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
 	signatureBatchSize = 15
@@ -40,6 +43,7 @@ const (
 type CommunicationInterface interface {
 	SendPlain(string) (map[string]interface{}, error)
 	SendEncrypt(string, string) (map[string]interface{}, error)
+	SendBootloader([]byte) ([]byte, error)
 	Close()
 }
 
@@ -48,6 +52,7 @@ type Interface interface {
 	DeviceID() string
 	SetOnEvent(onEvent func(Event))
 	Status() Status
+	BootloaderStatus() (*BootloaderStatus, error)
 	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
 	CreateWallet(string) error
@@ -55,10 +60,13 @@ type Interface interface {
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
 	Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+	UnlockBootloader() error
+	LockBootloader() error
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string) error
 	BackupList() ([]string, error)
+	BootloaderUpgradeFirmware([]byte) error
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -82,7 +90,10 @@ type Device struct {
 	communication CommunicationInterface
 	onEvent       func(Event)
 
-	// If set, the device  is configured with a password.
+	// If set, the device is in bootloader mode.
+	bootloaderStatus *BootloaderStatus
+
+	// If set, the device is configured with a password.
 	initialized bool
 
 	// If set, the user is "logged in".
@@ -95,41 +106,59 @@ type Device struct {
 }
 
 // NewDevice creates a new instance of Device.
+// bootloader enables the bootloader API and should be true only if the device is in bootloader mode.
 // communication is used for transporting messages to/from the device.
-func NewDevice(deviceID string, firmwareVersion *semver.SemVer, communication CommunicationInterface) (*Device, error) {
-	if !firmwareVersion.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
-		return nil, errp.Newf("The firmware version '%s' is not supported.", firmwareVersion)
+func NewDevice(
+	deviceID string,
+	bootloader bool,
+	version *semver.SemVer,
+	communication CommunicationInterface) (*Device, error) {
+	if bootloader {
+		if !version.Between(lowestSupportedBootloaderVersion, lowestNonSupportedBootloaderVersion) {
+			return nil, errp.Newf("The bootloader version '%s' is not supported.", version)
+		}
+	} else {
+		if !version.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
+			return nil, errp.Newf("The firmware version '%s' is not supported.", version)
+		}
 	}
 
+	var bootloaderStatus *BootloaderStatus
+	if bootloader {
+		bootloaderStatus = &BootloaderStatus{}
+	}
 	device := &Device{
-		deviceID:      deviceID,
-		communication: communication,
-		onEvent:       nil,
+		deviceID:         deviceID,
+		bootloaderStatus: bootloaderStatus,
+		communication:    communication,
+		onEvent:          nil,
 
 		closed: false,
 	}
 
-	// Sleep a bit to wait for the device to initialize. Sending commands too early means the
-	// internal memory might not be initialized, and we run into the password retry check, requiring
-	// a long touch by the user.  TODO: fix in the firmware, then remove this sleep.
-	time.Sleep(1 * time.Second)
+	if !bootloader {
+		// Sleep a bit to wait for the device to initialize. Sending commands too early means the
+		// internal memory might not be initialized, and we run into the password retry check, requiring
+		// a long touch by the user.  TODO: fix in the firmware, then remove this sleep.
+		time.Sleep(1 * time.Second)
 
-	// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds, so
-	// repeat the command until it is ready.
-	var initialized bool
-	for i := 0; i < 20; i++ {
-		var err error
-		initialized, err = device.Ping()
-		if err != nil {
-			if dbbErr, ok := err.(*Error); ok && dbbErr.Code == ErrInitializing {
-				time.Sleep(500 * time.Millisecond)
-				continue
+		// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds, so
+		// repeat the command until it is ready.
+		var initialized bool
+		for i := 0; i < 20; i++ {
+			var err error
+			initialized, err = device.Ping()
+			if err != nil {
+				if dbbErr, ok := err.(*Error); ok && dbbErr.Code == ErrInitializing {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				return nil, err
 			}
-			return nil, err
+			break
 		}
-		break
+		device.initialized = initialized
 	}
-	device.initialized = initialized
 	return device, nil
 }
 
@@ -143,14 +172,21 @@ func (dbb *Device) SetOnEvent(onEvent func(Event)) {
 	dbb.onEvent = onEvent
 }
 
-func (dbb *Device) onStatusChanged() {
+func (dbb *Device) fireEvent(event Event) {
 	if dbb.onEvent != nil {
-		dbb.onEvent(EventStatusChanged)
+		dbb.onEvent(event)
 	}
+}
+
+func (dbb *Device) onStatusChanged() {
+	dbb.fireEvent(EventStatusChanged)
 }
 
 // Status returns the device state. See the Status* constants.
 func (dbb *Device) Status() Status {
+	if dbb.bootloaderStatus != nil {
+		return StatusBootloader
+	}
 	if dbb.seeded {
 		return StatusSeeded
 	}
@@ -528,6 +564,18 @@ func (dbb *Device) EraseBackup(filename string) error {
 	}
 	if reply["backup"] != "success" {
 		return errp.New("unexpected result")
+	}
+	return nil
+}
+
+// UnlockBootloader unlocks the bootloader.
+func (dbb *Device) UnlockBootloader() error {
+	reply, err := dbb.sendKV("bootloader", "unlock", dbb.password)
+	if err != nil {
+		return err
+	}
+	if val, ok := reply["bootloader"].(string); !ok || val != "unlock" {
+		return errp.New("unexpected reply")
 	}
 	return nil
 }
