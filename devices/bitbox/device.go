@@ -287,12 +287,22 @@ func stretchKey(key string) string {
 		iterations = 20480
 		keylen     = 64
 	)
-	return hex.EncodeToString(pbkdf2.Key(
+	first := hex.EncodeToString(pbkdf2.Key(
 		[]byte(key),
 		[]byte("Digital Bitbox"),
 		iterations,
 		keylen,
 		sha512.New))
+	second := hex.EncodeToString(pbkdf2.Key(
+		[]byte(key),
+		[]byte("Digital Bitbox"),
+		iterations,
+		keylen,
+		sha512.New))
+	if first != second {
+		panic("memory error")
+	}
+	return first
 }
 
 func (dbb *Device) seed(devicePassword, backupPassword, source, filename string) error {
