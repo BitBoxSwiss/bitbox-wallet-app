@@ -7,3 +7,4 @@
 /frontends/web/node_modules/
 /vendor/
 config/certificates/frontend/
+/devices/bitbox/assets.go
