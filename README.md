@@ -80,25 +80,41 @@ the docker image.
 
 ## Development Workflow
 
-I develop the UI inside Chromium, for quick development and its devtools, even if the final app is
-compiled into a standalone app.
 
-To do this, I run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a
+### Local Development
+
+Run `make servewallet` and `make webdev` in seperate terminals (screen or tmux recommended!),
+
+#### Watch and build the UI
+
+Run `make webdev` to develop the UI inside Chromium (for quick development, automatic rebuilds
+and devtools). This serves the UI on [localhost:8080](http://localhost:8080). Changes to the web
+code in  `frontends/web/src` are automatically detected and rebuilt.
+
+#### Run the HTTP API
+
+Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a
 devtool which serves the HTTP API.
 
-In a different terminal (screen or tmux recommended!), I run `make webdev` to serve the UI on
-[localhost:8080](http://localhost:8080). Changes to the web code in `frontends/web/` is
-automatically reloaded by this, also for quick development.
+
+### Production build
+
+To build the standalone desktop app, run `make qt`.
+
+### CI
+
+Run `make ci` to run all static analysis tools and tests.
+
+### Build the UI
 
 To statically compile the UI, run `make generate` again, which compiles the web ui into a compact
-bundle. Go will then compile the bundle into the static static library/binary. This step only needs
+bundle.
+
+Go will then compile the bundle into the static static library/binary. This step only needs
 to be done before compiling for deployment. You can check the result by running `make servewallet`
 and visiting [localhost:8082](http://localhost:8082), which is the port on which it serves the
 static content.
 
-To build the standalone desktop app, run `make qt`.
-
-Run `make ci` to run all static analysis tools and tests.
 
 ## Develop using Docker
 
