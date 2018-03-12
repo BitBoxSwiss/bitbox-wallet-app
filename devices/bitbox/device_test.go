@@ -63,7 +63,7 @@ func jsonArgumentMatcher(expected map[string]interface{}) interface{} {
 	})
 }
 
-func assertPanicWithMessage(s *dbbTestSuite, expectedError string) {
+func AssertPanicWithMessage(s *dbbTestSuite, expectedError string) {
 	r := recover()
 	if r == nil {
 		s.T().Errorf("The code did not panic")
@@ -116,7 +116,7 @@ func (s *dbbTestSuite) TestSignZero() {
 	const expectedError = "non-empty list of signature hashes and keypaths expected"
 
 	// the following function is called upon panic()
-	defer assertPanicWithMessage(s, expectedError)
+	defer AssertPanicWithMessage(s, expectedError)
 
 	signatureHash := []byte{0, 0, 0, 0, 0}
 	keyPath := "m/44'/0'/1'/0"
