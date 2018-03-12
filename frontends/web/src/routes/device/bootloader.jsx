@@ -1,11 +1,11 @@
 import { Component } from 'preact';
 
-import Dialog from '../dialog';
+import Dialog from '../../components/dialog/dialog';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
-import { apiGet, apiPost } from '../../util';
+import { apiGet, apiPost } from '../../utils/request';
 
 export default class Bootloader extends Component {
     constructor(props) {

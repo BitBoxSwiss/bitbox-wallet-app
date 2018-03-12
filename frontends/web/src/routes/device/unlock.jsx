@@ -1,6 +1,5 @@
 import { Component } from 'preact';
-
-import Dialog from '../dialog';
+import Dialog from '../../components/dialog/dialog';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
@@ -8,11 +7,11 @@ import 'preact-material-components/Button/style.css';
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
-import LanguageSwitcher from '../language-switcher';
+import LanguageSwitcher from '../settings/components/language-switch';
 
 import { translate } from 'react-i18next';
 
-import { apiPost } from '../../util';
+import { apiPost } from '../../utils/request';
 
 @translate()
 export default class Login extends Component {

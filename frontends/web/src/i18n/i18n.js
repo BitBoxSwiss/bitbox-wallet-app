@@ -1,8 +1,8 @@
 import i18n from 'i18next';
 import { reactI18nextModule } from 'react-i18next';
-import { appTranslations as appTranslationsDE } from './locale/de';
-import { appTranslations as appTranslationsEN } from './locale/en';
-import { userLanguage } from './util';
+import { appTranslations as appTranslationsDE } from './de';
+import { appTranslations as appTranslationsEN } from './en';
+import { userLanguage } from '../utils/config';
 
 i18n
     .init({

@@ -1,15 +1,15 @@
 import { Component } from 'preact';
-import Dialog from '../dialog';
-import { PasswordRepeatInput } from '../password';
+import Dialog from '../../components/dialog/dialog';
+import { PasswordRepeatInput } from '../../components/password';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
-import LanguageSwitcher from '../language-switcher';
+import LanguageSwitcher from '../settings/components/language-switch';
 
 import { translate } from 'react-i18next';
 
-import { apiPost } from '../../util';
+import { apiPost } from '../../utils/request';
 
 @translate()
 export default class Initialize extends Component {

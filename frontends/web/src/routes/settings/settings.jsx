@@ -6,12 +6,12 @@ import 'preact-material-components/Button/style.css';
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
 
-import WaitDialog from '../../components/wait-dialog';
+import WaitDialog from '../../components/wait-dialog/wait-dialog';
 
 import { Link } from 'preact-router/match';
 import { Router } from 'preact-router';
 
-import { apiGet, apiPost } from '../../util';
+import { apiGet, apiPost } from '../../utils/request';
 
 class ResetButton extends Component {
     resetDevice = () => {

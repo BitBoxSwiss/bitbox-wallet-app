@@ -1,12 +1,14 @@
+// TODO: temporary moved into components so styled-modules work again
+
 import { Component } from 'preact';
 import { Link } from 'preact-router/match';
 import style from './style';
 
 import { translate } from 'react-i18next';
 
-import LanguageSwitcher from '../language-switcher';
+import LanguageSwitcher from '../../routes/settings/components/language-switch';
 
-import { apiGet, apiPost } from '../../util';
+import { apiGet, apiPost } from '../../utils/request';
 
 @translate()
 export default class Header extends Component {

@@ -1,14 +1,14 @@
 import { Component } from 'preact';
-import Dialog from '../dialog';
+import Dialog from '../../components/dialog/dialog';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
-import ManageBackups from '../manage-backups';
+import ManageBackups from '../../routes/device/manage-backups/manage-backups';
 
-import { apiPost } from '../../util';
+import { apiPost } from '../../utils/request';
 
 export default class Seed extends Component {
     stateEnum = Object.freeze({

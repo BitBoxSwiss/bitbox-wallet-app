@@ -1,24 +1,18 @@
 import { Component } from 'preact';
-import { Router } from 'preact-router';
+import { translate } from 'react-i18next';
 
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
-import Header from './header';
-import Wallets from '../routes/wallet';
-import Options from '../routes/options';
-import Dialog from './dialog';
-import Bootloader from './bootloader';
-import Login from './login';
-import Seed from './seed';
-import Initialize from './initialize';
-import ManageBackups from './manage-backups';
+import Dialog from './components/dialog/dialog';
+import Bootloader from './routes/device/bootloader';
+import Login from './routes/device/unlock';
+import Seed from './routes/device/seed';
+import Initialize from './routes/device/initialize';
 
-import style from './style';
+import Routes from './routes';
 
-import { translate } from 'react-i18next';
-
-import { apiGet, apiPost, apiWebsocket } from '../util';
+import { apiGet, apiPost, apiWebsocket } from './utils/request';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: "bootloader",
@@ -27,31 +21,6 @@ const DeviceStatus = Object.freeze({
     LOGGED_IN: "logged_in",
     SEEDED: "seeded"
 });
-
-class Seeded extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    render({ registerOnWalletEvent }) {
-        return (
-            <div class={style.container}>
-              <Header/>
-              <Router onChange={this.handleRoute}>
-                <Wallets
-                  path="/"
-                  registerOnWalletEvent={registerOnWalletEvent}
-                  />
-                <Options path="/options/"/>
-                <ManageBackups
-                  path="/manage-backups"
-                  showCreate={true}
-                  />
-              </Router>
-            </div>
-        );
-    }
-}
 
 @translate()
 export default class App extends Component {
@@ -153,7 +122,7 @@ export default class App extends Component {
         case DeviceStatus.LOGGED_IN:
             return <Seed/>;
         case DeviceStatus.SEEDED:
-            return <Seeded
+            return <Routes
             registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
                 />;
         };

@@ -14,10 +14,10 @@ import 'preact-material-components/Select/style.css';
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
-import WaitDialog from '../../components/wait-dialog';
-import { PasswordRepeatInput } from '../password';
+import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import { PasswordRepeatInput } from '../../../components/password';
 
-import { apiGet, apiPost } from '../../util';
+import { apiGet, apiPost } from '../../../utils/request';
 
 import style from './style';
 

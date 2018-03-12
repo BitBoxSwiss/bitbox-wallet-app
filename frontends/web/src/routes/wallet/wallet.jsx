@@ -18,14 +18,14 @@ import Checkbox from 'preact-material-components/Checkbox';
 import Formfield from 'preact-material-components/Formfield';
 import 'preact-material-components/Checkbox/style.css';
 
-import WaitDialog from '../../components/wait-dialog';
+import WaitDialog from '../../components/wait-dialog/wait-dialog';
 
 import List from 'preact-material-components/List';
 import 'preact-material-components/List/style.css';
 
 import { translate } from 'react-i18next';
 
-import { apiURL, apiGet, apiPost } from '../../util';
+import { apiURL, apiGet, apiPost } from '../../utils/request';
 
 class FeeTargets extends Component {
     constructor(props) {
