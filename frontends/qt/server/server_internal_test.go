@@ -45,11 +45,21 @@ func (s *serverTestSuite) TestNewCertificate() {
 func (s *serverTestSuite) TestSavingCertAsPEM() {
 	privateKey, _ := generateRSAPrivateKey()
 	certificate, _ := createSelfSignedCertificate(privateKey)
-	err := saveAsPEM("cert_test.pem", derToPem("CERTIFICATE", certificate))
+	f, err := ioutil.TempFile(".", "cert_test.pem")
 	require.NoError(s.T(), err)
-	_, err = os.Stat("cert_test.pem")
+	temporaryFile := f.Name()
+	defer func() {
+		if _, err = os.Stat(temporaryFile); !os.IsNotExist(err) {
+			require.NoError(s.T(), err)
+			err = os.Remove(temporaryFile)
+			require.NoError(s.T(), err)
+		}
+	}()
+	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate))
 	require.NoError(s.T(), err)
-	pemBytes, err := ioutil.ReadFile("cert_test.pem")
+	_, err = os.Stat(f.Name())
+	require.NoError(s.T(), err)
+	pemBytes, err := ioutil.ReadFile(f.Name())
 	require.NoError(s.T(), err)
 	pemBlock, rest := pem.Decode(pemBytes)
 	require.NotNil(s.T(), pemBlock)

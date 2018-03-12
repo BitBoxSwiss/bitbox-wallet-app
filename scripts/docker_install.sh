@@ -15,7 +15,10 @@ apt-get install -y --no-install-recommends \
     sudo \
     less \
     net-tools \
-    nodejs
+    nodejs \
+    g++ \
+    qt5-default \
+    libqt5webkit5-de
 
 npm install -g yarn
 

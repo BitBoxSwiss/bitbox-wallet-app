@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     int port = serve();
-    QSslSocket::addDefaultCaCertificates("config/server.pem", QSsl::Pem, QRegExp::Wildcard);
+    QSslSocket::addDefaultCaCertificates("config/certificates/frontend/server.pem", QSsl::Pem, QRegExp::Wildcard);
     QWebView view;
     view.show();
     view.load(QUrl((std::string("https://localhost:") + std::to_string(port)).c_str()));

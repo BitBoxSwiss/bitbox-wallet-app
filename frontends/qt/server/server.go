@@ -27,7 +27,7 @@ const (
 	// RSA key size.
 	rsaBits = 2048
 	// Name of the server certificate
-	tlsServerCertificate = "config/server.pem"
+	tlsServerCertificate = "config/certificates/frontend/server.pem"
 )
 
 // generateRSAPrivateKey generates an RSA key pair and wraps it in the type rsa.PrivateKey.
