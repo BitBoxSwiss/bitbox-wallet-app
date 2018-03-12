@@ -6,3 +6,4 @@
 /frontends/web/build/
 /frontends/web/node_modules/
 /vendor/
+config/certificates/frontend/

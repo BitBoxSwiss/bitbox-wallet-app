@@ -2,7 +2,9 @@ package electrum
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"io"
+	"log"
 	"net"
 
 	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
@@ -16,9 +18,15 @@ func newTCPConnection(address string) (net.Conn, error) {
 }
 
 func newTLSConnection(address string) (*tls.Conn, error) {
+	caCertPool := x509.NewCertPool()
+	// Load CA cert
+	caCert, err := Asset("../../../config/certificates/electrumx/dev/ca.cert.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	caCertPool.AppendCertsFromPEM(caCert)
 	conn, err := tls.Dial("tcp", address, &tls.Config{
-		// TODO: connect securely
-		InsecureSkipVerify: true,
+		RootCAs: caCertPool,
 	})
 	return conn, errp.WithStack(err)
 }

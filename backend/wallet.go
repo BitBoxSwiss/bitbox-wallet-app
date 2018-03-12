@@ -13,10 +13,10 @@ import (
 
 const (
 	// dev server for now
-	electrumServerBitcoinTestnet  = "176.9.28.202:51002"
-	electrumServerBitcoinMainnet  = "176.9.28.202:50002"
-	electrumServerLitecoinTestnet = "176.9.28.202:51004"
-	electrumServerLitecoinMainnet = "176.9.28.202:50004"
+	electrumServerBitcoinTestnet  = "dev.shiftcrypto.ch:51002"
+	electrumServerBitcoinMainnet  = "dev.shiftcrypto.ch:50002"
+	electrumServerLitecoinTestnet = "dev.shiftcrypto.ch:51004"
+	electrumServerLitecoinMainnet = "dev.shiftcrypto.ch:50004"
 )
 
 // Wallet wraps a wallet of a specific coin identified by Code.

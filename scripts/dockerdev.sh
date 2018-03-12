@@ -19,6 +19,7 @@ dockerdev () {
            --privileged -v /dev/bus/usb:/dev/bus/usb \
            --interactive --tty \
            --name=$container_name -p 8080:8080 -p 8082:8082 \
+           --add-host="dev.shiftcrypto.ch:176.9.28.202" \
            -v $repo_path:/opt/go/src/github.com/shiftdevices/godbb \
            godbb bash
 

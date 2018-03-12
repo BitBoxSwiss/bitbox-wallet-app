@@ -72,11 +72,29 @@ txindex=1
 ElectrumX can can be run like this (similar settings for mainnet and other coins):
 
 ```sh
-docker run -v /home/<user>/.electrumx-btc-testnet:/data -e DAEMON_URL="<rpcuser>:<rpspassword>@<host-ip>:18332" -e COIN=BitcoinSegwit -e NET=testnet -e RPC_PORT=18002 -e PEER_DISCOVERY= -e HOST=0.0.0.0 -e RPC_HOST=0.0.0.0 -e TCP_PORT=51001 -e SSL_PORT=51002 -p 51002:51002 -p 18002:18002 lukechilds/electrumx
+docker run -v /home/<user>/.electrumx-btc-testnet:/data -e DAEMON_URL="<rpcuser>:<rpspassword>@<host-ip>:18332" -e COIN=BitcoinSegwit -e NET=testnet -e RPC_PORT=18002 -e PEER_DISCOVERY= -e HOST=0.0.0.0 -e RPC_HOST=0.0.0.0 -e TCP_PORT=51001 -e SSL_PORT=51002 -e SSL_CERTFILE="/data/btc_testnet.cert.pem" -e SSL_KEYFILE="/data/btc_testnet_plain.key.pem" -p 51002:51002 -p 18002:18002 lukechilds/electrumx
 ```
 
 `<host-ip>` should be the IP of your machine (check `ip addr`), not `localhost`, as that refers to
 the docker image.
+
+We are currently using our development server to host the ElectrumX servers. Running your own node 
+would require that you change the TLS root certificate currently located under 
+`config/certificates/electrumx/dev/ca.cert.pem`. 
+
+Additionally, you have to create a new `assets.go` file in the `coins/btc/electrum` directory. You can do so by changing into
+the directory and executing:
+```
+go-bindata -o assets.go -pkg electrum ../../../config/certificates/electrumx/dev/ca.cert.pem
+```
+
+However, to save you the effort, we recommend to not host your own ElectrumX servers.
+
+The godbb app connects to the server `dev.shiftcrypto.ch`, which at the moment, requires that you add the following line to your `/etc/hosts` file:
+
+```
+176.9.28.202	dev.shiftcrypto.ch
+```
 
 ## Development Workflow
 
