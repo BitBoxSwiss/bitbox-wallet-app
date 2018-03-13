@@ -31,6 +31,8 @@ type Interface interface {
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
 	Start() <-chan interface{}
+	Register(device bitbox.Interface) error
+	Deregister(deviceID string)
 }
 
 type deviceEvent struct {
@@ -194,7 +196,8 @@ func (backend *Backend) uninitWallets() {
 	}
 }
 
-func (backend *Backend) register(device bitbox.Interface) error {
+// Register registers the given device at this backend.
+func (backend *Backend) Register(device bitbox.Interface) error {
 	backend.device = device
 	backend.onDeviceInit(device)
 	backend.device.SetOnEvent(func(event bitbox.Event) {
@@ -219,7 +222,8 @@ func (backend *Backend) register(device bitbox.Interface) error {
 	return nil
 }
 
-func (backend *Backend) unregister(deviceID string) {
+// Deregister deregisters the device with the given ID from this backend.
+func (backend *Backend) Deregister(deviceID string) {
 	if deviceID == backend.device.DeviceID() {
 		backend.device = nil
 		backend.onDeviceUninit()
@@ -229,5 +233,5 @@ func (backend *Backend) unregister(deviceID string) {
 }
 
 func (backend *Backend) listenHID() {
-	usb.NewManager(backend.register, backend.unregister).ListenHID()
+	usb.NewManager(backend.Register, backend.Deregister).ListenHID()
 }

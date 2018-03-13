@@ -66,6 +66,8 @@ func NewHandlers(
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
+	devicesRouter("/test/register", handlers.registerTestKeyStore).Methods("POST")
+	devicesRouter("/test/deregister", handlers.deregisterTestKeyStore).Methods("POST")
 
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 	for _, wallet := range theBackend.Wallets() {
@@ -148,6 +150,19 @@ func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.DeviceRegistered(), nil
+}
+
+func (handlers *Handlers) registerTestKeyStore(_ *http.Request) (interface{}, error) {
+	keyStore, err := backend.NewSoftwareBasedKeyStore()
+	if err != nil {
+		return nil, err
+	}
+	return nil, handlers.backend.Register(keyStore)
+}
+
+func (handlers *Handlers) deregisterTestKeyStore(_ *http.Request) (interface{}, error) {
+	handlers.backend.Deregister(backend.DeviceID)
+	return true, nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
