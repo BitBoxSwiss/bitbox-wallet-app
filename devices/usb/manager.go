@@ -31,14 +31,14 @@ func DeviceInfos() []hid.DeviceInfo {
 type Manager struct {
 	device *bitbox.Device
 
-	onRegister   func(*bitbox.Device) error
+	onRegister   func(bitbox.Interface) error
 	onUnregister func(string)
 }
 
 // NewManager creates a new Manager. onRegister is called when a device has been
 // inserted. onUnregister is called when the device has been removed.
 func NewManager(
-	onRegister func(*bitbox.Device) error,
+	onRegister func(bitbox.Interface) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{

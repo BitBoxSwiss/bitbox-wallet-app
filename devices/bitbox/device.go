@@ -45,12 +45,16 @@ type CommunicationInterface interface {
 
 // Interface is the API of a Device
 type Interface interface {
+	DeviceID() string
+	SetOnEvent(onEvent func(Event))
 	Status() Status
 	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
 	CreateWallet(string) error
 	Login(string) (bool, string, error)
 	Reset() (bool, error)
+	XPub(path string) (*hdkeychain.ExtendedKey, error)
+	Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string) error
@@ -418,8 +422,8 @@ func (dbb *Device) CreateBackup(backupName string) error {
 }
 
 // Blink flashes the LED.
-func (dbb *Device) Blink(password string) error {
-	_, err := dbb.sendKV("led", "abort", password)
+func (dbb *Device) Blink() error {
+	_, err := dbb.sendKV("led", "abort", dbb.password)
 	return err
 }
 

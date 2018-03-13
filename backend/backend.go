@@ -50,7 +50,7 @@ type walletEvent struct {
 type Backend struct {
 	events chan interface{}
 
-	device         *bitbox.Device
+	device         bitbox.Interface
 	onWalletInit   func(*Wallet)
 	onWalletUninit func(*Wallet)
 	onDeviceInit   func(bitbox.Interface)
@@ -194,7 +194,7 @@ func (backend *Backend) uninitWallets() {
 	}
 }
 
-func (backend *Backend) register(device *bitbox.Device) error {
+func (backend *Backend) register(device bitbox.Interface) error {
 	backend.device = device
 	backend.onDeviceInit(device)
 	backend.device.SetOnEvent(func(event bitbox.Event) {
