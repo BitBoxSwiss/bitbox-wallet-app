@@ -1,5 +1,9 @@
 import { Component } from 'preact';
 import { Router } from 'preact-router';
+
+import Button from 'preact-material-components/Button';
+import 'preact-material-components/Button/style.css';
+
 import Header from './header';
 import Wallets from '../routes/wallet';
 import Options from '../routes/options';
@@ -13,7 +17,7 @@ import style from './style';
 
 import { translate } from 'react-i18next';
 
-import { apiGet, apiWebsocket } from '../util';
+import { apiGet, apiPost, apiWebsocket } from '../util';
 
 const DeviceStatus = Object.freeze({
     INITIALIZED: "initialized",
@@ -110,9 +114,16 @@ export default class App extends Component {
     render({}, { deviceRegistered, deviceStatus }) {
         if(!deviceRegistered || !deviceStatus) {
             return (
-                <Dialog>
-                  Waiting for device...
-                </Dialog>
+                <div style="text-align: center;">
+                    <div style="margin: 30px;">
+                        <Dialog>
+                            Waiting for device...
+                        </Dialog>
+                    </div>
+                    <Button primary={true} raised={true} onClick={()=>{
+                        apiPost("devices/test/register");
+                    }}>Skip for Testing</Button>
+                </div>
             );
         }
         switch(deviceStatus) {
