@@ -139,10 +139,16 @@ func (ks *SoftwareBasedKeyStore) setStatus(status bitbox.Status) {
 }
 
 // Login accepts any password and unlocks this key store.
-func (ks *SoftwareBasedKeyStore) Login(password string) (bool, string, error) {
+func (ks *SoftwareBasedKeyStore) Login(_ string) (bool, string, error) {
 	fmt.Println("Unlocking the software-based key store.")
 	ks.setStatus(bitbox.StatusSeeded)
 	return false, "", nil
+}
+
+// Logout locks this key store again.
+func (ks *SoftwareBasedKeyStore) Logout() {
+	fmt.Println("Locking the software-based key store.")
+	ks.setStatus(bitbox.StatusInitialized)
 }
 
 // DeviceInfo is not supported.
