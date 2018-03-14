@@ -24,7 +24,9 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	caCertPool.AppendCertsFromPEM(caCert)
+	if ok := caCertPool.AppendCertsFromPEM(caCert); !ok {
+		panic("could not add cert")
+	}
 	conn, err := tls.Dial("tcp", address, &tls.Config{
 		RootCAs: caCertPool,
 	})
