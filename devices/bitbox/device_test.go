@@ -9,7 +9,9 @@ import (
 
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/bitbox/mocks"
+	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -29,9 +31,12 @@ type dbbTestSuite struct {
 	suite.Suite
 	mockCommunication *mocks.CommunicationInterface
 	dbb               *bitbox.Device
+
+	logEntry *logrus.Entry
 }
 
 func (s *dbbTestSuite) SetupTest() {
+	s.logEntry = logging.Log.WithGroup("bitbox_test")
 	s.mockCommunication = new(mocks.CommunicationInterface)
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).
@@ -68,9 +73,9 @@ func AssertPanicWithMessage(s *dbbTestSuite, expectedError string) {
 	if r == nil {
 		s.T().Errorf("The code did not panic")
 	}
-	errorMsg := r.(string)
-	if errorMsg != expectedError {
-		s.T().Errorf("Did not fail with expected error message: \nWas:      '%v', \nExpected: '%v'.", errorMsg, expectedError)
+	errorMsg := r.(*logrus.Entry)
+	if errorMsg.Message != expectedError {
+		s.T().Errorf("Did not fail with expected error message: \nWas:      '%v', \nExpected: '%v'.", errorMsg.Message, expectedError)
 	}
 }
 
@@ -113,7 +118,7 @@ func (s *dbbTestSuite) TestCreateWallet() {
 func (s *dbbTestSuite) TestSignZero() {
 	require.NoError(s.T(), s.login())
 
-	const expectedError = "non-empty list of signature hashes and keypaths expected"
+	const expectedError = "Non-empty list of signature hashes and keypaths expected"
 
 	// the following function is called upon panic()
 	defer AssertPanicWithMessage(s, expectedError)

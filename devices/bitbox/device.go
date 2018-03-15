@@ -6,17 +6,19 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/big"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/shiftdevices/godbb/util/logging"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -103,7 +105,8 @@ type Device struct {
 	// If set, the device contains a wallet.
 	seeded bool
 
-	closed bool
+	closed   bool
+	logEntry *logrus.Entry
 }
 
 // NewDevice creates a new instance of Device.
@@ -123,6 +126,8 @@ func NewDevice(
 			return nil, errp.Newf("The firmware version '%s' is not supported.", version)
 		}
 	}
+	logEntry := logging.Log.WithGroup("device").WithField("deviceID", deviceID)
+	logEntry.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
 
 	var bootloaderStatus *BootloaderStatus
 	if bootloader {
@@ -134,7 +139,8 @@ func NewDevice(
 		communication:    communication,
 		onEvent:          nil,
 
-		closed: false,
+		closed:   false,
+		logEntry: logEntry,
 	}
 
 	if !bootloader {
@@ -161,6 +167,7 @@ func NewDevice(
 			break
 		}
 		device.initialized = initialized
+		logEntry.WithFields(logrus.Fields{"deviceID": deviceID, "initialized": initialized}).Debug("Device initialization status")
 	}
 	return device, nil
 }
@@ -190,6 +197,8 @@ func (dbb *Device) Status() Status {
 	if dbb.bootloaderStatus != nil {
 		return StatusBootloader
 	}
+	defer dbb.logEntry.WithFields(logrus.Fields{"deviceID": dbb.deviceID, "seeded": dbb.seeded,
+		"password-set": (dbb.password != ""), "initialized": dbb.initialized}).Debug("Device status")
 	if dbb.seeded {
 		return StatusSeeded
 	}
@@ -204,6 +213,7 @@ func (dbb *Device) Status() Status {
 
 // Close closes the HID device.
 func (dbb *Device) Close() {
+	dbb.logEntry.WithFields(logrus.Fields{"deviceID": dbb.deviceID}).Debug("Close connection")
 	dbb.communication.Close()
 	dbb.closed = true
 }
@@ -236,38 +246,50 @@ func (dbb *Device) deviceInfo(password string) (*DeviceInfo, error) {
 		return nil, errp.New("unexpected reply")
 	}
 	if deviceInfo.Serial, ok = device["serial"].(string); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("serial", deviceInfo.Serial)
 		return nil, errp.New("no serial")
 	}
 	if deviceInfo.ID, ok = device["id"].(string); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("id", deviceInfo.ID)
 		return nil, errp.New("no id")
 	}
 	if deviceInfo.TFA, ok = device["TFA"].(string); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("TFA", deviceInfo.TFA)
 		return nil, errp.New("no TFA")
 	}
 	if deviceInfo.Bootlock, ok = device["bootlock"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("bootlock", deviceInfo.Bootlock)
 		return nil, errp.New("no bootlock")
 	}
 	if deviceInfo.Name, ok = device["name"].(string); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("name", deviceInfo.Name)
 		return nil, errp.New("device name")
 	}
 	if deviceInfo.SDCard, ok = device["sdcard"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("sdcard", deviceInfo.SDCard)
 		return nil, errp.New("SD card")
 	}
 	if deviceInfo.Lock, ok = device["lock"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("lock", deviceInfo.Lock)
 		return nil, errp.New("lock")
 	}
 	if deviceInfo.U2F, ok = device["U2F"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("U2F", deviceInfo.U2F)
 		return nil, errp.New("U2F")
 	}
 	if deviceInfo.U2FHijack, ok = device["U2F_hijack"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("U2F_hijack", deviceInfo.U2FHijack)
 		return nil, errp.New("U2F_hijack")
 	}
 	if deviceInfo.Version, ok = device["version"].(string); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("version", deviceInfo.Version)
 		return nil, errp.New("version")
 	}
 	if deviceInfo.Seeded, ok = device["seeded"].(bool); !ok {
+		dbb.logEntry = dbb.logEntry.WithField("seeded", deviceInfo.Seeded)
 		return nil, errp.New("version")
 	}
+	dbb.logEntry.Debug("Device info")
 	return deviceInfo, nil
 }
 
@@ -283,7 +305,9 @@ func (dbb *Device) Ping() (bool, error) {
 		return false, err
 	}
 	ping, ok := reply["ping"].(string)
-	return ok && ping == "password", nil
+	initialized := ok && ping == "password"
+	dbb.logEntry.WithField("ping", ping).Debug("Ping")
+	return initialized, nil
 }
 
 // SetPassword defines a password for the device. This only works on a fresh device. If a password
@@ -291,11 +315,12 @@ func (dbb *Device) Ping() (bool, error) {
 func (dbb *Device) SetPassword(password string) error {
 	reply, err := dbb.sendPlain("password", password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to set password")
 	}
 	if reply["password"] != "success" {
-		return errp.New("unexpected reply")
+		return errp.New("Unexpected reply")
 	}
+	dbb.logEntry.Debug("Password set")
 	dbb.password = password
 	dbb.onStatusChanged()
 	return nil
@@ -317,14 +342,17 @@ func (dbb *Device) Login(password string) (bool, string, error) {
 			}
 			needsLongTouch = strings.Contains(dbbErr.Error(), "next")
 		}
+		dbb.logEntry.WithFields(logrus.Fields{"needs-longtouch": needsLongTouch,
+			"remaining-attempts": remainingAttempts}).Debug("Failed to authenticate")
 		return needsLongTouch, remainingAttempts, err
 	}
 	dbb.password = password
 	dbb.seeded = deviceInfo.Seeded
 	dbb.onStatusChanged()
 
+	dbb.logEntry.Debug("Authentication successful")
 	if !deviceInfo.Bootlock {
-		log.Printf("device bootloader is unlocked; locking now")
+		dbb.logEntry.Debug("Device bootloader is unlocked; locking now")
 		if err := dbb.LockBootloader(); err != nil {
 			return false, "", err
 		}
@@ -356,9 +384,10 @@ func stretchKey(key string) string {
 }
 
 func (dbb *Device) seed(devicePassword, backupPassword, source, filename string) error {
-	if source != "create" && source != "backup" {
-		panic(`source must be "create" or "backup"`)
+	if source != "create" && source != "backup" && source != "U2F_create" && source != "U2F_load" {
+		panic(`source must be "create", "backup", "U2F_create" or "U2F_load"`)
 	}
+	dbb.logEntry.WithFields(logrus.Fields{"source": source, "filename": filename}).Debug("Seed")
 	key := stretchKey(backupPassword)
 	reply, err := dbb.send(
 		map[string]interface{}{
@@ -370,10 +399,10 @@ func (dbb *Device) seed(devicePassword, backupPassword, source, filename string)
 		},
 		devicePassword)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to create or backup wallet (seed)")
 	}
 	if reply["seed"] != "success" {
-		return errp.New("unexpected result")
+		return errp.New("Unexpected result")
 	}
 	return nil
 }
@@ -385,7 +414,8 @@ func backupFilename(backupName string) string {
 // SetName sets the device name. Retrieve the device name using DeviceInfo().
 func (dbb *Device) SetName(name string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(name) {
-		return errp.New("invalid wallet name")
+		return errp.WithContext(errp.New("Invalid device name"),
+			errp.Context{"device-name": name})
 	}
 	reply, err := dbb.send(
 		map[string]interface{}{
@@ -393,7 +423,7 @@ func (dbb *Device) SetName(name string) error {
 		},
 		dbb.password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to set name")
 	}
 	newName, ok := reply["name"].(string)
 	if !ok || len(newName) == 0 || newName != name {
@@ -408,13 +438,14 @@ func (dbb *Device) CreateWallet(walletName string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
+	dbb.logEntry.WithField("wallet-name", walletName).Info("Create wallet")
 	if err := dbb.seed(
 		dbb.password,
 		dbb.password,
 		"create",
 		backupFilename(walletName),
 	); err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to create wallet")
 	}
 	dbb.seeded = true
 	dbb.onStatusChanged()
@@ -436,6 +467,7 @@ func IsErrorSDCard(err error) bool {
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
 // by the user.
 func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) {
+	dbb.logEntry.WithField("filename", filename).Info("Restore backup")
 	err := dbb.seed(dbb.password, backupPassword, "backup", filename)
 	if IsErrorAbort(err) {
 		return false, nil
@@ -450,6 +482,7 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 
 // CreateBackup creates a new backup of the current device seed on the SD card.
 func (dbb *Device) CreateBackup(backupName string) error {
+	dbb.logEntry.WithField("backup-name", backupName).Info("Create backup")
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
@@ -459,23 +492,25 @@ func (dbb *Device) CreateBackup(backupName string) error {
 		},
 		dbb.password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to create backup")
 	}
 	if reply["backup"] != "success" {
-		return errp.New("unexpected result")
+		return errp.New("Unexpected result: backup != success")
 	}
 	return nil
 }
 
 // Blink flashes the LED.
 func (dbb *Device) Blink() error {
+	dbb.logEntry.Info("Blink")
 	_, err := dbb.sendKV("led", "abort", dbb.password)
-	return err
+	return errp.WithMessage(err, "Failed to blink")
 }
 
 // Reset resets the device. Returns true if erased and false if aborted by the user.
 func (dbb *Device) Reset() (bool, error) {
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.password)
+	dbb.logEntry.Info("Reset")
 	if IsErrorAbort(err) {
 		return false, nil
 	}
@@ -494,6 +529,7 @@ func (dbb *Device) Reset() (bool, error) {
 
 // XPub returns the extended publickey at the path.
 func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
+	dbb.logEntry.WithField("path", path).Info("XPub")
 	getXPub := func() (*hdkeychain.ExtendedKey, error) {
 		reply, err := dbb.sendKV("xpub", path, dbb.password)
 		if err != nil {
@@ -501,7 +537,7 @@ func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 		}
 		xpubStr, ok := reply["xpub"].(string)
 		if !ok {
-			return nil, errp.New("unexpected reply")
+			return nil, errp.WithStack(errp.New("Unexpected reply"))
 		}
 		return hdkeychain.NewKeyFromString(xpubStr)
 	}
@@ -515,7 +551,8 @@ func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 		return nil, err
 	}
 	if xpub1.String() != xpub2.String() {
-		return nil, errp.New("critical: the device returned inconsistent xpubs.")
+		dbb.logEntry.WithField("path", path).Error("The device returned inconsistent xpubs")
+		return nil, errp.WithStack(errp.New("Critical: the device returned inconsistent xpubs"))
 	}
 	return xpub1, nil
 }
@@ -523,17 +560,21 @@ func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 // Random generates a 16 byte random number, hex encoded.. typ can be either "true" or "pseudo".
 func (dbb *Device) Random(typ string) (string, error) {
 	if typ != "true" && typ != "pseudo" {
+		dbb.logEntry.WithField("type", typ).Panic("Type must be 'true' or 'pseudo'")
 		panic("needs to be true or pseudo")
 	}
 	reply, err := dbb.sendKV("random", typ, dbb.password)
 	if err != nil {
-		return "", err
+		return "", errp.WithMessage(err, "Failed to generate random")
 	}
 	rand, ok := reply["random"].(string)
 	if !ok {
+		dbb.logEntry.Error("Unexpected reply: field 'random' is missing")
 		return "", errp.New("unexpected reply")
 	}
+	dbb.logEntry.WithField("random", rand).Debug("Generated random")
 	if len(rand) != 32 {
+		dbb.logEntry.WithField("random-length", len(rand)).Error("Unexpected length: expected 32 bytes")
 		return "", fmt.Errorf("unexpected length, expected 32, got %d", len(rand))
 	}
 	return rand, nil
@@ -543,25 +584,29 @@ func (dbb *Device) Random(typ string) (string, error) {
 func (dbb *Device) BackupList() ([]string, error) {
 	reply, err := dbb.sendKV("backup", "list", dbb.password)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
 	}
 	filenames, ok := reply["backup"].([]interface{})
 	if !ok {
+		dbb.logEntry.Error("Unexpected reply: field 'backup' is missing")
 		return nil, errp.New("unexpected reply")
 	}
 	filenameStrings := []string{}
 	for _, filename := range filenames {
 		filenameString, ok := filename.(string)
 		if !ok {
+			dbb.logEntry.Error("Unexpected reply: field 'backup' is not a string")
 			return nil, errp.New("unexpected reply")
 		}
 		filenameStrings = append(filenameStrings, filenameString)
 	}
+	dbb.logEntry.WithField("backup-list", filenameStrings).Debug("Retrieved backup list")
 	return filenameStrings, nil
 }
 
 // EraseBackup deletes a backup.
 func (dbb *Device) EraseBackup(filename string) error {
+	dbb.logEntry.WithField("filename", filename).Info("Erase backup")
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
@@ -570,10 +615,10 @@ func (dbb *Device) EraseBackup(filename string) error {
 		},
 		dbb.password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to erase backup")
 	}
 	if reply["backup"] != "success" {
-		return errp.New("unexpected result")
+		return errp.New("Unexpected result: field 'backup' is missing")
 	}
 	return nil
 }
@@ -582,7 +627,7 @@ func (dbb *Device) EraseBackup(filename string) error {
 func (dbb *Device) UnlockBootloader() error {
 	reply, err := dbb.sendKV("bootloader", "unlock", dbb.password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to unlock bootloader")
 	}
 	if val, ok := reply["bootloader"].(string); !ok || val != "unlock" {
 		return errp.New("unexpected reply")
@@ -592,12 +637,13 @@ func (dbb *Device) UnlockBootloader() error {
 
 // LockBootloader locks the bootloader.
 func (dbb *Device) LockBootloader() error {
+	dbb.logEntry.Info("Lock bootloader")
 	reply, err := dbb.sendKV("bootloader", "lock", dbb.password)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to lock bootloader")
 	}
 	if val, ok := reply["bootloader"].(string); !ok || val != "lock" {
-		return errp.New("unexpected reply")
+		return errp.New("Unexpected reply: field 'bootloader' is missing")
 	}
 	return nil
 }
@@ -606,9 +652,14 @@ func (dbb *Device) LockBootloader() error {
 // The private keys used to sign them are derived using the provided keyPaths.
 func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[string]interface{}, error) {
 	if len(signatureHashes) != len(keyPaths) {
+		dbb.logEntry.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
+			"keypath-lengths": len(keyPaths)}).Panic("Length of keyPaths must match length of signatureHashes")
 		panic("length of keyPaths must match length of signatureHashes")
 	}
 	if len(signatureHashes) > signatureBatchSize {
+		dbb.logEntry.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
+			"signature-batch-size": signatureBatchSize}).Panic("This amount of signature hashes " +
+			"cannot be signed in one batch")
 		panic(fmt.Sprintf("only up to %d signature hashes can be signed in one batch", signatureBatchSize))
 	}
 
@@ -627,12 +678,12 @@ func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[s
 	// First call returns the echo.
 	_, err := dbb.send(cmd, dbb.password)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to sign batch (1)")
 	}
 	// Second call returns the signatures.
 	reply, err := dbb.send(cmd, dbb.password)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to sign batch (2)")
 	}
 	return reply, nil
 }
@@ -640,10 +691,14 @@ func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[s
 // Sign returns signatures for the provided hashes. The private keys used to sign them are derived
 // using the provided keyPaths.
 func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+	dbb.logEntry.WithFields(logrus.Fields{"signature-hashes": signatureHashes, "keypaths": keyPaths}).Info("Sign")
 	if len(signatureHashes) != len(keyPaths) {
+		dbb.logEntry.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
+			"keypath-lengths": len(keyPaths)}).Panic("Length of keyPaths must match length of signatureHashes")
 		panic("len of keyPaths must match len of signatureHashes")
 	}
 	if len(signatureHashes) == 0 {
+		dbb.logEntry.WithField("signature-hashes-length", len(signatureHashes)).Panic("Non-empty list of signature hashes and keypaths expected")
 		panic("non-empty list of signature hashes and keypaths expected")
 	}
 	signatures := []btcec.Signature{}
@@ -658,27 +713,27 @@ func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Si
 		}
 		sigs, ok := reply["sign"].([]interface{})
 		if !ok {
-			return nil, errp.New("unexpected response")
+			return nil, errp.New("Unexpected reply: field 'sign' is missing")
 		}
 		for _, sig := range sigs {
 			sigMap, ok := sig.(map[string]interface{})
 			if !ok {
-				return nil, errp.New("unexpected response")
+				return nil, errp.New("Unexpected reply: 'sign' must be a map")
 			}
 			hexSig, ok := sigMap["sig"].(string)
 			if !ok {
-				return nil, errp.New("unexpected response")
+				return nil, errp.New("Unexpected reply: field 'sig' is missing in 'sign' map")
 			}
 			if len(hexSig) != 128 {
-				return nil, errp.New("unexpected response")
+				return nil, errp.New("Unexpected reply: field 'sig' must be 128 byte long")
 			}
 			sigR, ok := big.NewInt(0).SetString(hexSig[:64], 16)
 			if !ok {
-				return nil, errp.New("unexpected response")
+				return nil, errp.New("Unexpected reply: R in 'sig' must be a hex value")
 			}
 			sigS, ok := big.NewInt(0).SetString(hexSig[64:], 16)
 			if !ok {
-				return nil, errp.New("unexpected response")
+				return nil, errp.New("Unexpected reply: S in 'sig' must be a hex value")
 			}
 			signatures = append(signatures, btcec.Signature{R: sigR, S: sigS})
 		}

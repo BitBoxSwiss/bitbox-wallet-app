@@ -47,14 +47,16 @@ func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) error {
 		return err
 	}
 	if reply[0] != byte(cmd) || rune(reply[1]) != '0' {
-		log.Printf("unexpected reply: %s\n", reply)
-		return errp.New("unexpected reply")
+		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{
+			"reply": reply,
+		})
 	}
 	return nil
 }
 
 func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
 	if len(data) > bootloaderMaxChunkSize {
+		dbb.logEntry.Panic("Invalid length")
 		panic("invalid length")
 	}
 	var buf bytes.Buffer
@@ -67,6 +69,7 @@ func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
 
 func (dbb *Device) bootloaderSendSigs(sigs []byte) error {
 	if len(sigs) != signaturesSize {
+		dbb.logEntry.Panic("need 7 sigs à 64 bytes")
 		panic("need 7 sigs à 64 bytes")
 	}
 	var buf bytes.Buffer

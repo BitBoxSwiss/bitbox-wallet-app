@@ -18,3 +18,22 @@ var (
 	// WithMessage wraps errors.WithMessage
 	WithMessage = errors.WithMessage
 )
+
+// DetailedError combines an error with a map of data points that provide more context and are
+// useful for logging.
+type DetailedError struct {
+	Data Context
+	Err  error
+}
+
+// Context provides the context for a detailed error.
+type Context map[string]interface{}
+
+func (detailedError DetailedError) Error() string {
+	return detailedError.Err.Error()
+}
+
+// WithContext takes an error and a data map and provides a DetailedError that combines both.
+func WithContext(err error, data Context) *DetailedError {
+	return &DetailedError{Data: data, Err: err}
+}

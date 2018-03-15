@@ -1,7 +1,6 @@
 package transactions
 
 import (
-	"log"
 	"sort"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -14,6 +13,7 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/sirupsen/logrus"
 )
 
 // TxOut is a transaction output which is part of the wallet.
@@ -57,6 +57,7 @@ type Transactions struct {
 
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
+	logEntry     *logrus.Entry
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -64,6 +65,7 @@ func NewTransactions(
 	net *chaincfg.Params,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
+	logEntry *logrus.Entry,
 ) *Transactions {
 	return &Transactions{
 		net:            net,
@@ -75,6 +77,7 @@ func NewTransactions(
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
+		logEntry:     logEntry.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
 }
 
@@ -113,11 +116,9 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// originate from our wallet. At this stage we don't know if it is one of our own inputs,
 		// since the output that it spends might be indexed later.
 		if existingTxIn, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && existingTxIn.txHash != txHash {
-			log.Printf("double spend detected of output %s. (tx %s and %s)\n",
-				txIn.PreviousOutPoint,
-				existingTxIn.txHash,
-				txHash,
-			)
+			transactions.logEntry.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
+				"existingTxIn.txHash": existingTxIn.txHash, "txHash": txHash}).
+				Warning("Double spend detected")
 		}
 		transactions.inputs[txIn.PreviousOutPoint] = &TxIn{
 			TxIn:   txIn,
@@ -134,11 +135,14 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// address belongs to the wallet, it already knows what kind of output it is.
 		_ = scriptClass
 		if err != nil {
+			transactions.logEntry.WithField("error", err).Debug("Failed to extract pk script addresses")
 			// Unrecognized output. Skip.
 			continue
 		}
 		// For now we only look at single-address outputs (no multisig or other special contracts).
 		if len(addresses) != 1 {
+			transactions.logEntry.WithField("addresses-length", len(addresses)).
+				Debug("Only supporting single-address outputs for now")
 			continue
 		}
 		// Check if output is ours.
@@ -182,18 +186,22 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 }
 
 func (transactions *Transactions) removeTxForAddress(address btcutil.Address, txHash chainhash.Hash) {
+	transactions.logEntry.Debug("Remove transaction for address")
 	transaction, ok := transactions.transactions[txHash]
 	if !ok {
 		// Not yet indexed.
+		transactions.logEntry.Debug("Transaction hash not listed")
 		return
 	}
 
 	delete(transaction.addresses, address.String())
+	transactions.logEntry.Debug("Deleting transaction address")
 	if len(transaction.addresses) == 0 {
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range transaction.TX.TxIn {
 			delete(transactions.inputs, txIn.PreviousOutPoint)
+			transactions.logEntry.Debug("Deleting transaction output")
 		}
 
 		// Remove the outputs added by this tx.
@@ -221,8 +229,10 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
 	}
 	if len(txsSet) != len(txs) {
+		err := errp.New("duplicate tx ids in address history returned by server")
+		transactions.logEntry.WithField("error", err).Panic(err)
 		// TODO
-		panic(errp.New("duplicate tx ids in address history returned by server"))
+		panic(err)
 	}
 	for txHash := range transactions.addressHistory[address.String()] {
 		if _, txOK := txsSet[txHash]; txOK {
@@ -275,6 +285,7 @@ func (transactions *Transactions) doForTransaction(
 		},
 		func(error) { done() },
 	); err != nil {
+		transactions.logEntry.WithField("error", err).Panic("Failed to retrieve transaction")
 		// TODO
 		panic(err)
 	}

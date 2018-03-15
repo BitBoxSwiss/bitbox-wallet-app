@@ -4,6 +4,9 @@ import (
 	"sync"
 	"time"
 
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
+
 	"golang.org/x/text/language"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -64,10 +67,13 @@ type Backend struct {
 	wallets          []*Wallet
 	walletsLock      locker.Locker
 	walletsSyncStart time.Time
+
+	logEntry *logrus.Entry
 }
 
 // NewBackend creates a new backend.
 func NewBackend() *Backend {
+	logEntry := logging.Log.WithGroup("backend")
 	return &Backend{
 		testing: false,
 		events:  make(chan interface{}),
@@ -79,6 +85,7 @@ func NewBackend() *Backend {
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
 				net:         &chaincfg.MainNetParams,
 				addressType: addresses.AddressTypeP2PKH,
+				logEntry:    logEntry,
 			},
 			&Wallet{
 				Code:                  "btc-p2wpkh-p2sh",
@@ -87,6 +94,7 @@ func NewBackend() *Backend {
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
 				net:         &chaincfg.MainNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
+				logEntry:    logEntry,
 			},
 			&Wallet{
 				Code:                  "ltc-p2wpkh-p2sh",
@@ -95,6 +103,7 @@ func NewBackend() *Backend {
 				BlockExplorerTxPrefix: "https://insight.litecore.io/tx/",
 				net:         &ltc.MainNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
+				logEntry:    logEntry,
 			},
 		},
 	}
@@ -102,6 +111,7 @@ func NewBackend() *Backend {
 
 // NewBackendForTesting creates a new backend for testing.
 func NewBackendForTesting() *Backend {
+	logEntry := logging.Log.WithGroup("backend")
 	return &Backend{
 		testing: true,
 		events:  make(chan interface{}),
@@ -113,6 +123,7 @@ func NewBackendForTesting() *Backend {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.TestNet3Params,
 				addressType: addresses.AddressTypeP2PKH,
+				logEntry:    logEntry,
 			},
 			&Wallet{
 				Code:                  "tbtc-p2wpkh-p2sh",
@@ -121,6 +132,7 @@ func NewBackendForTesting() *Backend {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.TestNet3Params,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
+				logEntry:    logEntry,
 			},
 			&Wallet{
 				Code:                  "tltc-p2wpkh-p2sh",
@@ -129,8 +141,10 @@ func NewBackendForTesting() *Backend {
 				BlockExplorerTxPrefix: "http://explorer.litecointools.com/tx/",
 				net:         &ltc.TestNet4Params,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
+				logEntry:    logEntry,
 			},
 		},
+		logEntry: logEntry,
 	}
 }
 
@@ -155,6 +169,7 @@ func (backend *Backend) UserLanguage() language.Tag {
 		language.German,
 	}
 	tag, _, _ := language.NewMatcher(languages).Match(language.Make(userLocale))
+	backend.logEntry.WithField("user-language", tag).Info("Detected user language")
 	return tag
 }
 
@@ -194,7 +209,9 @@ func (backend *Backend) initWallets() error {
 		go func(wallet *Wallet) {
 			defer wg.Done()
 			if err := wallet.init(backend); err != nil {
-				// TODO
+				backend.logEntry.WithField("error", err).Panic("Failed to initialize wallet")
+				// TODO: instead of crashing, we should inform the user about an unrecoverable problem
+				// and encourage him/her to send in the logs
 				panic(err)
 			}
 			backend.onWalletInit(wallet)
@@ -232,6 +249,7 @@ func (backend *Backend) Register(device bitbox.Interface) error {
 				backend.uninitWallets()
 				go func() {
 					if err := backend.initWallets(); err != nil {
+						backend.logEntry.Panic("Failed to initialize wallets")
 						// TODO
 						panic(err)
 					}

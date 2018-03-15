@@ -4,6 +4,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil/txsort"
+	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
@@ -16,13 +17,16 @@ func SignTransaction(
 	keyStore KeyStoreWithoutKeyDerivation,
 	transaction *wire.MsgTx,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
+	logEntry *logrus.Entry,
 ) error {
+	logEntry.Info("Sign transaction")
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
 		if !ok {
+			logEntry.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 		}
 		address := spentOutput.Address.(*addresses.Address)
@@ -33,15 +37,17 @@ func SignTransaction(
 			signatureHash, err = txscript.CalcWitnessSigHash(
 				subScript, sigHashes, txscript.SigHashAll, transaction, index, spentOutput.Value)
 			if err != nil {
-				return err
+				return errp.WithMessage(errp.WithStack(err), "Failed to calculate SegWit signature hash")
 			}
+			logEntry.Debug("Calculated segwit signature hash")
 		} else {
 			var err error
 			signatureHash, err = txscript.CalcSignatureHash(
 				subScript, txscript.SigHashAll, transaction, index)
 			if err != nil {
-				return err
+				return errp.WithMessage(errp.WithStack(err), "Failed to calculate legacy signature hash")
 			}
+			logEntry.Debug("Calculated legacy signature hash")
 		}
 
 		signatureHashes = append(signatureHashes, signatureHash)
@@ -49,7 +55,7 @@ func SignTransaction(
 	}
 	signatures, err := keyStore.Sign(signatureHashes, keyPaths)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to sign signature hash")
 	}
 	if len(signatures) != len(transaction.TxIn) {
 		panic("number of signatures doesn't match number of inputs")
@@ -62,6 +68,7 @@ func SignTransaction(
 	}
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(transaction, previousOutputs, sigHashes); err != nil {
+		logEntry.WithField("error", err).Panic("Failed to pass transaction validity check")
 		panic(err)
 	}
 	return nil
@@ -75,7 +82,7 @@ func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
 		if !ok {
-			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
+			return errp.New("output/input mismatch; there needs to be exactly one output being spent per input")
 		}
 		engine, err := txscript.NewEngine(
 			spentOutput.PkScript,

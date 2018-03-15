@@ -14,6 +14,10 @@ import (
 	"net/http"
 	"regexp"
 
+	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
+
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -34,6 +38,7 @@ type Handlers struct {
 	apiPort           int
 	backendEvents     <-chan interface{}
 	websocketUpgrader websocket.Upgrader
+	logEntry          *logrus.Entry
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -41,6 +46,7 @@ func NewHandlers(
 	theBackend backend.Interface,
 	apiPort int,
 ) *Handlers {
+	logEntry := logging.Log.WithGroup("handlers")
 	router := mux.NewRouter()
 	handlers := &Handlers{
 		Router:  router,
@@ -52,6 +58,7 @@ func NewHandlers(
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		backendEvents: theBackend.Start(),
+		logEntry:      logging.Log.WithGroup("handlers"),
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -74,7 +81,7 @@ func NewHandlers(
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 	for _, wallet := range theBackend.Wallets() {
 		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
-			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()))
+			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()), logEntry)
 	}
 
 	theBackend.OnWalletInit(func(wallet *backend.Wallet) {
@@ -85,7 +92,7 @@ func NewHandlers(
 	})
 
 	theDeviceHandlers := bitboxHandlers.NewHandlers(
-		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()),
+		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()), logEntry,
 	)
 	theBackend.OnDeviceInit(func(device bitbox.Interface) {
 		theDeviceHandlers.Init(device)
@@ -102,6 +109,7 @@ func NewHandlers(
 			Asset: func(name string) ([]byte, error) {
 				body, err := Asset(name)
 				if err != nil {
+					err = errp.WithStack(err)
 					return nil, err
 				}
 				if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {

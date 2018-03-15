@@ -2,14 +2,31 @@ package main
 
 import (
 	"flag"
-	"log"
+	"fmt"
 	"net/http"
+
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/backend"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 )
 
+const (
+	port    = 8082
+	address = "0.0.0.0"
+)
+
 func main() {
+	logEntry := logging.Log.WithGroup("servewallet")
+	defer func(logEntry *logrus.Entry) {
+		// recover from all panics and log error before panicing again
+		if r := recover(); r != nil {
+			logEntry.WithField("error", r).Error(r)
+			panic(r)
+		}
+	}(logEntry)
+	logEntry.Info("--------------- Started application --------------")
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	flag.Parse()
 
@@ -20,9 +37,10 @@ func main() {
 		backendInterface = backend.NewBackendForTesting()
 	}
 
-	handlers := backendHandlers.NewHandlers(backendInterface, 8082)
-	err := http.ListenAndServe("0.0.0.0:8082", handlers.Router)
+	handlers := backendHandlers.NewHandlers(backendInterface, port)
+	logEntry.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router)
 	if err != nil {
-		log.Fatal(err)
+		logEntry.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")
 	}
 }

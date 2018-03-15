@@ -1,0 +1,2 @@
+output: "log/output.log"
+base-threshold: DEBUG

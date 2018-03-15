@@ -18,9 +18,13 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/shiftdevices/godbb/util/errp"
+
 	"github.com/shiftdevices/godbb/backend"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/freeport"
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -41,7 +45,7 @@ func generateRSAPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 // createSelfSignedCertificate creates a self-signed certificate from the given rsa.PrivateKey.
-func createSelfSignedCertificate(privateKey *rsa.PrivateKey) ([]byte, error) {
+func createSelfSignedCertificate(privateKey *rsa.PrivateKey, logEntry *logrus.Entry) ([]byte, error) {
 	serialNumber := big.Int{}
 	notBefore := time.Now()
 	// Invalid after one day.
@@ -64,34 +68,34 @@ func createSelfSignedCertificate(privateKey *rsa.PrivateKey) ([]byte, error) {
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
 	if err != nil {
-		log.Fatalf("Failed to create certificate: %s", err)
+		logEntry.WithField("error", err).Error("Failed to create x.509 certificate")
 		return nil, err
 	}
 	return derBytes, nil
 }
 
 // saveAsPEM saves the given PEM block as a file
-func saveAsPEM(name string, pemBytes *pem.Block) error {
+func saveAsPEM(name string, pemBytes *pem.Block, logEntry *logrus.Entry) error {
 	certificateDir := filepath.Dir(name)
 	err := os.MkdirAll(certificateDir, os.ModeDir|os.ModePerm)
 	if err != nil {
-		log.Fatalf("failed to create directory %s: %s", certificateDir, err)
-		return err
+		return errp.WithContext(errp.WithMessage(err, "Failed to create directory for server certificate"),
+			errp.Context{"certificate-directory": certificateDir})
 	}
 	pemFile, err := os.Create(name)
 	if err != nil {
-		log.Fatalf("failed to open %s for writing: %s", name, err)
-		return err
+		return errp.WithContext(errp.WithMessage(err, "Failed to create server certificate"),
+			errp.Context{"file": name})
 	}
 	err = pem.Encode(pemFile, pemBytes)
 	if err != nil {
-		log.Fatalf("failed to write PEM encoded file %s: %s", pemFile.Name(), err)
-		return err
+		return errp.WithContext(errp.WithMessage(err, "Failed to write PEM encoded server certificate file"),
+			errp.Context{"file": pemFile.Name()})
 	}
 	err = pemFile.Close()
 	if err != nil {
-		log.Fatalf("failed to close PEM file %s: %s", pemFile.Name(), err)
-		return err
+		return errp.WithContext(errp.WithMessage(err, "Failed to close server certificate file"),
+			errp.Context{"file": pemFile.Name()})
 	}
 	return nil
 }
@@ -124,23 +128,24 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 
 //export serve
 func serve() int {
-	port, err := freeport.FreePort()
+	logEntry := logging.Log.WithGroup("server")
+	port, err := freeport.FreePort(logEntry)
 	if err != nil {
-		log.Fatal(err)
+		logEntry.WithField("error", err).Fatal("Failed to find free port")
 	}
-	log.Println("Port:", port)
+	logEntry.WithField("port", port).Debug("Serve backend")
 	handlers := backendHandlers.NewHandlers(backend.NewBackend(), port)
 
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {
-		log.Fatal(err)
+		logEntry.WithField("error", err).Fatal("Failed to generate RSA key")
 	}
-	certificate, err := createSelfSignedCertificate(privateKey)
+	certificate, err := createSelfSignedCertificate(privateKey, logEntry)
 	if err != nil {
-		log.Fatal(err)
+		logEntry.WithField("error", err).Fatal("Failed to create self-signed certificate")
 	}
 	certificatePEM := derToPem("CERTIFICATE", certificate)
-	saveAsPEM(tlsServerCertificate, certificatePEM)
+	saveAsPEM(tlsServerCertificate, certificatePEM, logEntry)
 
 	var certAndKey tls.Certificate
 	certAndKey.Certificate = [][]byte{certificate}
@@ -157,12 +162,13 @@ func serve() int {
 		}
 		listener, err := net.Listen("tcp", server.Addr)
 		if err != nil {
-			log.Fatal(err)
+			logEntry.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to listen on address")
 		}
+		logEntry.WithField("address", server.Addr).Debug("Listening")
 		tlsListener := tls.NewListener(tcpKeepAliveListener{listener.(*net.TCPListener)}, server.TLSConfig)
 		err = server.Serve(tlsListener)
 		if err != nil {
-			log.Fatal(err)
+			logEntry.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
 		}
 	}()
 	return port

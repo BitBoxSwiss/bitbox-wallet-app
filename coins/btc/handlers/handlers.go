@@ -10,17 +10,19 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // Handlers provides a web api to the wallet.
 type Handlers struct {
-	wallet btc.Interface
+	wallet   btc.Interface
+	logEntry *logrus.Entry
 }
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route) *Handlers {
-	handlers := &Handlers{}
+	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, logEntry *logrus.Entry) *Handlers {
+	handlers := &Handlers{logEntry: logEntry}
 
 	handleFunc("/transactions", handlers.getWalletTransactions).Methods("GET")
 	handleFunc("/balance", handlers.getWalletBalance).Methods("GET")
@@ -38,7 +40,7 @@ func (handlers *Handlers) Init(wallet btc.Interface) {
 	handlers.wallet = wallet
 }
 
-// Uninit removes the wallet. After this, not requests should be made.
+// Uninit removes the wallet. After this, no requests should be made.
 func (handlers *Handlers) Uninit() {
 	handlers.wallet = nil
 }
@@ -79,6 +81,7 @@ type sendTxInput struct {
 	address       string
 	sendAmount    btc.SendAmount
 	feeTargetCode btc.FeeTargetCode
+	logEntry      *logrus.Entry
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -88,9 +91,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody["address"]
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"])
+	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"], input.logEntry)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody["sendAll"] == "yes" {
 		input.sendAmount = btc.NewSendAmountAll()
@@ -105,14 +108,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		}
 		input.sendAmount, err = btc.NewSendAmount(btcAmount)
 		if err != nil {
-			return err
+			return errp.WithMessage(err, "Failed to create BTC send amount")
 		}
 	}
 	return nil
 }
 
 func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{}
+	input := &sendTxInput{logEntry: handlers.logEntry}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -122,7 +125,7 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 		return map[string]interface{}{"success": false}, nil
 	}
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to send transaction")
 	}
 	return map[string]interface{}{"success": true}, nil
 }
@@ -137,7 +140,7 @@ func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, err
 		input.feeTargetCode,
 	)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to create transaction proposal")
 	}
 	return map[string]string{
 		"amount": outputAmount.String(),

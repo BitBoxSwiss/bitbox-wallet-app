@@ -4,10 +4,11 @@ import (
 	"net"
 
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // FreePort returns a random unused port.
-func FreePort() (port int, err error) {
+func FreePort(logEntry *logrus.Entry) (port int, err error) {
 	var listener net.Listener
 	listener, err = net.Listen("tcp", "localhost:0")
 	if err != nil {
@@ -17,5 +18,6 @@ func FreePort() (port int, err error) {
 		err = listener.Close()
 	}()
 	port = listener.Addr().(*net.TCPAddr).Port
+	logEntry.WithField("port", port).Debug("Free port")
 	return
 }

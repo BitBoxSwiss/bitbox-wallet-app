@@ -1,10 +1,9 @@
 package btc
 
 import (
-	"log"
-
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/blockchain"
@@ -52,6 +51,7 @@ type Wallet struct {
 
 	initialSyncDone bool
 	onEvent         func(Event)
+	logEntry        *logrus.Entry
 }
 
 // NewWallet creats a new Wallet.
@@ -61,7 +61,10 @@ func NewWallet(
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
+	logEntry *logrus.Entry,
 ) (*Wallet, error) {
+	logEntry = logEntry.WithField("group", "btc")
+	logEntry.Debug("Creating new wallet")
 	xpub := keyStore.XPub()
 	xpub.SetNet(net)
 	if xpub.IsPrivate() {
@@ -80,6 +83,7 @@ func NewWallet(
 		},
 		initialSyncDone: false,
 		onEvent:         onEvent,
+		logEntry:        logEntry,
 	}
 	wallet.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
@@ -90,10 +94,11 @@ func NewWallet(
 			}
 			onEvent(EventSyncDone)
 		},
+		logEntry,
 	)
-	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType)
-	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType)
-	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain)
+	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, logEntry)
+	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, logEntry)
+	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain, logEntry)
 
 	return wallet, nil
 }
@@ -124,12 +129,14 @@ func (wallet *Wallet) updateFeeTargets() {
 				feeTarget.Blocks,
 				func(feeRatePerKb btcutil.Amount) error {
 					feeTarget.FeeRatePerKb = &feeRatePerKb
-					log.Printf("fee estimate per kb for %d blocks: %s", feeTarget.Blocks, feeRatePerKb)
+					wallet.logEntry.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+						"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
 					return nil
 				},
 				func(err error) {},
 			)
 			if err != nil {
+				wallet.logEntry.WithField("error", err).Panic("Failed to update fee targets")
 				// TODO
 				panic(err)
 			}
@@ -171,7 +178,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 				defer wallet.Lock()()
 				address.History = history
 				if address.History.Status() != status {
-					log.Println("client status should match after sync")
+					wallet.logEntry.Debug("Client status should match after sync")
 				}
 				wallet.transactions.UpdateAddressHistory(address, history)
 			}()
@@ -192,16 +199,18 @@ func (wallet *Wallet) ensureAddresses() {
 	syncSequence := func(change bool) error {
 		for _, address := range wallet.addresses(change).EnsureAddresses() {
 			if err := wallet.subscribeAddress(address); err != nil {
-				return err
+				return errp.WithMessage(errp.WithStack(err), "Failed to subscribe to address")
 			}
 		}
 		return nil
 	}
 	if err := syncSequence(false); err != nil {
+		wallet.logEntry.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
 	if err := syncSequence(true); err != nil {
+		wallet.logEntry.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
@@ -225,5 +234,6 @@ func (wallet *Wallet) Transactions() []*transactions.TxInfo {
 func (wallet *Wallet) GetUnusedReceiveAddress() btcutil.Address {
 	wallet.synchronizer.WaitSynchronized()
 	defer wallet.RLock()()
+	wallet.logEntry.Debug("Get unused receive address")
 	return wallet.receiveAddresses.GetUnused().Address
 }

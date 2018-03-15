@@ -13,6 +13,8 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -83,18 +85,22 @@ type transactionsSuite struct {
 	synchronizer   *synchronizer.Synchronizer
 	blockchainMock *BlockchainMock
 	transactions   *transactions.Transactions
+
+	logEntry *logrus.Entry
 }
 
 func (s *transactionsSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
+	s.logEntry = logging.Log.WithGroup("transactions_test")
 
 	s.addressChain = addressesTest.NewAddressChain()
-	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {})
+	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.logEntry)
 	s.blockchainMock = NewBlockchainMock()
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		s.synchronizer,
 		s.blockchainMock,
+		s.logEntry,
 	)
 }
 
@@ -145,7 +151,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 		}
 		syncFinished = true
 	}
-	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished)
+	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.logEntry)
 	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},

@@ -8,6 +8,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
+	"github.com/sirupsen/logrus"
 )
 
 // Address is a HD address of a wallet, containing the info needed to receive funds on it and to
@@ -24,6 +25,7 @@ type Address struct {
 	// output.
 	p2shScript  []byte
 	addressType AddressType
+	logEntry    *logrus.Entry
 }
 
 // AddressType indicates which type of output should be produced.
@@ -43,7 +45,10 @@ func NewAddress(
 	net *chaincfg.Params,
 	keyPath string,
 	addressType AddressType,
+	logEntry *logrus.Entry,
 ) *Address {
+	logEntry = logEntry.WithFields(logrus.Fields{"key-path": keyPath, "address-type": addressType})
+	logEntry.Debug("Creating new address")
 	pkHash := btcutil.Hash160(publicKey.SerializeCompressed())
 
 	var address btcutil.Address
@@ -55,6 +60,7 @@ func NewAddress(
 		if err != nil {
 			// The only possible failure is a wrong pkHash size, but we are sure we are passing 160
 			// bits.
+			logEntry.WithField("error", err).Panic("Failed to get address pubkey hash for p2pkh")
 			panic(err)
 		}
 	case AddressTypeP2WPKHP2SH:
@@ -62,17 +68,21 @@ func NewAddress(
 		if err != nil {
 			// The only possible failure is a wrong pkHash size, but we are sure we are passing 160
 			// bits.
+			logEntry.WithField("error", err).Panic("Failed to get address witness pubkey hash for p2wpkh-p2sh")
 			panic(err)
 		}
 		script, err = txscript.PayToAddrScript(swAddress)
 		if err != nil {
+			logEntry.WithField("error", err).Panic("Failed to get payment script for p2wpkh-p2sh")
 			panic(err)
 		}
 		address, err = btcutil.NewAddressScriptHash(script, net)
 		if err != nil {
+			logEntry.WithField("error", err).Panic("Failed to get new address script hash for p2wpkh-p2sh")
 			panic(err)
 		}
 	default:
+		logEntry.Panic("Unrecognized address type")
 		panic("unrecognized address type")
 	}
 
@@ -83,6 +93,7 @@ func NewAddress(
 		History:     client.TxHistory{},
 		addressType: addressType,
 		p2shScript:  script,
+		logEntry:    logEntry,
 	}
 }
 
@@ -94,6 +105,7 @@ func (address *Address) isUsed() bool {
 func (address *Address) PkScript() []byte {
 	script, err := txscript.PayToAddrScript(address.Address)
 	if err != nil {
+		address.logEntry.WithField("error", err).Panic("Failed to get pubkey script")
 		panic(err)
 	}
 	return script
@@ -115,6 +127,7 @@ func (address *Address) SigHashData() (bool, []byte) {
 	case AddressTypeP2WPKHP2SH:
 		return true, address.p2shScript
 	default:
+		address.logEntry.Panic("Unrecognized address type")
 		panic("unrecognized address type")
 	}
 }
@@ -128,6 +141,7 @@ func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWit
 			AddData(address.publicKey.SerializeCompressed()).
 			Script()
 		if err != nil {
+			address.logEntry.WithField("error", err).Panic("Failed to build p2pkh signature script")
 			panic(err)
 		}
 		return sigScript, nil
@@ -136,6 +150,7 @@ func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWit
 			AddData(address.p2shScript).
 			Script()
 		if err != nil {
+			address.logEntry.WithField("error", err).Panic("Failed to build p2wpkh-p2ph signature script")
 			panic(err)
 		}
 		witness := wire.TxWitness{
@@ -143,6 +158,7 @@ func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWit
 			address.publicKey.SerializeCompressed()}
 		return sigScript, witness
 	default:
+		address.logEntry.Panic("Unrecognized address type")
 		panic("unrecognized address type")
 	}
 }

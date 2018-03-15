@@ -3,20 +3,21 @@ package btc
 import (
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // FeeTargetCode models the code of a fee target. See the constants below.
 type FeeTargetCode string
 
 // NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
-func NewFeeTargetCode(code string) (FeeTargetCode, error) {
+func NewFeeTargetCode(code string, logEntry *logrus.Entry) (FeeTargetCode, error) {
 	switch code {
 	case string(FeeTargetCodeLow):
 	case string(FeeTargetCodeEconomy):
 	case string(FeeTargetCodeNormal):
 	case string(FeeTargetCodeHigh):
 	default:
-		return "", errp.Newf("unrecognized fee target code %s", code)
+		return "", errp.WithStack(errp.Newf("Unrecognized fee target code %s", code))
 	}
 	return FeeTargetCode(code), nil
 }

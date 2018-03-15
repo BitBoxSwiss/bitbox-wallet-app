@@ -8,11 +8,12 @@ package maketx
 import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/sirupsen/logrus"
 )
 
 // FeeForSerializeSize calculates the required fee for a transaction of some
 // arbitrary size given a mempool's relay fee policy.
-func FeeForSerializeSize(relayFeePerKb btcutil.Amount, txSerializeSize int) btcutil.Amount {
+func FeeForSerializeSize(relayFeePerKb btcutil.Amount, txSerializeSize int, logEntry *logrus.Entry) btcutil.Amount {
 	fee := relayFeePerKb * btcutil.Amount(txSerializeSize) / 1000
 
 	if fee == 0 && relayFeePerKb > 0 {
@@ -22,6 +23,7 @@ func FeeForSerializeSize(relayFeePerKb btcutil.Amount, txSerializeSize int) btcu
 	if fee < 0 || fee > btcutil.MaxSatoshi {
 		fee = btcutil.MaxSatoshi
 	}
+	logEntry.WithFields(logrus.Fields{"relayFeePerKb": relayFeePerKb, "txSerializeSize": txSerializeSize, "fee": fee}).Debug("Calculated fee is %s", fee)
 
 	return fee
 }

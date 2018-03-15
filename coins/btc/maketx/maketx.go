@@ -1,13 +1,13 @@
 package maketx
 
 import (
-	"errors"
 	"sort"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
@@ -35,6 +35,7 @@ func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[
 func coinSelection(
 	minAmount btcutil.Amount,
 	outputs map[wire.OutPoint]*wire.TxOut,
+	logEntry *logrus.Entry,
 ) (btcutil.Amount, []wire.OutPoint, error) {
 	outPoints := []wire.OutPoint{}
 	for outPoint := range outputs {
@@ -52,7 +53,8 @@ func coinSelection(
 		outputsSum += btcutil.Amount(outputs[outPoint].Value)
 	}
 	if outputsSum < minAmount {
-		return 0, nil, errp.New("insufficient funds")
+		return 0, nil, errp.WithContext(errp.New("Insufficient funds"),
+			errp.Context{"min-amount": minAmount})
 	}
 	return outputsSum, selectedOutPoints, nil
 }
@@ -61,7 +63,9 @@ func coinSelection(
 func NewTxSpendAll(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
-	feePerKb btcutil.Amount) (*TxProposal, error) {
+	feePerKb btcutil.Amount,
+	logEntry *logrus.Entry,
+) (*TxProposal, error) {
 
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
@@ -74,9 +78,9 @@ func NewTxSpendAll(
 	}
 	output := wire.NewTxOut(0, outputPkScript)
 	txSize := EstimateSerializeSize(len(selectedOutPoints), []*wire.TxOut{output}, false)
-	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize)
+	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, logEntry)
 	if outputsSum < maxRequiredFee {
-		return nil, errp.New("insufficient funds for fee")
+		return nil, errp.New("Insufficient funds for fee")
 	}
 	output = wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{
@@ -86,6 +90,7 @@ func NewTxSpendAll(
 		LockTime: 0,
 	}
 	txsort.InPlaceSort(unsignedTransaction)
+	logEntry.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 	return &TxProposal{
 		Amount:            btcutil.Amount(output.Value),
 		Fee:               maxRequiredFee,
@@ -101,23 +106,25 @@ func NewTx(
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
 	getChangePKScript func() ([]byte, error),
+	logEntry *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
 	outputs := []*wire.TxOut{output}
 	estimatedSize := EstimateSerializeSize(1, outputs, true)
-	targetFee := FeeForSerializeSize(feePerKb, estimatedSize)
+	targetFee := FeeForSerializeSize(feePerKb, estimatedSize, logEntry)
 
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
 			spendableOutputs,
+			logEntry,
 		)
 		if err != nil {
 			return nil, err
 		}
 
 		txSize := EstimateSerializeSize(len(selectedOutPoints), outputs, true)
-		maxRequiredFee := FeeForSerializeSize(feePerKb, txSize)
+		maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, logEntry)
 		if selectedOutputsSum-targetAmount < maxRequiredFee {
 			targetFee = maxRequiredFee
 			continue
@@ -142,16 +149,18 @@ func NewTx(
 		if changeAmount != 0 && !changeIsDust {
 			changePKScript, err := getChangePKScript()
 			if err != nil {
-				return nil, err
+				return nil, errp.WithMessage(errp.WithStack(err), "Failed to get change script")
 			}
 			if len(changePKScript) > P2PKHPkScriptSize {
-				return nil, errors.New("fee estimation requires change " +
-					"scripts no larger than P2PKH output scripts")
+				return nil, errp.WithContext(errp.New("fee estimation requires change scripts no "+
+					"larger than P2PKH output scripts"),
+					errp.Context{"change-script-size": len(changePKScript)})
 			}
 			changeOutput := wire.NewTxOut(int64(changeAmount), changePKScript)
 			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut, changeOutput)
 		}
 		txsort.InPlaceSort(unsignedTransaction)
+		logEntry.WithField("fee", finalFee).Debug("Preparing transaction")
 		return &TxProposal{
 			Amount:            targetAmount,
 			Fee:               finalFee,

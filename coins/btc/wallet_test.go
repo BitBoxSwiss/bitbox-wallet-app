@@ -10,6 +10,8 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/coins/btc/blockchain/mocks"
 	"github.com/shiftdevices/godbb/coins/btc/mocks"
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,9 +24,12 @@ type walletSuite struct {
 	blockchainMock blockchainMock.InterfaceMock
 	onEvent        func(btc.Event)
 	wallet         *btc.Wallet
+
+	logEntry *logrus.Entry
 }
 
 func (s *walletSuite) SetupTest() {
+	s.logEntry = logging.Log.WithGroup("btc_test")
 	s.net = &chaincfg.TestNet3Params
 	s.onEvent = func(btc.Event) {}
 	var err error
@@ -42,6 +47,7 @@ func (s *walletSuite) SetupTest() {
 		&s.blockchainMock,
 		addresses.AddressTypeP2PKH,
 		s.onEvent,
+		s.logEntry,
 	)
 	if err != nil {
 		panic(err)

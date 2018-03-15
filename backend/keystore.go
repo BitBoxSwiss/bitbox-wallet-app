@@ -6,6 +6,7 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // keyStoreWithHardenedKeyDerivation is an interface that supports the derivation of additional
@@ -23,6 +24,7 @@ type relativeKeyStore struct {
 	keyStore keyStoreWithHardenedKeyDerivation
 	keyPath  string
 	xPub     *hdkeychain.ExtendedKey
+	logEntry *logrus.Entry
 }
 
 // newRelativeKeyStore creates a new relativeKeyStore.
@@ -30,16 +32,19 @@ type relativeKeyStore struct {
 func newRelativeKeyStore(
 	keyStore keyStoreWithHardenedKeyDerivation,
 	keyPath string,
+	logEntry *logrus.Entry,
 ) (*relativeKeyStore, error) {
+	logEntry.WithField("keypath", keyPath).Debug("Creating new relative keystore with keyPath")
 	xPub, err := keyStore.XPub(keyPath)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(err, "Failed to fetch the xPub")
 	}
 
 	return &relativeKeyStore{
 		keyStore: keyStore,
 		keyPath:  keyPath,
 		xPub:     xPub,
+		logEntry: logEntry,
 	}, nil
 }
 
@@ -56,6 +61,7 @@ func (rks *relativeKeyStore) Sign(
 	signatureHashes [][]byte,
 	relativeKeyPaths []string,
 ) ([]btcec.Signature, error) {
+	rks.logEntry.WithField("relative-keypaths", relativeKeyPaths).Info("Sign")
 	keyPaths := make([]string, len(relativeKeyPaths))
 	for i, path := range relativeKeyPaths {
 		keyPaths[i] = rks.keyPath + "/" + path
@@ -63,9 +69,12 @@ func (rks *relativeKeyStore) Sign(
 	signatures, err := rks.keyStore.Sign(signatureHashes, keyPaths)
 	if err != nil {
 		if bitbox.IsErrorAbort(err) {
+			rks.logEntry.WithField("relative-keypaths", relativeKeyPaths).Info("Signing aborted")
 			return nil, errp.WithStack(btc.ErrUserAborted)
 		}
+		rks.logEntry.WithFields(logrus.Fields{"relative-keypaths": relativeKeyPaths, "error": err}).Error("Failed to sign the signature hash")
 		return nil, err
 	}
+	rks.logEntry.WithField("relative-keypaths", relativeKeyPaths).Info("Signing successful")
 	return signatures, nil
 }

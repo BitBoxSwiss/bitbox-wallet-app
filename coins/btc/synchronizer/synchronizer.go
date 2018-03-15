@@ -1,6 +1,9 @@
 package synchronizer
 
-import "github.com/shiftdevices/godbb/util/locker"
+import (
+	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/sirupsen/logrus"
+)
 
 // Synchronizer keeps track of a reference counter. It is useful to keep track of outstanding tasks
 // that run in goroutines.
@@ -10,16 +13,18 @@ type Synchronizer struct {
 	onSyncFinished  func()
 	wait            chan struct{}
 	waitLock        locker.Locker
+	logEntry        *logrus.Entry
 }
 
 // NewSynchronizer creates a new Synchronizer. onSyncStarted is called when the counter is first
 // incremented. onSyncFinished is called when the counter is last decremented.
-func NewSynchronizer(onSyncStarted func(), onSyncFinished func()) *Synchronizer {
+func NewSynchronizer(onSyncStarted func(), onSyncFinished func(), logEntry *logrus.Entry) *Synchronizer {
 	synchronizer := &Synchronizer{
 		requestsCounter: 0,
 		onSyncStarted:   onSyncStarted,
 		onSyncFinished:  onSyncFinished,
 		wait:            nil,
+		logEntry:        logEntry.WithField("group", "synchronizer"),
 	}
 	return synchronizer
 }
@@ -27,6 +32,8 @@ func NewSynchronizer(onSyncStarted func(), onSyncFinished func()) *Synchronizer 
 // IncRequestsCounter increments the counter, and returns a function to decrement it which must be
 // called after the task has finished.
 func (synchronizer *Synchronizer) IncRequestsCounter() func() {
+	synchronizer.logEntry.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
+		Debug("incrementing request counter")
 	defer synchronizer.waitLock.Lock()()
 	synchronizer.requestsCounter++
 	if synchronizer.requestsCounter == 1 {
@@ -37,6 +44,8 @@ func (synchronizer *Synchronizer) IncRequestsCounter() func() {
 }
 
 func (synchronizer *Synchronizer) decRequestsCounter() {
+	synchronizer.logEntry.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
+		Debug("decrementing request counter")
 	defer synchronizer.waitLock.Lock()()
 	synchronizer.requestsCounter--
 	if synchronizer.requestsCounter == 0 {
@@ -51,6 +60,8 @@ func (synchronizer *Synchronizer) decRequestsCounter() {
 
 // WaitSynchronized blocks until all pending synchronization tasks are finished.
 func (synchronizer *Synchronizer) WaitSynchronized() {
+	synchronizer.logEntry.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
+		Debug("wait synchronized")
 	if func() int32 {
 		defer synchronizer.waitLock.RLock()()
 		return synchronizer.requestsCounter

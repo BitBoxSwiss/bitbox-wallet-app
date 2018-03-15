@@ -87,6 +87,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
   branch = "master"
   name = "github.com/skip2/go-qrcode"
   packages = [
@@ -124,9 +130,19 @@
   name = "golang.org/x/crypto"
   packages = [
     "pbkdf2",
-    "ripemd160"
+    "ripemd160",
+    "ssh/terminal"
   ]
   revision = "2509b142fb2b797aa7587dad548f113b2c0f20ce"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = [
+    "unix",
+    "windows"
+  ]
+  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
 
 [[projects]]
   branch = "master"
@@ -139,9 +155,15 @@
   ]
   revision = "c4d099d611ac3ded35360abf03581e13d91c828f"
 
+[[projects]]
+  name = "gopkg.in/yaml.v2"
+  packages = ["."]
+  revision = "86f5ed62f8a0ee96bd888d2efdfd6d4fb100a4eb"
+  version = "v2.2.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "43f63384114ebee4a733c8bacd1004627eadd9b44b560b351a27f448445bec85"
+  inputs-digest = "b17d173289b830c768af46f65c7a952c0bd1a035a3361c5db54917646f0f4f51"
   solver-name = "gps-cdcl"
   solver-version = 1

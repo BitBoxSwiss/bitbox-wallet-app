@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
@@ -15,6 +14,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -38,14 +38,16 @@ type ElectrumClient struct {
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
 
-	close bool
+	close    bool
+	logEntry *logrus.Entry
 }
 
 // NewElectrumClient creates a new Electrum client.
-func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
+func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumClient, error) {
 	electrumClient := &ElectrumClient{
 		rpc: rpcClient,
 		scriptHashNotificationCallbacks: map[string]func(string) error{},
+		logEntry:                        logEntry.WithField("group", "client"),
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
 	// installed by ScriptHashSubscribe().
@@ -56,11 +58,11 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 			// "[\"mn31QqyuBum6PFS7VFyo8oUL8Yc8G8MHZA\", \"3b98a4b9bed1312f4f53a1c6c9276b0ad8be68c57a5bcbe651688e4f4191b521\"]"
 			response := []string{}
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				electrumClient.handleError(errp.WithStack(err))
+				electrumClient.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return
 			}
 			if len(response) != 2 {
-				electrumClient.handleError(errp.New("unexpected response"))
+				electrumClient.logEntry.WithField("response-length", len(response)).Error("Unexpected response (expected 2)")
 				return
 			}
 			scriptHash := response[0]
@@ -70,12 +72,13 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
 			if ok {
 				if err := callback(status); err != nil {
-					electrumClient.handleError(err)
+					electrumClient.logEntry.WithField("error", err).Error("Failed to execute callback")
 					return
 				}
 			}
 		},
 	); err != nil {
+		electrumClient.logEntry.WithField("error", err).Error("Failed to subscribe to scripthash notifications")
 		return nil, err
 	}
 
@@ -93,9 +96,10 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 func (client *ElectrumClient) ping() {
 	for !client.close {
 		time.Sleep(time.Minute)
-		log.Println("pinging the electrum server")
+		client.logEntry.Debug("Pinging the electrum server")
 		_, err := client.ServerVersion()
 		if err != nil {
+			client.logEntry.WithField("error", err).Error("Error while pinging the server")
 			// TODO
 			panic(err)
 		}
@@ -112,10 +116,10 @@ type ServerVersion struct {
 func (version *ServerVersion) UnmarshalJSON(b []byte) error {
 	slice := []string{}
 	if err := json.Unmarshal(b, &slice); err != nil {
-		return err
+		return errp.WithContext(errp.WithMessage(errp.WithStack(err), "Failed to unmarshal JSON"), errp.Context{"raw": string(b)})
 	}
 	if len(slice) != 2 {
-		return errp.New("unexpected reply")
+		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"raw": string(b)})
 	}
 	version.Version = slice[0]
 	version.ProtocolVersion = slice[1]
@@ -159,6 +163,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 		func(responseBytes []byte) error {
 			response := &Balance{}
 			if err := json.Unmarshal(responseBytes, response); err != nil {
+				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(response)
@@ -203,6 +208,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 		func(responseBytes []byte) error {
 			txs := TxHistory{}
 			if err := json.Unmarshal(responseBytes, &txs); err != nil {
+				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(txs)
@@ -226,6 +232,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		func(responseBytes []byte) error {
 			var response *string
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
+				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			if response == nil {
@@ -238,14 +245,14 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		scriptHashHex)
 }
 
-func parseTX(rawTXHex string) (*wire.MsgTx, error) {
+func parseTX(rawTXHex string, logEntry *logrus.Entry) (*wire.MsgTx, error) {
 	rawTX, err := hex.DecodeString(rawTXHex)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithMessage(errp.WithStack(err), "Failed to decode transaction hex")
 	}
 	tx := &wire.MsgTx{}
 	if err := tx.BtcDecode(bytes.NewReader(rawTX), 0, wire.WitnessEncoding); err != nil {
-		return nil, err
+		return nil, errp.WithMessage(errp.WithStack(err), "Failed to decode BTC transaction")
 	}
 	return tx, nil
 }
@@ -263,7 +270,7 @@ func (client *ElectrumClient) TransactionGet(
 			if err := json.Unmarshal(responseBytes, &rawTXHex); err != nil {
 				return errp.WithStack(err)
 			}
-			tx, err := parseTX(rawTXHex)
+			tx, err := parseTX(rawTXHex, client.logEntry)
 			if err != nil {
 				return err
 			}
@@ -272,10 +279,6 @@ func (client *ElectrumClient) TransactionGet(
 		cleanup,
 		"blockchain.transaction.get",
 		txHash.String())
-}
-
-func (client *ElectrumClient) handleError(err error) {
-	log.Println(err)
 }
 
 // Header is returned by HeadersSubscribe().
@@ -305,11 +308,11 @@ func (txHash *TXHash) Hash() chainhash.Hash {
 func (txHash *TXHash) UnmarshalJSON(jsonBytes []byte) error {
 	var txHashStr string
 	if err := json.Unmarshal(jsonBytes, &txHashStr); err != nil {
-		return err
+		return errp.WithStack(err)
 	}
 	t, err := chainhash.NewHashFromStr(txHashStr)
 	if err != nil {
-		return err
+		return errp.WithStack(err)
 	}
 	*txHash = TXHash(*t)
 	return nil
@@ -327,8 +330,10 @@ type UTXO struct {
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashlistunspent
 func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UTXO, error) {
 	response := []*UTXO{}
-	err := client.rpc.MethodSync(&response, "blockchain.scripthash.listunspent", scriptHashHex)
-	return response, err
+	if err := client.rpc.MethodSync(&response, "blockchain.scripthash.listunspent", scriptHashHex); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return response, nil
 }
 
 // TransactionBroadcast does the blockchain.transaction.broadcast() RPC call.
@@ -339,12 +344,13 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 	rawTxHex := hex.EncodeToString(rawTx.Bytes())
 	var response string
 	if err := client.rpc.MethodSync(&response, "blockchain.transaction.broadcast", rawTxHex); err != nil {
-		return err
+		return errp.WithMessage(errp.WithStack(err), "Failed to broadcast transaction")
 	}
 	// TxHash() deviates from the hash of rawTxHex in case of a segwit tx. The stripped transaction
 	// ID is used.
 	if response != transaction.TxHash().String() {
-		return errp.New(response)
+		return errp.WithContext(errp.New("Response is unexpected (expected TX hash)"),
+			errp.Context{"response": response})
 	}
 	return nil
 }
@@ -354,7 +360,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 	var response float64
 	if err := client.rpc.MethodSync(&response, "blockchain.relayfee"); err != nil {
-		return 0, err
+		return 0, errp.WithMessage(errp.WithStack(err), "Failed to relay fee")
 	}
 	return btcutil.NewAmount(response)
 }
@@ -371,14 +377,14 @@ func (client *ElectrumClient) EstimateFee(
 		func(responseBytes []byte) error {
 			var fee float64
 			if err := json.Unmarshal(responseBytes, &fee); err != nil {
-				return errp.WithStack(err)
+				return errp.WithMessage(errp.WithStack(err), "Failed to unmarshal JSON")
 			}
 			if fee == -1 {
-				return errp.New("fee could not be estimated")
+				return errp.New("Fee could not be estimated")
 			}
 			amount, err := btcutil.NewAmount(fee)
 			if err != nil {
-				return err
+				return errp.WithMessage(errp.WithStack(err), "Failed to construct BTC amount")
 			}
 			return success(amount)
 		},

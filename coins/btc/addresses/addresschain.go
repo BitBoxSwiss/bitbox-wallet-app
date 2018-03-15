@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/sirupsen/logrus"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
@@ -19,6 +20,7 @@ type AddressChain struct {
 	chainIndex  uint32
 	addressType AddressType
 	addresses   []*Address
+	logEntry    *logrus.Entry
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub. xpub
@@ -29,6 +31,7 @@ func NewAddressChain(
 	gapLimit int,
 	chainIndex uint32,
 	addressType AddressType,
+	logEntry *logrus.Entry,
 ) *AddressChain {
 	if xpub.IsPrivate() {
 		panic("Extended key is private! Only public keys are accepted")
@@ -38,6 +41,7 @@ func NewAddressChain(
 	}
 	chainXPub, err := xpub.Child(chainIndex)
 	if err != nil {
+		logEntry.WithField("error", err).WithError(err)
 		panic(err)
 	}
 	return &AddressChain{
@@ -47,24 +51,31 @@ func NewAddressChain(
 		chainIndex:  chainIndex,
 		addressType: addressType,
 		addresses:   []*Address{},
+		logEntry: logEntry.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
+			"gap-limit": gapLimit, "address-type": addressType}),
 	}
 }
 
 // GetUnused returns the first unused address. EnsureAddresses() must be called beforehand.
 func (addresses *AddressChain) GetUnused() *Address {
 	if addresses.unusedTailCount() != addresses.gapLimit {
+		addresses.logEntry.Panic("Concurrency error: Addresses not synced correctly")
 		panic("concurrency error; addresses not synced correctly")
 	}
 	return addresses.addresses[len(addresses.addresses)-addresses.gapLimit]
 }
 
 func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {
+	addresses.logEntry.Debug("Get public key")
 	xpub, err := addresses.xpub.Child(index)
 	if err != nil {
+		addresses.logEntry.WithFields(logrus.Fields{"index": index, "error": err}).
+			Panic("Failed to get XPub child")
 		panic(err)
 	}
 	publicKey, err := xpub.ECPubKey()
 	if err != nil {
+		addresses.logEntry.WithField("error", err).Panic("Failed to get EC pubkey")
 		panic(err)
 	}
 	return publicKey
@@ -72,6 +83,7 @@ func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {
 
 // addAddress appends a new address at the end of the chain.
 func (addresses *AddressChain) addAddress() *Address {
+	addresses.logEntry.Debug("Add new address to chain")
 	index := len(addresses.addresses)
 	publicKey := addresses.getPubKey(uint32(index))
 	addressWithPK := NewAddress(
@@ -79,6 +91,7 @@ func (addresses *AddressChain) addAddress() *Address {
 		addresses.net,
 		fmt.Sprintf("%d/%d", addresses.chainIndex, index),
 		addresses.addressType,
+		addresses.logEntry,
 	)
 	addresses.addresses = append(addresses.addresses, addressWithPK)
 	return addressWithPK
@@ -94,6 +107,7 @@ func (addresses *AddressChain) unusedTailCount() int {
 		}
 		count++
 	}
+	addresses.logEntry.WithField("tail-count", count).Debug("Unused tail count")
 	return count
 }
 

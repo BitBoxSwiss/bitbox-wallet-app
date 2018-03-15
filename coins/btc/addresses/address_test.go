@@ -4,6 +4,8 @@ import (
 	"encoding/hex"
 	"testing"
 
+	"github.com/shiftdevices/godbb/util/logging"
+
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -26,10 +28,11 @@ var (
 		TXHash: client.TXHash(chainhash.HashH([]byte("tx1"))),
 		Fee:    nil,
 	}
+	logEntry = logging.Log.WithGroup("addresses_test")
 )
 
 func TestNewAddress(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH)
+	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, logEntry)
 	require.Equal(t, keyPath, address.KeyPath)
 	require.Equal(t,
 		"mye65xn4WGxC9XgRtaNbyAfWwBqAYLgtKB",
@@ -39,12 +42,12 @@ func TestNewAddress(t *testing.T) {
 }
 
 func TestPkScript(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH)
+	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, logEntry)
 	require.Equal(t, payToAddrScript, address.PkScript())
 }
 
 func TestScriptHash(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH)
+	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, logEntry)
 	require.Equal(t,
 		"9d7adb4dafdab53b92b59d68378dc2a65585e22dea93f3cefc4598f1a803af40",
 		address.ScriptHash())

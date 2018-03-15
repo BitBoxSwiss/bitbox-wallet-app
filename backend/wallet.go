@@ -2,13 +2,13 @@ package backend
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/electrum"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -30,9 +30,12 @@ type Wallet struct {
 
 	net         *chaincfg.Params
 	addressType addresses.AddressType
+	logEntry    *logrus.Entry
 }
 
 func (wallet *Wallet) init(backend *Backend) error {
+	wallet.logEntry = wallet.logEntry.WithFields(logrus.Fields{"coin": wallet.Code, "wallet-name": wallet.Name,
+		"net": wallet.net.Name, "address-type": wallet.addressType})
 	var electrumServer string
 	switch wallet.Code {
 	case "tbtc":
@@ -48,13 +51,14 @@ func (wallet *Wallet) init(backend *Backend) error {
 	case "ltc-p2wpkh-p2sh":
 		electrumServer = electrumServerLitecoinMainnet
 	default:
+		wallet.logEntry.Panic("Unknown coin")
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer, true)
+	electrumClient, err := electrum.NewElectrumClient(electrumServer, true, wallet.logEntry)
 	if err != nil {
 		return err
 	}
-	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath)
+	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath, wallet.logEntry)
 	if err != nil {
 		return err
 	}
@@ -65,12 +69,12 @@ func (wallet *Wallet) init(backend *Backend) error {
 		wallet.addressType,
 		func(event btc.Event) {
 			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
-				log.Printf("wallet sync time for %s: %s\n",
-					wallet.Code,
-					time.Since(backend.walletsSyncStart))
+				wallet.logEntry.WithField("wallet-sync-start", time.Since(backend.walletsSyncStart)).
+					Debug("Wallet sync time")
 			}
 			backend.events <- WalletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
 		},
+		wallet.logEntry,
 	)
 	return err
 }

@@ -1,14 +1,16 @@
 package usb
 
 import (
-	"log"
 	"regexp"
 	"time"
+
+	"github.com/shiftdevices/godbb/util/logging"
 
 	"github.com/karalabe/hid"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -39,6 +41,8 @@ type Manager struct {
 
 	onRegister   func(bitbox.Interface) error
 	onUnregister func(string)
+
+	logEntry *logrus.Entry
 }
 
 // NewManager creates a new Manager. onRegister is called when a device has been
@@ -50,6 +54,7 @@ func NewManager(
 	return &Manager{
 		onRegister:   onRegister,
 		onUnregister: onUnregister,
+		logEntry:     logging.Log.WithGroup("manager"),
 	}
 }
 
@@ -57,16 +62,18 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
+		manager.logEntry.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
 		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
 	}
 	firmwareVersion, err := semver.NewSemVerFromString(match[1])
 	if err != nil {
-		return err
+		return errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
+			errp.Context{"serial": deviceInfo.Serial})
 	}
 
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to open device")
 	}
 
 	device, err := bitbox.NewDevice(
@@ -76,10 +83,10 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		NewCommunication(hidDevice),
 	)
 	if err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to establish communication to device")
 	}
 	if err := manager.onRegister(device); err != nil {
-		return err
+		return errp.WithMessage(err, "Failed to execute on-register")
 	}
 	manager.device = device
 	return nil
@@ -103,15 +110,17 @@ func (manager *Manager) ListenHID() {
 				deviceID := manager.device.DeviceID()
 				manager.device = nil
 				manager.onUnregister(deviceID)
+				manager.logEntry.Debug("Unregistered device")
 			}
 		}
 
 		// Check if device was inserted.
 		if len(deviceInfos) > 1 {
+			manager.logEntry.WithField("device-amount", len(deviceInfos)).Panic("Multiple devices detected")
 			panic("TODO: multiple devices?")
 		} else if manager.device == nil && len(deviceInfos) == 1 {
 			if err := manager.register(deviceInfos[0]); err != nil {
-				log.Println(err)
+				manager.logEntry.WithField("error", err).Error("Failed to register device")
 				return
 			}
 		}
