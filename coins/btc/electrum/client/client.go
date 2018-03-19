@@ -79,6 +79,11 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 		return nil, err
 	}
 
+	// Ping sends the version and must be the first message, to establish which methods the server
+	// accepts.
+	if _, err := electrumClient.ServerVersion(); err != nil {
+		return nil, err
+	}
 	go electrumClient.ping()
 
 	return electrumClient, nil
@@ -87,13 +92,13 @@ func NewElectrumClient(rpcClient RPCClient) (*ElectrumClient, error) {
 // ping periodically pings the server to keep the connection alive.
 func (client *ElectrumClient) ping() {
 	for !client.close {
+		time.Sleep(time.Minute)
 		log.Println("pinging the electrum server")
 		_, err := client.ServerVersion()
 		if err != nil {
 			// TODO
 			panic(err)
 		}
-		time.Sleep(time.Minute)
 	}
 }
 
