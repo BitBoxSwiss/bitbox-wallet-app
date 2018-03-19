@@ -20,9 +20,15 @@ const (
 func DeviceInfos() []hid.DeviceInfo {
 	deviceInfos := []hid.DeviceInfo{}
 	for _, deviceInfo := range hid.Enumerate(vendorID, productID) {
-		if deviceInfo.Interface == 0 || deviceInfo.UsagePage == 0xffff {
-			deviceInfos = append(deviceInfos, deviceInfo)
+		if deviceInfo.Interface != 0 && deviceInfo.UsagePage != 0xffff {
+			continue
 		}
+		// If Enumerate() is called too quickly after a device is inserted, the HID device input
+		// report is not yet ready.
+		if deviceInfo.Serial == "" || deviceInfo.Product == "" {
+			continue
+		}
+		deviceInfos = append(deviceInfos, deviceInfo)
 	}
 	return deviceInfos
 }
