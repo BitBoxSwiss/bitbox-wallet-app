@@ -188,6 +188,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 // changes, to keep the gapLimit tail.
 func (wallet *Wallet) ensureAddresses() {
 	defer wallet.Lock()()
+	defer wallet.synchronizer.IncRequestsCounter()()
 	syncSequence := func(change bool) error {
 		for _, address := range wallet.addresses(change).EnsureAddresses() {
 			if err := wallet.subscribeAddress(address); err != nil {
