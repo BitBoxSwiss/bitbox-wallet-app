@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"regexp"
 
@@ -152,8 +153,13 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return handlers.backend.DeviceRegistered(), nil
 }
 
-func (handlers *Handlers) registerTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
-	keyStore, err := backend.NewSoftwareBasedKeyStore(false)
+func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	keyStore, err := backend.NewSoftwareBasedKeyStore(string(body) == "new")
 	if err != nil {
 		return nil, err
 	}
