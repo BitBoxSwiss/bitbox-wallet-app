@@ -126,11 +126,11 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) postLockBootloaderHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postLockBootloaderHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.LockBootloader()
 }
 
-func (handlers *Handlers) postUnlockBootloaderHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postUnlockBootloaderHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.UnlockBootloader()
 }
 
@@ -171,6 +171,6 @@ func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, 
 	return map[string]interface{}{"didReset": didReset}, nil
 }
 
-func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
 }

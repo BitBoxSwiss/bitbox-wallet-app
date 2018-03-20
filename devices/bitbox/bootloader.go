@@ -38,19 +38,19 @@ func (dbb *Device) BootloaderStatus() (*BootloaderStatus, error) {
 	return dbb.bootloaderStatus, nil
 }
 
-func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) ([]byte, error) {
+func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) error {
 	var buf bytes.Buffer
 	buf.WriteRune(cmd)
 	buf.Write(data)
 	reply, err := dbb.communication.SendBootloader(buf.Bytes())
 	if err != nil {
-		return nil, err
+		return err
 	}
 	if reply[0] != byte(cmd) || rune(reply[1]) != '0' {
 		log.Printf("unexpected reply: %s\n", reply)
-		return nil, errp.New("unexpected reply")
+		return errp.New("unexpected reply")
 	}
-	return reply[2:], nil
+	return nil
 }
 
 func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
@@ -61,7 +61,7 @@ func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
 	buf.WriteByte(chunkNum)
 	buf.Write(data)
 	buf.Write(bytes.Repeat([]byte{0xFF}, bootloaderMaxChunkSize-len(data)))
-	_, err := dbb.bootloaderSendCmd('w', buf.Bytes())
+	err := dbb.bootloaderSendCmd('w', buf.Bytes())
 	return err
 }
 
@@ -72,7 +72,7 @@ func (dbb *Device) bootloaderSendSigs(sigs []byte) error {
 	var buf bytes.Buffer
 	buf.WriteRune('0')
 	buf.WriteString(hex.EncodeToString(sigs))
-	_, err := dbb.bootloaderSendCmd('s', buf.Bytes())
+	err := dbb.bootloaderSendCmd('s', buf.Bytes())
 	return err
 }
 
@@ -120,7 +120,7 @@ func (dbb *Device) BootloaderUpgradeFirmware(signedFirmware []byte) error {
 	dbb.fireEvent(EventBootloaderStatusChanged)
 	err := func() error {
 		// Erase the firmware (required).
-		if _, err := dbb.bootloaderSendCmd('e', nil); err != nil {
+		if err := dbb.bootloaderSendCmd('e', nil); err != nil {
 			return err
 		}
 		sigs, firmware := signedFirmware[:signaturesSize], signedFirmware[signaturesSize:]
