@@ -1,86 +1,130 @@
 package backend_test
 
 import (
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
-	"time"
 
+	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/util/jsonp"
+
+	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/handlers"
-	"github.com/shiftdevices/godbb/util/jsonp"
 )
 
-var router = handlers.NewHandlers(backend.NewBackend(), 8082).Router
+type backendTestSuite struct {
+	suite.Suite
 
-func executeRequest(request *http.Request) *httptest.ResponseRecorder {
-	response := httptest.NewRecorder()
-	router.ServeHTTP(response, request)
-	return response
+	router    *mux.Router
+	server    *httptest.Server
+	websocket *websocket.Conn
+}
+
+func (s *backendTestSuite) SetupSuite() {
+	s.router = handlers.NewHandlers(backend.NewBackend(), 8082).Router
+	s.server = httptest.NewServer(s.router)
+
+	url := "ws" + strings.TrimPrefix(s.server.URL, "http") + "/api/events"
+	websocket, _, err := websocket.DefaultDialer.Dial(url, nil)
+	require.NoError(s.T(), err)
+	s.websocket = websocket
+}
+
+func (s *backendTestSuite) TearDownSuite() {
+	err := s.websocket.Close()
+	require.NoError(s.T(), err)
+	s.server.Close()
 }
 
 // Returns the body of the response to a request with the given method to the given path with the given body.
-func request(method, path, body string) string {
+func (s *backendTestSuite) request(method, path, body string) string {
 	reader := strings.NewReader(body)
 	request := httptest.NewRequest(method, path, reader)
-	response := executeRequest(request)
-	if response.Code != http.StatusOK {
-		panic(fmt.Sprintf("The response code was %d instead of %d.\n", response.Code, http.StatusOK))
-	}
+	response := httptest.NewRecorder()
+	s.router.ServeHTTP(response, request)
+	require.Equal(s.T(), http.StatusOK, response.Code, "Received an invalid response code.")
 	return response.Body.String()
 }
 
 // Returns the body of the response to a GET request to the given path.
-func get(path string) string {
-	return request("GET", path, "")
+func (s *backendTestSuite) get(path string) string {
+	return s.request("GET", path, "")
 }
 
 // Returns the body of the response to a POST request to the given path with the given body.
-func post(path, body string) string {
-	return request("POST", path, body)
+func (s *backendTestSuite) post(path, body string) string {
+	return s.request("POST", path, body)
+}
+
+// Waits for the given wallet event to be received through the websocket to the backend.
+func (s *backendTestSuite) waitForWalletEvent(expectedEvent backend.WalletEvent) {
+	for {
+		_, message, err := s.websocket.ReadMessage()
+		require.NoError(s.T(), err)
+		if err != nil {
+			break
+		}
+		var receivedEvent backend.WalletEvent
+		err = json.Unmarshal(message, &receivedEvent)
+		// Unmarshal fails if the message is not a wallet event.
+		if err == nil && receivedEvent == expectedEvent {
+			break
+		}
+	}
 }
 
 func marshal(value interface{}) string {
 	return string(jsonp.MustMarshal(value))
 }
 
-func printReceivedEvents(t *testing.T, ws *websocket.Conn) {
-	for {
-		_, message, err := ws.ReadMessage()
-		if err != nil {
-			if !strings.HasSuffix(err.Error(), "use of closed network connection") {
-				t.Fatalf("%v", err)
-			}
-			break
-		} else {
-			fmt.Println("Received event: " + string(message))
-		}
-	}
+func (s *backendTestSuite) TestBackend() {
+	require.JSONEq(s.T(),
+		marshal("0.1.0"),
+		s.get("/api/version"),
+	)
+
+	require.JSONEq(s.T(),
+		marshal(true),
+		s.post("/api/devices/test/register", ""),
+	)
+
+	require.JSONEq(s.T(),
+		marshal(map[string]bool{"success": true}),
+		s.post("/api/device/login", marshal(map[string]string{
+			"password": "Only use this password in backend_test.go!",
+		})),
+	)
+
+	s.waitForWalletEvent(backend.WalletEvent{
+		Type: "wallet",
+		Code: "tbtc",
+		Data: string(btc.EventSyncDone),
+	})
+
+	require.JSONEq(s.T(),
+		marshal(map[string]interface{}{
+			"available":   "0 BTC",
+			"hasIncoming": false,
+			"incoming":    "0 BTC",
+		}),
+		s.get("/api/wallet/tbtc/balance"),
+	)
+
+	require.JSONEq(s.T(),
+		marshal("mjF1xSgSjYxLBrRNCowvcMtrSFUF7ENtzy"),
+		s.get("/api/wallet/tbtc/receive-address"),
+	)
 }
 
-// TestBackend can be run with 'go test github.com/shiftdevices/godbb/backend -run ^TestBackend$ -v'.
-func TestBackend(t *testing.T) {
-	server := httptest.NewServer(router)
-	defer server.Close()
-
-	url := "ws" + strings.TrimPrefix(server.URL, "http") + "/api/events"
-	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
-	defer ws.Close()
-
-	go printReceivedEvents(t, ws)
-
-	require.JSONEq(t, marshal("0.1.0"), get("/api/version"))
-	require.Equal(t, "null\n", post("/api/devices/test/register", "new"))
-	require.JSONEq(t, marshal(map[string]bool{"success": true}), post("/api/device/login", marshal(map[string]string{"password": "pw"})))
-	time.Sleep(time.Second) // The wallets need to initialize first.
-	balance := marshal(map[string]interface{}{"available": "0 BTC", "hasIncoming": false, "incoming": "0 BTC"})
-	require.JSONEq(t, balance, get("/api/wallet/tbtc/balance"))
+// TestBackendTestSuite can be run with the following command in order to get its output:
+// 'go test github.com/shiftdevices/godbb/backend -run ^TestBackendTestSuite$ -v'.
+func TestBackendTestSuite(t *testing.T) {
+	suite.Run(t, new(backendTestSuite))
 }

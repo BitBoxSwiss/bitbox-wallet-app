@@ -42,7 +42,8 @@ type deviceEvent struct {
 
 type devicesEvent deviceEvent
 
-type walletEvent struct {
+// WalletEvent models an event triggered by a wallet.
+type WalletEvent struct {
 	Type string `json:"type"`
 	Code string `json:"code"`
 	Data string `json:"data"`

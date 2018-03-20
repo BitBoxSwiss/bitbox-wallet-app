@@ -1,13 +1,16 @@
 package backend
 
 import (
-	"fmt"
+	"crypto/sha256"
 	"strconv"
 	"strings"
+
+	"golang.org/x/crypto/pbkdf2"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
+
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -15,43 +18,24 @@ import (
 // DeviceID stores the device ID of the software-based key store.
 const DeviceID = "SoftwareBasedKeyStore"
 
-const hardcodedMasterKey = "tprv8ZgxMBicQKsPeHoKvC2LcH1M8i11H75m675xizMT" +
-	"biRGQ44W7Q153pRffSrBAbbUAvgCjo4RjPxn2AUuJnG4eDzBWx7TDqXoGzyac6VD9EE"
-
 // SoftwareBasedKeyStore implements the BitBox interface to test the backend and the wallets.
 type SoftwareBasedKeyStore struct {
+	// The master key is nil before the login and after the logout.
 	master   *hdkeychain.ExtendedKey
-	status   bitbox.Status
 	listener func(bitbox.Event)
 }
 
 // NewSoftwareBasedKeyStore creates a new software-based key store.
-// newSeed determines whether a new seed is generated or the hardcoded one is used.
-func NewSoftwareBasedKeyStore(newSeed bool) (*SoftwareBasedKeyStore, error) {
-	var master *hdkeychain.ExtendedKey
-	if newSeed {
-		var err error
-		seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
-		if err != nil {
-			return nil, err
-		}
-		master, err = hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
-		if err != nil {
-			return nil, err
-		}
-		fmt.Println("Master of software-based key store: " + master.String())
-	} else {
-		var err error
-		master, err = hdkeychain.NewKeyFromString(hardcodedMasterKey)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return &SoftwareBasedKeyStore{master, bitbox.StatusInitialized, nil}, nil
+func NewSoftwareBasedKeyStore() *SoftwareBasedKeyStore {
+	return &SoftwareBasedKeyStore{nil, nil}
 }
 
 // xprv returns the xprv at the given absolute path.
 func (ks *SoftwareBasedKeyStore) xprv(path string) (*hdkeychain.ExtendedKey, error) {
+	if ks.master == nil {
+		return nil, errp.New("The key store has to be seeded first through the login.")
+	}
+
 	components := strings.Split(strings.ToLower(path), "/")
 	if components[0] != "m" {
 		return nil, errp.New("An absolute key path has to start with 'm'.")
@@ -135,35 +119,42 @@ func (ks *SoftwareBasedKeyStore) SetOnEvent(listener func(bitbox.Event)) {
 	ks.listener = listener
 }
 
-// Status always returns that this fake BitBox is seeded.
+// Status returns whether this key store has been seeded.
 func (ks *SoftwareBasedKeyStore) Status() bitbox.Status {
-	return ks.status
+	if ks.master == nil {
+		return bitbox.StatusInitialized
+	}
+	return bitbox.StatusSeeded
 }
 
-// BootloaderStatus always returns an error (only firmware mode supported).
+// BootloaderStatus always returns an error (i.e. only the firmware mode is supported).
 func (ks *SoftwareBasedKeyStore) BootloaderStatus() (*bitbox.BootloaderStatus, error) {
 	return nil, errp.New("device is not in bootloader mode")
 }
 
-// Sets the status of the key store and notifies the listener if set.
-func (ks *SoftwareBasedKeyStore) setStatus(status bitbox.Status) {
-	ks.status = status
+// notifyListener notifies the listener if set.
+func (ks *SoftwareBasedKeyStore) notifyListener() {
 	if ks.listener != nil {
 		ks.listener(bitbox.EventStatusChanged)
 	}
 }
 
-// Login accepts any password and unlocks this key store.
-func (ks *SoftwareBasedKeyStore) Login(_ string) (bool, string, error) {
-	fmt.Println("Unlocking the software-based key store.")
-	ks.setStatus(bitbox.StatusSeeded)
+// Login derives the seed of this key store from the given PIN, which can include characters.
+func (ks *SoftwareBasedKeyStore) Login(pin string) (bool, string, error) {
+	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
+	master, err := hdkeychain.NewMaster(seed[:], &chaincfg.TestNet3Params)
+	if err != nil {
+		return false, "", err
+	}
+	ks.master = master
+	ks.notifyListener()
 	return false, "", nil
 }
 
 // Logout locks this key store again.
 func (ks *SoftwareBasedKeyStore) Logout() {
-	fmt.Println("Locking the software-based key store.")
-	ks.setStatus(bitbox.StatusInitialized)
+	ks.master = nil
+	ks.notifyListener()
 }
 
 // DeviceInfo is not supported.

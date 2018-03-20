@@ -67,7 +67,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 					wallet.Code,
 					time.Since(backend.walletsSyncStart))
 			}
-			backend.events <- walletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
+			backend.events <- WalletEvent{Type: "wallet", Code: wallet.Code, Data: string(event)}
 		},
 	)
 	return err
