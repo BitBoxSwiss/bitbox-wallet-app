@@ -59,7 +59,8 @@ export default class App extends Component {
         super(props);
         this.state = {
             deviceRegistered: false,
-            deviceStatus: null
+            deviceStatus: null,
+            testing: false
         };
     }
 
@@ -99,6 +100,7 @@ export default class App extends Component {
                 break;
             }
         });
+        apiGet("testing").then(testing => this.setState({ testing: testing }));
     }
 
     onDevicesRegisteredChanged = () => {
@@ -116,7 +118,17 @@ export default class App extends Component {
         }
     }
 
-    render({}, { deviceRegistered, deviceStatus }) {
+    render({}, { deviceRegistered, deviceStatus, testing }) {
+        function renderButtonIfTesting() {
+            if (testing) {
+                return (
+                    <Button primary={true} raised={true} onClick={()=>{
+                        apiPost("devices/test/register");
+                    }}>Skip for Testing</Button>
+                )
+            }
+        }
+
         if(!deviceRegistered || !deviceStatus) {
             return (
                 <div style="text-align: center;">
@@ -125,9 +137,7 @@ export default class App extends Component {
                             Waiting for device...
                         </Dialog>
                     </div>
-                    <Button primary={true} raised={true} onClick={()=>{
-                        apiPost("devices/test/register");
-                    }}>Skip for Testing</Button>
+                    { renderButtonIfTesting() }
                 </div>
             );
         }

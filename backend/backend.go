@@ -23,6 +23,7 @@ var (
 
 // Interface is the API of the backend.
 type Interface interface {
+	Testing() bool
 	Wallets() []*Wallet
 	UserLanguage() language.Tag
 	OnWalletInit(f func(*Wallet))
@@ -51,7 +52,8 @@ type WalletEvent struct {
 
 // Backend ties everything together and is the main starting point to use the godbb library.
 type Backend struct {
-	events chan interface{}
+	testing bool
+	events  chan interface{}
 
 	device         bitbox.Interface
 	onWalletInit   func(*Wallet)
@@ -64,55 +66,77 @@ type Backend struct {
 	walletsSyncStart time.Time
 }
 
-// NewBackend creates a new Backend.
+// NewBackend creates a new backend.
 func NewBackend() *Backend {
 	return &Backend{
-		events: make(chan interface{}),
+		testing: false,
+		events:  make(chan interface{}),
 		wallets: []*Wallet{
 			&Wallet{
-				Code:                 "tbtc",
-				Name:                 "Bitcoin Testnet",
-				net:                  &chaincfg.TestNet3Params,
-				walletDerivationPath: "m/44'/1'/0'",
-				addressType:          addresses.AddressTypeP2PKH,
+				Code:                  "btc",
+				Name:                  "Bitcoin",
+				WalletDerivationPath:  "m/44'/0'/0'",
+				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
+				net:         &chaincfg.MainNetParams,
+				addressType: addresses.AddressTypeP2PKH,
 			},
 			&Wallet{
-				Code:                 "tbtc-p2wpkh-p2sh",
-				Name:                 "Bitcoin Testnet Segwit",
-				net:                  &chaincfg.TestNet3Params,
-				walletDerivationPath: "m/49'/1'/0'",
-				addressType:          addresses.AddressTypeP2WPKHP2SH,
+				Code:                  "btc-p2wpkh-p2sh",
+				Name:                  "Bitcoin Segwit",
+				WalletDerivationPath:  "m/49'/0'/0'",
+				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
+				net:         &chaincfg.MainNetParams,
+				addressType: addresses.AddressTypeP2WPKHP2SH,
 			},
 			&Wallet{
-				Code:                 "btc",
-				Name:                 "Bitcoin",
-				net:                  &chaincfg.MainNetParams,
-				walletDerivationPath: "m/44'/0'/0'",
-				addressType:          addresses.AddressTypeP2PKH,
-			},
-			&Wallet{
-				Code:                 "btc-p2wpkh-p2sh",
-				Name:                 "Bitcoin Segwit",
-				net:                  &chaincfg.MainNetParams,
-				walletDerivationPath: "m/49'/0'/0'",
-				addressType:          addresses.AddressTypeP2WPKHP2SH,
-			},
-			&Wallet{
-				Code:                 "tltc-p2wpkh-p2sh",
-				Name:                 "Litecoin Testnet",
-				net:                  &ltc.TestNet4Params,
-				walletDerivationPath: "m/49'/1'/0'",
-				addressType:          addresses.AddressTypeP2WPKHP2SH,
-			},
-			&Wallet{
-				Code:                 "ltc-p2wpkh-p2sh",
-				Name:                 "Litecoin",
-				net:                  &ltc.MainNetParams,
-				walletDerivationPath: "m/49'/2'/0'",
-				addressType:          addresses.AddressTypeP2WPKHP2SH,
+				Code:                  "ltc-p2wpkh-p2sh",
+				Name:                  "Litecoin",
+				WalletDerivationPath:  "m/49'/2'/0'",
+				BlockExplorerTxPrefix: "https://insight.litecore.io/tx/",
+				net:         &ltc.MainNetParams,
+				addressType: addresses.AddressTypeP2WPKHP2SH,
 			},
 		},
 	}
+}
+
+// NewBackendForTesting creates a new backend for testing.
+func NewBackendForTesting() *Backend {
+	return &Backend{
+		testing: true,
+		events:  make(chan interface{}),
+		wallets: []*Wallet{
+			&Wallet{
+				Code:                  "tbtc",
+				Name:                  "Bitcoin Testnet",
+				WalletDerivationPath:  "m/44'/1'/0'",
+				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
+				net:         &chaincfg.TestNet3Params,
+				addressType: addresses.AddressTypeP2PKH,
+			},
+			&Wallet{
+				Code:                  "tbtc-p2wpkh-p2sh",
+				Name:                  "Bitcoin Testnet Segwit",
+				WalletDerivationPath:  "m/49'/1'/0'",
+				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
+				net:         &chaincfg.TestNet3Params,
+				addressType: addresses.AddressTypeP2WPKHP2SH,
+			},
+			&Wallet{
+				Code:                  "tltc-p2wpkh-p2sh",
+				Name:                  "Litecoin Testnet",
+				WalletDerivationPath:  "m/49'/1'/0'",
+				BlockExplorerTxPrefix: "http://explorer.litecointools.com/tx/",
+				net:         &ltc.TestNet4Params,
+				addressType: addresses.AddressTypeP2WPKHP2SH,
+			},
+		},
+	}
+}
+
+// Testing returns whether this backend is for testing only.
+func (backend *Backend) Testing() bool {
+	return backend.testing
 }
 
 // Wallets returns the supported wallets.

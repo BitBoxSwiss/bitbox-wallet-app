@@ -286,7 +286,7 @@ class Wallet extends Component {
     }
 
     onStatusChanged = () => {
-        apiGet("wallet/" + this.props.walletCode + "/status").then(initialized => {
+        apiGet("wallet/" + this.props.wallet.code + "/status").then(initialized => {
             this.setState({ walletInitialized: initialized });
             this.onWalletChanged();
         });
@@ -294,57 +294,49 @@ class Wallet extends Component {
 
     onWalletChanged = () => {
         if(this.state.walletInitialized) {
-            apiGet("wallet/" + this.props.walletCode + "/transactions").then(transactions => {
+            apiGet("wallet/" + this.props.wallet.code + "/transactions").then(transactions => {
                 this.setState({ transactions: transactions });
             });
-            apiGet("wallet/" + this.props.walletCode + "/balance").then(balance => {
+            apiGet("wallet/" + this.props.wallet.code + "/balance").then(balance => {
                 this.setState({ balance: balance });
             });
-            apiGet("wallet/" + this.props.walletCode + "/receive-address").then(address => {
+            apiGet("wallet/" + this.props.wallet.code + "/receive-address").then(address => {
                 this.setState({ receiveAddress: address });
             });
         }
     }
 
-    render({show, walletCode}, { walletInitialized, transactions, balance, receiveAddress }) {
-        if(!show) return;
+    render({show, wallet}, { walletInitialized, transactions, balance, receiveAddress }) {
+        if (!show) return;
+
+        const renderTransaction = transaction => <List.Item>
+            <a href={ wallet.blockExplorerTxPrefix + transaction.id } target="_blank">{ transaction.id }</a>&nbsp;–
+            Height { transaction.height } –
+            Amount { transaction.amount } –
+            Fee { transaction.fee } –
+            Type { transaction.type }
+        </List.Item>;
 
         const renderTransactions = transactions => {
-            if(!walletInitialized) {
-                return (
-                    <div>
-                      Initializing.
-                    </div>
-                );
-            }
-            if(transactions.length == 0) {
-                return (
-                    <div>
-                      No transactions yet.
-                    </div>
-                );
-            }
-            return (
-                <List>
-                  { transactions.map(renderTransaction) }
-                </List>
-            );
+            if (!walletInitialized) { return <div>Initializing.</div>; }
+            if (transactions.length == 0) { return <div>No transactions yet.</div>; }
+            return <List>{ transactions.map(renderTransaction) }</List>;
         };
-        const renderTransaction = transaction => <List.Item>{ transaction.id } - Height { transaction.height } - Amount { transaction.amount } - Fee { transaction.fee } - Type { transaction.type }</List.Item>;
+
         return (
             <div>
-              <h2>{walletCode}</h2>
-              <p>
-                <SendButton
-                  walletCode={walletCode}
-                  walletInitialized={walletInitialized}/>
-                &nbsp;
-                <ReceiveButton receiveAddress={receiveAddress}/>
-              </p>
-              <h2>Amount</h2>
-              Available balance to spend: { balance.available } { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
-              <h2>Transactions</h2>
-              { renderTransactions(transactions) }
+                <h2>{ wallet.name }</h2>
+                <p>
+                    <SendButton
+                    walletCode={ wallet.code }
+                    walletInitialized={ walletInitialized }/>
+                    &nbsp;
+                    <ReceiveButton receiveAddress={ receiveAddress }/>
+                </p>
+                <h2>Amount</h2>
+                Available balance to spend: { balance.available } { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
+                <h2>Transactions</h2>
+                { renderTransactions(transactions) }
             </div>
         );
     }
@@ -356,13 +348,14 @@ export default class Wallets extends Component {
         super(props);
         this.onWalletEvents = {};
         this.state = {
-            activeCoin: "tbtc"
+            wallets: [],
+            activeWallet: null
         };
     }
 
     componentDidMount() {
         this.props.registerOnWalletEvent(function(data) {
-            if(this.onWalletEvents[data.code]) {
+            if (this.onWalletEvents[data.code]) {
                 this.onWalletEvents[data.code](data);
             } else {
                 console.log("ignoring event for wallet " + data.code);
@@ -370,63 +363,36 @@ export default class Wallets extends Component {
         }.bind(this));
         apiGet("device/info").then(({ sdcard }) => {
             if(sdcard) {
-                alert("TODO nice msg: keep the SD card stored securely unless you want to manage backups");
+                alert("Keep the SD card stored securely unless you want to manage backups.");
             }
+        });
+        apiGet("wallets").then(wallets => {
+            this.setState({ wallets: wallets, activeWallet: wallets.length ? wallets[0] : null });
         });
     }
 
-    render({}, { activeCoin }) {
+    render({}, { wallets, activeWallet }) {
         const this_ = this;
-        function CoinLink({code}) {
+        function renderCoinButton(wallet) {
             return (
-                <Button primary={true} raised={true} onClick={()=>{
-                    this_.setState({ activeCoin: code });
-                }}>{this.props.children}</Button>
+                <Button primary={true} raised={true} onClick={ () => {
+                    this_.setState({ activeWallet: wallet });
+                }} style="margin-right: 4px">{ wallet.name }</Button>
+            );
+        }
+        function renderWallet(wallet) {
+            return (
+                <Wallet
+                    wallet={ wallet }
+                    show={ activeWallet.code == wallet.code }
+                    registerOnWalletEvent={ onWalletEvent => { this_.onWalletEvents[wallet.code] = onWalletEvent; }}
+                    />
             );
         }
         return (
             <div>
-              <CoinLink code="tbtc">Bitcoin Testnet</CoinLink>
-              &nbsp;
-              <CoinLink code="tbtc-p2wpkh-p2sh">Bitcoin Testnet Segwit</CoinLink>
-              &nbsp;
-              <CoinLink code="btc">Bitcoin</CoinLink>
-              &nbsp;
-              <CoinLink code="btc-p2wpkh-p2sh">Bitcoin Segwit</CoinLink>
-              &nbsp;
-              <CoinLink code="tltc-p2wpkh-p2sh">Litecoin Testnet</CoinLink>
-              &nbsp;
-              <CoinLink code="ltc-p2wpkh-p2sh">Litecoin</CoinLink>
-              <Wallet
-                walletCode="tbtc"
-                show={activeCoin == "tbtc"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tbtc"] = onWalletEvent; }}
-                />
-              <Wallet
-                walletCode="tbtc-p2wpkh-p2sh"
-                show={activeCoin == "tbtc-p2wpkh-p2sh"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tbtc-p2wpkh-p2sh"] = onWalletEvent; }}
-                />
-              <Wallet
-                walletCode="btc"
-                show={activeCoin == "btc"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc"] = onWalletEvent; }}
-              />
-              <Wallet
-                walletCode="btc-p2wpkh-p2sh"
-                show={activeCoin == "btc-p2wpkh-p2sh"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["btc-p2wpkh-p2sh"] = onWalletEvent; }}
-                />
-              <Wallet
-                walletCode="tltc-p2wpkh-p2sh"
-                show={activeCoin == "tltc-p2wpkh-p2sh"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["tltc-p2wpkh-p2sh"] = onWalletEvent; }}
-              />
-              <Wallet
-                walletCode="ltc-p2wpkh-p2sh"
-                show={activeCoin == "ltc-p2wpkh-p2sh"}
-                registerOnWalletEvent={onWalletEvent => { this.onWalletEvents["ltc-p2wpkh-p2sh"] = onWalletEvent; }}
-                  />
+                { wallets.map(renderCoinButton) }
+                { wallets.map(renderWallet) }
             </div>
         );
     }

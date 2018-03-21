@@ -11,6 +11,7 @@ export const appTranslations = {
     "header": {
         "wallet": "Wallet",
         "options": "Options",
-        "manageBackups": "Manage Backups"
+        "manageBackups": "Manage Backups",
+        "leave": "Leave"
     }
 };

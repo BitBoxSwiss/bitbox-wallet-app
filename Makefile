@@ -16,6 +16,8 @@ init:
 	make generate
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
+servewallet-mainnet:
+	go install ./cmd/servewallet/... && servewallet -mainnet
 generate:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build

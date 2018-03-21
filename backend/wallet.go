@@ -21,13 +21,15 @@ const (
 
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
-	Code   string
-	Name   string
-	Wallet btc.Interface
+	Code   string        `json:"code"`
+	Name   string        `json:"name"`
+	Wallet btc.Interface `json:"-"`
 
-	net                  *chaincfg.Params
-	walletDerivationPath string
-	addressType          addresses.AddressType
+	WalletDerivationPath  string `json:"keyPath"`
+	BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
+
+	net         *chaincfg.Params
+	addressType addresses.AddressType
 }
 
 func (wallet *Wallet) init(backend *Backend) error {
@@ -52,7 +54,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
-	keyStore, err := newRelativeKeyStore(backend.device, wallet.walletDerivationPath)
+	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath)
 	if err != nil {
 		return err
 	}

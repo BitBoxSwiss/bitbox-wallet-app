@@ -14,6 +14,7 @@ export const appTranslations = {
     "header": {
         "wallet": "Brieftasche",
         "options": "Optionen",
-        "manageBackups": "Backups verwalten"
+        "manageBackups": "Backups verwalten",
+        "leave": "Verlassen"
     }
 };

@@ -61,8 +61,10 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/qr", handlers.getQRCode).Methods("GET")
-	getAPIRouter(apiRouter)("/version", handlers.getVersion).Methods("GET")
+	apiRouter.HandleFunc("/qr", handlers.getQRCodeHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/wallets", handlers.getWalletsHandler).Methods("GET")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -133,11 +135,19 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 	}
 }
 
-func (handlers *Handlers) getVersion(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
 	return backend.Version.String(), nil
 }
 
-func (handlers *Handlers) getQRCode(w http.ResponseWriter, r *http.Request) {
+func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Testing(), nil
+}
+
+func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Wallets(), nil
+}
+
+func (handlers *Handlers) getQRCodeHandler(w http.ResponseWriter, r *http.Request) {
 	data := r.URL.Query().Get("data")
 	qr, err := qrcode.New(data, qrcode.Medium)
 	if err != nil {
