@@ -45,8 +45,8 @@ func NewSemVerFromString(versionString string) (*SemVer, error) {
 	return &SemVer{major: uint16(major), minor: uint16(minor), patch: uint16(patch)}, nil
 }
 
-// Between checks whether this version is between the from-version (including) and the to-version (excluding).
-func (version *SemVer) Between(fromVersion *SemVer, toVersion *SemVer) bool {
+// AtLeast checks whether this version is equal to or higher than fromVersion.
+func (version *SemVer) AtLeast(fromVersion *SemVer) bool {
 	if version.major < fromVersion.major {
 		return false
 	}
@@ -56,16 +56,13 @@ func (version *SemVer) Between(fromVersion *SemVer, toVersion *SemVer) bool {
 	if version.major == fromVersion.major && version.minor == fromVersion.minor && version.patch < fromVersion.patch {
 		return false
 	}
-	if version.major > toVersion.major {
-		return false
-	}
-	if version.major == toVersion.major && version.minor > toVersion.minor {
-		return false
-	}
-	if version.major == toVersion.major && version.minor == toVersion.minor && version.patch >= toVersion.patch {
-		return false
-	}
 	return true
+}
+
+// Between checks whether this version is between the from-version (including) and the to-version
+// (excluding).
+func (version *SemVer) Between(fromVersion *SemVer, toVersion *SemVer) bool {
+	return version.AtLeast(fromVersion) && !version.AtLeast(toVersion)
 }
 
 func (version *SemVer) String() string {

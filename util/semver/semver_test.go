@@ -27,12 +27,20 @@ func TestNewSemVer(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
+func TestAtLeast(t *testing.T) {
+	fromVersion := semver.NewSemVer(3, 2, 4)
+
+	assert.True(t, semver.NewSemVer(3, 2, 4).AtLeast(fromVersion))
+	assert.False(t, semver.NewSemVer(3, 2, 3).AtLeast(fromVersion))
+}
+
 func TestBetween(t *testing.T) {
 	fromVersion := semver.NewSemVer(3, 2, 4)
 	toVersion := semver.NewSemVer(4, 3, 1)
 
 	assert.True(t, semver.NewSemVer(3, 2, 4).Between(fromVersion, toVersion))
 	assert.True(t, semver.NewSemVer(4, 2, 3).Between(fromVersion, toVersion))
+	assert.True(t, semver.NewSemVer(4, 3, 0).Between(fromVersion, toVersion))
 	assert.False(t, semver.NewSemVer(3, 2, 1).Between(fromVersion, toVersion))
 	assert.False(t, semver.NewSemVer(4, 3, 1).Between(fromVersion, toVersion))
 }

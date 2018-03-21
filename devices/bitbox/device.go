@@ -138,10 +138,12 @@ func NewDevice(
 	}
 
 	if !bootloader {
-		// Sleep a bit to wait for the device to initialize. Sending commands too early means the
-		// internal memory might not be initialized, and we run into the password retry check, requiring
-		// a long touch by the user.  TODO: fix in the firmware, then remove this sleep.
-		time.Sleep(1 * time.Second)
+		if !version.AtLeast(semver.NewSemVer(3, 0, 0)) {
+			// Sleep a bit to wait for the device to initialize. Sending commands too early in older
+			// firmware (fixed since v3.0.0) means the internal memory might not be initialized, and
+			// we run into the password retry check, requiring a long touch by the user.
+			time.Sleep(1 * time.Second)
+		}
 
 		// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds, so
 		// repeat the command until it is ready.
