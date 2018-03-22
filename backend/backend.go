@@ -111,12 +111,32 @@ func NewBackend() *Backend {
 }
 
 // NewBackendForTesting creates a new backend for testing.
-func NewBackendForTesting() *Backend {
+func NewBackendForTesting(regtest bool) *Backend {
+	var wallets []*Wallet
 	logEntry := logging.Log.WithGroup("backend")
-	return &Backend{
-		testing: true,
-		events:  make(chan interface{}),
-		wallets: []*Wallet{
+	if regtest {
+		wallets = []*Wallet{
+			&Wallet{
+				Code:                  "rbtc",
+				Name:                  "Bitcoin Regtest",
+				WalletDerivationPath:  "m/44'/1'/0'",
+				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
+				net:         &chaincfg.RegressionNetParams,
+				addressType: addresses.AddressTypeP2PKH,
+				logEntry:    logEntry,
+			},
+			&Wallet{
+				Code:                  "rbtc-p2wpkh-p2sh",
+				Name:                  "Bitcoin Regtest Segwit",
+				WalletDerivationPath:  "m/49'/1'/0'",
+				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
+				net:         &chaincfg.RegressionNetParams,
+				addressType: addresses.AddressTypeP2WPKHP2SH,
+				logEntry:    logEntry,
+			},
+		}
+	} else {
+		wallets = []*Wallet{
 			&Wallet{
 				Code:                  "tbtc",
 				Name:                  "Bitcoin Testnet",
@@ -144,7 +164,12 @@ func NewBackendForTesting() *Backend {
 				addressType: addresses.AddressTypeP2WPKHP2SH,
 				logEntry:    logEntry,
 			},
-		},
+		}
+	}
+	return &Backend{
+		testing:  true,
+		events:   make(chan interface{}),
+		wallets:  wallets,
 		logEntry: logEntry,
 	}
 }

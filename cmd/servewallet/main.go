@@ -28,13 +28,17 @@ func main() {
 	}(logEntry)
 	logEntry.Info("--------------- Started application --------------")
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
+	regtest := flag.Bool("regtest", false, "use regtest instead of testnet")
 	flag.Parse()
 
 	var backendInterface backend.Interface
 	if *mainnet {
+		if *regtest {
+			logEntry.Fatal("can't use -regtest with -mainnet")
+		}
 		backendInterface = backend.NewBackend()
 	} else {
-		backendInterface = backend.NewBackendForTesting()
+		backendInterface = backend.NewBackendForTesting(*regtest)
 	}
 
 	// since we are in dev-mode, we can drop the authorization token

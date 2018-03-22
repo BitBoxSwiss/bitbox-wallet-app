@@ -13,6 +13,7 @@ import (
 
 const (
 	// dev server for now
+	electrumServerBitcoinRegtest  = "127.0.0.1:52001"
 	electrumServerBitcoinTestnet  = "dev.shiftcrypto.ch:51002"
 	electrumServerBitcoinMainnet  = "dev.shiftcrypto.ch:50002"
 	electrumServerLitecoinTestnet = "dev.shiftcrypto.ch:51004"
@@ -37,14 +38,14 @@ func (wallet *Wallet) init(backend *Backend) error {
 	wallet.logEntry = wallet.logEntry.WithFields(logrus.Fields{"coin": wallet.Code, "wallet-name": wallet.Name,
 		"net": wallet.net.Name, "address-type": wallet.addressType})
 	var electrumServer string
+	tls := true
 	switch wallet.Code {
-	case "tbtc":
+	case "tbtc", "tbtc-p2wpkh-p2sh":
 		electrumServer = electrumServerBitcoinTestnet
-	case "tbtc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinTestnet
-	case "btc":
-		electrumServer = electrumServerBitcoinMainnet
-	case "btc-p2wpkh-p2sh":
+	case "rbtc", "rbtc-p2wpkh-p2sh":
+		electrumServer = electrumServerBitcoinRegtest
+		tls = false
+	case "btc", "btc-p2wpkh-p2sh":
 		electrumServer = electrumServerBitcoinMainnet
 	case "tltc-p2wpkh-p2sh":
 		electrumServer = electrumServerLitecoinTestnet
@@ -54,7 +55,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 		wallet.logEntry.Panic("Unknown coin")
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer, true, wallet.logEntry)
+	electrumClient, err := electrum.NewElectrumClient(electrumServer, tls, wallet.logEntry)
 	if err != nil {
 		return err
 	}

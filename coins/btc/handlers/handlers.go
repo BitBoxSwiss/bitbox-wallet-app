@@ -45,24 +45,33 @@ func (handlers *Handlers) Uninit() {
 	handlers.wallet = nil
 }
 
+// Transaction is the info returned per transaction by the /transactions endpoint.
+type Transaction struct {
+	ID     string `json:"id"`
+	Height int    `json:"height"`
+	Type   string `json:"type"`
+	Amount string `json:"amount"`
+	Fee    string `json:"fee"`
+}
+
 func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, error) {
-	result := []map[string]interface{}{}
+	result := []Transaction{}
 	txs := handlers.wallet.Transactions()
 	for _, txInfo := range txs {
 		var feeString = ""
 		if txInfo.Fee != nil {
 			feeString = txInfo.Fee.String()
 		}
-		result = append(result, map[string]interface{}{
-			"id":     txInfo.TX.TxHash().String(),
-			"height": txInfo.Height,
-			"type": map[transactions.TxType]string{
+		result = append(result, Transaction{
+			ID:     txInfo.TX.TxHash().String(),
+			Height: txInfo.Height,
+			Type: map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			"amount": txInfo.Amount.String(),
-			"fee":    feeString,
+			Amount: txInfo.Amount.String(),
+			Fee:    feeString,
 		})
 	}
 	return result, nil

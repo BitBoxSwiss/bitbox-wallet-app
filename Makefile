@@ -18,6 +18,8 @@ servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
 	go install ./cmd/servewallet/... && servewallet -mainnet
+servewallet-regtest:
+	go install ./cmd/servewallet/... && servewallet -regtest
 generate:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build

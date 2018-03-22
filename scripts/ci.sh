@@ -36,3 +36,7 @@ gometalinter.v1 \
     -E varcheck \
     -E errcheck \
     ./...
+
+if [ "$1" != "--fast" ]; then
+    ./scripts/run_functional_tests.sh
+fi
