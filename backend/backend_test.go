@@ -28,13 +28,15 @@ type backendTestSuite struct {
 }
 
 func (s *backendTestSuite) SetupSuite() {
-	s.router = handlers.NewHandlers(backend.NewBackendForTesting(), 8082).Router
+	connectionData := handlers.NewConnectionData(8082, "")
+	s.router = handlers.NewHandlers(backend.NewBackendForTesting(), connectionData).Router
 	s.server = httptest.NewServer(s.router)
 
 	url := "ws" + strings.TrimPrefix(s.server.URL, "http") + "/api/events"
-	websocket, _, err := websocket.DefaultDialer.Dial(url, nil)
+	ws, _, err := websocket.DefaultDialer.Dial(url, nil)
 	require.NoError(s.T(), err)
-	s.websocket = websocket
+	s.websocket = ws
+	require.NoError(s.T(), s.websocket.WriteMessage(websocket.TextMessage, []byte("Authorization: Basic ")))
 }
 
 func (s *backendTestSuite) TearDownSuite() {

@@ -1,16 +1,16 @@
 package handlers
 
 import (
-	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
 )
 
 // runWebsocket sets up loops for sending/receiving, abstracting away the low level details about
 // pings, timeouts, connection closing, etc.  It returns two channels: one to send messages to the
 // client, and one which notifies when the connection was closed.
-func runWebsocket(conn *websocket.Conn) (chan []byte, <-chan struct{}) {
+func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, logEntry *logrus.Entry) (chan []byte, <-chan struct{}) {
 	// Time allowed to read the next pong message from the peer.
 	const pongWait = 60 * time.Second
 	// Send pings to peer with this period. Must be less than pongWait.
@@ -22,6 +22,7 @@ func runWebsocket(conn *websocket.Conn) (chan []byte, <-chan struct{}) {
 
 	quitChan := make(chan struct{})
 	sendChan := make(chan []byte)
+	authorizedChan := make(chan struct{}, 1)
 
 	readLoop := func() {
 		defer func() {
@@ -35,14 +36,25 @@ func runWebsocket(conn *websocket.Conn) (chan []byte, <-chan struct{}) {
 			return nil
 		})
 		for {
-			_, _, err := conn.ReadMessage()
+			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					log.Println(err)
+					logEntry.WithFields(logrus.Fields{"group": "websocket", "error": err}).Error(err.Error())
 				}
 				break
 			}
+			if string(msg) != "Authorization: Basic "+apiData.token {
+				logEntry.Error("Expected authorization token as first message. Closing websocket.")
+				_ = conn.Close()
+				return
+			}
+			authorizedChan <- struct{}{}
 		}
+	}
+
+	sendMessage := func(message []byte) error {
+		_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
+		return conn.WriteMessage(websocket.TextMessage, message)
 	}
 
 	writeLoop := func() {
@@ -51,20 +63,32 @@ func runWebsocket(conn *websocket.Conn) (chan []byte, <-chan struct{}) {
 			ticker.Stop()
 			_ = conn.Close()
 		}()
+		authorized := false
+		var buffer [][]byte
 		for {
 			select {
+			case <-authorizedChan:
+				for _, message := range buffer {
+					if err := sendMessage(message); err != nil {
+						return
+					}
+				}
+				authorized = true
 			case message, ok := <-sendChan:
-				_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
 				if !ok {
 					_ = conn.WriteMessage(websocket.CloseMessage, []byte{})
 					return
 				}
-				if err := conn.WriteMessage(websocket.TextMessage, message); err != nil {
-					return
+				if authorized {
+					if sendMessage(message) != nil {
+						return
+					}
+				} else {
+					buffer = append(buffer, message)
 				}
 			case <-ticker.C:
 				_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
-				if err := conn.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				if conn.WriteMessage(websocket.PingMessage, []byte{}) != nil {
 					return
 				}
 			}

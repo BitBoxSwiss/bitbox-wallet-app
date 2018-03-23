@@ -23,5 +23,5 @@ apt-get install -y --no-install-recommends \
 
 npm install -g yarn
 
-mkdir /opt/go_dist
+mkdir -p /opt/go_dist
 curl https://storage.googleapis.com/golang/go1.9.2.linux-amd64.tar.gz | tar -xz -C /opt/go_dist

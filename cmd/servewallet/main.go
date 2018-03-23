@@ -37,8 +37,11 @@ func main() {
 		backendInterface = backend.NewBackendForTesting()
 	}
 
-	handlers := backendHandlers.NewHandlers(backendInterface, port)
+	// since we are in dev-mode, we can drop the authorization token
+	connectionData := backendHandlers.NewConnectionData(port, "")
+	handlers := backendHandlers.NewHandlers(backendInterface, connectionData)
 	logEntry.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
+	fmt.Printf("Listening on: http://localhost:%d\n", port)
 	err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router)
 	if err != nil {
 		logEntry.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")

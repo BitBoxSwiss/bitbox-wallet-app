@@ -1,6 +1,7 @@
 import { extConfig } from './config';
 
 const apiPort = extConfig('{{ API_PORT }}', '8082');
+const apiToken = extConfig('{{ API_TOKEN }}', '');
 
 function isTLS() {
     return document.URL.startsWith("https://");
@@ -13,7 +14,7 @@ export function apiURL(endpoint) {
 export function apiWebsocket(msgCallback) {
     const socket = new WebSocket((isTLS() ? "wss://" : "ws://") + "localhost:" + apiPort + "/api/events");
     socket.onopen = function(event) {
-        socket.send('Hello Server!');
+        socket.send("Authorization: Basic " + apiToken);
     };
     socket.onerror = function(event) {
         console.log("error");
@@ -40,8 +41,9 @@ function handleError(json) {
 }
 
 export function apiGet(endpoint) {
-    return fetch(apiURL(endpoint)).
-        then(r => r.json()).then(handleError);
+    return fetch(apiURL(endpoint), {
+        method: 'GET',
+    }).then(r => r.json()).then(handleError);
 }
 
 export function apiPost(endpoint, body) {

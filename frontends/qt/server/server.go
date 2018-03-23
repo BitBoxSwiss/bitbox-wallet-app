@@ -1,5 +1,15 @@
 package main
 
+/*
+#include <string.h>
+#include <stdint.h>
+
+typedef struct ConnectionData {
+    int port;
+    char* token;
+} ConnectionData;
+
+*/
 import "C"
 
 import (
@@ -19,6 +29,7 @@ import (
 	"time"
 
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/random"
 
 	"github.com/shiftdevices/godbb/backend"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
@@ -127,14 +138,25 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 }
 
 //export serve
-func serve() int {
+func serve() C.struct_ConnectionData {
 	logEntry := logging.Log.WithGroup("server")
+	logEntry.Info("--------------- Started application --------------")
+	token, err := random.HexString(16)
+	if err != nil {
+		logEntry.WithField("error", err).Fatal("Failed to generate random string")
+	}
 	port, err := freeport.FreePort(logEntry)
 	if err != nil {
 		logEntry.WithField("error", err).Fatal("Failed to find free port")
 	}
+	cWrappedConnectionData := C.struct_ConnectionData{
+		token: C.CString(token),
+		port:  C.int(port),
+	}
 	logEntry.WithField("port", port).Debug("Serve backend")
-	handlers := backendHandlers.NewHandlers(backend.NewBackend(), port)
+
+	connectionData := backendHandlers.NewConnectionData(port, token)
+	handlers := backendHandlers.NewHandlers(backend.NewBackend(), connectionData)
 
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {
@@ -171,7 +193,7 @@ func serve() int {
 			logEntry.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
 		}
 	}()
-	return port
+	return cWrappedConnectionData
 }
 
 // Don't remove - needed for the C compilation.
