@@ -78,7 +78,9 @@ func setup(config []byte) (*Logger, error) {
 	log.logConfig = &LogConfig{}
 	log.Logger.Formatter = &logrus.TextFormatter{}
 	log.Logger.Hooks = make(logrus.LevelHooks)
-	log.Logger.AddHook(NewHook([]logrus.Level{logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel}))
+	log.Logger.AddHook(stackHook{
+		stackLevels: []logrus.Level{logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel},
+	})
 	err := yaml.UnmarshalStrict(config, log.logConfig)
 	if err != nil {
 		return nil, err

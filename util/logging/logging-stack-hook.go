@@ -11,22 +11,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// StackHook is a logrus hook for logging stack-traces.
-type StackHook struct {
-	StackLevels []logrus.Level
-}
-
-// NewHook sets levels to stackLevels for which "stack" value may
-// be set, providing the stack of the error, if available.
-func NewHook(stackLevels []logrus.Level) StackHook {
-	return StackHook{
-		StackLevels: stackLevels,
-	}
+// stackHook is a logrus hook for logging stack-traces. It implements logrus.Hook.
+type stackHook struct {
+	stackLevels []logrus.Level
 }
 
 // Levels provides the levels to filter.
-func (hook StackHook) Levels() []logrus.Level {
-	return hook.StackLevels
+func (hook stackHook) Levels() []logrus.Level {
+	return hook.stackLevels
 }
 
 func enrichIfPossible(err error, entry *logrus.Entry) {
@@ -42,7 +34,7 @@ func enrichIfPossible(err error, entry *logrus.Entry) {
 }
 
 // Fire is called by logrus when something is logged.
-func (hook StackHook) Fire(entry *logrus.Entry) error {
+func (hook stackHook) Fire(entry *logrus.Entry) error {
 	err := entry.Data["error"]
 	if err != nil {
 		if errCast, ok := err.(error); ok {
