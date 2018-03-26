@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { Router } from 'preact-router';
 import Header from './components/header/header';
-import Wallets from './routes/wallet/wallet';
+import Wallets from './routes/account/accounts';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 
