@@ -13,7 +13,7 @@ i18n
         ns: ['app', 'wallet'],
         defaultNS: 'app',
 
-        debug: true,
+        debug: false,
 
         interpolation: {
             escapeValue: false // not needed for react

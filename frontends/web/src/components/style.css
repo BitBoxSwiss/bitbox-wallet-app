@@ -1,5 +1,7 @@
 .container {
-	padding: 76px 20px;
+	display: flex;
+	flex-direction: column;
+	padding: 0;
 	min-height: 100%;
 	width: 100%;
 }

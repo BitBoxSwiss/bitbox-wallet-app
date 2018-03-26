@@ -62,6 +62,7 @@ export default class Create extends Component {
                   <Dialog.Body>
                     <Textfield
                       autoFocus
+                      autoComplete="off"
                       ref={pwf=>{this.pwf=pwf;}}
                       id="backupName"
                       label="Backup Name"

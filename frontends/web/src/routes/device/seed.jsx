@@ -74,6 +74,7 @@ export default class Seed extends Component {
                 <div>
                   <Textfield
                     autoFocus
+                    autoComplete="off"
                     id="walletName"
                     label="Wallet Name"
                     disabled={state.state == this.stateEnum.WAITING}

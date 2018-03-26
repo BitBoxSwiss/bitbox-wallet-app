@@ -1,5 +1,3 @@
-// TODO: add autocomplete="off"
-
 import { Component } from 'preact';
 
 import Textfield from 'preact-material-components/Textfield';
@@ -26,6 +24,7 @@ export class PasswordInput extends Component {
         return (
             <Textfield
               type={seePlaintext ? "text" : "password"}
+              autoComplete="off"
               onPaste={this.tryPaste}
               {...rest}
               />

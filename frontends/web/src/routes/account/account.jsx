@@ -19,18 +19,26 @@ export default class Account extends Component {
                 available: "",
                 incoming: "",
                 hasIncoming: false
-            },
-            receiveAddress: null
+            }
         };
     }
 
     componentDidMount() {
         this.props.registerOnWalletEvent(this.onWalletEvent.bind(this));
         this.onStatusChanged();
+        apiGet("device/info").then(({ sdcard }) => {
+            if(sdcard) {
+                alert("Keep the SD card stored securely unless you want to manage backups.");
+            }
+        });
     }
 
     componentWillUnmount() {
         this.props.registerOnWalletEvent(null);
+    }
+
+    componentWillReceiveProps() {
+        this.onStatusChanged();
     }
 
     onWalletEvent = data => {
@@ -45,7 +53,7 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        apiGet("wallet/" + this.props.wallet.code + "/status").then(initialized => {
+        apiGet("wallet/" + this.props.code + "/status").then(initialized => {
             this.setState({ walletInitialized: initialized });
             this.onWalletChanged();
         });
@@ -53,20 +61,20 @@ export default class Account extends Component {
 
     onWalletChanged = () => {
         if(this.state.walletInitialized) {
-            apiGet("wallet/" + this.props.wallet.code + "/transactions").then(transactions => {
+            apiGet("wallet/" + this.props.code + "/transactions").then(transactions => {
                 this.setState({ transactions: transactions });
             });
-            apiGet("wallet/" + this.props.wallet.code + "/balance").then(balance => {
+            apiGet("wallet/" + this.props.code + "/balance").then(balance => {
                 this.setState({ balance: balance });
-            });
-            apiGet("wallet/" + this.props.wallet.code + "/receive-address").then(address => {
-                this.setState({ receiveAddress: address });
             });
         }
     }
 
-    render({show, wallet}, { walletInitialized, transactions, balance, receiveAddress }) {
-        if (!show) return;
+    render({ wallets }, { walletInitialized, transactions, balance }) {
+
+        const wallet = wallets.find(({code}) => code === this.props.code);
+
+        if (!wallet) return null;
 
         const renderTransaction = transaction => <List.Item>
             <a href={ wallet.blockExplorerTxPrefix + transaction.id } target="_blank">{ transaction.id }</a>&nbsp;–
@@ -83,19 +91,21 @@ export default class Account extends Component {
         };
 
         return (
-            <div>
+            <div style="padding-left: 1rem;">
                 <h2>{ wallet.name }</h2>
+                <h2>Amount</h2>
+                { balance.available }
+
+                { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
+                <h2>Transactions</h2>
+                { renderTransactions(transactions) }
                 <p>
                     <Send
                     walletCode={ wallet.code }
                     walletInitialized={ walletInitialized }/>
                     &nbsp;
-                    <Receive receiveAddress={ receiveAddress }/>
+                    <Receive code={this.props.code} />
                 </p>
-                <h2>Amount</h2>
-                Available balance to spend: { balance.available } { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
-                <h2>Transactions</h2>
-                { renderTransactions(transactions) }
             </div>
         );
     }

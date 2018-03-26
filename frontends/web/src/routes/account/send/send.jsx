@@ -84,6 +84,7 @@ export default class Send extends Component {
                   <p>
                     <Textfield
                       autoFocus
+                      autoComplete="off"
                       id="recipientAddress"
                       label="Recipient Address"
                       helptext="Please enter the address of the recipient"
@@ -96,6 +97,7 @@ export default class Send extends Component {
                   <p>
                     <Textfield
                       id="amount"
+                      autoComplete="off"
                       label={ sendAll ? "" : "Amount BTC" }
                       helptext="Please enter the BTC amount to send"
                       helptextPersistent={true}

@@ -10,9 +10,16 @@ import Login from './routes/device/unlock';
 import Seed from './routes/device/seed';
 import Initialize from './routes/device/initialize';
 
-import Routes from './routes';
+import { Router } from 'preact-router';
+import Account from './routes/account/account';
+import Settings from './routes/settings/settings';
+import ManageBackups from './routes/device/manage-backups/manage-backups';
+
+import Sidebar from './components/sidebar/sidebar';
 
 import { apiGet, apiPost, apiWebsocket } from './utils/request';
+
+import style from './components/style';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: "bootloader",
@@ -29,7 +36,9 @@ export default class App extends Component {
         this.state = {
             deviceRegistered: false,
             deviceStatus: null,
-            testing: false
+            testing: false,
+            wallets: [],
+            activeWallet: null
         };
     }
 
@@ -38,7 +47,7 @@ export default class App extends Component {
      *@param {string} event.urlThe newly routed URL
      */
     handleRoute = e => {
-        this.currentUrl = e.url;
+        // console.log(e.url);
     };
 
     componentDidMount() {
@@ -70,6 +79,10 @@ export default class App extends Component {
             }
         });
         apiGet("testing").then(testing => this.setState({ testing: testing }));
+
+        apiGet("wallets").then(wallets => {
+            this.setState({ wallets: wallets, activeWallet: wallets.length ? wallets[0] : null });
+        });
     }
 
     onDevicesRegisteredChanged = () => {
@@ -87,7 +100,10 @@ export default class App extends Component {
         }
     }
 
-    render({}, { deviceRegistered, deviceStatus, testing }) {
+    render({}, { wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
+
+        // console.log('app state', this.state)
+
         function renderButtonIfTesting() {
             if (testing) {
                 return (
@@ -122,9 +138,24 @@ export default class App extends Component {
         case DeviceStatus.LOGGED_IN:
             return <Seed/>;
         case DeviceStatus.SEEDED:
-            return <Routes
-            registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
-                />;
+            return (
+              <div class={style.container}>
+                <div style="display: flex; flex-grow: 1;">
+                  <Sidebar accounts={wallets} activeWallet={activeWallet} />
+                  <Router onChange={this.handleRoute}>
+                    <div path="/"><h1>Welcome</h1></div>
+                    <Account path="/account/:code" wallets={wallets}
+                      registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
+                    />
+                    <Settings path="/settings/" />
+                    <ManageBackups
+                      path="/manage-backups"
+                      showCreate={true}
+                      />
+                  </Router>
+                </div>
+              </div>
+            );
         };
     }
 }

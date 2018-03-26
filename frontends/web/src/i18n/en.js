@@ -8,10 +8,11 @@ export const appTranslations = {
         },
         "unlocking": "Unlocking..."
     },
-    "header": {
-        "wallet": "Wallet",
-        "options": "Options",
-        "manageBackups": "Manage Backups",
+    "sidebar": {
+        "settings": "Settings",
         "leave": "Leave"
+    },
+    "device": {
+        "manageBackups": "Manage Backups"
     }
 };

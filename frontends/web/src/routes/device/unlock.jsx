@@ -96,6 +96,7 @@ export default class Login extends Component {
                 <div>
                   <Textfield
                     autoFocus
+                    autoComplete="off"
                     id="password"
                     type="password"
                     label={t("Password")}

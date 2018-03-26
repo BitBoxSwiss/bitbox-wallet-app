@@ -11,10 +11,11 @@ export const appTranslations = {
         },
         "unlocking": "Entsperren..."
     },
-    "header": {
-        "wallet": "Brieftasche",
-        "options": "Optionen",
-        "manageBackups": "Backups verwalten",
+    "sidebar": {
+        "settings": "Einstellungen",
         "leave": "Verlassen"
+    },
+    "device": {
+        "manageBackups": "Backups verwalten"
     }
 };
