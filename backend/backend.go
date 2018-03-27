@@ -106,6 +106,7 @@ func NewBackend() *Backend {
 				logEntry:    logEntry,
 			},
 		},
+		logEntry: logEntry,
 	}
 }
 
