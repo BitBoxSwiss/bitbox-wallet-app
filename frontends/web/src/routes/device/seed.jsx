@@ -45,11 +45,15 @@ export default class Seed extends Component {
         });
         this.setState({ state: this.stateEnum.WAITING });
         apiPost('device/create-wallet', { walletName: this.state.walletName }).then(data => {
-            if (!data.success) {
-                this.setState({ state: this.stateEnum.ERROR, error: data.errorMessage });
+            if(!data.success) {
+                this.displayError(data.errorMessage);
             }
         });
     };
+
+    displayError = (errorMessage) => {
+        this.setState({ state: this.stateEnum.ERROR, error: errorMessage });
+    }
 
     render({}, state) {
         const FormSubmissionState = props => {
@@ -93,7 +97,7 @@ export default class Seed extends Component {
                     <FormSubmissionState {...state} />
                 </form>
                 <p>-- OR --</p>
-                <ManageBackups showCreate={false} />
+                <ManageBackups showCreate={false} displayError={this.displayError} />
             </Dialog>
         );
     }

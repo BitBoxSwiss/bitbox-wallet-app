@@ -39,6 +39,11 @@ export default class ManageBackups extends Component {
         this.setState({ selectedBackup: this.state.backupList[event.target.selectedIndex] });
     }
 
+
+    displayError = (errorMessage) => {
+        this.props.displayError(errorMessage)
+    }
+
     render({ showCreate }, { backupList, selectedBackup, sdCardInserted }) {
         if (!sdCardInserted) {
             return (
@@ -65,7 +70,7 @@ export default class ManageBackups extends Component {
                         onChange={this.handleBackuplistChange}
                     >{ backupList.map(option) }
                     </select>
-                    <Restore selectedBackup={selectedBackup} />
+                    <Restore selectedBackup={selectedBackup} displayError={this.displayError} />
                     &nbsp;
                     <Erase
                         selectedBackup={selectedBackup}

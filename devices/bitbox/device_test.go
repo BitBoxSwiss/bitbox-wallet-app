@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/shiftdevices/godbb/devices/bitbox"
@@ -111,6 +112,20 @@ func (s *dbbTestSuite) TestCreateWallet() {
 		password,
 	).
 		Return(map[string]interface{}{"seed": "success"}, nil).
+		Once()
+	s.mockCommunication.On(
+		"SendEncrypt",
+		mock.MatchedBy(func(msg string) bool {
+			cmd := map[string]map[string]string{}
+			if err := json.Unmarshal([]byte(msg), &cmd); err != nil {
+				return false
+			}
+			backup, ok := cmd["backup"]
+			return ok && strings.Contains(backup["check"], "walletname") && backup["key"] == stretchedKey
+		}),
+		password,
+	).
+		Return(map[string]interface{}{"backup": "success"}, nil).
 		Once()
 	require.NoError(s.T(), s.dbb.CreateWallet("walletname"))
 }

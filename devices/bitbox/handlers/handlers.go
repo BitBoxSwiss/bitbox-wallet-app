@@ -132,6 +132,8 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 	walletName := jsonBody["walletName"]
 	handlers.log.WithField("walletName", walletName).Debug("Create wallet")
 	if err := handlers.device.CreateWallet(walletName); err != nil {
+		handlers.log.WithFields(logrus.Fields{"walletName": walletName, "error": err}).
+			Error("Failed to create wallet")
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
@@ -164,7 +166,9 @@ func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{
 	handlers.log.WithField("filename", filename).Debug("Restore backup")
 	didRestore, err := handlers.device.RestoreBackup(jsonBody["password"], filename)
 	if err != nil {
-		return nil, err
+		handlers.log.WithFields(logrus.Fields{"walletName": filename, "error": err}).
+			Error("Failed to restore wallet")
+		return map[string]interface{}{"didRestore": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"didRestore": didRestore}, nil
 }

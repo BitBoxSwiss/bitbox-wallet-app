@@ -410,6 +410,23 @@ func (dbb *Device) seed(devicePassword, backupPassword, source, filename string)
 	if reply["seed"] != "success" {
 		return errp.New("Unexpected result")
 	}
+	reply, err = dbb.send(
+		map[string]interface{}{
+			"backup": map[string]string{
+				"key":   key,
+				"check": filename,
+			},
+		},
+		dbb.password)
+	if err != nil {
+		return errp.WithMessage(err, "There was an unexpected error during wallet creation or restoring. "+
+			"Please contact our support and do not use this wallet.")
+	}
+	backupCheck, ok := reply["backup"].(string)
+	if !ok || backupCheck != "success" {
+		return errp.New("There was an unexpected error during wallet creation or restoring." +
+			" Please contact our support and do not use this wallet.")
+	}
 	return nil
 }
 
@@ -479,7 +496,7 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 		return false, nil
 	}
 	if err != nil {
-		return false, err
+		return false, errp.WithMessage(err, "Failed to restore from backup")
 	}
 	dbb.seeded = true
 	dbb.onStatusChanged()

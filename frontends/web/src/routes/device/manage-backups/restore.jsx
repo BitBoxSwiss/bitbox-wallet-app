@@ -37,7 +37,11 @@ export default class Restore extends Component {
         apiPost('device/backups/restore', {
             password: this.state.password,
             filename: this.props.selectedBackup
-        }).catch(() => {}).then(() => {
+        }).catch(() => {
+        }).then(data => {
+            if (!data.didRestore) {
+                this.props.displayError(data.errorMessage);
+            }
             if (this.passwordInput) {
                 this.passwordInput.clear();
             }
