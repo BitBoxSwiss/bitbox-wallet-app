@@ -460,7 +460,7 @@ func IsErrorAbort(err error) bool {
 
 // IsErrorSDCard returns whether the SD card was not inserted during an operation that requires it.
 func IsErrorSDCard(err error) bool {
-	dbbErr, ok := err.(*Error)
+	dbbErr, ok := errp.Cause(err).(*Error)
 	return ok && dbbErr.Code == ErrSDCard
 }
 
