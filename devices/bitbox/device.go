@@ -158,7 +158,7 @@ func NewDevice(
 			var err error
 			initialized, err = device.Ping()
 			if err != nil {
-				if dbbErr, ok := err.(*Error); ok && dbbErr.Code == ErrInitializing {
+				if dbbErr, ok := errp.Cause(err).(*Error); ok && dbbErr.Code == ErrInitializing {
 					time.Sleep(500 * time.Millisecond)
 					continue
 				}
@@ -334,7 +334,7 @@ func (dbb *Device) Login(password string) (bool, string, error) {
 	if err != nil {
 		var remainingAttempts string
 		var needsLongTouch bool
-		if dbbErr, ok := err.(*Error); ok {
+		if dbbErr, ok := errp.Cause(err).(*Error); ok {
 			groups := regexp.MustCompile(`(\d+) attempts remain before`).
 				FindStringSubmatch(dbbErr.Error())
 			if len(groups) == 2 {
@@ -454,7 +454,7 @@ func (dbb *Device) CreateWallet(walletName string) error {
 
 // IsErrorAbort returns whether the user aborted the operation.
 func IsErrorAbort(err error) bool {
-	dbbErr, ok := err.(*Error)
+	dbbErr, ok := errp.Cause(err).(*Error)
 	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
 }
 

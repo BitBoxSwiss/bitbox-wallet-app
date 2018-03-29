@@ -100,7 +100,7 @@ func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (int
 
 func maybeDBBErr(err error, logEntry *logrus.Entry) map[string]interface{} {
 	result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
-	if dbbErr, ok := err.(*bitbox.Error); ok {
+	if dbbErr, ok := errp.Cause(err).(*bitbox.Error); ok {
 		result["code"] = dbbErr.Code
 		logEntry.WithField("bitbox-error", dbbErr.Code).Warning("Received an error from Bitbox")
 	}
