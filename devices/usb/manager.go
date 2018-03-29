@@ -92,29 +92,39 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	return nil
 }
 
+// checkIfRemoved returns true if a device was plugged in, but is not plugged in anymore.
+func (manager *Manager) checkIfRemoved() bool {
+	if manager.device == nil {
+		return false
+	}
+
+	// In edge cases, device enumeration hangs waiting for the device, and can be empty for a very
+	// short amount of time even though the device is still plugged in. The workaround is to check
+	// multiple times.
+	for i := 0; i < 5; i++ {
+		for _, deviceInfo := range DeviceInfos() {
+			if deviceInfo.Path == manager.device.DeviceID() {
+				return false
+			}
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	return true
+}
+
 // ListenHID listens for inserted/removed devices forever. Run this in a goroutine.
 func (manager *Manager) ListenHID() {
 	for {
-		deviceInfos := DeviceInfos()
-
 		// Check if device was removed.
-		if manager.device != nil {
-			found := false
-			for _, deviceInfo := range deviceInfos {
-				if deviceInfo.Path == manager.device.DeviceID() {
-					found = true
-					break
-				}
-			}
-			if !found {
-				deviceID := manager.device.DeviceID()
-				manager.device = nil
-				manager.onUnregister(deviceID)
-				manager.logEntry.Debug("Unregistered device")
-			}
+		if manager.checkIfRemoved() {
+			deviceID := manager.device.DeviceID()
+			manager.device = nil
+			manager.onUnregister(deviceID)
+			manager.logEntry.Debug("Unregistered device")
 		}
 
 		// Check if device was inserted.
+		deviceInfos := DeviceInfos()
 		if len(deviceInfos) > 1 {
 			manager.logEntry.WithField("device-amount", len(deviceInfos)).Panic("Multiple devices detected")
 			panic("TODO: multiple devices?")
