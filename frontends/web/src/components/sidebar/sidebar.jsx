@@ -12,7 +12,6 @@ function Sidebar({ accounts, t, activeWallet }) {
   // console.table(accounts)
   return (
     <nav className="sidebar">
-      <ClipPath />
       {accounts.map(getWalletLink)}
       <div className="sidebar_drawer"></div>
       <div className="sidebar_bottom">
@@ -44,16 +43,5 @@ function getWalletLink({code, name}) {
   );
 }
 
-function ClipPath() {
-  return (
-    <svg height="0" width="0">
-      <defs>
-        <clipPath id="cross">
-          <rect y="0" x="0" width="16" height="40" rx="8" ry="8" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
 
 export default translate(['app'])(Sidebar);

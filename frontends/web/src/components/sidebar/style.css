@@ -16,21 +16,26 @@
 }
 
 a.sidebar-active {
-  /* clip-path: url(#cross); */
   text-decoration: none;
   transition: filter .1s ease-out;
 }
 
-a.sidebar-active::after {
+.sidebar a::after {
   background-color: #FAFAFA;
-  clip-path: url(#cross);
+  border-radius: 3px;
   content: "";
   display: inline-block;
   height: 40px;
-  width: 16px;
+  width: 12px;
   top: 12px;
-  right: -9px;
+  right: 0;
   position: absolute;
+  transform: translateX(16px);
+  transition: transform .2s ease-out;
+}
+
+a.sidebar-active::after  {
+  transform: translateX(6px);
 }
 
 .sidebar a:not(.sidebar-active) {
@@ -42,9 +47,6 @@ a.sidebar-active::after {
   max-width: 50px;
   vertical-align: middle;
   transition: transform .1s ease-out;
-}
-
-.sidebar .sidebar-active img {
 }
 
 .sidebar a:not(.sidebar-active) img {
