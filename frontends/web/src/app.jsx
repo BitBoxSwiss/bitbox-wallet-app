@@ -19,6 +19,8 @@ import Sidebar from './components/sidebar/sidebar';
 
 import { apiGet, apiPost, apiWebsocket } from './utils/request';
 
+import { debug } from './utils/env';
+
 import style from './components/style';
 
 const DeviceStatus = Object.freeze({
@@ -78,7 +80,10 @@ export default class App extends Component {
                 break;
             }
         });
-        apiGet("testing").then(testing => this.setState({ testing: testing }));
+
+        if (debug) {
+          apiGet("testing").then(testing => this.setState({ testing: testing }));
+        }
 
         apiGet("wallets").then(wallets => {
             this.setState({ wallets: wallets, activeWallet: wallets.length ? wallets[0] : null });
@@ -102,18 +107,6 @@ export default class App extends Component {
 
     render({}, { wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
 
-        // console.log('app state', this.state)
-
-        function renderButtonIfTesting() {
-            if (testing) {
-                return (
-                    <Button primary={true} raised={true} onClick={()=>{
-                        apiPost("devices/test/register");
-                    }}>Skip for Testing</Button>
-                )
-            }
-        }
-
         if(!deviceRegistered || !deviceStatus) {
             return (
                 <div style="text-align: center;">
@@ -122,7 +115,7 @@ export default class App extends Component {
                             Waiting for device...
                         </Dialog>
                     </div>
-                    { renderButtonIfTesting() }
+                    { debug && testing && renderButtonIfTesting() }
                 </div>
             );
         }
@@ -158,4 +151,12 @@ export default class App extends Component {
             );
         };
     }
+}
+
+function renderButtonIfTesting() {
+    return (
+        <Button primary={true} raised={true} onClick={()=>{
+            apiPost("devices/test/register");
+        }}>Skip for Testing</Button>
+    );
 }
