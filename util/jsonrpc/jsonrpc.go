@@ -106,7 +106,7 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 					client.handleError(errp.New("unexpected reply"))
 				}
 				if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-					client.handleError(errp.New("unexpected reply"))
+					client.handleError(errp.WithMessage(err, "success callback error"))
 				}
 				responseCallbacks.cleanup()
 				client.responseCallbacksLock.Lock()
