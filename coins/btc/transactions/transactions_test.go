@@ -20,7 +20,7 @@ import (
 )
 
 type BlockchainMock struct {
-	blockchainMock.InterfaceMock
+	blockchainMock.Interface
 	transactions            map[chainhash.Hash]*wire.MsgTx
 	transactionGetCallbacks map[chainhash.Hash][]func()
 }
@@ -59,9 +59,6 @@ func (blockchain *BlockchainMock) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
 	cleanup func(error)) error {
-	if blockchain.InterfaceMock.TransactionGetFunc != nil {
-		return blockchain.InterfaceMock.TransactionGet(txHash, success, cleanup)
-	}
 	tx, ok := blockchain.transactions[txHash]
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")

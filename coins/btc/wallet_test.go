@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
@@ -12,7 +11,6 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc/mocks"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -21,7 +19,7 @@ type walletSuite struct {
 
 	net            *chaincfg.Params
 	keyStoreMock   mocks.KeyStoreWithoutKeyDerivation
-	blockchainMock blockchainMock.InterfaceMock
+	blockchainMock blockchainMock.Interface
 	onEvent        func(btc.Event)
 	wallet         *btc.Wallet
 
@@ -52,23 +50,8 @@ func (s *walletSuite) SetupTest() {
 	if err != nil {
 		panic(err)
 	}
-	s.blockchainMock.EstimateFeeFunc = func(
-		number int,
-		success func(btcutil.Amount) error,
-		cleanup func(error)) error {
-		return nil
-	}
 }
 
 func TestWalletSuite(t *testing.T) {
 	suite.Run(t, &walletSuite{})
-}
-
-func (s *walletSuite) TestEmptyWallet() {
-	s.blockchainMock.ScriptHashSubscribeFunc =
-		func(_ string, success func(string) error, _ func(error)) error {
-			require.NoError(s.T(), success(""))
-			return nil
-		}
-	s.wallet.Init()
 }

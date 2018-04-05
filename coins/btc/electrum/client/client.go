@@ -26,7 +26,7 @@ const (
 type RPCClient interface {
 	Method(func([]byte) error, func(error), string, ...interface{}) error
 	MethodSync(interface{}, string, ...interface{}) error
-	SubscribeNotifications(string, func([]byte)) error
+	SubscribeNotifications(string, func([]byte))
 	Close()
 }
 
@@ -51,7 +51,7 @@ func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumCl
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
 	// installed by ScriptHashSubscribe().
-	if err := rpcClient.SubscribeNotifications(
+	rpcClient.SubscribeNotifications(
 		"blockchain.scripthash.subscribe",
 		func(responseBytes []byte) {
 			// TODO example responsebytes, use for unit testing:
@@ -77,10 +77,7 @@ func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumCl
 				}
 			}
 		},
-	); err != nil {
-		electrumClient.logEntry.WithField("error", err).Error("Failed to subscribe to scripthash notifications")
-		return nil, err
-	}
+	)
 
 	// Ping sends the version and must be the first message, to establish which methods the server
 	// accepts.
@@ -288,12 +285,35 @@ type Header struct {
 
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
-func (client *ElectrumClient) HeadersSubscribe() (*Header, error) {
-	response := &Header{}
-	err := client.rpc.MethodSync(
-		response,
+func (client *ElectrumClient) HeadersSubscribe(
+	success func(*Header) error,
+	cleanup func(error),
+) error {
+	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
+		response := []*Header{}
+		if err := json.Unmarshal(responseBytes, &response); err != nil {
+			client.logEntry.WithField("error", err).Error("could not handle header notification")
+			return
+		}
+		if len(response) != 1 {
+			client.logEntry.Error("could not handle header notification")
+			return
+		}
+		if err := success(response[0]); err != nil {
+			client.logEntry.WithField("error", err).Error("could not handle header notification")
+			return
+		}
+	})
+	return client.rpc.Method(
+		func(responseBytes []byte) error {
+			response := &Header{}
+			if err := json.Unmarshal(responseBytes, response); err != nil {
+				return errp.WithStack(err)
+			}
+			return success(response)
+		},
+		cleanup,
 		"blockchain.headers.subscribe")
-	return response, err
 }
 
 // TXHash wraps chainhash.Hash for json deserialization.

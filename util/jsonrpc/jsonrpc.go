@@ -192,14 +192,13 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 
 // SubscribeNotifications installs a callback for a method which is called with notifications from
 // the server.
-func (client *RPCClient) SubscribeNotifications(method string, callback func([]byte)) error {
+func (client *RPCClient) SubscribeNotifications(method string, callback func([]byte)) {
 	client.notificationsCallbacksLock.Lock()
 	defer client.notificationsCallbacksLock.Unlock()
 	if _, ok := client.notificationsCallbacks[method]; ok {
-		return errp.Newf("already subscribed to notifications of %s", method)
+		panic(fmt.Sprintf("already subscribed to notifications of %s", method))
 	}
 	client.notificationsCallbacks[method] = callback
-	return nil
 }
 
 func (client *RPCClient) send(msg []byte) error {
