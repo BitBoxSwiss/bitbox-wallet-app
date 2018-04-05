@@ -10,6 +10,7 @@ import (
 
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/sirupsen/logrus"
 )
 
 const responseTimeout = 100 * time.Second
@@ -31,22 +32,24 @@ type RPCClient struct {
 
 	notificationsCallbacks     map[string]func([]byte)
 	notificationsCallbacksLock sync.RWMutex
+	logEntry                   *logrus.Entry
 }
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
-func NewRPCClient(conn io.ReadWriteCloser) (*RPCClient, error) {
+func NewRPCClient(conn io.ReadWriteCloser, logEntry *logrus.Entry) (*RPCClient, error) {
 	client := &RPCClient{
 		conn:                   conn,
 		msgID:                  0,
 		responseCallbacks:      map[int]callbacks{},
 		notificationsCallbacks: map[string]func([]byte){},
+		logEntry:               logEntry,
 	}
 	go client.read(client.handleResponse)
 	return client, nil
 }
 
 func (client *RPCClient) handleError(err error) {
-	fmt.Printf("%+v\n", err)
+	client.logEntry.WithField("error", err).Error("")
 }
 
 func (client *RPCClient) read(callback func([]byte)) {

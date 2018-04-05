@@ -58,7 +58,7 @@ func NewElectrumClient(server string, tls bool, logEntry *logrus.Entry) (*client
 			return nil, errp.WithMessage(err, "Failed to establish TCP connection")
 		}
 	}
-	rpcClient, err := jsonrpc.NewRPCClient(conn)
+	rpcClient, err := jsonrpc.NewRPCClient(conn, logEntry)
 	if err != nil {
 		return nil, errp.Wrap(err, "Failed to establish RPC connection")
 	}
