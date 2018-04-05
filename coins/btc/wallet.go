@@ -105,8 +105,21 @@ func NewWallet(
 
 // Init initializes the wallet.
 func (wallet *Wallet) Init() {
-	wallet.updateFeeTargets()
 	wallet.ensureAddresses()
+	if err := wallet.blockchain.HeadersSubscribe(
+		wallet.onNewHeader,
+		func(error) {},
+	); err != nil {
+		// TODO
+		panic(err)
+	}
+}
+
+func (wallet *Wallet) onNewHeader(header *client.Header) error {
+	wallet.logEntry.WithField("block-height", header.BlockHeight).Info("Received new header")
+	// Fee estimates change with each block.
+	wallet.updateFeeTargets()
+	return nil
 }
 
 // Initialized indicates whether the wallet has loaded and finished the initial sync of the
@@ -123,14 +136,16 @@ func (wallet *Wallet) Close() {
 }
 
 func (wallet *Wallet) updateFeeTargets() {
+	defer wallet.RLock()()
 	for _, feeTarget := range wallet.feeTargets {
 		func(feeTarget *FeeTarget) {
 			err := wallet.blockchain.EstimateFee(
 				feeTarget.Blocks,
 				func(feeRatePerKb btcutil.Amount) error {
+					defer wallet.Lock()()
 					feeTarget.FeeRatePerKb = &feeRatePerKb
 					wallet.logEntry.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
-						"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
+						"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
 					return nil
 				},
 				func(err error) {},
