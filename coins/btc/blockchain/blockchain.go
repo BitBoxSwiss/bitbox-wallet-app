@@ -11,12 +11,12 @@ import (
 // other backends can implement the same interface.
 //go:generate mockery -name Interface
 type Interface interface {
-	ScriptHashGetHistory(string, func(client.TxHistory) error, func(error)) error
-	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error
-	ScriptHashSubscribe(string, func(string) error, func(error)) error
-	HeadersSubscribe(func(*client.Header) error, func(error)) error
+	ScriptHashGetHistory(string, func(client.TxHistory) error, func()) error
+	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func()) error
+	ScriptHashSubscribe(string, func(string) error, func()) error
+	HeadersSubscribe(func(*client.Header) error, func()) error
 	TransactionBroadcast(*wire.MsgTx) error
 	RelayFee() (btcutil.Amount, error)
-	EstimateFee(int, func(btcutil.Amount) error, func(error)) error
+	EstimateFee(int, func(btcutil.Amount) error, func()) error
 	Close()
 }

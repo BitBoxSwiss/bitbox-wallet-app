@@ -108,7 +108,7 @@ func (wallet *Wallet) Init() {
 	wallet.ensureAddresses()
 	if err := wallet.blockchain.HeadersSubscribe(
 		wallet.onNewHeader,
-		func(error) {},
+		func() {},
 	); err != nil {
 		// TODO
 		panic(err)
@@ -148,7 +148,7 @@ func (wallet *Wallet) updateFeeTargets() {
 						"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
 					return nil
 				},
-				func(err error) {},
+				func() {},
 			)
 			if err != nil {
 				wallet.logEntry.WithField("error", err).Panic("Failed to update fee targets")
@@ -200,7 +200,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 			wallet.ensureAddresses()
 			return nil
 		},
-		func(error) { done() },
+		done,
 	)
 }
 
@@ -236,7 +236,7 @@ func (wallet *Wallet) subscribeAddress(address *addresses.Address) error {
 	return wallet.blockchain.ScriptHashSubscribe(
 		address.ScriptHash(),
 		func(status string) error { return wallet.onAddressStatus(address, status) },
-		func(error) { done() },
+		done,
 	)
 }
 

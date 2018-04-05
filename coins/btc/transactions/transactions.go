@@ -283,7 +283,7 @@ func (transactions *Transactions) doForTransaction(
 			delete(transactions.requestedTXs, txHash)
 			return nil
 		},
-		func(error) { done() },
+		done,
 	); err != nil {
 		transactions.logEntry.WithField("error", err).Panic("Failed to retrieve transaction")
 		// TODO

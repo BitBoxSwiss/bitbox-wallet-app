@@ -16,7 +16,7 @@ const responseTimeout = 100 * time.Second
 
 type callbacks struct {
 	success func([]byte) error
-	cleanup func(error)
+	cleanup func()
 }
 
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
@@ -103,12 +103,12 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 			client.responseCallbacksLock.RUnlock()
 			if ok {
 				if len(response.Result) == 0 {
-					responseCallbacks.cleanup(errp.New("unexpected reply"))
-					return
+					client.handleError(errp.New("unexpected reply"))
 				}
-				responseCallbacks.cleanup(
-					responseCallbacks.success([]byte(response.Result)),
-				)
+				if err := responseCallbacks.success([]byte(response.Result)); err != nil {
+					client.handleError(errp.New("unexpected reply"))
+				}
+				responseCallbacks.cleanup()
 				client.responseCallbacksLock.Lock()
 				delete(client.responseCallbacks, *response.ID)
 				client.responseCallbacksLock.Unlock()
@@ -134,12 +134,11 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 }
 
 // Method sends invokes the remote method with the provided parameters. The success callback is
-// called with the response. cleanup is called afterwards in any case. The error passed to the
-// cleanup callback can be nil (no error) or non-nil (general error or the error returned from the
-// success callback.
+// called with the response. cleanup is called afterwards, regardless of whether an error occurred
+// anywhere.
 func (client *RPCClient) Method(
 	success func([]byte) error,
-	cleanup func(error),
+	cleanup func(),
 	method string,
 	params ...interface{},
 ) error {
@@ -175,7 +174,7 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 			responseChan <- responseBytes
 			return nil
 		},
-		func(err error) {},
+		func() {},
 		method, params...); err != nil {
 		return err
 	}
