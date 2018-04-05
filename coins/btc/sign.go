@@ -37,7 +37,7 @@ func SignTransaction(
 			signatureHash, err = txscript.CalcWitnessSigHash(
 				subScript, sigHashes, txscript.SigHashAll, transaction, index, spentOutput.Value)
 			if err != nil {
-				return errp.WithMessage(errp.WithStack(err), "Failed to calculate SegWit signature hash")
+				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
 			}
 			logEntry.Debug("Calculated segwit signature hash")
 		} else {
@@ -45,7 +45,7 @@ func SignTransaction(
 			signatureHash, err = txscript.CalcSignatureHash(
 				subScript, txscript.SigHashAll, transaction, index)
 			if err != nil {
-				return errp.WithMessage(errp.WithStack(err), "Failed to calculate legacy signature hash")
+				return errp.Wrap(err, "Failed to calculate legacy signature hash")
 			}
 			logEntry.Debug("Calculated legacy signature hash")
 		}

@@ -215,7 +215,7 @@ func (wallet *Wallet) ensureAddresses() {
 	syncSequence := func(change bool) error {
 		for _, address := range wallet.addresses(change).EnsureAddresses() {
 			if err := wallet.subscribeAddress(address); err != nil {
-				return errp.WithMessage(errp.WithStack(err), "Failed to subscribe to address")
+				return errp.Wrap(err, "Failed to subscribe to address")
 			}
 		}
 		return nil

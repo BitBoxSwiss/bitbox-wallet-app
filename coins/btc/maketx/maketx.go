@@ -149,7 +149,7 @@ func NewTx(
 		if changeAmount != 0 && !changeIsDust {
 			changePKScript, err := getChangePKScript()
 			if err != nil {
-				return nil, errp.WithMessage(errp.WithStack(err), "Failed to get change script")
+				return nil, errp.Wrap(err, "Failed to get change script")
 			}
 			if len(changePKScript) > P2PKHPkScriptSize {
 				return nil, errp.WithContext(errp.New("fee estimation requires change scripts no "+

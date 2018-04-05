@@ -113,7 +113,7 @@ type ServerVersion struct {
 func (version *ServerVersion) UnmarshalJSON(b []byte) error {
 	slice := []string{}
 	if err := json.Unmarshal(b, &slice); err != nil {
-		return errp.WithContext(errp.WithMessage(errp.WithStack(err), "Failed to unmarshal JSON"), errp.Context{"raw": string(b)})
+		return errp.WithContext(errp.Wrap(err, "Failed to unmarshal JSON"), errp.Context{"raw": string(b)})
 	}
 	if len(slice) != 2 {
 		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"raw": string(b)})
@@ -245,11 +245,11 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 func parseTX(rawTXHex string, logEntry *logrus.Entry) (*wire.MsgTx, error) {
 	rawTX, err := hex.DecodeString(rawTXHex)
 	if err != nil {
-		return nil, errp.WithMessage(errp.WithStack(err), "Failed to decode transaction hex")
+		return nil, errp.Wrap(err, "Failed to decode transaction hex")
 	}
 	tx := &wire.MsgTx{}
 	if err := tx.BtcDecode(bytes.NewReader(rawTX), 0, wire.WitnessEncoding); err != nil {
-		return nil, errp.WithMessage(errp.WithStack(err), "Failed to decode BTC transaction")
+		return nil, errp.Wrap(err, "Failed to decode BTC transaction")
 	}
 	return tx, nil
 }
@@ -364,7 +364,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 	rawTxHex := hex.EncodeToString(rawTx.Bytes())
 	var response string
 	if err := client.rpc.MethodSync(&response, "blockchain.transaction.broadcast", rawTxHex); err != nil {
-		return errp.WithMessage(errp.WithStack(err), "Failed to broadcast transaction")
+		return errp.Wrap(err, "Failed to broadcast transaction")
 	}
 	// TxHash() deviates from the hash of rawTxHex in case of a segwit tx. The stripped transaction
 	// ID is used.
@@ -380,7 +380,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 	var response float64
 	if err := client.rpc.MethodSync(&response, "blockchain.relayfee"); err != nil {
-		return 0, errp.WithMessage(errp.WithStack(err), "Failed to relay fee")
+		return 0, errp.Wrap(err, "Failed to relay fee")
 	}
 	return btcutil.NewAmount(response)
 }
@@ -397,14 +397,14 @@ func (client *ElectrumClient) EstimateFee(
 		func(responseBytes []byte) error {
 			var fee float64
 			if err := json.Unmarshal(responseBytes, &fee); err != nil {
-				return errp.WithMessage(errp.WithStack(err), "Failed to unmarshal JSON")
+				return errp.Wrap(err, "Failed to unmarshal JSON")
 			}
 			if fee == -1 {
 				return errp.New("Fee could not be estimated")
 			}
 			amount, err := btcutil.NewAmount(fee)
 			if err != nil {
-				return errp.WithMessage(errp.WithStack(err), "Failed to construct BTC amount")
+				return errp.Wrap(err, "Failed to construct BTC amount")
 			}
 			return success(amount)
 		},

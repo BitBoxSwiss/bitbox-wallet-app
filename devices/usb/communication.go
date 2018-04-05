@@ -217,7 +217,7 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 	}
 	jsonResult := map[string]interface{}{}
 	if err := json.Unmarshal(reply, &jsonResult); err != nil {
-		return nil, errp.WithMessage(errp.WithStack(err), "Failed to unmarshal reply")
+		return nil, errp.Wrap(err, "Failed to unmarshal reply")
 	}
 	if err := maybeDBBErr(jsonResult); err != nil {
 		return nil, err
@@ -266,7 +266,7 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		}
 		jsonResult = map[string]interface{}{}
 		if err := json.Unmarshal(plainText, &jsonResult); err != nil {
-			return nil, errp.WithMessage(errp.WithStack(err), "Failed to unmarshal reply")
+			return nil, errp.Wrap(err, "Failed to unmarshal reply")
 		}
 	}
 	if err := maybeDBBErr(jsonResult); err != nil {
