@@ -70,7 +70,9 @@ func (blockchain *BlockchainMock) TransactionGet(
 	blockchain.transactionGetCallbacks[txHash] = append(callbacks,
 		func() {
 			defer cleanup()
-			success(tx)
+			if err := success(tx); err != nil {
+				panic(err)
+			}
 		})
 	return nil
 }
