@@ -1,0 +1,13 @@
+{
+  "extends": "eslint-config-synacor",
+  "rules": {
+    "arrow-body-style": [0, "as-needed"],
+    "brace-style": [1, "1tbs"],
+    "indent": ["warn", 4],
+    "react/self-closing-comp": 0,
+    "react/jsx-curly-spacing": 0,
+    "react/jsx-indent-props": [2, 4],
+    "react/sort-comp": 0,
+    "react/jsx-boolean-value": 0
+  }
+}

@@ -12,22 +12,22 @@ import { apiPost } from '../../utils/request';
 
 export default class Seed extends Component {
     stateEnum = Object.freeze({
-        DEFAULT: "default",
-        WAITING: "waiting",
-        ERROR: "error"
+        DEFAULT: 'default',
+        WAITING: 'waiting',
+        ERROR: 'error'
     })
 
     constructor(props) {
         super(props);
         this.state = {
             state: this.stateEnum.DEFAULT,
-            walletName: "",
-            error: ""
+            walletName: '',
+            error: ''
         };
     }
 
     validate = () => {
-        return this.state.walletName != "";
+        return this.state.walletName !== '';
     }
 
     handleFormChange = event => {
@@ -36,24 +36,24 @@ export default class Seed extends Component {
 
     handleSubmit = event => {
         event.preventDefault();
-        if(!this.validate()) {
+        if (!this.validate()) {
             return;
         }
         this.setState({
             state: this.stateEnum.DEFAULT,
-            error: ""
+            error: ''
         });
         this.setState({ state: this.stateEnum.WAITING });
-        apiPost("device/create-wallet", { walletName: this.state.walletName }).then(data => {
-            if(!data.success) {
+        apiPost('device/create-wallet', { walletName: this.state.walletName }).then(data => {
+            if (!data.success) {
                 this.setState({ state: this.stateEnum.ERROR, error: data.errorMessage });
             }
         });
     };
 
     render({}, state) {
-        var FormSubmissionState = props => {
-            switch(props.state){
+        const FormSubmissionState = props => {
+            switch (props.state){
             case this.stateEnum.DEFAULT:
                 break;
             case this.stateEnum.WAITING:
@@ -70,31 +70,31 @@ export default class Seed extends Component {
 
         return (
             <Dialog>
-              <form onsubmit={this.handleSubmit}>
-                <div>
-                  <Textfield
-                    autoFocus
-                    autoComplete="off"
-                    id="walletName"
-                    label="Wallet Name"
-                    disabled={state.state == this.stateEnum.WAITING}
-                    onInput={this.handleFormChange}
-                    value={state.walletName}
-                    />
-                </div>
-                <div>
-                  <Button
-                    type="submit"
-                    primary={true}
-                    raised={true}
-                    disabled={!this.validate() || state.state == this.stateEnum.WAITING}
-                    >Create Wallet</Button>
-                </div>
-                <FormSubmissionState {...state}/>
-              </form>
-              <p>-- OR --</p>
-              <ManageBackups showCreate={false}/>
+                <form onsubmit={this.handleSubmit}>
+                    <div>
+                        <Textfield
+                            autoFocus
+                            autoComplete="off"
+                            id="walletName"
+                            label="Wallet Name"
+                            disabled={state.state === this.stateEnum.WAITING}
+                            onInput={this.handleFormChange}
+                            value={state.walletName}
+                        />
+                    </div>
+                    <div>
+                        <Button
+                            type="submit"
+                            primary={true}
+                            raised={true}
+                            disabled={!this.validate() || state.state === this.stateEnum.WAITING}
+                        >Create Wallet</Button>
+                    </div>
+                    <FormSubmissionState {...state} />
+                </form>
+                <p>-- OR --</p>
+                <ManageBackups showCreate={false} />
             </Dialog>
         );
     }
-};
+}

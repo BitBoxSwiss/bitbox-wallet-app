@@ -14,32 +14,32 @@ import { apiPost } from '../../../utils/request';
 export default class Reset extends Component {
     resetDevice = () => {
         this.waitDialog.MDComponent.show();
-        apiPost("device/reset").then(() => { this.waitDialog.MDComponent.close(); });
+        apiPost('device/reset').then(() => { this.waitDialog.MDComponent.close(); });
     };
 
     render() {
         return (
             <div>
-              <Button primary={true} raised={true} onClick={()=>{
+                <Button primary={true} raised={true} onClick={() => {
                     this.resetDialog.MDComponent.show();
                 }}>Reset Device</Button>
-              <Dialog ref={resetDialog=>{this.resetDialog=resetDialog;}} onAccept={this.resetDevice}>
-                <Dialog.Header>Reset Device</Dialog.Header>
-                <Dialog.Body>
-                  Resetting the device means ... ...
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
-                  <Dialog.FooterButton accept={true}>Reset Device</Dialog.FooterButton>
-                </Dialog.Footer>
-              </Dialog>
-              <WaitDialog ref={waitDialog=>{this.waitDialog=waitDialog;}}>
-                <WaitDialog.Header>Reset Device</WaitDialog.Header>
-                <WaitDialog.Body>
-                  <p>Short touch = abort</p>
-                  <p>Long touch = confirm</p>
-                </WaitDialog.Body>
-              </WaitDialog>
+                <Dialog ref={resetDialog => {this.resetDialog = resetDialog; }} onAccept={this.resetDevice}>
+                    <Dialog.Header>Reset Device</Dialog.Header>
+                    <Dialog.Body>
+                      Resetting the device means ... ...
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                        <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
+                        <Dialog.FooterButton accept={true}>Reset Device</Dialog.FooterButton>
+                    </Dialog.Footer>
+                </Dialog>
+                <WaitDialog ref={waitDialog => { this.waitDialog = waitDialog;}}>
+                    <WaitDialog.Header>Reset Device</WaitDialog.Header>
+                    <WaitDialog.Body>
+                        <p>Short touch = abort</p>
+                        <p>Long touch = confirm</p>
+                    </WaitDialog.Body>
+                </WaitDialog>
             </div>
         );
     }

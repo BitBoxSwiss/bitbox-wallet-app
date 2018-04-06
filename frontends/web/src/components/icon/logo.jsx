@@ -11,7 +11,7 @@ const logoMap = {
     'tltc-p2wpkh-p2sh': LTC
 };
 
-export default function Logo({code, ...props}) {
+export default function Logo({ code, ...props }) {
     return (
         <img src={logoMap[code]} {...props} />
     );

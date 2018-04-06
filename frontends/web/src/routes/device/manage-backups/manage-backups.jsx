@@ -26,11 +26,11 @@ export default class ManageBackups extends Component {
     }
 
     refresh = () => {
-        apiGet("device/backups/list").then(({ sdCardInserted, backupList }) => {
+        apiGet('device/backups/list').then(({ sdCardInserted, backupList }) => {
             this.setState({
                 selectedBackup: null,
-                sdCardInserted: sdCardInserted,
-                backupList: backupList
+                sdCardInserted,
+                backupList
             });
         });
     }
@@ -40,39 +40,39 @@ export default class ManageBackups extends Component {
     }
 
     render({ showCreate }, { backupList, selectedBackup, sdCardInserted }) {
-        if(!sdCardInserted) {
+        if (!sdCardInserted) {
             return (
                 <div>
-                  <p>Please insert SD card to manage backups.</p>
-                  <Button
-                    primary={true}
-                    raised={true}
-                    onclick={() => { this.refresh(); }}
+                    <p>Please insert SD card to manage backups.</p>
+                    <Button
+                        primary={true}
+                        raised={true}
+                        onclick={() => { this.refresh(); }}
                     >I have inserted the SD card</Button>
                 </div>
             );
         }
-        const selectClasses = ["mdc-multi-select", "mdc-list", style.backupList].join(' ');
+        const selectClasses = ['mdc-multi-select', 'mdc-list', style.backupList].join(' ');
         const option = filename => <option className="mdc-list-item">{ filename }</option>;
         return (
             <div>
-              <h1>Manage Backups</h1>
-              <div>
-                <select
-                  id="backupList"
-                  size="6"
-                  className={selectClasses}
-                  onChange={this.handleBackuplistChange}
-                  >{ backupList.map(option) }
-                </select>
-                <Restore selectedBackup={selectedBackup}/>
-                &nbsp;
-                <Erase
-                  selectedBackup={selectedBackup}
-                  onErase={this.refresh}
-                  />
-                {showCreate && <span>&nbsp;<Create onCreate={this.refresh}/></span>}
-              </div>
+                <h1>Manage Backups</h1>
+                <div>
+                    <select
+                        id="backupList"
+                        size="6"
+                        className={selectClasses}
+                        onChange={this.handleBackuplistChange}
+                    >{ backupList.map(option) }
+                    </select>
+                    <Restore selectedBackup={selectedBackup} />
+                    &nbsp;
+                    <Erase
+                        selectedBackup={selectedBackup}
+                        onErase={this.refresh}
+                    />
+                    {showCreate && <span>&nbsp;<Create onCreate={this.refresh} /></span>}
+                </div>
             </div>
         );
     }

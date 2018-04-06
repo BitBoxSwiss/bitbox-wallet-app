@@ -16,7 +16,7 @@ export default class Create extends Component {
         super(props);
         this.state = {
             waiting: false,
-            backupName: ""
+            backupName: ''
         };
     }
 
@@ -25,21 +25,21 @@ export default class Create extends Component {
     };
 
     validate = () => {
-        return !this.waiting && this.state.backupName != "";
+        return !this.waiting && this.state.backupName !== '';
     }
 
     create = (event) => {
         event.preventDefault();
-        if(!this.validate()) {
+        if (!this.validate()) {
             return;
         }
         this.setState({ waiting: true });
-        apiPost("device/backups/create", { backupName: this.state.backupName }).then(() => {
+        apiPost('device/backups/create', { backupName: this.state.backupName }).then(() => {
             this.props.onCreate();
         }).catch(() => {}).then(() => {
             this.setState({
                 waiting: false,
-                backupName: ""
+                backupName: ''
             });
             this.confirmDialog.MDComponent.close();
         });
@@ -48,40 +48,47 @@ export default class Create extends Component {
     render({}, { waiting, backupName }) {
         return (
             <span>
-              <Button
-                primary={true}
-                raised={true}
-                onclick={() => { this.confirmDialog.MDComponent.show(); }}
-                >Create</Button>
-              <Dialog
-                ref={confirmDialog=>{this.confirmDialog=confirmDialog;}}
-                onAccept={this.erase}
+                <Button
+                    primary={true}
+                    raised={true}
+                    onclick={() => { this.confirmDialog.MDComponent.show(); }}>
+                    Create
+                </Button>
+                <Dialog
+                    ref={confirmDialog => { this.confirmDialog = confirmDialog; }}
+                    onAccept={this.erase}
                 >
-                <Dialog.Header>Create Backup</Dialog.Header>
-                <form onSubmit={this.create}>
-                  <Dialog.Body>
-                    <Textfield
-                      autoFocus
-                      autoComplete="off"
-                      ref={pwf=>{this.pwf=pwf;}}
-                      id="backupName"
-                      label="Backup Name"
-                      helptext="Please name the backup."
-                      helptextPersistent={true}
-                      onInput={this.handleFormChange}
-                      value={backupName}
-                      />
-                  </Dialog.Body>
-                  <Dialog.Footer>
-                    <Dialog.FooterButton
-                      type="button"
-                      cancel={true}>Abort</Dialog.FooterButton>
-                    <Dialog.FooterButton
-                      type="submit"
-                      disabled={waiting || !this.validate()}>Create</Dialog.FooterButton>
-                  </Dialog.Footer>
-                </form>
-              </Dialog>
+                    <Dialog.Header>Create Backup</Dialog.Header>
+                    <form onSubmit={this.create}>
+                        <Dialog.Body>
+                            <Textfield
+                                autoFocus
+                                autoComplete="off"
+                                ref={pwf => { this.pwf = pwf; }}
+                                id="backupName"
+                                label="Backup Name"
+                                helptext="Please name the backup."
+                                helptextPersistent={true}
+                                onInput={this.handleFormChange}
+                                value={backupName}
+                            />
+                        </Dialog.Body>
+                        <Dialog.Footer>
+                            <Dialog.FooterButton
+                                type="button"
+                                cancel={true}
+                            >
+                                Abort
+                            </Dialog.FooterButton>
+                            <Dialog.FooterButton
+                                type="submit"
+                                disabled={waiting || !this.validate()}
+                            >
+                                Create
+                            </Dialog.FooterButton>
+                        </Dialog.Footer>
+                    </form>
+                </Dialog>
             </span>
         );
     }

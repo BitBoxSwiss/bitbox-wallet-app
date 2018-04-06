@@ -24,11 +24,11 @@ import { debug } from './utils/env';
 import style from './components/style';
 
 const DeviceStatus = Object.freeze({
-    BOOTLOADER: "bootloader",
-    INITIALIZED: "initialized",
-    UNINITIALIZED: "uninitialized",
-    LOGGED_IN: "logged_in",
-    SEEDED: "seeded"
+    BOOTLOADER: 'bootloader',
+    INITIALIZED: 'initialized',
+    UNINITIALIZED: 'uninitialized',
+    LOGGED_IN: 'logged_in',
+    SEEDED: 'seeded'
 });
 
 @translate()
@@ -55,26 +55,26 @@ export default class App extends Component {
     componentDidMount() {
         this.onDevicesRegisteredChanged();
         apiWebsocket(data => {
-            switch(data.type) {
-            case "wallet":
-                if(this.onWalletEvent) {
+            switch (data.type) {
+            case 'wallet':
+                if (this.onWalletEvent) {
                     this.onWalletEvent(data);
                 }
                 break;
-            case "devices":
-                switch(data.data) {
-                case "registeredChanged":
+            case 'devices':
+                switch (data.data) {
+                case 'registeredChanged':
                     this.onDevicesRegisteredChanged();
                     break;
                 }
                 break;
-            case "device":
-                switch(data.data) {
-                case "statusChanged":
+            case 'device':
+                switch (data.data) {
+                case 'statusChanged':
                     this.onDeviceStatusChanged();
                     break;
                 }
-                if(this.onBootloaderEvent) {
+                if (this.onBootloaderEvent) {
                     this.onBootloaderEvent(data);
                 }
                 break;
@@ -82,32 +82,32 @@ export default class App extends Component {
         });
 
         if (debug) {
-          apiGet("testing").then(testing => this.setState({ testing: testing }));
+            apiGet('testing').then(testing => this.setState({ testing }));
         }
 
-        apiGet("wallets").then(wallets => {
-            this.setState({ wallets: wallets, activeWallet: wallets.length ? wallets[0] : null });
+        apiGet('wallets').then(wallets => {
+            this.setState({ wallets, activeWallet: wallets.length ? wallets[0] : null });
         });
     }
 
     onDevicesRegisteredChanged = () => {
-        apiGet("devices/registered").then(registered => {
-            this.setState({deviceRegistered: registered});
+        apiGet('devices/registered').then(registered => {
+            this.setState({ deviceRegistered: registered });
             this.onDeviceStatusChanged();
         });
     }
 
     onDeviceStatusChanged = () => {
-        if(this.state.deviceRegistered) {
-            apiGet("device/status").then(deviceStatus => {
-                this.setState({deviceStatus: deviceStatus});
+        if (this.state.deviceRegistered) {
+            apiGet('device/status').then(deviceStatus => {
+                this.setState({ deviceStatus });
             });
         }
     }
 
     render({}, { wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
 
-        if(!deviceRegistered || !deviceStatus) {
+        if (!deviceRegistered || !deviceStatus) {
             return (
                 <div style="text-align: center;">
                     <div style="margin: 30px;">
@@ -119,44 +119,46 @@ export default class App extends Component {
                 </div>
             );
         }
-        switch(deviceStatus) {
+        switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return <Bootloader
-            registerOnEvent={onEvent => {this.onBootloaderEvent = onEvent;}}
-                />;
+            return (
+                <Bootloader
+                    registerOnEvent={onEvent => {this.onBootloaderEvent = onEvent;}}
+                />
+            );
         case DeviceStatus.INITIALIZED:
-            return <Login/>;
+            return <Login />;
         case DeviceStatus.UNINITIALIZED:
-            return <Initialize/>;
+            return <Initialize />;
         case DeviceStatus.LOGGED_IN:
-            return <Seed/>;
+            return <Seed />;
         case DeviceStatus.SEEDED:
             return (
-              <div class={style.container}>
-                <div style="display: flex; flex-grow: 1;">
-                  <Sidebar accounts={wallets} activeWallet={activeWallet} />
-                  <Router onChange={this.handleRoute}>
-                    <div path="/"><h1>Welcome</h1></div>
-                    <Account path="/account/:code" wallets={wallets}
-                      registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
-                    />
-                    <Settings path="/settings/" />
-                    <ManageBackups
-                      path="/manage-backups"
-                      showCreate={true}
-                      />
-                  </Router>
+                <div class={style.container}>
+                    <div style="display: flex; flex-grow: 1;">
+                        <Sidebar accounts={wallets} activeWallet={activeWallet} />
+                        <Router onChange={this.handleRoute}>
+                            <div path="/"><h1>Welcome</h1></div>
+                            <Account path="/account/:code" wallets={wallets}
+                                registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
+                            />
+                            <Settings path="/settings/" />
+                            <ManageBackups
+                                path="/manage-backups"
+                                showCreate={true}
+                            />
+                        </Router>
+                    </div>
                 </div>
-              </div>
             );
-        };
+        }
     }
 }
 
 function renderButtonIfTesting() {
     return (
-        <Button primary={true} raised={true} onClick={()=>{
-            apiPost("devices/test/register");
+        <Button primary={true} raised={true} onClick={() => {
+            apiPost('devices/test/register');
         }}>Skip for Testing</Button>
     );
 }

@@ -16,8 +16,8 @@ export default class Account extends Component {
             walletInitialized: false,
             transactions: [],
             balance: {
-                available: "",
-                incoming: "",
+                available: '',
+                incoming: '',
                 hasIncoming: false
             }
         };
@@ -26,9 +26,9 @@ export default class Account extends Component {
     componentDidMount() {
         this.props.registerOnWalletEvent(this.onWalletEvent.bind(this));
         this.onStatusChanged();
-        apiGet("device/info").then(({ sdcard }) => {
-            if(sdcard) {
-                alert("Keep the SD card stored securely unless you want to manage backups.");
+        apiGet('device/info').then(({ sdcard }) => {
+            if (sdcard) {
+                alert('Keep the SD card stored securely unless you want to manage backups.');
             }
         });
     }
@@ -42,51 +42,53 @@ export default class Account extends Component {
     }
 
     onWalletEvent = data => {
-        switch(data.data) {
-        case "statusChanged":
+        switch (data.data) {
+        case 'statusChanged':
             this.onStatusChanged();
             break;
-        case "syncdone":
+        case 'syncdone':
             this.onWalletChanged();
             break;
         }
     }
 
     onStatusChanged = () => {
-        apiGet("wallet/" + this.props.code + "/status").then(initialized => {
+        apiGet('wallet/' + this.props.code + '/status').then(initialized => {
             this.setState({ walletInitialized: initialized });
             this.onWalletChanged();
         });
     }
 
     onWalletChanged = () => {
-        if(this.state.walletInitialized) {
-            apiGet("wallet/" + this.props.code + "/transactions").then(transactions => {
-                this.setState({ transactions: transactions });
+        if (this.state.walletInitialized) {
+            apiGet('wallet/' + this.props.code + '/transactions').then(transactions => {
+                this.setState({ transactions });
             });
-            apiGet("wallet/" + this.props.code + "/balance").then(balance => {
-                this.setState({ balance: balance });
+            apiGet('wallet/' + this.props.code + '/balance').then(balance => {
+                this.setState({ balance });
             });
         }
     }
 
     render({ wallets }, { walletInitialized, transactions, balance }) {
 
-        const wallet = wallets.find(({code}) => code === this.props.code);
+        const wallet = wallets.find(({ code }) => code === this.props.code);
 
         if (!wallet) return null;
 
-        const renderTransaction = transaction => <List.Item>
-            <a href={ wallet.blockExplorerTxPrefix + transaction.id } target="_blank">{ transaction.id }</a>&nbsp;–
-            Height { transaction.height } –
-            Amount { transaction.amount } –
-            Fee { transaction.fee } –
-            Type { transaction.type }
-        </List.Item>;
+        const renderTransaction = transaction => (
+            <List.Item>
+                <a href={ wallet.blockExplorerTxPrefix + transaction.id } target="_blank">{ transaction.id }</a>&nbsp;–
+                Height { transaction.height } –
+                Amount { transaction.amount } –
+                Fee { transaction.fee } –
+                Type { transaction.type }
+            </List.Item>
+        );
 
         const renderTransactions = transactions => {
             if (!walletInitialized) { return <div>Initializing.</div>; }
-            if (transactions.length == 0) { return <div>No transactions yet.</div>; }
+            if (transactions.length === 0) { return <div>No transactions yet.</div>; }
             return <List>{ transactions.map(renderTransaction) }</List>;
         };
 
@@ -101,8 +103,9 @@ export default class Account extends Component {
                 { renderTransactions(transactions) }
                 <p>
                     <Send
-                    walletCode={ wallet.code }
-                    walletInitialized={ walletInitialized }/>
+                        walletCode={ wallet.code }
+                        walletInitialized={ walletInitialized }
+                    />
                     &nbsp;
                     <Receive code={this.props.code} />
                 </p>

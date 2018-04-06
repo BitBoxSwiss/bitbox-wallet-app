@@ -17,7 +17,7 @@ class Sidebar extends Component {
     }
     componentDidMount() {
         if (debug) {
-            apiGet("device/info").then(({ name }) => this.setState({ emulated: name === "Emulated BitBox" }));
+            apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
         }
     }
     render({ t, accounts }, { emulated }) {
@@ -27,18 +27,18 @@ class Sidebar extends Component {
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {emulated && debug ?
-                    <a href="#" onClick={ (e) => {
-                        apiPost("devices/test/deregister");
-                        e.preventDefault();
-                    } }>
-                        <img className="sidebar_settings" src={ejectIcon} />
-                        <span className="sidebar_label">{ t("sidebar.leave") }</span>
-                    </a>
-                    : null}
+                        <a href="#" onClick={ (e) => {
+                            apiPost('devices/test/deregister');
+                            e.preventDefault();
+                        }}>
+                            <img className="sidebar_settings" src={ejectIcon} />
+                            <span className="sidebar_label">{ t('sidebar.leave') }</span>
+                        </a>
+                        : null}
 
-                    <Link activeClassName="sidebar-active" href="/settings/" title={ t("sidebar.settings") }>
-                        <img className="sidebar_settings" src={settings} alt={ t("sidebar.settings") } />
-                        <span className="sidebar_label">{ t("sidebar.settings") }</span>
+                    <Link activeClassName="sidebar-active" href="/settings/" title={ t('sidebar.settings') }>
+                        <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                        <span className="sidebar_label">{ t('sidebar.settings') }</span>
                     </Link>
                 </div>
             </nav>
@@ -46,7 +46,7 @@ class Sidebar extends Component {
     }
 }
 
-function getWalletLink({code, name}) {
+function getWalletLink({ code, name }) {
     return (
         <Link key={code} activeClassName="sidebar-active" href={`/account/${code}`} title={name}>
             <Logo code={code} className="sidebar_icon" alt={name} />

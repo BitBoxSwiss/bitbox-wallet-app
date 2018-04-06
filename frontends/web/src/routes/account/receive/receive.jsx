@@ -22,42 +22,42 @@ export default class ReceiveButton extends Component {
     onReceive = () => {
         this.setState({ receiveAddress: null });
 
-        apiGet("wallet/" + this.props.code + "/receive-address")
-        .then(address => {
-            this.setState({ receiveAddress: address });
-        });
+        apiGet('wallet/' + this.props.code + '/receive-address')
+            .then(address => {
+                this.setState({ receiveAddress: address });
+            });
         this.dialog.MDComponent.show();
     }
 
     render({}, { receiveAddress }) {
         return (
             <span>
-              <Button primary={true} raised={true} onClick={this.onReceive}>
-                Receive
-              </Button>
-              <Dialog ref={dialog => { this.dialog = dialog;}} onAccept={this.send}>
-                <Dialog.Header>Receive</Dialog.Header>
-                <Dialog.Body>
-                  { receiveAddress ?
-                  <center>
-                    <Textfield
-                      size="36"
-                      autoFocus
-                      autoComplete="off"
-                      readonly={true}
-                      onInput={this.handleFormChange}
-                      onFocus={event => event.target.select() }
-                      value={receiveAddress}
-                      />
-                      <p><QRCode data={receiveAddress}/></p>
-                  </center>
-                  : 'loading…'}
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Dialog.FooterButton cancel={true}>Close</Dialog.FooterButton>
-                </Dialog.Footer>
-              </Dialog>
+                <Button primary={true} raised={true} onClick={this.onReceive}>
+                  Receive
+                </Button>
+                <Dialog ref={dialog => { this.dialog = dialog; }} onAccept={this.send}>
+                    <Dialog.Header>Receive</Dialog.Header>
+                    <Dialog.Body>
+                        { receiveAddress ?
+                            <center>
+                                <Textfield
+                                    size="36"
+                                    autoFocus
+                                    autoComplete="off"
+                                    readonly={true}
+                                    onInput={this.handleFormChange}
+                                    onFocus={event => event.target.select() }
+                                    value={receiveAddress}
+                                />
+                                <p><QRCode data={receiveAddress} /></p>
+                            </center>
+                            : 'loading…'}
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                        <Dialog.FooterButton cancel={true}>Close</Dialog.FooterButton>
+                    </Dialog.Footer>
+                </Dialog>
             </span>
         );
     }
-};
+}

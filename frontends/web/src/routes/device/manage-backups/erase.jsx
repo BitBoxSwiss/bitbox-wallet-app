@@ -11,10 +11,10 @@ import { apiPost } from '../../../utils/request';
 export default class Erase extends Component {
     erase = () => {
         const filename = this.props.selectedBackup;
-        if(!filename) {
+        if (!filename) {
             return;
         }
-        apiPost("device/backups/erase", { filename: filename }).then(() => {
+        apiPost('device/backups/erase', { filename }).then(() => {
             this.props.onErase();
         });
     }
@@ -22,25 +22,25 @@ export default class Erase extends Component {
     render({ selectedBackup }) {
         return (
             <span>
-              <Button
-                primary={true}
-                raised={true}
-                disabled={selectedBackup === null}
-                onclick={() => { this.confirmDialog.MDComponent.show(); }}
+                <Button
+                    primary={true}
+                    raised={true}
+                    disabled={selectedBackup === null}
+                    onclick={() => { this.confirmDialog.MDComponent.show(); }}
                 >Erase</Button>
-              <Dialog
-                ref={confirmDialog=>{this.confirmDialog=confirmDialog;}}
-                onAccept={this.erase}
+                <Dialog
+                    ref={confirmDialog => { this.confirmDialog = confirmDialog; }}
+                    onAccept={this.erase}
                 >
-                <Dialog.Header>Erase {selectedBackup}</Dialog.Header>
-                <Dialog.Body>
-                  Do you really want to erase {selectedBackup}?
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
-                  <Dialog.FooterButton accept={true}>Erase</Dialog.FooterButton>
-                </Dialog.Footer>
-              </Dialog>
+                    <Dialog.Header>Erase {selectedBackup}</Dialog.Header>
+                    <Dialog.Body>
+                      Do you really want to erase {selectedBackup}?
+                    </Dialog.Body>
+                    <Dialog.Footer>
+                        <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
+                        <Dialog.FooterButton accept={true}>Erase</Dialog.FooterButton>
+                    </Dialog.Footer>
+                </Dialog>
             </span>
         );
     }

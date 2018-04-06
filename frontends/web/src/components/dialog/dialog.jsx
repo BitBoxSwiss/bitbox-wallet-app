@@ -1,5 +1,5 @@
 import { Component } from 'preact';
-import style from './style'
+import style from './style';
 
 export default class Dialog extends Component {
     render() {
@@ -7,6 +7,6 @@ export default class Dialog extends Component {
             <div class={style.dialog}>
             {this.props.children}
             </div>
-        )
+        );
     }
 }

@@ -12,28 +12,30 @@ export default class LanguageSwitcher extends Component {
     constructor(props) {
         super(props);
         this.languages = [
-            {code: "en", display: "English"},
-            {code: "de", display: "Deutsch"},
+            { code: 'en', display: 'English' },
+            { code: 'de', display: 'Deutsch' }
         ];
-        var inverse = {};
-        this.languages.forEach((obj, index) => { inverse[obj.code] = index; });
+        const inverse = {};
+        this.languages.forEach((obj, index) => {
+            inverse[obj.code] = index;
+        });
         this.state = {
             selectedIndex: inverse[props.i18n.language] || 0
         };
     }
 
-    render({t, i18n}, { selectedIndex }) {
+    render({ t, i18n }, { selectedIndex }) {
         return (
             <span>
-              <Select
-                selectedIndex={selectedIndex}
-                onChange={(e)=>{
-                    this.setState({ selectedIndex: e.selectedIndex});
-                    i18n.changeLanguage(this.languages[e.selectedIndex].code);
-                }}
+                <Select
+                    selectedIndex={selectedIndex}
+                    onChange={(e) => {
+                        this.setState({ selectedIndex: e.selectedIndex });
+                        i18n.changeLanguage(this.languages[e.selectedIndex].code);
+                    }}
                 >
-                { this.languages.map(lang => { return (<Select.Item>{ lang.display }</Select.Item>); }) }
-              </Select>
+                    { this.languages.map(lang => (<Select.Item>{ lang.display }</Select.Item>)) }
+                </Select>
             </span>
         );
     }

@@ -28,15 +28,15 @@ export default class Bootloader extends Component {
     }
 
     onEvent = data => {
-        switch(data.data) {
-        case "bootloaderStatusChanged":
+        switch (data.data) {
+        case 'bootloaderStatusChanged':
             this.onStatusChanged();
             break;
         }
     }
 
     onStatusChanged = () => {
-        apiGet("device/bootloader-status").then(status => {
+        apiGet('device/bootloader-status').then(status => {
             this.setState({
                 upgrading: status.upgrading,
                 progress: status.progress,
@@ -47,33 +47,33 @@ export default class Bootloader extends Component {
     }
 
     upgradeFirmware = () => {
-        apiPost("device/bootloader/upgrade-firmware");
+        apiPost('device/bootloader/upgrade-firmware');
     }
 
     render({}, { upgrading, progress, upgradeSuccessful, errMsg }) {
         let UpgradeOrStatus = () => {
-            if(upgrading) {
-                if(upgradeSuccessful) {
+            if (upgrading) {
+                if (upgradeSuccessful) {
                     return (
                         <p>Upgrade successful! Please replug the device. This time, do not touch the button.</p>
                     );
                 }
-                return <p>Upgrading: {Math.round(progress*100)}%</p>;
+                return <p>Upgrading: {Math.round(progress * 100)}%</p>;
             }
             return (
                 <Button
-                  primary={true}
-                  raised={true}
-                  onclick={() => { this.upgradeFirmware(); }}
-                  >Upgrade Firmware now</Button>
+                    primary={true}
+                    raised={true}
+                    onclick={() => { this.upgradeFirmware(); }}
+                >Upgrade Firmware now</Button>
             );
         };
         return (
             <Dialog>
-              <p>Hello Bootloader.</p>
-              <UpgradeOrStatus/>
-              <p>{ errMsg }</p>
+                <p>Hello Bootloader.</p>
+                <UpgradeOrStatus />
+                <p>{ errMsg }</p>
             </Dialog>
         );
     }
-};
+}

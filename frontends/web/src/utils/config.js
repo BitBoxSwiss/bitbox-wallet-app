@@ -1,4 +1,4 @@
-import "./polyfill";
+import './polyfill';
 
 // extConfig is a way to set config values which which are inserted
 // externally by templating engines (code generation). A default value
@@ -6,7 +6,7 @@ import "./polyfill";
 // for convenience when developing. Both key and defaultValue must be
 // strings and converted into the desired type.
 export function extConfig(key, defaultValue) {
-    if(typeof key == "string" && key.startsWith("{{ ") && key.endsWith(" }}")) {
+    if (typeof key === 'string' && key.startsWith('{{ ') && key.endsWith(' }}')) {
         return defaultValue;
     }
     return key;

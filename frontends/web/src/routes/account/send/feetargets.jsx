@@ -13,22 +13,20 @@ export default class FeeTargets extends Component {
     }
 
     componentDidMount() {
-        if(this.props.walletInitialized) {
+        if (this.props.walletInitialized) {
             this.updateFeeTargets();
         }
     }
 
     componentWillReceiveProps({ walletInitialized }) {
-        if(walletInitialized && !this.props.walletInitialized) {
+        if (walletInitialized && !this.props.walletInitialized) {
             this.updateFeeTargets();
         }
     }
 
     updateFeeTargets = () => {
-        apiGet("wallet/" + this.props.walletCode + "/fee-targets").then(({ feeTargets, defaultFeeTarget }) => {
-            this.setState({
-                feeTargets: feeTargets
-            });
+        apiGet('wallet/' + this.props.walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+            this.setState({ feeTargets });
             this.setFeeTarget(defaultFeeTarget);
         });
     }
@@ -38,28 +36,30 @@ export default class FeeTargets extends Component {
     }
 
     setFeeTarget = feeTarget => {
-        this.setState({ feeTarget: feeTarget });
+        this.setState({ feeTarget });
         this.props.onFeeTargetChange(feeTarget);
     }
 
     render({ disabled }, { feeTargets, feeTarget }) {
-        if(!feeTargets) {
+        if (!feeTargets) {
             return (
                 <span>Fetching fee data</span>
             );
         }
-        const option = target => <option
-        value={ target.code }
-        className="mdc-list-item"
-        selected={ feeTarget == target.code }
-            >{ target.code }</option>;
+        const option = target => (
+            <option
+                value={ target.code }
+                className="mdc-list-item"
+                selected={ feeTarget === target.code }
+            >{ target.code }</option>);
+
         return (
             <select
-              disabled={disabled}
-              id="feeTarget"
-              className="mdc-list"
-              onChange={this.handleFeeTargetChange}
-              >{ feeTargets && feeTargets.map(option) }
+                disabled={disabled}
+                id="feeTarget"
+                className="mdc-list"
+                onChange={this.handleFeeTargetChange}
+            >{ feeTargets && feeTargets.map(option) }
             </select>
         );
     }
