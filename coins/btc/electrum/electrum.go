@@ -12,6 +12,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ConnectionError indicates an error when establishing a network connection.
+type ConnectionError error
+
 func newTCPConnection(address string) (net.Conn, error) {
 	conn, err := net.Dial("tcp", address)
 	if err != nil {
@@ -39,9 +42,16 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 	return conn, nil
 }
 
+func maybeConnectionError(err error) error {
+	if _, ok := errp.Cause(err).(jsonrpc.SocketError); ok {
+		return ConnectionError(err)
+	}
+	return err
+}
+
 // NewElectrumClient connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumClient(server string, tls bool, log *logrus.Entry) (*client.ElectrumClient, error) {
+func NewElectrumClient(server string, tls bool, failureCallback func(error), log *logrus.Entry) (*client.ElectrumClient, error) {
 	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "server": server, "tls": tls})
 	log.Debug("Connecting to Electrum server")
 	var conn io.ReadWriteCloser
@@ -49,18 +59,23 @@ func NewElectrumClient(server string, tls bool, log *logrus.Entry) (*client.Elec
 		var err error
 		conn, err = newTLSConnection(server)
 		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to establish TLS connection")
+			return nil, ConnectionError(err)
 		}
 	} else {
 		var err error
 		conn, err = newTCPConnection(server)
 		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to establish TCP connection")
+			return nil, ConnectionError(err)
 		}
 	}
-	rpcClient, err := jsonrpc.NewRPCClient(conn, log)
-	if err != nil {
-		return nil, errp.Wrap(err, "Failed to establish RPC connection")
+	wrappedFailureCallback := func(err error) {
+		if err != nil {
+			failureCallback(maybeConnectionError(err))
+		}
 	}
-	return client.NewElectrumClient(rpcClient, log)
+	c, err := client.NewElectrumClient(jsonrpc.NewRPCClient(conn, wrappedFailureCallback, log), log)
+	if err != nil {
+		return nil, maybeConnectionError(err)
+	}
+	return c, nil
 }

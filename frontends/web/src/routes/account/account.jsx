@@ -17,6 +17,7 @@ export default class Account extends Component {
         this.state = {
             walletInitialized: false,
             transactions: [],
+            walletConnected: false,
             balance: {
                 available: '',
                 incoming: '',
@@ -39,8 +40,11 @@ export default class Account extends Component {
         this.unsubscribe();
     }
 
-    componentWillReceiveProps() {
-        this.onStatusChanged();
+    componentDidUpdate(prevProps, prevState) {
+        if (this.props.code != prevProps.code) {
+            console.log("componentDidUpdate(" + this.props.code + ")")
+            this.onStatusChanged();
+        }
     }
 
     onWalletEvent = data => {
@@ -58,24 +62,47 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        apiGet('wallet/' + this.props.code + '/status').then(initialized => {
-            this.setState({ walletInitialized: initialized });
+        console.log("Wallet " + this.props.code + " requesting status.")
+        apiGet("wallet/" + this.props.code + "/status").then(status => {
+            if (status == "initialized") {
+                this.setState({ walletInitialized: true,
+                        walletConnected: true
+                    });
+            } else if (status == "connected") {
+                this.setState({ walletInitialized: false,
+                        walletConnected: true
+                    });
+            } else {
+                this.setState({ walletInitialized: false,
+                        walletConnected: false 
+                    });
+            }
             this.onWalletChanged();
         });
     }
 
     onWalletChanged = () => {
-        if (this.state.walletInitialized) {
+        if (this.state.walletInitialized && this.state.walletConnected) {
+            console.log("Wallet " + this.props.code + " initialized.")
             apiGet('wallet/' + this.props.code + '/transactions').then(transactions => {
                 this.setState({ transactions });
             });
             apiGet('wallet/' + this.props.code + '/balance').then(balance => {
                 this.setState({ balance });
             });
+        } else {
+            console.log("Wallet " + this.props.code + " disconnected. Should rerender")
+            this.setState(
+                { balance: {
+                    available: 0,
+                    hasIncoming: false,
+                    incoming: 0,
+                }
+            });
         }
     }
 
-    render({ wallets }, { walletInitialized, transactions, balance }) {
+    render({ wallets }, { walletInitialized, transactions, walletConnected, balance }) {
 
         const wallet = wallets.find(({ code }) => code === this.props.code);
 
@@ -99,6 +126,16 @@ export default class Account extends Component {
 
         return (
             <div style="margin-left: 1rem;">
+                { walletConnected && 
+                <div class="connection-status" style="background: green; color: white">
+                    <p>Connection established</p>
+                </div>
+                }
+                { !walletConnected && 
+                <div class="connection-status" style="background: red; color: white">
+                    <p>Connection lost. Retrying...</p>
+                </div>
+                }
                 <Balance name={wallet.name} amount={balance.available} />
 
                 { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }

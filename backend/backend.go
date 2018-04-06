@@ -24,6 +24,12 @@ var (
 	Version = semver.NewSemVer(0, 1, 0)
 )
 
+const (
+	// reattemptPeriod is the time until re-establishing of the connection
+	// to a coin backend is attempted.
+	reattemptPeriod = 30 * time.Second
+)
+
 // Interface is the API of the backend.
 type Interface interface {
 	Testing() bool
@@ -226,6 +232,67 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
+// initWallet initializes a single wallet.
+func (backend *Backend) initWallet(wallet *Wallet, errorChannel chan error) error {
+	wallet.failureCallback = func(err error) {
+		if _, ok := err.(ConnectionError); !ok {
+			wallet.log.WithField("error", err).Panic(err.Error())
+		}
+		select {
+		case errorChannel <- err:
+		default:
+			backend.log.WithField("error", err).Error(err.Error())
+		}
+	}
+	if err := wallet.init(backend); err != nil {
+		return err
+	}
+	backend.onWalletInit(wallet)
+	wallet.Wallet.Init()
+	return nil
+}
+
+// handleConnectionError listens on an error channel for incoming connection errors and attempts
+// to re-initialize the wallet.
+func (backend *Backend) handleConnectionError(wallet *Wallet, errorChannel chan error) {
+	for {
+		select {
+		case err := <-errorChannel:
+			backend.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
+				Warning("Connection failed. Retrying...")
+			if wallet.Wallet != nil {
+				func() {
+					defer backend.walletsLock.Lock()()
+					backend.onWalletUninit(wallet)
+					wallet.Wallet.Close()
+					wallet.Wallet = nil
+				}()
+			}
+			// Re-attempt until the connection is ok again. The errorChannel deliberately has
+			// a capacity of 1 so that the wallet is not re-initialized again if multiple errors
+			// arrive quickly.
+			for {
+				err := func() error {
+					defer backend.walletsLock.Lock()()
+					return backend.initWallet(wallet, errorChannel)
+				}()
+				if err != nil {
+					if connectionError, ok := err.(ConnectionError); ok {
+						backend.log.WithFields(logrus.Fields{"wallet": wallet, "error": connectionError}).
+							Debugf("Initializing wallet continued to fail. Trying again in %v",
+								reattemptPeriod)
+						time.Sleep(reattemptPeriod)
+					} else {
+						backend.log.WithField("error", err).Panic("Failed to initialize wallet")
+					}
+				} else {
+					break
+				}
+			}
+		}
+	}
+}
+
 func (backend *Backend) initWallets() error {
 	defer backend.walletsLock.Lock()()
 	wg := sync.WaitGroup{}
@@ -234,14 +301,15 @@ func (backend *Backend) initWallets() error {
 		wg.Add(1)
 		go func(wallet *Wallet) {
 			defer wg.Done()
-			if err := wallet.init(backend); err != nil {
+
+			// receive connection errors in this channel
+			var errorChannel = make(chan error, 0)
+
+			go backend.handleConnectionError(wallet, errorChannel)
+
+			if err := backend.initWallet(wallet, errorChannel); err != nil {
 				backend.log.WithField("error", err).Panic("Failed to initialize wallet")
-				// TODO: instead of crashing, we should inform the user about an unrecoverable problem
-				// and encourage him/her to send in the logs
-				panic(err)
 			}
-			backend.onWalletInit(wallet)
-			wallet.Wallet.Init()
 		}(wallet)
 	}
 	wg.Wait()

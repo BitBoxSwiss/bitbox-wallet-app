@@ -91,8 +91,17 @@ func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient,
 
 // ping periodically pings the server to keep the connection alive.
 func (client *ElectrumClient) ping() {
+	defer func() {
+		if r := recover(); r != nil {
+			client.log.WithField("error", r.(error)).Debug("Closing client after error in ping.")
+			client.Close()
+		}
+	}()
 	for !client.close {
 		time.Sleep(time.Minute)
+		if client.close {
+			panic(errp.New("Connection closed"))
+		}
 		client.log.Debug("Pinging the electrum server")
 		_, err := client.ServerVersion()
 		if err != nil {

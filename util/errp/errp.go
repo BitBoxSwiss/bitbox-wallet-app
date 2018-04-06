@@ -2,7 +2,9 @@
 // errors package, which confuses the automatic imports tool goimports.
 package errp
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+)
 
 var (
 	// New wraps errors.New

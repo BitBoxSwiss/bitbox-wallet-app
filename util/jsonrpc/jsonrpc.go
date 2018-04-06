@@ -20,6 +20,12 @@ type callbacks struct {
 	cleanup func()
 }
 
+// SocketError indicates an error when reading from or writing to a network socket.
+type SocketError error
+
+// ResponseError indicates an error when parsing the response from the server.
+type ResponseError error
+
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
 // remote notifications.
 type RPCClient struct {
@@ -32,35 +38,38 @@ type RPCClient struct {
 
 	notificationsCallbacks     map[string]func([]byte)
 	notificationsCallbacksLock sync.RWMutex
-	logEntry                   *logrus.Entry
+	failureCallback            func(error)
+	log                        *logrus.Entry
 }
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
-func NewRPCClient(conn io.ReadWriteCloser, logEntry *logrus.Entry) (*RPCClient, error) {
+func NewRPCClient(conn io.ReadWriteCloser, failureCallback func(error), log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
 		conn:                   conn,
 		msgID:                  0,
 		responseCallbacks:      map[int]callbacks{},
 		notificationsCallbacks: map[string]func([]byte){},
-		logEntry:               logEntry,
+		failureCallback:        failureCallback,
+		log:                    log,
 	}
-	go client.read(client.handleResponse)
-	return client, nil
+	go client.read(client.handleResponse, client.failureCallback)
+	return client
 }
 
-func (client *RPCClient) handleError(err error) {
-	client.logEntry.WithField("error", err).Error("")
-}
-
-func (client *RPCClient) read(callback func([]byte)) {
-	defer func() { _ = client.conn.Close() }()
+func (client *RPCClient) read(success func([]byte), failure func(error)) {
+	defer func() {
+		_ = client.conn.Close()
+		if r := recover(); r != nil {
+			failure(r.(error))
+		}
+	}()
 	reader := bufio.NewReader(client.conn)
 	for !client.close {
 		line, err := reader.ReadBytes(byte('\n'))
 		if err != nil {
-			panic(err)
+			panic(errp.Wrap(err, "Failed to read from socket"))
 		}
-		callback(line)
+		success(line)
 	}
 }
 
@@ -86,15 +95,15 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 		Params  json.RawMessage  `json:"params"`
 	}{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
-		client.handleError(errp.WithStack(err))
+		client.failureCallback(ResponseError(errp.Wrap(err, "Failed to unmarshal response")))
 		return
 	}
 	if response.JSONRPC != "2.0" {
-		client.handleError(errp.Newf("Unexpected json rpc version: %s", response.JSONRPC))
+		client.failureCallback(ResponseError(errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)))
 		return
 	}
 	if response.Error != nil {
-		client.handleError(errp.New(string(*response.Error)))
+		client.failureCallback(ResponseError(errp.New(string(*response.Error))))
 		return
 	}
 
@@ -106,10 +115,10 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 			client.responseCallbacksLock.RUnlock()
 			if ok {
 				if len(response.Result) == 0 {
-					client.handleError(errp.New("unexpected reply"))
+					client.failureCallback(ResponseError(errp.New("unexpected reply")))
 				}
 				if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-					client.handleError(errp.WithMessage(err, "success callback error"))
+					client.failureCallback(ResponseError(errp.WithMessage(err, "success callback error")))
 				}
 				responseCallbacks.cleanup()
 				client.responseCallbacksLock.Lock()
@@ -122,7 +131,7 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 	// Handle notification.
 	if response.Method != nil {
 		if len(response.Params) == 0 {
-			client.handleError(errp.New("unexpected reply"))
+			client.failureCallback(ResponseError(errp.New("unexpected reply")))
 			return
 		}
 		func() {
@@ -184,12 +193,14 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 	select {
 	case responseBytes := <-responseChan:
 		if response != nil {
-			return errp.WithStack(json.Unmarshal(responseBytes, response))
+			if err := json.Unmarshal(responseBytes, response); err != nil {
+				return ResponseError(errp.Wrap(err, "Failed to unmarshal response"))
+			}
 		}
-		return nil
 	case <-time.After(responseTimeout):
-		return errp.New("response timeout")
+		return SocketError(errp.New("response timeout"))
 	}
+	return nil
 }
 
 // SubscribeNotifications installs a callback for a method which is called with notifications from
@@ -205,7 +216,10 @@ func (client *RPCClient) SubscribeNotifications(method string, callback func([]b
 
 func (client *RPCClient) send(msg []byte) error {
 	_, err := client.conn.Write(msg)
-	return errp.WithStack(err)
+	if err != nil {
+		return SocketError(errp.WithStack(err))
+	}
+	return nil
 }
 
 // Close shuts down the connection.

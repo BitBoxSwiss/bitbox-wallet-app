@@ -8,6 +8,7 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,6 +21,9 @@ const (
 	electrumServerLitecoinMainnet = "dev.shiftcrypto.ch:50004"
 )
 
+// ConnectionError indicates an error when establishing a network connection.
+type ConnectionError error
+
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
 	Code   string        `json:"code"`
@@ -29,9 +33,17 @@ type Wallet struct {
 	WalletDerivationPath  string `json:"keyPath"`
 	BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
 
-	net         *chaincfg.Params
-	addressType addresses.AddressType
-	log         *logrus.Entry
+	net             *chaincfg.Params
+	addressType     addresses.AddressType
+	failureCallback func(err error)
+	log             *logrus.Entry
+}
+
+func maybeConnectionError(err error) error {
+	if _, ok := errp.Cause(err).(electrum.ConnectionError); ok {
+		return ConnectionError(err)
+	}
+	return err
 }
 
 func (wallet *Wallet) init(backend *Backend) error {
@@ -55,9 +67,14 @@ func (wallet *Wallet) init(backend *Backend) error {
 		wallet.log.Panic("Unknown coin")
 		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
 	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer, tls, wallet.log)
+	wrappedFailureCallback := func(err error) {
+		if err != nil {
+			wallet.failureCallback(maybeConnectionError(err))
+		}
+	}
+	electrumClient, err := electrum.NewElectrumClient(electrumServer, tls, wrappedFailureCallback, wallet.log)
 	if err != nil {
-		return err
+		return maybeConnectionError(err)
 	}
 	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath, wallet.log)
 	if err != nil {

@@ -55,6 +55,22 @@ type Wallet struct {
 	log             *logrus.Entry
 }
 
+// Status indicates the connection and initialization status.
+type Status string
+
+const (
+	// Initialized indicates that the wallet is synced.
+	Initialized Status = "initialized"
+
+	// Connected indicates that the connection to the blockchain node is established, but the wallet
+	// is not yet fully synced.
+	Connected Status = "connected"
+
+	// Disconnected indicates that the connection to the blockchain node could not be established or
+	// is lost.
+	Disconnected Status = "disconnected"
+)
+
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,

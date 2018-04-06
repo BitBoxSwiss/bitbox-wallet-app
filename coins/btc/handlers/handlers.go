@@ -24,13 +24,13 @@ func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log}
 
-	handleFunc("/transactions", handlers.getWalletTransactions).Methods("GET")
-	handleFunc("/balance", handlers.getWalletBalance).Methods("GET")
-	handleFunc("/sendtx", handlers.postWalletSendTx).Methods("POST")
-	handleFunc("/fee-targets", handlers.getWalletFeeTargets).Methods("GET")
-	handleFunc("/tx-proposal", handlers.getWalletTxProposal).Methods("POST")
 	handleFunc("/status", handlers.getWalletStatus).Methods("GET")
-	handleFunc("/receive-address", handlers.getReceiveAddress).Methods("GET")
+	handleFunc("/transactions", handlers.ensureWalletInitialized(handlers.getWalletTransactions)).Methods("GET")
+	handleFunc("/balance", handlers.ensureWalletInitialized(handlers.getWalletBalance)).Methods("GET")
+	handleFunc("/sendtx", handlers.ensureWalletInitialized(handlers.postWalletSendTx)).Methods("POST")
+	handleFunc("/fee-targets", handlers.ensureWalletInitialized(handlers.getWalletFeeTargets)).Methods("GET")
+	handleFunc("/tx-proposal", handlers.ensureWalletInitialized(handlers.getWalletTxProposal)).Methods("POST")
+	handleFunc("/receive-address", handlers.ensureWalletInitialized(handlers.getReceiveAddress)).Methods("GET")
 	return handlers
 }
 
@@ -52,6 +52,15 @@ type Transaction struct {
 	Type   string `json:"type"`
 	Amount string `json:"amount"`
 	Fee    string `json:"fee"`
+}
+
+func (handlers *Handlers) ensureWalletInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
+	return func(request *http.Request) (interface{}, error) {
+		if handlers.wallet == nil {
+			return nil, errp.New("Wallet was uninitialized. Cannot handle request.")
+		}
+		return h(request)
+	}
 }
 
 func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, error) {
@@ -174,9 +183,12 @@ func (handlers *Handlers) getWalletFeeTargets(_ *http.Request) (interface{}, err
 
 func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) {
 	if handlers.wallet == nil {
-		return false, nil
+		return btc.Disconnected, nil
+	} else if !handlers.wallet.Initialized() {
+		return btc.Connected, nil
+	} else {
+		return btc.Initialized, nil
 	}
-	return handlers.wallet.Initialized(), nil
 }
 
 func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
