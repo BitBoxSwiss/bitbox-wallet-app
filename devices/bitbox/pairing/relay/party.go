@@ -1,12 +1,12 @@
 package relay
 
-// party enumerates the endpoints of the pairing.
-type party int
+// Party enumerates the endpoints of the pairing.
+type Party int
 
 const (
-	// desktop is the endpoint that is connected to the BitBox.
-	desktop party = 0
+	// Desktop is the endpoint that is connected to the BitBox.
+	Desktop Party = 0
 
-	// mobile is the endpoint that acts as a trusted screen.
-	mobile party = 1
+	// Mobile is the endpoint that acts as a trusted screen.
+	Mobile Party = 1
 )

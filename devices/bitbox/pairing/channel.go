@@ -5,33 +5,34 @@ import (
 	"reflect"
 
 	"github.com/shiftdevices/godbb/devices/bitbox/pairing/relay"
+	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // Channel implements an encrypted communication channel between the desktop and the paired mobile.
 type Channel struct {
-	// The identifier which uniquely identifies the channel between the parties.
-	channelID string
+	// ChannelID is the identifier which uniquely identifies the channel between the parties.
+	ChannelID string `json:"id"`
 
-	// The key to encrypt the communication between the desktop and the mobile.
-	encryptionKey []byte
+	// EncryptionKey is used to encrypt the communication between the desktop and the mobile.
+	EncryptionKey []byte `json:"key"`
 }
 
 // NewChannel returns a new channel with the given channel identifier and encryption key.
 func NewChannel(channelID string, encryptionKey []byte) *Channel {
 	return &Channel{
-		channelID:     channelID,
-		encryptionKey: encryptionKey,
+		ChannelID:     channelID,
+		EncryptionKey: encryptionKey,
 	}
 }
 
-// ChannelID returns the identifier which uniquely identifies the channel between the parties.
-func (channel *Channel) ChannelID() string {
-	return channel.channelID
+// GetChannelID returns the identifier which uniquely identifies the channel between the parties.
+func (channel *Channel) GetChannelID() string {
+	return channel.ChannelID
 }
 
-// EncryptionKey returns the key to encrypt the communication between the desktop and the mobile.
-func (channel *Channel) EncryptionKey() []byte {
-	return channel.encryptionKey
+// GetEncryptionKey returns the key to encrypt the communication between the desktop and the mobile.
+func (channel *Channel) GetEncryptionKey() []byte {
+	return channel.EncryptionKey
 }
 
 // relayServer returns the configured relay server.
@@ -42,7 +43,7 @@ func relayServer() relay.Server {
 
 // waitForMessage waits up to ten seconds for expected message from the paired mobile.
 // Returns true if the expected message was retrieved from the relay server and false otherwise.
-func (channel *Channel) waitForMessage(expectedMessage *map[string]string) (bool, error) {
+func (channel *Channel) waitForMessage(expectedMessage map[string]string) (bool, error) {
 	message, err := relay.PullOldestMessage(relayServer(), channel)
 	if err != nil {
 		return false, err
@@ -55,7 +56,7 @@ func (channel *Channel) waitForMessage(expectedMessage *map[string]string) (bool
 	if err != nil {
 		return false, err
 	}
-	return reflect.DeepEqual(expectedMessage, &receivedMessage), nil
+	return reflect.DeepEqual(expectedMessage, receivedMessage), nil
 }
 
 // waitForValue waits up to ten seconds for the value with the given name from the mobile.
@@ -70,9 +71,8 @@ func (channel *Channel) waitForValue(name string) (*string, error) {
 		return nil, nil
 	}
 	var object map[string]*string
-	err = json.Unmarshal(message, &object)
-	if err != nil {
-		return nil, err
+	if err = json.Unmarshal(message, &object); err != nil {
+		return nil, errp.WithStack(err)
 	}
 	return object[name], nil
 }
@@ -80,7 +80,7 @@ func (channel *Channel) waitForValue(name string) (*string, error) {
 // WaitForScanningSuccess waits up to ten seconds for a QR code scanning success from the mobile.
 // Returns true if the scanning success was retrieved from the relay server and false otherwise.
 func (channel *Channel) WaitForScanningSuccess() (bool, error) {
-	return channel.waitForMessage(&map[string]string{"id": "success"})
+	return channel.waitForMessage(map[string]string{"id": "success"})
 }
 
 // WaitForMobilePublicKey waits up to ten seconds for the ECDH public key from the mobile.
@@ -91,14 +91,14 @@ func (channel *Channel) WaitForMobilePublicKey() (*string, error) {
 
 // SendVerifyPass sends the verify pass from the BitBox to the paired mobile to finish pairing.
 func (channel *Channel) SendVerifyPass(verifyPass string) error {
-	return relay.PushMessage(relayServer(), channel, &map[string]string{
+	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"verifypass": verifyPass,
 	})
 }
 
 // SendPairingTest sends the encrypted test string from the BitBox to the paired mobile.
 func (channel *Channel) SendPairingTest(tfaTestString string) error {
-	return relay.PushMessage(relayServer(), channel, &map[string]string{
+	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"tfa": tfaTestString,
 	})
 }
@@ -116,7 +116,7 @@ func (channel *Channel) SendPing() error {
 // WaitForPong waits up to ten seconds for the pong from the paired mobile after sending 'ping'.
 // Returns true if the pong was retrieved from the relay server and false otherwise.
 func (channel *Channel) WaitForPong() (bool, error) {
-	return channel.waitForMessage(&map[string]string{"action": "pong"})
+	return channel.waitForMessage(map[string]string{"action": "pong"})
 }
 
 // SendClear clears the screen of the paired mobile.
@@ -126,15 +126,16 @@ func (channel *Channel) SendClear() error {
 
 // SendXpubEcho sends the encrypted xpub echo from the BitBox to the paired mobile.
 func (channel *Channel) SendXpubEcho(xpubEcho string) error {
-	return relay.PushMessage(relayServer(), channel, &map[string]string{
+	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"echo": xpubEcho,
 		"type": "p2pkh",
 	})
 }
 
 // SendSigningEcho sends the encrypted signing echo from the BitBox to the paired mobile.
+// TODO: Document the format of the transaction or maybe rather format it directly here.
 func (channel *Channel) SendSigningEcho(signingEcho string, transaction string) error {
-	return relay.PushMessage(relayServer(), channel, &map[string]string{
+	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"echo": signingEcho,
 		"tx":   transaction,
 	})
@@ -149,7 +150,7 @@ func (channel *Channel) WaitForSigningPin() (*string, error) {
 
 // SendRandomNumberEcho sends the encrypted random number echo from the BitBox to the paired mobile.
 func (channel *Channel) SendRandomNumberEcho(randomNumberEcho string) error {
-	return relay.PushMessage(relayServer(), channel, &map[string]string{
+	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"echo": randomNumberEcho,
 	})
 }
@@ -157,5 +158,5 @@ func (channel *Channel) SendRandomNumberEcho(randomNumberEcho string) error {
 // WaitForRandomNumberClear waits up to ten seconds for the random number clear from the mobile.
 // Returns true if the random number clear was retrieved from the relay server and false otherwise.
 func (channel *Channel) WaitForRandomNumberClear() (bool, error) {
-	return channel.waitForMessage(&map[string]string{"random": "clear"})
+	return channel.waitForMessage(map[string]string{"random": "clear"})
 }

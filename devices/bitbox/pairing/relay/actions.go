@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/shiftdevices/godbb/util/aes"
-	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // PushMessage pushes the encryption of the given data as JSON to the given server.
@@ -13,33 +12,29 @@ func PushMessage(server Server, channel Channel, data interface{}) error {
 		panic("The channel may not be nil.")
 	}
 
-	json, err := json.Marshal(data)
+	jsonBytes, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	content, err := aes.Encrypt(channel.EncryptionKey(), []byte(json))
+	content, err := aes.Encrypt(channel.GetEncryptionKey(), jsonBytes)
 	if err != nil {
 		return err
 	}
 
-	request := &request{
+	request := &Request{
 		server:  server,
-		command: pushMessageCommand,
-		sender:  desktop,
+		command: PushMessageCommand,
+		sender:  Desktop,
 		channel: channel,
 		content: &content,
 	}
 
-	response, err := request.send()
+	response, err := request.Send()
 	if err != nil {
 		return err
 	}
 
-	if response.Status == "nok" {
-		return errp.New(*response.Error)
-	}
-
-	return nil
+	return response.GetErrorIfNok()
 }
 
 // PullOldestMessage pulls the oldest message on the given channel from the given server.
@@ -49,36 +44,32 @@ func PullOldestMessage(server Server, channel Channel) ([]byte, error) {
 		panic("The channel may not be nil.")
 	}
 
-	request := &request{
+	request := &Request{
 		server:  server,
-		command: pullOldestMessageCommand,
-		sender:  desktop,
+		command: PullOldestMessageCommand,
+		sender:  Desktop,
 		channel: channel,
 	}
 
-	response, err := request.send()
+	response, err := request.Send()
 	if err != nil {
 		return nil, err
 	}
 
-	if response.Status == "nok" {
-		return nil, errp.New(*response.Error)
-	}
-
 	if response.Status == "ok" && response.Data != nil && len(response.Data) > 0 {
-		return aes.Decrypt(channel.EncryptionKey(), response.Data[0].Payload)
+		return aes.Decrypt(channel.GetEncryptionKey(), response.Data[0].Payload)
 	}
 
-	return nil, nil
+	return nil, response.GetErrorIfNok()
 }
 
 // DeleteAllMessages deletes all messages in all channels which expired on the given server.
 func DeleteAllMessages(server Server) error {
-	request := &request{
+	request := &Request{
 		server:  server,
-		command: deleteAllMessagesCommand,
-		sender:  desktop,
+		command: DeleteAllMessagesCommand,
+		sender:  Desktop,
 	}
-	_, err := request.send()
+	_, err := request.Send()
 	return err
 }
