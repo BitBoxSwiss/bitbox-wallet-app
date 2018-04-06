@@ -10,7 +10,7 @@ import Login from './routes/device/unlock';
 import Seed from './routes/device/seed';
 import Initialize from './routes/device/initialize';
 
-import { Router } from 'preact-router';
+import { Router, route } from 'preact-router';
 import Account from './routes/account/account';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
@@ -138,7 +138,7 @@ export default class App extends Component {
                     <div style="display: flex; flex-grow: 1;">
                         <Sidebar accounts={wallets} activeWallet={activeWallet} />
                         <Router onChange={this.handleRoute}>
-                            <div path="/"><h1>Welcome</h1></div>
+                            <Redirect path="/" to={`/account/${wallets[0].code}`} />
                             <Account path="/account/:code" wallets={wallets}
                                 registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
                             />
@@ -161,4 +161,14 @@ function renderButtonIfTesting() {
             apiPost('devices/test/register');
         }}>Skip for Testing</Button>
     );
+}
+
+class Redirect extends Component {
+    componentWillMount() {
+        route(this.props.to, true);
+    }
+
+    render() {
+        return null;
+    }
 }
