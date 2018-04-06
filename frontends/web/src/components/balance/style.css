@@ -1,0 +1,12 @@
+.balance {
+    min-width: 500px;
+    position: relative;
+}
+
+.amount {
+    margin: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 150px;
+}

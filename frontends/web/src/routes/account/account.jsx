@@ -5,6 +5,7 @@ import 'preact-material-components/List/style.css';
 
 import { apiGet } from '../../utils/request';
 
+import Balance from '../../components/balance/balance';
 import Send from './send/send';
 import Receive from './receive/receive';
 
@@ -93,13 +94,10 @@ export default class Account extends Component {
         };
 
         return (
-            <div style="padding-left: 1rem;">
-                <h2>{ wallet.name }</h2>
-                <h2>Amount</h2>
-                { balance.available }
+            <div style="margin-left: 1rem;">
+                <Balance name={wallet.name} amount={balance.available} />
 
                 { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
-                <h2>Transactions</h2>
                 { renderTransactions(transactions) }
                 <p>
                     <Send
