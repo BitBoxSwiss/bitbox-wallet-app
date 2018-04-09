@@ -29,7 +29,8 @@ type Interface interface {
 	SendTx(string, SendAmount, FeeTargetCode) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
-	GetUnusedReceiveAddress() btcutil.Address
+	GetUnusedReceiveAddress() *addresses.Address
+	KeyStore() KeyStoreWithoutKeyDerivation
 }
 
 // Wallet is a wallet whose addresses are derived from an xpub.
@@ -246,9 +247,14 @@ func (wallet *Wallet) Transactions() []*transactions.TxInfo {
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.
-func (wallet *Wallet) GetUnusedReceiveAddress() btcutil.Address {
+func (wallet *Wallet) GetUnusedReceiveAddress() *addresses.Address {
 	wallet.synchronizer.WaitSynchronized()
 	defer wallet.RLock()()
 	wallet.logEntry.Debug("Get unused receive address")
-	return wallet.receiveAddresses.GetUnused().Address
+	return wallet.receiveAddresses.GetUnused()
+}
+
+// KeyStore returns the key store of the wallet.
+func (wallet *Wallet) KeyStore() KeyStoreWithoutKeyDerivation {
+	return wallet.keyStore
 }

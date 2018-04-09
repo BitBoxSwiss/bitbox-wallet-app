@@ -22,4 +22,7 @@ type KeyStoreWithoutKeyDerivation interface {
 	// which is relative to the extended public key as returned by XPub().
 	// If the user aborts the signing process, ErrUserAborted is returned.
 	Sign(hashes [][]byte, relativeKeyPaths []string) ([]btcec.Signature, error)
+
+	// DisplayAddress triggers the display of the address at the given key path.
+	DisplayAddress(keyPath string)
 }

@@ -17,6 +17,9 @@ type keyStoreWithHardenedKeyDerivation interface {
 
 	// Sign signs every hash with the private key at the corresponding key path.
 	Sign(hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+
+	// DisplayAddress triggers the display of the address at the given key path.
+	DisplayAddress(keyPath string)
 }
 
 // relativeKeyStore implements KeyStoreWithoutKeyDerivation using keyStoreWithHardenedKeyDerivation.
@@ -77,4 +80,9 @@ func (rks *relativeKeyStore) Sign(
 	}
 	rks.logEntry.WithField("relative-keypaths", relativeKeyPaths).Info("Signing successful")
 	return signatures, nil
+}
+
+// DisplayAddress triggers the display of the address at the given key path.
+func (rks *relativeKeyStore) DisplayAddress(keyPath string) {
+	rks.keyStore.DisplayAddress(rks.keyPath + "/" + keyPath)
 }

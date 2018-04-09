@@ -11,13 +11,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shiftdevices/godbb/devices/bitbox/pairing"
+	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/semver"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonp"
-	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -70,6 +71,7 @@ type Interface interface {
 	CreateBackup(string) error
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
+	DisplayAddress(keyPath string)
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -105,6 +107,9 @@ type Device struct {
 	// If set, the device contains a wallet.
 	seeded bool
 
+	// If set, the channel can be used to communicate to the mobile.
+	channel *pairing.Channel
+
 	closed   bool
 	logEntry *logrus.Entry
 }
@@ -138,6 +143,7 @@ func NewDevice(
 		bootloaderStatus: bootloaderStatus,
 		communication:    communication,
 		onEvent:          nil,
+		channel:          pairing.NewChannelFromConfigFile(),
 
 		closed:   false,
 		logEntry: logEntry,
@@ -739,4 +745,22 @@ func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Si
 		}
 	}
 	return signatures, nil
+}
+
+// DisplayAddress triggers the display of the address at the given key path.
+func (dbb *Device) DisplayAddress(keyPath string) {
+	if dbb.channel != nil {
+		reply, err := dbb.sendKV("xpub", keyPath, dbb.password)
+		if err != nil {
+			return
+		}
+		xpubEcho, ok := reply["echo"].(string)
+		if !ok {
+			return
+		}
+		err = dbb.channel.SendXpubEcho(xpubEcho)
+		if err != nil {
+			return
+		}
+	}
 }

@@ -10,6 +10,11 @@ type KeyStoreWithoutKeyDerivation struct {
 	mock.Mock
 }
 
+// DisplayAddress provides a mock function with given fields: keyPath
+func (_m *KeyStoreWithoutKeyDerivation) DisplayAddress(keyPath string) {
+	_m.Called(keyPath)
+}
+
 // Sign provides a mock function with given fields: hashes, relativeKeyPaths
 func (_m *KeyStoreWithoutKeyDerivation) Sign(hashes [][]byte, relativeKeyPaths []string) ([]btcec.Signature, error) {
 	ret := _m.Called(hashes, relativeKeyPaths)
