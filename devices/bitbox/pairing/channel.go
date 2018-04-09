@@ -1,11 +1,15 @@
 package pairing
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"reflect"
 
+	"github.com/btcsuite/btcutil/base58"
+
 	"github.com/shiftdevices/godbb/devices/bitbox/pairing/relay"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/storage"
 )
 
 // Channel implements an encrypted communication channel between the desktop and the paired mobile.
@@ -23,6 +27,36 @@ func NewChannel(channelID string, encryptionKey []byte) *Channel {
 		ChannelID:     channelID,
 		EncryptionKey: encryptionKey,
 	}
+}
+
+// NewChannelFromConfigFile returns a new channel with the channel identifier and encryption key
+// from the config file or nil if the config file does not exist.
+func NewChannelFromConfigFile() *Channel {
+	configFile := storage.NewConfigFile(configFileName)
+	if configFile.Exists() {
+		var config config
+		if err := configFile.ReadJSON(&config); err != nil {
+			return nil
+		}
+		return config.channel()
+	}
+	return nil
+}
+
+// NewChannelWithRandomKey returns a new channel with a random encryption key and identifier.
+func NewChannelWithRandomKey() *Channel {
+	channelID := make([]byte, 32)
+	if _, err := rand.Read(channelID); err != nil {
+		panic(err)
+	}
+
+	encryptionKey := make([]byte, 32)
+	if _, err := rand.Read(encryptionKey); err != nil {
+		panic(err)
+	}
+
+	// The channel identifier may not contain '=' and thus it cannot be encoded with base64.
+	return NewChannel(base58.Encode(channelID), encryptionKey)
 }
 
 // GetChannelID returns the identifier which uniquely identifies the channel between the parties.
@@ -159,4 +193,11 @@ func (channel *Channel) SendRandomNumberEcho(randomNumberEcho string) error {
 // Returns true if the random number clear was retrieved from the relay server and false otherwise.
 func (channel *Channel) WaitForRandomNumberClear() (bool, error) {
 	return channel.waitForMessage(map[string]string{"random": "clear"})
+}
+
+// StoreToConfigFile stores the channel to the config file.
+func (channel *Channel) StoreToConfigFile() error {
+	config := newConfig(channel)
+	configFile := storage.NewConfigFile(configFileName)
+	return configFile.WriteJSON(config)
 }

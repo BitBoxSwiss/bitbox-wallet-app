@@ -3,6 +3,7 @@ package pairing_test
 import (
 	"encoding/base64"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -35,6 +36,7 @@ func TestChannel(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.NoError(t, channel.SendPairingTest(tfaTestString))
+		time.Sleep(5 * time.Second)
 		assert.NoError(t, channel.SendXpubEcho(xpubEcho))
 	}
 }
