@@ -10,10 +10,12 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	addressesTest "github.com/shiftdevices/godbb/coins/btc/addresses/test"
 	blockchainMock "github.com/shiftdevices/godbb/coins/btc/blockchain/mocks"
+	"github.com/shiftdevices/godbb/coins/btc/db"
 	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -96,8 +98,13 @@ func (s *transactionsSuite) SetupTest() {
 	s.addressChain = addressesTest.NewAddressChain()
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
+	db, err := db.NewDB(test.TstTempFile("godbb-db-"))
+	if err != nil {
+		panic(err)
+	}
 	s.transactions = transactions.NewTransactions(
 		s.net,
+		db.SubDB("test", s.log),
 		s.synchronizer,
 		s.blockchainMock,
 		s.log,
@@ -192,7 +199,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	)
 	transactions := s.transactions.Transactions(func(string) bool { return false })
 	require.Len(s.T(), transactions, 1)
-	require.Equal(s.T(), tx1, transactions[0].TX)
+	require.Equal(s.T(), tx1, transactions[0].Tx)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
 }
 

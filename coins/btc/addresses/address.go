@@ -7,7 +7,6 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,9 +17,10 @@ type Address struct {
 	btcutil.Address
 	publicKey *btcec.PublicKey
 	KeyPath   string
-	// History is an ordered list of tx touching this address. It is used to determine if the wallet
-	// status changed, and to determine if the address has been used before or not.
-	History client.TxHistory
+	// HistoryStatus is used to determine if the address status changed, and to determine if the
+	// address has been used before or not. The status corresponds to
+	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status.
+	HistoryStatus string
 	// p2shScript is the redeem script of a BIP16 P2SH output. Nil if this output is not a P2SH
 	// output.
 	p2shScript  []byte
@@ -87,18 +87,18 @@ func NewAddress(
 	}
 
 	return &Address{
-		Address:     address,
-		publicKey:   publicKey,
-		KeyPath:     keyPath,
-		History:     client.TxHistory{},
-		addressType: addressType,
-		p2shScript:  script,
-		log:         log,
+		Address:       address,
+		publicKey:     publicKey,
+		KeyPath:       keyPath,
+		HistoryStatus: "",
+		addressType:   addressType,
+		p2shScript:    script,
+		log:           log,
 	}
 }
 
 func (address *Address) isUsed() bool {
-	return len(address.History) != 0
+	return address.HistoryStatus != ""
 }
 
 // PkScript returns the pubkey script of this address. Use this in a tx output to receive funds.

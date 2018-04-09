@@ -37,7 +37,7 @@ func TestNewAddress(t *testing.T) {
 	require.Equal(t,
 		"mye65xn4WGxC9XgRtaNbyAfWwBqAYLgtKB",
 		address.EncodeAddress())
-	require.Empty(t, address.History)
+	require.Equal(t, "", address.HistoryStatus)
 	require.True(t, address.IsForNet(net))
 }
 

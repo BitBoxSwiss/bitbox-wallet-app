@@ -333,6 +333,11 @@ func (txHash *TXHash) Hash() chainhash.Hash {
 	return chainhash.Hash(*txHash)
 }
 
+// MarshalJSON implements the json.Marshaler interface.
+func (txHash *TXHash) MarshalJSON() ([]byte, error) {
+	return json.Marshal(txHash.Hash().String())
+}
+
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (txHash *TXHash) UnmarshalJSON(jsonBytes []byte) error {
 	var txHashStr string

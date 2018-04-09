@@ -82,6 +82,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 	}
 	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
+		backend.db.SubDB(fmt.Sprintf("%s-%s", wallet.Code, keyStore.XPub().String()), wallet.log),
 		keyStore,
 		electrumClient,
 		wallet.addressType,

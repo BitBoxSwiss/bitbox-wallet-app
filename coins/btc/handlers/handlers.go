@@ -73,7 +73,7 @@ func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, e
 			feeString = txInfo.Fee.String()
 		}
 		result = append(result, Transaction{
-			ID:     txInfo.TX.TxHash().String(),
+			ID:     txInfo.Tx.TxHash().String(),
 			Height: txInfo.Height,
 			Type: map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",

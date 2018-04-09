@@ -71,7 +71,7 @@ func (s *addressChainTestSuite) TestGetUnused() {
 	for i := 0; i < 3; i++ {
 		require.Equal(s.T(), newAddresses[0], s.addresses.GetUnused())
 	}
-	newAddresses[0].History = []*client.TxInfo{tx1}
+	newAddresses[0].HistoryStatus = client.TxHistory{tx1}.Status()
 	// Need to call EnsureAddresses because the status of an address changed.
 	require.Panics(s.T(), func() { _ = s.addresses.GetUnused() })
 	_ = s.addresses.EnsureAddresses()
@@ -85,7 +85,7 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 		require.Equal(s.T(), address, s.addresses.LookupByScriptHashHex(address.ScriptHashHex()))
 	}
 	// Produce addresses beyond  the gapLimit to ensure the gapLimit does not confuse Contains().
-	newAddresses[0].History = client.TxHistory{tx1}
+	newAddresses[0].HistoryStatus = client.TxHistory{tx1}.Status()
 	newAddresses = s.addresses.EnsureAddresses()
 	require.Len(s.T(), newAddresses, 1)
 	require.Equal(s.T(),

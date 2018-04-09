@@ -1,6 +1,8 @@
 package btc
 
 import (
+	"log"
+
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
@@ -38,6 +40,7 @@ type Wallet struct {
 	locker.Locker
 
 	net        *chaincfg.Params
+	db         transactions.DBInterface
 	keyStore   KeyStoreWithoutKeyDerivation
 	blockchain blockchain.Interface
 
@@ -74,6 +77,7 @@ const (
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,
+	db transactions.DBInterface,
 	keyStore KeyStoreWithoutKeyDerivation,
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
@@ -89,6 +93,7 @@ func NewWallet(
 	}
 	wallet := &Wallet{
 		net:        net,
+		db:         db,
 		keyStore:   keyStore,
 		blockchain: blockchain,
 
@@ -115,7 +120,7 @@ func NewWallet(
 	)
 	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, log)
 	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, log)
-	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain, log)
+	wallet.transactions = transactions.NewTransactions(net, db, wallet.synchronizer, blockchain, log)
 
 	return wallet, nil
 }
@@ -200,14 +205,16 @@ func (wallet *Wallet) addresses(change bool) *addresses.AddressChain {
 	return wallet.receiveAddresses
 }
 
-// onAddressStatus is called when the staytus (tx history) of an address might have changed. It is
+// onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
 func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string) error {
-	if status == address.History.Status() {
+	if status == address.HistoryStatus {
 		// Address didn't change.
 		return nil
 	}
+
+	wallet.log.Info("Address status changed, fetching history.")
 
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashGetHistory(
@@ -215,11 +222,11 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 		func(history client.TxHistory) error {
 			func() {
 				defer wallet.Lock()()
-				address.History = history
-				if address.History.Status() != status {
-					wallet.log.Debug("Client status should match after sync")
+				address.HistoryStatus = history.Status()
+				if address.HistoryStatus != status {
+					log.Println("client status should match after sync")
 				}
-				wallet.transactions.UpdateAddressHistory(address.Address, history)
+				wallet.transactions.UpdateAddressHistory(address, history)
 			}()
 			wallet.ensureAddresses()
 			return nil
@@ -235,10 +242,24 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 func (wallet *Wallet) ensureAddresses() {
 	defer wallet.Lock()()
 	defer wallet.synchronizer.IncRequestsCounter()()
+
+	dbTx, err := wallet.db.Begin()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	defer dbTx.Rollback()
+
 	syncSequence := func(change bool) error {
-		for _, address := range wallet.addresses(change).EnsureAddresses() {
-			if err := wallet.subscribeAddress(address); err != nil {
-				return errp.Wrap(err, "Failed to subscribe to address")
+		for {
+			newAddresses := wallet.addresses(change).EnsureAddresses()
+			if len(newAddresses) == 0 {
+				break
+			}
+			for _, address := range newAddresses {
+				if err := wallet.subscribeAddress(dbTx, address); err != nil {
+					return errp.Wrap(err, "Failed to subscribe to address")
+				}
 			}
 		}
 		return nil
@@ -255,7 +276,14 @@ func (wallet *Wallet) ensureAddresses() {
 	}
 }
 
-func (wallet *Wallet) subscribeAddress(address *addresses.Address) error {
+func (wallet *Wallet) subscribeAddress(
+	dbTx transactions.DBTxInterface, address *addresses.Address) error {
+	addressHistory, err := dbTx.AddressHistory(address)
+	if err != nil {
+		return err
+	}
+	address.HistoryStatus = addressHistory.Status()
+
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashSubscribe(
 		address.ScriptHashHex(),

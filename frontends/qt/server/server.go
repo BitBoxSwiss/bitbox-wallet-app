@@ -156,7 +156,11 @@ func serve() C.struct_ConnectionData {
 	log.WithField("port", port).Debug("Serve backend")
 
 	connectionData := backendHandlers.NewConnectionData(port, token)
-	handlers := backendHandlers.NewHandlers(backend.NewBackend(), connectionData)
+	backend, err := backend.NewBackend()
+	if err != nil {
+		log.WithField("error", err).Fatal("Failed to create backend")
+	}
+	handlers := backendHandlers.NewHandlers(backend, connectionData)
 
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {

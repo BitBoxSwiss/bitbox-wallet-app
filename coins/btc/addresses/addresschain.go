@@ -57,11 +57,11 @@ func NewAddressChain(
 
 // GetUnused returns the first unused address. EnsureAddresses() must be called beforehand.
 func (addresses *AddressChain) GetUnused() *Address {
-	if addresses.unusedTailCount() != addresses.gapLimit {
+	unusedTailCount := addresses.unusedTailCount()
+	if unusedTailCount < addresses.gapLimit {
 		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
-		panic("concurrency error; addresses not synced correctly")
 	}
-	return addresses.addresses[len(addresses.addresses)-addresses.gapLimit]
+	return addresses.addresses[len(addresses.addresses)-unusedTailCount]
 }
 
 func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {

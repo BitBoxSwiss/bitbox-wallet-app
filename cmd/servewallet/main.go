@@ -35,14 +35,17 @@ func main() {
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet")
 	flag.Parse()
 
-	var backendInterface backend.Interface
-	if *mainnet {
-		if *regtest {
-			log.Fatal("can't use -regtest with -mainnet")
+	backendInterface, err := func() (backend.Interface, error) {
+		if *mainnet {
+			if *regtest {
+				log.Fatal("can't use -regtest with -mainnet")
+			}
+			return backend.NewBackend()
 		}
-		backendInterface = backend.NewBackend()
-	} else {
-		backendInterface = backend.NewBackendForTesting(*regtest)
+		return backend.NewBackendForTesting(*regtest)
+	}()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	// since we are in dev-mode, we can drop the authorization token
@@ -50,7 +53,7 @@ func main() {
 	handlers := backendHandlers.NewHandlers(backendInterface, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
-	err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router)
+	err = http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router)
 	if err != nil {
 		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")
 	}

@@ -26,31 +26,14 @@ func (txOut *TxOut) ScriptHashHex() string {
 	return chainhash.HashH(txOut.PkScript).String()
 }
 
-// Transaction is a transaction touching the wallet.
-type Transaction struct {
-	TX        *wire.MsgTx
-	Height    int
-	addresses map[string]struct{}
-}
-
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
 // outputs, etc.
 type Transactions struct {
 	locker.Locker
 
-	net            *chaincfg.Params
-	transactions   map[chainhash.Hash]*Transaction
-	requestedTXs   map[chainhash.Hash][]func(*wire.MsgTx)
-	addressHistory map[string]map[chainhash.Hash]struct{}
-	// inputs contains all inputs of all transactions that touch our wallet. It includes all inputs
-	// that spend an output of our wallet, and more.  The inputs are referenced by the outputs they
-	// spend. The transaction hash of the transaction this input was found in is recorded.
-	//
-	// TODO: store slice of inputs along with the txhash they appear in. If there are more than one,
-	// a double spend is detected.
-	inputs map[wire.OutPoint]chainhash.Hash
-	// outputs contains all outputs which belong to the wallet.
-	outputs map[wire.OutPoint]*TxOut
+	net          *chaincfg.Params
+	db           DBInterface
+	requestedTXs map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx)
 
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
@@ -60,17 +43,15 @@ type Transactions struct {
 // NewTransactions creates a new instance of Transactions.
 func NewTransactions(
 	net *chaincfg.Params,
+	db DBInterface,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
 	log *logrus.Entry,
 ) *Transactions {
 	return &Transactions{
-		net:            net,
-		transactions:   map[chainhash.Hash]*Transaction{},
-		addressHistory: map[string]map[chainhash.Hash]struct{}{},
-		requestedTXs:   map[chainhash.Hash][]func(*wire.MsgTx){},
-		inputs:         map[wire.OutPoint]chainhash.Hash{},
-		outputs:        map[wire.OutPoint]*TxOut{},
+		net:          net,
+		db:           db,
+		requestedTXs: map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx){},
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
@@ -78,31 +59,44 @@ func NewTransactions(
 	}
 }
 
+func (transactions *Transactions) txInHistory(
+	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash) bool {
+	history, err := dbTx.AddressHistory(address)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	for _, entry := range history {
+		if txHash == entry.TXHash.Hash() {
+			return true
+		}
+	}
+	return false
+}
+
 func (transactions *Transactions) processTxForAddress(
-	address btcutil.Address, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
+	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
 	// Don't process the tx if it is not found in the address history. It could have been removed
 	// from the history before this function was called.
-	if _, found := transactions.addressHistory[address.String()][txHash]; !found {
+	if !transactions.txInHistory(dbTx, address, txHash) {
 		return
 	}
 
-	transaction, ok := transactions.transactions[txHash]
-	if !ok {
-		transaction = &Transaction{
-			TX:        tx,
-			Height:    height,
-			addresses: map[string]struct{}{},
-		}
-		transactions.transactions[txHash] = transaction
+	if err := dbTx.PutTx(txHash, tx, height); err != nil {
+		// TODO
+		panic(err)
 	}
 
-	transaction.addresses[address.String()] = struct{}{}
-	transaction.Height = height
-	transactions.processInputsAndOutputsForAddress(address, txHash, tx)
+	if err := dbTx.AddAddressToTx(txHash, address); err != nil {
+		// TODO
+		panic(err)
+	}
+	transactions.processInputsAndOutputsForAddress(dbTx, address, txHash, tx)
 }
 
 // Go through the tx and extract all inputs and outputs which touch the address.
 func (transactions *Transactions) processInputsAndOutputsForAddress(
+	dbTx DBTxInterface,
 	address btcutil.Address,
 	txHash chainhash.Hash,
 	tx *wire.MsgTx) {
@@ -112,16 +106,24 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// multiple times for different addresses, we index all inputs, even those that didn't
 		// originate from our wallet. At this stage we don't know if it is one of our own inputs,
 		// since the output that it spends might be indexed later.
-		if txInTxHash, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && txInTxHash != txHash {
+		txInTxHash, err := dbTx.Input(txIn.PreviousOutPoint)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		if txInTxHash != nil && *txInTxHash != txHash {
 			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
 				"txInTxHash": txInTxHash, "txHash": txHash}).
 				Warning("Double spend detected")
 		}
-		transactions.inputs[txIn.PreviousOutPoint] = txHash
+		if err := dbTx.PutInput(txIn.PreviousOutPoint, txHash); err != nil {
+			// TODO
+			panic(err)
+		}
 	}
 	// Gather transaction outputs that belong to us.
 	for index, txOut := range tx.TxOut {
-		scriptClass, addresses0, _, err := txscript.ExtractPkScriptAddrs(
+		scriptClass, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(
 			txOut.PkScript,
 			transactions.net,
 		)
@@ -134,26 +136,33 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 			continue
 		}
 		// For now we only look at single-address outputs (no multisig or other special contracts).
-		if len(addresses0) != 1 {
-			transactions.log.WithField("addresses-length", len(addresses0)).
+		if len(extractedAddresses) != 1 {
+			transactions.log.WithField("addresses-length", len(extractedAddresses)).
 				Debug("Only supporting single-address outputs for now")
 			continue
 		}
 		// Check if output is ours.
-		if addresses0[0].String() == address.String() {
-			transactions.outputs[wire.OutPoint{
-				Hash:  txHash,
-				Index: uint32(index),
-			}] = &TxOut{
-				TxOut: txOut,
+		if extractedAddresses[0].String() == address.String() {
+			err := dbTx.PutOutput(
+				wire.OutPoint{Hash: txHash, Index: uint32(index)},
+				txOut,
+			)
+			if err != nil {
+				// TODO
+				panic(err)
 			}
 		}
 	}
 }
 
-func (transactions *Transactions) allInputsOurs(transaction *wire.MsgTx) bool {
+func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction *wire.MsgTx) bool {
 	for _, txIn := range transaction.TxIn {
-		if _, ok := transactions.outputs[txIn.PreviousOutPoint]; !ok {
+		txOut, err := dbTx.Output(txIn.PreviousOutPoint)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		if txOut == nil {
 			return false
 		}
 	}
@@ -166,49 +175,82 @@ func (transactions *Transactions) allInputsOurs(transaction *wire.MsgTx) bool {
 func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
+
+	dbTx, err := transactions.db.Begin()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	defer dbTx.Rollback()
+
+	outputs, err := dbTx.Outputs()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
 	result := map[wire.OutPoint]*TxOut{}
-	for outPoint, txOut := range transactions.outputs {
-		tx := transactions.transactions[outPoint.Hash]
-		confirmed := tx.Height > 0
-		_, spent := transactions.inputs[outPoint]
-		if !spent && (confirmed || transactions.allInputsOurs(tx.TX)) {
-			result[outPoint] = txOut
+	for outPoint, txOut := range outputs {
+		tx, _, height, err := dbTx.TxInfo(outPoint.Hash)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		confirmed := height > 0
+
+		spent := isInputSpent(dbTx, outPoint)
+		if !spent && (confirmed || transactions.allInputsOurs(dbTx, tx)) {
+			result[outPoint] = &TxOut{TxOut: txOut}
 		}
 	}
 	return result
 }
 
-func (transactions *Transactions) removeTxForAddress(address btcutil.Address, txHash chainhash.Hash) {
+func isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
+	input, err := dbTx.Input(outPoint)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	return input != nil
+}
+
+func (transactions *Transactions) removeTxForAddress(
+	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
-	transaction, ok := transactions.transactions[txHash]
-	if !ok {
+	tx, _, _, err := dbTx.TxInfo(txHash)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if tx == nil {
 		// Not yet indexed.
 		transactions.log.Debug("Transaction hash not listed")
 		return
 	}
 
-	delete(transaction.addresses, address.String())
 	transactions.log.Debug("Deleting transaction address")
-	if len(transaction.addresses) == 0 {
+	empty, err := dbTx.RemoveAddressFromTx(txHash, address)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
 
-		for _, txIn := range transaction.TX.TxIn {
-			delete(transactions.inputs, txIn.PreviousOutPoint)
-			transactions.log.Debug("Deleting transaction output")
+		for _, txIn := range tx.TxIn {
+			transactions.log.Debug("Deleting transaction iput")
+			dbTx.DeleteInput(txIn.PreviousOutPoint)
 		}
 
 		// Remove the outputs added by this tx.
-		for index := range transaction.TX.TxOut {
-			outPoint := wire.OutPoint{
+		for index := range tx.TxOut {
+			dbTx.DeleteOutput(wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
-			}
-			if _, ok := transactions.outputs[outPoint]; ok {
-				delete(transactions.outputs, outPoint)
-			}
+			})
 		}
 
-		delete(transactions.transactions, txHash)
+		dbTx.DeleteTx(txHash)
 	}
 }
 
@@ -217,6 +259,12 @@ func (transactions *Transactions) removeTxForAddress(address btcutil.Address, tx
 // are downloaded and indexed.
 func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, txs []*client.TxInfo) {
 	defer transactions.Lock()()
+	dbTx, err := transactions.db.Begin()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	defer dbTx.Rollback()
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
@@ -227,38 +275,55 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		// TODO
 		panic(err)
 	}
-	for txHash := range transactions.addressHistory[address.String()] {
-		if _, txOK := txsSet[txHash]; txOK {
+	previousHistory, err := dbTx.AddressHistory(address)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	for _, entry := range previousHistory {
+		if _, txOK := txsSet[entry.TXHash.Hash()]; txOK {
 			continue
 		}
 		// A tx was previously in the address history but is not anymore.  If the tx was already
 		// downloaded and indexed, it will be removed.  If it is currently downloading (enqueued for
 		// indexing), it will not be processed.
-		transactions.removeTxForAddress(address, txHash)
+		transactions.removeTxForAddress(dbTx, address, entry.TXHash.Hash())
 	}
 
-	transactions.addressHistory[address.String()] = txsSet
+	if err := dbTx.PutAddressHistory(address, txs); err != nil {
+		// TODO
+		panic(err)
+	}
 
 	for _, txInfo := range txs {
 		func(txHash chainhash.Hash, height int) {
-			transactions.doForTransaction(txHash, func(tx *wire.MsgTx) {
-				transactions.processTxForAddress(address, txHash, tx, height)
+			transactions.doForTransaction(dbTx, txHash, func(innerDBTx DBTxInterface, tx *wire.MsgTx) {
+				transactions.processTxForAddress(innerDBTx, address, txHash, tx, height)
 			})
 		}(txInfo.TXHash.Hash(), txInfo.Height)
+	}
+	if err := dbTx.Commit(); err != nil {
+		// TODO
+		panic(err)
 	}
 }
 
 func (transactions *Transactions) doForTransaction(
+	dbTx DBTxInterface,
 	txHash chainhash.Hash,
-	callback func(tx *wire.MsgTx),
+	callback func(DBTxInterface, *wire.MsgTx),
 ) {
-	tx, ok := transactions.transactions[txHash]
-	if ok {
-		callback(tx.TX)
+	tx, _, _, err := dbTx.TxInfo(txHash)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if tx != nil {
+		callback(dbTx, tx)
 		return
 	}
 	if transactions.requestedTXs[txHash] == nil {
-		transactions.requestedTXs[txHash] = []func(*wire.MsgTx){}
+		transactions.requestedTXs[txHash] = []func(DBTxInterface, *wire.MsgTx){}
 	}
 	alreadyDownloading := len(transactions.requestedTXs[txHash]) != 0
 	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
@@ -270,11 +335,17 @@ func (transactions *Transactions) doForTransaction(
 		txHash,
 		func(tx *wire.MsgTx) error {
 			defer transactions.Lock()()
+			dbTx, err := transactions.db.Begin()
+			if err != nil {
+				return err
+			}
+			defer dbTx.Rollback()
+
 			for _, callback := range transactions.requestedTXs[txHash] {
-				callback(tx)
+				callback(dbTx, tx)
 			}
 			delete(transactions.requestedTXs, txHash)
-			return nil
+			return dbTx.Commit()
 		},
 		done,
 	); err != nil {
@@ -297,15 +368,30 @@ type Balance struct {
 func (transactions *Transactions) Balance() *Balance {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
+	dbTx, err := transactions.db.Begin()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	outputs, err := dbTx.Outputs()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	defer dbTx.Rollback()
 	var available, incoming int64
-	for outPoint, txOut := range transactions.outputs {
+	for outPoint, txOut := range outputs {
 		// What is spent can not be available nor incoming.
-		if _, spent := transactions.inputs[outPoint]; spent {
+		if spent := isInputSpent(dbTx, outPoint); spent {
 			continue
 		}
-		tx := transactions.transactions[outPoint.Hash]
-		confirmed := tx.Height > 0
-		if confirmed || transactions.allInputsOurs(tx.TX) {
+		tx, _, height, err := dbTx.TxInfo(outPoint.Hash)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		confirmed := height > 0
+		if confirmed || transactions.allInputsOurs(dbTx, tx) {
 			available += txOut.Value
 		} else {
 			incoming += txOut.Value
@@ -347,8 +433,9 @@ const (
 
 // TxInfo contains additional tx information to display to the user.
 type TxInfo struct {
-	*Transaction
-	Type TxType
+	Tx     *wire.MsgTx
+	Height int
+	Type   TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
 	Amount btcutil.Amount
 	// Fee is nil if for a receiving tx (TxTypeReceive). The fee is only displayed (and relevant)
@@ -358,14 +445,21 @@ type TxInfo struct {
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
 func (transactions *Transactions) txInfo(
-	tx *Transaction,
+	dbTx DBTxInterface,
+	tx *wire.MsgTx,
+	height int,
 	isChange func(string) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
-	for _, txIn := range tx.TX.TxIn {
-		if spentOut, ok := transactions.outputs[txIn.PreviousOutPoint]; ok {
+	for _, txIn := range tx.TxIn {
+		spentOut, err := dbTx.Output(txIn.PreviousOutPoint)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		if spentOut != nil {
 			sumOurInputs += btcutil.Amount(spentOut.Value)
 		} else {
 			allInputsOurs = false
@@ -373,13 +467,18 @@ func (transactions *Transactions) txInfo(
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
 	allOutputsOurs := true
-	for index, txOut := range tx.TX.TxOut {
+	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
-		if output, ok := transactions.outputs[wire.OutPoint{
-			Hash:  tx.TX.TxHash(),
+		output, err := dbTx.Output(wire.OutPoint{
+			Hash:  tx.TxHash(),
 			Index: uint32(index),
-		}]; ok {
-			if isChange(output.ScriptHashHex()) {
+		})
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		if output != nil {
+			if isChange((&TxOut{TxOut: output}).ScriptHashHex()) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
@@ -408,10 +507,11 @@ func (transactions *Transactions) txInfo(
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
 	return &TxInfo{
-		Transaction: tx,
-		Type:        txType,
-		Amount:      result,
-		Fee:         feeP,
+		Tx:     tx,
+		Height: height,
+		Type:   txType,
+		Amount: result,
+		Fee:    feeP,
 	}
 }
 
@@ -420,9 +520,25 @@ func (transactions *Transactions) Transactions(
 	isChange func(string) bool) []*TxInfo {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
+	dbTx, err := transactions.db.Begin()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	defer dbTx.Rollback()
 	txs := []*TxInfo{}
-	for _, transaction := range transactions.transactions {
-		txs = append(txs, transactions.txInfo(transaction, isChange))
+	txHashes, err := dbTx.Transactions()
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	for _, txHash := range txHashes {
+		tx, _, height, err := dbTx.TxInfo(txHash)
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		txs = append(txs, transactions.txInfo(dbTx, tx, height, isChange))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs

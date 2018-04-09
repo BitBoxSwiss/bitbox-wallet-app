@@ -12,6 +12,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/db"
 	"github.com/shiftdevices/godbb/coins/ltc"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/usb"
@@ -62,7 +63,9 @@ type WalletEvent struct {
 // Backend ties everything together and is the main starting point to use the godbb library.
 type Backend struct {
 	testing bool
-	events  chan interface{}
+
+	db     *db.DB
+	events chan interface{}
 
 	device         bitbox.Interface
 	onWalletInit   func(*Wallet)
@@ -78,10 +81,16 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend.
-func NewBackend() *Backend {
+func NewBackend() (*Backend, error) {
 	log := logging.Log.WithGroup("backend")
+	theDB, err := db.NewDB("my.db")
+	if err != nil {
+		return nil, err
+	}
+
 	return &Backend{
 		testing: false,
+		db:      theDB,
 		events:  make(chan interface{}),
 		wallets: []*Wallet{
 			&Wallet{
@@ -113,11 +122,16 @@ func NewBackend() *Backend {
 			},
 		},
 		log: log,
-	}
+	}, nil
 }
 
 // NewBackendForTesting creates a new backend for testing.
-func NewBackendForTesting(regtest bool) *Backend {
+func NewBackendForTesting(regtest bool) (*Backend, error) {
+	theDB, err := db.NewDB("my.db")
+	if err != nil {
+		return nil, err
+	}
+
 	var wallets []*Wallet
 	log := logging.Log.WithGroup("backend")
 	if regtest {
@@ -174,10 +188,11 @@ func NewBackendForTesting(regtest bool) *Backend {
 	}
 	return &Backend{
 		testing: true,
+		db:      theDB,
 		events:  make(chan interface{}),
 		wallets: wallets,
 		log:     log,
-	}
+	}, nil
 }
 
 // Testing returns whether this backend is for testing only.

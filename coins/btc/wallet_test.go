@@ -8,8 +8,10 @@ import (
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/coins/btc/blockchain/mocks"
+	"github.com/shiftdevices/godbb/coins/btc/db"
 	"github.com/shiftdevices/godbb/coins/btc/mocks"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/suite"
 )
@@ -38,9 +40,14 @@ func (s *walletSuite) SetupTest() {
 		panic(err)
 	}
 
+	db, err := db.NewDB(test.TstTempFile("godbb-db-"))
+	if err != nil {
+		panic(err)
+	}
 	s.keyStoreMock.On("XPub").Return(xpub)
 	s.wallet, err = btc.NewWallet(
 		s.net,
+		db.SubDB("test", s.log),
 		&s.keyStoreMock,
 		&s.blockchainMock,
 		addresses.AddressTypeP2PKH,

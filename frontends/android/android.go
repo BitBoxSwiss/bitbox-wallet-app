@@ -17,7 +17,11 @@ func Serve() {
 		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
-	handlers := backendHandlers.NewHandlers(backend.NewBackend(), connectionData)
+	backend, err := backend.NewBackend()
+	if err != nil {
+		log.Fatal(err)
+	}
+	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	err = http.ListenAndServe("localhost:8082", handlers.Router)
 	if err != nil {
 		log.Fatal(err)

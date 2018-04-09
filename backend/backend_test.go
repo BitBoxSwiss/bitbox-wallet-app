@@ -70,7 +70,9 @@ type backendTestSuite struct {
 
 func (s *backendTestSuite) SetupSuite() {
 	connectionData := handlers.NewConnectionData(8082, "")
-	s.router = handlers.NewHandlers(backend.NewBackendForTesting(true), connectionData).Router
+	backend, err := backend.NewBackendForTesting(true)
+	require.NoError(s.T(), err)
+	s.router = handlers.NewHandlers(backend, connectionData).Router
 	s.server = httptest.NewServer(s.router)
 
 	url := "ws" + strings.TrimPrefix(s.server.URL, "http") + "/api/events"
