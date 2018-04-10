@@ -22,13 +22,6 @@ type TxOut struct {
 	Address btcutil.Address
 }
 
-// TxIn is a transaction input which is part of the wallet. The transaction hash of the transaction
-// this input was found in is also recorded.
-type TxIn struct {
-	*wire.TxIn
-	txHash chainhash.Hash
-}
-
 // Transaction is a transaction touching the wallet.
 type Transaction struct {
 	TX        *wire.MsgTx
@@ -47,11 +40,11 @@ type Transactions struct {
 	addressHistory map[string]map[chainhash.Hash]struct{}
 	// inputs contains all inputs of all transactions that touch our wallet. It includes all inputs
 	// that spend an output of our wallet, and more.  The inputs are referenced by the outputs they
-	// spend.
+	// spend. The transaction hash of the transaction this input was found in is recorded.
 	//
 	// TODO: store slice of inputs along with the txhash they appear in. If there are more than one,
 	// a double spend is detected.
-	inputs map[wire.OutPoint]*TxIn
+	inputs map[wire.OutPoint]chainhash.Hash
 	// outputs contains all outputs which belong to the wallet.
 	outputs map[wire.OutPoint]*TxOut
 
@@ -72,8 +65,8 @@ func NewTransactions(
 		transactions:   map[chainhash.Hash]*Transaction{},
 		addressHistory: map[string]map[chainhash.Hash]struct{}{},
 		requestedTXs:   map[chainhash.Hash][]func(*wire.MsgTx){},
+		inputs:         map[wire.OutPoint]chainhash.Hash{},
 		outputs:        map[wire.OutPoint]*TxOut{},
-		inputs:         map[wire.OutPoint]*TxIn{},
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
@@ -115,15 +108,12 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// multiple times for different addresses, we index all inputs, even those that didn't
 		// originate from our wallet. At this stage we don't know if it is one of our own inputs,
 		// since the output that it spends might be indexed later.
-		if existingTxIn, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && existingTxIn.txHash != txHash {
+		if txInTxHash, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && txInTxHash != txHash {
 			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
-				"existingTxIn.txHash": existingTxIn.txHash, "txHash": txHash}).
+				"txInTxHash": txInTxHash, "txHash": txHash}).
 				Warning("Double spend detected")
 		}
-		transactions.inputs[txIn.PreviousOutPoint] = &TxIn{
-			TxIn:   txIn,
-			txHash: txHash,
-		}
+		transactions.inputs[txIn.PreviousOutPoint] = txHash
 	}
 	// Gather transaction outputs that belong to us.
 	for index, txOut := range tx.TxOut {
