@@ -8,6 +8,7 @@ import (
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -16,7 +17,7 @@ import (
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func SignTransaction(
 	keyStore KeyStoreWithoutKeyDerivation,
-	transaction *wire.MsgTx,
+	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
 	getAddress func(client.ScriptHashHex) *addresses.Address,
 	log *logrus.Entry,
@@ -24,6 +25,7 @@ func SignTransaction(
 	log.Info("Sign transaction")
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
+	transaction := txProposal.Transaction
 	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
@@ -55,7 +57,13 @@ func SignTransaction(
 		signatureHashes = append(signatureHashes, signatureHash)
 		keyPaths = append(keyPaths, address.KeyPath)
 	}
-	signatures, err := keyStore.Sign(signatureHashes, keyPaths)
+
+	// Special serialization of the unsigned transaction for the mobile verification app.
+	for _, txIn := range transaction.TxIn {
+		txIn.SignatureScript = previousOutputs[txIn.PreviousOutPoint].PkScript
+	}
+
+	signatures, err := keyStore.Sign(txProposal, signatureHashes, keyPaths)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to sign signature hash")
 	}

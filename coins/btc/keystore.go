@@ -5,6 +5,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
 )
 
 // ErrUserAborted is returned when a signing operation is aborted by the user.
@@ -21,7 +22,7 @@ type KeyStoreWithoutKeyDerivation interface {
 	// Sign signs every hash with the private key at the corresponding key path,
 	// which is relative to the extended public key as returned by XPub().
 	// If the user aborts the signing process, ErrUserAborted is returned.
-	Sign(hashes [][]byte, relativeKeyPaths []string) ([]btcec.Signature, error)
+	Sign(tx *maketx.TxProposal, hashes [][]byte, relativePaths []string) ([]btcec.Signature, error)
 
 	// DisplayAddress triggers the display of the address at the given key path.
 	DisplayAddress(keyPath string)

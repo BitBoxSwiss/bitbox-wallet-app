@@ -8,8 +8,8 @@ import (
 	"github.com/btcsuite/btcutil/base58"
 
 	"github.com/shiftdevices/godbb/devices/bitbox/pairing/relay"
+	"github.com/shiftdevices/godbb/util/config"
 	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/storage"
 )
 
 // Channel implements an encrypted communication channel between the desktop and the paired mobile.
@@ -32,13 +32,13 @@ func NewChannel(channelID string, encryptionKey []byte) *Channel {
 // NewChannelFromConfigFile returns a new channel with the channel identifier and encryption key
 // from the config file or nil if the config file does not exist.
 func NewChannelFromConfigFile() *Channel {
-	configFile := storage.NewConfigFile(configFileName)
+	configFile := config.NewFile(configFileName)
 	if configFile.Exists() {
-		var config config
-		if err := configFile.ReadJSON(&config); err != nil {
+		var configuration configuration
+		if err := configFile.ReadJSON(&configuration); err != nil {
 			return nil
 		}
-		return config.channel()
+		return configuration.channel()
 	}
 	return nil
 }
@@ -167,7 +167,6 @@ func (channel *Channel) SendXpubEcho(xpubEcho string) error {
 }
 
 // SendSigningEcho sends the encrypted signing echo from the BitBox to the paired mobile.
-// TODO: Document the format of the transaction or maybe rather format it directly here.
 func (channel *Channel) SendSigningEcho(signingEcho string, transaction string) error {
 	return relay.PushMessage(relayServer(), channel, map[string]string{
 		"echo": signingEcho,
@@ -197,7 +196,7 @@ func (channel *Channel) WaitForRandomNumberClear() (bool, error) {
 
 // StoreToConfigFile stores the channel to the config file.
 func (channel *Channel) StoreToConfigFile() error {
-	config := newConfig(channel)
-	configFile := storage.NewConfigFile(configFileName)
-	return configFile.WriteJSON(config)
+	configuration := newConfiguration(channel)
+	configFile := config.NewFile(configFileName)
+	return configFile.WriteJSON(configuration)
 }

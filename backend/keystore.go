@@ -4,6 +4,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
@@ -16,7 +17,7 @@ type keyStoreWithHardenedKeyDerivation interface {
 	XPub(keyPath string) (*hdkeychain.ExtendedKey, error)
 
 	// Sign signs every hash with the private key at the corresponding key path.
-	Sign(hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 
 	// DisplayAddress triggers the display of the address at the given key path.
 	DisplayAddress(keyPath string)
@@ -61,6 +62,7 @@ func (rks *relativeKeyStore) XPub() *hdkeychain.ExtendedKey {
 // which is relative to the extended public key as returned by XPub().
 // If the user aborts the signing process, ErrUserAborted is returned.
 func (rks *relativeKeyStore) Sign(
+	txProposal *maketx.TxProposal,
 	signatureHashes [][]byte,
 	relativeKeyPaths []string,
 ) ([]btcec.Signature, error) {
@@ -69,7 +71,7 @@ func (rks *relativeKeyStore) Sign(
 	for i, path := range relativeKeyPaths {
 		keyPaths[i] = rks.keyPath + "/" + path
 	}
-	signatures, err := rks.keyStore.Sign(signatureHashes, keyPaths)
+	signatures, err := rks.keyStore.Sign(txProposal, signatureHashes, keyPaths)
 	if err != nil {
 		if bitbox.IsErrorAbort(err) {
 			rks.log.WithField("relative-keypaths", relativeKeyPaths).Info("Signing aborted")

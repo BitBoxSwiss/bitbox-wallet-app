@@ -2,6 +2,7 @@
 package bitbox
 
 import (
+	"bytes"
 	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
@@ -11,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/devices/bitbox/pairing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
@@ -18,6 +20,7 @@ import (
 	"github.com/shiftdevices/godbb/util/semver"
 
 	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
@@ -63,7 +66,7 @@ type Interface interface {
 	Login(string) (bool, string, error)
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
-	Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 	UnlockBootloader() error
 	LockBootloader() error
 	EraseBackup(string) error
@@ -671,9 +674,14 @@ func (dbb *Device) LockBootloader() error {
 	return nil
 }
 
-// signBatch signs a batch of at most 15 signatures. The method returns signatures for the provided hashes.
+// Signs a batch of at most 15 signatures. The method returns signatures for the provided hashes.
 // The private keys used to sign them are derived using the provided keyPaths.
-func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[string]interface{}, error) {
+func (dbb *Device) signBatch(
+	txProposal *maketx.TxProposal,
+	signatureHashes [][]byte,
+	keyPaths []string,
+	locked bool,
+) (map[string]interface{}, error) {
 	if len(signatureHashes) != len(keyPaths) {
 		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
 			"keypath-lengths": len(keyPaths)}).Panic("Length of keyPaths must match length of signatureHashes")
@@ -693,18 +701,92 @@ func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[s
 			"keypath": keyPaths[i],
 		})
 	}
-	cmd := map[string]interface{}{
+
+	command := map[string]map[string]interface{}{
 		"sign": map[string]interface{}{
 			"data": data,
 		},
 	}
+
+	var transaction string
+	if txProposal != nil {
+		buffer := new(bytes.Buffer)
+		err := txProposal.Transaction.Serialize(buffer)
+		if err != nil {
+			return nil, errp.WithMessage(err, "Could not serialize the transaction.")
+		}
+		transaction = hex.EncodeToString(buffer.Bytes())
+		command["sign"]["meta"] = hex.EncodeToString(chainhash.DoubleHashB([]byte(transaction)))
+
+		if txProposal.ChangeAddress != nil {
+			index := strings.LastIndex(keyPaths[0], "'")
+			accountPrefix := keyPaths[0][0 : index+2]
+			command["sign"]["checkpub"] = []map[string]interface{}{{
+				"pubkey":  hex.EncodeToString(txProposal.ChangeAddress.PublicKey.SerializeCompressed()),
+				"keypath": accountPrefix + txProposal.ChangeAddress.KeyPath,
+			}}
+		}
+	}
+
 	// First call returns the echo.
-	_, err := dbb.send(cmd, dbb.password)
+	echo, err := dbb.send(command, dbb.password)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to sign batch (1)")
 	}
+
+	if txProposal != nil && dbb.channel != nil {
+		signingEcho, ok := echo["echo"].(string)
+		if !ok {
+			dbb.log.Error("The signing echo from the BitBox was not a string.")
+			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
+		}
+		if err = dbb.channel.SendSigningEcho(signingEcho, transaction); err != nil {
+			dbb.log.WithField("error", err).Error("Could not send the signing echo to the mobile.")
+			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
+		}
+	}
+
+	// If the device is 2FA locked, wait for up to two minutes for the signing "PIN"/nonce.
+	var nonce *string
+	if locked {
+		if txProposal == nil {
+			dbb.log.Error("No transaction was provided for the locked device to sign.")
+			return nil, errp.New("No transaction was provided for the locked device to sign.")
+		}
+		if dbb.channel == nil {
+			dbb.log.Error("Signing failed because the device is locked but not paired.")
+			return nil, errp.New("Signing failed because the device is locked but not paired.")
+		}
+		deadline := time.Now().Add(2 * time.Minute)
+		for {
+			nonce, err = dbb.channel.WaitForSigningPin()
+			if err != nil {
+				return nil, errp.WithMessage(err, "Failed to fetch the signing PIN.")
+			}
+			if nonce == nil {
+				if time.Now().Before(deadline) {
+					continue
+				}
+			} else if *nonce == "abort" {
+				return nil, errp.WithMessage(err, "The user aborted the signing from the mobile.")
+			}
+			break
+		}
+	}
+
 	// Second call returns the signatures.
-	reply, err := dbb.send(cmd, dbb.password)
+	var pin interface{}
+	if nonce != nil {
+		pin = map[string]interface{}{
+			"pin": nonce,
+		}
+	} else {
+		pin = ""
+	}
+	command2 := map[string]interface{}{
+		"sign": pin,
+	}
+	reply, err := dbb.send(command2, dbb.password)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to sign batch (2)")
 	}
@@ -713,7 +795,11 @@ func (dbb *Device) signBatch(signatureHashes [][]byte, keyPaths []string) (map[s
 
 // Sign returns signatures for the provided hashes. The private keys used to sign them are derived
 // using the provided keyPaths.
-func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+func (dbb *Device) Sign(
+	txProposal *maketx.TxProposal,
+	signatureHashes [][]byte,
+	keyPaths []string,
+) ([]btcec.Signature, error) {
 	dbb.log.WithFields(logrus.Fields{"signature-hashes": signatureHashes, "keypaths": keyPaths}).Info("Sign")
 	if len(signatureHashes) != len(keyPaths) {
 		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
@@ -724,13 +810,25 @@ func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Si
 		dbb.log.WithField("signature-hashes-length", len(signatureHashes)).Panic("Non-empty list of signature hashes and keypaths expected")
 		panic("non-empty list of signature hashes and keypaths expected")
 	}
+
+	deviceInfo, err := dbb.DeviceInfo()
+	if err != nil {
+		dbb.log.WithField("error", err).Error("Failed to load the device info for signing.")
+		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
+	}
+
 	signatures := []btcec.Signature{}
 	for i := 0; i < len(signatureHashes); i = i + signatureBatchSize {
 		upper := i + signatureBatchSize
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)
 		}
-		reply, err := dbb.signBatch(signatureHashes[i:upper], keyPaths[i:upper])
+		reply, err := dbb.signBatch(
+			txProposal,
+			signatureHashes[i:upper],
+			keyPaths[i:upper],
+			deviceInfo.Lock,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -766,18 +864,22 @@ func (dbb *Device) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Si
 
 // DisplayAddress triggers the display of the address at the given key path.
 func (dbb *Device) DisplayAddress(keyPath string) {
-	if dbb.channel != nil {
-		reply, err := dbb.sendKV("xpub", keyPath, dbb.password)
-		if err != nil {
-			return
-		}
-		xpubEcho, ok := reply["echo"].(string)
-		if !ok {
-			return
-		}
-		err = dbb.channel.SendXpubEcho(xpubEcho)
-		if err != nil {
-			return
-		}
+	if dbb.channel == nil {
+		dbb.log.Debug("The address is not displayed because no pairing was found.")
+		return
+	}
+	reply, err := dbb.sendKV("xpub", keyPath, dbb.password)
+	if err != nil {
+		dbb.log.WithField("error", err).Error("Could not retrieve the xpub from the BitBox.")
+		return
+	}
+	xpubEcho, ok := reply["echo"].(string)
+	if !ok {
+		dbb.log.Error("The echo from the BitBox to display the address is not a string.")
+		return
+	}
+	if err := dbb.channel.SendXpubEcho(xpubEcho); err != nil {
+		dbb.log.WithField("error", err).Error("Sending the xpub echo to the mobile failed.")
+		return
 	}
 }

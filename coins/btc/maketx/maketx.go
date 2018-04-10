@@ -6,6 +6,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
@@ -17,8 +18,8 @@ type TxProposal struct {
 	// Fee is the mining fee used.
 	Fee         btcutil.Amount
 	Transaction *wire.MsgTx
-	// SelectedOutPoints are the outputs that are used to cover the amount and the fee.
-	SelectedOutPoints []wire.OutPoint
+	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
+	ChangeAddress *addresses.Address
 }
 
 type byValue struct {
@@ -92,10 +93,9 @@ func NewTxSpendAll(
 	txsort.InPlaceSort(unsignedTransaction)
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 	return &TxProposal{
-		Amount:            btcutil.Amount(output.Value),
-		Fee:               maxRequiredFee,
-		Transaction:       unsignedTransaction,
-		SelectedOutPoints: selectedOutPoints,
+		Amount:      btcutil.Amount(output.Value),
+		Fee:         maxRequiredFee,
+		Transaction: unsignedTransaction,
 	}, nil
 }
 
@@ -105,7 +105,7 @@ func NewTx(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
-	getChangePKScript func() ([]byte, error),
+	getChangeAddress func() *addresses.Address,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
@@ -146,11 +146,10 @@ func NewTx(
 		if changeIsDust {
 			finalFee = selectedOutputsSum - targetAmount
 		}
+		var changeAddress *addresses.Address
 		if changeAmount != 0 && !changeIsDust {
-			changePKScript, err := getChangePKScript()
-			if err != nil {
-				return nil, errp.Wrap(err, "Failed to get change script")
-			}
+			changeAddress = getChangeAddress()
+			changePKScript := changeAddress.PkScript()
 			if len(changePKScript) > P2PKHPkScriptSize {
 				return nil, errp.WithContext(errp.New("fee estimation requires change scripts no "+
 					"larger than P2PKH output scripts"),
@@ -162,10 +161,10 @@ func NewTx(
 		txsort.InPlaceSort(unsignedTransaction)
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
 		return &TxProposal{
-			Amount:            targetAmount,
-			Fee:               finalFee,
-			Transaction:       unsignedTransaction,
-			SelectedOutPoints: selectedOutPoints,
+			Amount:        targetAmount,
+			Fee:           finalFee,
+			Transaction:   unsignedTransaction,
+			ChangeAddress: changeAddress,
 		}, nil
 	}
 }

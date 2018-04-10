@@ -5,7 +5,7 @@ const (
 	configFileName = "config.dat"
 )
 
-type config struct {
+type configuration struct {
 	Version         int    `json:"version"`
 	ChannelID       string `json:"comserverchannelid"`
 	EncryptionKey   []byte `json:"encryptionprivkey"`
@@ -13,8 +13,8 @@ type config struct {
 	UseDefaultProxy bool   `json:"use_default_proxy"`
 }
 
-func newConfig(channel *Channel) *config {
-	return &config{
+func newConfiguration(channel *Channel) *configuration {
+	return &configuration{
 		Version:         1,
 		ChannelID:       channel.ChannelID,
 		EncryptionKey:   channel.EncryptionKey,
@@ -23,6 +23,6 @@ func newConfig(channel *Channel) *config {
 	}
 }
 
-func (config *config) channel() *Channel {
-	return NewChannel(config.ChannelID, config.EncryptionKey)
+func (configuration *configuration) channel() *Channel {
+	return NewChannel(configuration.ChannelID, configuration.EncryptionKey)
 }

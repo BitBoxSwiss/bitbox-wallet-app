@@ -16,7 +16,7 @@ import (
 // wallet, the keypath to the pubkey is needed as well.
 type Address struct {
 	btcutil.Address
-	publicKey *btcec.PublicKey
+	PublicKey *btcec.PublicKey
 	KeyPath   string
 	// HistoryStatus is used to determine if the address status changed, and to determine if the
 	// address has been used before or not. The status corresponds to
@@ -89,7 +89,7 @@ func NewAddress(
 
 	return &Address{
 		Address:       address,
-		publicKey:     publicKey,
+		PublicKey:     publicKey,
 		KeyPath:       keyPath,
 		HistoryStatus: "",
 		addressType:   addressType,
@@ -139,7 +139,7 @@ func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWit
 	case AddressTypeP2PKH:
 		sigScript, err := txscript.NewScriptBuilder().
 			AddData(append(signature.Serialize(), byte(txscript.SigHashAll))).
-			AddData(address.publicKey.SerializeCompressed()).
+			AddData(address.PublicKey.SerializeCompressed()).
 			Script()
 		if err != nil {
 			address.log.WithField("error", err).Panic("Failed to build p2pkh signature script")
@@ -156,7 +156,7 @@ func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWit
 		}
 		witness := wire.TxWitness{
 			append(signature.Serialize(), byte(txscript.SigHashAll)),
-			address.publicKey.SerializeCompressed()}
+			address.PublicKey.SerializeCompressed()}
 		return sigScript, witness
 	default:
 		address.log.Panic("Unrecognized address type")

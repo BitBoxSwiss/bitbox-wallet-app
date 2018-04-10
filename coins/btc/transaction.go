@@ -76,8 +76,8 @@ func (wallet *Wallet) newTx(
 			wireUTXO,
 			wire.NewTxOut(int64(amount.amount), pkScript),
 			*feeTarget.FeeRatePerKb,
-			func() ([]byte, error) {
-				return wallet.changeAddresses.GetUnused().PkScript(), nil
+			func() *addresses.Address {
+				return wallet.changeAddresses.GetUnused()
 			},
 			wallet.log,
 		)
@@ -119,7 +119,7 @@ func (wallet *Wallet) SendTx(
 		}
 		panic("address must be present")
 	}
-	if err := SignTransaction(wallet.keyStore, txProposal.Transaction, utxo, getAddress, wallet.log); err != nil {
+	if err := SignTransaction(wallet.keyStore, txProposal, utxo, getAddress, wallet.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	wallet.log.Info("Signed transaction is broadcasted")

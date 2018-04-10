@@ -153,8 +153,7 @@ func (s *dbbTestSuite) TestSignZero() {
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
 		Twice()
 	// Return value can be ignored as the function panics.
-	_, _ = s.dbb.Sign([][]byte{}, []string{})
-
+	_, _ = s.dbb.Sign(nil, [][]byte{}, []string{})
 }
 
 func (s *dbbTestSuite) TestSignSingle() {
@@ -173,7 +172,7 @@ func (s *dbbTestSuite) TestSignSingle() {
 	).
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
 		Twice()
-	signatures, err := s.dbb.Sign([][]byte{signatureHash}, []string{keyPath})
+	signatures, err := s.dbb.Sign(nil, [][]byte{signatureHash}, []string{keyPath})
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 1)
 }
@@ -207,7 +206,7 @@ func (s *dbbTestSuite) TestSignFifteen() {
 	).
 		Return(map[string]interface{}{"sign": responseSignatures}, nil).
 		Twice()
-	signatures, err := s.dbb.Sign(signatureHashes, keypaths)
+	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 15)
 }
@@ -255,7 +254,7 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	).
 		Return(map[string]interface{}{"sign": responseSignatures2}, nil).
 		Twice()
-	signatures, err := s.dbb.Sign(signatureHashes, keypaths)
+	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 16)
 }

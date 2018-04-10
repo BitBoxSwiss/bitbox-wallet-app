@@ -1,6 +1,7 @@
 package usb
 
 import (
+	"os"
 	"regexp"
 	"time"
 
@@ -89,6 +90,16 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		return errp.WithMessage(err, "Failed to execute on-register")
 	}
 	manager.device = device
+
+	// Unlock the device automatically if the user set the PIN as an environment variable.
+	pin := os.Getenv("BITBOX_PIN")
+	if pin != "" {
+		if _, _, err := device.Login(pin); err != nil {
+			manager.log.Info("Failed to unlock the BitBox with the provided PIN.")
+			return errp.WithMessage(err, "Failed to unlock the BitBox with the provided PIN.")
+		}
+	}
+
 	return nil
 }
 

@@ -270,7 +270,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
 	}
 	if len(txsSet) != len(txs) {
-		err := errp.New("duplicate tx ids in address history returned by server")
+		err = errp.New("duplicate tx ids in address history returned by server")
 		transactions.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)

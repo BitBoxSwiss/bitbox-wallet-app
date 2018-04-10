@@ -11,6 +11,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 
+	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -75,7 +76,11 @@ func (ks *SoftwareBasedKeyStore) XPub(path string) (*hdkeychain.ExtendedKey, err
 }
 
 // Sign signs the given hashes at the given paths.
-func (ks *SoftwareBasedKeyStore) Sign(signatureHashes [][]byte, keyPaths []string) ([]btcec.Signature, error) {
+func (ks *SoftwareBasedKeyStore) Sign(
+	txProposal *maketx.TxProposal,
+	signatureHashes [][]byte,
+	keyPaths []string,
+) ([]btcec.Signature, error) {
 	if len(signatureHashes) != len(keyPaths) {
 		return nil, errp.New("The number of hashes to sign has to be equal to the number of paths.")
 	}
