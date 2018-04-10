@@ -52,7 +52,7 @@ type Wallet struct {
 
 	initialSyncDone bool
 	onEvent         func(Event)
-	logEntry        *logrus.Entry
+	log             *logrus.Entry
 }
 
 // NewWallet creats a new Wallet.
@@ -62,10 +62,10 @@ func NewWallet(
 	blockchain blockchain.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) (*Wallet, error) {
-	logEntry = logEntry.WithField("group", "btc")
-	logEntry.Debug("Creating new wallet")
+	log = log.WithField("group", "btc")
+	log.Debug("Creating new wallet")
 	xpub := keyStore.XPub()
 	xpub.SetNet(net)
 	if xpub.IsPrivate() {
@@ -84,7 +84,7 @@ func NewWallet(
 		},
 		initialSyncDone: false,
 		onEvent:         onEvent,
-		logEntry:        logEntry,
+		log:             log,
 	}
 	wallet.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
@@ -95,11 +95,11 @@ func NewWallet(
 			}
 			onEvent(EventSyncDone)
 		},
-		logEntry,
+		log,
 	)
-	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, logEntry)
-	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, logEntry)
-	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain, logEntry)
+	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, log)
+	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, log)
+	wallet.transactions = transactions.NewTransactions(net, wallet.synchronizer, blockchain, log)
 
 	return wallet, nil
 }
@@ -117,7 +117,7 @@ func (wallet *Wallet) Init() {
 }
 
 func (wallet *Wallet) onNewHeader(header *client.Header) error {
-	wallet.logEntry.WithField("block-height", header.BlockHeight).Info("Received new header")
+	wallet.log.WithField("block-height", header.BlockHeight).Info("Received new header")
 	// Fee estimates change with each block.
 	wallet.updateFeeTargets()
 	return nil
@@ -145,14 +145,14 @@ func (wallet *Wallet) updateFeeTargets() {
 				func(feeRatePerKb btcutil.Amount) error {
 					defer wallet.Lock()()
 					feeTarget.FeeRatePerKb = &feeRatePerKb
-					wallet.logEntry.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+					wallet.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
 						"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
 					return nil
 				},
 				func() {},
 			)
 			if err != nil {
-				wallet.logEntry.WithField("error", err).Panic("Failed to update fee targets")
+				wallet.log.WithField("error", err).Panic("Failed to update fee targets")
 				// TODO
 				panic(err)
 			}
@@ -194,7 +194,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 				defer wallet.Lock()()
 				address.History = history
 				if address.History.Status() != status {
-					wallet.logEntry.Debug("Client status should match after sync")
+					wallet.log.Debug("Client status should match after sync")
 				}
 				wallet.transactions.UpdateAddressHistory(address, history)
 			}()
@@ -221,12 +221,12 @@ func (wallet *Wallet) ensureAddresses() {
 		return nil
 	}
 	if err := syncSequence(false); err != nil {
-		wallet.logEntry.WithField("error", err).Panic(err)
+		wallet.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
 	if err := syncSequence(true); err != nil {
-		wallet.logEntry.WithField("error", err).Panic(err)
+		wallet.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
@@ -250,7 +250,7 @@ func (wallet *Wallet) Transactions() []*transactions.TxInfo {
 func (wallet *Wallet) GetUnusedReceiveAddress() *addresses.Address {
 	wallet.synchronizer.WaitSynchronized()
 	defer wallet.RLock()()
-	wallet.logEntry.Debug("Get unused receive address")
+	wallet.log.Debug("Get unused receive address")
 	return wallet.receiveAddresses.GetUnused()
 }
 

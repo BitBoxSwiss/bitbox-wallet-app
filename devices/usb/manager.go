@@ -42,7 +42,7 @@ type Manager struct {
 	onRegister   func(bitbox.Interface) error
 	onUnregister func(string)
 
-	logEntry *logrus.Entry
+	log *logrus.Entry
 }
 
 // NewManager creates a new Manager. onRegister is called when a device has been
@@ -54,7 +54,7 @@ func NewManager(
 	return &Manager{
 		onRegister:   onRegister,
 		onUnregister: onUnregister,
-		logEntry:     logging.Log.WithGroup("manager"),
+		log:          logging.Log.WithGroup("manager"),
 	}
 }
 
@@ -62,7 +62,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
-		manager.logEntry.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
+		manager.log.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
 		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
 	}
 	firmwareVersion, err := semver.NewSemVerFromString(match[1])
@@ -120,17 +120,17 @@ func (manager *Manager) ListenHID() {
 			deviceID := manager.device.DeviceID()
 			manager.device = nil
 			manager.onUnregister(deviceID)
-			manager.logEntry.Debug("Unregistered device")
+			manager.log.Debug("Unregistered device")
 		}
 
 		// Check if device was inserted.
 		deviceInfos := DeviceInfos()
 		if len(deviceInfos) > 1 {
-			manager.logEntry.WithField("device-amount", len(deviceInfos)).Panic("Multiple devices detected")
+			manager.log.WithField("device-amount", len(deviceInfos)).Panic("Multiple devices detected")
 			panic("TODO: multiple devices?")
 		} else if manager.device == nil && len(deviceInfos) == 1 {
 			if err := manager.register(deviceInfos[0]); err != nil {
-				manager.logEntry.WithField("error", err).Error("Failed to register device")
+				manager.log.WithField("error", err).Error("Failed to register device")
 				return
 			}
 		}

@@ -32,11 +32,11 @@ type dbbTestSuite struct {
 	mockCommunication *mocks.CommunicationInterface
 	dbb               *bitbox.Device
 
-	logEntry *logrus.Entry
+	log *logrus.Entry
 }
 
 func (s *dbbTestSuite) SetupTest() {
-	s.logEntry = logging.Log.WithGroup("bitbox_test")
+	s.log = logging.Log.WithGroup("bitbox_test")
 	s.mockCommunication = new(mocks.CommunicationInterface)
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).

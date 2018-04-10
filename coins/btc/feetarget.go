@@ -10,7 +10,7 @@ import (
 type FeeTargetCode string
 
 // NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
-func NewFeeTargetCode(code string, logEntry *logrus.Entry) (FeeTargetCode, error) {
+func NewFeeTargetCode(code string, log *logrus.Entry) (FeeTargetCode, error) {
 	switch code {
 	case string(FeeTargetCodeLow):
 	case string(FeeTargetCodeEconomy):

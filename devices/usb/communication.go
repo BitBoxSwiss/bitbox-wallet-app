@@ -30,24 +30,24 @@ const (
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
 // as USB packets, following the ISO 7816-4 standard.
 type Communication struct {
-	device   io.ReadWriteCloser
-	mutex    sync.Mutex
-	logEntry *logrus.Entry
+	device io.ReadWriteCloser
+	mutex  sync.Mutex
+	log    *logrus.Entry
 }
 
 // NewCommunication creates a new Communication.
 func NewCommunication(device io.ReadWriteCloser) *Communication {
 	return &Communication{
-		device:   device,
-		mutex:    sync.Mutex{},
-		logEntry: logging.Log.WithGroup("usb"),
+		device: device,
+		mutex:  sync.Mutex{},
+		log:    logging.Log.WithGroup("usb"),
 	}
 }
 
 // Close closes the underlying device.
 func (communication *Communication) Close() {
 	if err := communication.device.Close(); err != nil {
-		communication.logEntry.WithField("error", err).Panic(err)
+		communication.log.WithField("error", err).Panic(err)
 		panic(err)
 	}
 }
@@ -140,7 +140,7 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		maxReadLen = 256
 	)
 	if len(msg) > maxSendLen {
-		communication.logEntry.WithFields(logrus.Fields{"message-length": len(msg),
+		communication.log.WithFields(logrus.Fields{"message-length": len(msg),
 			"max-send-length": maxSendLen}).Panic("Message too long")
 		panic("message too long")
 	}
@@ -175,7 +175,7 @@ func hideValues(cmd map[string]interface{}) {
 	}
 }
 
-func logCensoredCmd(logEntry *logrus.Entry, msg string, receiving bool) error {
+func logCensoredCmd(log *logrus.Entry, msg string, receiving bool) error {
 	if logging.Log.Level >= logrus.DebugLevel {
 		cmd := map[string]interface{}{}
 		if err := json.Unmarshal([]byte(msg), &cmd); err != nil {
@@ -184,13 +184,13 @@ func logCensoredCmd(logEntry *logrus.Entry, msg string, receiving bool) error {
 		hideValues(cmd)
 		censoredMsg, err := json.Marshal(cmd)
 		if err != nil {
-			logEntry.WithField("error", err).Error("Failed to censor message")
+			log.WithField("error", err).Error("Failed to censor message")
 		} else {
 			direction := "Sending"
 			if receiving {
 				direction = "Receiving"
 			}
-			logEntry.WithField("msg", string(censoredMsg)).Infof("%s message", direction)
+			log.WithField("msg", string(censoredMsg)).Infof("%s message", direction)
 		}
 	}
 	return nil
@@ -198,8 +198,8 @@ func logCensoredCmd(logEntry *logrus.Entry, msg string, receiving bool) error {
 
 // SendPlain sends an unecrypted message. The response is json-deserialized into a map.
 func (communication *Communication) SendPlain(msg string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(communication.logEntry, msg, false); err != nil {
-		communication.logEntry.WithField("msg", msg).Debug("Sending (encrypted) command")
+	if err := logCensoredCmd(communication.log, msg, false); err != nil {
+		communication.log.WithField("msg", msg).Debug("Sending (encrypted) command")
 	}
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -211,7 +211,7 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 		return nil, err
 	}
 	reply = bytes.TrimRightFunc(reply, func(r rune) bool { return unicode.IsSpace(r) || r == 0 })
-	err = logCensoredCmd(communication.logEntry, string(reply), true)
+	err = logCensoredCmd(communication.log, string(reply), true)
 	if err != nil {
 		return nil, errp.WithContext(err, errp.Context{"reply": string(reply)})
 	}
@@ -243,7 +243,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 // SendEncrypt sends an encrypted message. The response is json-deserialized into a map. If the
 // response contains an error field, it is returned as a DBBErr.
 func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(communication.logEntry, msg, false); err != nil {
+	if err := logCensoredCmd(communication.log, msg, false); err != nil {
 		return nil, errp.WithMessage(err, "Invalid JSON passed. Continuing anyway")
 	}
 	secret := chainhash.DoubleHashB([]byte(password))
@@ -260,7 +260,7 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		if err != nil {
 			return nil, errp.WithMessage(err, "Failed to decrypt reply")
 		}
-		err = logCensoredCmd(communication.logEntry, string(plainText), true)
+		err = logCensoredCmd(communication.log, string(plainText), true)
 		if err != nil {
 			return nil, errp.WithContext(err, errp.Context{"reply": string(plainText)})
 		}

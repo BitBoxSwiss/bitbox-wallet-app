@@ -15,14 +15,14 @@ import (
 
 // Handlers provides a web api to the wallet.
 type Handlers struct {
-	wallet   btc.Interface
-	logEntry *logrus.Entry
+	wallet btc.Interface
+	log    *logrus.Entry
 }
 
 // NewHandlers creates a new Handlers instance.
 func NewHandlers(
-	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, logEntry *logrus.Entry) *Handlers {
-	handlers := &Handlers{logEntry: logEntry}
+	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
+	handlers := &Handlers{log: log}
 
 	handleFunc("/transactions", handlers.getWalletTransactions).Methods("GET")
 	handleFunc("/balance", handlers.getWalletBalance).Methods("GET")
@@ -90,7 +90,7 @@ type sendTxInput struct {
 	address       string
 	sendAmount    btc.SendAmount
 	feeTargetCode btc.FeeTargetCode
-	logEntry      *logrus.Entry
+	log           *logrus.Entry
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -100,7 +100,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody["address"]
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"], input.logEntry)
+	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"], input.log)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
@@ -124,7 +124,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{logEntry: handlers.logEntry}
+	input := &sendTxInput{log: handlers.log}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}

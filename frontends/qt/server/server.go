@@ -56,7 +56,7 @@ func generateRSAPrivateKey() (*rsa.PrivateKey, error) {
 }
 
 // createSelfSignedCertificate creates a self-signed certificate from the given rsa.PrivateKey.
-func createSelfSignedCertificate(privateKey *rsa.PrivateKey, logEntry *logrus.Entry) ([]byte, error) {
+func createSelfSignedCertificate(privateKey *rsa.PrivateKey, log *logrus.Entry) ([]byte, error) {
 	serialNumber := big.Int{}
 	notBefore := time.Now()
 	// Invalid after one day.
@@ -79,14 +79,14 @@ func createSelfSignedCertificate(privateKey *rsa.PrivateKey, logEntry *logrus.En
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
 	if err != nil {
-		logEntry.WithField("error", err).Error("Failed to create x.509 certificate")
+		log.WithField("error", err).Error("Failed to create x.509 certificate")
 		return nil, err
 	}
 	return derBytes, nil
 }
 
 // saveAsPEM saves the given PEM block as a file
-func saveAsPEM(name string, pemBytes *pem.Block, logEntry *logrus.Entry) error {
+func saveAsPEM(name string, pemBytes *pem.Block, log *logrus.Entry) error {
 	certificateDir := filepath.Dir(name)
 	err := os.MkdirAll(certificateDir, os.ModeDir|os.ModePerm)
 	if err != nil {
@@ -139,35 +139,35 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 
 //export serve
 func serve() C.struct_ConnectionData {
-	logEntry := logging.Log.WithGroup("server")
-	logEntry.Info("--------------- Started application --------------")
+	log := logging.Log.WithGroup("server")
+	log.Info("--------------- Started application --------------")
 	token, err := random.HexString(16)
 	if err != nil {
-		logEntry.WithField("error", err).Fatal("Failed to generate random string")
+		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
-	port, err := freeport.FreePort(logEntry)
+	port, err := freeport.FreePort(log)
 	if err != nil {
-		logEntry.WithField("error", err).Fatal("Failed to find free port")
+		log.WithField("error", err).Fatal("Failed to find free port")
 	}
 	cWrappedConnectionData := C.struct_ConnectionData{
 		token: C.CString(token),
 		port:  C.int(port),
 	}
-	logEntry.WithField("port", port).Debug("Serve backend")
+	log.WithField("port", port).Debug("Serve backend")
 
 	connectionData := backendHandlers.NewConnectionData(port, token)
 	handlers := backendHandlers.NewHandlers(backend.NewBackend(), connectionData)
 
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {
-		logEntry.WithField("error", err).Fatal("Failed to generate RSA key")
+		log.WithField("error", err).Fatal("Failed to generate RSA key")
 	}
-	certificate, err := createSelfSignedCertificate(privateKey, logEntry)
+	certificate, err := createSelfSignedCertificate(privateKey, log)
 	if err != nil {
-		logEntry.WithField("error", err).Fatal("Failed to create self-signed certificate")
+		log.WithField("error", err).Fatal("Failed to create self-signed certificate")
 	}
 	certificatePEM := derToPem("CERTIFICATE", certificate)
-	saveAsPEM(tlsServerCertificate, certificatePEM, logEntry)
+	saveAsPEM(tlsServerCertificate, certificatePEM, log)
 
 	var certAndKey tls.Certificate
 	certAndKey.Certificate = [][]byte{certificate}
@@ -184,13 +184,13 @@ func serve() C.struct_ConnectionData {
 		}
 		listener, err := net.Listen("tcp", server.Addr)
 		if err != nil {
-			logEntry.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to listen on address")
+			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to listen on address")
 		}
-		logEntry.WithField("address", server.Addr).Debug("Listening")
+		log.WithField("address", server.Addr).Debug("Listening")
 		tlsListener := tls.NewListener(tcpKeepAliveListener{listener.(*net.TCPListener)}, server.TLSConfig)
 		err = server.Serve(tlsListener)
 		if err != nil {
-			logEntry.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
+			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
 		}
 	}()
 	return cWrappedConnectionData

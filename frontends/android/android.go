@@ -1,7 +1,6 @@
 package android
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/shiftdevices/godbb/backend"
@@ -12,10 +11,10 @@ import (
 
 // Serve serves the godbb API for use in a mobile client.
 func Serve() {
-	logEntry := logging.Log.WithGroup("android")
+	log := logging.Log.WithGroup("android")
 	token, err := random.HexString(16)
 	if err != nil {
-		logEntry.WithField("error", err).Fatal("Failed to generate random string")
+		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
 	handlers := backendHandlers.NewHandlers(backend.NewBackend(), connectionData)

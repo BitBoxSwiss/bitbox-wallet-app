@@ -23,11 +23,11 @@ type walletSuite struct {
 	onEvent        func(btc.Event)
 	wallet         *btc.Wallet
 
-	logEntry *logrus.Entry
+	log *logrus.Entry
 }
 
 func (s *walletSuite) SetupTest() {
-	s.logEntry = logging.Log.WithGroup("btc_test")
+	s.log = logging.Log.WithGroup("btc_test")
 	s.net = &chaincfg.TestNet3Params
 	s.onEvent = func(btc.Event) {}
 	var err error
@@ -45,7 +45,7 @@ func (s *walletSuite) SetupTest() {
 		&s.blockchainMock,
 		addresses.AddressTypeP2PKH,
 		s.onEvent,
-		s.logEntry,
+		s.log,
 	)
 	if err != nil {
 		panic(err)

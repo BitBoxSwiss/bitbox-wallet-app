@@ -35,7 +35,7 @@ func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[
 func coinSelection(
 	minAmount btcutil.Amount,
 	outputs map[wire.OutPoint]*wire.TxOut,
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) (btcutil.Amount, []wire.OutPoint, error) {
 	outPoints := []wire.OutPoint{}
 	for outPoint := range outputs {
@@ -64,7 +64,7 @@ func NewTxSpendAll(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
 	feePerKb btcutil.Amount,
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) (*TxProposal, error) {
 
 	selectedOutPoints := []wire.OutPoint{}
@@ -78,7 +78,7 @@ func NewTxSpendAll(
 	}
 	output := wire.NewTxOut(0, outputPkScript)
 	txSize := EstimateSerializeSize(len(selectedOutPoints), []*wire.TxOut{output}, false)
-	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, logEntry)
+	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
 		return nil, errp.New("Insufficient funds for fee")
 	}
@@ -90,7 +90,7 @@ func NewTxSpendAll(
 		LockTime: 0,
 	}
 	txsort.InPlaceSort(unsignedTransaction)
-	logEntry.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
+	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 	return &TxProposal{
 		Amount:            btcutil.Amount(output.Value),
 		Fee:               maxRequiredFee,
@@ -106,25 +106,25 @@ func NewTx(
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
 	getChangePKScript func() ([]byte, error),
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
 	outputs := []*wire.TxOut{output}
 	estimatedSize := EstimateSerializeSize(1, outputs, true)
-	targetFee := FeeForSerializeSize(feePerKb, estimatedSize, logEntry)
+	targetFee := FeeForSerializeSize(feePerKb, estimatedSize, log)
 
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
 			spendableOutputs,
-			logEntry,
+			log,
 		)
 		if err != nil {
 			return nil, err
 		}
 
 		txSize := EstimateSerializeSize(len(selectedOutPoints), outputs, true)
-		maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, logEntry)
+		maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, log)
 		if selectedOutputsSum-targetAmount < maxRequiredFee {
 			targetFee = maxRequiredFee
 			continue
@@ -160,7 +160,7 @@ func NewTx(
 			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut, changeOutput)
 		}
 		txsort.InPlaceSort(unsignedTransaction)
-		logEntry.WithField("fee", finalFee).Debug("Preparing transaction")
+		log.WithField("fee", finalFee).Debug("Preparing transaction")
 		return &TxProposal{
 			Amount:            targetAmount,
 			Fee:               finalFee,

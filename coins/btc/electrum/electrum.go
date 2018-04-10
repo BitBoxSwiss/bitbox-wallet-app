@@ -41,9 +41,9 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 
 // NewElectrumClient connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumClient(server string, tls bool, logEntry *logrus.Entry) (*client.ElectrumClient, error) {
-	logEntry = logEntry.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "server": server, "tls": tls})
-	logEntry.Debug("Connecting to Electrum server")
+func NewElectrumClient(server string, tls bool, log *logrus.Entry) (*client.ElectrumClient, error) {
+	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "server": server, "tls": tls})
+	log.Debug("Connecting to Electrum server")
 	var conn io.ReadWriteCloser
 	if tls {
 		var err error
@@ -58,9 +58,9 @@ func NewElectrumClient(server string, tls bool, logEntry *logrus.Entry) (*client
 			return nil, errp.WithMessage(err, "Failed to establish TCP connection")
 		}
 	}
-	rpcClient, err := jsonrpc.NewRPCClient(conn, logEntry)
+	rpcClient, err := jsonrpc.NewRPCClient(conn, log)
 	if err != nil {
 		return nil, errp.Wrap(err, "Failed to establish RPC connection")
 	}
-	return client.NewElectrumClient(rpcClient, logEntry)
+	return client.NewElectrumClient(rpcClient, log)
 }

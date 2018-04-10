@@ -57,7 +57,7 @@ type Transactions struct {
 
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
-	logEntry     *logrus.Entry
+	log          *logrus.Entry
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -65,7 +65,7 @@ func NewTransactions(
 	net *chaincfg.Params,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) *Transactions {
 	return &Transactions{
 		net:            net,
@@ -77,7 +77,7 @@ func NewTransactions(
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
-		logEntry:     logEntry.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
+		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
 }
 
@@ -116,7 +116,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// originate from our wallet. At this stage we don't know if it is one of our own inputs,
 		// since the output that it spends might be indexed later.
 		if existingTxIn, ok := transactions.inputs[txIn.PreviousOutPoint]; ok && existingTxIn.txHash != txHash {
-			transactions.logEntry.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
+			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
 				"existingTxIn.txHash": existingTxIn.txHash, "txHash": txHash}).
 				Warning("Double spend detected")
 		}
@@ -135,13 +135,13 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// address belongs to the wallet, it already knows what kind of output it is.
 		_ = scriptClass
 		if err != nil {
-			transactions.logEntry.WithField("error", err).Debug("Failed to extract pk script addresses")
+			transactions.log.WithField("error", err).Debug("Failed to extract pk script addresses")
 			// Unrecognized output. Skip.
 			continue
 		}
 		// For now we only look at single-address outputs (no multisig or other special contracts).
 		if len(addresses) != 1 {
-			transactions.logEntry.WithField("addresses-length", len(addresses)).
+			transactions.log.WithField("addresses-length", len(addresses)).
 				Debug("Only supporting single-address outputs for now")
 			continue
 		}
@@ -186,22 +186,22 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 }
 
 func (transactions *Transactions) removeTxForAddress(address btcutil.Address, txHash chainhash.Hash) {
-	transactions.logEntry.Debug("Remove transaction for address")
+	transactions.log.Debug("Remove transaction for address")
 	transaction, ok := transactions.transactions[txHash]
 	if !ok {
 		// Not yet indexed.
-		transactions.logEntry.Debug("Transaction hash not listed")
+		transactions.log.Debug("Transaction hash not listed")
 		return
 	}
 
 	delete(transaction.addresses, address.String())
-	transactions.logEntry.Debug("Deleting transaction address")
+	transactions.log.Debug("Deleting transaction address")
 	if len(transaction.addresses) == 0 {
 		// Tx is not touching any of our outputs anymore. Remove.
 
 		for _, txIn := range transaction.TX.TxIn {
 			delete(transactions.inputs, txIn.PreviousOutPoint)
-			transactions.logEntry.Debug("Deleting transaction output")
+			transactions.log.Debug("Deleting transaction output")
 		}
 
 		// Remove the outputs added by this tx.
@@ -230,7 +230,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 	}
 	if len(txsSet) != len(txs) {
 		err := errp.New("duplicate tx ids in address history returned by server")
-		transactions.logEntry.WithField("error", err).Panic(err)
+		transactions.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
@@ -285,7 +285,7 @@ func (transactions *Transactions) doForTransaction(
 		},
 		done,
 	); err != nil {
-		transactions.logEntry.WithField("error", err).Panic("Failed to retrieve transaction")
+		transactions.log.WithField("error", err).Panic("Failed to retrieve transaction")
 		// TODO
 		panic(err)
 	}

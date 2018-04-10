@@ -39,7 +39,7 @@ type Handlers struct {
 	apiData           *ConnectionData
 	backendEvents     <-chan interface{}
 	websocketUpgrader websocket.Upgrader
-	logEntry          *logrus.Entry
+	log               *logrus.Entry
 }
 
 // ConnectionData contains the port and authorization token for communication with the backend.
@@ -64,7 +64,7 @@ func NewHandlers(
 	theBackend backend.Interface,
 	connData *ConnectionData,
 ) *Handlers {
-	logEntry := logging.Log.WithGroup("handlers")
+	log := logging.Log.WithGroup("handlers")
 	router := mux.NewRouter()
 
 	handlers := &Handlers{
@@ -77,13 +77,13 @@ func NewHandlers(
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
 		backendEvents: theBackend.Start(),
-		logEntry:      logging.Log.WithGroup("handlers"),
+		log:           logging.Log.WithGroup("handlers"),
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
 			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(f),
-				connData, logEntry))
+				connData, log))
 		}
 	}
 
@@ -101,7 +101,7 @@ func NewHandlers(
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 	for _, wallet := range theBackend.Wallets() {
 		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
-			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()), logEntry)
+			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()), log)
 	}
 
 	theBackend.OnWalletInit(func(wallet *backend.Wallet) {
@@ -112,7 +112,7 @@ func NewHandlers(
 	})
 
 	theDeviceHandlers := bitboxHandlers.NewHandlers(
-		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()), logEntry,
+		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()), log,
 	)
 	theBackend.OnDeviceInit(func(device bitbox.Interface) {
 		theDeviceHandlers.Init(device)
@@ -143,7 +143,7 @@ func NewHandlers(
 					AssetDir:  AssetDir,
 					AssetInfo: AssetInfo,
 					Prefix:    "",
-				})), connData, logEntry))
+				})), connData, log))
 
 	return handlers
 }
@@ -180,7 +180,7 @@ func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) getQRCodeHandler(w http.ResponseWriter, r *http.Request) {
-	if isAPITokenValid(w, r, handlers.apiData, handlers.logEntry) {
+	if isAPITokenValid(w, r, handlers.apiData, handlers.log) {
 		data := r.URL.Query().Get("data")
 		qr, err := qrcode.New(data, qrcode.Medium)
 		if err != nil {
@@ -211,7 +211,7 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 		panic(err)
 	}
 
-	sendChan, quitChan := runWebsocket(conn, handlers.apiData, handlers.logEntry)
+	sendChan, quitChan := runWebsocket(conn, handlers.apiData, handlers.log)
 	go func() {
 		for {
 			select {
@@ -231,8 +231,8 @@ func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) 
 
 // isAPITokenValid checks whether we are in dev or prod mode and, if we are in prod mode, verifies
 // that an authorization token is received as an HTTP Authorization header and that it is valid.
-func isAPITokenValid(w http.ResponseWriter, r *http.Request, apiData *ConnectionData, logEntry *logrus.Entry) bool {
-	methodLogEntry := logEntry.WithField("path", r.URL.Path)
+func isAPITokenValid(w http.ResponseWriter, r *http.Request, apiData *ConnectionData, log *logrus.Entry) bool {
+	methodLogEntry := log.WithField("path", r.URL.Path)
 	// In dev mode, we allow unauthorized requests
 	if apiData.devMode {
 		methodLogEntry.Warning("Allowing access without authorization token in dev mode")
@@ -265,9 +265,9 @@ func ensureNoCacheForBundleJS(h http.Handler) http.Handler {
 }
 
 // ensureAPITokenValid wraps the given handler with another handler function that calls isAPITokenValid().
-func ensureAPITokenValid(h http.Handler, apiData *ConnectionData, logEntry *logrus.Entry) http.Handler {
+func ensureAPITokenValid(h http.Handler, apiData *ConnectionData, log *logrus.Entry) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if isAPITokenValid(w, r, apiData, logEntry) {
+		if isAPITokenValid(w, r, apiData, log) {
 			h.ServeHTTP(w, r)
 		}
 	})

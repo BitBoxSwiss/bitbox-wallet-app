@@ -10,7 +10,7 @@ import (
 // runWebsocket sets up loops for sending/receiving, abstracting away the low level details about
 // pings, timeouts, connection closing, etc.  It returns two channels: one to send messages to the
 // client, and one which notifies when the connection was closed.
-func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, logEntry *logrus.Entry) (chan []byte, <-chan struct{}) {
+func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Entry) (chan []byte, <-chan struct{}) {
 	// Time allowed to read the next pong message from the peer.
 	const pongWait = 60 * time.Second
 	// Send pings to peer with this period. Must be less than pongWait.
@@ -39,12 +39,12 @@ func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, logEntry *logru
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					logEntry.WithFields(logrus.Fields{"group": "websocket", "error": err}).Error(err.Error())
+					log.WithFields(logrus.Fields{"group": "websocket", "error": err}).Error(err.Error())
 				}
 				break
 			}
 			if string(msg) != "Authorization: Basic "+apiData.token {
-				logEntry.Error("Expected authorization token as first message. Closing websocket.")
+				log.Error("Expected authorization token as first message. Closing websocket.")
 				_ = conn.Close()
 				return
 			}

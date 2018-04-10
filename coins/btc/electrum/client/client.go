@@ -38,16 +38,16 @@ type ElectrumClient struct {
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
 
-	close    bool
-	logEntry *logrus.Entry
+	close bool
+	log   *logrus.Entry
 }
 
 // NewElectrumClient creates a new Electrum client.
-func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumClient, error) {
+func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient, error) {
 	electrumClient := &ElectrumClient{
 		rpc: rpcClient,
 		scriptHashNotificationCallbacks: map[string]func(string) error{},
-		logEntry:                        logEntry.WithField("group", "client"),
+		log: log.WithField("group", "client"),
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
 	// installed by ScriptHashSubscribe().
@@ -58,11 +58,11 @@ func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumCl
 			// "[\"mn31QqyuBum6PFS7VFyo8oUL8Yc8G8MHZA\", \"3b98a4b9bed1312f4f53a1c6c9276b0ad8be68c57a5bcbe651688e4f4191b521\"]"
 			response := []string{}
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				electrumClient.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
+				electrumClient.log.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return
 			}
 			if len(response) != 2 {
-				electrumClient.logEntry.WithField("response-length", len(response)).Error("Unexpected response (expected 2)")
+				electrumClient.log.WithField("response-length", len(response)).Error("Unexpected response (expected 2)")
 				return
 			}
 			scriptHash := response[0]
@@ -72,7 +72,7 @@ func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumCl
 			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
 			if ok {
 				if err := callback(status); err != nil {
-					electrumClient.logEntry.WithField("error", err).Error("Failed to execute callback")
+					electrumClient.log.WithField("error", err).Error("Failed to execute callback")
 					return
 				}
 			}
@@ -93,10 +93,10 @@ func NewElectrumClient(rpcClient RPCClient, logEntry *logrus.Entry) (*ElectrumCl
 func (client *ElectrumClient) ping() {
 	for !client.close {
 		time.Sleep(time.Minute)
-		client.logEntry.Debug("Pinging the electrum server")
+		client.log.Debug("Pinging the electrum server")
 		_, err := client.ServerVersion()
 		if err != nil {
-			client.logEntry.WithField("error", err).Error("Error while pinging the server")
+			client.log.WithField("error", err).Error("Error while pinging the server")
 			// TODO
 			panic(err)
 		}
@@ -160,7 +160,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 		func(responseBytes []byte) error {
 			response := &Balance{}
 			if err := json.Unmarshal(responseBytes, response); err != nil {
-				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(response)
@@ -205,7 +205,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 		func(responseBytes []byte) error {
 			txs := TxHistory{}
 			if err := json.Unmarshal(responseBytes, &txs); err != nil {
-				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(txs)
@@ -229,7 +229,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		func(responseBytes []byte) error {
 			var response *string
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				client.logEntry.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			if response == nil {
@@ -242,7 +242,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		scriptHashHex)
 }
 
-func parseTX(rawTXHex string, logEntry *logrus.Entry) (*wire.MsgTx, error) {
+func parseTX(rawTXHex string, log *logrus.Entry) (*wire.MsgTx, error) {
 	rawTX, err := hex.DecodeString(rawTXHex)
 	if err != nil {
 		return nil, errp.Wrap(err, "Failed to decode transaction hex")
@@ -267,7 +267,7 @@ func (client *ElectrumClient) TransactionGet(
 			if err := json.Unmarshal(responseBytes, &rawTXHex); err != nil {
 				return errp.WithStack(err)
 			}
-			tx, err := parseTX(rawTXHex, client.logEntry)
+			tx, err := parseTX(rawTXHex, client.log)
 			if err != nil {
 				return err
 			}
@@ -292,15 +292,15 @@ func (client *ElectrumClient) HeadersSubscribe(
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
 		response := []*Header{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
-			client.logEntry.WithField("error", err).Error("could not handle header notification")
+			client.log.WithField("error", err).Error("could not handle header notification")
 			return
 		}
 		if len(response) != 1 {
-			client.logEntry.Error("could not handle header notification")
+			client.log.Error("could not handle header notification")
 			return
 		}
 		if err := success(response[0]); err != nil {
-			client.logEntry.WithField("error", err).Error("could not handle header notification")
+			client.log.WithField("error", err).Error("could not handle header notification")
 			return
 		}
 	})
@@ -403,7 +403,7 @@ func (client *ElectrumClient) EstimateFee(
 			var amount btcutil.Amount
 			var err error
 			if fee == -1 {
-				client.logEntry.Warning("Fee could not be estimated. ElectrumX server replied with a -1. " +
+				client.log.Warning("Fee could not be estimated. ElectrumX server replied with a -1. " +
 					"Taking the minimum relay fee instead")
 				amount, err = client.RelayFee()
 				if err != nil {

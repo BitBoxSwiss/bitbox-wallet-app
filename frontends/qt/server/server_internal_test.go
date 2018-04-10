@@ -18,12 +18,12 @@ import (
 type serverTestSuite struct {
 	suite.Suite
 
-	logEntry *logrus.Entry
+	log *logrus.Entry
 }
 
 func TestServerTestSuite(t *testing.T) {
 	suite.Run(t, &serverTestSuite{
-		logEntry: logging.Log.WithGroup("main"),
+		log: logging.Log.WithGroup("main"),
 	})
 }
 
@@ -36,7 +36,7 @@ func (s *serverTestSuite) TestNewRSAPrivateKey() {
 
 func (s *serverTestSuite) TestNewCertificate() {
 	privateKey, _ := generateRSAPrivateKey()
-	certificate, err := createSelfSignedCertificate(privateKey, s.logEntry)
+	certificate, err := createSelfSignedCertificate(privateKey, s.log)
 	require.NoError(s.T(), err)
 	require.NotEmpty(s.T(), certificate)
 	x509Cert, err := x509.ParseCertificate(certificate)
@@ -50,7 +50,7 @@ func (s *serverTestSuite) TestNewCertificate() {
 
 func (s *serverTestSuite) TestSavingCertAsPEM() {
 	privateKey, _ := generateRSAPrivateKey()
-	certificate, _ := createSelfSignedCertificate(privateKey, s.logEntry)
+	certificate, _ := createSelfSignedCertificate(privateKey, s.log)
 	f, err := ioutil.TempFile(".", "cert_test.pem")
 	require.NoError(s.T(), err)
 	temporaryFile := f.Name()
@@ -61,7 +61,7 @@ func (s *serverTestSuite) TestSavingCertAsPEM() {
 			require.NoError(s.T(), err)
 		}
 	}()
-	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate), s.logEntry)
+	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate), s.log)
 	require.NoError(s.T(), err)
 	_, err = os.Stat(f.Name())
 	require.NoError(s.T(), err)

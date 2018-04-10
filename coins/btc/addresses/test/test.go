@@ -9,7 +9,7 @@ import (
 
 // NewAddressChain returns an AddressChain for convenience in testing.
 func NewAddressChain() *addresses.AddressChain {
-	logEntry := logging.Log.WithGroup("addresses_test")
+	log := logging.Log.WithGroup("addresses_test")
 	net := &chaincfg.TestNet3Params
 	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), net)
 	if err != nil {
@@ -19,5 +19,5 @@ func NewAddressChain() *addresses.AddressChain {
 	if err != nil {
 		panic(err)
 	}
-	return addresses.NewAddressChain(xpub, net, 20, 0, addresses.AddressTypeP2PKH, logEntry)
+	return addresses.NewAddressChain(xpub, net, 20, 0, addresses.AddressTypeP2PKH, log)
 }

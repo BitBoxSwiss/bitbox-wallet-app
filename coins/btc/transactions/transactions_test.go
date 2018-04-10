@@ -86,21 +86,21 @@ type transactionsSuite struct {
 	blockchainMock *BlockchainMock
 	transactions   *transactions.Transactions
 
-	logEntry *logrus.Entry
+	log *logrus.Entry
 }
 
 func (s *transactionsSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
-	s.logEntry = logging.Log.WithGroup("transactions_test")
+	s.log = logging.Log.WithGroup("transactions_test")
 
 	s.addressChain = addressesTest.NewAddressChain()
-	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.logEntry)
+	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		s.synchronizer,
 		s.blockchainMock,
-		s.logEntry,
+		s.log,
 	)
 }
 
@@ -151,7 +151,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 		}
 		syncFinished = true
 	}
-	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.logEntry)
+	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.log)
 	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},

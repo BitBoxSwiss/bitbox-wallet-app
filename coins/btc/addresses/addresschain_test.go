@@ -15,7 +15,7 @@ import (
 )
 
 func TestNewAddressChain(t *testing.T) {
-	logEntry := logging.Log.WithGroup("addresses_test")
+	log := logging.Log.WithGroup("addresses_test")
 	xprvSerialized := "xprv9s21ZrQH143K2UBLkdzwqFV6PXipLq4VWMAcJNPUGcWiGbvpjNPAjiiVaBddzafxkPBqxQoNcLWNh5RkPLdPThhsAzLkuHBBjfZdriiyqaZ"
 	xprv, err := hdkeychain.NewKeyFromString(xprvSerialized)
 	require.NoError(t, err)
@@ -23,18 +23,18 @@ func TestNewAddressChain(t *testing.T) {
 
 	// Can't pass a private key.
 	require.Panics(t,
-		func() { addresses.NewAddressChain(xprv, net, 6, 0, addresses.AddressTypeP2PKH, logEntry) })
+		func() { addresses.NewAddressChain(xprv, net, 6, 0, addresses.AddressTypeP2PKH, log) })
 
 	// Can't pass with the wrong net.
 	xpub, err := xprv.Neuter()
 	require.NoError(t, err)
 	xpub.SetNet(&chaincfg.MainNetParams)
 	require.Panics(t,
-		func() { addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH, logEntry) })
+		func() { addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH, log) })
 
 	// Public and matching net.
 	xpub.SetNet(net)
-	addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH, logEntry)
+	addresses.NewAddressChain(xpub, net, 6, 0, addresses.AddressTypeP2PKH, log)
 }
 
 type addressChainTestSuite struct {
@@ -43,11 +43,11 @@ type addressChainTestSuite struct {
 	xpub       *hdkeychain.ExtendedKey
 	gapLimit   int
 	chainIndex uint32
-	logEntry   *logrus.Entry
+	log        *logrus.Entry
 }
 
 func (s *addressChainTestSuite) SetupTest() {
-	s.logEntry = logging.Log.WithGroup("addresses_test")
+	s.log = logging.Log.WithGroup("addresses_test")
 	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"
 	xpub, err := hdkeychain.NewKeyFromString(xpubSerialized)
 	if err != nil || xpub.IsPrivate() {
@@ -57,7 +57,7 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		xpub, net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.logEntry)
+		xpub, net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.log)
 }
 
 func TestAddressChainTestSuite(t *testing.T) {
@@ -90,7 +90,7 @@ func (s *addressChainTestSuite) TestContains() {
 	require.Len(s.T(), newAddresses, 1)
 	require.True(s.T(), s.addresses.Contains(newAddresses[0]))
 
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, s.logEntry)
+	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, s.log)
 	require.False(s.T(), s.addresses.Contains(address))
 }
 

@@ -17,16 +17,16 @@ func SignTransaction(
 	keyStore KeyStoreWithoutKeyDerivation,
 	transaction *wire.MsgTx,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
-	logEntry *logrus.Entry,
+	log *logrus.Entry,
 ) error {
-	logEntry.Info("Sign transaction")
+	log.Info("Sign transaction")
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
 		if !ok {
-			logEntry.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
+			log.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 		}
 		address := spentOutput.Address.(*addresses.Address)
@@ -39,7 +39,7 @@ func SignTransaction(
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
 			}
-			logEntry.Debug("Calculated segwit signature hash")
+			log.Debug("Calculated segwit signature hash")
 		} else {
 			var err error
 			signatureHash, err = txscript.CalcSignatureHash(
@@ -47,7 +47,7 @@ func SignTransaction(
 			if err != nil {
 				return errp.Wrap(err, "Failed to calculate legacy signature hash")
 			}
-			logEntry.Debug("Calculated legacy signature hash")
+			log.Debug("Calculated legacy signature hash")
 		}
 
 		signatureHashes = append(signatureHashes, signatureHash)
@@ -68,7 +68,7 @@ func SignTransaction(
 	}
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(transaction, previousOutputs, sigHashes); err != nil {
-		logEntry.WithField("error", err).Panic("Failed to pass transaction validity check")
+		log.WithField("error", err).Panic("Failed to pass transaction validity check")
 		panic(err)
 	}
 	return nil

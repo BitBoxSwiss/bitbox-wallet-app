@@ -56,7 +56,7 @@ func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) error {
 
 func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
 	if len(data) > bootloaderMaxChunkSize {
-		dbb.logEntry.Panic("Invalid length")
+		dbb.log.Panic("Invalid length")
 		panic("invalid length")
 	}
 	var buf bytes.Buffer
@@ -69,7 +69,7 @@ func (dbb *Device) bootloaderSendChunk(chunkNum byte, data []byte) error {
 
 func (dbb *Device) bootloaderSendSigs(sigs []byte) error {
 	if len(sigs) != signaturesSize {
-		dbb.logEntry.Panic("need 7 sigs à 64 bytes")
+		dbb.log.Panic("need 7 sigs à 64 bytes")
 		panic("need 7 sigs à 64 bytes")
 	}
 	var buf bytes.Buffer
