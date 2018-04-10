@@ -386,7 +386,8 @@ func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
-// blocks.
+// blocks. If the fee rate could not be estimated by the blockchain node, the minimum relay fee
+// as returned in client.RelayFee() is chosen and handed to the success callback.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
@@ -399,12 +400,20 @@ func (client *ElectrumClient) EstimateFee(
 			if err := json.Unmarshal(responseBytes, &fee); err != nil {
 				return errp.Wrap(err, "Failed to unmarshal JSON")
 			}
+			var amount btcutil.Amount
+			var err error
 			if fee == -1 {
-				return errp.New("Fee could not be estimated")
-			}
-			amount, err := btcutil.NewAmount(fee)
-			if err != nil {
-				return errp.Wrap(err, "Failed to construct BTC amount")
+				client.logEntry.Warning("Fee could not be estimated. ElectrumX server replied with a -1. " +
+					"Taking the minimum relay fee instead")
+				amount, err = client.RelayFee()
+				if err != nil {
+					return errp.WithMessage(err, "Failed to get the minimum relay fee")
+				}
+			} else {
+				amount, err = btcutil.NewAmount(fee)
+				if err != nil {
+					return errp.Wrap(err, "Failed to construct BTC amount")
+				}
 			}
 			return success(amount)
 		},
