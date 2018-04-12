@@ -6,6 +6,7 @@ import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
 import { apiGet, apiPost } from '../../utils/request';
+import { apiWebsocket } from '../../utils/websocket';
 
 export default class Bootloader extends Component {
     constructor(props) {
@@ -19,15 +20,18 @@ export default class Bootloader extends Component {
     }
 
     componentDidMount() {
-        this.props.registerOnEvent(this.onEvent.bind(this));
+        this.unsubscribe = apiWebsocket(this.onEvent);
         this.onStatusChanged();
     }
 
     componentWillUnmount() {
-        this.props.registerOnEvent(null);
+        this.unsubscribe();
     }
 
     onEvent = data => {
+        if (data.type !== 'device') {
+            return;
+        }
         switch (data.data) {
         case 'bootloaderStatusChanged':
             this.onStatusChanged();

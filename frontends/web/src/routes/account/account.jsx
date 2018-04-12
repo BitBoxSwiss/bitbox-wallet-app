@@ -4,6 +4,7 @@ import List from 'preact-material-components/List';
 import 'preact-material-components/List/style.css';
 
 import { apiGet } from '../../utils/request';
+import { apiWebsocket } from '../../utils/websocket';
 
 import Balance from '../../components/balance/balance';
 import Send from './send/send';
@@ -25,8 +26,8 @@ export default class Account extends Component {
     }
 
     componentDidMount() {
-        this.props.registerOnWalletEvent(this.onWalletEvent.bind(this));
         this.onStatusChanged();
+        this.unsubscribe = apiWebsocket(this.onWalletEvent);
         apiGet('device/info').then(({ sdcard }) => {
             if (sdcard) {
                 alert('Keep the SD card stored securely unless you want to manage backups.');
@@ -35,7 +36,7 @@ export default class Account extends Component {
     }
 
     componentWillUnmount() {
-        this.props.registerOnWalletEvent(null);
+        this.unsubscribe();
     }
 
     componentWillReceiveProps() {
@@ -43,6 +44,9 @@ export default class Account extends Component {
     }
 
     onWalletEvent = data => {
+        if (data.type !== 'wallet') {
+            return;
+        }
         switch (data.data) {
         case 'statusChanged':
             this.onStatusChanged();

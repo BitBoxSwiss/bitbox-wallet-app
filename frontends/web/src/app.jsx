@@ -17,7 +17,8 @@ import ManageBackups from './routes/device/manage-backups/manage-backups';
 
 import Sidebar from './components/sidebar/sidebar';
 
-import { apiGet, apiPost, apiWebsocket } from './utils/request';
+import { apiGet, apiPost } from './utils/request';
+import { apiWebsocket } from './utils/websocket';
 
 import { debug } from './utils/env';
 
@@ -54,13 +55,8 @@ export default class App extends Component {
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
-        apiWebsocket(data => {
+        this.unsubscribe = apiWebsocket(data => {
             switch (data.type) {
-            case 'wallet':
-                if (this.onWalletEvent) {
-                    this.onWalletEvent(data);
-                }
-                break;
             case 'devices':
                 switch (data.data) {
                 case 'registeredChanged':
@@ -74,9 +70,6 @@ export default class App extends Component {
                     this.onDeviceStatusChanged();
                     break;
                 }
-                if (this.onBootloaderEvent) {
-                    this.onBootloaderEvent(data);
-                }
                 break;
             }
         });
@@ -88,6 +81,10 @@ export default class App extends Component {
         apiGet('wallets').then(wallets => {
             this.setState({ wallets, activeWallet: wallets.length ? wallets[0] : null });
         });
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
     }
 
     onDevicesRegisteredChanged = () => {
@@ -121,11 +118,7 @@ export default class App extends Component {
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return (
-                <Bootloader
-                    registerOnEvent={onEvent => {this.onBootloaderEvent = onEvent;}}
-                />
-            );
+            return <Bootloader />;
         case DeviceStatus.INITIALIZED:
             return <Login />;
         case DeviceStatus.UNINITIALIZED:
@@ -139,9 +132,7 @@ export default class App extends Component {
                         <Sidebar accounts={wallets} activeWallet={activeWallet} />
                         <Router onChange={this.handleRoute}>
                             <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                            <Account path="/account/:code" wallets={wallets}
-                                registerOnWalletEvent={onWalletEvent => {this.onWalletEvent = onWalletEvent;}}
-                            />
+                            <Account path="/account/:code" wallets={wallets} />
                             <Settings path="/settings/" />
                             <ManageBackups
                                 path="/manage-backups"
