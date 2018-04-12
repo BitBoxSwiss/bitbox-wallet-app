@@ -38,10 +38,19 @@ private:
 
 int main(int argc, char *argv[])
 {
+    // turn on the DPI support**
+#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#else
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
+#endif // QT_VERSION
+
     QApplication a(argc, argv);
     ConnectionData serveData = serve();
     QSslSocket::addDefaultCaCertificates("config/certificates/frontend/server.pem", QSsl::Pem, QRegExp::Wildcard);
     QWebView view;
+
+    view.setGeometry(0, 0, a.devicePixelRatio() * view.width(),a.devicePixelRatio() * view.height());
 
     // MyWebPage page;
     // view.setPage(&page);
