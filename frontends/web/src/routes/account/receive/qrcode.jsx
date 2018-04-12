@@ -1,4 +1,4 @@
-import { Component } from 'preact';
+import { h } from 'preact';
 
 import { apiURL } from '../../../utils/request';
 

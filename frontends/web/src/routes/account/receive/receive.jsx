@@ -26,6 +26,7 @@ export default class ReceiveButton extends Component {
             .then(address => {
                 this.setState({ receiveAddress: address });
             });
+
         this.dialog.MDComponent.show();
     }
 
@@ -35,7 +36,7 @@ export default class ReceiveButton extends Component {
                 <Button primary={true} raised={true} onClick={this.onReceive}>
                   Receive
                 </Button>
-                <Dialog ref={dialog => { this.dialog = dialog; }} onAccept={this.send}>
+                <Dialog ref={dialog => this.dialog = dialog}>
                     <Dialog.Header>Receive</Dialog.Header>
                     <Dialog.Body>
                         { receiveAddress ?
@@ -46,7 +47,7 @@ export default class ReceiveButton extends Component {
                                     autoComplete="off"
                                     readonly={true}
                                     onInput={this.handleFormChange}
-                                    onFocus={event => event.target.select() }
+                                    onFocus={focus}
                                     value={receiveAddress}
                                 />
                                 <p><QRCode data={receiveAddress} /></p>
@@ -60,4 +61,8 @@ export default class ReceiveButton extends Component {
             </span>
         );
     }
+}
+
+function focus(e) {
+    e.target.select();
 }

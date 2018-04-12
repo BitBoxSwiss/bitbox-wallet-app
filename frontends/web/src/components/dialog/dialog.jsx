@@ -1,12 +1,10 @@
-import { Component } from 'preact';
+import { h } from 'preact';
 import style from './style';
 
-export default class Dialog extends Component {
-    render() {
-        return (
-            <div class={style.dialog}>
+export default function Dialog() {
+    return (
+        <div class={style.dialog}>
             {this.props.children}
-            </div>
-        );
-    }
+        </div>
+    );
 }

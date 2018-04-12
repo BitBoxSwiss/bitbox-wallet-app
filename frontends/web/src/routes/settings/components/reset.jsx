@@ -14,16 +14,20 @@ import { apiPost } from '../../../utils/request';
 export default class Reset extends Component {
     resetDevice = () => {
         this.waitDialog.MDComponent.show();
-        apiPost('device/reset').then(() => { this.waitDialog.MDComponent.close(); });
+        apiPost('device/reset').then(() => {
+            this.waitDialog.MDComponent.close();
+        });
     };
+
+    showDialog = () => {
+        this.resetDialog.MDComponent.show();
+    }
 
     render() {
         return (
             <div>
-                <Button primary={true} raised={true} onClick={() => {
-                    this.resetDialog.MDComponent.show();
-                }}>Reset Device</Button>
-                <Dialog ref={resetDialog => {this.resetDialog = resetDialog; }} onAccept={this.resetDevice}>
+                <Button primary={true} raised={true} onClick={this.showDialog}>Reset Device</Button>
+                <Dialog ref={resetDialog => this.resetDialog = resetDialog} onAccept={this.resetDevice}>
                     <Dialog.Header>Reset Device</Dialog.Header>
                     <Dialog.Body>
                       Resetting the device means ... ...
@@ -33,7 +37,7 @@ export default class Reset extends Component {
                         <Dialog.FooterButton accept={true}>Reset Device</Dialog.FooterButton>
                     </Dialog.Footer>
                 </Dialog>
-                <WaitDialog ref={waitDialog => { this.waitDialog = waitDialog;}}>
+                <WaitDialog ref={waitDialog => this.waitDialog = waitDialog}>
                     <WaitDialog.Header>Reset Device</WaitDialog.Header>
                     <WaitDialog.Body>
                         <p>Short touch = abort</p>

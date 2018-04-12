@@ -49,6 +49,14 @@ export default class Restore extends Component {
         });
     }
 
+    showDialog = () => {
+        this.confirmDialog.MDComponent.show();
+    }
+
+    setValidPassword = (password) => {
+        this.setState({ password });
+    }
+
     render({ selectedBackup }, { password }) {
         return (
             <span>
@@ -56,28 +64,29 @@ export default class Restore extends Component {
                     primary={true}
                     raised={true}
                     disabled={selectedBackup === null}
-                    onclick={() => { this.confirmDialog.MDComponent.show(); }}
+                    onclick={this.showDialog}
                 >Restore</Button>
                 <Dialog
-                    ref={confirmDialog => { this.confirmDialog = confirmDialog; }}
+                    ref={confirmDialog => this.confirmDialog = confirmDialog}
                     onAccept={this.restore}
                 >
                     <Dialog.Header>Restore {selectedBackup}</Dialog.Header>
-                    <form ref={form => { this.form = form; }} onSubmit={this.restore}>
+                    <form ref={form => this.form = form} onSubmit={this.restore}>
                         <Dialog.Body>
                             <div>
                                 <PasswordRepeatInput
-                                    ref={ref => { this.passwordInput = ref; }}
+                                    ref={ref => this.passwordInput = ref}
                                     helptext="Please enter the same password as when the backup was created."
                                     helptextPersistent={true}
-                                    onValidPassword={password => this.setState({ password })}
+                                    onValidPassword={this.setValidPassword}
                                 />
                             </div>
                         </Dialog.Body>
                         <Dialog.Footer>
                             <Dialog.FooterButton
                                 type="button"
-                                cancel={true}>Abort</Dialog.FooterButton>
+                                cancel={true}
+                            >Abort</Dialog.FooterButton>
                             <Dialog.FooterButton
                                 type="submit"
                                 disabled={!this.validate()}
@@ -85,7 +94,7 @@ export default class Restore extends Component {
                         </Dialog.Footer>
                     </form>
                 </Dialog>
-                <WaitDialog ref={waitDialog => { this.waitDialog = waitDialog; }}>
+                <WaitDialog ref={waitDialog => this.waitDialog = waitDialog}>
                     <WaitDialog.Header>Restore Backup</WaitDialog.Header>
                     <WaitDialog.Body>
                         <p>Short touch = abort</p>

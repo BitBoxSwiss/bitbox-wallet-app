@@ -106,14 +106,10 @@ export default class App extends Component {
 
         if (!deviceRegistered || !deviceStatus) {
             return (
-                <div style="text-align: center;">
-                    <div style="margin: 30px;">
-                        <Dialog>
-                            Waiting for device...
-                        </Dialog>
-                    </div>
+                <Dialog>
+                    <h3>Waiting for device...</h3>
                     { debug && testing && renderButtonIfTesting() }
-                </div>
+                </Dialog>
             );
         }
         switch (deviceStatus) {
@@ -148,10 +144,14 @@ export default class App extends Component {
 
 function renderButtonIfTesting() {
     return (
-        <Button primary={true} raised={true} onClick={() => {
-            apiPost('devices/test/register');
-        }}>Skip for Testing</Button>
+        <Button primary={true} raised={true} onClick={registerTestingDevice}>
+            Skip for Testing
+        </Button>
     );
+}
+
+function registerTestingDevice() {
+    apiPost('devices/test/register');
 }
 
 class Redirect extends Component {

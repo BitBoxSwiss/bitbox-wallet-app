@@ -68,7 +68,7 @@ export default class Bootloader extends Component {
                 <Button
                     primary={true}
                     raised={true}
-                    onclick={() => { this.upgradeFirmware(); }}
+                    onclick={this.upgradeFirmware}
                 >Upgrade Firmware now</Button>
             );
         };

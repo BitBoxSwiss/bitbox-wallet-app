@@ -1,6 +1,9 @@
-.dialog {
-    //background-color: black;
-    //color: white;
-    text-align: center;
+.dialog {;
     height: 100%;
+    padding: 2rem;
+    text-align: center;
+}
+
+.dialog h3 {
+    margin: 0 0 1rem 0;
 }

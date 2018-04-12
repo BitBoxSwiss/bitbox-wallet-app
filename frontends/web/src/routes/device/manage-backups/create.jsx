@@ -45,17 +45,22 @@ export default class Create extends Component {
         });
     }
 
+    showDialog = () => {
+        this.confirmDialog.MDComponent.show();
+    }
+
     render({}, { waiting, backupName }) {
         return (
             <span>
                 <Button
                     primary={true}
                     raised={true}
-                    onclick={() => { this.confirmDialog.MDComponent.show(); }}>
+                    onclick={this.showDialog}
+                >
                     Create
                 </Button>
                 <Dialog
-                    ref={confirmDialog => { this.confirmDialog = confirmDialog; }}
+                    ref={confirmDialog => this.confirmDialog = confirmDialog }
                     onAccept={this.erase}
                 >
                     <Dialog.Header>Create Backup</Dialog.Header>
@@ -64,7 +69,7 @@ export default class Create extends Component {
                             <Textfield
                                 autoFocus
                                 autoComplete="off"
-                                ref={pwf => { this.pwf = pwf; }}
+                                ref={pwf => this.pwf = pwf}
                                 id="backupName"
                                 label="Backup Name"
                                 helptext="Please name the backup."

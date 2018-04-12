@@ -27,10 +27,7 @@ class Sidebar extends Component {
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {emulated && debug ?
-                        <a href="#" onClick={ (e) => {
-                            apiPost('devices/test/deregister');
-                            e.preventDefault();
-                        }}>
+                        <a href="#" onClick={eject}>
                             <img className="sidebar_settings" src={ejectIcon} />
                             <span className="sidebar_label">{ t('sidebar.leave') }</span>
                         </a>
@@ -55,5 +52,9 @@ function getWalletLink({ code, name }) {
     );
 }
 
+function eject(e) {
+    apiPost('devices/test/deregister');
+    e.preventDefault();
+}
 
 export default Sidebar;

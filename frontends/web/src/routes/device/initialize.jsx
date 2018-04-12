@@ -53,6 +53,10 @@ export default class Initialize extends Component {
         });
     };
 
+    setValidPassword = password => {
+        this.setState({ password });
+    }
+
     render({ t }, state) {
         const FormSubmissionState = props => {
             switch (props.state) {
@@ -84,7 +88,7 @@ export default class Initialize extends Component {
                             this.passwordInput = ref;
                         }}
                         disabled={state.state === this.stateEnum.WAITING}
-                        onValidPassword={password => this.setState({ password })}
+                        onValidPassword={this.setValidPassword}
                     />
                     <div>
                         <Button

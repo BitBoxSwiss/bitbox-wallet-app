@@ -37,7 +37,7 @@ export default class Send extends Component {
             .then(() => {
                 this.waitDialog.MDComponent.close();
             });
-    };
+    }
 
     txInput = () => ({
         address: this.state.recipientAddress,
@@ -67,7 +67,21 @@ export default class Send extends Component {
             [event.target.id]: value,
             proposedFee: null
         });
-    };
+    }
+
+    showDialog = () => {
+        this.dialog.MDComponent.show();
+    }
+
+    sendAll = event => {
+        this.handleFormChange(event);
+        this.validateAndDisplayFee();
+    }
+
+    feeTargetChange = feeTarget => {
+        this.setState({ feeTarget });
+        this.validateAndDisplayFee();
+    }
 
     render({ walletCode, walletInitialized }, { proposedFee, recipientAddress, proposedAmount, amount, sendAll }) {
         let Fee = () => {
@@ -76,10 +90,8 @@ export default class Send extends Component {
         };
         return (
             <span>
-                <Button primary={true} raised={true} onClick={()=>{
-                    this.dialog.MDComponent.show();
-                  }}>Send</Button>
-                <Dialog ref={dialog=>{this.dialog=dialog;}} onAccept={this.send}>
+                <Button primary={true} raised={true} onClick={this.showDialog}>Send</Button>
+                <Dialog ref={dialog => this.dialog = dialog} onAccept={this.send}>
                     <Dialog.Header>Send</Dialog.Header>
                     <Dialog.Body>
                         <p>
@@ -110,7 +122,7 @@ export default class Send extends Component {
                             <Formfield>
                                 <Checkbox
                                     id="sendAll"
-                                    onChange={event => { this.handleFormChange(event); this.validateAndDisplayFee(); }}
+                                    onChange={this.sendAll}
                                     checked={sendAll}
                                 />
                                 <label for="sendAll">Max</label>
@@ -119,7 +131,7 @@ export default class Send extends Component {
                                 walletCode={walletCode}
                                 disabled={!amount && !sendAll}
                                 walletInitialized={walletInitialized}
-                                onFeeTargetChange={feeTarget => { this.setState({ feeTarget }); this.validateAndDisplayFee(); }}
+                                onFeeTargetChange={this.feeTargetChange}
                             />
                             <Fee />
                         </p>
@@ -129,7 +141,7 @@ export default class Send extends Component {
                         <Dialog.FooterButton accept={true}>Send</Dialog.FooterButton>
                     </Dialog.Footer>
                 </Dialog>
-                <WaitDialog ref={waitDialog => { this.waitDialog = waitDialog; }}>
+                <WaitDialog ref={waitDialog => this.waitDialog = waitDialog}>
                     <WaitDialog.Header>Confirm transaction</WaitDialog.Header>
                     <WaitDialog.Body>
                         <p>Short touch = abort</p>

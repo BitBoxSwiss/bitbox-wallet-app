@@ -1,4 +1,4 @@
-import {Component} from 'preact';
+import { Component } from 'preact';
 
 import Select from 'preact-material-components/Select';
 import 'preact-material-components/List/style.css';
@@ -24,15 +24,17 @@ export default class LanguageSwitcher extends Component {
         };
     }
 
+    changeLanguage = ({ selectedIndex }) => {
+        this.setState({ selectedIndex });
+        this.context.i18n.changeLanguage(this.languages[selectedIndex].code);
+    }
+
     render({ t, i18n }, { selectedIndex }) {
         return (
             <span>
                 <Select
                     selectedIndex={selectedIndex}
-                    onChange={(e) => {
-                        this.setState({ selectedIndex: e.selectedIndex });
-                        i18n.changeLanguage(this.languages[e.selectedIndex].code);
-                    }}
+                    onChange={this.changeLanguage}
                 >
                     { this.languages.map(lang => (<Select.Item>{ lang.display }</Select.Item>)) }
                 </Select>

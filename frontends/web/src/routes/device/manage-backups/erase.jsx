@@ -19,6 +19,10 @@ export default class Erase extends Component {
         });
     }
 
+    showDialog = () => {
+        this.confirmDialog.MDComponent.show();
+    }
+
     render({ selectedBackup }) {
         return (
             <span>
@@ -26,10 +30,10 @@ export default class Erase extends Component {
                     primary={true}
                     raised={true}
                     disabled={selectedBackup === null}
-                    onclick={() => { this.confirmDialog.MDComponent.show(); }}
+                    onclick={this.showDialog}
                 >Erase</Button>
                 <Dialog
-                    ref={confirmDialog => { this.confirmDialog = confirmDialog; }}
+                    ref={confirmDialog => this.confirmDialog = confirmDialog}
                     onAccept={this.erase}
                 >
                     <Dialog.Header>Erase {selectedBackup}</Dialog.Header>

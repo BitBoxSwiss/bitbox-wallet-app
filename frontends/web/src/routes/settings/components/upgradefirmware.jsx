@@ -41,6 +41,10 @@ export default class UpgradeFirmware extends Component {
         });
     }
 
+    showDialog = () => {
+        this.dialog.MDComponent.show();
+    }
+
     render({}, { unlocked, currentVersion, newVersion }) {
         let dialogText = <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>;
         if (unlocked) {
@@ -53,9 +57,9 @@ export default class UpgradeFirmware extends Component {
                 <Button
                     primary={true}
                     raised={true}
-                    onClick={() => { this.dialog.MDComponent.show(); }}
+                    onClick={this.showDialog}
                 >Upgrade Firmware</Button>
-                <Dialog ref={dialog => { this.dialog = dialog; }} onAccept={this.upgradeFirmware}>
+                <Dialog ref={dialog => this.dialog = dialog} onAccept={this.upgradeFirmware}>
                     <Dialog.Header>Upgrade Firmware</Dialog.Header>
                     <Dialog.Body>
                       Do you want to Upgrade the Firmware from version {currentVersion} to {newVersion}?
@@ -65,7 +69,7 @@ export default class UpgradeFirmware extends Component {
                         <Dialog.FooterButton accept={true}>Upgrade</Dialog.FooterButton>
                     </Dialog.Footer>
                 </Dialog>
-                <WaitDialog ref={waitDialog => { this.waitDialog = waitDialog; }}>
+                <WaitDialog ref={waitDialog => this.waitDialog = waitDialog}>
                     <WaitDialog.Header>Upgrade Firmware</WaitDialog.Header>
                     <WaitDialog.Body>
                         { dialogText }

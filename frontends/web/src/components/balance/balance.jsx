@@ -1,8 +1,7 @@
-import { Component } from 'preact';
-
+import { h } from 'preact';
 import style from './style.css';
 
-export default ({ name, amount, children }) => {
+export default function Balance({ name, amount, children }) {
     return (
         <header className={style.balance}>
             <h2>{ name }</h2>

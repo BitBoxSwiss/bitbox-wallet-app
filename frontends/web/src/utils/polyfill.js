@@ -5,10 +5,10 @@ if (!String.prototype.startsWith) {
 }
 
 if (!String.prototype.endsWith) {
-    String.prototype.endsWith = function(search, this_len) {
-        if (this_len === undefined || this_len > this.length) {
-            this_len = this.length;
+    String.prototype.endsWith = function(search, length) {
+        if (length === undefined || length > this.length) {
+            length = this.length;
         }
-        return this.substring(this_len - search.length, this_len) === search;
+        return this.substring(length - search.length, length) === search;
     };
 }

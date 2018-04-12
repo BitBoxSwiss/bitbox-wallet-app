@@ -1,4 +1,4 @@
-import { Component } from 'preact';
+import { h } from 'preact';
 
 import BTC from '../../assets/icons/bitcoin.svg';
 import LTC from '../../assets/icons/litecoin.svg';

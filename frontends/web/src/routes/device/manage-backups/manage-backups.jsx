@@ -39,9 +39,8 @@ export default class ManageBackups extends Component {
         this.setState({ selectedBackup: this.state.backupList[event.target.selectedIndex] });
     }
 
-
     displayError = (errorMessage) => {
-        this.props.displayError(errorMessage)
+        this.props.displayError(errorMessage);
     }
 
     render({ showCreate }, { backupList, selectedBackup, sdCardInserted }) {
@@ -52,13 +51,13 @@ export default class ManageBackups extends Component {
                     <Button
                         primary={true}
                         raised={true}
-                        onclick={() => { this.refresh(); }}
+                        onclick={this.refresh}
                     >I have inserted the SD card</Button>
                 </div>
             );
         }
         const selectClasses = ['mdc-multi-select', 'mdc-list', style.backupList].join(' ');
-        const option = filename => <option className="mdc-list-item">{ filename }</option>;
+
         return (
             <div>
                 <h1>Manage Backups</h1>
@@ -68,7 +67,7 @@ export default class ManageBackups extends Component {
                         size="6"
                         className={selectClasses}
                         onChange={this.handleBackuplistChange}
-                    >{ backupList.map(option) }
+                    >{ backupList.map(renderOption) }
                     </select>
                     <Restore selectedBackup={selectedBackup} displayError={this.displayError} />
                     &nbsp;
@@ -81,4 +80,8 @@ export default class ManageBackups extends Component {
             </div>
         );
     }
+}
+
+function renderOption(filename) {
+    return <option className="mdc-list-item">{ filename }</option>;
 }
