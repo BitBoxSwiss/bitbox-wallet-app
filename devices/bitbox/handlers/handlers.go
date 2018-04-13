@@ -37,6 +37,7 @@ func NewHandlers(
 	handleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
 	handleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
 	handleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
+	handleFunc("/pairing/start", handlers.postPairingStartHandler).Methods("POST")
 	handleFunc("/bootloader/upgrade-firmware",
 		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
 	return handlers
@@ -181,6 +182,10 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	backupName := jsonBody["backupName"]
 	handlers.log.WithField("backupName", backupName).Debug("Create backup")
 	return nil, handlers.device.CreateBackup(backupName)
+}
+
+func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {
+	return handlers.device.StartPairing()
 }
 
 func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {

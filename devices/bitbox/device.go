@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/shiftdevices/godbb/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/devices/bitbox/pairing"
+	"github.com/shiftdevices/godbb/devices/bitbox/relay"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/logging"
@@ -75,6 +75,8 @@ type Interface interface {
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	DisplayAddress(keyPath string)
+	VerifyPass(string) (interface{}, error)
+	StartPairing() (*relay.Channel, error)
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -111,7 +113,7 @@ type Device struct {
 	seeded bool
 
 	// If set, the channel can be used to communicate to the mobile.
-	channel *pairing.Channel
+	channel *relay.Channel
 
 	closed bool
 	log    *logrus.Entry
@@ -146,7 +148,7 @@ func NewDevice(
 		bootloaderStatus: bootloaderStatus,
 		communication:    communication,
 		onEvent:          nil,
-		channel:          pairing.NewChannelFromConfigFile(),
+		channel:          relay.NewChannelFromConfigFile(),
 
 		closed: false,
 		log:    log,
@@ -711,9 +713,8 @@ func (dbb *Device) signBatch(
 	var transaction string
 	if txProposal != nil {
 		buffer := new(bytes.Buffer)
-		err := txProposal.Transaction.Serialize(buffer)
-		if err != nil {
-			return nil, errp.WithMessage(err, "Could not serialize the transaction.")
+		if err := txProposal.Transaction.Serialize(buffer); err != nil {
+			return nil, errp.Wrap(err, "Could not serialize the transaction.")
 		}
 		transaction = hex.EncodeToString(buffer.Bytes())
 		command["sign"]["meta"] = hex.EncodeToString(chainhash.DoubleHashB([]byte(transaction)))
@@ -737,46 +738,31 @@ func (dbb *Device) signBatch(
 	if txProposal != nil && dbb.channel != nil {
 		signingEcho, ok := echo["echo"].(string)
 		if !ok {
-			dbb.log.Error("The signing echo from the BitBox was not a string.")
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
 		if err = dbb.channel.SendSigningEcho(signingEcho, transaction); err != nil {
-			dbb.log.WithField("error", err).Error("Could not send the signing echo to the mobile.")
 			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
 		}
 	}
 
 	// If the device is 2FA locked, wait for up to two minutes for the signing "PIN"/nonce.
-	var nonce *string
+	var nonce string
 	if locked {
 		if txProposal == nil {
-			dbb.log.Error("No transaction was provided for the locked device to sign.")
 			return nil, errp.New("No transaction was provided for the locked device to sign.")
 		}
 		if dbb.channel == nil {
-			dbb.log.Error("Signing failed because the device is locked but not paired.")
 			return nil, errp.New("Signing failed because the device is locked but not paired.")
 		}
-		deadline := time.Now().Add(2 * time.Minute)
-		for {
-			nonce, err = dbb.channel.WaitForSigningPin()
-			if err != nil {
-				return nil, errp.WithMessage(err, "Failed to fetch the signing PIN.")
-			}
-			if nonce == nil {
-				if time.Now().Before(deadline) {
-					continue
-				}
-			} else if *nonce == "abort" {
-				return nil, errp.WithMessage(err, "The user aborted the signing from the mobile.")
-			}
-			break
+		nonce, err = dbb.channel.WaitForSigningPin(2 * time.Minute)
+		if nonce == "abort" {
+			return nil, errp.WithMessage(err, "The user aborted the signing from the mobile.")
 		}
 	}
 
 	// Second call returns the signatures.
 	var pin interface{}
-	if nonce != nil {
+	if nonce != "" {
 		pin = map[string]interface{}{
 			"pin": nonce,
 		}
@@ -882,4 +868,28 @@ func (dbb *Device) DisplayAddress(keyPath string) {
 		dbb.log.WithField("error", err).Error("Sending the xpub echo to the mobile failed.")
 		return
 	}
+}
+
+// VerifyPass passes the ECDH public key of the mobile to the device and returns its response.
+func (dbb *Device) VerifyPass(mobileECDHPK string) (interface{}, error) {
+	command := map[string]interface{}{
+		"verifypass": map[string]interface{}{
+			"ecdh": mobileECDHPK,
+		},
+	}
+	reply, err := dbb.send(command, dbb.password)
+	if err != nil {
+		return nil, err
+	}
+	return reply["verifypass"], nil
+}
+
+// StartPairing creates, stores and returns a new channel and finishes the pairing asynchronously.
+func (dbb *Device) StartPairing() (*relay.Channel, error) {
+	dbb.channel = relay.NewChannelWithRandomKey()
+	if err := dbb.channel.StoreToConfigFile(); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	go finishPairing(dbb)
+	return dbb.channel, nil
 }

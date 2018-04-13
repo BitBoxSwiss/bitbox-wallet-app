@@ -118,7 +118,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 		return publicKey
 	}
 	for index, address := range newAddresses {
-		require.Equal(s.T(), getPubKey(index), address.TstPublicKey())
+		require.Equal(s.T(), getPubKey(index), address.PublicKey)
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	newAddresses2 := s.addresses.EnsureAddresses()

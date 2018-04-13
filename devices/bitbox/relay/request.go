@@ -3,13 +3,14 @@ package relay
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
 )
 
-// Request models a request to the relay server.
-type Request struct {
+// request models a request to the relay server.
+type request struct {
 	// The relay server to which the request is sent.
 	server Server
 
@@ -20,44 +21,27 @@ type Request struct {
 	sender Party
 
 	// The channel may only be nil if the command is 'deleteAllMessagesCommand'.
-	channel Channel
+	channel *Channel
 
 	// The encrypted content which is sent to the other communication party.
 	// This field may not be nil if the command is 'pushMessageCommand'.
 	content *string
 }
 
-// NewRequest returns a new request with the given arguments.
-func NewRequest(
-	server Server,
-	command Command,
-	sender Party,
-	channel Channel,
-	content *string,
-) *Request {
-	return &Request{
-		server:  server,
-		command: command,
-		sender:  sender,
-		channel: channel,
-		content: content,
-	}
-}
-
-// Encode encodes the request to be transmitted to the relay server.
+// encode encodes the request to be transmitted to the relay server.
 // Please note that 'url.Values' escapes certain characters and thus cannot be used here.
-func (request *Request) Encode() string {
+func (request *request) encode() string {
 	var buffer bytes.Buffer
 
 	buffer.WriteString("c=") // command
 	buffer.WriteString(string(request.command))
 
 	buffer.WriteString("&dt=") // device type
-	buffer.WriteString(string(request.sender))
+	buffer.WriteString(request.sender.Encode())
 
 	if request.channel != nil {
 		buffer.WriteString("&uuid=") // universally unique identifier
-		buffer.WriteString(request.channel.GetChannelID())
+		buffer.WriteString(request.channel.ChannelID)
 	}
 
 	if request.content != nil {
@@ -68,12 +52,13 @@ func (request *Request) Encode() string {
 	return buffer.String()
 }
 
-// Send sends the request to the relay server and returns its response.
-func (request *Request) Send() (*Response, error) {
+// send sends the request to the relay server and returns its response.
+func (request *request) send() (*response, error) {
+	fmt.Println("Sending:", request.encode())
 	httpResponse, err := http.Post(
 		string(request.server),
 		"application/x-www-form-urlencoded",
-		strings.NewReader(request.Encode()),
+		strings.NewReader(request.encode()),
 	)
 	if err != nil {
 		return nil, err
@@ -83,7 +68,7 @@ func (request *Request) Send() (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	var response Response
-	err = json.Unmarshal(body, &response)
-	return &response, err
+	var serverResponse response
+	err = json.Unmarshal(body, &serverResponse)
+	return &serverResponse, err
 }

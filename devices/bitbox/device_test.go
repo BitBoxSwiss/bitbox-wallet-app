@@ -10,6 +10,7 @@ import (
 
 	"github.com/shiftdevices/godbb/devices/bitbox"
 	"github.com/shiftdevices/godbb/devices/bitbox/mocks"
+	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/sirupsen/logrus"
@@ -145,6 +146,7 @@ func (s *dbbTestSuite) TestSignZero() {
 	sign := map[string]interface{}{"sign": data}
 
 	responseSignature := make([]byte, 64)
+	s.mockDeviceInfo()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
@@ -165,16 +167,35 @@ func (s *dbbTestSuite) TestSignSingle() {
 	sign := map[string]interface{}{"sign": data}
 
 	responseSignature := make([]byte, 64)
+	s.mockDeviceInfo()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
 		password,
 	).
+		Return(nil, nil).
+		Once()
+	s.mockCommunication.On(
+		"SendEncrypt",
+		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
+		password,
+	).
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
-		Twice()
+		Once()
+
 	signatures, err := s.dbb.Sign(nil, [][]byte{signatureHash}, []string{keyPath})
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 1)
+}
+
+func (s *dbbTestSuite) mockDeviceInfo() {
+	deviceInfoMap := map[string]interface{}{}
+	_ = json.Unmarshal(jsonp.MustMarshal(&bitbox.DeviceInfo{}), &deviceInfoMap)
+	s.mockCommunication.On(
+		"SendEncrypt",
+		jsonArgumentMatcher(map[string]interface{}{"device": "info"}),
+		password,
+	).Return(map[string]interface{}{"device": deviceInfoMap}, nil).Once()
 }
 
 func (s *dbbTestSuite) TestSignFifteen() {
@@ -199,13 +220,21 @@ func (s *dbbTestSuite) TestSignFifteen() {
 		responseSignature := make([]byte, 64)
 		responseSignatures = append(responseSignatures, map[string]interface{}{"sig": hex.EncodeToString(responseSignature)})
 	}
+	s.mockDeviceInfo()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
 		password,
 	).
+		Return(nil, nil).
+		Once()
+	s.mockCommunication.On(
+		"SendEncrypt",
+		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
+		password,
+	).
 		Return(map[string]interface{}{"sign": responseSignatures}, nil).
-		Twice()
+		Once()
 	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 15)
@@ -239,21 +268,38 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	responseSignature2 := make([]byte, 64)
 	responseSignature2[63] = byte(15)
 	responseSignatures2 := []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature2)}}
+	s.mockDeviceInfo()
+
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign1),
 		password,
 	).
+		Return(nil, nil).
+		Once()
+	s.mockCommunication.On(
+		"SendEncrypt",
+		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
+		password,
+	).
 		Return(map[string]interface{}{"sign": responseSignatures1}, nil).
-		Twice()
+		Once()
 
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign2),
 		password,
 	).
+		Return(nil, nil).
+		Once()
+	s.mockCommunication.On(
+		"SendEncrypt",
+		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
+		password,
+	).
 		Return(map[string]interface{}{"sign": responseSignatures2}, nil).
-		Twice()
+		Once()
+
 	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 16)

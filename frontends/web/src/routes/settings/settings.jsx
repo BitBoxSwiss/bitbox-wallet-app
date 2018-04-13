@@ -5,6 +5,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 
 import Reset from './components/reset';
+import MobilePairing from './components/mobile-pairing';
 import UpgradeFirmware from './components/upgradefirmware';
 import LanguageSwitch from './components/language-switch';
 
@@ -27,6 +28,7 @@ export default class Settings extends Component {
                 <h1>BitBox</h1>
                 {version ? <p>Version: {version}</p> : null}
                 <p><Reset /></p>
+                <p><MobilePairing /></p>
                 <p><UpgradeFirmware /></p>
                 <p><LanguageSwitch /></p>
                 <Link href="/manage-backups/">

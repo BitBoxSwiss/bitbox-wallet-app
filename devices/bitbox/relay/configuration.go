@@ -1,4 +1,4 @@
-package pairing
+package relay
 
 const (
 	// configFileName stores the name of the config file that contains the pairing information.

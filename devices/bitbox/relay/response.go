@@ -2,8 +2,8 @@ package relay
 
 import "github.com/shiftdevices/godbb/util/errp"
 
-// Data models the content of a successful response.
-type Data struct {
+// data models the content of a successful response.
+type data struct {
 	// ID is the value of the auto-incrementing row ID column of the relay server.
 	ID int `json:"id"`
 
@@ -14,20 +14,20 @@ type Data struct {
 	Payload string `json:"payload"`
 }
 
-// Response models a response from the relay server.
-type Response struct {
+// response models a response from the relay server.
+type response struct {
 	// Status is either "ok" or "nok".
 	Status string `json:"status"`
 
 	// Data only exists if status is "ok" (and can even then be nil).
-	Data []Data `json:"data,omitempty"`
+	Data []data `json:"data,omitempty"`
 
 	// Error only exists if status is "nok" (and then not nil).
 	Error *string `json:"error,omitempty"`
 }
 
-// GetErrorIfNok returns an error if the status of the response is 'nok'.
-func (response *Response) GetErrorIfNok() error {
+// getErrorIfNok returns an error if the status of the response is 'nok'.
+func (response *response) getErrorIfNok() error {
 	if response.Status == "nok" {
 		if response.Error != nil {
 			return errp.New(*response.Error)
