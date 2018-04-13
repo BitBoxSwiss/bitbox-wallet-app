@@ -26,6 +26,8 @@ generate:
 	WEBASSETS="${WEBROOT}/build" go generate ./...
 webdev:
 	make -C frontends/web dev
+weblint:
+	make -C frontends/web lint
 qt:
 	make generate
 	make -C frontends/qt
