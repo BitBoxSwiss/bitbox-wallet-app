@@ -79,19 +79,20 @@ func (s *addressChainTestSuite) TestGetUnused() {
 	require.Equal(s.T(), newAddresses[1], s.addresses.GetUnused())
 }
 
-func (s *addressChainTestSuite) TestContains() {
+func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	newAddresses := s.addresses.EnsureAddresses()
 	for _, address := range newAddresses {
-		require.True(s.T(), s.addresses.Contains(address))
+		require.Equal(s.T(), address, s.addresses.LookupByScriptHashHex(address.ScriptHashHex()))
 	}
 	// Produce addresses beyond  the gapLimit to ensure the gapLimit does not confuse Contains().
-	newAddresses[0].History = []*client.TxInfo{tx1}
+	newAddresses[0].History = client.TxHistory{tx1}
 	newAddresses = s.addresses.EnsureAddresses()
 	require.Len(s.T(), newAddresses, 1)
-	require.True(s.T(), s.addresses.Contains(newAddresses[0]))
+	require.Equal(s.T(),
+		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].ScriptHashHex()))
 
 	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, s.log)
-	require.False(s.T(), s.addresses.Contains(address))
+	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(address.ScriptHashHex()))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {

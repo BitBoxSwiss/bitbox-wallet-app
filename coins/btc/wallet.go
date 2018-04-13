@@ -211,7 +211,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashGetHistory(
-		address.ScriptHash(),
+		address.ScriptHashHex(),
 		func(history client.TxHistory) error {
 			func() {
 				defer wallet.Lock()()
@@ -219,7 +219,7 @@ func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string)
 				if address.History.Status() != status {
 					wallet.log.Debug("Client status should match after sync")
 				}
-				wallet.transactions.UpdateAddressHistory(address, history)
+				wallet.transactions.UpdateAddressHistory(address.Address, history)
 			}()
 			wallet.ensureAddresses()
 			return nil
@@ -258,7 +258,7 @@ func (wallet *Wallet) ensureAddresses() {
 func (wallet *Wallet) subscribeAddress(address *addresses.Address) error {
 	done := wallet.synchronizer.IncRequestsCounter()
 	return wallet.blockchain.ScriptHashSubscribe(
-		address.ScriptHash(),
+		address.ScriptHashHex(),
 		func(status string) error { return wallet.onAddressStatus(address, status) },
 		done,
 	)
@@ -266,7 +266,10 @@ func (wallet *Wallet) subscribeAddress(address *addresses.Address) error {
 
 // Transactions wraps transaction.Transactions.Transactions()
 func (wallet *Wallet) Transactions() []*transactions.TxInfo {
-	return wallet.transactions.Transactions(wallet.changeAddresses.Contains)
+	return wallet.transactions.Transactions(
+		func(scriptHashHex string) bool {
+			return wallet.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
+		})
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.

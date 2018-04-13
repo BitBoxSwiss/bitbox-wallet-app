@@ -111,9 +111,9 @@ func (address *Address) PkScript() []byte {
 	return script
 }
 
-// ScriptHash returns the hash of the output script. Used to subscribe to notifications with
-// Electrum.
-func (address *Address) ScriptHash() string {
+// ScriptHashHex returns the hash of the output script in hex format. Used to subscribe to
+// notifications with Electrum.
+func (address *Address) ScriptHashHex() string {
 	return chainhash.HashH(address.PkScript()).String()
 }
 

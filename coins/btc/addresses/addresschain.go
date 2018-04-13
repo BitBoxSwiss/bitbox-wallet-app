@@ -8,7 +8,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 )
 
@@ -111,15 +110,16 @@ func (addresses *AddressChain) unusedTailCount() int {
 	return count
 }
 
-// Contains returns whether the address is part of the address chain.
-func (addresses *AddressChain) Contains(checkAddress btcutil.Address) bool {
+// LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
+// if not found.
+func (addresses *AddressChain) LookupByScriptHashHex(scriptHashHex string) *Address {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
-		if checkAddress.String() == address.String() {
-			return true
+		if address.ScriptHashHex() == scriptHashHex {
+			return address
 		}
 	}
-	return false
+	return nil
 }
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused

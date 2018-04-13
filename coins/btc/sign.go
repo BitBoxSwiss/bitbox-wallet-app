@@ -17,6 +17,7 @@ func SignTransaction(
 	keyStore KeyStoreWithoutKeyDerivation,
 	transaction *wire.MsgTx,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
+	getAddress func(string) *addresses.Address,
 	log *logrus.Entry,
 ) error {
 	log.Info("Sign transaction")
@@ -29,7 +30,7 @@ func SignTransaction(
 			log.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 		}
-		address := spentOutput.Address.(*addresses.Address)
+		address := getAddress(spentOutput.ScriptHashHex())
 		isSegwit, subScript := address.SigHashData()
 		var signatureHash []byte
 		if isSegwit {
@@ -51,7 +52,7 @@ func SignTransaction(
 		}
 
 		signatureHashes = append(signatureHashes, signatureHash)
-		keyPaths = append(keyPaths, spentOutput.Address.(*addresses.Address).KeyPath)
+		keyPaths = append(keyPaths, address.KeyPath)
 	}
 	signatures, err := keyStore.Sign(signatureHashes, keyPaths)
 	if err != nil {
@@ -62,7 +63,7 @@ func SignTransaction(
 	}
 	for index, input := range transaction.TxIn {
 		spentOutput := previousOutputs[input.PreviousOutPoint]
-		address := spentOutput.Address.(*addresses.Address)
+		address := getAddress(spentOutput.ScriptHashHex())
 		signature := signatures[index]
 		input.SignatureScript, input.Witness = address.InputData(signature)
 	}

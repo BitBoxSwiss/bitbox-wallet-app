@@ -5,6 +5,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 
+	"github.com/shiftdevices/godbb/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -108,7 +109,16 @@ func (wallet *Wallet) SendTx(
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create transaction")
 	}
-	if err := SignTransaction(wallet.keyStore, txProposal.Transaction, utxo, wallet.log); err != nil {
+	getAddress := func(scriptHashHex string) *addresses.Address {
+		if address := wallet.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+			return address
+		}
+		if address := wallet.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+			return address
+		}
+		panic("address must be present")
+	}
+	if err := SignTransaction(wallet.keyStore, txProposal.Transaction, utxo, getAddress, wallet.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	wallet.log.Info("Signed transaction is broadcasted")

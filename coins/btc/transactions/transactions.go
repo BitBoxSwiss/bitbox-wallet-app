@@ -19,7 +19,11 @@ import (
 // TxOut is a transaction output which is part of the wallet.
 type TxOut struct {
 	*wire.TxOut
-	Address btcutil.Address
+}
+
+// ScriptHashHex returns the hash of the PkScript of the output, in hex format.
+func (txOut *TxOut) ScriptHashHex() string {
+	return chainhash.HashH(txOut.PkScript).String()
 }
 
 // Transaction is a transaction touching the wallet.
@@ -117,7 +121,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	}
 	// Gather transaction outputs that belong to us.
 	for index, txOut := range tx.TxOut {
-		scriptClass, addresses, _, err := txscript.ExtractPkScriptAddrs(
+		scriptClass, addresses0, _, err := txscript.ExtractPkScriptAddrs(
 			txOut.PkScript,
 			transactions.net,
 		)
@@ -130,19 +134,18 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 			continue
 		}
 		// For now we only look at single-address outputs (no multisig or other special contracts).
-		if len(addresses) != 1 {
-			transactions.log.WithField("addresses-length", len(addresses)).
+		if len(addresses0) != 1 {
+			transactions.log.WithField("addresses-length", len(addresses0)).
 				Debug("Only supporting single-address outputs for now")
 			continue
 		}
 		// Check if output is ours.
-		if addresses[0].String() == address.String() {
+		if addresses0[0].String() == address.String() {
 			transactions.outputs[wire.OutPoint{
 				Hash:  txHash,
 				Index: uint32(index),
 			}] = &TxOut{
-				TxOut:   txOut,
-				Address: address,
+				TxOut: txOut,
 			}
 		}
 	}
@@ -356,7 +359,7 @@ type TxInfo struct {
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
 func (transactions *Transactions) txInfo(
 	tx *Transaction,
-	isChangeAddress func(btcutil.Address) bool) *TxInfo {
+	isChange func(string) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
@@ -376,7 +379,7 @@ func (transactions *Transactions) txInfo(
 			Hash:  tx.TX.TxHash(),
 			Index: uint32(index),
 		}]; ok {
-			if isChangeAddress(output.Address) {
+			if isChange(output.ScriptHashHex()) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
@@ -414,12 +417,12 @@ func (transactions *Transactions) txInfo(
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChangeAddress func(btcutil.Address) bool) []*TxInfo {
+	isChange func(string) bool) []*TxInfo {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	txs := []*TxInfo{}
 	for _, transaction := range transactions.transactions {
-		txs = append(txs, transactions.txInfo(transaction, isChangeAddress))
+		txs = append(txs, transactions.txInfo(transaction, isChange))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs

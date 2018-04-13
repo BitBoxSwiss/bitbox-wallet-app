@@ -46,9 +46,9 @@ func TestPkScript(t *testing.T) {
 	require.Equal(t, payToAddrScript, address.PkScript())
 }
 
-func TestScriptHash(t *testing.T) {
+func TestScriptHashHex(t *testing.T) {
 	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, log)
 	require.Equal(t,
 		"9d7adb4dafdab53b92b59d68378dc2a65585e22dea93f3cefc4598f1a803af40",
-		address.ScriptHash())
+		address.ScriptHashHex())
 }
