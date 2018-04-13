@@ -1,4 +1,4 @@
-export const appTranslations = {
+{
     "dbb": {
         "error": {
             "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
@@ -15,4 +15,4 @@ export const appTranslations = {
     "device": {
         "manageBackups": "Manage Backups"
     }
-};
+}

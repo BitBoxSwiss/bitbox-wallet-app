@@ -1,6 +1,6 @@
 import i18n from 'i18next';
-import { appTranslations as appTranslationsDE } from './de';
-import { appTranslations as appTranslationsEN } from './en';
+import appTranslationsDE from './de';
+import appTranslationsEN from './en';
 import { userLanguage } from '../utils/config';
 
 i18n

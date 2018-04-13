@@ -1,4 +1,4 @@
-export const appTranslations = {
+{
     "Password": "Passwort",
     "Please enter your password to log in": "Bitte geben Sie Ihr Passwort ein",
     "Login": "Einloggen",
@@ -18,4 +18,4 @@ export const appTranslations = {
     "device": {
         "manageBackups": "Backups verwalten"
     }
-};
+}
