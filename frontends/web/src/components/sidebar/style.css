@@ -1,12 +1,12 @@
 .sidebar {
   align-content: stretch;
-  border-top: 10px solid #3d3935;
+  background-color: var(--color-sidebar);
   display: flex;
   flex-direction: column;
+  padding-top: var(--spacing-default);
 }
 
 .sidebar a {
-  background-color: #3d3935;
   color: white;
   display: block;
   padding: 6px 16px;
@@ -62,13 +62,11 @@ a.sidebar-active::after  {
 }
 
 .sidebar_drawer {
-  background-color: #3d3935;
   align-self: stretch;
   flex-grow: 1;
 }
 
 .sidebar_bottom {
-  background-color: #3d3935;
   padding: 0 0 1rem 0;
   text-align: center;
 }
