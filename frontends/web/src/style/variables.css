@@ -1,0 +1,20 @@
+:root {
+
+  /* colors */
+  --color-coolblue: #7b98a3;;
+  --color-coolgold: #a39771;
+  --color-swissred: #e10000;
+  --color-brightblue: #699ec6;
+  --color-softblack: #3d3935;
+  --color-white: #fff;
+
+  --color-primary: var(--color-coolblue);
+  --color-secondary: var(--color-brightblue);
+
+  /* spacing */
+  --spacing-default: 1rem;
+
+  /* typography */
+  --font-family: 'Helvetica Neue', arial, sans-serif;
+  
+}

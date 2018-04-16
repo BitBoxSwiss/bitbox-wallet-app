@@ -1,0 +1,7 @@
+.backupList {
+    width: 100%;
+}
+
+.container {
+    padding: var(--spacing-default);
+}

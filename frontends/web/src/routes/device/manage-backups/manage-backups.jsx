@@ -9,7 +9,7 @@ import Create from './create';
 import Restore from './restore';
 import Erase from './erase';
 
-import style from './style';
+import style from './manage-backups.css';
 
 export default class ManageBackups extends Component {
     constructor(props) {
@@ -46,7 +46,7 @@ export default class ManageBackups extends Component {
     render({ showCreate }, { backupList, selectedBackup, sdCardInserted }) {
         if (!sdCardInserted) {
             return (
-                <div>
+                <div className={style.container}>
                     <p>Please insert SD card to manage backups.</p>
                     <Button
                         primary={true}
@@ -59,7 +59,7 @@ export default class ManageBackups extends Component {
         const selectClasses = ['mdc-multi-select', 'mdc-list', style.backupList].join(' ');
 
         return (
-            <div>
+            <div className={style.container}>
                 <h1>Manage Backups</h1>
                 <div>
                     <select
