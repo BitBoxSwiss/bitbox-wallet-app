@@ -1,8 +1,9 @@
-import './style';
+import { I18nextProvider } from 'react-i18next';
+
 import TheApp from './app';
 import i18n from './i18n/i18n';
+import './style';
 
-import { I18nextProvider } from 'react-i18next';
 
 export default function App() {
     return (
