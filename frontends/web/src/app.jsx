@@ -124,7 +124,7 @@ export default class App extends Component {
         case DeviceStatus.SEEDED:
             return (
                 <div class={style.container}>
-                    <div style="display: flex; flex-grow: 1;">
+                    <div style="display: flex; flex: 1 1 auto;">
                         <Sidebar accounts={wallets} activeWallet={activeWallet} />
                         <Router onChange={this.handleRoute}>
                             <Redirect path="/" to={`/account/${wallets[0].code}`} />

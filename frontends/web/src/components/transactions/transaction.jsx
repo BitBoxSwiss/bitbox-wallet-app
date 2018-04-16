@@ -3,6 +3,7 @@ import style from './transaction.css';
 
 import IN from './assets/icon-transfer-in.svg';
 import OUT from './assets/icon-transfer-out.svg';
+// TODO: import SELF from './assets/icon-transfer-self.svg';
 
 const transferIconMap = {
     receive: IN,
@@ -22,7 +23,10 @@ export default class Transaction extends Component {
 
     render({ explorerURL, type, id, amount, fee, height }, { collapsed }) {
         return (
-            <div class={style.transaction} onClick={this.onUncollapse}>
+            <div class={style.transaction}
+                onClick={this.onUncollapse}
+                style={!collapsed && 'background: var(--background-active);'}
+            >
                 <div className={style.summary}>
                     <img src={transferIconMap[type]} />
                     <span className={style.address}>
@@ -32,13 +36,30 @@ export default class Transaction extends Component {
                     <span className={style.amount}>{amount}</span>
                 </div>
                 <div hidden={collapsed ? 'hidden' : null} className={style.detail}>
+                    <dl>
+                        <dt>Transaction ID</dt>
+                        <dd>
+                            <a href={ explorerURL + id } target="_blank">{id}</a><br />
+                            (Open in external block Explorer)
+                        </dd>
+                        <dt>Address</dt>
+                        <dd>
+                            <a href={ explorerURL + id } target="_blank">{id}</a><br />
+                            (Open in external block Explorer)
+                        </dd>
+                        { fee &&
+                          <div>
+                              <dt>Fee</dt>
+                              <dd>{fee}</dd>
+                          </div>
+                        }
+                    </dl>
+                    {/*
                     Type: {type}<br />
                     Height: {height}<br />
                     Amount: {amount}<br />
-                    {fee && <div>Fee: {fee}</div>}
-                    ID: <a href={ explorerURL + id } target="_blank">{id}</a>
-                    <br />
-                    (Open in external block Explorer)
+                      */}
+
                 </div>
             </div>
         );

@@ -1,9 +1,12 @@
 .sidebar {
   align-content: stretch;
-  background-color: var(--color-sidebar);
+  background: var(--background-sidebar);
   display: flex;
   flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
   padding-top: var(--spacing-default);
+  overflow-y: scroll;
 }
 
 .sidebar a {
@@ -21,7 +24,7 @@ a.sidebar-active {
 }
 
 .sidebar a::after {
-  background-color: var(--color-background);
+  background: var(--background);
   border-radius: 3px;
   content: "";
   display: inline-block;

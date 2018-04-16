@@ -1,7 +1,7 @@
 html,
 body {
-	background: var(--color-background);
-	color: #444;
+	background: var(--background);
+	color: var(--color-default);
 	font-family: var(--font-family);
 	font-weight: 400;
 	height: 100%;

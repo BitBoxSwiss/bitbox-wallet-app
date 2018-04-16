@@ -1,10 +1,11 @@
 .transaction {
     flex: 1 1 auto;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: 2px;
+    padding: var(--spacing-default) 20px;
 }
 
 .transaction:hover {
-    background-color: var(--color-background-hover);
+    background: var(--background-hover);
 }
 
 .summary {
@@ -29,14 +30,43 @@
 
 .address time {
     color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: 700;
 }
 
 .amount {
     flex-grow: 0;
+    font-weight: 700;
     min-width: 160px;
     text-align: right;
 }
 
 .detail {
-    padding: var(--spacing-half) 0 0 calc(16px + var(--spacing-half));
+    padding: var(--spacing-half) 0 0 calc(10px + var(--spacing-half));
+}
+
+/* definition list */
+
+.detail dl {
+    margin: 0;
+}
+
+.detail dt {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: 700;
+}
+
+.detail dd {
+    margin-left: 0;
+    overflow: hidden;
+    padding-bottom: var(--spacing-half);
+    text-decoration: none;
+    text-overflow: ellipsis;
+}
+
+.detail dd a {
+    color: var(--color-default);
+    border-bottom: 1px dashed var(--color-default);
+    margin-bottom: 2px;
 }

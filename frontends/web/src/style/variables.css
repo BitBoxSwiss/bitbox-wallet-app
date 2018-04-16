@@ -6,15 +6,18 @@
     --color-swissred: #e10000;
     --color-brightblue: #699ec6;
     --color-brightgray: #dfdfdf; /* TODO: incorrect color */
+    --color-lightgray: #fbfafa; /* TODO: incorrect color */
     --color-softblack: #3d3935;
     --color-white: #fff;
 
     /* background colors */
-    --color-background: var(--color-white);
-    --color-background-hover: var(--color-white);
-    --color-sidebar: var(--color-brightgray);
+    --background: var(--color-lightgray);
+    --background-hover: var(--background);
+    --background-active: var(--color-white);
+    --background-sidebar: var(--color-brightgray);
 
     /* font colors */
+    --color-default: var(--color-softblack);
     --color-primary: var(--color-coolblue);
     --color-secondary: var(--color-coolgold);
     --color-light: var(--color-brightgray);
@@ -22,7 +25,7 @@
     /* font sizes */
     --size-large: 2rem;
     --size-medium: 1rem;
-    --size-small: .7rem;
+    --size-small: .85rem;
 
     /* spacing */
     --spacing-default: 1rem;
