@@ -21,7 +21,7 @@ a.sidebar-active {
 }
 
 .sidebar a::after {
-  background-color: #FAFAFA;
+  background-color: var(--color-background);
   border-radius: 3px;
   content: "";
   display: inline-block;

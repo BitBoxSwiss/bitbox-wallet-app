@@ -9,16 +9,24 @@
     --color-softblack: #3d3935;
     --color-white: #fff;
 
-    /* font colors */
-    --color-primary: var(--color-coolblue);
-    --color-secondary: var(--color-brightblue);
-
     /* background colors */
     --color-background: var(--color-white);
+    --color-background-hover: var(--color-white);
     --color-sidebar: var(--color-brightgray);
+
+    /* font colors */
+    --color-primary: var(--color-coolblue);
+    --color-secondary: var(--color-coolgold);
+    --color-light: var(--color-brightgray);
+
+    /* font sizes */
+    --size-large: 2rem;
+    --size-medium: 1rem;
+    --size-small: .7rem;
 
     /* spacing */
     --spacing-default: 1rem;
+    --spacing-half: .5rem;
 
     /* typography */
     --font-family: 'Helvetica Neue', arial, sans-serif;
