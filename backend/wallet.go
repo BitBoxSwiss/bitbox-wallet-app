@@ -47,7 +47,7 @@ func maybeConnectionError(err error) error {
 }
 
 func (wallet *Wallet) init(backend *Backend) error {
-	wallet.log = wallet.log.WithFields(logrus.Fields{"coin": wallet.Code, "wallet-name": wallet.Name,
+	wallet.log = backend.log.WithFields(logrus.Fields{"coin": wallet.Code, "wallet-name": wallet.Name,
 		"net": wallet.net.Name, "address-type": wallet.addressType})
 	var electrumServer string
 	tls := true

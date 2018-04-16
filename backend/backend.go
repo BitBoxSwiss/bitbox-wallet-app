@@ -20,6 +20,9 @@ import (
 	"github.com/shiftdevices/godbb/util/semver"
 )
 
+// dbFilename is where the database is stored.
+const dbFilename = "my.db"
+
 var (
 	// Version of the backend as displayed to the user.
 	Version = semver.NewSemVer(0, 1, 0)
@@ -82,17 +85,8 @@ type Backend struct {
 
 // NewBackend creates a new backend.
 func NewBackend() (*Backend, error) {
-	log := logging.Log.WithGroup("backend")
-	theDB, err := db.NewDB("my.db")
-	if err != nil {
-		return nil, err
-	}
-
-	return &Backend{
-		testing: false,
-		db:      theDB,
-		events:  make(chan interface{}),
-		wallets: []*Wallet{
+	return newBackendFromWallets(
+		[]*Wallet{
 			&Wallet{
 				Code:                  "btc",
 				Name:                  "Bitcoin",
@@ -100,7 +94,6 @@ func NewBackend() (*Backend, error) {
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
 				net:         &chaincfg.MainNetParams,
 				addressType: addresses.AddressTypeP2PKH,
-				log:         log,
 			},
 			&Wallet{
 				Code:                  "btc-p2wpkh-p2sh",
@@ -109,7 +102,6 @@ func NewBackend() (*Backend, error) {
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
 				net:         &chaincfg.MainNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
-				log:         log,
 			},
 			&Wallet{
 				Code:                  "ltc-p2wpkh-p2sh",
@@ -118,22 +110,13 @@ func NewBackend() (*Backend, error) {
 				BlockExplorerTxPrefix: "https://insight.litecore.io/tx/",
 				net:         &ltc.MainNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
-				log:         log,
 			},
-		},
-		log: log,
-	}, nil
+		})
 }
 
 // NewBackendForTesting creates a new backend for testing.
 func NewBackendForTesting(regtest bool) (*Backend, error) {
-	theDB, err := db.NewDB("my.db")
-	if err != nil {
-		return nil, err
-	}
-
 	var wallets []*Wallet
-	log := logging.Log.WithGroup("backend")
 	if regtest {
 		wallets = []*Wallet{
 			&Wallet{
@@ -143,7 +126,6 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.RegressionNetParams,
 				addressType: addresses.AddressTypeP2PKH,
-				log:         log,
 			},
 			&Wallet{
 				Code:                  "rbtc-p2wpkh-p2sh",
@@ -152,7 +134,6 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.RegressionNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
-				log:         log,
 			},
 		}
 	} else {
@@ -164,7 +145,6 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.TestNet3Params,
 				addressType: addresses.AddressTypeP2PKH,
-				log:         log,
 			},
 			&Wallet{
 				Code:                  "tbtc-p2wpkh-p2sh",
@@ -173,7 +153,6 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
 				net:         &chaincfg.TestNet3Params,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
-				log:         log,
 			},
 			&Wallet{
 				Code:                  "tltc-p2wpkh-p2sh",
@@ -182,16 +161,23 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 				BlockExplorerTxPrefix: "http://explorer.litecointools.com/tx/",
 				net:         &ltc.TestNet4Params,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
-				log:         log,
 			},
 		}
+	}
+	return newBackendFromWallets(wallets)
+}
+
+func newBackendFromWallets(wallets []*Wallet) (*Backend, error) {
+	theDB, err := db.NewDB(dbFilename)
+	if err != nil {
+		return nil, err
 	}
 	return &Backend{
 		testing: true,
 		db:      theDB,
 		events:  make(chan interface{}),
 		wallets: wallets,
-		log:     log,
+		log:     logging.Log.WithGroup("backend"),
 	}, nil
 }
 
@@ -256,7 +242,7 @@ func (backend *Backend) initWallet(wallet *Wallet, errorChannel chan error) erro
 		select {
 		case errorChannel <- err:
 		default:
-			backend.log.WithField("error", err).Error(err.Error())
+			wallet.log.WithField("error", err).Error(err.Error())
 		}
 	}
 	if err := wallet.init(backend); err != nil {
