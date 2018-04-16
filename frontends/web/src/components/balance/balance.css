@@ -1,12 +1,12 @@
 .balance {
-    min-width: 500px;
-    position: relative;
+    margin-bottom: 4rem;
 }
 
 .amount {
+    font-size: var(--size-large);
     margin: 0;
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 150px;
+}
+
+.unit {
+    color: var(--color-light);
 }

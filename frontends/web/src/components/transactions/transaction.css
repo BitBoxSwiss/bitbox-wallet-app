@@ -1,0 +1,42 @@
+.transaction {
+    flex: 1 1 auto;
+    margin-bottom: var(--spacing-default);
+}
+
+.transaction:hover {
+    background-color: var(--color-background-hover);
+}
+
+.summary {
+    align-items: baseline;
+    display: flex;
+    justify-content: space-between;
+}
+
+.summary img {
+    align-self: center;
+    flex-grow: 0;
+    margin-right: var(--spacing-half);
+    width: 16px;
+}
+
+.address {
+    flex-grow: 1;
+    overflow: hidden;
+    text-align: left;
+    text-overflow: ellipsis;
+}
+
+.address time {
+    color: var(--color-secondary);
+}
+
+.amount {
+    flex-grow: 0;
+    min-width: 160px;
+    text-align: right;
+}
+
+.detail {
+    padding: var(--spacing-half) 0 0 calc(16px + var(--spacing-half));
+}

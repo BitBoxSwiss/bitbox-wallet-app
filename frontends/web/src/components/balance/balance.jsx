@@ -1,11 +1,17 @@
 import { h } from 'preact';
-import style from './style.css';
+import style from './balance.css';
 
-export default function Balance({ name, amount, children }) {
+export default function Balance({ name, amount, unit, children }) {
     return (
         <header className={style.balance}>
-            <h2>{ name }</h2>
-            <h2 className={style.amount}>{ amount }</h2>
+            {/*
+              <h2>{ name }</h2>
+            */}
+            <h2 className={style.amount}>
+              {amount}
+              {' '}
+              <span className={style.unit}>{unit}</span>
+            </h2>
             {children}
         </header>
     );

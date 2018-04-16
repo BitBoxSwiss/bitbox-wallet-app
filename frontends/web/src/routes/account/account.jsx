@@ -10,6 +10,9 @@ import Balance from '../../components/balance/balance';
 import Send from './send/send';
 import Receive from './receive/receive';
 
+import Transactions from '../../components/transactions/transactions';
+
+import style from './account.css';
 
 export default class Account extends Component {
     constructor(props) {
@@ -41,7 +44,7 @@ export default class Account extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.props.code != prevProps.code) {
+        if (this.props.code !== prevProps.code) {
             console.log("componentDidUpdate(" + this.props.code + ")")
             this.onStatusChanged();
         }
@@ -74,7 +77,7 @@ export default class Account extends Component {
                     });
             } else {
                 this.setState({ walletInitialized: false,
-                        walletConnected: false 
+                        walletConnected: false
                     });
             }
             this.onWalletChanged();
@@ -108,46 +111,40 @@ export default class Account extends Component {
 
         if (!wallet) return null;
 
-        const renderTransaction = transaction => (
-            <List.Item>
-                <a href={ wallet.blockExplorerTxPrefix + transaction.id } target="_blank">{ transaction.id }</a>&nbsp;–
-                Height { transaction.height } –
-                Amount { transaction.amount } –
-                Fee { transaction.fee } –
-                Type { transaction.type }
-            </List.Item>
-        );
-
-        const renderTransactions = transactions => {
-            if (!walletInitialized) { return <div>Initializing.</div>; }
-            if (transactions.length === 0) { return <div>No transactions yet.</div>; }
-            return <List>{ transactions.map(renderTransaction) }</List>;
-        };
-
         return (
-            <div style="margin-left: 1rem;">
-                { walletConnected && 
-                <div class="connection-status" style="background: green; color: white">
-                    <p>Connection established</p>
-                </div>
-                }
-                { !walletConnected && 
-                <div class="connection-status" style="background: red; color: white">
-                    <p>Connection lost. Retrying...</p>
-                </div>
-                }
-                <Balance name={wallet.name} amount={balance.available} />
-
-                { balance.hasIncoming && <span>(+{balance.incoming} incoming)</span> }
-                { renderTransactions(transactions) }
-                <p>
+            <div class={style.container}>
+                <div class={style.controls}>
+                    <Receive code={this.props.code} />
+                    &nbsp;
                     <Send
                         walletCode={ wallet.code }
                         walletInitialized={ walletInitialized }
                     />
-                    &nbsp;
-                    <Receive code={this.props.code} />
-                </p>
+                </div>
+
+                <Balance name={wallet.name} amount={balance.available}>
+                    { balance.hasIncoming && <span>(Pending {balance.incoming})</span> }
+                </Balance>
+
+                { !walletInitialized
+                    ? <div>Initializing.</div>
+                    : (
+                        <Transactions
+                            explorerURL={wallet.blockExplorerTxPrefix}
+                            transactions={transactions}
+                        />
+                    )
+                }
+                { walletConnected &&
+                <div class="connection-status" style="background: green; color: white">
+                    <p>Connection established</p>
+                </div>
+                }
+                { !walletConnected &&
+                <div class="connection-status" style="background: red; color: white">
+                    <p>Connection lost. Retrying...</p>
+                </div>
+                }
             </div>
         );
     }
