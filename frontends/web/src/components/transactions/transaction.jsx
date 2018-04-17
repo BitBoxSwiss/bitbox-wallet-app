@@ -54,12 +54,6 @@ export default class Transaction extends Component {
                           </div>
                         }
                     </dl>
-                    {/*
-                    Type: {type}<br />
-                    Height: {height}<br />
-                    Amount: {amount}<br />
-                      */}
-
                 </div>
             </div>
         );
