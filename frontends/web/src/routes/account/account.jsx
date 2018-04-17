@@ -121,11 +121,9 @@ export default class Account extends Component {
                         walletInitialized={ walletInitialized }
                     />
                 </div>
-
-                <Balance name={wallet.name} amount={balance.available}>
+                <Balance name={wallet.name} amount={balance.available} unit={balance.unit}>
                     { balance.hasIncoming && <span>(Pending {balance.incoming})</span> }
                 </Balance>
-
                 { !walletInitialized
                     ? <div>Initializing.</div>
                     : (

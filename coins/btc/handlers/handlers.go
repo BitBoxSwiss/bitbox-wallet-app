@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
@@ -88,10 +89,15 @@ func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, e
 
 func (handlers *Handlers) getWalletBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.wallet.Balance()
+	unit := btcutil.AmountBTC.String()
+	strip := func(s string) string {
+		return strings.TrimSpace(strings.TrimSuffix(s, unit))
+	}
 	return map[string]interface{}{
-		"available":   balance.Available.Format(btcutil.AmountBTC),
-		"incoming":    balance.Incoming.Format(btcutil.AmountBTC),
+		"available":   strip(balance.Available.Format(btcutil.AmountBTC)),
+		"incoming":    strip(balance.Incoming.Format(btcutil.AmountBTC)),
 		"hasIncoming": balance.Incoming != 0,
+		"unit":        unit,
 	}, nil
 }
 
