@@ -18,11 +18,11 @@ func (_m *Interface) Close() {
 }
 
 // EstimateFee provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) EstimateFee(_a0 int, _a1 func(btcutil.Amount) error, _a2 func()) error {
+func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 func()) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, func(btcutil.Amount) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(int, func(*btcutil.Amount) error, func()) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -45,25 +45,18 @@ func (_m *Interface) HeadersSubscribe(_a0 func(*client.Header) error, _a1 func()
 	return r0
 }
 
-// RelayFee provides a mock function with given fields:
-func (_m *Interface) RelayFee() (btcutil.Amount, error) {
-	ret := _m.Called()
+// RelayFee provides a mock function with given fields: _a0, _a1
+func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func()) error {
+	ret := _m.Called(_a0, _a1)
 
-	var r0 btcutil.Amount
-	if rf, ok := ret.Get(0).(func() btcutil.Amount); ok {
-		r0 = rf()
+	var r0 error
+	if rf, ok := ret.Get(0).(func(func(btcutil.Amount) error, func()) error); ok {
+		r0 = rf(_a0, _a1)
 	} else {
-		r0 = ret.Get(0).(btcutil.Amount)
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // ScriptHashGetHistory provides a mock function with given fields: _a0, _a1, _a2

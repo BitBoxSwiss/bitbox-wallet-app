@@ -386,12 +386,21 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 
 // RelayFee does the blockchain.relayfee() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
-func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
-	var response float64
-	if err := client.rpc.MethodSync(&response, "blockchain.relayfee"); err != nil {
-		return 0, errp.Wrap(err, "Failed to relay fee")
-	}
-	return btcutil.NewAmount(response)
+func (client *ElectrumClient) RelayFee(
+	success func(btcutil.Amount) error,
+	cleanup func(),
+) error {
+	return client.rpc.Method(func(responseBytes []byte) error {
+		var fee float64
+		if err := json.Unmarshal(responseBytes, &fee); err != nil {
+			return errp.Wrap(err, "Failed to unmarshal JSON")
+		}
+		amount, err := btcutil.NewAmount(fee)
+		if err != nil {
+			return errp.Wrap(err, "Failed to construct BTC amount")
+		}
+		return success(amount)
+	}, cleanup, "blockchain.relayfee")
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
@@ -400,7 +409,7 @@ func (client *ElectrumClient) RelayFee() (btcutil.Amount, error) {
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
-	success func(btcutil.Amount) error,
+	success func(*btcutil.Amount) error,
 	cleanup func(),
 ) error {
 	return client.rpc.Method(
@@ -409,22 +418,14 @@ func (client *ElectrumClient) EstimateFee(
 			if err := json.Unmarshal(responseBytes, &fee); err != nil {
 				return errp.Wrap(err, "Failed to unmarshal JSON")
 			}
-			var amount btcutil.Amount
-			var err error
 			if fee == -1 {
-				client.log.Warning("Fee could not be estimated. ElectrumX server replied with a -1. " +
-					"Taking the minimum relay fee instead")
-				amount, err = client.RelayFee()
-				if err != nil {
-					return errp.WithMessage(err, "Failed to get the minimum relay fee")
-				}
-			} else {
-				amount, err = btcutil.NewAmount(fee)
-				if err != nil {
-					return errp.Wrap(err, "Failed to construct BTC amount")
-				}
+				return success(nil)
 			}
-			return success(amount)
+			amount, err := btcutil.NewAmount(fee)
+			if err != nil {
+				return errp.Wrap(err, "Failed to construct BTC amount")
+			}
+			return success(&amount)
 		},
 		cleanup,
 		"blockchain.estimatefee",

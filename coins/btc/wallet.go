@@ -156,21 +156,28 @@ func (wallet *Wallet) updateFeeTargets() {
 	defer wallet.RLock()()
 	for _, feeTarget := range wallet.feeTargets {
 		func(feeTarget *FeeTarget) {
+			setFee := func(feeRatePerKb btcutil.Amount) error {
+				defer wallet.Lock()()
+				feeTarget.FeeRatePerKb = &feeRatePerKb
+				wallet.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+					"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
+				return nil
+			}
+
 			err := wallet.blockchain.EstimateFee(
 				feeTarget.Blocks,
-				func(feeRatePerKb btcutil.Amount) error {
-					defer wallet.Lock()()
-					feeTarget.FeeRatePerKb = &feeRatePerKb
-					wallet.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
-						"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
-					return nil
+				func(feeRatePerKb *btcutil.Amount) error {
+					if feeRatePerKb == nil {
+						wallet.log.WithField("fee-target", feeTarget.Blocks).
+							Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+						return wallet.blockchain.RelayFee(setFee, func() {})
+					}
+					return setFee(*feeRatePerKb)
 				},
 				func() {},
 			)
 			if err != nil {
-				wallet.log.WithField("error", err).Panic("Failed to update fee targets")
-				// TODO
-				panic(err)
+				wallet.log.WithField("error", err).Error("Failed to update fee targets")
 			}
 		}(feeTarget)
 	}

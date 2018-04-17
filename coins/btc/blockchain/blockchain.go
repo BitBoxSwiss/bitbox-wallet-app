@@ -16,7 +16,7 @@ type Interface interface {
 	ScriptHashSubscribe(string, func(string) error, func()) error
 	HeadersSubscribe(func(*client.Header) error, func()) error
 	TransactionBroadcast(*wire.MsgTx) error
-	RelayFee() (btcutil.Amount, error)
-	EstimateFee(int, func(btcutil.Amount) error, func()) error
+	RelayFee(func(btcutil.Amount) error, func()) error
+	EstimateFee(int, func(*btcutil.Amount) error, func()) error
 	Close()
 }
