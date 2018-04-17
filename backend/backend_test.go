@@ -170,9 +170,10 @@ func (s *backendTestSuite) TestBackend() {
 
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
-			"available":   "0 BTC",
+			"available":   "0",
 			"hasIncoming": false,
-			"incoming":    "0 BTC",
+			"incoming":    "0",
+			"unit":        "BTC",
 		}),
 		s.get("/api/wallet/rbtc/balance"),
 	)
@@ -196,9 +197,10 @@ func (s *backendTestSuite) TestBackend() {
 	s.waitSyncDone()
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
-			"available":   "0 BTC",
+			"available":   "0",
 			"hasIncoming": true,
-			"incoming":    "10 BTC",
+			"incoming":    "10",
+			"unit":        "BTC",
 		}),
 		s.get("/api/wallet/rbtc/balance"),
 	)
@@ -209,9 +211,10 @@ func (s *backendTestSuite) TestBackend() {
 	s.waitSyncDone()
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
-			"available":   "10 BTC",
+			"available":   "10",
 			"hasIncoming": false,
-			"incoming":    "0 BTC",
+			"incoming":    "0",
+			"unit":        "BTC",
 		}),
 		s.get("/api/wallet/rbtc/balance"),
 	)
