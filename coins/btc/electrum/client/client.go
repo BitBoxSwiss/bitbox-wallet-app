@@ -404,8 +404,8 @@ func (client *ElectrumClient) RelayFee(
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
-// blocks. If the fee rate could not be estimated by the blockchain node, the minimum relay fee
-// as returned in client.RelayFee() is chosen and handed to the success callback.
+// blocks. If the fee rate could not be estimated by the blockchain node, `nil` is passed to the
+// success callback.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainestimatefee
 func (client *ElectrumClient) EstimateFee(
 	number int,
