@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"path"
 	"sync"
 	"time"
 
@@ -21,7 +22,7 @@ import (
 )
 
 // dbFilename is where the database is stored.
-const dbFilename = "my.db"
+const dbFilename = "bitbox.db"
 
 var (
 	// Version of the backend as displayed to the user.
@@ -47,6 +48,11 @@ type Interface interface {
 	Start() <-chan interface{}
 	Register(device bitbox.Interface) error
 	Deregister(deviceID string)
+}
+
+// DefaultAppFolder returns the default location to store application data.
+func DefaultAppFolder() string {
+	return "."
 }
 
 type deviceEvent struct {
@@ -84,8 +90,9 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend.
-func NewBackend() (*Backend, error) {
+func NewBackend(appFolder string) (*Backend, error) {
 	return newBackendFromWallets(
+		appFolder,
 		[]*Wallet{
 			&Wallet{
 				Code:                  "btc",
@@ -115,7 +122,7 @@ func NewBackend() (*Backend, error) {
 }
 
 // NewBackendForTesting creates a new backend for testing.
-func NewBackendForTesting(regtest bool) (*Backend, error) {
+func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 	var wallets []*Wallet
 	if regtest {
 		wallets = []*Wallet{
@@ -164,11 +171,13 @@ func NewBackendForTesting(regtest bool) (*Backend, error) {
 			},
 		}
 	}
-	return newBackendFromWallets(wallets)
+	return newBackendFromWallets(appFolder, wallets)
 }
 
-func newBackendFromWallets(wallets []*Wallet) (*Backend, error) {
-	theDB, err := db.NewDB(dbFilename)
+func newBackendFromWallets(appFolder string, wallets []*Wallet) (*Backend, error) {
+	log := logging.Log.WithGroup("backend")
+	log.Infof("App folder: %s", appFolder)
+	theDB, err := db.NewDB(path.Join(appFolder, dbFilename))
 	if err != nil {
 		return nil, err
 	}
@@ -177,7 +186,7 @@ func newBackendFromWallets(wallets []*Wallet) (*Backend, error) {
 		db:      theDB,
 		events:  make(chan interface{}),
 		wallets: wallets,
-		log:     logging.Log.WithGroup("backend"),
+		log:     log,
 	}, nil
 }
 

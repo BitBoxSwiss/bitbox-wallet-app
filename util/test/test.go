@@ -5,7 +5,7 @@ import (
 	"os"
 )
 
-// TstTempFile creates a temporary file and returns its filename.
+// TstTempFile gets the filename for creating a temporary file.
 func TstTempFile(name string) string {
 	f, err := ioutil.TempFile("", name)
 	if err != nil {
@@ -18,4 +18,13 @@ func TstTempFile(name string) string {
 		panic(err)
 	}
 	return f.Name()
+}
+
+// TstTempDir creates a temporary dir and returns its path.
+func TstTempDir(name string) string {
+	f, err := ioutil.TempDir("", name)
+	if err != nil {
+		panic(err)
+	}
+	return f
 }

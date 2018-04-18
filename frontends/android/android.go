@@ -17,7 +17,7 @@ func Serve() {
 		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
-	backend, err := backend.NewBackend()
+	backend, err := backend.NewBackend(backend.DefaultAppFolder())
 	if err != nil {
 		log.Fatal(err)
 	}

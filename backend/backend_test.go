@@ -15,6 +15,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/shiftdevices/godbb/coins/btc"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/shiftdevices/godbb/util/test"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -70,7 +71,7 @@ type backendTestSuite struct {
 
 func (s *backendTestSuite) SetupSuite() {
 	connectionData := handlers.NewConnectionData(8082, "")
-	backend, err := backend.NewBackendForTesting(true)
+	backend, err := backend.NewBackendForTesting(test.TstTempDir("godbb-functional-tests-"), true)
 	require.NoError(s.T(), err)
 	s.router = handlers.NewHandlers(backend, connectionData).Router
 	s.server = httptest.NewServer(s.router)
