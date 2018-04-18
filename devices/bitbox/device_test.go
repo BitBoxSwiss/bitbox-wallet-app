@@ -44,6 +44,7 @@ func (s *dbbTestSuite) SetupTest() {
 		Return(map[string]interface{}{"ping": ""}, nil).
 		Once()
 	dbb, err := bitbox.NewDevice(deviceID, false, firmwareVersion, s.mockCommunication)
+	dbb.SetPasswordPolicy(true)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
 }

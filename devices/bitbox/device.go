@@ -29,6 +29,11 @@ import (
 var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 2)
 	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
+
+	pinPolicyProd              = NewPasswordPolicy(6, "[0-9]")
+	pinPolicyTest              = NewPasswordPolicy(4, "[0-9]")
+	recoveryPasswordPolicyProd = NewPasswordPolicy(8, "[[:graph:]]")
+	recoveryPasswordPolicyTest = NewPasswordPolicy(4, "[[:graph:]]")
 )
 
 // Event instances are sent to the onEvent callback.
@@ -41,7 +46,7 @@ const (
 	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status using BootloaderStatus().
 	EventBootloaderStatusChanged Event = "bootloaderStatusChanged"
 
-	// The amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
+	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
 	signatureBatchSize = 15
 )
 
@@ -77,6 +82,7 @@ type Interface interface {
 	DisplayAddress(keyPath string)
 	VerifyPass(string) (interface{}, error)
 	StartPairing() (*relay.Channel, error)
+	SetPasswordPolicy(bool)
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -111,6 +117,12 @@ type Device struct {
 
 	// If set, the device contains a wallet.
 	seeded bool
+
+	// The password policy for the device PIN.
+	pinPolicy *PasswordPolicy
+
+	// The password policy for the wallet recovery password.
+	recoveryPasswordPolicy *PasswordPolicy
 
 	// If set, the channel can be used to communicate to the mobile.
 	channel *relay.Channel
@@ -181,6 +193,17 @@ func NewDevice(
 		log.WithFields(logrus.Fields{"deviceID": deviceID, "initialized": initialized}).Debug("Device initialization status")
 	}
 	return device, nil
+}
+
+// SetPasswordPolicy sets the password policy to the test or prod policy.
+func (dbb *Device) SetPasswordPolicy(testing bool) {
+	if testing {
+		dbb.pinPolicy = pinPolicyTest
+		dbb.recoveryPasswordPolicy = recoveryPasswordPolicyTest
+	} else {
+		dbb.pinPolicy = pinPolicyProd
+		dbb.recoveryPasswordPolicy = recoveryPasswordPolicyProd
+	}
 }
 
 // DeviceID returns the device ID (provided when it was created in the constructor).
@@ -324,6 +347,10 @@ func (dbb *Device) Ping() (bool, error) {
 // SetPassword defines a PIN for the device. This only works on a fresh device. If a password has
 // already been configured, a new one cannot be set until the device is reset.
 func (dbb *Device) SetPassword(pin string) error {
+	if ok, err := dbb.pinPolicy.ValidatePassword(pin); !ok {
+		return err
+	}
+
 	reply, err := dbb.sendPlain("password", pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to set pin")
@@ -468,6 +495,9 @@ func (dbb *Device) SetName(name string) error {
 func (dbb *Device) CreateWallet(walletName string, backupPassword string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
+	}
+	if ok, err := dbb.recoveryPasswordPolicy.ValidatePassword(backupPassword); !ok {
+		return err
 	}
 	dbb.log.WithField("wallet-name", walletName).Info("Create wallet")
 	if err := dbb.seed(

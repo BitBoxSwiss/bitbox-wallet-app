@@ -233,3 +233,7 @@ func (ks *SoftwareBasedKeyStore) BackupList() ([]string, error) {
 func (ks *SoftwareBasedKeyStore) BootloaderUpgradeFirmware([]byte) error {
 	panic("BootloaderUpgradeFirmware not supported.")
 }
+
+// SetPasswordPolicy is a noop.
+func (ks *SoftwareBasedKeyStore) SetPasswordPolicy(bool) {
+}

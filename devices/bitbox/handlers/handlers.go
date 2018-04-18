@@ -63,6 +63,9 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 	}
 	password := jsonBody["password"]
 	if err := handlers.device.SetPassword(password); err != nil {
+		if _, ok := errp.Cause(err).(bitbox.PasswordValidationError); ok {
+			return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
+		}
 		return maybeDBBErr(err, handlers.log), nil
 	}
 	handlers.log.Debug("Set password on device")

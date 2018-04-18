@@ -347,6 +347,7 @@ func (backend *Backend) uninitWallets() {
 func (backend *Backend) Register(device bitbox.Interface) error {
 	backend.device = device
 	backend.onDeviceInit(device)
+	backend.device.SetPasswordPolicy(backend.Testing())
 	backend.device.SetOnEvent(func(event bitbox.Event) {
 		switch event {
 		case bitbox.EventStatusChanged:
