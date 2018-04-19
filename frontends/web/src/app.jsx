@@ -1,8 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
+import { Button } from './components/forms';
+import { BitBox } from './components/icon/logo';
 
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
@@ -22,7 +22,7 @@ import { apiWebsocket } from './utils/websocket';
 
 import { debug } from './utils/env';
 
-import style from './components/style';
+import style from './components/app.css';
 
 @translate()
 export default class App extends Component {
@@ -98,34 +98,35 @@ export default class App extends Component {
     render({}, { deviceIDs, walletInitialized, wallets, activeWallet, testing }) {
         if (wallets && wallets.length != 0 && walletInitialized) {
             return (
-                <div class={style.container}>
-                    <div style="display: flex; flex: 1 1 auto;">
-                        <Sidebar
-                            accounts={wallets}
-                            activeWallet={activeWallet}
-                            deviceIDs={deviceIDs}
-                          />
-                        <Router onChange={this.handleRoute}>
-                            <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                            <Account path="/account/:code" wallets={wallets} />
-                            <Device path="/device/:deviceID" />
-                            <ManageBackups
-                                path="/manage-backups/:deviceID"
-                                showCreate={true}
-                                displayError={(msg) => { if (msg) alert("TODO" + msg); }}
-                            />
-                        </Router>
-                    </div>
+                <div style="display: flex; flex: 1 1 auto;">
+                    <Sidebar
+                        accounts={wallets}
+                        activeWallet={activeWallet}
+                        deviceIDs={deviceIDs}
+                    />
+                    <Router onChange={this.handleRoute}>
+                        <Redirect path="/" to={`/account/${wallets[0].code}`} />
+                        <Account path="/account/:code" wallets={wallets} />
+                        <Device path="/device/:deviceID" />
+                        <ManageBackups
+                            path="/manage-backups/:deviceID"
+                            showCreate={true}
+                            displayError={(msg) => { if (msg) alert("TODO" + msg); }}
+                        />
+                    </Router>
                     <Alert />
                 </div>
             );
         }
         if (deviceIDs.length == 0) {
             return (
-                <Dialog>
-                    <h3>Waiting for device...</h3>
-                    <SkipForTestingButton show={debug && testing}/>
-                </Dialog>
+                <div className={style.container}>
+                    {BitBox}
+                    <div className={style.content}>
+                        <h3>Waiting for device...</h3>
+                        <SkipForTestingButton show={debug && testing}/>
+                    </div>
+                </div>
             );
         }
         return <Device deviceID={deviceIDs[0]} />;

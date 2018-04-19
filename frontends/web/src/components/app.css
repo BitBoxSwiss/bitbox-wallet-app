@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    width: 400px;
+}
+
+.content {
+    height: 150px;
+}
