@@ -203,10 +203,13 @@ func (history TxHistory) Status() string {
 	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
 }
 
+// ScriptHashHex is the hash of a pkScript in reverse hex format.
+type ScriptHashHex string
+
 // ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
-	scriptHashHex string,
+	scriptHashHex ScriptHashHex,
 	success func(TxHistory) error,
 	cleanup func(),
 ) error {
@@ -221,18 +224,18 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 		},
 		cleanup,
 		"blockchain.scripthash.get_history",
-		scriptHashHex)
+		string(scriptHashHex))
 }
 
 // ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashsubscribe
 func (client *ElectrumClient) ScriptHashSubscribe(
-	scriptHashHex string,
+	scriptHashHex ScriptHashHex,
 	success func(string) error,
 	cleanup func(),
 ) error {
 	client.scriptHashNotificationCallbacksLock.Lock()
-	client.scriptHashNotificationCallbacks[scriptHashHex] = success
+	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = success
 	client.scriptHashNotificationCallbacksLock.Unlock()
 	return client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -248,7 +251,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		},
 		cleanup,
 		"blockchain.scripthash.subscribe",
-		scriptHashHex)
+		string(scriptHashHex))
 }
 
 func parseTX(rawTXHex string, log *logrus.Entry) (*wire.MsgTx, error) {

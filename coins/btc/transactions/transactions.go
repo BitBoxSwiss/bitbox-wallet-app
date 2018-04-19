@@ -22,8 +22,8 @@ type TxOut struct {
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
-func (txOut *TxOut) ScriptHashHex() string {
-	return chainhash.HashH(txOut.PkScript).String()
+func (txOut *TxOut) ScriptHashHex() client.ScriptHashHex {
+	return client.ScriptHashHex(chainhash.HashH(txOut.PkScript).String())
 }
 
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
@@ -448,7 +448,7 @@ func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	tx *wire.MsgTx,
 	height int,
-	isChange func(string) bool) *TxInfo {
+	isChange func(client.ScriptHashHex) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
@@ -517,7 +517,7 @@ func (transactions *Transactions) txInfo(
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChange func(string) bool) []*TxInfo {
+	isChange func(client.ScriptHashHex) bool) []*TxInfo {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()

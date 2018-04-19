@@ -7,6 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -17,7 +18,7 @@ func SignTransaction(
 	keyStore KeyStoreWithoutKeyDerivation,
 	transaction *wire.MsgTx,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
-	getAddress func(string) *addresses.Address,
+	getAddress func(client.ScriptHashHex) *addresses.Address,
 	log *logrus.Entry,
 ) error {
 	log.Info("Sign transaction")

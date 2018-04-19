@@ -6,6 +6,7 @@ import (
 	"github.com/btcsuite/btcutil"
 
 	"github.com/shiftdevices/godbb/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -109,7 +110,7 @@ func (wallet *Wallet) SendTx(
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create transaction")
 	}
-	getAddress := func(scriptHashHex string) *addresses.Address {
+	getAddress := func(scriptHashHex client.ScriptHashHex) *addresses.Address {
 		if address := wallet.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
 		}

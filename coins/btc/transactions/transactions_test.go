@@ -197,7 +197,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		},
 		s.transactions.SpendableOutputs(),
 	)
-	transactions := s.transactions.Transactions(func(string) bool { return false })
+	transactions := s.transactions.Transactions(func(client.ScriptHashHex) bool { return false })
 	require.Len(s.T(), transactions, 1)
 	require.Equal(s.T(), tx1, transactions[0].Tx)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
@@ -376,7 +376,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
 		s.transactions.Balance())
 	require.Len(s.T(),
-		s.transactions.Transactions(func(string) bool { return false }),
+		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }),
 		3)
 	// Remove tx3 from the history of address2. Now it's not referenced anymore and disappears.
 	s.updateAddressHistory(address2, []*client.TxInfo{
@@ -386,7 +386,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		&transactions.Balance{Available: 12 + 34, Incoming: 0},
 		s.transactions.Balance())
 	require.Len(s.T(),
-		s.transactions.Transactions(func(string) bool { return false }),
+		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }),
 		2)
 }
 
@@ -407,5 +407,5 @@ func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
 		&transactions.Balance{Available: 0, Incoming: 0},
 		s.transactions.Balance())
 	require.Empty(s.T(),
-		s.transactions.Transactions(func(string) bool { return false }))
+		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }))
 }

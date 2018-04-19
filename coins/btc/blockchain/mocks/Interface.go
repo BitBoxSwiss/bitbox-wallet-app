@@ -60,11 +60,11 @@ func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func()) error 
 }
 
 // ScriptHashGetHistory provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashGetHistory(_a0 string, _a1 func(client.TxHistory) error, _a2 func()) error {
+func (_m *Interface) ScriptHashGetHistory(_a0 client.ScriptHashHex, _a1 func(client.TxHistory) error, _a2 func()) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, func(client.TxHistory) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(client.TxHistory) error, func()) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -74,11 +74,11 @@ func (_m *Interface) ScriptHashGetHistory(_a0 string, _a1 func(client.TxHistory)
 }
 
 // ScriptHashSubscribe provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashSubscribe(_a0 string, _a1 func(string) error, _a2 func()) error {
+func (_m *Interface) ScriptHashSubscribe(_a0 client.ScriptHashHex, _a1 func(string) error, _a2 func()) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string, func(string) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(string) error, func()) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)

@@ -3,6 +3,7 @@ package addresses
 import (
 	"fmt"
 
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 
@@ -112,7 +113,7 @@ func (addresses *AddressChain) unusedTailCount() int {
 
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
-func (addresses *AddressChain) LookupByScriptHashHex(scriptHashHex string) *Address {
+func (addresses *AddressChain) LookupByScriptHashHex(scriptHashHex client.ScriptHashHex) *Address {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
 		if address.ScriptHashHex() == scriptHashHex {

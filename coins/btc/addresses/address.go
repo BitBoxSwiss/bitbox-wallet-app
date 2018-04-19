@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/shiftdevices/godbb/coins/btc/electrum/client"
 	"github.com/sirupsen/logrus"
 )
 
@@ -113,8 +114,8 @@ func (address *Address) PkScript() []byte {
 
 // ScriptHashHex returns the hash of the output script in hex format. Used to subscribe to
 // notifications with Electrum.
-func (address *Address) ScriptHashHex() string {
-	return chainhash.HashH(address.PkScript()).String()
+func (address *Address) ScriptHashHex() client.ScriptHashHex {
+	return client.ScriptHashHex(chainhash.HashH(address.PkScript()).String())
 }
 
 // SigHashData returns whether this address is a segwit output, and the subScript used when

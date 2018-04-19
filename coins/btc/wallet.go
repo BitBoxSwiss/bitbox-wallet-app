@@ -295,7 +295,7 @@ func (wallet *Wallet) subscribeAddress(
 // Transactions wraps transaction.Transactions.Transactions()
 func (wallet *Wallet) Transactions() []*transactions.TxInfo {
 	return wallet.transactions.Transactions(
-		func(scriptHashHex string) bool {
+		func(scriptHashHex client.ScriptHashHex) bool {
 			return wallet.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
 }
