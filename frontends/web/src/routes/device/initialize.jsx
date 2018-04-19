@@ -1,15 +1,12 @@
 import { Component } from 'preact';
-import Dialog from '../../components/dialog/dialog';
-import { PasswordRepeatInput } from '../../components/password';
-
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-
-import LanguageSwitcher from '../settings/components/language-switch';
-
 import { translate } from 'react-i18next';
 
 import { apiPost } from '../../utils/request';
+import { PasswordRepeatInput } from '../../components/password';
+import { Button } from '../../components/forms';
+import { BitBox } from '../../components/icon/logo';
+import LanguageSwitcher from '../settings/components/language-switch';
+import style from '../../components/app.css';
 
 @translate()
 export default class Initialize extends Component {
@@ -78,28 +75,30 @@ export default class Initialize extends Component {
         };
 
         return (
-            <Dialog>
-                <LanguageSwitcher />
-                <p>Please set a password to interact with your device</p>
-                <form onsubmit={this.handleSubmit}>
-                    <PasswordRepeatInput
-                        ref={ref => {
-                            this.passwordInput = ref;
-                        }}
-                        disabled={state.state === this.stateEnum.WAITING}
-                        onValidPassword={this.setValidPassword}
-                    />
-                    <div>
-                        <Button
-                            type="submit"
-                            primary={true}
-                            raised={true}
-                            disabled={!state.password || state.state === this.stateEnum.WAITING}
-                        >Set Password</Button>
-                    </div>
-                    <FormSubmissionState {...state} />
-                </form>
-            </Dialog>
+            <div className={style.container}>
+                {BitBox}
+                <div className={style.content}>
+                    <p>Please set a password to interact with your device</p>
+                    <form onsubmit={this.handleSubmit}>
+                        <PasswordRepeatInput
+                            ref={ref => {
+                                this.passwordInput = ref;
+                            }}
+                            disabled={state.state === this.stateEnum.WAITING}
+                            onValidPassword={this.setValidPassword}
+                        />
+                        <div>
+                            <Button
+                                type="submit"
+                                secondary={true}
+                                disabled={!state.password || state.state === this.stateEnum.WAITING}
+                            >Set Password</Button>
+                        </div>
+                        <FormSubmissionState {...state} />
+                    </form>
+                    <LanguageSwitcher />
+                </div>
+            </div>
         );
     }
 }

@@ -1,16 +1,11 @@
 import { Component } from 'preact';
-import Dialog from '../../components/dialog/dialog';
-
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
-
-import { PasswordRepeatInput } from '../../components/password';
-
-import ManageBackups from '../../routes/device/manage-backups/manage-backups';
 
 import { apiPost } from '../../utils/request';
+import ManageBackups from '../../routes/device/manage-backups/manage-backups';
+import { PasswordRepeatInput } from '../../components/password';
+import { Button, Input } from '../../components/forms';
+import { BitBox } from '../../components/icon/logo';
+import style from '../../components/app.css';
 
 export default class Seed extends Component {
     stateEnum = Object.freeze({
@@ -51,7 +46,7 @@ export default class Seed extends Component {
             walletName: this.state.walletName,
             backupPassword: this.state.backupPassword
         }).then(data => {
-            if(!data.success) {
+            if (!data.success) {
                 this.displayError(data.errorMessage);
             }
             if (this.backupPasswordInput) {
@@ -68,35 +63,31 @@ export default class Seed extends Component {
         this.setState({ backupPassword });
     }
 
-    render({ deviceID }, state) {
-        const FormSubmissionState = props => {
-            switch (props.state){
-            case this.stateEnum.DEFAULT:
-                break;
-            case this.stateEnum.WAITING:
-                return (
-                    <div>Creating wallet..</div>
-                );
-            case this.stateEnum.ERROR:
-                return (
-                    <div>{props.error}</div>
-                );
-            }
-            return null;
-        };
+    render({ deviceID }, { state, walletName, error }) {
+
+        if (state === this.stateEnum.WAITING) {
+            return (
+                <div className={style.container}>
+                    {BitBox}
+                    <div className={style.content}>Creating wallet..</div>
+                </div>
+            );
+        }
 
         return (
-            <Dialog>
-                <form onsubmit={this.handleSubmit}>
+            <div className={style.container}>
+                {BitBox}
+                <form onsubmit={this.handleSubmit} className={style.content}>
+                    { state === this.stateEnum.ERROR ? <div>{error}</div> : null }
                     <div>
-                        <Textfield
+                        <Input
                             autoFocus
                             autoComplete="off"
                             id="walletName"
                             label="Wallet Name"
-                            disabled={state.state === this.stateEnum.WAITING}
+                            disabled={state === this.stateEnum.WAITING}
                             onInput={this.handleFormChange}
-                            value={state.walletName}
+                            value={walletName}
                         />
                         <PasswordRepeatInput
                             ref={ref => {
@@ -109,16 +100,14 @@ export default class Seed extends Component {
                     <div>
                         <Button
                             type="submit"
-                            primary={true}
-                            raised={true}
-                            disabled={!this.validate() || state.state === this.stateEnum.WAITING}
+                            secondary={true}
+                            disabled={!this.validate() || state === this.stateEnum.WAITING}
                         >Create Wallet</Button>
                     </div>
-                    <FormSubmissionState {...state} />
                 </form>
                 <p>-- OR --</p>
-                <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID}/>
-            </Dialog>
+                <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID} />
+            </div>
         );
     }
 }

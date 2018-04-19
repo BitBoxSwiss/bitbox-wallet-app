@@ -1,7 +1,6 @@
 import { Component } from 'preact';
 
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
+import { Button, Input } from '../../../components/forms';
 
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
@@ -58,8 +57,7 @@ export default class Create extends Component {
         return (
             <span>
                 <Button
-                    primary={true}
-                    raised={true}
+                    secondary={true}
                     onclick={this.showDialog}
                 >
                     Create
@@ -71,14 +69,13 @@ export default class Create extends Component {
                     <Dialog.Header>Create Backup</Dialog.Header>
                     <form onSubmit={this.create}>
                         <Dialog.Body>
-                            <Textfield
+                            <Input
                                 autoFocus
                                 autoComplete="off"
                                 ref={pwf => this.pwf = pwf}
                                 id="backupName"
                                 label="Backup Name"
-                                helptext="Please name the backup."
-                                helptextPersistent={true}
+                                placeholder="Please name the backup."
                                 onInput={this.handleFormChange}
                                 value={backupName}
                             />

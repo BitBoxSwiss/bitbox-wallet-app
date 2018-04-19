@@ -1,9 +1,9 @@
 import { Component } from 'preact';
-import Button from 'preact-material-components/Button';
+
+import { Button } from '../../../components/forms';
 import Dialog from 'preact-material-components/Dialog';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../utils/request';
-import 'preact-material-components/Button/style.css';
 import 'preact-material-components/Dialog/style.css';
 
 

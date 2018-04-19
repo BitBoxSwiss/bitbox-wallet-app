@@ -1,17 +1,10 @@
 import { Component } from 'preact';
-import Dialog from '../../components/dialog/dialog';
-
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
-
-import LanguageSwitcher from '../settings/components/language-switch';
-
 import { translate } from 'react-i18next';
 
 import { apiPost } from '../../utils/request';
+import { Button, Input } from '../../components/forms';
+import { BitBox } from '../../components/icon/logo';
+import style from '../../components/app.css';
 
 @translate()
 export default class Login extends Component {
@@ -66,58 +59,63 @@ export default class Login extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t }, state) {
-        const FormSubmissionState = props => {
-            switch (props.state) {
-            case this.stateEnum.DEFAULT:
-                break;
-            case this.stateEnum.WAITING:
-                return (
-                    <div>{t('dbb.unlocking')}</div>
-                );
-            case this.stateEnum.ERROR:
-                return (
-                    <div>
-                        {t(`dbb.error.${props.errorCode}`, {
-                            defaultValue: props.errorMessage,
-                            remainingAttempts: props.remainingAttempts,
-                            context: props.needsLongTouch ? 'touch' : 'normal'
+    render({ t }, {
+        state, password,
+        errorCode, errorMessage, remainingAttempts, needsLongTouch
+    }) {
+
+        switch (state) {
+        case this.stateEnum.DEFAULT:
+            break;
+        case this.stateEnum.WAITING:
+            return (
+                <div className={style.container}>
+                    {BitBox}
+                    <div class={style.content}>{t('dbb.unlocking')}</div>
+                </div>
+            );
+        case this.stateEnum.ERROR:
+            return (
+                <div className={style.container}>
+                    {BitBox}
+                    <div class={style.content}>
+                        {t(`dbb.error.${errorCode}`, {
+                            defaultValue: errorMessage,
+                            remainingAttempts,
+                            context: needsLongTouch ? 'touch' : 'normal'
                         })}
                     </div>
-                );
-            }
-            return null;
-        };
+                </div>
+            );
+        }
 
         return (
-            <Dialog>
-                <LanguageSwitcher />
-                <form onsubmit={this.handleSubmit}>
+            <div className={style.container}>
+                {BitBox}
+                <form onsubmit={this.handleSubmit} class={style.content}>
                     <div>
-                        <Textfield
+                        <Input
                             autoFocus
                             autoComplete="off"
                             id="password"
                             type="password"
                             label={t('Password')}
-                            disabled={state.state === this.stateEnum.WAITING}
-                            helptext={t('Please enter your password to log in')}
-                            helptextPersistent={true}
+                            disabled={state === this.stateEnum.WAITING}
+                            placeholder={t('Please enter your PIN to log in')}
                             onInput={this.handleFormChange}
-                            value={state.password}
+                            value={password}
                         />
                     </div>
                     <div>
                         <Button
+                            secondary
                             type="submit"
-                            primary={true}
-                            raised={true}
-                            disabled={!this.validate() || state.state === this.stateEnum.WAITING}
+                            disabled={!this.validate() || state === this.stateEnum.WAITING}
+                            style={{ width: '100%' }}
                         >{t('Login')}</Button>
                     </div>
-                    <FormSubmissionState {...state} />
                 </form>
-            </Dialog>
+            </div>
         );
     }
 }

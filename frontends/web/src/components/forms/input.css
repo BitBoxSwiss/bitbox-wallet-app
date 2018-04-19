@@ -1,0 +1,30 @@
+.input {
+}
+
+.input label {
+    display: block;
+    text-align: left;
+    margin-bottom: var(--spacing-half);
+}
+
+.input input {
+    background-color: var(--color-lightgray);
+    display: block;
+    font-family: var(--font-family);
+    font-size: 1rem;
+    font-weight: 500;
+    border-width: 2px;
+    border-style: solid;
+    border-color: transparent;
+    border-radius: 2px;
+    height: 2.25em;
+    margin-bottom: var(--spacing-default);
+    padding: calc(0.375em - 1px) 0.75em;
+    width: 100%;
+}
+
+.input input[disabled] {
+    background-color: var(--color-white) !important;
+    border-color: var(--color-brightgray) !important;
+    color: var(--color-brightgray) !important;
+}

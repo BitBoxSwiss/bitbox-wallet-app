@@ -1,7 +1,16 @@
 .backupList {
+    appearance: none;
+    border-color: var(--color-softblack);
+    border-style: solid;
+    border-width: 1px;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--spacing-default);
+    outline: none;
+    padding: 0;
     width: 100%;
 }
 
-.container {
-    padding: var(--spacing-default);
+.backupList option {
+    line-height: 48px;
 }

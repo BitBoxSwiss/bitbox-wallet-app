@@ -1,7 +1,6 @@
 import { Component } from 'preact';
 
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
+import { Button } from '../../../components/forms';
 
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
@@ -28,9 +27,8 @@ export default class Erase extends Component {
             <span>
                 <Button
                     primary={true}
-                    raised={true}
                     disabled={selectedBackup === null}
-                    onclick={this.showDialog}
+                    onClick={this.showDialog}
                 >Erase</Button>
                 <Dialog
                     ref={confirmDialog => this.confirmDialog = confirmDialog}

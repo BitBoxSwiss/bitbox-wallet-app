@@ -1,14 +1,10 @@
 import { Component } from 'preact';
 
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-
 import { apiGet } from '../../../utils/request';
-
+import { Button } from '../../../components/forms';
 import Create from './create';
 import Restore from './restore';
 import Erase from './erase';
-
 import style from './manage-backups.css';
 
 export default class ManageBackups extends Component {
@@ -46,29 +42,29 @@ export default class ManageBackups extends Component {
     render({ showCreate, deviceID }, { backupList, selectedBackup, sdCardInserted }) {
         if (!sdCardInserted) {
             return (
-                <div className={style.container}>
+                <div>
                     <p>Please insert SD card to manage backups.</p>
                     <Button
-                        primary={true}
-                        raised={true}
+                        secondary={true}
                         onclick={this.refresh}
                     >I have inserted the SD card</Button>
                 </div>
             );
         }
-        const selectClasses = ['mdc-multi-select', 'mdc-list', style.backupList].join(' ');
 
         return (
-            <div className={style.container}>
+            <div>
                 <h1>Manage Backups</h1>
                 <div>
-                    <select
-                        id="backupList"
-                        size="6"
-                        className={selectClasses}
-                        onChange={this.handleBackuplistChange}
-                    >{ backupList.map(renderOption) }
-                    </select>
+                    <div>
+                        <select
+                            id="backupList"
+                            size="6"
+                            className={style.backupList}
+                            onChange={this.handleBackuplistChange}
+                        >{ backupList.map(renderOption) }
+                        </select>
+                    </div>
                     <Restore
                         selectedBackup={selectedBackup}
                         displayError={this.displayError}

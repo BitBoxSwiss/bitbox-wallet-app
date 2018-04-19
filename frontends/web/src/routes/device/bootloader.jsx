@@ -1,12 +1,9 @@
 import { Component } from 'preact';
 
-import Dialog from '../../components/dialog/dialog';
-
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
+import { Button } from '../../components/forms';
+import Dialog from '../../components/dialog/dialog';
 
 export default class Bootloader extends Component {
     constructor(props) {
@@ -66,9 +63,8 @@ export default class Bootloader extends Component {
             }
             return (
                 <Button
-                    primary={true}
-                    raised={true}
-                    onclick={this.upgradeFirmware}
+                    secondary={true}
+                    onClick={this.upgradeFirmware}
                 >Upgrade Firmware now</Button>
             );
         };

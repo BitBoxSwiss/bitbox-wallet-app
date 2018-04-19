@@ -1,11 +1,6 @@
 import { Component } from 'preact';
 
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
-
-import Checkbox from 'preact-material-components/Checkbox';
-import Formfield from 'preact-material-components/Formfield';
-import 'preact-material-components/Checkbox/style.css';
+import { Input, Checkbox, Field } from './forms';
 
 export class PasswordInput extends Component {
 
@@ -19,7 +14,7 @@ export class PasswordInput extends Component {
     render(props) {
         const { seePlaintext, ...rest } = props;
         return (
-            <Textfield
+            <Input
                 type={seePlaintext ? 'text' : 'password'}
                 autoComplete="off"
                 onPaste={this.tryPaste}
@@ -32,15 +27,19 @@ export class PasswordInput extends Component {
 export class PasswordRepeatInput extends Component {
     constructor(props) {
         super(props);
-        this.clear();
-    }
-
-    clear = () => {
         this.state = {
             password: '',
             passwordRepeat: '',
             seePlaintext: false
         };
+    }
+
+    clear = () => {
+        this.setState({
+            password: '',
+            passwordRepeat: '',
+            seePlaintext: false
+        });
     }
 
     validate = () => {
@@ -64,37 +63,32 @@ export class PasswordRepeatInput extends Component {
     render({ disabled, helptext }, { password, passwordRepeat, seePlaintext }) {
         return (
             <div>
-                <div>
-                    <PasswordInput
-                        autoFocus
-                        id="password"
-                        seePlaintext={seePlaintext}
-                        label="Password"
-                        helptext={helptext}
-                        helptextPersistent={true}
-                        disabled={disabled}
-                        onInput={this.handleFormChange}
-                        value={password}
-                    />
-                </div>
-                <div>
-                    <PasswordInput
-                        id="passwordRepeat"
-                        seePlaintext={seePlaintext}
-                        label="Repeat Password"
-                        disabled={disabled}
-                        onInput={this.handleFormChange}
-                        value={passwordRepeat}
-                    />
-                </div>
-                <Formfield>
+                <PasswordInput
+                    autoFocus
+                    id="password"
+                    seePlaintext={seePlaintext}
+                    label="Password"
+                    placeholder={helptext}
+                    disabled={disabled}
+                    onInput={this.handleFormChange}
+                    value={password}
+                />
+                <PasswordInput
+                    id="passwordRepeat"
+                    seePlaintext={seePlaintext}
+                    label="Repeat Password"
+                    disabled={disabled}
+                    onInput={this.handleFormChange}
+                    value={passwordRepeat}
+                />
+                <Field>
                     <Checkbox
                         id="seePlaintext"
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
+                        label="See Plaintext"
                     />
-                    <label for="seePlaintext">See Plaintext</label>
-                </Formfield>
+                </Field>
             </div>
         );
     }
