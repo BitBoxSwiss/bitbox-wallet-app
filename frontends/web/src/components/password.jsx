@@ -27,19 +27,20 @@ export class PasswordInput extends Component {
 export class PasswordRepeatInput extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            password: '',
-            passwordRepeat: '',
-            seePlaintext: false
-        };
+        this.state = this.getInitialState();
     }
 
     clear = () => {
-        this.setState({
+        this.setState(this.getInitialState());
+    }
+
+    getInitialState() {
+        return {
             password: '',
             passwordRepeat: '',
-            seePlaintext: false
-        });
+            seePlaintext: false,
+            capsLock: false
+        };
     }
 
     validate = () => {
@@ -57,10 +58,16 @@ export class PasswordRepeatInput extends Component {
         }
         this.setState({ [event.target.id]: value });
         this.validate();
-    };
+    }
 
+    handleCheckCaps = event => {
+        const capsLock = event.getModifierState && event.getModifierState('CapsLock');
+        this.setState({ capsLock });
+    }
 
-    render({ disabled, helptext }, { password, passwordRepeat, seePlaintext }) {
+    render({ disabled, helptext }, { password, passwordRepeat, seePlaintext, capsLock }) {
+        const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
+
         return (
             <div>
                 <PasswordInput
@@ -71,6 +78,8 @@ export class PasswordRepeatInput extends Component {
                     placeholder={helptext}
                     disabled={disabled}
                     onInput={this.handleFormChange}
+                    onKeyUp={this.handleCheckCaps}
+                    onKeyDown={this.handleCheckCaps}
                     value={password}
                 />
                 <PasswordInput
@@ -79,8 +88,11 @@ export class PasswordRepeatInput extends Component {
                     label="Repeat Password"
                     disabled={disabled}
                     onInput={this.handleFormChange}
+                    onKeyUp={this.handleCheckCaps}
+                    onKeyDown={this.handleCheckCaps}
                     value={passwordRepeat}
                 />
+                {warning}
                 <Field>
                     <Checkbox
                         id="seePlaintext"
