@@ -95,7 +95,6 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	pin := os.Getenv("BITBOX_PIN")
 	if pin != "" {
 		if _, _, err := device.Login(pin); err != nil {
-			manager.log.Info("Failed to unlock the BitBox with the provided PIN.")
 			return errp.WithMessage(err, "Failed to unlock the BitBox with the provided PIN.")
 		}
 	}

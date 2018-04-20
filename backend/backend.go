@@ -1,8 +1,6 @@
 package backend
 
 import (
-	"fmt"
-	"os"
 	"path"
 	"sync"
 	"time"
@@ -325,11 +323,7 @@ func (backend *Backend) initWallets() error {
 		}(wallet)
 	}
 	wg.Wait()
-	// In case of automatic login from the environment variable, the frontend may only be
-	// reloaded once the wallets have finished their synchronization.
-	if os.Getenv("BITBOX_PIN") != "" {
-		fmt.Println("The wallets finished their synchronization.")
-	}
+	backend.log.Info("wallets init finished")
 	return nil
 }
 
