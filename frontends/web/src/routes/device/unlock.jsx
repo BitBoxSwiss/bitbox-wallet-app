@@ -95,9 +95,9 @@ export default class Unlock extends Component {
                             autoComplete="off"
                             id="password"
                             type="password"
-                            label={t('Password')}
+                            label={t('PIN')}
                             disabled={state === this.stateEnum.WAITING}
-                            placeholder={t('Please enter your password to log in')}
+                            placeholder={t('Please enter your PIN to log in')}
                             onInput={this.handleFormChange}
                             value={password}
                         />
