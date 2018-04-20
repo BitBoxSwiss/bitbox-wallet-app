@@ -79,7 +79,7 @@ export default class Seed extends Component {
                 {BitBox}
                 <div className={style.content}>
                     <form onsubmit={this.handleSubmit}>
-                        { state === this.stateEnum.ERROR ? <div>{error}</div> : null }
+                        { state === this.stateEnum.ERROR ? <p>{error}</p> : null }
                         <div>
                             <Input
                                 autoFocus
@@ -91,9 +91,8 @@ export default class Seed extends Component {
                                 value={walletName}
                             />
                             <PasswordRepeatInput
-                                ref={ref => {
-                                    this.backupPasswordInput = ref;
-                                }}
+                                label="Password"
+                                ref={ref => this.backupPasswordInput = ref}
                                 disabled={state.state === this.stateEnum.WAITING}
                                 onValidPassword={this.setValidBackupPassword}
                             />

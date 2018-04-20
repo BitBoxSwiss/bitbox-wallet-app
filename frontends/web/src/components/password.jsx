@@ -65,16 +65,15 @@ export class PasswordRepeatInput extends Component {
         this.setState({ capsLock });
     }
 
-    render({ disabled, helptext }, { password, passwordRepeat, seePlaintext, capsLock }) {
+    render({ disabled, helptext, label }, { password, passwordRepeat, seePlaintext, capsLock }) {
         const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
-
         return (
             <div>
                 <PasswordInput
                     autoFocus
                     id="password"
                     seePlaintext={seePlaintext}
-                    label="Password"
+                    label={label}
                     placeholder={helptext}
                     disabled={disabled}
                     onInput={this.handleFormChange}
@@ -85,7 +84,7 @@ export class PasswordRepeatInput extends Component {
                 <PasswordInput
                     id="passwordRepeat"
                     seePlaintext={seePlaintext}
-                    label="Repeat Password"
+                    label={`Repeat ${label}`}
                     disabled={disabled}
                     onInput={this.handleFormChange}
                     onKeyUp={this.handleCheckCaps}

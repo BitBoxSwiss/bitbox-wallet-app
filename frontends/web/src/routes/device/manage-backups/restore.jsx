@@ -1,7 +1,6 @@
 import { Component } from 'preact';
 
 import { Button } from '../../../components/forms';
-
 import Dialog from 'preact-material-components/Dialog';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../components/password';
@@ -69,9 +68,9 @@ export default class Restore extends Component {
             <Dialog.Body>
               <div>
                 <PasswordRepeatInput
+                  label="Password"
                   ref={ref => this.passwordInput = ref}
                   helptext="Please enter the same password as when the backup was created."
-                  helptextPersistent={true}
                   onValidPassword={this.setValidPassword}
                 />
               </div>

@@ -60,7 +60,7 @@ export default class Initialize extends Component {
                 break;
             case this.stateEnum.WAITING:
                 return (
-                    <div>Setting password...</div>
+                    <div>Setting PIN…</div>
                 );
             case this.stateEnum.ERROR:
                 return (
@@ -78,12 +78,11 @@ export default class Initialize extends Component {
             <div className={style.container}>
                 {BitBox}
                 <div className={style.content}>
-                    <p>Please set a password to interact with your device</p>
+                    <p>Please set a PIN to interact with your device</p>
                     <form onsubmit={this.handleSubmit}>
                         <PasswordRepeatInput
-                            ref={ref => {
-                                this.passwordInput = ref;
-                            }}
+                            label="PIN"
+                            ref={ref => this.passwordInput = ref}
                             disabled={state.state === this.stateEnum.WAITING}
                             onValidPassword={this.setValidPassword}
                         />
@@ -92,7 +91,7 @@ export default class Initialize extends Component {
                                 type="submit"
                                 secondary={true}
                                 disabled={!state.password || state.state === this.stateEnum.WAITING}
-                            >Set Password</Button>
+                            >Set PIN</Button>
                         </div>
                         <FormSubmissionState {...state} />
                     </form>
