@@ -7,7 +7,7 @@ import { BitBox } from '../../components/icon/logo';
 import style from '../../components/app.css';
 
 @translate()
-export default class Login extends Component {
+export default class Unlock extends Component {
     stateEnum = Object.freeze({
         DEFAULT: 'default',
         WAITING: 'waiting',
@@ -64,28 +64,23 @@ export default class Login extends Component {
         errorCode, errorMessage, remainingAttempts, needsLongTouch
     }) {
 
+        let submissionState = null;
+
         switch (state) {
         case this.stateEnum.DEFAULT:
             break;
         case this.stateEnum.WAITING:
-            return (
-                <div className={style.container}>
-                    {BitBox}
-                    <div class={style.content}>{t('dbb.unlocking')}</div>
-                </div>
-            );
+            submissionState = <p>{t('dbb.unlocking')}</p>;
+            break;
         case this.stateEnum.ERROR:
-            return (
-                <div className={style.container}>
-                    {BitBox}
-                    <div class={style.content}>
-                        {t(`dbb.error.${errorCode}`, {
-                            defaultValue: errorMessage,
-                            remainingAttempts,
-                            context: needsLongTouch ? 'touch' : 'normal'
-                        })}
-                    </div>
-                </div>
+            submissionState = (
+                <p>
+                    {t(`dbb.error.${errorCode}`, {
+                        defaultValue: errorMessage,
+                        remainingAttempts,
+                        context: needsLongTouch ? 'touch' : 'normal'
+                    })}
+                </p>
             );
         }
 
@@ -93,6 +88,7 @@ export default class Login extends Component {
             <div className={style.container}>
                 {BitBox}
                 <form onsubmit={this.handleSubmit} class={style.content}>
+                    {submissionState}
                     <div>
                         <Input
                             autoFocus
@@ -101,7 +97,7 @@ export default class Login extends Component {
                             type="password"
                             label={t('Password')}
                             disabled={state === this.stateEnum.WAITING}
-                            placeholder={t('Please enter your PIN to log in')}
+                            placeholder={t('Please enter your password to log in')}
                             onInput={this.handleFormChange}
                             value={password}
                         />
