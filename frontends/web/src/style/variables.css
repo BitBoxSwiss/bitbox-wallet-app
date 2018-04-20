@@ -12,7 +12,7 @@
     --color-success: #91B496;
 
     /* background colors */
-    --background: var(--color-lightgray);
+    --background: var(--color-white);
     --background-hover: var(--background);
     --background-active: var(--color-white);
     --background-sidebar: var(--color-brightgray);
