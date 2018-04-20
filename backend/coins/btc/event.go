@@ -14,4 +14,7 @@ const (
 
 	// EventSyncDone follows EventSyncStarted.
 	EventSyncDone Event = "syncdone"
+
+	// EventHeadersSynced is fired when the headers finishesd syncing.
+	EventHeadersSynced Event = "headersSynced"
 )

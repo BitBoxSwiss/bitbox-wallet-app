@@ -27,6 +27,8 @@ type DBTxInterface interface {
 	TxInfo(chainhash.Hash) (tx *wire.MsgTx, addresses []string, height int, err error)
 	// Transactions retrieves all stored trasaction hashes.
 	Transactions() ([]chainhash.Hash, error)
+	// UnverifiedTransactions retrieves all stored trasaction hashes of unverified transactions.
+	UnverifiedTransactions() ([]chainhash.Hash, error)
 	// PutInput stores a transaction input. It is referenced by output it spends. The transaction
 	// hash of the transaction this input was found in is recorded. TODO: store slice of inputs
 	// along with the txhash they appear in. If there are more than one, a double spend is detected.

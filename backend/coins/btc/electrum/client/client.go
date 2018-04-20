@@ -7,6 +7,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,7 +21,7 @@ import (
 
 const (
 	clientVersion         = "0.0.1"
-	clientProtocolVersion = "1.1"
+	clientProtocolVersion = "1.2"
 )
 
 // RPCClient describes the methods needed to communicate with an RPC server.
@@ -78,12 +80,14 @@ func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient,
 			}
 		},
 	)
-
 	// Ping sends the version and must be the first message, to establish which methods the server
 	// accepts.
-	if _, err := electrumClient.ServerVersion(); err != nil {
+	version, err := electrumClient.ServerVersion()
+	if err != nil {
 		return nil, err
 	}
+	log.WithField("server-version", version).Info("electrumx server version")
+
 	go electrumClient.ping()
 
 	return electrumClient, nil
@@ -116,6 +120,10 @@ func (client *ElectrumClient) ping() {
 type ServerVersion struct {
 	Version         string
 	ProtocolVersion string
+}
+
+func (version *ServerVersion) String() string {
+	return fmt.Sprintf("%s;%s", version.Version, version.ProtocolVersion)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -438,6 +446,83 @@ func (client *ElectrumClient) EstimateFee(
 		cleanup,
 		"blockchain.estimatefee",
 		number)
+}
+
+func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
+	headers := []*wire.BlockHeader{}
+	for {
+		header := &wire.BlockHeader{}
+		err := header.BtcDecode(reader, 0, wire.WitnessEncoding)
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+		headers = append(headers, header)
+	}
+	return headers, nil
+}
+
+// Headers does the blockchain.block.headers() RPC call. See
+// https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchainblockheaders
+func (client *ElectrumClient) Headers(
+	startHeight int, count int,
+	success func(headers []*wire.BlockHeader, max int) error,
+	cleanup func(),
+) error {
+	return client.rpc.Method(
+		func(responseBytes []byte) error {
+			var response struct {
+				Hex   string `json:"hex"`
+				Count int    `json:"count"`
+				Max   int    `json:"max"`
+			}
+			if err := json.Unmarshal(responseBytes, &response); err != nil {
+				return errp.WithStack(err)
+			}
+			headers, err := parseHeaders(hex.NewDecoder(strings.NewReader(response.Hex)))
+			if err != nil {
+				return err
+			}
+			if len(headers) != response.Count {
+				return errp.Newf(
+					"unexpected electrumx reply: should have gotten %d headers, but got %d",
+					response.Count,
+					len(headers))
+			}
+			return success(headers, response.Max)
+		},
+		cleanup,
+		"blockchain.block.headers",
+		startHeight, count)
+}
+
+// GetMerkle does the blockchain.transaction.get_merkle() RPC call. See
+// https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchaintransactionget_merkle
+func (client *ElectrumClient) GetMerkle(
+	txHash chainhash.Hash, height int,
+	success func(merkle []TXHash, pos int) error,
+	cleanup func(),
+) error {
+	return client.rpc.Method(
+		func(responseBytes []byte) error {
+			var response struct {
+				Merkle      []TXHash `json:"merkle"`
+				Pos         int      `json:"pos"`
+				BlockHeight int      `json:"block_height"`
+			}
+			if err := json.Unmarshal(responseBytes, &response); err != nil {
+				return errp.WithStack(err)
+			}
+			if response.BlockHeight != height {
+				return errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
+			}
+			return success(response.Merkle, response.Pos)
+		},
+		cleanup,
+		"blockchain.transaction.get_merkle",
+		txHash.String(), height)
 }
 
 // Close closes the connection.

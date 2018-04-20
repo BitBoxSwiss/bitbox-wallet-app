@@ -58,13 +58,20 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
+	headers, err := backend.getHeaders(wallet.net)
+	if err != nil {
+		return err
+	}
+	waitInit := make(chan struct{})
 	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
 		backend.db.SubDB(fmt.Sprintf("%s-%s", wallet.Code, keyStore.XPub().String()), wallet.log),
 		keyStore,
 		electrumClient,
+		headers,
 		wallet.addressType,
 		func(event btc.Event) {
+			<-waitInit
 			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
 				wallet.log.WithField("wallet-sync-start", time.Since(backend.walletsSyncStart)).
 					Debug("Wallet sync time")
@@ -73,5 +80,6 @@ func (wallet *Wallet) init(backend *Backend) error {
 		},
 		wallet.log,
 	)
+	close(waitInit)
 	return err
 }

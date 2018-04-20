@@ -31,6 +31,34 @@ func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 f
 	return r0
 }
 
+// GetMerkle provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]client.TXHash, int) error, _a3 func()) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(chainhash.Hash, int, func([]client.TXHash, int) error, func()) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Headers provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int) error, _a3 func()) error {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(int, int, func([]*wire.BlockHeader, int) error, func()) error); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // HeadersSubscribe provides a mock function with given fields: _a0, _a1
 func (_m *Interface) HeadersSubscribe(_a0 func(*client.Header) error, _a1 func()) error {
 	ret := _m.Called(_a0, _a1)

@@ -45,9 +45,17 @@ func executeBitcoinCLICommand(cmd string) []byte {
 	return output
 }
 
-// generateBlocks generates `n` blocks.
-func generateBlocks(n int) {
-	_ = executeBitcoinCLICommand(fmt.Sprintf("generate %d", n))
+// generateBlocks generates `n` blocks. Returns the generated block hashes.
+func generateBlocks(n int) []string {
+	jsonBytes := executeBitcoinCLICommand(fmt.Sprintf("generate %d", n))
+	hashes := []string{}
+	jsonp.MustUnmarshal(jsonBytes, &hashes)
+	return hashes
+}
+
+// invalidateBlock marks a block as invalid. Useful to create reorganizations.
+func invalidateBlock(blockHash string) {
+	_ = executeBitcoinCLICommand(fmt.Sprintf("invalidateblock %s", blockHash))
 }
 
 // sendToAddress sends funds to the address and returns the txID.
@@ -122,7 +130,7 @@ func (s *backendTestSuite) post(path, body string) string {
 }
 
 // Waits for the given wallet event to be received through the websocket to the backend.
-func (s *backendTestSuite) waitForWalletEvent(expectedEvent backend.WalletEvent) {
+func (s *backendTestSuite) waitForEvent(expectedEvent backend.WalletEvent) {
 	for {
 		_, message, err := s.websocket.ReadMessage()
 		require.NoError(s.T(), err)
@@ -135,11 +143,11 @@ func (s *backendTestSuite) waitForWalletEvent(expectedEvent backend.WalletEvent)
 	}
 }
 
-func (s *backendTestSuite) waitSyncDone() {
-	s.waitForWalletEvent(backend.WalletEvent{
+func (s *backendTestSuite) waitForWalletEvent(event btc.Event) {
+	s.waitForEvent(backend.WalletEvent{
 		Type: "wallet",
 		Code: "rbtc",
-		Data: string(btc.EventSyncDone),
+		Data: string(event),
 	})
 }
 
@@ -165,11 +173,7 @@ func (s *backendTestSuite) TestBackend() {
 		})),
 	)
 
-	s.waitForWalletEvent(backend.WalletEvent{
-		Type: "wallet",
-		Code: "rbtc",
-		Data: string(btc.EventSyncDone),
-	})
+	s.waitForWalletEvent(btc.EventSyncDone)
 
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
@@ -188,6 +192,7 @@ func (s *backendTestSuite) TestBackend() {
 
 	// Create >100 blocks to mature the coinbase.
 	generateBlocks(101)
+	s.waitForWalletEvent(btc.EventHeadersSynced)
 
 	// Electrumx bug: it doesn't notify us of unconfirmed changes in the address, but only for
 	// unconfirmed tx using outputs from just created blocks. See
@@ -197,7 +202,7 @@ func (s *backendTestSuite) TestBackend() {
 	time.Sleep(5 * time.Second)
 	txID := sendToAddress("mjF1xSgSjYxLBrRNCowvcMtrSFUF7ENtzy", 10)
 
-	s.waitSyncDone()
+	s.waitForWalletEvent(btc.EventSyncDone)
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
 			"available":   "0",
@@ -210,8 +215,9 @@ func (s *backendTestSuite) TestBackend() {
 
 	// Confirm it.
 	generateBlocks(1)
+	s.waitForWalletEvent(btc.EventHeadersSynced)
 
-	s.waitSyncDone()
+	s.waitForWalletEvent(btc.EventSyncDone)
 	require.JSONEq(s.T(),
 		marshal(map[string]interface{}{
 			"available":   "10",
@@ -233,5 +239,39 @@ func (s *backendTestSuite) TestBackend() {
 			}},
 		),
 		s.get("/api/wallet/rbtc/transactions"),
+	)
+
+	// Test headers.
+	blockHashes := generateBlocks(100)
+	s.waitForWalletEvent(btc.EventHeadersSynced)
+	expectedHeadersStatus := marshal(map[string]interface{}{
+		"tip":          202,
+		"targetHeight": 202,
+		"tipHashHex":   blockHashes[99],
+	})
+	require.JSONEq(s.T(),
+		expectedHeadersStatus,
+		s.get("/api/wallet/rbtc/headers/status"),
+	)
+	// Test reorg.
+	// Invalidate 52 blocks and add a new one. Our backend still has the longest chain and ignores
+	// it (so there is also no HeadersSynced event).
+	invalidateBlock(blockHashes[50])
+	_ = generateBlocks(1)
+	require.JSONEq(s.T(),
+		expectedHeadersStatus,
+		s.get("/api/wallet/rbtc/headers/status"),
+	)
+	// After generating 50 more blocks, we arrive at 203 blocks, longer than the previously longest
+	// chain. Since it is a different chain, we expect correct reorganization.
+	blockHashes = generateBlocks(50)
+	s.waitForWalletEvent(btc.EventHeadersSynced)
+	require.JSONEq(s.T(),
+		marshal(map[string]interface{}{
+			"tip":          203,
+			"targetHeight": 203,
+			"tipHashHex":   blockHashes[49],
+		}),
+		s.get("/api/wallet/rbtc/headers/status"),
 	)
 }

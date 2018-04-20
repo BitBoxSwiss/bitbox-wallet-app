@@ -32,8 +32,6 @@ func NewSynchronizer(onSyncStarted func(), onSyncFinished func(), log *logrus.En
 // IncRequestsCounter increments the counter, and returns a function to decrement it which must be
 // called after the task has finished.
 func (synchronizer *Synchronizer) IncRequestsCounter() func() {
-	synchronizer.log.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
-		Debug("incrementing request counter")
 	defer synchronizer.waitLock.Lock()()
 	synchronizer.requestsCounter++
 	if synchronizer.requestsCounter == 1 {
@@ -44,8 +42,6 @@ func (synchronizer *Synchronizer) IncRequestsCounter() func() {
 }
 
 func (synchronizer *Synchronizer) decRequestsCounter() {
-	synchronizer.log.WithFields(logrus.Fields{"requestCounter": synchronizer.requestsCounter}).
-		Debug("decrementing request counter")
 	defer synchronizer.waitLock.Lock()()
 	synchronizer.requestsCounter--
 	if synchronizer.requestsCounter == 0 {

@@ -19,7 +19,9 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
+	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
@@ -78,8 +80,9 @@ type WalletEvent struct {
 type Backend struct {
 	testing bool
 
-	db     *db.DB
-	events chan interface{}
+	db        *db.DB
+	appFolder string
+	events    chan interface{}
 
 	device         bitbox.Interface
 	onWalletInit   func(*Wallet)
@@ -93,6 +96,9 @@ type Backend struct {
 
 	electrumClients     map[wire.BitcoinNet]blockchain.Interface
 	electrumClientsLock locker.Locker
+
+	headers     map[wire.BitcoinNet]*headers.Headers
+	headersLock locker.Locker
 
 	log *logrus.Entry
 }
@@ -198,40 +204,55 @@ func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*
 		return nil, err
 	}
 	return &Backend{
-		testing: testing,
-		db:      theDB,
-		events:  make(chan interface{}, 1000),
-		wallets: wallets,
+		testing:   testing,
+		db:        theDB,
+		appFolder: appFolder,
+		events:    make(chan interface{}, 1000),
+		wallets:   wallets,
 
 		electrumClients: map[wire.BitcoinNet]blockchain.Interface{},
+
+		headers: map[wire.BitcoinNet]*headers.Headers{},
 
 		log: log,
 	}, nil
 }
 
+func netName(net *chaincfg.Params) string {
+	switch net.Net {
+	case wire.TestNet3:
+		return "tbtc"
+	case wire.TestNet:
+		return "rbtc"
+	case wire.MainNet:
+		return "btc"
+	case ltc.TestNet4:
+		return "tltc"
+	case ltc.MainNet:
+		return "ltc"
+	default:
+		panic(fmt.Sprintf("unknown net %s", net.Net))
+	}
+
+}
+
 func (backend *Backend) electrumClient(net *chaincfg.Params) (blockchain.Interface, error) {
 	defer backend.electrumClientsLock.Lock()()
 	if _, ok := backend.electrumClients[net.Net]; !ok {
-		var logNet string
 		var electrumServer string
 		tls := true
 		switch net.Net {
 		case wire.TestNet3:
 			electrumServer = electrumServerBitcoinTestnet
-			logNet = "btc testnet"
 		case wire.TestNet:
 			electrumServer = electrumServerBitcoinRegtest
-			logNet = "btc regtest"
 			tls = false
 		case wire.MainNet:
 			electrumServer = electrumServerBitcoinMainnet
-			logNet = "btc mainnet"
 		case ltc.TestNet4:
 			electrumServer = electrumServerLitecoinTestnet
-			logNet = "ltc testnet"
 		case ltc.MainNet:
 			electrumServer = electrumServerLitecoinMainnet
-			logNet = "ltc mainnet"
 		default:
 			backend.log.Panic(fmt.Sprintf("unknown net %s", net.Net))
 		}
@@ -256,12 +277,39 @@ func (backend *Backend) electrumClient(net *chaincfg.Params) (blockchain.Interfa
 						wallet.log.WithField("error", err).Error(err.Error())
 					}
 				}
-			}, backend.log.WithField("net", logNet))
+			}, backend.log.WithField("net", netName(net)))
 		if err != nil {
 			return nil, maybeConnectionError(err)
 		}
 	}
 	return backend.electrumClients[net.Net], nil
+}
+
+func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, error) {
+	defer backend.headersLock.Lock()()
+	if _, ok := backend.headers[net.Net]; !ok {
+		blockchain, err := backend.electrumClient(net)
+		if err != nil {
+			return nil, err
+		}
+		log := backend.log.WithField("net", netName(net))
+
+		theDB, err := headersdb.NewDB(
+			path.Join(backend.appFolder, fmt.Sprintf("headers-%s.db", netName(net))))
+		if err != nil {
+			return nil, err
+		}
+
+		backend.headers[net.Net] = headers.NewHeaders(
+			net,
+			theDB,
+			blockchain,
+			log)
+		if err := backend.headers[net.Net].Init(); err != nil {
+			return nil, err
+		}
+	}
+	return backend.headers[net.Net], nil
 }
 
 // Testing returns whether this backend is for testing only.
@@ -333,7 +381,7 @@ func (backend *Backend) handleConnectionError(wallet *Wallet) {
 		select {
 		case err := <-wallet.errorChannel:
 			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
-				Warning("Connection failed. Retrying...", wallet.Wallet)
+				Warning("Connection failed. Retrying... ", wallet.Wallet)
 			if wallet.Wallet != nil {
 				func() {
 					defer backend.walletsLock.Lock()()

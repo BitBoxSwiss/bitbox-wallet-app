@@ -10,6 +10,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
@@ -33,6 +34,7 @@ type Transactions struct {
 
 	net          *chaincfg.Params
 	db           DBInterface
+	headers      headers.Interface
 	requestedTXs map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx)
 
 	synchronizer *synchronizer.Synchronizer
@@ -44,19 +46,23 @@ type Transactions struct {
 func NewTransactions(
 	net *chaincfg.Params,
 	db DBInterface,
+	headers headers.Interface,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
 	log *logrus.Entry,
 ) *Transactions {
-	return &Transactions{
+	transactions := &Transactions{
 		net:          net,
 		db:           db,
+		headers:      headers,
 		requestedTXs: map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx){},
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
+	headers.SubscribeEvent(transactions.onHeadersEvent)
+	return transactions
 }
 
 func (transactions *Transactions) txInHistory(

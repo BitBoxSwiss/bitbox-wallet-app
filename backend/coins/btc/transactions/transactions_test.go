@@ -12,11 +12,13 @@ import (
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -102,9 +104,12 @@ func (s *transactionsSuite) SetupTest() {
 	if err != nil {
 		panic(err)
 	}
+	headersMock := &headersMock.Interface{}
+	headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return()
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		db.SubDB("test", s.log),
+		headersMock,
 		s.synchronizer,
 		s.blockchainMock,
 		s.log,

@@ -31,6 +31,7 @@ func NewHandlers(
 	handleFunc("/sendtx", handlers.ensureWalletInitialized(handlers.postWalletSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureWalletInitialized(handlers.getWalletFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureWalletInitialized(handlers.getWalletTxProposal)).Methods("POST")
+	handleFunc("/headers/status", handlers.ensureWalletInitialized(handlers.getHeadersStatus)).Methods("GET")
 	handleFunc("/receive-address", handlers.ensureWalletInitialized(handlers.getReceiveAddress)).Methods("GET")
 	return handlers
 }
@@ -170,6 +171,10 @@ func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, err
 		"amount": outputAmount.String(),
 		"fee":    fee.String(),
 	}, nil
+}
+
+func (handlers *Handlers) getHeadersStatus(r *http.Request) (interface{}, error) {
+	return handlers.wallet.HeadersStatus()
 }
 
 func (handlers *Handlers) getWalletFeeTargets(_ *http.Request) (interface{}, error) {

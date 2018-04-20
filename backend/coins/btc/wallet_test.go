@@ -9,6 +9,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/db"
+	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/mocks"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/test"
@@ -50,6 +51,7 @@ func (s *walletSuite) SetupTest() {
 		db.SubDB("test", s.log),
 		&s.keyStoreMock,
 		&s.blockchainMock,
+		&headersMock.Interface{},
 		addresses.AddressTypeP2PKH,
 		s.onEvent,
 		s.log,

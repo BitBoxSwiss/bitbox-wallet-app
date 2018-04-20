@@ -16,10 +16,11 @@ import (
 )
 
 const (
-	bucketTransactions     = "transactions"
-	bucketInputs           = "inputs"
-	bucketOutputs          = "outputs"
-	bucketAddressHistories = "addressHistories"
+	bucketTransactions           = "transactions"
+	bucketUnverifiedTransactions = "unverifiedTransactions"
+	bucketInputs                 = "inputs"
+	bucketOutputs                = "outputs"
+	bucketAddressHistories       = "addressHistories"
 )
 
 // DB is a bbolt key/value database.
@@ -36,7 +37,7 @@ func NewDB(filename string) (*DB, error) {
 	return &DB{db: db}, nil
 }
 
-// SubDB returns a sub-database.
+// SubDB returns a sub-database. It implements transactions.DBInterface.
 func (db *DB) SubDB(subDBName string, log *logrus.Entry) *SubDB {
 	log.WithField("subdb-name", subDBName).Info("Opening subDB")
 	return &SubDB{db: db.db, subDBName: subDBName, log: log}
@@ -64,6 +65,10 @@ func (db *SubDB) Begin() (transactions.DBTxInterface, error) {
 	if err != nil {
 		return nil, err
 	}
+	bucketUnverifiedTransactions, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactions))
+	if err != nil {
+		return nil, err
+	}
 	bucketInputs, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketInputs))
 	if err != nil {
 		return nil, err
@@ -77,11 +82,12 @@ func (db *SubDB) Begin() (transactions.DBTxInterface, error) {
 		return nil, err
 	}
 	return &Tx{
-		tx:                     tx,
-		bucketTransactions:     bucketTransactions,
-		bucketInputs:           bucketInputs,
-		bucketOutputs:          bucketOutputs,
-		bucketAddressHistories: bucketAddressHistories,
+		tx:                           tx,
+		bucketTransactions:           bucketTransactions,
+		bucketUnverifiedTransactions: bucketUnverifiedTransactions,
+		bucketInputs:                 bucketInputs,
+		bucketOutputs:                bucketOutputs,
+		bucketAddressHistories:       bucketAddressHistories,
 	}, nil
 }
 
@@ -89,10 +95,11 @@ func (db *SubDB) Begin() (transactions.DBTxInterface, error) {
 type Tx struct {
 	tx *bbolt.Tx
 
-	bucketTransactions     *bbolt.Bucket
-	bucketInputs           *bbolt.Bucket
-	bucketOutputs          *bbolt.Bucket
-	bucketAddressHistories *bbolt.Bucket
+	bucketTransactions           *bbolt.Bucket
+	bucketUnverifiedTransactions *bbolt.Bucket
+	bucketInputs                 *bbolt.Bucket
+	bucketOutputs                *bbolt.Bucket
+	bucketAddressHistories       *bbolt.Bucket
 }
 
 // Rollback implements transactions.DBTxInterface.
@@ -110,6 +117,7 @@ type walletTransaction struct {
 	Tx        *wire.MsgTx
 	Height    int
 	Addresses map[string]bool `json:"addresses"`
+	Verified  bool
 }
 
 func newWalletTransaction() *walletTransaction {
@@ -159,10 +167,19 @@ func (tx *Tx) TxInfo(txHash chainhash.Hash) (*wire.MsgTx, []string, int, error) 
 
 // PutTx implements transactions.DBTxInterface.
 func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error {
-	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+	var verified bool
+	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+		verified = walletTx.Verified
 		walletTx.Tx = msgTx
 		walletTx.Height = height
 	})
+	if err != nil {
+		return err
+	}
+	if !verified {
+		return tx.bucketUnverifiedTransactions.Put(txHash[:], nil)
+	}
+	return nil
 }
 
 // DeleteTx implements transactions.DBTxInterface. It panics if called from a read-only db
@@ -190,10 +207,9 @@ func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, address btcutil.Address
 	return empty, err
 }
 
-// Transactions implements transactions.DBTxInterface.
-func (tx *Tx) Transactions() ([]chainhash.Hash, error) {
+func getTransactions(bucket *bbolt.Bucket) ([]chainhash.Hash, error) {
 	result := []chainhash.Hash{}
-	cursor := tx.bucketTransactions.Cursor()
+	cursor := bucket.Cursor()
 	for txHashBytes, _ := cursor.First(); txHashBytes != nil; txHashBytes, _ = cursor.Next() {
 		var txHash chainhash.Hash
 		if err := txHash.SetBytes(txHashBytes); err != nil {
@@ -202,6 +218,16 @@ func (tx *Tx) Transactions() ([]chainhash.Hash, error) {
 		result = append(result, txHash)
 	}
 	return result, nil
+}
+
+// Transactions implements transactions.DBTxInterface.
+func (tx *Tx) Transactions() ([]chainhash.Hash, error) {
+	return getTransactions(tx.bucketTransactions)
+}
+
+// UnverifiedTransactions implements transactions.DBTxInterface.
+func (tx *Tx) UnverifiedTransactions() ([]chainhash.Hash, error) {
+	return getTransactions(tx.bucketUnverifiedTransactions)
 }
 
 // PutInput implements transactions.DBTxInterface.

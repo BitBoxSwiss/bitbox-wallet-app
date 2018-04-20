@@ -9,7 +9,9 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
+	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -33,6 +35,7 @@ type Interface interface {
 	TxProposal(SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddress() *addresses.Address
 	KeyStore() KeyStoreWithoutKeyDerivation
+	HeadersStatus() (*headers.Status, error)
 }
 
 // Wallet is a wallet whose addresses are derived from an xpub.
@@ -48,6 +51,7 @@ type Wallet struct {
 	changeAddresses  *addresses.AddressChain
 
 	transactions *transactions.Transactions
+	headers      headers.Interface
 
 	synchronizer *synchronizer.Synchronizer
 
@@ -77,9 +81,10 @@ const (
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,
-	db transactions.DBInterface,
+	db *db.SubDB,
 	keyStore KeyStoreWithoutKeyDerivation,
 	blockchain blockchain.Interface,
+	theHeaders headers.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 	log *logrus.Entry,
@@ -120,8 +125,14 @@ func NewWallet(
 	)
 	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, log)
 	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, log)
-	wallet.transactions = transactions.NewTransactions(net, db, wallet.synchronizer, blockchain, log)
-
+	wallet.headers = theHeaders
+	wallet.headers.SubscribeEvent(func(event headers.Event) {
+		if event == headers.EventSynced {
+			onEvent(EventHeadersSynced)
+		}
+	})
+	wallet.transactions = transactions.NewTransactions(
+		net, wallet.db, wallet.headers, wallet.synchronizer, blockchain, log)
 	return wallet, nil
 }
 
@@ -310,4 +321,9 @@ func (wallet *Wallet) GetUnusedReceiveAddress() *addresses.Address {
 // KeyStore returns the key store of the wallet.
 func (wallet *Wallet) KeyStore() KeyStoreWithoutKeyDerivation {
 	return wallet.keyStore
+}
+
+// HeadersStatus returns the status of the headers.
+func (wallet *Wallet) HeadersStatus() (*headers.Status, error) {
+	return wallet.headers.Status()
 }
