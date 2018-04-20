@@ -1,14 +1,11 @@
 import { Component } from 'preact';
 
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
+import { apiPost } from '../../../utils/request';
+import { Button } from '../../../components/forms';
+import QRCode from '../../../routes/account/receive/qrcode';
 
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
-
-import QRCode from '../../../routes/account/receive/qrcode';
-
-import { apiPost } from '../../../utils/request';
 
 export default class MobilePairing extends Component {
     constructor(props) {
@@ -20,7 +17,7 @@ export default class MobilePairing extends Component {
         this.setState({ channel: null });
 
         apiPost('devices/' + this.props.deviceID + '/pairing/start').then(channel => {
-            this.setState({ channel: channel });
+            this.setState({ channel });
             this.dialog.MDComponent.show();
         });
     }
@@ -28,7 +25,7 @@ export default class MobilePairing extends Component {
     render({}, { channel }) {
         return (
             <span>
-                <Button primary={true} raised={true} onClick={this.startPairing}>
+                <Button secondary={true} onClick={this.startPairing}>
                     Pair with Mobile
                 </Button>
                 <Dialog ref={dialog => { this.dialog = dialog; }} onAccept={this.send}>
