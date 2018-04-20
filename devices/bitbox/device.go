@@ -103,11 +103,11 @@ type Device struct {
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
 
-	// If set, the device is configured with a password.
+	// If set, the device is configured with a PIN.
 	initialized bool
 
 	// If set, the user is "logged in".
-	password string
+	pin string
 
 	// If set, the device contains a wallet.
 	seeded bool
@@ -158,7 +158,7 @@ func NewDevice(
 		if !version.AtLeast(semver.NewSemVer(3, 0, 0)) {
 			// Sleep a bit to wait for the device to initialize. Sending commands too early in older
 			// firmware (fixed since v3.0.0) means the internal memory might not be initialized, and
-			// we run into the password retry check, requiring a long touch by the user.
+			// we run into the PIN retry check, requiring a long touch by the user.
 			time.Sleep(1 * time.Second)
 		}
 
@@ -209,11 +209,11 @@ func (dbb *Device) Status() Status {
 		return StatusBootloader
 	}
 	defer dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID, "seeded": dbb.seeded,
-		"password-set": (dbb.password != ""), "initialized": dbb.initialized}).Debug("Device status")
+		"pin-set": (dbb.pin != ""), "initialized": dbb.initialized}).Debug("Device status")
 	if dbb.seeded {
 		return StatusSeeded
 	}
-	if dbb.password != "" {
+	if dbb.pin != "" {
 		return StatusLoggedIn
 	}
 	if dbb.initialized {
@@ -237,16 +237,16 @@ func (dbb *Device) sendPlain(key, val string) (map[string]interface{}, error) {
 	return dbb.communication.SendPlain(string(jsonText))
 }
 
-func (dbb *Device) send(value interface{}, password string) (map[string]interface{}, error) {
-	return dbb.communication.SendEncrypt(string(jsonp.MustMarshal(value)), password)
+func (dbb *Device) send(value interface{}, pin string) (map[string]interface{}, error) {
+	return dbb.communication.SendEncrypt(string(jsonp.MustMarshal(value)), pin)
 }
 
-func (dbb *Device) sendKV(key, value, password string) (map[string]interface{}, error) {
-	return dbb.send(map[string]string{key: value}, password)
+func (dbb *Device) sendKV(key, value, pin string) (map[string]interface{}, error) {
+	return dbb.send(map[string]string{key: value}, pin)
 }
 
-func (dbb *Device) deviceInfo(password string) (*DeviceInfo, error) {
-	reply, err := dbb.sendKV("device", "info", password)
+func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
+	reply, err := dbb.sendKV("device", "info", pin)
 	if err != nil {
 		return nil, err
 	}
@@ -306,7 +306,7 @@ func (dbb *Device) deviceInfo(password string) (*DeviceInfo, error) {
 
 // DeviceInfo gets device information.
 func (dbb *Device) DeviceInfo() (*DeviceInfo, error) {
-	return dbb.deviceInfo(dbb.password)
+	return dbb.deviceInfo(dbb.pin)
 }
 
 // Ping returns true if the device is initialized, and false if it is not.
@@ -321,27 +321,27 @@ func (dbb *Device) Ping() (bool, error) {
 	return initialized, nil
 }
 
-// SetPassword defines a password for the device. This only works on a fresh device. If a password
-// has already been configured, a new one cannot be set until the device is reset.
-func (dbb *Device) SetPassword(password string) error {
-	reply, err := dbb.sendPlain("password", password)
+// SetPassword defines a PIN for the device. This only works on a fresh device. If a password has
+// already been configured, a new one cannot be set until the device is reset.
+func (dbb *Device) SetPassword(pin string) error {
+	reply, err := dbb.sendPlain("password", pin)
 	if err != nil {
-		return errp.WithMessage(err, "Failed to set password")
+		return errp.WithMessage(err, "Failed to set pin")
 	}
 	if reply["password"] != "success" {
 		return errp.New("Unexpected reply")
 	}
-	dbb.log.Debug("Password set")
-	dbb.password = password
+	dbb.log.Debug("Pin set")
+	dbb.pin = pin
 	dbb.onStatusChanged()
 	return nil
 }
 
-// Login validates the password. This needs to be called before using any API call except for Ping()
-// and SetPassword(). It returns whether the next login attempt requires a long-touch, and the number
-// of remaining attempts.
-func (dbb *Device) Login(password string) (bool, string, error) {
-	deviceInfo, err := dbb.deviceInfo(password)
+// Login validates the pin. This needs to be called before using any API call except for Ping() and
+// SetPassword(). It returns whether the next login attempt requires a long-touch, and the number of
+// remaining attempts.
+func (dbb *Device) Login(pin string) (bool, string, error) {
+	deviceInfo, err := dbb.deviceInfo(pin)
 	if err != nil {
 		var remainingAttempts string
 		var needsLongTouch bool
@@ -357,7 +357,7 @@ func (dbb *Device) Login(password string) (bool, string, error) {
 			"remaining-attempts": remainingAttempts}).Debug("Failed to authenticate")
 		return needsLongTouch, remainingAttempts, err
 	}
-	dbb.password = password
+	dbb.pin = pin
 	dbb.seeded = deviceInfo.Seeded
 	dbb.onStatusChanged()
 
@@ -394,7 +394,7 @@ func stretchKey(key string) string {
 	return first
 }
 
-func (dbb *Device) seed(devicePassword, backupPassword, source, filename string) error {
+func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 	if source != "create" && source != "backup" && source != "U2F_create" && source != "U2F_load" {
 		panic(`source must be "create", "backup", "U2F_create" or "U2F_load"`)
 	}
@@ -411,7 +411,7 @@ func (dbb *Device) seed(devicePassword, backupPassword, source, filename string)
 				"filename": filename,
 			},
 		},
-		devicePassword)
+		pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create or backup wallet (seed)")
 	}
@@ -425,7 +425,7 @@ func (dbb *Device) seed(devicePassword, backupPassword, source, filename string)
 				"check": filename,
 			},
 		},
-		dbb.password)
+		dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "There was an unexpected error during wallet creation or restoring. "+
 			"Please contact our support and do not use this wallet.")
@@ -452,7 +452,7 @@ func (dbb *Device) SetName(name string) error {
 		map[string]interface{}{
 			"name": name,
 		},
-		dbb.password)
+		dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to set name")
 	}
@@ -464,14 +464,14 @@ func (dbb *Device) SetName(name string) error {
 }
 
 // CreateWallet creates a new wallet and stores a backup containing `walletName` in the
-// filename. The password used for the backup is passed, and different from the device password.
+// filename. The password used for the backup is passed, and different from the device PIN.
 func (dbb *Device) CreateWallet(walletName string, backupPassword string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
 	dbb.log.WithField("wallet-name", walletName).Info("Create wallet")
 	if err := dbb.seed(
-		dbb.password,
+		dbb.pin,
 		backupPassword,
 		"create",
 		backupFilename(walletName),
@@ -499,7 +499,7 @@ func IsErrorSDCard(err error) bool {
 // by the user.
 func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) {
 	dbb.log.WithField("filename", filename).Info("Restore backup")
-	err := dbb.seed(dbb.password, backupPassword, "backup", filename)
+	err := dbb.seed(dbb.pin, backupPassword, "backup", filename)
 	if IsErrorAbort(err) {
 		return false, nil
 	}
@@ -517,11 +517,11 @@ func (dbb *Device) CreateBackup(backupName string) error {
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
-				"key":      stretchKey(dbb.password),
+				"key":      stretchKey(dbb.pin),
 				"filename": backupFilename(backupName),
 			},
 		},
-		dbb.password)
+		dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create backup")
 	}
@@ -534,13 +534,13 @@ func (dbb *Device) CreateBackup(backupName string) error {
 // Blink flashes the LED.
 func (dbb *Device) Blink() error {
 	dbb.log.Info("Blink")
-	_, err := dbb.sendKV("led", "abort", dbb.password)
+	_, err := dbb.sendKV("led", "abort", dbb.pin)
 	return errp.WithMessage(err, "Failed to blink")
 }
 
 // Reset resets the device. Returns true if erased and false if aborted by the user.
 func (dbb *Device) Reset() (bool, error) {
-	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.password)
+	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	dbb.log.Info("Reset")
 	if IsErrorAbort(err) {
 		return false, nil
@@ -551,7 +551,7 @@ func (dbb *Device) Reset() (bool, error) {
 	if reply["reset"] != "success" {
 		return false, errp.New("unexpected reply")
 	}
-	dbb.password = ""
+	dbb.pin = ""
 	dbb.seeded = false
 	dbb.initialized = false
 	dbb.onStatusChanged()
@@ -562,7 +562,7 @@ func (dbb *Device) Reset() (bool, error) {
 func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 	dbb.log.WithField("path", path).Info("XPub")
 	getXPub := func() (*hdkeychain.ExtendedKey, error) {
-		reply, err := dbb.sendKV("xpub", path, dbb.password)
+		reply, err := dbb.sendKV("xpub", path, dbb.pin)
 		if err != nil {
 			return nil, err
 		}
@@ -594,7 +594,7 @@ func (dbb *Device) Random(typ string) (string, error) {
 		dbb.log.WithField("type", typ).Panic("Type must be 'true' or 'pseudo'")
 		panic("needs to be true or pseudo")
 	}
-	reply, err := dbb.sendKV("random", typ, dbb.password)
+	reply, err := dbb.sendKV("random", typ, dbb.pin)
 	if err != nil {
 		return "", errp.WithMessage(err, "Failed to generate random")
 	}
@@ -613,7 +613,7 @@ func (dbb *Device) Random(typ string) (string, error) {
 
 // BackupList returns a list of backup filenames.
 func (dbb *Device) BackupList() ([]string, error) {
-	reply, err := dbb.sendKV("backup", "list", dbb.password)
+	reply, err := dbb.sendKV("backup", "list", dbb.pin)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
 	}
@@ -644,7 +644,7 @@ func (dbb *Device) EraseBackup(filename string) error {
 				"erase": filename,
 			},
 		},
-		dbb.password)
+		dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to erase backup")
 	}
@@ -656,7 +656,7 @@ func (dbb *Device) EraseBackup(filename string) error {
 
 // UnlockBootloader unlocks the bootloader.
 func (dbb *Device) UnlockBootloader() error {
-	reply, err := dbb.sendKV("bootloader", "unlock", dbb.password)
+	reply, err := dbb.sendKV("bootloader", "unlock", dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to unlock bootloader")
 	}
@@ -669,7 +669,7 @@ func (dbb *Device) UnlockBootloader() error {
 // LockBootloader locks the bootloader.
 func (dbb *Device) LockBootloader() error {
 	dbb.log.Info("Lock bootloader")
-	reply, err := dbb.sendKV("bootloader", "lock", dbb.password)
+	reply, err := dbb.sendKV("bootloader", "lock", dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to lock bootloader")
 	}
@@ -733,7 +733,7 @@ func (dbb *Device) signBatch(
 	}
 
 	// First call returns the echo.
-	echo, err := dbb.send(command, dbb.password)
+	echo, err := dbb.send(command, dbb.pin)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to sign batch (1)")
 	}
@@ -775,7 +775,7 @@ func (dbb *Device) signBatch(
 	command2 := map[string]interface{}{
 		"sign": pin,
 	}
-	reply, err := dbb.send(command2, dbb.password)
+	reply, err := dbb.send(command2, dbb.pin)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to sign batch (2)")
 	}
@@ -857,7 +857,7 @@ func (dbb *Device) DisplayAddress(keyPath string) {
 		dbb.log.Debug("The address is not displayed because no pairing was found.")
 		return
 	}
-	reply, err := dbb.sendKV("xpub", keyPath, dbb.password)
+	reply, err := dbb.sendKV("xpub", keyPath, dbb.pin)
 	if err != nil {
 		dbb.log.WithField("error", err).Error("Could not retrieve the xpub from the BitBox.")
 		return
@@ -880,7 +880,7 @@ func (dbb *Device) VerifyPass(mobileECDHPK string) (interface{}, error) {
 			"ecdh": mobileECDHPK,
 		},
 	}
-	reply, err := dbb.send(command, dbb.password)
+	reply, err := dbb.send(command, dbb.pin)
 	if err != nil {
 		return nil, err
 	}
