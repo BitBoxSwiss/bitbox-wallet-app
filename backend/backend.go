@@ -118,7 +118,7 @@ func NewBackend(appFolder string) (*Backend, error) {
 				net:         &ltc.MainNetParams,
 				addressType: addresses.AddressTypeP2WPKHP2SH,
 			},
-		})
+		}, false)
 }
 
 // NewBackendForTesting creates a new backend for testing.
@@ -171,10 +171,10 @@ func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 			},
 		}
 	}
-	return newBackendFromWallets(appFolder, wallets)
+	return newBackendFromWallets(appFolder, wallets, true)
 }
 
-func newBackendFromWallets(appFolder string, wallets []*Wallet) (*Backend, error) {
+func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*Backend, error) {
 	log := logging.Log.WithGroup("backend")
 	log.Infof("App folder: %s", appFolder)
 	theDB, err := db.NewDB(path.Join(appFolder, dbFilename))
@@ -182,7 +182,7 @@ func newBackendFromWallets(appFolder string, wallets []*Wallet) (*Backend, error
 		return nil, err
 	}
 	return &Backend{
-		testing: true,
+		testing: testing,
 		db:      theDB,
 		events:  make(chan interface{}, 1000),
 		wallets: wallets,
