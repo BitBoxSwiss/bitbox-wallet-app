@@ -24,9 +24,10 @@ var (
 )
 
 const (
-	deviceID     = "device id"
-	password     = "this is a secret"
-	stretchedKey = "b2de5eebf2a922bda5079020ad2369a6545236145466c37ec7969600bf5242889f0713484782d15865de398dfc77475d6d23fb34aa167ebb0331408b37794ee8"
+	deviceID         = "device id"
+	pin              = "4321"
+	recoveryPassword = "this is a recovery password"
+	stretchedKey     = "e3306aa321df2b4ae9ee131b385c19d73d41b92678c554ba9ec1737e6d141381465b881e3fec3d4edda3d93609ca5ec4e625a5a56107ab6e0f5019b199aa0fdb"
 )
 
 type dbbTestSuite struct {
@@ -90,13 +91,13 @@ func (s *dbbTestSuite) TestSetPassword() {
 func (s *dbbTestSuite) login() error {
 	s.mockCommunication.On(
 		"SendPlain",
-		jsonArgumentMatcher(map[string]interface{}{"password": password})).
+		jsonArgumentMatcher(map[string]interface{}{"password": pin})).
 		Return(
 			map[string]interface{}{"password": "success"},
 			nil,
 		).
 		Once()
-	return s.dbb.SetPassword(password)
+	return s.dbb.SetPassword(pin)
 }
 
 func (s *dbbTestSuite) TestCreateWallet() {
@@ -111,7 +112,7 @@ func (s *dbbTestSuite) TestCreateWallet() {
 			seed, ok := cmd["seed"]
 			return ok && seed["source"] == "create" && seed["key"] == stretchedKey
 		}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"seed": "success"}, nil).
 		Once()
@@ -125,11 +126,11 @@ func (s *dbbTestSuite) TestCreateWallet() {
 			backup, ok := cmd["backup"]
 			return ok && strings.Contains(backup["check"], "walletname") && backup["key"] == stretchedKey
 		}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"backup": "success"}, nil).
 		Once()
-	require.NoError(s.T(), s.dbb.CreateWallet("walletname"))
+	require.NoError(s.T(), s.dbb.CreateWallet("walletname", recoveryPassword))
 }
 
 func (s *dbbTestSuite) TestSignZero() {
@@ -151,7 +152,7 @@ func (s *dbbTestSuite) TestSignZero() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
 		Twice()
@@ -172,14 +173,14 @@ func (s *dbbTestSuite) TestSignSingle() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
-		password,
+		pin,
 	).
 		Return(nil, nil).
 		Once()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
 		Once()
@@ -195,7 +196,7 @@ func (s *dbbTestSuite) mockDeviceInfo() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"device": "info"}),
-		password,
+		pin,
 	).Return(map[string]interface{}{"device": deviceInfoMap}, nil).Once()
 }
 
@@ -225,14 +226,14 @@ func (s *dbbTestSuite) TestSignFifteen() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign),
-		password,
+		pin,
 	).
 		Return(nil, nil).
 		Once()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"sign": responseSignatures}, nil).
 		Once()
@@ -274,14 +275,14 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign1),
-		password,
+		pin,
 	).
 		Return(nil, nil).
 		Once()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"sign": responseSignatures1}, nil).
 		Once()
@@ -289,14 +290,14 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(sign2),
-		password,
+		pin,
 	).
 		Return(nil, nil).
 		Once()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
-		password,
+		pin,
 	).
 		Return(map[string]interface{}{"sign": responseSignatures2}, nil).
 		Once()

@@ -220,7 +220,7 @@ func (ks *SoftwareBasedKeyStore) RestoreBackup(string, string) (bool, error) {
 }
 
 // CreateBackup is not supported.
-func (ks *SoftwareBasedKeyStore) CreateBackup(string) error {
+func (ks *SoftwareBasedKeyStore) CreateBackup(string, string) error {
 	panic("CreateBackup is not supported.")
 }
 

@@ -6,6 +6,8 @@ import 'preact-material-components/Button/style.css';
 import Dialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
 
+import { PasswordInput } from '../../../components/password';
+
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
@@ -16,7 +18,8 @@ export default class Create extends Component {
         super(props);
         this.state = {
             waiting: false,
-            backupName: ''
+            backupName: '',
+            recoveryPassword: ''
         };
     }
 
@@ -34,12 +37,14 @@ export default class Create extends Component {
             return;
         }
         this.setState({ waiting: true });
-        apiPost('device/backups/create', { backupName: this.state.backupName }).then(() => {
+        apiPost('device/backups/create', { backupName: this.state.backupName,   
+                recoveryPassword: this.state.recoveryPassword }).then(() => {
             this.props.onCreate();
         }).catch(() => {}).then(() => {
             this.setState({
                 waiting: false,
-                backupName: ''
+                backupName: '',
+                recoveryPassword: ''
             });
             this.confirmDialog.MDComponent.close();
         });
@@ -49,7 +54,7 @@ export default class Create extends Component {
         this.confirmDialog.MDComponent.show();
     }
 
-    render({}, { waiting, backupName }) {
+    render({}, { waiting, recoveryPassword, backupName }) {
         return (
             <span>
                 <Button
@@ -77,6 +82,13 @@ export default class Create extends Component {
                                 onInput={this.handleFormChange}
                                 value={backupName}
                             />
+                            <PasswordInput
+                                    ref={ref => this.passwordInput = ref}
+                                    helptext="Please enter the same password as when the wallet was created."
+                                    helptextPersistent={true}
+                                    id="recoveryPassword"
+                                    onInput={this.handleFormChange}
+                                    value={recoveryPassword}/>
                         </Dialog.Body>
                         <Dialog.Footer>
                             <Dialog.FooterButton

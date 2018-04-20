@@ -185,8 +185,9 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 		return nil, errp.WithStack(err)
 	}
 	backupName := jsonBody["backupName"]
+	recoveryPassword := jsonBody["recoveryPassword"]
 	handlers.log.WithField("backupName", backupName).Debug("Create backup")
-	return nil, handlers.device.CreateBackup(backupName)
+	return nil, handlers.device.CreateBackup(backupName, recoveryPassword)
 }
 
 func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {

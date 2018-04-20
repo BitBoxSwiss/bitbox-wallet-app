@@ -76,7 +76,7 @@ type Interface interface {
 	LockBootloader() error
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
-	CreateBackup(string) error
+	CreateBackup(string, string) error
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	DisplayAddress(keyPath string)
@@ -542,12 +542,12 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 }
 
 // CreateBackup creates a new backup of the current device seed on the SD card.
-func (dbb *Device) CreateBackup(backupName string) error {
+func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) error {
 	dbb.log.WithField("backup-name", backupName).Info("Create backup")
 	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
-				"key":      stretchKey(dbb.pin),
+				"key":      stretchKey(recoveryPassword),
 				"filename": backupFilename(backupName),
 			},
 		},
