@@ -3,7 +3,6 @@
 
 .input label {
     display: block;
-    text-align: left;
     margin-bottom: var(--spacing-half);
 }
 

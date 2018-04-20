@@ -1,4 +1,5 @@
 .logo {
     display: block;
-    margin-bottom: var(--spacing-default);
+    margin: 0 auto var(--spacing-default) auto;
+    max-width: 160px;
 }

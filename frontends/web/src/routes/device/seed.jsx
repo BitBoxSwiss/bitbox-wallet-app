@@ -77,36 +77,38 @@ export default class Seed extends Component {
         return (
             <div className={style.container}>
                 {BitBox}
-                <form onsubmit={this.handleSubmit} className={style.content}>
-                    { state === this.stateEnum.ERROR ? <div>{error}</div> : null }
-                    <div>
-                        <Input
-                            autoFocus
-                            autoComplete="off"
-                            id="walletName"
-                            label="Wallet Name"
-                            disabled={state === this.stateEnum.WAITING}
-                            onInput={this.handleFormChange}
-                            value={walletName}
-                        />
-                        <PasswordRepeatInput
-                            ref={ref => {
-                                this.backupPasswordInput = ref;
-                            }}
-                            disabled={state.state === this.stateEnum.WAITING}
-                            onValidPassword={this.setValidBackupPassword}
-                        />
-                    </div>
-                    <div>
-                        <Button
-                            type="submit"
-                            secondary={true}
-                            disabled={!this.validate() || state === this.stateEnum.WAITING}
-                        >Create Wallet</Button>
-                    </div>
-                </form>
-                <p>-- OR --</p>
-                <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID} />
+                <div className={style.content}>
+                    <form onsubmit={this.handleSubmit}>
+                        { state === this.stateEnum.ERROR ? <div>{error}</div> : null }
+                        <div>
+                            <Input
+                                autoFocus
+                                autoComplete="off"
+                                id="walletName"
+                                label="Wallet Name"
+                                disabled={state === this.stateEnum.WAITING}
+                                onInput={this.handleFormChange}
+                                value={walletName}
+                            />
+                            <PasswordRepeatInput
+                                ref={ref => {
+                                    this.backupPasswordInput = ref;
+                                }}
+                                disabled={state.state === this.stateEnum.WAITING}
+                                onValidPassword={this.setValidBackupPassword}
+                            />
+                        </div>
+                        <div>
+                            <Button
+                                type="submit"
+                                secondary={true}
+                                disabled={!this.validate() || state === this.stateEnum.WAITING}
+                            >Create Wallet</Button>
+                        </div>
+                    </form>
+                    <p>-- OR --</p>
+                    <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID} />
+                </div>
             </div>
         );
     }

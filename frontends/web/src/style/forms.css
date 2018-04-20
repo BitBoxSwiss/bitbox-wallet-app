@@ -5,6 +5,14 @@ label {
     user-select: none;
 }
 
+label {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+}
+
 input::-webkit-credentials-auto-fill-button {
     visibility: hidden;
     display: none !important;

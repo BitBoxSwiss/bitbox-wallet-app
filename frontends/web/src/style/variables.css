@@ -5,6 +5,7 @@
     --color-coolgold: #a39771;
     --color-swissred: #e10000;
     --color-brightblue: #699ec6;
+    --color-gray: #b2b2b2;
     --color-brightgray: #dfdfdf; /* TODO: incorrect color */
     --color-lightgray: #fbfafa; /* TODO: incorrect color */
     --color-softblack: #3d3935;
@@ -20,7 +21,7 @@
     /* font colors */
     --color-default: var(--color-softblack);
     --color-primary: var(--color-coolblue);
-    --color-secondary: var(--color-coolgold);
+    --color-secondary: var(--color-gray);
     --color-light: var(--color-brightgray);
 
     /* font sizes */
