@@ -36,7 +36,7 @@ func NewDB(filename string) (*DB, error) {
 	return &DB{db: db}, nil
 }
 
-// SubDB returns a sub-database. It implements transactions.DBInterface.
+// SubDB returns a sub-database.
 func (db *DB) SubDB(subDBName string, log *logrus.Entry) *SubDB {
 	log.WithField("subdb-name", subDBName).Info("Opening subDB")
 	return &SubDB{db: db.db, subDBName: subDBName, log: log}
