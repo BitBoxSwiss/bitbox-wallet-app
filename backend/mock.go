@@ -200,7 +200,7 @@ func (ks *SoftwareBasedKeyStore) SetPassword(string) error {
 }
 
 // CreateWallet is not supported.
-func (ks *SoftwareBasedKeyStore) CreateWallet(string) error {
+func (ks *SoftwareBasedKeyStore) CreateWallet(string, string) error {
 	panic("CreateWallet is not supported.")
 }
 

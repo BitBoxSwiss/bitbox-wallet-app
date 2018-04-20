@@ -6,6 +6,8 @@ import 'preact-material-components/Button/style.css';
 import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
+import { PasswordRepeatInput } from '../../components/password';
+
 import ManageBackups from '../../routes/device/manage-backups/manage-backups';
 
 import { apiPost } from '../../utils/request';
@@ -22,12 +24,13 @@ export default class Seed extends Component {
         this.state = {
             state: this.stateEnum.DEFAULT,
             walletName: '',
+            backupPassword: '',
             error: ''
         };
     }
 
     validate = () => {
-        return this.state.walletName !== '';
+        return this.state.backupPassword !== '' && this.state.walletName !== '';
     }
 
     handleFormChange = event => {
@@ -44,15 +47,25 @@ export default class Seed extends Component {
             error: ''
         });
         this.setState({ state: this.stateEnum.WAITING });
-        apiPost('device/create-wallet', { walletName: this.state.walletName }).then(data => {
+        apiPost('device/create-wallet', {
+            walletName: this.state.walletName,
+            backupPassword: this.state.backupPassword
+        }).then(data => {
             if(!data.success) {
                 this.displayError(data.errorMessage);
+            }
+            if (this.backupPasswordInput) {
+                this.backupPasswordInput.clear();
             }
         });
     };
 
     displayError = (errorMessage) => {
         this.setState({ state: this.stateEnum.ERROR, error: errorMessage });
+    }
+
+    setValidBackupPassword = backupPassword => {
+        this.setState({ backupPassword });
     }
 
     render({}, state) {
@@ -84,6 +97,13 @@ export default class Seed extends Component {
                             disabled={state.state === this.stateEnum.WAITING}
                             onInput={this.handleFormChange}
                             value={state.walletName}
+                        />
+                        <PasswordRepeatInput
+                            ref={ref => {
+                                this.backupPasswordInput = ref;
+                            }}
+                            disabled={state.state === this.stateEnum.WAITING}
+                            onValidPassword={this.setValidBackupPassword}
                         />
                     </div>
                     <div>

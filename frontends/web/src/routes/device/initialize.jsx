@@ -40,15 +40,14 @@ export default class Initialize extends Component {
         });
         this.setState({ state: this.stateEnum.WAITING });
         apiPost('device/set-password', { password: this.state.password }).then(data => {
-            if (data.success) {
-                if (this.passwordInput) {
-                    this.passwordInput.clear();
-                }
-            } else {
+            if (!data.success) {
                 if (data.code) {
                     this.setState({ errorCode: data.code });
                 }
                 this.setState({ state: this.stateEnum.ERROR, errorMessage: data.errorMessage });
+            }
+            if (this.passwordInput) {
+                this.passwordInput.clear();
             }
         });
     };

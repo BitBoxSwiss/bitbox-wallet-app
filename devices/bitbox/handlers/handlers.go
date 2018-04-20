@@ -131,8 +131,10 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 		return nil, errp.WithStack(err)
 	}
 	walletName := jsonBody["walletName"]
+	backupPassword := jsonBody["backupPassword"]
+
 	handlers.log.WithField("walletName", walletName).Debug("Create wallet")
-	if err := handlers.device.CreateWallet(walletName); err != nil {
+	if err := handlers.device.CreateWallet(walletName, backupPassword); err != nil {
 		handlers.log.WithFields(logrus.Fields{"walletName": walletName, "error": err}).
 			Error("Failed to create wallet")
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil

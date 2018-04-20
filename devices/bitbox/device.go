@@ -62,7 +62,7 @@ type Interface interface {
 	BootloaderStatus() (*BootloaderStatus, error)
 	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
-	CreateWallet(string) error
+	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
@@ -398,6 +398,9 @@ func (dbb *Device) seed(devicePassword, backupPassword, source, filename string)
 	if source != "create" && source != "backup" && source != "U2F_create" && source != "U2F_load" {
 		panic(`source must be "create", "backup", "U2F_create" or "U2F_load"`)
 	}
+	if backupPassword == "" {
+		return errp.New("invalid password")
+	}
 	dbb.log.WithFields(logrus.Fields{"source": source, "filename": filename}).Debug("Seed")
 	key := stretchKey(backupPassword)
 	reply, err := dbb.send(
@@ -461,15 +464,15 @@ func (dbb *Device) SetName(name string) error {
 }
 
 // CreateWallet creates a new wallet and stores a backup containing `walletName` in the
-// filename. The password used for the backup is the same as the one for the device.
-func (dbb *Device) CreateWallet(walletName string) error {
+// filename. The password used for the backup is passed, and different from the device password.
+func (dbb *Device) CreateWallet(walletName string, backupPassword string) error {
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
 	dbb.log.WithField("wallet-name", walletName).Info("Create wallet")
 	if err := dbb.seed(
 		dbb.password,
-		dbb.password,
+		backupPassword,
 		"create",
 		backupFilename(walletName),
 	); err != nil {
