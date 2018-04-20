@@ -1,0 +1,29 @@
+.feeTargets {
+  width: 49%;
+  height: 52px;
+  background-color: white;
+  border: solid 1px var(--color-brightgray);
+  border-radius: 2px;
+}
+
+.feeTargets select {
+  width: 100%;
+  height: 100%;
+  padding: var(--spacing-default);
+  appearance: none;
+  border: 0;
+  background-color: white;
+  font-size: var(--size-medium);
+}
+
+.feeTargets select:focus {
+  outline: none;
+}
+
+.feeTargets select option {
+  width: 100%;
+  padding: var(--spacing-default);
+  border-radius: 2px;
+  border: solid 1px var(--color-lightgray);
+  background-color: white;
+}

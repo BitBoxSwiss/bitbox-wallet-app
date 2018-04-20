@@ -1,0 +1,30 @@
+.input {
+  padding: var(--spacing-default);
+  border-radius: 2px;
+  border: solid 1px var(--color-brightgray);
+  font-size: var(--size-medium);
+}
+
+.input:focus {
+  outline: none;
+}
+
+.labelHalf {
+  width: 49%;
+}
+
+.labelHalf:first-child {
+  margin-right: 2%;
+}
+
+.inputHalf {
+  width: 49%;
+}
+
+.inputFull {
+  width: 100%;
+}
+
+.notAllowed {
+  cursor: not-allowed;
+}

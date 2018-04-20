@@ -18,6 +18,7 @@ import Account from './routes/account/account';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 
+import Alert from './components/alert/Alert';
 import Sidebar from './components/sidebar/sidebar';
 
 import { apiGet, apiPost } from './utils/request';
@@ -144,6 +145,7 @@ export default class App extends Component {
                             />
                         </Router>
                     </div>
+                    <Alert />
                 </div>
             );
         }

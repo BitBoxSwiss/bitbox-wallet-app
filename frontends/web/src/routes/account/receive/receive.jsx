@@ -1,68 +1,56 @@
 import { Component } from 'preact';
-
-import Button from 'preact-material-components/Button';
-import 'preact-material-components/Button/style.css';
-
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
-
-import Dialog from 'preact-material-components/Dialog';
-import 'preact-material-components/Dialog/style.css';
-
 import { apiGet } from '../../../utils/request';
-
 import QRCode from './qrcode';
+import componentStyle from '../../../components/style.css';
+import style from './receive.css';
 
 export default class ReceiveButton extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { receiveAddress: null };
-    }
+  constructor(props) {
+    super(props);
+    this.state = { receiveAddress: null };
+  }
 
-    onReceive = () => {
-        this.setState({ receiveAddress: null });
+  componentDidMount() {
+    apiGet('wallet/' + this.props.code + '/receive-address').then(address => {
+      this.setState({ receiveAddress: address });
+    });
+  }
 
-        apiGet('wallet/' + this.props.code + '/receive-address')
-            .then(address => {
-                this.setState({ receiveAddress: address });
-            });
+  onReceive = () => {
+    this.setState({ receiveAddress: null });
+    apiGet('wallet/' + this.props.code + '/receive-address').then(address => {
+      this.setState({ receiveAddress: address });
+    });
+    this.dialog.MDComponent.show();
+  }
 
-        this.dialog.MDComponent.show();
-    }
-
-    render({}, { receiveAddress }) {
-        return (
-            <span>
-                <Button primary={true} raised={true} onClick={this.onReceive}>
-                  Receive
-                </Button>
-                <Dialog ref={dialog => this.dialog = dialog}>
-                    <Dialog.Header>Receive</Dialog.Header>
-                    <Dialog.Body>
-                        { receiveAddress ?
-                            <center>
-                                <Textfield
-                                    size="36"
-                                    autoFocus
-                                    autoComplete="off"
-                                    readonly={true}
-                                    onInput={this.handleFormChange}
-                                    onFocus={focus}
-                                    value={receiveAddress}
-                                />
-                                <p><QRCode data={receiveAddress} /></p>
-                            </center>
-                            : 'loading…'}
-                    </Dialog.Body>
-                    <Dialog.Footer>
-                        <Dialog.FooterButton cancel={true}>Close</Dialog.FooterButton>
-                    </Dialog.Footer>
-                </Dialog>
-            </span>
-        );
-    }
+  render({}, { receiveAddress }) {
+    return (
+      <div class="innerContainer">
+        <div class="header">
+          <h2>Get Coins</h2>
+        </div>
+        <div class="content isVerticallyCentered">
+          {
+            receiveAddress ? (
+              <div class={style.receiveContent}>
+                <p class="label">Your bitcoin address</p>
+                <div><QRCode data={receiveAddress} /></div>
+                <p><input type="text" class={style.addressField} value={receiveAddress} onFocus={focus} autocomplete="off" autofocus readonly /></p>
+              </div>
+            ) : (
+              'loading…'
+            )
+          }
+        </div>
+        <div class="flex flex-row flex-end">
+          <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.props.onClose}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
 }
 
 function focus(e) {
-    e.target.select();
+  e.target.select();
 }

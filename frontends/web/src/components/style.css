@@ -5,3 +5,35 @@
 	min-height: 100%;
 	width: 100%;
 }
+
+/* BUTTONS */
+.buttons .button:not(:last-child) {
+	margin-right: var(--spacing-half);
+}
+
+.button {
+	border: none;
+	border-radius: 2px;
+	padding: 0;
+	height: 36px;
+	min-width: 120px;
+	font-size: 14px;
+	font-weight: bold;
+	line-height: 36px;
+	text-transform: uppercase;
+	cursor: pointer;
+}
+
+.button:focus {
+	outline: none;
+}
+
+.button.isPrimary {
+	background-color: var(--color-softblack);
+	color: white;
+}
+
+.button.isPrimary:hover {
+	background-color: #333;
+}
+/* BUTTONS END */

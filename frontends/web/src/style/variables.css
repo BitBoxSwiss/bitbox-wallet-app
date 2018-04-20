@@ -9,6 +9,7 @@
     --color-lightgray: #fbfafa; /* TODO: incorrect color */
     --color-softblack: #3d3935;
     --color-white: #fff;
+    --color-success: #91B496;
 
     /* background colors */
     --background: var(--color-lightgray);
@@ -26,8 +27,10 @@
     --size-large: 2rem;
     --size-medium: 1rem;
     --size-small: .85rem;
+    --size-label: .70rem;
 
     /* spacing */
+    --spacing-large: 2rem;
     --spacing-default: 1rem;
     --spacing-half: .5rem;
 

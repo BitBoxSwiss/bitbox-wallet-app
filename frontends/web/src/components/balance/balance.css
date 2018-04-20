@@ -1,13 +1,8 @@
-.balance {
-    margin-bottom: 4rem;
-    padding: 0 20px;
-}
-
 .amount {
-    font-size: var(--size-large);
-    margin: 0;
+  font-size: var(--size-large);
+  margin: 0;
 }
 
 .unit {
-    color: var(--color-light);
+  color: var(--color-light);
 }

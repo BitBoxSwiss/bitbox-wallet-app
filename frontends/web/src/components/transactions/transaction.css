@@ -1,72 +1,101 @@
+.transactionContainer {
+  margin: 0 calc(var(--spacing-large) * -1);
+  padding: var(--spacing-half) 0;
+}
+
+.transactionContainer:nth-child(odd) {
+  background-color: var(--color-lightgray);
+}
+
+.transactionContainer:hover {
+  cursor: pointer;
+}
+
+.expanded {
+}
+
 .transaction {
-    flex: 1 1 auto;
-    margin-bottom: 2px;
-    padding: var(--spacing-default) 20px;
+  padding: var(--spacing-default) var(--spacing-large);
 }
 
-.transaction:hover {
-    background: var(--background-hover);
-}
-
-.summary {
-    align-items: baseline;
-    display: flex;
-    justify-content: space-between;
-}
-
-.summary img {
-    align-self: center;
-    flex-grow: 0;
-    margin-right: var(--spacing-half);
-    width: 16px;
-}
-
-.address {
-    flex-grow: 1;
-    overflow: hidden;
-    text-align: left;
-    text-overflow: ellipsis;
-}
-
-.address time {
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    font-weight: 700;
+.date {
+  font-size: var(--size-small);
+  font-weight: bolder;
 }
 
 .amount {
-    flex-grow: 0;
-    font-weight: 700;
-    min-width: 160px;
-    text-align: right;
+  font-weight: bold;
+  min-width: 160px;
+  text-align: right;
+  line-height: 20px;
 }
 
-.detail {
-    padding: var(--spacing-half) 0 0 calc(10px + var(--spacing-half));
+.amount.receive {
+  color: var(--color-brightblue);
 }
 
-/* definition list */
-
-.detail dl {
-    margin: 0;
+.amount.send {
+  color: var(--color-secondary);
 }
 
-.detail dt {
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    font-weight: 700;
+.amount.send_to_self {
+  color: var(--color-coolblue);
 }
 
-.detail dd {
-    margin-left: 0;
-    overflow: hidden;
-    padding-bottom: var(--spacing-half);
-    text-decoration: none;
-    text-overflow: ellipsis;
+.amount.converted {
+  color: lightgrey;
 }
 
-.detail dd a {
-    color: var(--color-default);
-    border-bottom: 1px dashed var(--color-default);
-    margin-bottom: 2px;
+.transactionLabel {
+  display: inline-block;
+  font-size: var(--size-label);
+  font-weight: bold;
+  text-transform: uppercase;
+  background-color: var(--color-brightgray);
+  color: var(--color-white);
+  border-radius: 2px;
+  height: 16px;
+  width: 44px;
+  line-height: 16px;
+  text-align: center;
+  margin-right: var(--spacing-half);
+}
+
+.transactionLabel.receive {
+  background-color: var(--color-brightblue);
+}
+
+.transactionLabel.send {
+  background-color: var(--color-secondary);
+}
+
+.transactionLabel.send_to_self {
+  background-color: var(--color-coolblue);
+}
+
+.row:not(:first-child) {
+  margin-top: var(--spacing-half);
+}
+
+.address {
+  font-weight: bold;
+}
+
+.collapedContent {
+  margin-top: var(--spacing-half);
+}
+
+.collapedContent .transactionLabel {
+  width: auto;
+  text-align: left;
+  background-color: transparent;
+  color: lightgray;
+}
+
+.collapedContent a {
+  color: var(--color-coolblue);
+}
+
+.collapedContent a:hover {
+  color: var(--color-brightblue);
 }

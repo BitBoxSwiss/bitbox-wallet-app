@@ -1,0 +1,27 @@
+.toast {
+  position: fixed;
+  top: var(--spacing-half);
+  right: var(--spacing-half);
+  min-width: 180px;
+  min-height: 20px;
+  border-radius: 2px;
+  padding: var(--spacing-default);
+  color: var(--color-white);
+  box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.active {
+  display: block;
+}
+
+.disabled {
+  display: none;
+}
+
+.success {
+  background-color: var(--color-success);
+}
+
+.warning {
+  background-color: var(--color-swissred);
+}

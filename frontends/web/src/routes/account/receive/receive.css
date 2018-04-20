@@ -1,0 +1,12 @@
+.addressField {
+  padding: var(--spacing-default) var(--spacing-large);
+  border-radius: 2px;
+  border: solid 1px var(--color-brightgray);
+  width: 256px;
+  font-size: var(--size-medium);
+}
+
+.receiveContent {
+  width: 256px;
+  margin: 0 auto;
+}

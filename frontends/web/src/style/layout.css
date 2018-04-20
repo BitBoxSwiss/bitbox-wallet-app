@@ -1,0 +1,108 @@
+.flex { display: flex; }
+.flex-row { flex-direction: row; }
+.flex-column { flex-direction: column; }
+.flex-center { justify-content: center; }
+.flex-start { justify-content: flex-start; }
+.flex-around { justify-content: space-around; }
+.flex-between { justify-content: space-between; }
+.flex-end { justify-content: flex-end; }
+.flex-items-center { align-items: center; }
+.flex-items-start { align-items: flex-start; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-nowrap { flex-wrap: nowrap; }
+.flex-1 { flex: 1; }
+
+.text-right { text-align: right; }
+.text-small { font-size: var(--size-small); }
+.text-medium { font-size: var(--size-medium); }
+
+.flex-items-start > div:not(:last-child) {
+  margin-right: var(--spacing-default);
+}
+
+.container {
+	height: 100vh;
+	overflow-y: auto;
+	min-height: 100%;
+	width: 100%;
+	background-color: var(--color-white);
+}
+
+.innerContainer {
+	max-width: 800px;
+	width: 100%;
+  min-height: 100%;
+  padding: var(--spacing-large);
+	margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.innerContainer .header {
+  min-height: 36px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+	flex: none;
+}
+
+.header h2 {
+	margin: 0;
+  font-size: var(--size-large);
+  line-height: 36px;
+}
+
+.label {
+  font-size: var(--size-label);
+  text-transform: uppercase;
+  font-weight: bold;
+	text-indent: 2px;
+	color: var(--color-softblack);
+}
+
+.content {
+  margin: var(--spacing-large) 0 0 0;
+  flex: 1;
+}
+
+.content .row:not(:first-child) {
+	margin-top: var(--spacing-default);
+}
+
+.isVerticallyCentered {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* MODAL */
+.overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	background-color: rgba(0, 0, 0, 0.2);
+	display: none;
+  z-index: 100;
+}
+
+.overlay.active {
+	display: flex;
+}
+
+.modal {
+	background-color: white;
+	max-width: 480px;
+	width: 50%;
+	border-radius: 2px;
+	padding: var(--spacing-large);
+	box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal .modalHeader {
+	margin: 0;
+}
