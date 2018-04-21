@@ -69,9 +69,7 @@ func NewElectrumClient(server string, tls bool, failureCallback func(error), log
 		}
 	}
 	wrappedFailureCallback := func(err error) {
-		if err != nil {
-			failureCallback(maybeConnectionError(err))
-		}
+		failureCallback(maybeConnectionError(err))
 	}
 	c, err := client.NewElectrumClient(jsonrpc.NewRPCClient(conn, wrappedFailureCallback, log), log)
 	if err != nil {

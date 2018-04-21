@@ -1,19 +1,24 @@
 package backend
 
 import (
+	"fmt"
 	"path"
 	"sync"
 	"time"
 
+	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
 
 	"golang.org/x/text/language"
 
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/db"
+	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
@@ -86,6 +91,9 @@ type Backend struct {
 	walletsLock      locker.Locker
 	walletsSyncStart time.Time
 
+	electrumClients     map[wire.BitcoinNet]blockchain.Interface
+	electrumClientsLock locker.Locker
+
 	log *logrus.Entry
 }
 
@@ -99,24 +107,27 @@ func NewBackend(appFolder string) (*Backend, error) {
 				Name:                  "Bitcoin",
 				WalletDerivationPath:  "m/44'/0'/0'",
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
-				net:         &chaincfg.MainNetParams,
-				addressType: addresses.AddressTypeP2PKH,
+				net:          &chaincfg.MainNetParams,
+				addressType:  addresses.AddressTypeP2PKH,
+				errorChannel: make(chan error, 0),
 			},
 			&Wallet{
 				Code:                  "btc-p2wpkh-p2sh",
 				Name:                  "Bitcoin Segwit",
 				WalletDerivationPath:  "m/49'/0'/0'",
 				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
-				net:         &chaincfg.MainNetParams,
-				addressType: addresses.AddressTypeP2WPKHP2SH,
+				net:          &chaincfg.MainNetParams,
+				addressType:  addresses.AddressTypeP2WPKHP2SH,
+				errorChannel: make(chan error, 0),
 			},
 			&Wallet{
 				Code:                  "ltc-p2wpkh-p2sh",
 				Name:                  "Litecoin",
 				WalletDerivationPath:  "m/49'/2'/0'",
 				BlockExplorerTxPrefix: "https://insight.litecore.io/tx/",
-				net:         &ltc.MainNetParams,
-				addressType: addresses.AddressTypeP2WPKHP2SH,
+				net:          &ltc.MainNetParams,
+				addressType:  addresses.AddressTypeP2WPKHP2SH,
+				errorChannel: make(chan error, 0),
 			},
 		}, false)
 }
@@ -131,16 +142,18 @@ func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 				Name:                  "Bitcoin Regtest",
 				WalletDerivationPath:  "m/44'/1'/0'",
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:         &chaincfg.RegressionNetParams,
-				addressType: addresses.AddressTypeP2PKH,
+				net:          &chaincfg.RegressionNetParams,
+				addressType:  addresses.AddressTypeP2PKH,
+				errorChannel: make(chan error, 0),
 			},
 			&Wallet{
 				Code:                  "rbtc-p2wpkh-p2sh",
 				Name:                  "Bitcoin Regtest Segwit",
 				WalletDerivationPath:  "m/49'/1'/0'",
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:         &chaincfg.RegressionNetParams,
-				addressType: addresses.AddressTypeP2WPKHP2SH,
+				net:          &chaincfg.RegressionNetParams,
+				addressType:  addresses.AddressTypeP2WPKHP2SH,
+				errorChannel: make(chan error, 0),
 			},
 		}
 	} else {
@@ -150,24 +163,27 @@ func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 				Name:                  "Bitcoin Testnet",
 				WalletDerivationPath:  "m/44'/1'/0'",
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:         &chaincfg.TestNet3Params,
-				addressType: addresses.AddressTypeP2PKH,
+				net:          &chaincfg.TestNet3Params,
+				addressType:  addresses.AddressTypeP2PKH,
+				errorChannel: make(chan error, 0),
 			},
 			&Wallet{
 				Code:                  "tbtc-p2wpkh-p2sh",
 				Name:                  "Bitcoin Testnet Segwit",
 				WalletDerivationPath:  "m/49'/1'/0'",
 				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:         &chaincfg.TestNet3Params,
-				addressType: addresses.AddressTypeP2WPKHP2SH,
+				net:          &chaincfg.TestNet3Params,
+				addressType:  addresses.AddressTypeP2WPKHP2SH,
+				errorChannel: make(chan error, 0),
 			},
 			&Wallet{
 				Code:                  "tltc-p2wpkh-p2sh",
 				Name:                  "Litecoin Testnet",
 				WalletDerivationPath:  "m/49'/1'/0'",
 				BlockExplorerTxPrefix: "http://explorer.litecointools.com/tx/",
-				net:         &ltc.TestNet4Params,
-				addressType: addresses.AddressTypeP2WPKHP2SH,
+				net:          &ltc.TestNet4Params,
+				addressType:  addresses.AddressTypeP2WPKHP2SH,
+				errorChannel: make(chan error, 0),
 			},
 		}
 	}
@@ -186,8 +202,66 @@ func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*
 		db:      theDB,
 		events:  make(chan interface{}, 1000),
 		wallets: wallets,
-		log:     log,
+
+		electrumClients: map[wire.BitcoinNet]blockchain.Interface{},
+
+		log: log,
 	}, nil
+}
+
+func (backend *Backend) electrumClient(net *chaincfg.Params) (blockchain.Interface, error) {
+	defer backend.electrumClientsLock.Lock()()
+	if _, ok := backend.electrumClients[net.Net]; !ok {
+		var logNet string
+		var electrumServer string
+		tls := true
+		switch net.Net {
+		case wire.TestNet3:
+			electrumServer = electrumServerBitcoinTestnet
+			logNet = "btc testnet"
+		case wire.TestNet:
+			electrumServer = electrumServerBitcoinRegtest
+			logNet = "btc regtest"
+			tls = false
+		case wire.MainNet:
+			electrumServer = electrumServerBitcoinMainnet
+			logNet = "btc mainnet"
+		case ltc.TestNet4:
+			electrumServer = electrumServerLitecoinTestnet
+			logNet = "ltc testnet"
+		case ltc.MainNet:
+			electrumServer = electrumServerLitecoinMainnet
+			logNet = "ltc mainnet"
+		default:
+			backend.log.Panic(fmt.Sprintf("unknown net %s", net.Net))
+		}
+
+		var err error
+		backend.electrumClients[net.Net], err = electrum.NewElectrumClient(
+			electrumServer, tls, func(err error) {
+				err = maybeConnectionError(err)
+				if _, ok := errp.Cause(err).(connectionError); !ok {
+					backend.log.WithField("error", err).Panic(err.Error())
+				}
+				unlock := backend.electrumClientsLock.Lock()
+				delete(backend.electrumClients, net.Net)
+				unlock()
+				for _, wallet := range backend.wallets {
+					if wallet.net.Net != net.Net {
+						continue
+					}
+					select {
+					case wallet.errorChannel <- err:
+					default:
+						wallet.log.WithField("error", err).Error(err.Error())
+					}
+				}
+			}, backend.log.WithField("net", logNet))
+		if err != nil {
+			return nil, maybeConnectionError(err)
+		}
+	}
+	return backend.electrumClients[net.Net], nil
 }
 
 // Testing returns whether this backend is for testing only.
@@ -243,17 +317,7 @@ func (backend *Backend) Start() <-chan interface{} {
 }
 
 // initWallet initializes a single wallet.
-func (backend *Backend) initWallet(wallet *Wallet, errorChannel chan error) error {
-	wallet.failureCallback = func(err error) {
-		if _, ok := err.(ConnectionError); !ok {
-			wallet.log.WithField("error", err).Panic(err.Error())
-		}
-		select {
-		case errorChannel <- err:
-		default:
-			wallet.log.WithField("error", err).Error(err.Error())
-		}
-	}
+func (backend *Backend) initWallet(wallet *Wallet) error {
 	if err := wallet.init(backend); err != nil {
 		return err
 	}
@@ -264,12 +328,12 @@ func (backend *Backend) initWallet(wallet *Wallet, errorChannel chan error) erro
 
 // handleConnectionError listens on an error channel for incoming connection errors and attempts
 // to re-initialize the wallet.
-func (backend *Backend) handleConnectionError(wallet *Wallet, errorChannel chan error) {
+func (backend *Backend) handleConnectionError(wallet *Wallet) {
 	for {
 		select {
-		case err := <-errorChannel:
-			backend.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
-				Warning("Connection failed. Retrying...")
+		case err := <-wallet.errorChannel:
+			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
+				Warning("Connection failed. Retrying...", wallet.Wallet)
 			if wallet.Wallet != nil {
 				func() {
 					defer backend.walletsLock.Lock()()
@@ -284,10 +348,10 @@ func (backend *Backend) handleConnectionError(wallet *Wallet, errorChannel chan 
 			for {
 				err := func() error {
 					defer backend.walletsLock.Lock()()
-					return backend.initWallet(wallet, errorChannel)
+					return backend.initWallet(wallet)
 				}()
 				if err != nil {
-					if connectionError, ok := err.(ConnectionError); ok {
+					if connectionError, ok := err.(connectionError); ok {
 						backend.log.WithFields(logrus.Fields{"wallet": wallet, "error": connectionError}).
 							Debugf("Initializing wallet continued to fail. Trying again in %v",
 								reattemptPeriod)
@@ -312,12 +376,9 @@ func (backend *Backend) initWallets() error {
 		go func(wallet *Wallet) {
 			defer wg.Done()
 
-			// receive connection errors in this channel
-			var errorChannel = make(chan error, 0)
+			go backend.handleConnectionError(wallet)
 
-			go backend.handleConnectionError(wallet, errorChannel)
-
-			if err := backend.initWallet(wallet, errorChannel); err != nil {
+			if err := backend.initWallet(wallet); err != nil {
 				backend.log.WithField("error", err).Panic("Failed to initialize wallet")
 			}
 		}(wallet)

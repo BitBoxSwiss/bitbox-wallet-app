@@ -3,7 +3,6 @@ package jsonrpc
 import (
 	"bufio"
 	"encoding/json"
-	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -36,7 +35,7 @@ type RPCClient struct {
 	responseCallbacksLock sync.RWMutex
 	close                 bool
 
-	notificationsCallbacks     map[string]func([]byte)
+	notificationsCallbacks     map[string][]func([]byte)
 	notificationsCallbacksLock sync.RWMutex
 	failureCallback            func(error)
 	log                        *logrus.Entry
@@ -48,7 +47,7 @@ func NewRPCClient(conn io.ReadWriteCloser, failureCallback func(error), log *log
 		conn:                   conn,
 		msgID:                  0,
 		responseCallbacks:      map[int]callbacks{},
-		notificationsCallbacks: map[string]func([]byte){},
+		notificationsCallbacks: map[string][]func([]byte){},
 		failureCallback:        failureCallback,
 		log:                    log,
 	}
@@ -69,6 +68,7 @@ func (client *RPCClient) read(success func([]byte), failure func(error)) {
 		if err != nil {
 			panic(errp.Wrap(err, "Failed to read from socket"))
 		}
+
 		success(line)
 	}
 }
@@ -136,11 +136,12 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 		}
 		func() {
 			client.notificationsCallbacksLock.RLock()
-			responseCallback, ok := client.notificationsCallbacks[*response.Method]
+			responseCallbacks := client.notificationsCallbacks[*response.Method]
 			client.notificationsCallbacksLock.RUnlock()
-			if ok {
+			for _, responseCallback := range responseCallbacks {
 				responseCallback([]byte(response.Params))
 			}
+
 		}()
 	}
 }
@@ -208,15 +209,16 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 func (client *RPCClient) SubscribeNotifications(method string, callback func([]byte)) {
 	client.notificationsCallbacksLock.Lock()
 	defer client.notificationsCallbacksLock.Unlock()
-	if _, ok := client.notificationsCallbacks[method]; ok {
-		panic(fmt.Sprintf("already subscribed to notifications of %s", method))
+	if _, ok := client.notificationsCallbacks[method]; !ok {
+		client.notificationsCallbacks[method] = []func([]byte){}
 	}
-	client.notificationsCallbacks[method] = callback
+	client.notificationsCallbacks[method] = append(client.notificationsCallbacks[method], callback)
 }
 
 func (client *RPCClient) send(msg []byte) error {
 	_, err := client.conn.Write(msg)
 	if err != nil {
+		client.failureCallback(SocketError(errp.WithStack(err)))
 		return SocketError(errp.WithStack(err))
 	}
 	return nil

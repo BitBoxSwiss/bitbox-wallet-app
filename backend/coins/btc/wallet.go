@@ -150,9 +150,8 @@ func (wallet *Wallet) Initialized() bool {
 	return wallet.initialSyncDone
 }
 
-// Close stops the wallet, including the blockchain connection.
+// Close stops the wallet.
 func (wallet *Wallet) Close() {
-	wallet.blockchain.Close()
 	wallet.initialSyncDone = false
 	wallet.onEvent(EventStatusChanged)
 }

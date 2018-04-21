@@ -21,8 +21,15 @@ const (
 	electrumServerLitecoinMainnet = "dev.shiftcrypto.ch:50004"
 )
 
-// ConnectionError indicates an error when establishing a network connection.
-type ConnectionError error
+// connectionError indicates an error when establishing a network connection.
+type connectionError error
+
+func maybeConnectionError(err error) error {
+	if _, ok := errp.Cause(err).(electrum.ConnectionError); ok {
+		return connectionError(err)
+	}
+	return err
+}
 
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
@@ -33,48 +40,19 @@ type Wallet struct {
 	WalletDerivationPath  string `json:"keyPath"`
 	BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
 
-	net             *chaincfg.Params
-	addressType     addresses.AddressType
-	failureCallback func(err error)
-	log             *logrus.Entry
-}
-
-func maybeConnectionError(err error) error {
-	if _, ok := errp.Cause(err).(electrum.ConnectionError); ok {
-		return ConnectionError(err)
-	}
-	return err
+	errorChannel chan error
+	net          *chaincfg.Params
+	addressType  addresses.AddressType
+	log          *logrus.Entry
 }
 
 func (wallet *Wallet) init(backend *Backend) error {
 	wallet.log = backend.log.WithFields(logrus.Fields{"coin": wallet.Code, "wallet-name": wallet.Name,
 		"net": wallet.net.Name, "address-type": wallet.addressType})
-	var electrumServer string
-	tls := true
-	switch wallet.Code {
-	case "tbtc", "tbtc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinTestnet
-	case "rbtc", "rbtc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinRegtest
-		tls = false
-	case "btc", "btc-p2wpkh-p2sh":
-		electrumServer = electrumServerBitcoinMainnet
-	case "tltc-p2wpkh-p2sh":
-		electrumServer = electrumServerLitecoinTestnet
-	case "ltc-p2wpkh-p2sh":
-		electrumServer = electrumServerLitecoinMainnet
-	default:
-		wallet.log.Panic("Unknown coin")
-		panic(fmt.Sprintf("unknown coin %s", wallet.Code))
-	}
-	wrappedFailureCallback := func(err error) {
-		if err != nil {
-			wallet.failureCallback(maybeConnectionError(err))
-		}
-	}
-	electrumClient, err := electrum.NewElectrumClient(electrumServer, tls, wrappedFailureCallback, wallet.log)
+
+	electrumClient, err := backend.electrumClient(wallet.net)
 	if err != nil {
-		return maybeConnectionError(err)
+		return err
 	}
 	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath, wallet.log)
 	if err != nil {
