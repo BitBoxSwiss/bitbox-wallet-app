@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/shiftdevices/godbb/coins/btc"
-	"github.com/shiftdevices/godbb/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/backend/coins/btc"
+	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )

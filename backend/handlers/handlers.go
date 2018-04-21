@@ -22,9 +22,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/backend"
-	walletHandlers "github.com/shiftdevices/godbb/coins/btc/handlers"
-	"github.com/shiftdevices/godbb/devices/bitbox"
-	bitboxHandlers "github.com/shiftdevices/godbb/devices/bitbox/handlers"
+	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )

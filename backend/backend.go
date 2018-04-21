@@ -12,11 +12,11 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/shiftdevices/godbb/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/coins/btc/db"
-	"github.com/shiftdevices/godbb/coins/ltc"
-	"github.com/shiftdevices/godbb/devices/bitbox"
-	"github.com/shiftdevices/godbb/devices/usb"
+	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/btc/db"
+	"github.com/shiftdevices/godbb/backend/coins/ltc"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/semver"
 )

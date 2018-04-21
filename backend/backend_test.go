@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/shiftdevices/godbb/coins/btc"
+	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/test"
 
@@ -25,7 +25,7 @@ import (
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/handlers"
 
-	walletHandlers "github.com/shiftdevices/godbb/coins/btc/handlers"
+	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 )
 
 const (

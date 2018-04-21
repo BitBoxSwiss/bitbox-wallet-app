@@ -1,8 +1,8 @@
 /backend/handlers/assets.go
+/backend/devices/bitbox/assets.go
 /bitbox.db
 /cmd/playground/
 /config/certificates/frontend/
-/devices/bitbox/assets.go
 /frontends/qt/server/server.h
 /frontends/qt/server/server.a
 /frontends/qt/build/

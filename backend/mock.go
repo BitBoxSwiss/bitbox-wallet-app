@@ -11,9 +11,9 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 
-	"github.com/shiftdevices/godbb/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/devices/bitbox"
-	"github.com/shiftdevices/godbb/devices/bitbox/relay"
+	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
