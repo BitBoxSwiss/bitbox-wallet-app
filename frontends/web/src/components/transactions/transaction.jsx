@@ -21,7 +21,7 @@ export default class Transaction extends Component {
         this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
     }
 
-    render({ explorerURL, type, id, amount, fee, height }, { collapsed }) {
+    render({ explorerURL, type, id, amount, fee, height, time }, { collapsed }) {
         return (
             <div class={style.transaction}
                 onClick={this.onUncollapse}
@@ -31,7 +31,8 @@ export default class Transaction extends Component {
                     <img src={transferIconMap[type]} />
                     <span className={style.address}>
                         {id}<br />
-                        <time>Height:{' '}{height}</time>
+                        <time>Height:{' '}{height}</time><br />
+                        <time>Time:{' '}{time}</time>
                     </span>
                     <span className={style.amount}>{amount}</span>
                 </div>

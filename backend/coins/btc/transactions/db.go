@@ -1,6 +1,8 @@
 package transactions
 
 import (
+	"time"
+
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -22,13 +24,16 @@ type DBTxInterface interface {
 	// `TxInfo()`.
 	AddAddressToTx(chainhash.Hash, btcutil.Address) error
 	RemoveAddressFromTx(chainhash.Hash, btcutil.Address) (bool, error)
-	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0) are
-	// returned for the values not found.
-	TxInfo(chainhash.Hash) (tx *wire.MsgTx, addresses []string, height int, err error)
+	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0, nil)
+	// are returned for the values not found.
+	TxInfo(chainhash.Hash) (
+		tx *wire.MsgTx, addresses []string, height int, headerTimestamp *time.Time, err error)
 	// Transactions retrieves all stored trasaction hashes.
 	Transactions() ([]chainhash.Hash, error)
 	// UnverifiedTransactions retrieves all stored trasaction hashes of unverified transactions.
 	UnverifiedTransactions() ([]chainhash.Hash, error)
+	// MarkTxVerified marks a tx as verified. Stores timestamp of the header this tx appears in.
+	MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error
 	// PutInput stores a transaction input. It is referenced by output it spends. The transaction
 	// hash of the transaction this input was found in is recorded. TODO: store slice of inputs
 	// along with the txhash they appear in. If there are more than one, a double spend is detected.

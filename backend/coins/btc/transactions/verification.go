@@ -28,7 +28,7 @@ func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]in
 	}
 	result := map[chainhash.Hash]int{}
 	for _, txHash := range unverifiedTransactions {
-		_, _, height, err := dbTx.TxInfo(txHash)
+		_, _, height, _, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)
@@ -50,8 +50,9 @@ func hashMerkleRoot(merkle []client.TXHash, start chainhash.Hash, pos int) chain
 }
 
 func (transactions *Transactions) verifyTransactions() {
-	transactions.log.Info("verifying transactions")
-	for txHash, height := range transactions.unverifiedTransactions() {
+	unverifiedTransactions := transactions.unverifiedTransactions()
+	transactions.log.Infof("verifying %d transactions", len(unverifiedTransactions))
+	for txHash, height := range unverifiedTransactions {
 		if height <= 0 {
 			continue
 		}
@@ -73,7 +74,17 @@ func (transactions *Transactions) verifyTransactions() {
 				transactions.log.Info(
 					fmt.Sprintf("Merkle root verification succeeded for %s", txHash))
 				// TODO: mark verified
-				return nil
+
+				dbTx, err := transactions.db.Begin()
+				if err != nil {
+					// TODO
+					panic(err)
+				}
+				defer dbTx.Rollback()
+				if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
+					return err
+				}
+				return dbTx.Commit()
 			},
 			done,
 		); err != nil {

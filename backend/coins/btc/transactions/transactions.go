@@ -2,6 +2,7 @@ package transactions
 
 import (
 	"sort"
+	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -196,7 +197,7 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 	}
 	result := map[wire.OutPoint]*TxOut{}
 	for outPoint, txOut := range outputs {
-		tx, _, height, err := dbTx.TxInfo(outPoint.Hash)
+		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			// TODO
 			panic(err)
@@ -223,7 +224,7 @@ func isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
 func (transactions *Transactions) removeTxForAddress(
 	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
-	tx, _, _, err := dbTx.TxInfo(txHash)
+	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -319,7 +320,7 @@ func (transactions *Transactions) doForTransaction(
 	txHash chainhash.Hash,
 	callback func(DBTxInterface, *wire.MsgTx),
 ) {
-	tx, _, _, err := dbTx.TxInfo(txHash)
+	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -391,7 +392,7 @@ func (transactions *Transactions) Balance() *Balance {
 		if spent := isInputSpent(dbTx, outPoint); spent {
 			continue
 		}
-		tx, _, height, err := dbTx.TxInfo(outPoint.Hash)
+		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
 			// TODO
 			panic(err)
@@ -447,6 +448,8 @@ type TxInfo struct {
 	// Fee is nil if for a receiving tx (TxTypeReceive). The fee is only displayed (and relevant)
 	// when sending funds from the wallet.
 	Fee *btcutil.Amount
+	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
+	Timestamp *time.Time
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
@@ -454,6 +457,7 @@ func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	tx *wire.MsgTx,
 	height int,
+	timestamp *time.Time,
 	isChange func(client.ScriptHashHex) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
@@ -513,11 +517,12 @@ func (transactions *Transactions) txInfo(
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
 	return &TxInfo{
-		Tx:     tx,
-		Height: height,
-		Type:   txType,
-		Amount: result,
-		Fee:    feeP,
+		Tx:        tx,
+		Height:    height,
+		Type:      txType,
+		Amount:    result,
+		Fee:       feeP,
+		Timestamp: timestamp,
 	}
 }
 
@@ -539,12 +544,12 @@ func (transactions *Transactions) Transactions(
 		panic(err)
 	}
 	for _, txHash := range txHashes {
-		tx, _, height, err := dbTx.TxInfo(txHash)
+		tx, _, height, timestamp, err := dbTx.TxInfo(txHash)
 		if err != nil {
 			// TODO
 			panic(err)
 		}
-		txs = append(txs, transactions.txInfo(dbTx, tx, height, isChange))
+		txs = append(txs, transactions.txInfo(dbTx, tx, height, timestamp, isChange))
 	}
 	sort.Sort(sort.Reverse(byHeight(txs)))
 	return txs

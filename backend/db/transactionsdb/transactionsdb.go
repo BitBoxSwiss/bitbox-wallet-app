@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
@@ -95,10 +96,11 @@ func (tx *Tx) Commit() error {
 }
 
 type walletTransaction struct {
-	Tx        *wire.MsgTx
-	Height    int
-	Addresses map[string]bool `json:"addresses"`
-	Verified  bool
+	Tx              *wire.MsgTx
+	Height          int
+	Addresses       map[string]bool `json:"addresses"`
+	Verified        *bool
+	HeaderTimestamp *time.Time `json:"ts"`
 }
 
 func newWalletTransaction() *walletTransaction {
@@ -134,21 +136,21 @@ func (tx *Tx) modifyTx(key []byte, f func(value *walletTransaction)) error {
 }
 
 // TxInfo implements transactions.DBTxInterface.
-func (tx *Tx) TxInfo(txHash chainhash.Hash) (*wire.MsgTx, []string, int, error) {
+func (tx *Tx) TxInfo(txHash chainhash.Hash) (*wire.MsgTx, []string, int, *time.Time, error) {
 	walletTx := newWalletTransaction()
 	if _, err := readJSON(tx.bucketTransactions, txHash[:], walletTx); err != nil {
-		return nil, nil, 0, err
+		return nil, nil, 0, nil, err
 	}
 	addresses := []string{}
 	for address := range walletTx.Addresses {
 		addresses = append(addresses, address)
 	}
-	return walletTx.Tx, addresses, walletTx.Height, nil
+	return walletTx.Tx, addresses, walletTx.Height, walletTx.HeaderTimestamp, nil
 }
 
 // PutTx implements transactions.DBTxInterface.
 func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error {
-	var verified bool
+	var verified *bool
 	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
 		verified = walletTx.Verified
 		walletTx.Tx = msgTx
@@ -157,7 +159,7 @@ func (tx *Tx) PutTx(txHash chainhash.Hash, msgTx *wire.MsgTx, height int) error 
 	if err != nil {
 		return err
 	}
-	if !verified {
+	if verified == nil {
 		return tx.bucketUnverifiedTransactions.Put(txHash[:], nil)
 	}
 	return nil
@@ -209,6 +211,15 @@ func (tx *Tx) Transactions() ([]chainhash.Hash, error) {
 // UnverifiedTransactions implements transactions.DBTxInterface.
 func (tx *Tx) UnverifiedTransactions() ([]chainhash.Hash, error) {
 	return getTransactions(tx.bucketUnverifiedTransactions)
+}
+
+// MarkTxVerified implements transactions.DBTxInterface.
+func (tx *Tx) MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error {
+	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
+		truth := true
+		walletTx.Verified = &truth
+		walletTx.HeaderTimestamp = &headerTimestamp
+	})
 }
 
 // PutInput implements transactions.DBTxInterface.
