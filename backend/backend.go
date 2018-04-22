@@ -2,6 +2,7 @@ package backend
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"sync"
 	"time"
@@ -21,15 +22,11 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/semver"
 )
-
-// dbFilename is where the database is stored.
-const dbFilename = "bitbox.db"
 
 var (
 	// Version of the backend as displayed to the user.
@@ -80,8 +77,8 @@ type WalletEvent struct {
 type Backend struct {
 	testing bool
 
-	db        *transactionsdb.DB
 	appFolder string
+	dbFolder  string
 	events    chan interface{}
 
 	device         bitbox.Interface
@@ -199,14 +196,15 @@ func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*Backend, error) {
 	log := logging.Log.WithGroup("backend")
 	log.Infof("App folder: %s", appFolder)
-	db, err := transactionsdb.NewDB(path.Join(appFolder, dbFilename))
-	if err != nil {
-		return nil, err
+	dbFolder := path.Join(appFolder, "cache")
+	if err := os.MkdirAll(dbFolder, 0700); err != nil {
+		return nil, errp.WithStack(err)
 	}
+	log.Infof("Created db folder: %s", dbFolder)
 	return &Backend{
 		testing:   testing,
-		db:        db,
 		appFolder: appFolder,
+		dbFolder:  dbFolder,
 		events:    make(chan interface{}, 1000),
 		wallets:   wallets,
 
@@ -295,7 +293,7 @@ func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, erro
 		log := backend.log.WithField("net", netName(net))
 
 		db, err := headersdb.NewDB(
-			path.Join(backend.appFolder, fmt.Sprintf("headers-%s.db", netName(net))))
+			path.Join(backend.dbFolder, fmt.Sprintf("headers-%s.db", netName(net))))
 		if err != nil {
 			return nil, err
 		}

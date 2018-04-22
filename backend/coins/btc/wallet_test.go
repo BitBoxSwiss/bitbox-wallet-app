@@ -48,7 +48,7 @@ func (s *walletSuite) SetupTest() {
 	s.keyStoreMock.On("XPub").Return(xpub)
 	s.wallet, err = btc.NewWallet(
 		s.net,
-		db.SubDB("test", s.log),
+		db,
 		&s.keyStoreMock,
 		&s.blockchainMock,
 		&headersMock.Interface{},

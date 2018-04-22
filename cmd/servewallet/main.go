@@ -21,7 +21,6 @@ const (
 func main() {
 	// Log to stderr during development.
 	logging.Log.Out = os.Stderr
-
 	log := logging.Log.WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
 		// recover from all panics and log error before panicing again

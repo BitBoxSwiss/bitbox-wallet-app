@@ -2,12 +2,14 @@ package backend
 
 import (
 	"fmt"
+	"path"
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
@@ -62,10 +64,16 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
+	db, err := transactionsdb.NewDB(path.Join(
+		backend.dbFolder,
+		fmt.Sprintf("account-%s-%s.db", keyStore.XPub().String(), wallet.Code)))
+	if err != nil {
+		return err
+	}
 	waitInit := make(chan struct{})
 	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
-		backend.db.SubDB(fmt.Sprintf("%s-%s", wallet.Code, keyStore.XPub().String()), wallet.log),
+		db,
 		keyStore,
 		electrumClient,
 		headers,

@@ -81,7 +81,7 @@ const (
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,
-	db *transactionsdb.SubDB,
+	db *transactionsdb.DB,
 	keyStore KeyStoreWithoutKeyDerivation,
 	blockchain blockchain.Interface,
 	theHeaders headers.Interface,

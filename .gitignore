@@ -1,6 +1,6 @@
 /backend/handlers/assets.go
 /backend/devices/bitbox/assets.go
-/bitbox.db
+/cache
 /cmd/playground/
 /config/certificates/frontend/
 /frontends/qt/server/server.h

@@ -12,7 +12,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -37,47 +36,29 @@ func NewDB(filename string) (*DB, error) {
 	return &DB{db: db}, nil
 }
 
-// SubDB returns a sub-database. It implements transactions.DBInterface.
-func (db *DB) SubDB(subDBName string, log *logrus.Entry) *SubDB {
-	log.WithField("subdb-name", subDBName).Info("Opening subDB")
-	return &SubDB{db: db.db, subDBName: subDBName, log: log}
-}
-
-// SubDB is a sub-database. Sub-databases are independent except that they are stored in the same
-// file.
-type SubDB struct {
-	db        *bbolt.DB
-	subDBName string
-	log       *logrus.Entry
-}
-
 // Begin implements transactions.Begin.
-func (db *SubDB) Begin() (transactions.DBTxInterface, error) {
+func (db *DB) Begin() (transactions.DBTxInterface, error) {
 	tx, err := db.db.Begin(true)
 	if err != nil {
 		return nil, err
 	}
-	bucketSubDB, err := tx.CreateBucketIfNotExists([]byte(db.subDBName))
+	bucketTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketTransactions))
 	if err != nil {
 		return nil, err
 	}
-	bucketTransactions, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketTransactions))
+	bucketUnverifiedTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactions))
 	if err != nil {
 		return nil, err
 	}
-	bucketUnverifiedTransactions, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketUnverifiedTransactions))
+	bucketInputs, err := tx.CreateBucketIfNotExists([]byte(bucketInputs))
 	if err != nil {
 		return nil, err
 	}
-	bucketInputs, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketInputs))
+	bucketOutputs, err := tx.CreateBucketIfNotExists([]byte(bucketOutputs))
 	if err != nil {
 		return nil, err
 	}
-	bucketOutputs, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketOutputs))
-	if err != nil {
-		return nil, err
-	}
-	bucketAddressHistories, err := bucketSubDB.CreateBucketIfNotExists([]byte(bucketAddressHistories))
+	bucketAddressHistories, err := tx.CreateBucketIfNotExists([]byte(bucketAddressHistories))
 	if err != nil {
 		return nil, err
 	}

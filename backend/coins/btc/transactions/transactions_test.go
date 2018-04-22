@@ -108,7 +108,7 @@ func (s *transactionsSuite) SetupTest() {
 	headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return()
 	s.transactions = transactions.NewTransactions(
 		s.net,
-		db.SubDB("test", s.log),
+		db,
 		headersMock,
 		s.synchronizer,
 		s.blockchainMock,
