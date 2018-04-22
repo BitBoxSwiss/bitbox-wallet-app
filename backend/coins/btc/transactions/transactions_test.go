@@ -10,11 +10,11 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	addressesTest "github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
-	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
@@ -100,7 +100,7 @@ func (s *transactionsSuite) SetupTest() {
 	s.addressChain = addressesTest.NewAddressChain()
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
-	db, err := db.NewDB(test.TstTempFile("godbb-db-"))
+	db, err := transactionsdb.NewDB(test.TstTempFile("godbb-db-"))
 	if err != nil {
 		panic(err)
 	}

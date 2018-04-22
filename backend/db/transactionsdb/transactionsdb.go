@@ -1,4 +1,4 @@
-package db
+package transactionsdb
 
 import (
 	"encoding/json"

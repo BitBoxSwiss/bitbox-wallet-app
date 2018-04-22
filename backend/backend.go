@@ -17,11 +17,11 @@ import (
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
+	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/util/locker"
@@ -80,7 +80,7 @@ type WalletEvent struct {
 type Backend struct {
 	testing bool
 
-	db        *db.DB
+	db        *transactionsdb.DB
 	appFolder string
 	events    chan interface{}
 
@@ -199,13 +199,13 @@ func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
 func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*Backend, error) {
 	log := logging.Log.WithGroup("backend")
 	log.Infof("App folder: %s", appFolder)
-	theDB, err := db.NewDB(path.Join(appFolder, dbFilename))
+	db, err := transactionsdb.NewDB(path.Join(appFolder, dbFilename))
 	if err != nil {
 		return nil, err
 	}
 	return &Backend{
 		testing:   testing,
-		db:        theDB,
+		db:        db,
 		appFolder: appFolder,
 		events:    make(chan interface{}, 1000),
 		wallets:   wallets,
@@ -294,7 +294,7 @@ func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, erro
 		}
 		log := backend.log.WithField("net", netName(net))
 
-		theDB, err := headersdb.NewDB(
+		db, err := headersdb.NewDB(
 			path.Join(backend.appFolder, fmt.Sprintf("headers-%s.db", netName(net))))
 		if err != nil {
 			return nil, err
@@ -302,7 +302,7 @@ func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, erro
 
 		backend.headers[net.Net] = headers.NewHeaders(
 			net,
-			theDB,
+			db,
 			blockchain,
 			log)
 		if err := backend.headers[net.Net].Init(); err != nil {

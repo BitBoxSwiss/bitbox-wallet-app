@@ -9,11 +9,11 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 )
@@ -81,7 +81,7 @@ const (
 // NewWallet creats a new Wallet.
 func NewWallet(
 	net *chaincfg.Params,
-	db *db.SubDB,
+	db *transactionsdb.SubDB,
 	keyStore KeyStoreWithoutKeyDerivation,
 	blockchain blockchain.Interface,
 	theHeaders headers.Interface,

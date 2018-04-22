@@ -8,9 +8,9 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
-	"github.com/shiftdevices/godbb/backend/coins/btc/db"
 	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/mocks"
+	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
@@ -41,7 +41,7 @@ func (s *walletSuite) SetupTest() {
 		panic(err)
 	}
 
-	db, err := db.NewDB(test.TstTempFile("godbb-db-"))
+	db, err := transactionsdb.NewDB(test.TstTempFile("godbb-db-"))
 	if err != nil {
 		panic(err)
 	}
