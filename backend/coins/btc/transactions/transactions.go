@@ -450,6 +450,8 @@ type TxInfo struct {
 	Fee *btcutil.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp *time.Time
+	// Addresses money was sent to / received on (without change addresses).
+	Addresses []string
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
@@ -476,6 +478,16 @@ func (transactions *Transactions) txInfo(
 		}
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
+	receiveAddresses := []string{}
+	sendAddresses := []string{}
+	outputToAddress := func(pkScript []byte) string {
+		_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
+		// unknown addresses and multisig scripts ignored.
+		if err != nil || len(extractedAddresses) != 1 {
+			return "<unknown address>"
+		}
+		return extractedAddresses[0].String()
+	}
 	allOutputsOurs := true
 	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
@@ -487,21 +499,27 @@ func (transactions *Transactions) txInfo(
 			// TODO
 			panic(err)
 		}
+		address := outputToAddress(txOut.PkScript)
 		if output != nil {
 			if isChange((&TxOut{TxOut: output}).ScriptHashHex()) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
+				receiveAddresses = append(receiveAddresses, address)
+				sendAddresses = append(sendAddresses, address)
 			}
 		} else {
 			allOutputsOurs = false
+			sendAddresses = append(sendAddresses, address)
 		}
 	}
+	var addresses []string
 	var txType TxType
 	var feeP *btcutil.Amount
 	if allInputsOurs {
 		fee := sumOurInputs - sumAllOutputs
 		feeP = &fee
+		addresses = sendAddresses
 		if allOutputsOurs {
 			txType = TxTypeSendSelf
 			// Money sent from our wallet to our wallet
@@ -514,6 +532,7 @@ func (transactions *Transactions) txInfo(
 	} else {
 		// Money sent from external to our wallet
 		txType = TxTypeReceive
+		addresses = receiveAddresses
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
 	return &TxInfo{
@@ -523,6 +542,7 @@ func (transactions *Transactions) txInfo(
 		Amount:    result,
 		Fee:       feeP,
 		Timestamp: timestamp,
+		Addresses: addresses,
 	}
 }
 

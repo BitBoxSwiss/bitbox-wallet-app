@@ -49,12 +49,13 @@ func (handlers *Handlers) Uninit() {
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID     string  `json:"id"`
-	Height int     `json:"height"`
-	Type   string  `json:"type"`
-	Amount string  `json:"amount"`
-	Fee    string  `json:"fee"`
-	Time   *string `json:"time"`
+	ID        string   `json:"id"`
+	Height    int      `json:"height"`
+	Type      string   `json:"type"`
+	Amount    string   `json:"amount"`
+	Fee       string   `json:"fee"`
+	Time      *string  `json:"time"`
+	Addresses []string `json:"addresses"`
 }
 
 func (handlers *Handlers) ensureWalletInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -87,9 +88,10 @@ func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, e
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount: txInfo.Amount.String(),
-			Fee:    feeString,
-			Time:   formattedTime,
+			Amount:    txInfo.Amount.String(),
+			Fee:       feeString,
+			Time:      formattedTime,
+			Addresses: txInfo.Addresses,
 		})
 	}
 	return result, nil
