@@ -215,6 +215,9 @@ func (tx *Tx) UnverifiedTransactions() ([]chainhash.Hash, error) {
 
 // MarkTxVerified implements transactions.DBTxInterface.
 func (tx *Tx) MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error {
+	if err := tx.bucketUnverifiedTransactions.Delete(txHash[:]); err != nil {
+		panic(errp.WithStack(err))
+	}
 	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
 		truth := true
 		walletTx.Verified = &truth

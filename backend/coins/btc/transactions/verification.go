@@ -73,8 +73,6 @@ func (transactions *Transactions) verifyTransactions() {
 				}
 				transactions.log.Info(
 					fmt.Sprintf("Merkle root verification succeeded for %s", txHash))
-				// TODO: mark verified
-
 				dbTx, err := transactions.db.Begin()
 				if err != nil {
 					// TODO
