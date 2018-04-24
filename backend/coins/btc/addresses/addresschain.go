@@ -1,9 +1,8 @@
 package addresses
 
 import (
-	"fmt"
-
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 
@@ -14,18 +13,20 @@ import (
 
 // AddressChain manages a chain of addresses derived from an xpub.
 type AddressChain struct {
-	xpub        *hdkeychain.ExtendedKey
-	net         *chaincfg.Params
-	gapLimit    int
-	chainIndex  uint32
-	addressType AddressType
-	addresses   []*Address
-	log         *logrus.Entry
+	derivationPath signing.AbsoluteKeypath
+	xpub           *hdkeychain.ExtendedKey
+	net            *chaincfg.Params
+	gapLimit       int
+	chainIndex     uint32
+	addressType    AddressType
+	addresses      []*Address
+	log            *logrus.Entry
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub. xpub
 // must be public (neutered) and the xpub type must match the passed net.
 func NewAddressChain(
+	derivationPath signing.AbsoluteKeypath,
 	xpub *hdkeychain.ExtendedKey,
 	net *chaincfg.Params,
 	gapLimit int,
@@ -45,12 +46,13 @@ func NewAddressChain(
 		panic(err)
 	}
 	return &AddressChain{
-		xpub:        chainXPub,
-		net:         net,
-		gapLimit:    gapLimit,
-		chainIndex:  chainIndex,
-		addressType: addressType,
-		addresses:   []*Address{},
+		derivationPath: derivationPath,
+		xpub:           chainXPub,
+		net:            net,
+		gapLimit:       gapLimit,
+		chainIndex:     chainIndex,
+		addressType:    addressType,
+		addresses:      []*Address{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "address-type": addressType}),
 	}
@@ -89,7 +91,7 @@ func (addresses *AddressChain) addAddress() *Address {
 	addressWithPK := NewAddress(
 		publicKey,
 		addresses.net,
-		fmt.Sprintf("%d/%d", addresses.chainIndex, index),
+		addresses.derivationPath.Child(addresses.chainIndex, false).Child(uint32(index), false),
 		addresses.addressType,
 		addresses.log,
 	)

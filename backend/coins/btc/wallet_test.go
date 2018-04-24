@@ -9,8 +9,9 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
 	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
-	"github.com/shiftdevices/godbb/backend/coins/btc/mocks"
 	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
+	"github.com/shiftdevices/godbb/backend/keystore/mocks"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/test"
 	"github.com/sirupsen/logrus"
@@ -21,7 +22,7 @@ type walletSuite struct {
 	suite.Suite
 
 	net            *chaincfg.Params
-	keyStoreMock   mocks.KeyStoreWithoutKeyDerivation
+	keyStoreMock   mocks.Keystore
 	blockchainMock blockchainMock.Interface
 	onEvent        func(btc.Event)
 	wallet         *btc.Wallet
@@ -49,6 +50,7 @@ func (s *walletSuite) SetupTest() {
 	s.wallet, err = btc.NewWallet(
 		s.net,
 		db,
+		signing.NewEmptyAbsoluteKeypath(),
 		&s.keyStoreMock,
 		&s.blockchainMock,
 		&headersMock.Interface{},

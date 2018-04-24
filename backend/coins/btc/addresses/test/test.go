@@ -4,6 +4,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/logging"
 )
 
@@ -19,5 +20,9 @@ func NewAddressChain() *addresses.AddressChain {
 	if err != nil {
 		panic(err)
 	}
-	return addresses.NewAddressChain(xpub, net, 20, 0, addresses.AddressTypeP2PKH, log)
+	derivationPath, err := signing.NewAbsoluteKeypath("m/44'/1'")
+	if err != nil {
+		panic(err)
+	}
+	return addresses.NewAddressChain(derivationPath, xpub, net, 20, 0, addresses.AddressTypeP2PKH, log)
 }

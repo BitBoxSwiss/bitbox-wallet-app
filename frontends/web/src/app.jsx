@@ -37,6 +37,7 @@ export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            walletInitialized: false,
             deviceRegistered: false,
             deviceStatus: null,
             testing: false,
@@ -55,8 +56,16 @@ export default class App extends Component {
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
+        this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(data => {
             switch (data.type) {
+            case "backend":
+                switch (data.data) {
+                case 'walletStatusChanged':
+                    this.onWalletStatusChanged();
+                    break;
+                }
+                break;
             case 'devices':
                 switch (data.data) {
                 case 'registeredChanged':
@@ -100,6 +109,14 @@ export default class App extends Component {
         });
     }
 
+    onWalletStatusChanged = () => {
+        apiGet('wallet-status').then(status => {
+            this.setState({
+                walletInitialized: status == "initialized"
+            });
+        });
+    }
+
     onDeviceStatusChanged = () => {
         if (this.state.deviceRegistered) {
             apiGet('device/status').then(deviceStatus => {
@@ -108,26 +125,8 @@ export default class App extends Component {
         }
     }
 
-    render({}, { wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
-
-        if (!deviceRegistered || !deviceStatus) {
-            return (
-                <Dialog>
-                    <h3>Waiting for device...</h3>
-                    { debug && testing && renderButtonIfTesting() }
-                </Dialog>
-            );
-        }
-        switch (deviceStatus) {
-        case DeviceStatus.BOOTLOADER:
-            return <Bootloader />;
-        case DeviceStatus.INITIALIZED:
-            return <Login />;
-        case DeviceStatus.UNINITIALIZED:
-            return <Initialize />;
-        case DeviceStatus.LOGGED_IN:
-            return <Seed />;
-        case DeviceStatus.SEEDED:
+    render({}, { walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
+        if (wallets && wallets.length != 0 && walletInitialized) {
             return (
                 <div class={style.container}>
                     <div style="display: flex; flex: 1 1 auto;">
@@ -145,6 +144,24 @@ export default class App extends Component {
                 </div>
             );
         }
+        if (!deviceRegistered || !deviceStatus) {
+            return (
+                <Dialog>
+                    <h3>Waiting for device...</h3>
+                    { debug && testing && renderButtonIfTesting() }
+                </Dialog>
+            );
+        }
+        switch (deviceStatus) {
+        case DeviceStatus.BOOTLOADER:
+            return <Bootloader />;
+        case DeviceStatus.INITIALIZED:
+            return <Login />;
+        case DeviceStatus.UNINITIALIZED:
+            return <Initialize />;
+        case DeviceStatus.LOGGED_IN:
+            return <Seed />;
+        }
     }
 }
 
@@ -157,7 +174,7 @@ function renderButtonIfTesting() {
 }
 
 function registerTestingDevice() {
-    apiPost('devices/test/register');
+    apiPost('test/register');
 }
 
 class Redirect extends Component {

@@ -95,6 +95,7 @@ func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface
 }
 
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
+
 	return handlers.device.DeviceInfo()
 }
 

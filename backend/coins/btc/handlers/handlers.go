@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
@@ -155,7 +156,7 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 	}
 
 	err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode)
-	if errp.Cause(err) == btc.ErrUserAborted {
+	if bitbox.IsErrorAbort(err) {
 		return map[string]interface{}{"success": false}, nil
 	}
 	if err != nil {
@@ -213,8 +214,10 @@ func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) 
 
 func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
 	address := handlers.wallet.GetUnusedReceiveAddress()
-	if err := handlers.wallet.KeyStore().DisplayAddress(address.KeyPath); err != nil {
-		return nil, err
+	if handlers.wallet.KeyStore().HasSecureOutput() {
+		if err := handlers.wallet.KeyStore().DisplayAddress(address.KeyPath, nil); err != nil {
+			return nil, err
+		}
 	}
 	return address.EncodeAddress(), nil
 }

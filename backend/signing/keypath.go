@@ -12,12 +12,12 @@ import (
 
 const hardenedKeySymbol = "'"
 
-type keynode struct {
+type keyNode struct {
 	index    uint32
 	hardened bool
 }
 
-func (node keynode) Encode() string {
+func (node keyNode) Encode() string {
 	suffix := ""
 	if node.hardened {
 		suffix = hardenedKeySymbol
@@ -25,7 +25,7 @@ func (node keynode) Encode() string {
 	return fmt.Sprint(node.index, suffix)
 }
 
-type keypath []keynode
+type keypath []keyNode
 
 func newKeypath(input string) (keypath, error) {
 	nodes := strings.Split(input, "/")
@@ -46,7 +46,7 @@ func newKeypath(input string) (keypath, error) {
 		if index < 0 {
 			return nil, errp.New("A path index may not be negative.")
 		}
-		path = append(path, keynode{uint32(index), hardened})
+		path = append(path, keyNode{uint32(index), hardened})
 	}
 	return path, nil
 }
@@ -59,6 +59,7 @@ func (path keypath) Encode() string {
 	return strings.Join(nodes, "/")
 }
 
+// Derive derives the extended pubkey at the path starting at the given extendedKey.
 func (path keypath) Derive(extendedKey *hdkeychain.ExtendedKey) (*hdkeychain.ExtendedKey, error) {
 	for _, node := range path {
 		offset := uint32(0)
@@ -77,10 +78,7 @@ func (path keypath) Derive(extendedKey *hdkeychain.ExtendedKey) (*hdkeychain.Ext
 // RelativeKeypath models a relative keypath according to BIP32.
 type RelativeKeypath keypath
 
-func NewEmptyRelativeKeypath() RelativeKeypath {
-	return make(RelativeKeypath, 0)
-}
-
+// NewRelativeKeypath creates a new RelativeKeyPath from a string like `1/2'/3`.
 func NewRelativeKeypath(input string) (RelativeKeypath, error) {
 	input = strings.TrimSpace(input)
 	if strings.HasPrefix(input, "m") {
@@ -93,10 +91,12 @@ func NewRelativeKeypath(input string) (RelativeKeypath, error) {
 	return RelativeKeypath(path), nil
 }
 
+// Encode serializes the keypath.
 func (relativeKeypath RelativeKeypath) Encode() string {
 	return keypath(relativeKeypath).Encode()
 }
 
+// NonHardened returns whether the keypath contains a hardened derivation.
 func (relativeKeypath RelativeKeypath) NonHardened() bool {
 	for _, node := range relativeKeypath {
 		if node.hardened {
@@ -106,10 +106,7 @@ func (relativeKeypath RelativeKeypath) NonHardened() bool {
 	return true
 }
 
-func (relativeKeypath RelativeKeypath) Add(index uint32, hardened bool) RelativeKeypath {
-	return append(relativeKeypath, keynode{index, hardened})
-}
-
+// Derive derives the extended pubkey at the path starting at the given extendedKey.
 func (relativeKeypath RelativeKeypath) Derive(
 	extendedKey *hdkeychain.ExtendedKey,
 ) (*hdkeychain.ExtendedKey, error) {
@@ -119,10 +116,12 @@ func (relativeKeypath RelativeKeypath) Derive(
 // AbsoluteKeypath models an absolute keypath according to BIP32.
 type AbsoluteKeypath keypath
 
+// NewEmptyAbsoluteKeypath creates a new AbsoluteKeypath.
 func NewEmptyAbsoluteKeypath() AbsoluteKeypath {
-	return make(AbsoluteKeypath, 0)
+	return AbsoluteKeypath{}
 }
 
+// NewAbsoluteKeypath creates a new AbsoluteKeypath from a string like `m/44'/1'`.
 func NewAbsoluteKeypath(input string) (AbsoluteKeypath, error) {
 	input = strings.TrimSpace(input)
 	if !strings.HasPrefix(input, "m") {
@@ -136,54 +135,34 @@ func NewAbsoluteKeypath(input string) (AbsoluteKeypath, error) {
 	return AbsoluteKeypath(path), nil
 }
 
+// Encode serializes the keypath.
 func (absoluteKeypath AbsoluteKeypath) Encode() string {
 	return "m/" + keypath(absoluteKeypath).Encode()
 }
 
-func (absoluteKeypath AbsoluteKeypath) Add(index uint32, hardened bool) AbsoluteKeypath {
-	return append(absoluteKeypath, keynode{index, hardened})
+// Child appends a part to the keypath.
+func (absoluteKeypath AbsoluteKeypath) Child(index uint32, hardened bool) AbsoluteKeypath {
+	return append(absoluteKeypath, keyNode{index, hardened})
 }
 
+// Append appends a relative keypath.
 func (absoluteKeypath AbsoluteKeypath) Append(suffix RelativeKeypath) AbsoluteKeypath {
 	return append(absoluteKeypath, suffix...)
 }
 
-func (absoluteKeypath AbsoluteKeypath) HasPrefix(prefix AbsoluteKeypath) bool {
-	length := len(prefix)
-	if len(absoluteKeypath) < length {
-		return false
-	}
-	for i := 0; i < length; i++ {
-		if prefix[i] != absoluteKeypath[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func (absoluteKeypath AbsoluteKeypath) Without(prefix AbsoluteKeypath) (RelativeKeypath, error) {
-	length := len(prefix)
-	if len(absoluteKeypath) < length {
-		return nil, errp.New("The prefix may not be longer than the absolute keypath.")
-	}
-	for i := 0; i < length; i++ {
-		if prefix[i] != absoluteKeypath[i] {
-			return nil, errp.New("The given keypath is not a prefix of this keypath.")
-		}
-	}
-	return RelativeKeypath(absoluteKeypath[length:]), nil
-}
-
+// Derive derives the extended pubkey at the path starting at the given extendedKey.
 func (absoluteKeypath AbsoluteKeypath) Derive(
 	extendedKey *hdkeychain.ExtendedKey,
 ) (*hdkeychain.ExtendedKey, error) {
 	return keypath(absoluteKeypath).Derive(extendedKey)
 }
 
+// MarshalJSON implements json.Marshaler.
 func (absoluteKeypath AbsoluteKeypath) MarshalJSON() ([]byte, error) {
 	return json.Marshal(absoluteKeypath.Encode())
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
 func (absoluteKeypath *AbsoluteKeypath) UnmarshalJSON(bytes []byte) error {
 	var input string
 	if err := json.Unmarshal(bytes, &input); err != nil {

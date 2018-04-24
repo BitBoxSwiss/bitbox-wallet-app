@@ -79,6 +79,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 
 	device, err := bitbox.NewDevice(
 		deviceInfo.Path,
+		deviceInfo.Serial,
 		bootloader,
 		firmwareVersion,
 		NewCommunication(hidDevice),

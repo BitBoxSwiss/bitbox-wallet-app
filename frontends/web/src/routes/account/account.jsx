@@ -32,11 +32,6 @@ export default class Account extends Component {
     componentDidMount() {
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(this.onWalletEvent);
-        apiGet('device/info').then(({ sdcard }) => {
-            if (sdcard) {
-                alert('Keep the SD card stored securely unless you want to manage backups.');
-            }
-        });
     }
 
     componentWillUnmount() {

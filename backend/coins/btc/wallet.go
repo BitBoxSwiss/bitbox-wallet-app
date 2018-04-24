@@ -14,6 +14,8 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
+	"github.com/shiftdevices/godbb/backend/keystore"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 )
@@ -34,7 +36,7 @@ type Interface interface {
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddress() *addresses.Address
-	KeyStore() KeyStoreWithoutKeyDerivation
+	KeyStore() keystore.Keystore
 	HeadersStatus() (*headers.Status, error)
 }
 
@@ -44,7 +46,7 @@ type Wallet struct {
 
 	net        *chaincfg.Params
 	db         transactions.DBInterface
-	keyStore   KeyStoreWithoutKeyDerivation
+	keyStore   keystore.Keystore
 	blockchain blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
@@ -82,7 +84,8 @@ const (
 func NewWallet(
 	net *chaincfg.Params,
 	db *transactionsdb.DB,
-	keyStore KeyStoreWithoutKeyDerivation,
+	walletDerivationPath signing.AbsoluteKeypath,
+	keyStore keystore.Keystore,
 	blockchain blockchain.Interface,
 	theHeaders headers.Interface,
 	addressType addresses.AddressType,
@@ -91,8 +94,13 @@ func NewWallet(
 ) (*Wallet, error) {
 	log = log.WithField("group", "btc")
 	log.Debug("Creating new wallet")
-	xpub := keyStore.XPub()
+
+	xpub, err := keyStore.ExtendedPublicKey(walletDerivationPath)
+	if err != nil {
+		return nil, errp.WithMessage(err, "Failed to fetch the xPub")
+	}
 	xpub.SetNet(net)
+
 	if xpub.IsPrivate() {
 		return nil, errp.New("Extended key is private! Only public keys are accepted")
 	}
@@ -124,8 +132,8 @@ func NewWallet(
 		},
 		log,
 	)
-	wallet.receiveAddresses = addresses.NewAddressChain(xpub, net, gapLimit, 0, addressType, log)
-	wallet.changeAddresses = addresses.NewAddressChain(xpub, net, changeGapLimit, 1, addressType, log)
+	wallet.receiveAddresses = addresses.NewAddressChain(walletDerivationPath, xpub, net, gapLimit, 0, addressType, log)
+	wallet.changeAddresses = addresses.NewAddressChain(walletDerivationPath, xpub, net, changeGapLimit, 1, addressType, log)
 	wallet.headers = theHeaders
 	wallet.headers.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
@@ -347,7 +355,7 @@ func (wallet *Wallet) GetUnusedReceiveAddress() *addresses.Address {
 }
 
 // KeyStore returns the key store of the wallet.
-func (wallet *Wallet) KeyStore() KeyStoreWithoutKeyDerivation {
+func (wallet *Wallet) KeyStore() keystore.Keystore {
 	return wallet.keyStore
 }
 

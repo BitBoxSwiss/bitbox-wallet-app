@@ -2,63 +2,55 @@ package signing
 
 import (
 	"bytes"
-	"encoding/base64"
 	"encoding/gob"
+	"encoding/hex"
 	"encoding/json"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// Configuration contains info to determine how to sign.
 type Configuration struct {
 	absoluteKeypath    AbsoluteKeypath
 	extendedPublicKeys []*hdkeychain.ExtendedKey
 	signingThreshold   int
-	onChainSignature   bool
 }
 
+// NewConfiguration creates a new Configuration.
 func NewConfiguration(
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKeys []*hdkeychain.ExtendedKey,
 	signingThreshold int,
-	onChainSignature bool,
 ) *Configuration {
 	return &Configuration{
 		absoluteKeypath:    absoluteKeypath,
 		extendedPublicKeys: extendedPublicKeys,
 		signingThreshold:   signingThreshold,
-		onChainSignature:   onChainSignature,
 	}
 }
 
+// AbsoluteKeypath returns the configuration's keypath.
 func (configuration *Configuration) AbsoluteKeypath() AbsoluteKeypath {
 	return configuration.absoluteKeypath
 }
 
+// ExtendedPublicKeys returns the configuration's extended pubkeys.
 func (configuration *Configuration) ExtendedPublicKeys() []*hdkeychain.ExtendedKey {
 	return configuration.extendedPublicKeys
 }
 
+// SigningThreshold returns the signing threshold in case of a multisig config.
 func (configuration *Configuration) SigningThreshold() int {
 	return configuration.signingThreshold
 }
 
-func (configuration *Configuration) OnChainSignature() bool {
-	return configuration.onChainSignature
-}
-
+// NumberOfSigners returns the number of signers (1 in single sig, N in a M/N multisig).
 func (configuration *Configuration) NumberOfSigners() int {
 	return len(configuration.extendedPublicKeys)
 }
 
-func (configuration *Configuration) IsSingleSignature() bool {
-	return configuration.NumberOfSigners() == 1
-}
-
-func (configuration *Configuration) IsMultiSignature() bool {
-	return configuration.NumberOfSigners() > 1
-}
-
+// Derive derives a subkeypath from the configuration's base absolute keypath.
 func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Configuration, error) {
 	if !relativeKeypath.NonHardened() {
 		return nil, errp.New("A configuration can only be derived with a non-hardened relative keypath.")
@@ -76,48 +68,37 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 		absoluteKeypath:    configuration.absoluteKeypath.Append(relativeKeypath),
 		extendedPublicKeys: derivedPublicKeys,
 		signingThreshold:   configuration.signingThreshold,
-		onChainSignature:   configuration.onChainSignature,
 	}, nil
 }
 
-func (configuration *Configuration) Hash() string {
-	buffer := &bytes.Buffer{}
-	encoder := gob.NewEncoder(buffer)
-	if err := encoder.Encode(configuration); err != nil {
-		panic(err)
-	}
-	return base64.StdEncoding.EncodeToString(buffer.Bytes())
-}
-
-type encoding struct {
+type configurationEncoding struct {
 	Keypath   AbsoluteKeypath `json:"keypath"`
 	Threshold int             `json:"threshold"`
-	Chain     bool            `json:"chain"`
 	Xpubs     []string        `json:"xpubs"`
 }
 
+// MarshalJSON implements json.Marshaler.
 func (configuration Configuration) MarshalJSON() ([]byte, error) {
 	length := configuration.NumberOfSigners()
 	xpubs := make([]string, length)
 	for i := 0; i < length; i++ {
 		xpubs[i] = configuration.extendedPublicKeys[i].String()
 	}
-	return json.Marshal(&encoding{
+	return json.Marshal(&configurationEncoding{
 		Keypath:   configuration.absoluteKeypath,
 		Threshold: configuration.signingThreshold,
-		Chain:     configuration.onChainSignature,
 		Xpubs:     xpubs,
 	})
 }
 
+// UnmarshalJSON implements json.Unmarshaler.
 func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
-	var encoding encoding
+	var encoding configurationEncoding
 	if err := json.Unmarshal(bytes, &encoding); err != nil {
 		return errp.Wrap(err, "Could not unmarshal a signing configuration.")
 	}
 	configuration.absoluteKeypath = encoding.Keypath
 	configuration.signingThreshold = encoding.Threshold
-	configuration.onChainSignature = encoding.Chain
 	length := len(encoding.Xpubs)
 	configuration.extendedPublicKeys = make([]*hdkeychain.ExtendedKey, length)
 	for i := 0; i < length; i++ {
@@ -128,4 +109,14 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 		}
 	}
 	return nil
+}
+
+// Hash returns a hash covering all of the configuration.
+func (configuration *Configuration) Hash() string {
+	buffer := &bytes.Buffer{}
+	encoder := gob.NewEncoder(buffer)
+	if err := encoder.Encode(configuration); err != nil {
+		panic(err)
+	}
+	return hex.EncodeToString(buffer.Bytes())
 }

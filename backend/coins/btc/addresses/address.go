@@ -8,6 +8,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/sirupsen/logrus"
 )
 
@@ -17,7 +18,7 @@ import (
 type Address struct {
 	btcutil.Address
 	PublicKey *btcec.PublicKey
-	KeyPath   string
+	KeyPath   signing.AbsoluteKeypath
 	// HistoryStatus is used to determine if the address status changed, and to determine if the
 	// address has been used before or not. The status corresponds to
 	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status.
@@ -44,7 +45,7 @@ const (
 func NewAddress(
 	publicKey *btcec.PublicKey,
 	net *chaincfg.Params,
-	keyPath string,
+	keyPath signing.AbsoluteKeypath,
 	addressType AddressType,
 	log *logrus.Entry,
 ) *Address {

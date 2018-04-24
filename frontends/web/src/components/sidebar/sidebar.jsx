@@ -16,9 +16,10 @@ class Sidebar extends Component {
         this.state = { emulated: false };
     }
     componentDidMount() {
-        if (debug) {
-            apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
-        }
+        this.setState({ emulated: true });
+        // if (debug) {
+        //     apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
+        // }
     }
     render({ t, accounts }, { emulated }) {
         return (
@@ -32,7 +33,6 @@ class Sidebar extends Component {
                             <span className="sidebar_label">{ t('sidebar.leave') }</span>
                         </a>
                         : null}
-
                     <Link activeClassName="sidebar-active" href="/settings/" title={ t('sidebar.settings') }>
                         <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                         <span className="sidebar_label">{ t('sidebar.settings') }</span>
@@ -53,7 +53,7 @@ function getWalletLink({ code, name }) {
 }
 
 function eject(e) {
-    apiPost('devices/test/deregister');
+    apiPost('test/deregister');
     e.preventDefault();
 }
 

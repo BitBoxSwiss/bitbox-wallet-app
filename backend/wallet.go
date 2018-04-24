@@ -10,6 +10,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
@@ -56,17 +57,21 @@ func (wallet *Wallet) init(backend *Backend) error {
 	if err != nil {
 		return err
 	}
-	keyStore, err := newRelativeKeyStore(backend.device, wallet.WalletDerivationPath, wallet.log)
+	headers, err := backend.getHeaders(wallet.net)
 	if err != nil {
 		return err
 	}
-	headers, err := backend.getHeaders(wallet.net)
+	identifier, err := backend.keystore.Identifier()
 	if err != nil {
 		return err
 	}
 	db, err := transactionsdb.NewDB(path.Join(
 		backend.dbFolder,
-		fmt.Sprintf("account-%s-%s.db", keyStore.XPub().String(), wallet.Code)))
+		fmt.Sprintf("account-%s-%s.db", identifier, wallet.Code)))
+	if err != nil {
+		return err
+	}
+	walletDerivationPath, err := signing.NewAbsoluteKeypath(wallet.WalletDerivationPath)
 	if err != nil {
 		return err
 	}
@@ -74,7 +79,8 @@ func (wallet *Wallet) init(backend *Backend) error {
 	wallet.Wallet, err = btc.NewWallet(
 		wallet.net,
 		db,
-		keyStore,
+		walletDerivationPath,
+		backend.keystore,
 		electrumClient,
 		headers,
 		wallet.addressType,

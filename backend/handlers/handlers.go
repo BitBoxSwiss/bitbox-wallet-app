@@ -25,6 +25,7 @@ import (
 	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
+	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )
@@ -92,11 +93,12 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/wallets", handlers.getWalletsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/wallet-status", handlers.getWalletStatusHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
-	devicesRouter("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
-	devicesRouter("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
 
 	theWalletHandlers := map[string]*walletHandlers.Handlers{}
 	for _, wallet := range theBackend.Wallets() {
@@ -179,6 +181,10 @@ func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error
 	return handlers.backend.Wallets(), nil
 }
 
+func (handlers *Handlers) getWalletStatusHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.WalletStatus(), nil
+}
+
 func (handlers *Handlers) getQRCodeHandler(w http.ResponseWriter, r *http.Request) {
 	if isAPITokenValid(w, r, handlers.apiData, handlers.log) {
 		data := r.URL.Query().Get("data")
@@ -197,11 +203,16 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 }
 
 func (handlers *Handlers) registerTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
-	return true, handlers.backend.Register(backend.NewSoftwareBasedKeyStore())
+	softwareBasedKeystore, err := keystore.NewSoftwareBasedKeystoreWithRandomSeed(nil, 0)
+	if err != nil {
+		return nil, err
+	}
+	handlers.backend.RegisterKeystore(softwareBasedKeystore)
+	return true, nil
 }
 
 func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
-	handlers.backend.Deregister(backend.DeviceID)
+	handlers.backend.DeregisterKeystore()
 	return true, nil
 }
 

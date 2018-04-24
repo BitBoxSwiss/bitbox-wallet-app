@@ -20,6 +20,11 @@ export default class Settings extends Component {
 
     componentDidMount() {
         apiGet('version').then(result => this.setState({ version: result }));
+        apiGet('device/info').then(({ sdcard }) => {
+            if (sdcard) {
+                alert('Keep the SD card stored securely unless you want to manage backups.');
+            }
+        });
     }
 
     render({ t }, { version }) {

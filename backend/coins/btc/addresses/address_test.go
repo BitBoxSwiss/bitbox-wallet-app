@@ -11,10 +11,11 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 
-const keyPath = "0/10"
+var keyPath = signing.NewEmptyAbsoluteKeypath().Child(0, false).Child(10, false)
 
 var (
 	pkBytes, _      = hex.DecodeString("03c9b80dd4ba5c004d85ed37c9077bbffd3e7315a5a4ca589c9023a9665fb1af1f")

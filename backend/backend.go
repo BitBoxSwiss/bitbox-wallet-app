@@ -24,6 +24,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
+	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/semver"
 )
@@ -41,6 +42,7 @@ const (
 
 // Interface is the API of the backend.
 type Interface interface {
+	WalletStatus() string
 	Testing() bool
 	Wallets() []*Wallet
 	UserLanguage() language.Tag
@@ -50,6 +52,8 @@ type Interface interface {
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
 	Start() <-chan interface{}
+	RegisterKeystore(keystore.Keystore)
+	DeregisterKeystore()
 	Register(device bitbox.Interface) error
 	Deregister(deviceID string)
 }
@@ -57,6 +61,11 @@ type Interface interface {
 // DefaultAppFolder returns the default location to store application data.
 func DefaultAppFolder() string {
 	return "."
+}
+
+type backendEvent struct {
+	Type string `json:"type"`
+	Data string `json:"data"`
 }
 
 type deviceEvent struct {
@@ -82,6 +91,7 @@ type Backend struct {
 	events    chan interface{}
 
 	device         bitbox.Interface
+	keystore       keystore.Keystore
 	onWalletInit   func(*Wallet)
 	onWalletUninit func(*Wallet)
 	onDeviceInit   func(bitbox.Interface)
@@ -310,6 +320,14 @@ func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, erro
 	return backend.headers[net.Net], nil
 }
 
+// WalletStatus returns whether the wallets have been initialized.
+func (backend *Backend) WalletStatus() string {
+	if backend.keystore != nil {
+		return "initialized"
+	}
+	return "uninitialized"
+}
+
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.testing
@@ -450,6 +468,27 @@ func (backend *Backend) uninitWallets() {
 	}
 }
 
+// RegisterKeystore registers the given keystore at this backend.
+func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
+	backend.keystore = keystore
+	backend.uninitWallets()
+	go func() {
+		if err := backend.initWallets(); err != nil {
+			backend.log.Panic("Failed to initialize wallets")
+			// TODO
+			panic(err)
+		}
+	}()
+	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
+}
+
+// DeregisterKeystore removes the registered keystore.
+func (backend *Backend) DeregisterKeystore() {
+	backend.keystore = nil
+	backend.uninitWallets()
+	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
+}
+
 // Register registers the given device at this backend.
 func (backend *Backend) Register(device bitbox.Interface) error {
 	backend.device = device
@@ -459,14 +498,7 @@ func (backend *Backend) Register(device bitbox.Interface) error {
 		switch event {
 		case bitbox.EventStatusChanged:
 			if backend.device.Status() == bitbox.StatusSeeded {
-				backend.uninitWallets()
-				go func() {
-					if err := backend.initWallets(); err != nil {
-						backend.log.Panic("Failed to initialize wallets")
-						// TODO
-						panic(err)
-					}
-				}()
+				backend.RegisterKeystore(backend.device.Keystore())
 			}
 		}
 		backend.events <- deviceEvent{Type: "device", Data: string(event)}
@@ -483,7 +515,7 @@ func (backend *Backend) Deregister(deviceID string) {
 	if deviceID == backend.device.DeviceID() {
 		backend.device = nil
 		backend.onDeviceUninit()
-		backend.uninitWallets()
+		backend.DeregisterKeystore()
 		backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
 	}
 }
