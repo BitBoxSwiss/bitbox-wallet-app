@@ -102,6 +102,7 @@ func NewWallet(
 		keyStore:   keyStore,
 		blockchain: blockchain,
 
+		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
 			{Blocks: 25, Code: FeeTargetCodeEconomy},
 			{Blocks: 10, Code: FeeTargetCodeLow},
@@ -201,7 +202,33 @@ func (wallet *Wallet) updateFeeTargets() {
 
 // FeeTargets returns the fee targets and the default fee target.
 func (wallet *Wallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
-	return wallet.feeTargets, defaultFeeTarget
+	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
+	// remove all duplicate fee rates.
+	feeTargets := []*FeeTarget{}
+	defaultAvailable := false
+outer:
+	for i := len(wallet.feeTargets) - 1; i >= 0; i-- {
+		feeTarget := wallet.feeTargets[i]
+		if feeTarget.FeeRatePerKb == nil {
+			continue
+		}
+		for j := i - 1; j >= 0; j-- {
+			checkFeeTarget := wallet.feeTargets[j]
+			if checkFeeTarget.FeeRatePerKb != nil && *checkFeeTarget.FeeRatePerKb == *feeTarget.FeeRatePerKb {
+				continue outer
+			}
+		}
+		if feeTarget.Code == defaultFeeTarget {
+			defaultAvailable = true
+		}
+		feeTargets = append(feeTargets, feeTarget)
+	}
+	// If the default fee level was dropped, use the cheapest.
+	defaultFee := defaultFeeTarget
+	if !defaultAvailable && len(feeTargets) != 0 {
+		defaultFee = feeTargets[0].Code
+	}
+	return feeTargets, defaultFee
 }
 
 // Balance wraps transaction.Transactions.Balance()
