@@ -15,6 +15,9 @@ const (
 	// EventSyncDone follows EventSyncStarted.
 	EventSyncDone Event = "syncdone"
 
-	// EventHeadersSynced is fired when the headers finishesd syncing.
+	// EventHeadersSynced is fired when the headers finished syncing.
 	EventHeadersSynced Event = "headersSynced"
+
+	// EventFeeTargetsChanged is fired when the fee targets change.
+	EventFeeTargetsChanged Event = "feeTargetsChanged"
 )

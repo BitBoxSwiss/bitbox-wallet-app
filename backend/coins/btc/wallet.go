@@ -176,6 +176,7 @@ func (wallet *Wallet) updateFeeTargets() {
 				feeTarget.FeeRatePerKb = &feeRatePerKb
 				wallet.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
+				wallet.onEvent(EventFeeTargetsChanged)
 				return nil
 			}
 
