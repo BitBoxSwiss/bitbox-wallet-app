@@ -88,6 +88,7 @@ type transactionsSuite struct {
 	addressChain   *addresses.AddressChain
 	synchronizer   *synchronizer.Synchronizer
 	blockchainMock *BlockchainMock
+	headersMock    *headersMock.Interface
 	transactions   *transactions.Transactions
 
 	log *logrus.Entry
@@ -104,12 +105,12 @@ func (s *transactionsSuite) SetupTest() {
 	if err != nil {
 		panic(err)
 	}
-	headersMock := &headersMock.Interface{}
-	headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return()
+	s.headersMock = &headersMock.Interface{}
+	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return()
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		db,
-		headersMock,
+		s.headersMock,
 		s.synchronizer,
 		s.blockchainMock,
 		s.log,
@@ -170,9 +171,11 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	})
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
 	require.True(s.T(), syncStarted)
 	require.True(s.T(), syncFinished)
@@ -186,6 +189,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
 	s.blockchainMock.RegisterTxs(tx1)
 	expectedHeight := 10
+	s.headersMock.On("HeaderByHeight", expectedHeight).Return(nil, nil).Once()
 	s.updateAddressHistory(address, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
@@ -249,10 +253,12 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	tx21 := newTx(chainhash.HashH(nil), 2, address2, 3000)
 	tx22 := newTx(chainhash.HashH(nil), 3, address2, 4000)
 	s.blockchainMock.RegisterTxs(tx11, tx12, tx21, tx22)
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*client.TxInfo{
 		{TXHash: client.TXHash(tx11.TxHash()), Height: 0},
 		{TXHash: client.TXHash(tx12.TxHash()), Height: 10},
 	})
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address2, []*client.TxInfo{
 		{TXHash: client.TXHash(tx21.TxHash()), Height: 0},
 		{TXHash: client.TXHash(tx22.TxHash()), Height: 10},
@@ -313,6 +319,7 @@ func (s *transactionsSuite) TestBalance() {
 		&transactions.Balance{Available: 0, Incoming: expectedAmount},
 		s.transactions.Balance())
 	// Confirm it, plus another one incoming.
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
@@ -330,6 +337,7 @@ func (s *transactionsSuite) TestBalance() {
 		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
 		s.transactions.Balance())
 	// Confirm it.
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address1, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
@@ -361,10 +369,12 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	tx3 := newTx(tx1.TxHash(), 0, address1, 2)
 	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PkScript()))
 	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Twice()
 	s.updateAddressHistory(address1, []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},
 	})
+	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
 	s.updateAddressHistory(address2, []*client.TxInfo{
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},

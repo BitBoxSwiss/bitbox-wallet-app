@@ -14,6 +14,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
+	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/test"
 
@@ -24,8 +25,6 @@ import (
 
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/handlers"
-
-	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 )
 
 const (
@@ -51,6 +50,18 @@ func generateBlocks(n int) []string {
 	hashes := []string{}
 	jsonp.MustUnmarshal(jsonBytes, &hashes)
 	return hashes
+}
+
+type header struct {
+	Time int64 `json:"time"`
+}
+
+// blockHeader gets the block header.
+func blockHeader(blockHash string) *header {
+	jsonBytes := executeBitcoinCLICommand(fmt.Sprintf("getblockheader %s", blockHash))
+	header := &header{}
+	jsonp.MustUnmarshal(jsonBytes, header)
+	return header
 }
 
 // invalidateBlock marks a block as invalid. Useful to create reorganizations.
@@ -185,8 +196,9 @@ func (s *backendTestSuite) TestBackend() {
 		s.get("/api/wallet/rbtc/balance"),
 	)
 
+	receiveAddress := "mjF1xSgSjYxLBrRNCowvcMtrSFUF7ENtzy"
 	require.JSONEq(s.T(),
-		marshal("mjF1xSgSjYxLBrRNCowvcMtrSFUF7ENtzy"),
+		marshal(receiveAddress),
 		s.get("/api/wallet/rbtc/receive-address"),
 	)
 
@@ -200,7 +212,7 @@ func (s *backendTestSuite) TestBackend() {
 	// a bit of time to flush the blocks. The bug is not relevant in production, because the
 	// condition unlikely and fixes itself with a confirmation.
 	time.Sleep(5 * time.Second)
-	txID := sendToAddress("mjF1xSgSjYxLBrRNCowvcMtrSFUF7ENtzy", 10)
+	txID := sendToAddress(receiveAddress, 10)
 
 	s.waitForWalletEvent(btc.EventSyncDone)
 	require.JSONEq(s.T(),
@@ -214,7 +226,8 @@ func (s *backendTestSuite) TestBackend() {
 	)
 
 	// Confirm it.
-	generateBlocks(1)
+	confirmBlockHash := generateBlocks(1)[0]
+	confirmBlockHeader := blockHeader(confirmBlockHash)
 	s.waitForWalletEvent(btc.EventHeadersSynced)
 
 	s.waitForWalletEvent(btc.EventSyncDone)
@@ -228,14 +241,17 @@ func (s *backendTestSuite) TestBackend() {
 		s.get("/api/wallet/rbtc/balance"),
 	)
 
+	txTime := time.Unix(confirmBlockHeader.Time, 0).String()
 	require.JSONEq(s.T(),
 		marshal(
 			[]walletHandlers.Transaction{{
-				ID:     txID.String(),
-				Height: 102,
-				Type:   "receive",
-				Amount: "10 BTC",
-				Fee:    "",
+				ID:        txID.String(),
+				Height:    102,
+				Type:      "receive",
+				Amount:    "10 BTC",
+				Fee:       "",
+				Time:      &txTime,
+				Addresses: []string{receiveAddress},
 			}},
 		),
 		s.get("/api/wallet/rbtc/transactions"),
