@@ -89,9 +89,21 @@ func (transactions *Transactions) processTxForAddress(
 		return
 	}
 
+	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+
 	if err := dbTx.PutTx(txHash, tx, height); err != nil {
 		// TODO
 		panic(err)
+	}
+
+	// Newly confirmed tx. Try to verify it.
+	if previousHeight <= 0 && height > 0 {
+		transactions.log.Info("Try to verify newly confirmed tx")
+		transactions.verifyTransaction(txHash, height)
 	}
 
 	if err := dbTx.AddAddressToTx(txHash, address); err != nil {

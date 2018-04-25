@@ -15,6 +15,7 @@ func (transactions *Transactions) onHeadersEvent(event headers.Event) {
 }
 
 func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]int {
+	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
 		// TODO
@@ -53,40 +54,50 @@ func (transactions *Transactions) verifyTransactions() {
 	unverifiedTransactions := transactions.unverifiedTransactions()
 	transactions.log.Infof("verifying %d transactions", len(unverifiedTransactions))
 	for txHash, height := range unverifiedTransactions {
-		if height <= 0 {
-			continue
-		}
-		header, err := transactions.headers.HeaderByHeight(height)
-		if err != nil {
-			// TODO
-			panic(err)
-		}
-		txHash := txHash // make copy so the callback doesn't get the same reference for all values
-		done := transactions.synchronizer.IncRequestsCounter()
-		if err := transactions.blockchain.GetMerkle(
-			txHash, height,
-			func(merkle []client.TXHash, pos int) error {
-				expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
-				if expectedMerkleRoot != header.MerkleRoot {
-					transactions.log.Warning(
-						fmt.Sprintf("Merkle root verification failed for %s", txHash))
-				}
-				transactions.log.Info(
-					fmt.Sprintf("Merkle root verification succeeded for %s", txHash))
-				dbTx, err := transactions.db.Begin()
-				if err != nil {
-					// TODO
-					panic(err)
-				}
-				defer dbTx.Rollback()
-				if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
-					return err
-				}
-				return dbTx.Commit()
-			},
-			done,
-		); err != nil {
-			transactions.log.WithError(err).Panic("Failed to retrieve merkle")
-		}
+		transactions.verifyTransaction(txHash, height)
+	}
+}
+
+func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, height int) {
+	if height <= 0 {
+		return
+	}
+	header, err := transactions.headers.HeaderByHeight(height)
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	if header == nil {
+		transactions.log.Warningf("Header not yet synced to %d, couldn't verify tx", height)
+		return
+	}
+	done := transactions.synchronizer.IncRequestsCounter()
+	if err := transactions.blockchain.GetMerkle(
+		txHash, height,
+		func(merkle []client.TXHash, pos int) error {
+			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
+			if expectedMerkleRoot != header.MerkleRoot {
+				transactions.log.Warning(
+					fmt.Sprintf("Merkle root verification failed for %s", txHash))
+				return nil
+			}
+			transactions.log.Info(
+				fmt.Sprintf("Merkle root verification succeeded for %s", txHash))
+
+			defer transactions.Lock()()
+			dbTx, err := transactions.db.Begin()
+			if err != nil {
+				// TODO
+				panic(err)
+			}
+			defer dbTx.Rollback()
+			if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
+				return err
+			}
+			return dbTx.Commit()
+		},
+		done,
+	); err != nil {
+		transactions.log.WithError(err).Panic("Failed to retrieve merkle")
 	}
 }
