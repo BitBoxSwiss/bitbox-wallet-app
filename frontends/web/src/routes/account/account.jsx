@@ -51,7 +51,7 @@ export default class Account extends Component {
     }
 
     onWalletEvent = data => {
-        if (data.type !== 'wallet') {
+        if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
         }
         switch (data.data) {
