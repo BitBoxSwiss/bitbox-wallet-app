@@ -15,7 +15,7 @@ export default class FeeTargets extends Component {
     componentDidMount() {
         this.unsubscribe = apiWebsocket(this.onEvent);
         if (this.props.walletInitialized) {
-            this.updateFeeTargets();
+            this.updateFeeTargets(this.props.walletCode);
         }
     }
 
@@ -23,9 +23,9 @@ export default class FeeTargets extends Component {
         this.unsubscribe();
     }
 
-    componentWillReceiveProps({ walletInitialized }) {
-        if (walletInitialized && !this.props.walletInitialized) {
-            this.updateFeeTargets();
+    componentWillReceiveProps({ walletInitialized, walletCode }) {
+        if (walletInitialized && !this.props.walletInitialized || this.props.walletCode != walletCode) {
+            this.updateFeeTargets(walletCode);
         }
     }
 
@@ -35,13 +35,13 @@ export default class FeeTargets extends Component {
         }
         switch (data.data) {
         case "feeTargetsChanged":
-            this.updateFeeTargets();
+            this.updateFeeTargets(this.props.walletCode);
             break;
         }
     };
 
-    updateFeeTargets = () => {
-        apiGet('wallet/' + this.props.walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+    updateFeeTargets = (walletCode) => {
+        apiGet('wallet/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
             this.setState({ feeTargets });
             this.setFeeTarget(defaultFeeTarget);
         });
