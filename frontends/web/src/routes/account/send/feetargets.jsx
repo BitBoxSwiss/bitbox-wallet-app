@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 
 import { apiGet } from '../../../utils/request';
-
+import { apiWebsocket } from '../../../utils/websocket';
 
 export default class FeeTargets extends Component {
     constructor(props) {
@@ -13,9 +13,14 @@ export default class FeeTargets extends Component {
     }
 
     componentDidMount() {
+        this.unsubscribe = apiWebsocket(this.onEvent);
         if (this.props.walletInitialized) {
             this.updateFeeTargets();
         }
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
     }
 
     componentWillReceiveProps({ walletInitialized }) {
@@ -23,6 +28,17 @@ export default class FeeTargets extends Component {
             this.updateFeeTargets();
         }
     }
+
+    onEvent = data => {
+        if (data.type !== 'wallet' || data.code !== this.props.walletCode) {
+            return;
+        }
+        switch (data.data) {
+        case "feeTargetsChanged":
+            this.updateFeeTargets();
+            break;
+        }
+    };
 
     updateFeeTargets = () => {
         apiGet('wallet/' + this.props.walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
