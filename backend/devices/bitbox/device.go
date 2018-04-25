@@ -6,6 +6,7 @@ import (
 	"crypto/sha512"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math/big"
 	"regexp"
@@ -35,6 +36,8 @@ var (
 	recoveryPasswordPolicyProd = NewPasswordPolicy(8, "[[:graph:]]")
 	recoveryPasswordPolicyTest = NewPasswordPolicy(4, "[[:graph:]]")
 )
+
+var notBootloaderErr = errors.New("invalid command in bootloader")
 
 // Event instances are sent to the onEvent callback.
 type Event string
@@ -79,7 +82,7 @@ type Interface interface {
 	CreateBackup(string, string) error
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
-	DisplayAddress(keyPath string)
+	DisplayAddress(keyPath string) error
 	VerifyPass(string) (interface{}, error)
 	StartPairing() (*relay.Channel, error)
 	SetPasswordPolicy(bool)
@@ -269,6 +272,9 @@ func (dbb *Device) sendKV(key, value, pin string) (map[string]interface{}, error
 }
 
 func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(notBootloaderErr)
+	}
 	reply, err := dbb.sendKV("device", "info", pin)
 	if err != nil {
 		return nil, err
@@ -334,6 +340,9 @@ func (dbb *Device) DeviceInfo() (*DeviceInfo, error) {
 
 // Ping returns true if the device is initialized, and false if it is not.
 func (dbb *Device) Ping() (bool, error) {
+	if dbb.bootloaderStatus != nil {
+		return false, errp.WithStack(notBootloaderErr)
+	}
 	reply, err := dbb.sendPlain("ping", "")
 	if err != nil {
 		return false, err
@@ -347,6 +356,9 @@ func (dbb *Device) Ping() (bool, error) {
 // SetPassword defines a PIN for the device. This only works on a fresh device. If a password has
 // already been configured, a new one cannot be set until the device is reset.
 func (dbb *Device) SetPassword(pin string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	if ok, err := dbb.pinPolicy.ValidatePassword(pin); !ok {
 		return err
 	}
@@ -368,6 +380,9 @@ func (dbb *Device) SetPassword(pin string) error {
 // SetPassword(). It returns whether the next login attempt requires a long-touch, and the number of
 // remaining attempts.
 func (dbb *Device) Login(pin string) (bool, string, error) {
+	if dbb.bootloaderStatus != nil {
+		return false, "", errp.WithStack(notBootloaderErr)
+	}
 	deviceInfo, err := dbb.deviceInfo(pin)
 	if err != nil {
 		var remainingAttempts string
@@ -471,6 +486,9 @@ func backupFilename(backupName string) string {
 
 // SetName sets the device name. Retrieve the device name using DeviceInfo().
 func (dbb *Device) SetName(name string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(name) {
 		return errp.WithContext(errp.New("Invalid device name"),
 			errp.Context{"device-name": name})
@@ -493,6 +511,9 @@ func (dbb *Device) SetName(name string) error {
 // CreateWallet creates a new wallet and stores a backup containing `walletName` in the
 // filename. The password used for the backup is passed, and different from the device PIN.
 func (dbb *Device) CreateWallet(walletName string, backupPassword string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
@@ -528,6 +549,9 @@ func IsErrorSDCard(err error) bool {
 // RestoreBackup restores a backup from the SD card. Returns true if restored and false if aborted
 // by the user.
 func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) {
+	if dbb.bootloaderStatus != nil {
+		return false, errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.WithField("filename", filename).Info("Restore backup")
 	err := dbb.seed(dbb.pin, backupPassword, "backup", filename)
 	if IsErrorAbort(err) {
@@ -543,6 +567,9 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 
 // CreateBackup creates a new backup of the current device seed on the SD card.
 func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.WithField("backup-name", backupName).Info("Create backup")
 	reply, err := dbb.send(
 		map[string]interface{}{
@@ -563,6 +590,9 @@ func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) erro
 
 // Blink flashes the LED.
 func (dbb *Device) Blink() error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.Info("Blink")
 	_, err := dbb.sendKV("led", "abort", dbb.pin)
 	return errp.WithMessage(err, "Failed to blink")
@@ -570,6 +600,9 @@ func (dbb *Device) Blink() error {
 
 // Reset resets the device. Returns true if erased and false if aborted by the user.
 func (dbb *Device) Reset() (bool, error) {
+	if dbb.bootloaderStatus != nil {
+		return false, errp.WithStack(notBootloaderErr)
+	}
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	dbb.log.Info("Reset")
 	if IsErrorAbort(err) {
@@ -590,6 +623,9 @@ func (dbb *Device) Reset() (bool, error) {
 
 // XPub returns the extended publickey at the path.
 func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.WithField("path", path).Info("XPub")
 	getXPub := func() (*hdkeychain.ExtendedKey, error) {
 		reply, err := dbb.sendKV("xpub", path, dbb.pin)
@@ -620,6 +656,9 @@ func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 
 // Random generates a 16 byte random number, hex encoded.. typ can be either "true" or "pseudo".
 func (dbb *Device) Random(typ string) (string, error) {
+	if dbb.bootloaderStatus != nil {
+		return "", errp.WithStack(notBootloaderErr)
+	}
 	if typ != "true" && typ != "pseudo" {
 		dbb.log.WithField("type", typ).Panic("Type must be 'true' or 'pseudo'")
 		panic("needs to be true or pseudo")
@@ -643,6 +682,9 @@ func (dbb *Device) Random(typ string) (string, error) {
 
 // BackupList returns a list of backup filenames.
 func (dbb *Device) BackupList() ([]string, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(notBootloaderErr)
+	}
 	reply, err := dbb.sendKV("backup", "list", dbb.pin)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
@@ -667,6 +709,9 @@ func (dbb *Device) BackupList() ([]string, error) {
 
 // EraseBackup deletes a backup.
 func (dbb *Device) EraseBackup(filename string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.WithField("filename", filename).Info("Erase backup")
 	reply, err := dbb.send(
 		map[string]interface{}{
@@ -686,6 +731,9 @@ func (dbb *Device) EraseBackup(filename string) error {
 
 // UnlockBootloader unlocks the bootloader.
 func (dbb *Device) UnlockBootloader() error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	reply, err := dbb.sendKV("bootloader", "unlock", dbb.pin)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to unlock bootloader")
@@ -698,6 +746,9 @@ func (dbb *Device) UnlockBootloader() error {
 
 // LockBootloader locks the bootloader.
 func (dbb *Device) LockBootloader() error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.Info("Lock bootloader")
 	reply, err := dbb.sendKV("bootloader", "lock", dbb.pin)
 	if err != nil {
@@ -819,6 +870,9 @@ func (dbb *Device) Sign(
 	signatureHashes [][]byte,
 	keyPaths []string,
 ) ([]btcec.Signature, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(notBootloaderErr)
+	}
 	dbb.log.WithFields(logrus.Fields{"signature-hashes": signatureHashes, "keypaths": keyPaths}).Info("Sign")
 	if len(signatureHashes) != len(keyPaths) {
 		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
@@ -882,29 +936,36 @@ func (dbb *Device) Sign(
 }
 
 // DisplayAddress triggers the display of the address at the given key path.
-func (dbb *Device) DisplayAddress(keyPath string) {
+func (dbb *Device) DisplayAddress(keyPath string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(notBootloaderErr)
+	}
 	if dbb.channel == nil {
 		dbb.log.Debug("The address is not displayed because no pairing was found.")
-		return
+		return nil
 	}
 	reply, err := dbb.sendKV("xpub", keyPath, dbb.pin)
 	if err != nil {
 		dbb.log.WithField("error", err).Error("Could not retrieve the xpub from the BitBox.")
-		return
+		return nil
 	}
 	xpubEcho, ok := reply["echo"].(string)
 	if !ok {
 		dbb.log.Error("The echo from the BitBox to display the address is not a string.")
-		return
+		return nil
 	}
 	if err := dbb.channel.SendXpubEcho(xpubEcho); err != nil {
 		dbb.log.WithField("error", err).Error("Sending the xpub echo to the mobile failed.")
-		return
+		return nil
 	}
+	return nil
 }
 
 // VerifyPass passes the ECDH public key of the mobile to the device and returns its response.
 func (dbb *Device) VerifyPass(mobileECDHPK string) (interface{}, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(notBootloaderErr)
+	}
 	command := map[string]interface{}{
 		"verifypass": map[string]interface{}{
 			"ecdh": mobileECDHPK,

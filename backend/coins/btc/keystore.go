@@ -25,5 +25,5 @@ type KeyStoreWithoutKeyDerivation interface {
 	Sign(tx *maketx.TxProposal, hashes [][]byte, relativePaths []string) ([]btcec.Signature, error)
 
 	// DisplayAddress triggers the display of the address at the given key path.
-	DisplayAddress(keyPath string)
+	DisplayAddress(keyPath string) error
 }

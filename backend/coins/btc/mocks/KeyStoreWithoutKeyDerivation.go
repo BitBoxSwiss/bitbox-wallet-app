@@ -12,8 +12,17 @@ type KeyStoreWithoutKeyDerivation struct {
 }
 
 // DisplayAddress provides a mock function with given fields: keyPath
-func (_m *KeyStoreWithoutKeyDerivation) DisplayAddress(keyPath string) {
-	_m.Called(keyPath)
+func (_m *KeyStoreWithoutKeyDerivation) DisplayAddress(keyPath string) error {
+	ret := _m.Called(keyPath)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(keyPath)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // Sign provides a mock function with given fields: tx, hashes, relativePaths

@@ -213,6 +213,8 @@ func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) 
 
 func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
 	address := handlers.wallet.GetUnusedReceiveAddress()
-	handlers.wallet.KeyStore().DisplayAddress(address.KeyPath)
+	if err := handlers.wallet.KeyStore().DisplayAddress(address.KeyPath); err != nil {
+		return nil, err
+	}
 	return address.EncodeAddress(), nil
 }

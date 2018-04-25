@@ -20,7 +20,7 @@ type keyStoreWithHardenedKeyDerivation interface {
 	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 
 	// DisplayAddress triggers the display of the address at the given key path.
-	DisplayAddress(keyPath string)
+	DisplayAddress(keyPath string) error
 }
 
 // relativeKeyStore implements KeyStoreWithoutKeyDerivation using keyStoreWithHardenedKeyDerivation.
@@ -85,6 +85,6 @@ func (rks *relativeKeyStore) Sign(
 }
 
 // DisplayAddress triggers the display of the address at the given key path.
-func (rks *relativeKeyStore) DisplayAddress(keyPath string) {
-	rks.keyStore.DisplayAddress(rks.keyPath + "/" + keyPath)
+func (rks *relativeKeyStore) DisplayAddress(keyPath string) error {
+	return rks.keyStore.DisplayAddress(rks.keyPath + "/" + keyPath)
 }

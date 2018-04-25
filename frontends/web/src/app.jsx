@@ -89,7 +89,13 @@ export default class App extends Component {
 
     onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(registered => {
-            this.setState({ deviceRegistered: registered });
+            // reset deviceStatus, otherwise a previous (but now
+            // invalid) component will be rendered before it is
+            // updated below.
+            this.setState({
+                deviceRegistered: registered,
+                deviceStatus: null
+            });
             this.onDeviceStatusChanged();
         });
     }

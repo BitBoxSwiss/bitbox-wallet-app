@@ -107,7 +107,7 @@ func (ks *SoftwareBasedKeyStore) Sign(
 
 // DisplayAddress triggers the display of the address at the given key path, which is not supported
 // for software-based key stores as they have no trusted execution environment with another screen.
-func (ks *SoftwareBasedKeyStore) DisplayAddress(keyPath string) {}
+func (ks *SoftwareBasedKeyStore) DisplayAddress(keyPath string) error { return nil }
 
 // VerifyPass is not supported.
 func (ks *SoftwareBasedKeyStore) VerifyPass(string) (interface{}, error) {
