@@ -174,14 +174,8 @@ func (s *backendTestSuite) TestBackend() {
 
 	require.JSONEq(s.T(),
 		marshal(true),
-		s.post("/api/devices/test/register", ""),
-	)
-
-	require.JSONEq(s.T(),
-		marshal(map[string]bool{"success": true}),
-		s.post("/api/device/login", marshal(map[string]string{
-			"password": "Only use this password in backend_test.go!",
-		})),
+		s.post("/api/test/register",
+			marshal(map[string]string{"pin": "Only use this password in backend_test.go!"})),
 	)
 
 	s.waitForWalletEvent(btc.EventSyncDone)
