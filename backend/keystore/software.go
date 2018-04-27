@@ -4,6 +4,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
+	"golang.org/x/crypto/pbkdf2"
+
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -42,20 +44,14 @@ func NewSoftwareBasedKeystore(
 	}
 }
 
-// NewSoftwareBasedKeystoreWithRandomSeed creates a new keystore with a random seed.
-func NewSoftwareBasedKeystoreWithRandomSeed(
-	configuration *signing.Configuration,
-	cosignerIndex int,
-) (*SoftwareBasedKeystore, error) {
-	seed, err := hdkeychain.GenerateSeed(hdkeychain.RecommendedSeedLen)
+// NewSoftwareBasedKeystoreFromPIN creates a new unique keystore derived from the PIN.
+func NewSoftwareBasedKeystoreFromPIN(pin string) *SoftwareBasedKeystore {
+	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
+	master, err := hdkeychain.NewMaster(seed[:], &chaincfg.TestNet3Params)
 	if err != nil {
-		return nil, errp.Wrap(err, "Could not generate a seed for the software-based keystore.")
+		panic(errp.WithStack(err))
 	}
-	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
-	if err != nil {
-		return nil, errp.Wrap(err, "Could not derive a master extended private key from the seed.")
-	}
-	return NewSoftwareBasedKeystore(configuration, cosignerIndex, master), nil
+	return NewSoftwareBasedKeystore(nil, 0, master)
 }
 
 // Configuration implements keystore.Keystore.

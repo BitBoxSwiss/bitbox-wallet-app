@@ -203,11 +203,14 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return handlers.backend.DeviceRegistered(), nil
 }
 
-func (handlers *Handlers) registerTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
-	softwareBasedKeystore, err := keystore.NewSoftwareBasedKeystoreWithRandomSeed(nil, 0)
-	if err != nil {
-		return nil, err
+func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
 	}
+	pin := jsonBody["pin"]
+	fmt.Println("LOL", pin)
+	softwareBasedKeystore := keystore.NewSoftwareBasedKeystoreFromPIN(pin)
 	handlers.backend.RegisterKeystore(softwareBasedKeystore)
 	return true, nil
 }

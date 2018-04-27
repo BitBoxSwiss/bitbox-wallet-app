@@ -4,6 +4,9 @@ import { translate } from 'react-i18next';
 import Button from 'preact-material-components/Button';
 import 'preact-material-components/Button/style.css';
 
+import Textfield from 'preact-material-components/Textfield';
+import 'preact-material-components/Textfield/style.css';
+
 import Dialog from './components/dialog/dialog';
 import Bootloader from './routes/device/bootloader';
 import Login from './routes/device/unlock';
@@ -42,7 +45,7 @@ export default class App extends Component {
             deviceStatus: null,
             testing: false,
             wallets: [],
-            activeWallet: null
+            activeWallet: null,
         };
     }
 
@@ -148,7 +151,7 @@ export default class App extends Component {
             return (
                 <Dialog>
                     <h3>Waiting for device...</h3>
-                    { debug && testing && renderButtonIfTesting() }
+                    <SkipForTestingButton show={debug && testing}/>
                 </Dialog>
             );
         }
@@ -165,16 +168,42 @@ export default class App extends Component {
     }
 }
 
-function renderButtonIfTesting() {
-    return (
-        <Button primary={true} raised={true} onClick={registerTestingDevice}>
-            Skip for Testing
-        </Button>
-    );
-}
+class SkipForTestingButton extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            testPIN: ""
+        };
+    }
 
-function registerTestingDevice() {
-    apiPost('test/register');
+    registerTestingDevice = () => {
+        apiPost('test/register', { pin: this.state.testPIN });
+    }
+
+    handleFormChange = event => {
+        this.setState({ [event.target.id]: event.target.value });
+    };
+
+    render({ show }, { testPIN }) {
+        if (!show) {
+            return;
+        }
+        return (
+            <form onsubmit={this.registerTestingDevice}>
+              <Textfield
+                type="password"
+                autoComplete="off"
+                id="testPIN"
+                label="Test PIN"
+                onInput={this.handleFormChange}
+                value={testPIN}
+                />
+              <Button type="submit" primary={true} raised={true}>
+                Skip for Testing
+              </Button>
+            </form>
+        );
+    }
 }
 
 class Redirect extends Component {
