@@ -22,7 +22,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/util/locker"
@@ -48,13 +48,13 @@ type Interface interface {
 	UserLanguage() language.Tag
 	OnWalletInit(f func(*Wallet))
 	OnWalletUninit(f func(*Wallet))
-	OnDeviceInit(f func(bitbox.Interface))
+	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
 	Start() <-chan interface{}
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
-	Register(device bitbox.Interface) error
+	Register(device device.Interface) error
 	Deregister(deviceID string)
 }
 
@@ -90,11 +90,11 @@ type Backend struct {
 	dbFolder  string
 	events    chan interface{}
 
-	device         bitbox.Interface
+	device         device.Interface
 	keystore       keystore.Keystore
 	onWalletInit   func(*Wallet)
 	onWalletUninit func(*Wallet)
-	onDeviceInit   func(bitbox.Interface)
+	onDeviceInit   func(device.Interface)
 	onDeviceUninit func()
 
 	wallets          []*Wallet
@@ -364,7 +364,7 @@ func (backend *Backend) OnWalletUninit(f func(*Wallet)) {
 }
 
 // OnDeviceInit installs a callback to be called when a device is initialized.
-func (backend *Backend) OnDeviceInit(f func(bitbox.Interface)) {
+func (backend *Backend) OnDeviceInit(f func(device.Interface)) {
 	backend.onDeviceInit = f
 }
 
@@ -490,16 +490,14 @@ func (backend *Backend) DeregisterKeystore() {
 }
 
 // Register registers the given device at this backend.
-func (backend *Backend) Register(device bitbox.Interface) error {
-	backend.device = device
-	backend.onDeviceInit(device)
-	backend.device.SetPasswordPolicy(backend.Testing())
-	backend.device.SetOnEvent(func(event bitbox.Event) {
+func (backend *Backend) Register(theDevice device.Interface) error {
+	backend.device = theDevice
+	backend.onDeviceInit(backend.device)
+	backend.device.Init(backend.Testing())
+	backend.device.SetOnEvent(func(event device.Event) {
 		switch event {
-		case bitbox.EventStatusChanged:
-			if backend.device.Status() == bitbox.StatusSeeded {
-				backend.RegisterKeystore(backend.device.Keystore())
-			}
+		case device.EventKeystoreAvailable:
+			backend.RegisterKeystore(backend.device.Keystore())
 		}
 		backend.events <- deviceEvent{Type: "device", Data: string(event)}
 	})
@@ -512,7 +510,7 @@ func (backend *Backend) Register(device bitbox.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if deviceID == backend.device.DeviceID() {
+	if deviceID == backend.device.Identifier() {
 		backend.device = nil
 		backend.onDeviceUninit()
 		backend.DeregisterKeystore()

@@ -25,6 +25,7 @@ import (
 	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
+	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
@@ -116,8 +117,8 @@ func NewHandlers(
 	theDeviceHandlers := bitboxHandlers.NewHandlers(
 		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()), log,
 	)
-	theBackend.OnDeviceInit(func(device bitbox.Interface) {
-		theDeviceHandlers.Init(device)
+	theBackend.OnDeviceInit(func(device device.Interface) {
+		theDeviceHandlers.Init(device.(*bitbox.Device))
 	})
 	theBackend.OnDeviceUninit(func() {
 		theDeviceHandlers.Uninit()

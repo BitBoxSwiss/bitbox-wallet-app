@@ -41,18 +41,18 @@ var (
 
 var errNoBootloader = errors.New("invalid command in bootloader")
 
-// Event instances are sent to the onEvent callback.
-type Event string
-
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
-	EventStatusChanged Event = "statusChanged"
+	EventStatusChanged device.Event = "statusChanged"
 
 	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status using BootloaderStatus().
-	EventBootloaderStatusChanged Event = "bootloaderStatusChanged"
+	EventBootloaderStatusChanged device.Event = "bootloaderStatusChanged"
 
 	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
 	signatureBatchSize = 15
+
+	// ProductName is the name of the bitbox.
+	ProductName = "bitbox"
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
@@ -67,8 +67,6 @@ type CommunicationInterface interface {
 // Interface is the API of a Device
 type Interface interface {
 	device.Interface
-	DeviceID() string
-	SetOnEvent(onEvent func(Event))
 	Status() Status
 	BootloaderStatus() (*BootloaderStatus, error)
 	DeviceInfo() (*DeviceInfo, error)
@@ -88,7 +86,6 @@ type Interface interface {
 	DisplayAddress(keyPath string) error
 	VerifyPass(string) (interface{}, error)
 	StartPairing() (*relay.Channel, error)
-	SetPasswordPolicy(bool)
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -110,9 +107,7 @@ type DeviceInfo struct {
 type Device struct {
 	deviceID      string
 	communication CommunicationInterface
-	onEvent       func(Event)
-
-	serial string
+	onEvent       func(device.Event)
 
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
@@ -144,7 +139,6 @@ type Device struct {
 // communication is used for transporting messages to/from the device.
 func NewDevice(
 	deviceID string,
-	serial string,
 	bootloader bool,
 	version *semver.SemVer,
 	communication CommunicationInterface) (*Device, error) {
@@ -204,8 +198,13 @@ func NewDevice(
 	return device, nil
 }
 
-// SetPasswordPolicy sets the password policy to the test or prod policy.
-func (dbb *Device) SetPasswordPolicy(testing bool) {
+// Init initialized the device. testing means the device is initialized for testnet.
+func (dbb *Device) Init(testing bool) {
+	dbb.setPasswordPolicy(testing)
+}
+
+// setPasswordPolicy sets the password policy to the test or prod policy.
+func (dbb *Device) setPasswordPolicy(testing bool) {
 	if testing {
 		dbb.pinPolicy = pinPolicyTest
 		dbb.recoveryPasswordPolicy = recoveryPasswordPolicyTest
@@ -215,17 +214,12 @@ func (dbb *Device) SetPasswordPolicy(testing bool) {
 	}
 }
 
-// DeviceID returns the device ID (provided when it was created in the constructor).
-func (dbb *Device) DeviceID() string {
-	return dbb.deviceID
-}
-
 // SetOnEvent installs a callback which is called for various events.
-func (dbb *Device) SetOnEvent(onEvent func(Event)) {
+func (dbb *Device) SetOnEvent(onEvent func(device.Event)) {
 	dbb.onEvent = onEvent
 }
 
-func (dbb *Device) fireEvent(event Event) {
+func (dbb *Device) fireEvent(event device.Event) {
 	if dbb.onEvent != nil {
 		dbb.onEvent(event)
 	}
@@ -233,6 +227,9 @@ func (dbb *Device) fireEvent(event Event) {
 
 func (dbb *Device) onStatusChanged() {
 	dbb.fireEvent(EventStatusChanged)
+	if dbb.Status() == StatusSeeded {
+		dbb.fireEvent(device.EventKeystoreAvailable)
+	}
 }
 
 // Status returns the device state. See the Status* constants.
@@ -994,17 +991,12 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 
 // ProductName implements device.Interface.
 func (dbb *Device) ProductName() string {
-	return "bitbox"
-}
-
-// SerialNumber implements device.Interface.
-func (dbb *Device) SerialNumber() string {
-	return dbb.serial
+	return ProductName
 }
 
 // Identifier implements device.Interface.
 func (dbb *Device) Identifier() string {
-	return hex.EncodeToString([]byte(fmt.Sprintf("%s%s", dbb.ProductName(), dbb.SerialNumber())))
+	return dbb.deviceID
 }
 
 // Keystore implements device.Interface.

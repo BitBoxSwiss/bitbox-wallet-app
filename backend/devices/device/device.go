@@ -2,12 +2,20 @@ package device
 
 import "github.com/shiftdevices/godbb/backend/keystore"
 
+// Event instances are sent to the onEvent callback.
+type Event string
+
+const (
+	// EventKeystoreAvailable is fired when the device's keystore becomes available (e.g. after
+	// unlocking it).
+	EventKeystoreAvailable Event = "keystoreAvailable"
+)
+
 // Interface represents a hardware wallet device.
 type Interface interface {
-	// // ProductName returns the product name of the device in lowercase.
+	Init(testing bool)
+	// ProductName returns the product name of the device in lowercase.
 	ProductName() string
-
-	SerialNumber() string
 
 	// Identifier returns the hash of the type and the serial number.
 	Identifier() string
@@ -24,6 +32,9 @@ type Interface interface {
 	// Unlock(string) error
 
 	// Lock() error
+
+	// SetOnEvent installs a callback which is called for various events.
+	SetOnEvent(func(Event))
 
 	// observable.Interface
 }

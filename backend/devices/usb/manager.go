@@ -1,6 +1,8 @@
 package usb
 
 import (
+	"encoding/hex"
+	"fmt"
 	"os"
 	"regexp"
 	"time"
@@ -9,6 +11,7 @@ import (
 
 	"github.com/karalabe/hid"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/sirupsen/logrus"
@@ -38,9 +41,9 @@ func DeviceInfos() []hid.DeviceInfo {
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
-	device *bitbox.Device
+	device device.Interface
 
-	onRegister   func(bitbox.Interface) error
+	onRegister   func(device.Interface) error
 	onUnregister func(string)
 
 	log *logrus.Entry
@@ -49,7 +52,7 @@ type Manager struct {
 // NewManager creates a new Manager. onRegister is called when a device has been
 // inserted. onUnregister is called when the device has been removed.
 func NewManager(
-	onRegister func(bitbox.Interface) error,
+	onRegister func(device.Interface) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
@@ -57,6 +60,10 @@ func NewManager(
 		onUnregister: onUnregister,
 		log:          logging.Log.WithGroup("manager"),
 	}
+}
+
+func deviceIdentifier(productName string, serial string) string {
+	return hex.EncodeToString([]byte(fmt.Sprintf("%s%s", productName, serial)))
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
@@ -78,8 +85,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	}
 
 	device, err := bitbox.NewDevice(
-		deviceInfo.Path,
-		deviceInfo.Serial,
+		deviceIdentifier(bitbox.ProductName, deviceInfo.Serial),
 		bootloader,
 		firmwareVersion,
 		NewCommunication(hidDevice),
@@ -114,7 +120,7 @@ func (manager *Manager) checkIfRemoved() bool {
 	// multiple times.
 	for i := 0; i < 5; i++ {
 		for _, deviceInfo := range DeviceInfos() {
-			if deviceInfo.Path == manager.device.DeviceID() {
+			if deviceIdentifier(bitbox.ProductName, deviceInfo.Serial) == manager.device.Identifier() {
 				return false
 			}
 		}
@@ -128,7 +134,7 @@ func (manager *Manager) ListenHID() {
 	for {
 		// Check if device was removed.
 		if manager.checkIfRemoved() {
-			deviceID := manager.device.DeviceID()
+			deviceID := manager.device.Identifier()
 			manager.device = nil
 			manager.onUnregister(deviceID)
 			manager.log.Debug("Unregistered device")

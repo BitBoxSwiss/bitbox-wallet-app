@@ -44,8 +44,8 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).
 		Once()
-	dbb, err := bitbox.NewDevice(deviceID, "serial", false, firmwareVersion, s.mockCommunication)
-	dbb.SetPasswordPolicy(true)
+	dbb, err := bitbox.NewDevice(deviceID, false, firmwareVersion, s.mockCommunication)
+	dbb.Init(true)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
 }
@@ -59,7 +59,7 @@ func (s *dbbTestSuite) TestNewDBBDevice() {
 }
 
 func (s *dbbTestSuite) TestDeviceID() {
-	require.Equal(s.T(), deviceID, s.dbb.DeviceID())
+	require.Equal(s.T(), deviceID, s.dbb.Identifier())
 }
 
 func jsonArgumentMatcher(expected map[string]interface{}) interface{} {
