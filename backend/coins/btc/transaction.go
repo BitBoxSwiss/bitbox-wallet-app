@@ -31,17 +31,17 @@ func NewSendAmountAll() SendAmount {
 	return SendAmount{amount: 0, sendAll: true}
 }
 
-// newTx creates a new tx to the given recipient address. It also returns a set of used wallet
+// newTx creates a new tx to the given recipient address. It also returns a set of used account
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
 // transaction.
-func (wallet *Wallet) newTx(
+func (account *Account) newTx(
 	address btcutil.Address, amount SendAmount, feeTargetCode FeeTargetCode) (
 	map[wire.OutPoint]*transactions.TxOut, *maketx.TxProposal, error) {
 
-	wallet.log.Debug("Prepare new transaction")
+	account.log.Debug("Prepare new transaction")
 
 	var feeTarget *FeeTarget
-	for _, target := range wallet.feeTargets {
+	for _, target := range account.feeTargets {
 		if target.Code == feeTargetCode {
 			feeTarget = target
 			break
@@ -55,7 +55,7 @@ func (wallet *Wallet) newTx(
 	if err != nil {
 		return nil, nil, errp.WithStack(err)
 	}
-	utxo := wallet.transactions.SpendableOutputs()
+	utxo := account.transactions.SpendableOutputs()
 	wireUTXO := make(map[wire.OutPoint]*wire.TxOut, len(utxo))
 	for outPoint, txOut := range utxo {
 		wireUTXO[outPoint] = txOut.TxOut
@@ -66,7 +66,7 @@ func (wallet *Wallet) newTx(
 			wireUTXO,
 			pkScript,
 			*feeTarget.FeeRatePerKb,
-			wallet.log,
+			account.log,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -77,9 +77,9 @@ func (wallet *Wallet) newTx(
 			wire.NewTxOut(int64(amount.amount), pkScript),
 			*feeTarget.FeeRatePerKb,
 			func() *addresses.Address {
-				return wallet.changeAddresses.GetUnused()
+				return account.changeAddresses.GetUnused()
 			},
-			wallet.log,
+			account.log,
 		)
 		if err != nil {
 			return nil, nil, err
@@ -89,20 +89,20 @@ func (wallet *Wallet) newTx(
 }
 
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
-func (wallet *Wallet) SendTx(
+func (account *Account) SendTx(
 	recipientAddress string,
 	amount SendAmount,
 	feeTargetCode FeeTargetCode) error {
-	wallet.log.Info("Sending transaction")
-	address, err := btcutil.DecodeAddress(recipientAddress, wallet.net)
+	account.log.Info("Sending transaction")
+	address, err := btcutil.DecodeAddress(recipientAddress, account.net)
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	if !address.IsForNet(wallet.net) {
+	if !address.IsForNet(account.net) {
 		return errp.WithContext(errp.New("invalid address for this network"), errp.Context{
-			"net": wallet.net.Name})
+			"net": account.net.Name})
 	}
-	utxo, txProposal, err := wallet.newTx(
+	utxo, txProposal, err := account.newTx(
 		address,
 		amount,
 		feeTargetCode,
@@ -111,30 +111,30 @@ func (wallet *Wallet) SendTx(
 		return errp.WithMessage(err, "Failed to create transaction")
 	}
 	getAddress := func(scriptHashHex client.ScriptHashHex) *addresses.Address {
-		if address := wallet.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
 		}
-		if address := wallet.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
+		if address := account.changeAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
 		}
 		panic("address must be present")
 	}
-	if err := SignTransaction(wallet.keyStore, txProposal, utxo, getAddress, wallet.log); err != nil {
+	if err := SignTransaction(account.keyStore, txProposal, utxo, getAddress, account.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
-	wallet.log.Info("Signed transaction is broadcasted")
-	return wallet.blockchain.TransactionBroadcast(txProposal.Transaction)
+	account.log.Info("Signed transaction is broadcasted")
+	return account.blockchain.TransactionBroadcast(txProposal.Transaction)
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in
 // the UI (the output amount and the fee).
-func (wallet *Wallet) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
+func (account *Account) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
 	btcutil.Amount, btcutil.Amount, error) {
 
-	wallet.log.Info("Proposing transaction")
+	account.log.Info("Proposing transaction")
 	// Dummy recipient, we won't sent the tx, just return the fee.
-	recipientAddress := wallet.receiveAddresses.GetUnused().Address
-	_, txProposal, err := wallet.newTx(
+	recipientAddress := account.receiveAddresses.GetUnused().Address
+	_, txProposal, err := account.newTx(
 		recipientAddress,
 		amount,
 		feeTargetCode,
@@ -143,6 +143,6 @@ func (wallet *Wallet) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode)
 		return 0, 0, err
 	}
 
-	wallet.log.WithField("fee", txProposal.Fee).Info("Returning fee")
+	account.log.WithField("fee", txProposal.Fee).Info("Returning fee")
 	return txProposal.Amount, txProposal.Fee, nil
 }

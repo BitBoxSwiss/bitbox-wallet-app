@@ -18,19 +18,19 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type walletSuite struct {
+type accountSuite struct {
 	suite.Suite
 
 	net            *chaincfg.Params
 	keyStoreMock   mocks.Keystore
 	blockchainMock blockchainMock.Interface
 	onEvent        func(btc.Event)
-	wallet         *btc.Wallet
+	account        *btc.Account
 
 	log *logrus.Entry
 }
 
-func (s *walletSuite) SetupTest() {
+func (s *accountSuite) SetupTest() {
 	s.log = logging.Log.WithGroup("btc_test")
 	s.net = &chaincfg.TestNet3Params
 	s.onEvent = func(btc.Event) {}
@@ -47,7 +47,7 @@ func (s *walletSuite) SetupTest() {
 		panic(err)
 	}
 	s.keyStoreMock.On("XPub").Return(xpub)
-	s.wallet, err = btc.NewWallet(
+	s.account, err = btc.NewAccount(
 		s.net,
 		db,
 		signing.NewEmptyAbsoluteKeypath(),
@@ -63,6 +63,6 @@ func (s *walletSuite) SetupTest() {
 	}
 }
 
-func TestWalletSuite(t *testing.T) {
-	suite.Run(t, &walletSuite{})
+func TestAccountSuite(t *testing.T) {
+	suite.Run(t, &accountSuite{})
 }

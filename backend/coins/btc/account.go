@@ -25,7 +25,7 @@ const (
 	changeGapLimit = 6
 )
 
-// Interface is the API of a Wallet.
+// Interface is the API of a Account.
 type Interface interface {
 	Init()
 	Initialized() bool
@@ -40,8 +40,8 @@ type Interface interface {
 	HeadersStatus() (*headers.Status, error)
 }
 
-// Wallet is a wallet whose addresses are derived from an xpub.
-type Wallet struct {
+// Account is a account whose addresses are derived from an xpub.
+type Account struct {
 	locker.Locker
 
 	net        *chaincfg.Params
@@ -68,10 +68,10 @@ type Wallet struct {
 type Status string
 
 const (
-	// Initialized indicates that the wallet is synced.
+	// Initialized indicates that the account is synced.
 	Initialized Status = "initialized"
 
-	// Connected indicates that the connection to the blockchain node is established, but the wallet
+	// Connected indicates that the connection to the blockchain node is established, but the account
 	// is not yet fully synced.
 	Connected Status = "connected"
 
@@ -80,22 +80,22 @@ const (
 	Disconnected Status = "disconnected"
 )
 
-// NewWallet creats a new Wallet.
-func NewWallet(
+// NewAccount creats a new Account.
+func NewAccount(
 	net *chaincfg.Params,
 	db *transactionsdb.DB,
-	walletDerivationPath signing.AbsoluteKeypath,
+	accountDerivationPath signing.AbsoluteKeypath,
 	keyStore keystore.Keystore,
 	blockchain blockchain.Interface,
 	theHeaders headers.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 	log *logrus.Entry,
-) (*Wallet, error) {
+) (*Account, error) {
 	log = log.WithField("group", "btc")
-	log.Debug("Creating new wallet")
+	log.Debug("Creating new account")
 
-	xpub, err := keyStore.ExtendedPublicKey(walletDerivationPath)
+	xpub, err := keyStore.ExtendedPublicKey(accountDerivationPath)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to fetch the xPub")
 	}
@@ -104,7 +104,7 @@ func NewWallet(
 	if xpub.IsPrivate() {
 		return nil, errp.New("Extended key is private! Only public keys are accepted")
 	}
-	wallet := &Wallet{
+	account := &Account{
 		net:        net,
 		db:         db,
 		keyStore:   keyStore,
@@ -121,35 +121,35 @@ func NewWallet(
 		onEvent:         onEvent,
 		log:             log,
 	}
-	wallet.synchronizer = synchronizer.NewSynchronizer(
+	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
 		func() {
-			if !wallet.initialSyncDone {
-				wallet.initialSyncDone = true
+			if !account.initialSyncDone {
+				account.initialSyncDone = true
 				onEvent(EventStatusChanged)
 			}
 			onEvent(EventSyncDone)
 		},
 		log,
 	)
-	wallet.receiveAddresses = addresses.NewAddressChain(walletDerivationPath, xpub, net, gapLimit, 0, addressType, log)
-	wallet.changeAddresses = addresses.NewAddressChain(walletDerivationPath, xpub, net, changeGapLimit, 1, addressType, log)
-	wallet.headers = theHeaders
-	wallet.headers.SubscribeEvent(func(event headers.Event) {
+	account.receiveAddresses = addresses.NewAddressChain(accountDerivationPath, xpub, net, gapLimit, 0, addressType, log)
+	account.changeAddresses = addresses.NewAddressChain(accountDerivationPath, xpub, net, changeGapLimit, 1, addressType, log)
+	account.headers = theHeaders
+	account.headers.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
 			onEvent(EventHeadersSynced)
 		}
 	})
-	wallet.transactions = transactions.NewTransactions(
-		net, wallet.db, wallet.headers, wallet.synchronizer, blockchain, log)
-	return wallet, nil
+	account.transactions = transactions.NewTransactions(
+		net, account.db, account.headers, account.synchronizer, blockchain, log)
+	return account, nil
 }
 
-// Init initializes the wallet.
-func (wallet *Wallet) Init() {
-	wallet.ensureAddresses()
-	if err := wallet.blockchain.HeadersSubscribe(
-		wallet.onNewHeader,
+// Init initializes the account.
+func (account *Account) Init() {
+	account.ensureAddresses()
+	if err := account.blockchain.HeadersSubscribe(
+		account.onNewHeader,
 		func() {},
 	); err != nil {
 		// TODO
@@ -157,71 +157,71 @@ func (wallet *Wallet) Init() {
 	}
 }
 
-func (wallet *Wallet) onNewHeader(header *client.Header) error {
-	wallet.log.WithField("block-height", header.BlockHeight).Info("Received new header")
+func (account *Account) onNewHeader(header *client.Header) error {
+	account.log.WithField("block-height", header.BlockHeight).Info("Received new header")
 	// Fee estimates change with each block.
-	wallet.updateFeeTargets()
+	account.updateFeeTargets()
 	return nil
 }
 
-// Initialized indicates whether the wallet has loaded and finished the initial sync of the
+// Initialized indicates whether the account has loaded and finished the initial sync of the
 // addresses.
-func (wallet *Wallet) Initialized() bool {
-	return wallet.initialSyncDone
+func (account *Account) Initialized() bool {
+	return account.initialSyncDone
 }
 
-// Close stops the wallet.
-func (wallet *Wallet) Close() {
-	wallet.initialSyncDone = false
-	wallet.onEvent(EventStatusChanged)
+// Close stops the account.
+func (account *Account) Close() {
+	account.initialSyncDone = false
+	account.onEvent(EventStatusChanged)
 }
 
-func (wallet *Wallet) updateFeeTargets() {
-	defer wallet.RLock()()
-	for _, feeTarget := range wallet.feeTargets {
+func (account *Account) updateFeeTargets() {
+	defer account.RLock()()
+	for _, feeTarget := range account.feeTargets {
 		func(feeTarget *FeeTarget) {
 			setFee := func(feeRatePerKb btcutil.Amount) error {
-				defer wallet.Lock()()
+				defer account.Lock()()
 				feeTarget.FeeRatePerKb = &feeRatePerKb
-				wallet.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+				account.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
-				wallet.onEvent(EventFeeTargetsChanged)
+				account.onEvent(EventFeeTargetsChanged)
 				return nil
 			}
 
-			err := wallet.blockchain.EstimateFee(
+			err := account.blockchain.EstimateFee(
 				feeTarget.Blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
-						wallet.log.WithField("fee-target", feeTarget.Blocks).
+						account.log.WithField("fee-target", feeTarget.Blocks).
 							Warning("Fee could not be estimated. Taking the minimum relay fee instead")
-						return wallet.blockchain.RelayFee(setFee, func() {})
+						return account.blockchain.RelayFee(setFee, func() {})
 					}
 					return setFee(*feeRatePerKb)
 				},
 				func() {},
 			)
 			if err != nil {
-				wallet.log.WithField("error", err).Error("Failed to update fee targets")
+				account.log.WithField("error", err).Error("Failed to update fee targets")
 			}
 		}(feeTarget)
 	}
 }
 
 // FeeTargets returns the fee targets and the default fee target.
-func (wallet *Wallet) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
+func (account *Account) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
 	feeTargets := []*FeeTarget{}
 	defaultAvailable := false
 outer:
-	for i := len(wallet.feeTargets) - 1; i >= 0; i-- {
-		feeTarget := wallet.feeTargets[i]
+	for i := len(account.feeTargets) - 1; i >= 0; i-- {
+		feeTarget := account.feeTargets[i]
 		if feeTarget.FeeRatePerKb == nil {
 			continue
 		}
 		for j := i - 1; j >= 0; j-- {
-			checkFeeTarget := wallet.feeTargets[j]
+			checkFeeTarget := account.feeTargets[j]
 			if checkFeeTarget.FeeRatePerKb != nil && *checkFeeTarget.FeeRatePerKb == *feeTarget.FeeRatePerKb {
 				continue outer
 			}
@@ -240,56 +240,56 @@ outer:
 }
 
 // Balance wraps transaction.Transactions.Balance()
-func (wallet *Wallet) Balance() *transactions.Balance {
-	return wallet.transactions.Balance()
+func (account *Account) Balance() *transactions.Balance {
+	return account.transactions.Balance()
 }
 
-func (wallet *Wallet) addresses(change bool) *addresses.AddressChain {
+func (account *Account) addresses(change bool) *addresses.AddressChain {
 	if change {
-		return wallet.changeAddresses
+		return account.changeAddresses
 	}
-	return wallet.receiveAddresses
+	return account.receiveAddresses
 }
 
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
-func (wallet *Wallet) onAddressStatus(address *addresses.Address, status string) error {
+func (account *Account) onAddressStatus(address *addresses.Address, status string) error {
 	if status == address.HistoryStatus {
 		// Address didn't change.
 		return nil
 	}
 
-	wallet.log.Info("Address status changed, fetching history.")
+	account.log.Info("Address status changed, fetching history.")
 
-	done := wallet.synchronizer.IncRequestsCounter()
-	return wallet.blockchain.ScriptHashGetHistory(
+	done := account.synchronizer.IncRequestsCounter()
+	return account.blockchain.ScriptHashGetHistory(
 		address.ScriptHashHex(),
 		func(history client.TxHistory) error {
 			func() {
-				defer wallet.Lock()()
+				defer account.Lock()()
 				address.HistoryStatus = history.Status()
 				if address.HistoryStatus != status {
 					log.Println("client status should match after sync")
 				}
-				wallet.transactions.UpdateAddressHistory(address, history)
+				account.transactions.UpdateAddressHistory(address, history)
 			}()
-			wallet.ensureAddresses()
+			account.ensureAddresses()
 			return nil
 		},
 		done,
 	)
 }
 
-// ensureAddresses is the entry point of syncing up the wallet. It extends the receive and change
+// ensureAddresses is the entry point of syncing up the account. It extends the receive and change
 // address chains to discover all funds, with respect to the gap limit. In the end, there are
 // `gapLimit` unused addresses in the tail. It is also called whenever the status (tx history) of
 // changes, to keep the gapLimit tail.
-func (wallet *Wallet) ensureAddresses() {
-	defer wallet.Lock()()
-	defer wallet.synchronizer.IncRequestsCounter()()
+func (account *Account) ensureAddresses() {
+	defer account.Lock()()
+	defer account.synchronizer.IncRequestsCounter()()
 
-	dbTx, err := wallet.db.Begin()
+	dbTx, err := account.db.Begin()
 	if err != nil {
 		// TODO
 		panic(err)
@@ -298,12 +298,12 @@ func (wallet *Wallet) ensureAddresses() {
 
 	syncSequence := func(change bool) error {
 		for {
-			newAddresses := wallet.addresses(change).EnsureAddresses()
+			newAddresses := account.addresses(change).EnsureAddresses()
 			if len(newAddresses) == 0 {
 				break
 			}
 			for _, address := range newAddresses {
-				if err := wallet.subscribeAddress(dbTx, address); err != nil {
+				if err := account.subscribeAddress(dbTx, address); err != nil {
 					return errp.Wrap(err, "Failed to subscribe to address")
 				}
 			}
@@ -311,18 +311,18 @@ func (wallet *Wallet) ensureAddresses() {
 		return nil
 	}
 	if err := syncSequence(false); err != nil {
-		wallet.log.WithField("error", err).Panic(err)
+		account.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
 	if err := syncSequence(true); err != nil {
-		wallet.log.WithField("error", err).Panic(err)
+		account.log.WithField("error", err).Panic(err)
 		// TODO
 		panic(err)
 	}
 }
 
-func (wallet *Wallet) subscribeAddress(
+func (account *Account) subscribeAddress(
 	dbTx transactions.DBTxInterface, address *addresses.Address) error {
 	addressHistory, err := dbTx.AddressHistory(address)
 	if err != nil {
@@ -330,36 +330,36 @@ func (wallet *Wallet) subscribeAddress(
 	}
 	address.HistoryStatus = addressHistory.Status()
 
-	done := wallet.synchronizer.IncRequestsCounter()
-	return wallet.blockchain.ScriptHashSubscribe(
+	done := account.synchronizer.IncRequestsCounter()
+	return account.blockchain.ScriptHashSubscribe(
 		address.ScriptHashHex(),
-		func(status string) error { return wallet.onAddressStatus(address, status) },
+		func(status string) error { return account.onAddressStatus(address, status) },
 		done,
 	)
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (wallet *Wallet) Transactions() []*transactions.TxInfo {
-	return wallet.transactions.Transactions(
+func (account *Account) Transactions() []*transactions.TxInfo {
+	return account.transactions.Transactions(
 		func(scriptHashHex client.ScriptHashHex) bool {
-			return wallet.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
+			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.
-func (wallet *Wallet) GetUnusedReceiveAddress() *addresses.Address {
-	wallet.synchronizer.WaitSynchronized()
-	defer wallet.RLock()()
-	wallet.log.Debug("Get unused receive address")
-	return wallet.receiveAddresses.GetUnused()
+func (account *Account) GetUnusedReceiveAddress() *addresses.Address {
+	account.synchronizer.WaitSynchronized()
+	defer account.RLock()()
+	account.log.Debug("Get unused receive address")
+	return account.receiveAddresses.GetUnused()
 }
 
-// KeyStore returns the key store of the wallet.
-func (wallet *Wallet) KeyStore() keystore.Keystore {
-	return wallet.keyStore
+// KeyStore returns the key store of the account.
+func (account *Account) KeyStore() keystore.Keystore {
+	return account.keyStore
 }
 
 // HeadersStatus returns the status of the headers.
-func (wallet *Wallet) HeadersStatus() (*headers.Status, error) {
-	return wallet.headers.Status()
+func (account *Account) HeadersStatus() (*headers.Status, error) {
+	return account.headers.Status()
 }

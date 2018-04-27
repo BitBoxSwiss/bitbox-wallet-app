@@ -386,7 +386,7 @@ func (backend *Backend) initWallet(wallet *Wallet) error {
 		return err
 	}
 	backend.onWalletInit(wallet)
-	wallet.Wallet.Init()
+	wallet.Account.Init()
 	return nil
 }
 
@@ -397,13 +397,13 @@ func (backend *Backend) handleConnectionError(wallet *Wallet) {
 		select {
 		case err := <-wallet.errorChannel:
 			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
-				Warning("Connection failed. Retrying... ", wallet.Wallet)
-			if wallet.Wallet != nil {
+				Warning("Connection failed. Retrying... ", wallet.Account)
+			if wallet.Account != nil {
 				func() {
 					defer backend.walletsLock.Lock()()
 					backend.onWalletUninit(wallet)
-					wallet.Wallet.Close()
-					wallet.Wallet = nil
+					wallet.Account.Close()
+					wallet.Account = nil
 				}()
 			}
 			// Re-attempt until the connection is ok again. The errorChannel deliberately has
@@ -460,10 +460,10 @@ func (backend *Backend) DeviceRegistered() bool {
 func (backend *Backend) uninitWallets() {
 	defer backend.walletsLock.Lock()()
 	for _, wallet := range backend.wallets {
-		if wallet.Wallet != nil {
+		if wallet.Account != nil {
 			backend.onWalletUninit(wallet)
-			wallet.Wallet.Close()
-			wallet.Wallet = nil
+			wallet.Account.Close()
+			wallet.Account = nil
 		}
 	}
 }

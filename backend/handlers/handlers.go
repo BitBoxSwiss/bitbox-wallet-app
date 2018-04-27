@@ -22,7 +22,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/backend"
-	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
+	accountHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/device"
@@ -101,17 +101,17 @@ func NewHandlers(
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 
-	theWalletHandlers := map[string]*walletHandlers.Handlers{}
+	theAccountHandlers := map[string]*accountHandlers.Handlers{}
 	for _, wallet := range theBackend.Wallets() {
-		theWalletHandlers[wallet.Code] = walletHandlers.NewHandlers(getAPIRouter(
+		theAccountHandlers[wallet.Code] = accountHandlers.NewHandlers(getAPIRouter(
 			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()), log)
 	}
 
 	theBackend.OnWalletInit(func(wallet *backend.Wallet) {
-		theWalletHandlers[wallet.Code].Init(wallet.Wallet)
+		theAccountHandlers[wallet.Code].Init(wallet.Account)
 	})
 	theBackend.OnWalletUninit(func(wallet *backend.Wallet) {
-		theWalletHandlers[wallet.Code].Uninit()
+		theAccountHandlers[wallet.Code].Uninit()
 	})
 
 	theDeviceHandlers := bitboxHandlers.NewHandlers(

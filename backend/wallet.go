@@ -36,9 +36,9 @@ func maybeConnectionError(err error) error {
 
 // Wallet wraps a wallet of a specific coin identified by Code.
 type Wallet struct {
-	Code   string        `json:"code"`
-	Name   string        `json:"name"`
-	Wallet btc.Interface `json:"-"`
+	Code    string        `json:"code"`
+	Name    string        `json:"name"`
+	Account btc.Interface `json:"-"`
 
 	WalletDerivationPath  string `json:"keyPath"`
 	BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
@@ -76,7 +76,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 		return err
 	}
 	waitInit := make(chan struct{})
-	wallet.Wallet, err = btc.NewWallet(
+	wallet.Account, err = btc.NewAccount(
 		wallet.net,
 		db,
 		walletDerivationPath,
@@ -86,7 +86,7 @@ func (wallet *Wallet) init(backend *Backend) error {
 		wallet.addressType,
 		func(event btc.Event) {
 			<-waitInit
-			if event == btc.EventStatusChanged && wallet.Wallet.Initialized() {
+			if event == btc.EventStatusChanged && wallet.Account.Initialized() {
 				wallet.log.WithField("wallet-sync-start", time.Since(backend.walletsSyncStart)).
 					Debug("Wallet sync time")
 			}
