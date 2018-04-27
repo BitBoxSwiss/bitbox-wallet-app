@@ -14,13 +14,14 @@ import (
 )
 
 type keystore struct {
-	dbb *Device
-	log *logrus.Entry
+	dbb           *Device
+	configuration *signing.Configuration
+	log           *logrus.Entry
 }
 
 // Configuration implements keystore.Keystore.
 func (keystore *keystore) Configuration() *signing.Configuration {
-	return nil
+	return keystore.configuration
 }
 
 // CosignerIndex implements keystore.Keystore.

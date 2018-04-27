@@ -1,6 +1,9 @@
 package device
 
-import "github.com/shiftdevices/godbb/backend/keystore"
+import (
+	"github.com/shiftdevices/godbb/backend/keystore"
+	"github.com/shiftdevices/godbb/backend/signing"
+)
 
 // Event instances are sent to the onEvent callback.
 type Event string
@@ -25,7 +28,7 @@ type Interface interface {
 	// UserChosenName() string
 
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
-	Keystore() keystore.Keystore
+	KeystoreForConfiguration(*signing.Configuration) keystore.Keystore
 
 	// Locked() bool
 

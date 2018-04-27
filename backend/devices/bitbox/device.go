@@ -17,6 +17,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	keystoreInterface "github.com/shiftdevices/godbb/backend/keystore"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/logging"
@@ -999,10 +1000,15 @@ func (dbb *Device) Identifier() string {
 	return dbb.deviceID
 }
 
-// Keystore implements device.Interface.
-func (dbb *Device) Keystore() keystoreInterface.Keystore {
+// KeystoreForConfiguration implements device.Interface.
+func (dbb *Device) KeystoreForConfiguration(
+	configuration *signing.Configuration) keystoreInterface.Keystore {
 	if dbb.Status() != StatusSeeded {
 		return nil
 	}
-	return &keystore{dbb: dbb, log: dbb.log}
+	return &keystore{
+		dbb:           dbb,
+		configuration: configuration,
+		log:           dbb.log,
+	}
 }

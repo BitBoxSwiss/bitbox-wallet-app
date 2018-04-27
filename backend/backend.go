@@ -497,7 +497,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.device.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreAvailable:
-			backend.RegisterKeystore(backend.device.Keystore())
+			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(nil))
 		}
 		backend.events <- deviceEvent{Type: "device", Data: string(event)}
 	})
