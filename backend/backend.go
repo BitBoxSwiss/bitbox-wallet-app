@@ -1,10 +1,8 @@
 package backend
 
 import (
-	"fmt"
 	"os"
 	"path"
-	"sync"
 	"time"
 
 	"github.com/shiftdevices/godbb/util/errp"
@@ -13,15 +11,10 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
-	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
@@ -44,10 +37,10 @@ const (
 type Interface interface {
 	WalletStatus() string
 	Testing() bool
-	Wallets() []*Wallet
+	Accounts() []*btc.Account
 	UserLanguage() language.Tag
-	OnWalletInit(f func(*Wallet))
-	OnWalletUninit(f func(*Wallet))
+	OnWalletInit(f func(*btc.Account))
+	OnWalletUninit(f func(*btc.Account))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func())
 	DeviceRegistered() bool
@@ -85,6 +78,7 @@ type WalletEvent struct {
 // Backend ties everything together and is the main starting point to use the godbb library.
 type Backend struct {
 	testing bool
+	regtest bool
 
 	appFolder string
 	dbFolder  string
@@ -92,118 +86,20 @@ type Backend struct {
 
 	device         device.Interface
 	keystore       keystore.Keystore
-	onWalletInit   func(*Wallet)
-	onWalletUninit func(*Wallet)
+	onWalletInit   func(*btc.Account)
+	onWalletUninit func(*btc.Account)
 	onDeviceInit   func(device.Interface)
 	onDeviceUninit func()
 
-	wallets          []*Wallet
-	walletsLock      locker.Locker
-	walletsSyncStart time.Time
-
-	electrumClients     map[wire.BitcoinNet]blockchain.Interface
-	electrumClientsLock locker.Locker
-
-	headers     map[wire.BitcoinNet]*headers.Headers
-	headersLock locker.Locker
+	accounts          []*btc.Account
+	accountsLock      locker.Locker
+	accountsSyncStart time.Time
 
 	log *logrus.Entry
 }
 
 // NewBackend creates a new backend.
-func NewBackend(appFolder string) (*Backend, error) {
-	return newBackendFromWallets(
-		appFolder,
-		[]*Wallet{
-			&Wallet{
-				Code:                  "btc",
-				Name:                  "Bitcoin",
-				WalletDerivationPath:  "m/44'/0'/0'",
-				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
-				net:          &chaincfg.MainNetParams,
-				addressType:  addresses.AddressTypeP2PKH,
-				errorChannel: make(chan error, 0),
-			},
-			&Wallet{
-				Code:                  "btc-p2wpkh-p2sh",
-				Name:                  "Bitcoin Segwit",
-				WalletDerivationPath:  "m/49'/0'/0'",
-				BlockExplorerTxPrefix: "https://blockchain.info/tx/",
-				net:          &chaincfg.MainNetParams,
-				addressType:  addresses.AddressTypeP2WPKHP2SH,
-				errorChannel: make(chan error, 0),
-			},
-			&Wallet{
-				Code:                  "ltc-p2wpkh-p2sh",
-				Name:                  "Litecoin",
-				WalletDerivationPath:  "m/49'/2'/0'",
-				BlockExplorerTxPrefix: "https://insight.litecore.io/tx/",
-				net:          &ltc.MainNetParams,
-				addressType:  addresses.AddressTypeP2WPKHP2SH,
-				errorChannel: make(chan error, 0),
-			},
-		}, false)
-}
-
-// NewBackendForTesting creates a new backend for testing.
-func NewBackendForTesting(appFolder string, regtest bool) (*Backend, error) {
-	var wallets []*Wallet
-	if regtest {
-		wallets = []*Wallet{
-			&Wallet{
-				Code:                  "rbtc",
-				Name:                  "Bitcoin Regtest",
-				WalletDerivationPath:  "m/44'/1'/0'",
-				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:          &chaincfg.RegressionNetParams,
-				addressType:  addresses.AddressTypeP2PKH,
-				errorChannel: make(chan error, 0),
-			},
-			&Wallet{
-				Code:                  "rbtc-p2wpkh-p2sh",
-				Name:                  "Bitcoin Regtest Segwit",
-				WalletDerivationPath:  "m/49'/1'/0'",
-				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:          &chaincfg.RegressionNetParams,
-				addressType:  addresses.AddressTypeP2WPKHP2SH,
-				errorChannel: make(chan error, 0),
-			},
-		}
-	} else {
-		wallets = []*Wallet{
-			&Wallet{
-				Code:                  "tbtc",
-				Name:                  "Bitcoin Testnet",
-				WalletDerivationPath:  "m/44'/1'/0'",
-				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:          &chaincfg.TestNet3Params,
-				addressType:  addresses.AddressTypeP2PKH,
-				errorChannel: make(chan error, 0),
-			},
-			&Wallet{
-				Code:                  "tbtc-p2wpkh-p2sh",
-				Name:                  "Bitcoin Testnet Segwit",
-				WalletDerivationPath:  "m/49'/1'/0'",
-				BlockExplorerTxPrefix: "https://testnet.blockchain.info/tx/",
-				net:          &chaincfg.TestNet3Params,
-				addressType:  addresses.AddressTypeP2WPKHP2SH,
-				errorChannel: make(chan error, 0),
-			},
-			&Wallet{
-				Code:                  "tltc-p2wpkh-p2sh",
-				Name:                  "Litecoin Testnet",
-				WalletDerivationPath:  "m/49'/1'/0'",
-				BlockExplorerTxPrefix: "http://explorer.litecointools.com/tx/",
-				net:          &ltc.TestNet4Params,
-				addressType:  addresses.AddressTypeP2WPKHP2SH,
-				errorChannel: make(chan error, 0),
-			},
-		}
-	}
-	return newBackendFromWallets(appFolder, wallets, true)
-}
-
-func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*Backend, error) {
+func NewBackend(appFolder string, testing bool, regtest bool) (*Backend, error) {
 	log := logging.Log.WithGroup("backend")
 	log.Infof("App folder: %s", appFolder)
 	dbFolder := path.Join(appFolder, "cache")
@@ -213,111 +109,80 @@ func newBackendFromWallets(appFolder string, wallets []*Wallet, testing bool) (*
 	log.Infof("Created db folder: %s", dbFolder)
 	return &Backend{
 		testing:   testing,
+		regtest:   regtest,
 		appFolder: appFolder,
 		dbFolder:  dbFolder,
 		events:    make(chan interface{}, 1000),
-		wallets:   wallets,
-
-		electrumClients: map[wire.BitcoinNet]blockchain.Interface{},
-
-		headers: map[wire.BitcoinNet]*headers.Headers{},
 
 		log: log,
 	}, nil
 }
 
-func netName(net *chaincfg.Params) string {
-	switch net.Net {
-	case wire.TestNet3:
-		return "tbtc"
-	case wire.TestNet:
-		return "rbtc"
-	case wire.MainNet:
-		return "btc"
-	case ltc.TestNet4:
-		return "tltc"
-	case ltc.MainNet:
-		return "ltc"
-	default:
-		panic(fmt.Sprintf("unknown net %s", net.Net))
-	}
-
-}
-
-func (backend *Backend) electrumClient(net *chaincfg.Params) (blockchain.Interface, error) {
-	defer backend.electrumClientsLock.Lock()()
-	if _, ok := backend.electrumClients[net.Net]; !ok {
-		var electrumServer string
-		tls := true
-		switch net.Net {
-		case wire.TestNet3:
-			electrumServer = electrumServerBitcoinTestnet
-		case wire.TestNet:
-			electrumServer = electrumServerBitcoinRegtest
-			tls = false
-		case wire.MainNet:
-			electrumServer = electrumServerBitcoinMainnet
-		case ltc.TestNet4:
-			electrumServer = electrumServerLitecoinTestnet
-		case ltc.MainNet:
-			electrumServer = electrumServerLitecoinMainnet
-		default:
-			backend.log.Panic(fmt.Sprintf("unknown net %s", net.Net))
-		}
-
-		var err error
-		backend.electrumClients[net.Net], err = electrum.NewElectrumClient(
-			electrumServer, tls, func(err error) {
-				err = maybeConnectionError(err)
-				if _, ok := errp.Cause(err).(connectionError); !ok {
-					backend.log.WithField("error", err).Panic(err.Error())
-				}
-				unlock := backend.electrumClientsLock.Lock()
-				delete(backend.electrumClients, net.Net)
-				unlock()
-				for _, wallet := range backend.wallets {
-					if wallet.net.Net != net.Net {
-						continue
-					}
-					select {
-					case wallet.errorChannel <- err:
-					default:
-						wallet.log.WithField("error", err).Error(err.Error())
-					}
-				}
-			}, backend.log.WithField("net", netName(net)))
-		if err != nil {
-			return nil, maybeConnectionError(err)
+func (backend *Backend) initAccounts() error {
+	onEvent := func(code string) func(btc.Event) {
+		return func(event btc.Event) {
+			backend.events <- WalletEvent{Type: "wallet", Code: code, Data: string(event)}
 		}
 	}
-	return backend.electrumClients[net.Net], nil
-}
-
-func (backend *Backend) getHeaders(net *chaincfg.Params) (*headers.Headers, error) {
-	defer backend.headersLock.Lock()()
-	if _, ok := backend.headers[net.Net]; !ok {
-		blockchain, err := backend.electrumClient(net)
+	backend.accounts = []*btc.Account{}
+	var account *btc.Account
+	var err error
+	if backend.testing {
+		if backend.regtest {
+			account, err = btc.RegtestCoin.NewAccount(backend.dbFolder, backend.keystore, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", addresses.AddressTypeP2PKH, onEvent("rbtc"))
+			if err != nil {
+				return err
+			}
+			backend.accounts = append(backend.accounts, account)
+			account, err = btc.RegtestCoin.NewAccount(backend.dbFolder, backend.keystore, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("rbtc-p2wpkh-p2sh"))
+			if err != nil {
+				return err
+			}
+			backend.accounts = append(backend.accounts, account)
+		} else {
+			account, err = btc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", addresses.AddressTypeP2PKH, onEvent("tbtc"))
+			if err != nil {
+				return err
+			}
+			backend.accounts = append(backend.accounts, account)
+			account, err = btc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("tbtc-p2wpkh-p2sh"))
+			if err != nil {
+				return err
+			}
+			backend.accounts = append(backend.accounts, account)
+			account, err = ltc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("tltc-p2wpkh-p2sh"))
+			if err != nil {
+				return err
+			}
+			backend.accounts = append(backend.accounts, account)
+		}
+	} else {
+		account, err = btc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "btc", "Bitcoin", "m/44'/0'/0'", addresses.AddressTypeP2PKH, onEvent("btc"))
 		if err != nil {
-			return nil, err
+			return err
 		}
-		log := backend.log.WithField("net", netName(net))
-
-		db, err := headersdb.NewDB(
-			path.Join(backend.dbFolder, fmt.Sprintf("headers-%s.db", netName(net))))
+		backend.accounts = append(backend.accounts, account)
+		account, err = btc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("btc-p2wpkh-p2sh"))
 		if err != nil {
-			return nil, err
+			return err
 		}
-
-		backend.headers[net.Net] = headers.NewHeaders(
-			net,
-			db,
-			blockchain,
-			log)
-		if err := backend.headers[net.Net].Init(); err != nil {
-			return nil, err
+		backend.accounts = append(backend.accounts, account)
+		account, err = ltc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("ltc-p2wpkh-p2sh"))
+		if err != nil {
+			return err
 		}
+		backend.accounts = append(backend.accounts, account)
 	}
-	return backend.headers[net.Net], nil
+	for _, account := range backend.accounts {
+		go func(account *btc.Account) {
+			backend.onWalletInit(account)
+			if err := account.Init(); err != nil {
+				// TODO
+				panic(err)
+			}
+		}(account)
+	}
+	return nil
 }
 
 // WalletStatus returns whether the wallets have been initialized.
@@ -333,9 +198,9 @@ func (backend *Backend) Testing() bool {
 	return backend.testing
 }
 
-// Wallets returns the supported wallets.
-func (backend *Backend) Wallets() []*Wallet {
-	return backend.wallets
+// Accounts returns the supported accounts.
+func (backend *Backend) Accounts() []*btc.Account {
+	return backend.accounts
 }
 
 // UserLanguage returns the language the UI should be presented in to the user.
@@ -354,12 +219,12 @@ func (backend *Backend) UserLanguage() language.Tag {
 }
 
 // OnWalletInit installs a callback to be called when a wallet is initialized.
-func (backend *Backend) OnWalletInit(f func(*Wallet)) {
+func (backend *Backend) OnWalletInit(f func(*btc.Account)) {
 	backend.onWalletInit = f
 }
 
 // OnWalletUninit installs a callback to be called when a wallet is stopped.
-func (backend *Backend) OnWalletUninit(f func(*Wallet)) {
+func (backend *Backend) OnWalletUninit(f func(*btc.Account)) {
 	backend.onWalletUninit = f
 }
 
@@ -380,76 +245,67 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
-// initWallet initializes a single wallet.
-func (backend *Backend) initWallet(wallet *Wallet) error {
-	if err := wallet.init(backend); err != nil {
-		return err
-	}
-	backend.onWalletInit(wallet)
-	wallet.Account.Init()
-	return nil
-}
-
-// handleConnectionError listens on an error channel for incoming connection errors and attempts
-// to re-initialize the wallet.
-func (backend *Backend) handleConnectionError(wallet *Wallet) {
-	for {
-		select {
-		case err := <-wallet.errorChannel:
-			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
-				Warning("Connection failed. Retrying... ", wallet.Account)
-			if wallet.Account != nil {
-				func() {
-					defer backend.walletsLock.Lock()()
-					backend.onWalletUninit(wallet)
-					wallet.Account.Close()
-					wallet.Account = nil
-				}()
-			}
-			// Re-attempt until the connection is ok again. The errorChannel deliberately has
-			// a capacity of 1 so that the wallet is not re-initialized again if multiple errors
-			// arrive quickly.
-			for {
-				err := func() error {
-					defer backend.walletsLock.Lock()()
-					return backend.initWallet(wallet)
-				}()
-				if err != nil {
-					if connectionError, ok := err.(connectionError); ok {
-						backend.log.WithFields(logrus.Fields{"wallet": wallet, "error": connectionError}).
-							Debugf("Initializing wallet continued to fail. Trying again in %v",
-								reattemptPeriod)
-						time.Sleep(reattemptPeriod)
-					} else {
-						backend.log.WithField("error", err).Panic("Failed to initialize wallet")
-					}
-				} else {
-					break
-				}
-			}
-		}
-	}
-}
+// // handleConnectionError listens on an error channel for incoming connection errors and attempts
+// // to re-initialize the wallet.
+// func (backend *Backend) handleConnectionError(wallet *btc.Account) {
+// 	for {
+// 		select {
+// 		case err := <-wallet.errorChannel:
+// 			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
+// 				Warning("Connection failed. Retrying... ", wallet.Account)
+// 			if wallet.Account != nil {
+// 				func() {
+// 					defer backend.walletsLock.Lock()()
+// 					backend.onWalletUninit(wallet)
+// 					wallet.Account.Close()
+// 					wallet.Account = nil
+// 				}()
+// 			}
+// 			// Re-attempt until the connection is ok again. The errorChannel deliberately has
+// 			// a capacity of 1 so that the wallet is not re-initialized again if multiple errors
+// 			// arrive quickly.
+// 			for {
+// 				err := func() error {
+// 					defer backend.walletsLock.Lock()()
+// 					return backend.initWallet(wallet)
+// 				}()
+// 				if err != nil {
+// 					if connectionError, ok := err.(connectionError); ok {
+// 						backend.log.WithFields(logrus.Fields{"wallet": wallet, "error": connectionError}).
+// 							Debugf("Initializing wallet continued to fail. Trying again in %v",
+// 								reattemptPeriod)
+// 						time.Sleep(reattemptPeriod)
+// 					} else {
+// 						backend.log.WithField("error", err).Panic("Failed to initialize wallet")
+// 					}
+// 				} else {
+// 					break
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 func (backend *Backend) initWallets() error {
-	defer backend.walletsLock.Lock()()
-	wg := sync.WaitGroup{}
-	backend.walletsSyncStart = time.Now()
-	for _, wallet := range backend.wallets {
-		wg.Add(1)
-		go func(wallet *Wallet) {
-			defer wg.Done()
+	defer backend.accountsLock.Lock()()
+	return backend.initAccounts()
+	// wg := sync.WaitGroup{}
+	// backend.walletsSyncStart = time.Now()
+	// for _, wallet := range backend.wallets {
+	// 	wg.Add(1)
+	// 	go func(wallet *Coin) {
+	// 		defer wg.Done()
 
-			go backend.handleConnectionError(wallet)
+	// 		go backend.handleConnectionError(wallet)
 
-			if err := backend.initWallet(wallet); err != nil {
-				backend.log.WithField("error", err).Panic("Failed to initialize wallet")
-			}
-		}(wallet)
-	}
-	wg.Wait()
-	backend.log.Info("wallets init finished")
-	return nil
+	// 		if err := backend.initWallet(wallet); err != nil {
+	// 			backend.log.WithField("error", err).Panic("Failed to initialize wallet")
+	// 		}
+	// 	}(wallet)
+	// }
+	// wg.Wait()
+	// backend.log.Info("wallets init finished")
+	// return nil
 }
 
 // DeviceRegistered returns whether a device is plugged in.
@@ -458,13 +314,11 @@ func (backend *Backend) DeviceRegistered() bool {
 }
 
 func (backend *Backend) uninitWallets() {
-	defer backend.walletsLock.Lock()()
-	for _, wallet := range backend.wallets {
-		if wallet.Account != nil {
-			backend.onWalletUninit(wallet)
-			wallet.Account.Close()
-			wallet.Account = nil
-		}
+	defer backend.accountsLock.Lock()()
+	for _, account := range backend.accounts {
+		account := account
+		backend.onWalletUninit(account)
+		account.Close()
 	}
 }
 
@@ -472,13 +326,11 @@ func (backend *Backend) uninitWallets() {
 func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	backend.keystore = keystore
 	backend.uninitWallets()
-	go func() {
-		if err := backend.initWallets(); err != nil {
-			backend.log.Panic("Failed to initialize wallets")
-			// TODO
-			panic(err)
-		}
-	}()
+	if err := backend.initWallets(); err != nil {
+		backend.log.Panic("Failed to initialize wallets")
+		// TODO
+		panic(err)
+	}
 	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
 }
 

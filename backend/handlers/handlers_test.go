@@ -15,7 +15,7 @@ import (
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
 	connectionData := handlers.NewConnectionData(8082, "")
-	backend, err := backend.NewBackend(test.TstTempDir("godbb-listroutes-"))
+	backend, err := backend.NewBackend(test.TstTempDir("godbb-listroutes-"), false, false)
 	require.NoError(t, err)
 	handlers := handlers.NewHandlers(backend, connectionData)
 	err = handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {

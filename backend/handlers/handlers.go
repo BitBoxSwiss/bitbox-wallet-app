@@ -22,6 +22,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/backend"
+	"github.com/shiftdevices/godbb/backend/coins/btc"
 	accountHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
@@ -102,16 +103,20 @@ func NewHandlers(
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 
 	theAccountHandlers := map[string]*accountHandlers.Handlers{}
-	for _, wallet := range theBackend.Wallets() {
-		theAccountHandlers[wallet.Code] = accountHandlers.NewHandlers(getAPIRouter(
-			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", wallet.Code)).Subrouter()), log)
+	for _, accountCode := range []string{
+		"btc", "btc-p2wpkh-p2sh", "ltc-p2wpkh-p2sh",
+		"tbtc", "tbtc-p2wpkh-p2sh", "tltc-p2wpkh-p2sh",
+		"rbtc", "rbtc-p2wpkh-p2sh",
+	} {
+		theAccountHandlers[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
+			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", accountCode)).Subrouter()), log)
 	}
 
-	theBackend.OnWalletInit(func(wallet *backend.Wallet) {
-		theAccountHandlers[wallet.Code].Init(wallet.Account)
+	theBackend.OnWalletInit(func(account *btc.Account) {
+		theAccountHandlers[account.Code()].Init(account)
 	})
-	theBackend.OnWalletUninit(func(wallet *backend.Wallet) {
-		theAccountHandlers[wallet.Code].Uninit()
+	theBackend.OnWalletUninit(func(account *btc.Account) {
+		theAccountHandlers[account.Code()].Uninit()
 	})
 
 	theDeviceHandlers := bitboxHandlers.NewHandlers(
@@ -179,7 +184,7 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Wallets(), nil
+	return handlers.backend.Accounts(), nil
 }
 
 func (handlers *Handlers) getWalletStatusHandler(_ *http.Request) (interface{}, error) {
@@ -209,7 +214,6 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 		return nil, errp.WithStack(err)
 	}
 	pin := jsonBody["pin"]
-	fmt.Println("LOL", pin)
 	softwareBasedKeystore := keystore.NewSoftwareBasedKeystoreFromPIN(pin)
 	handlers.backend.RegisterKeystore(softwareBasedKeystore)
 	return true, nil

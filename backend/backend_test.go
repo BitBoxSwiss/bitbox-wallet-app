@@ -90,7 +90,7 @@ type backendTestSuite struct {
 
 func (s *backendTestSuite) SetupSuite() {
 	connectionData := handlers.NewConnectionData(8082, "")
-	backend, err := backend.NewBackendForTesting(test.TstTempDir("godbb-functional-tests-"), true)
+	backend, err := backend.NewBackend(test.TstTempDir("godbb-functional-tests-"), true, true)
 	require.NoError(s.T(), err)
 	s.router = handlers.NewHandlers(backend, connectionData).Router
 	s.server = httptest.NewServer(s.router)

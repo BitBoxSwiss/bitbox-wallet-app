@@ -90,10 +90,6 @@ export default class App extends Component {
         if (debug) {
             apiGet('testing').then(testing => this.setState({ testing }));
         }
-
-        apiGet('wallets').then(wallets => {
-            this.setState({ wallets, activeWallet: wallets.length ? wallets[0] : null });
-        });
     }
 
     componentWillUnmount() {
@@ -118,6 +114,11 @@ export default class App extends Component {
             this.setState({
                 walletInitialized: status == "initialized"
             });
+            if (this.state.walletInitialized) {
+                apiGet('wallets').then(wallets => {
+                    this.setState({ wallets, activeWallet: wallets && wallets.length ? wallets[0] : null });
+                });
+            }
         });
     }
 
@@ -130,6 +131,7 @@ export default class App extends Component {
     }
 
     render({}, { walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
+        console.log(walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing );
         if (wallets && wallets.length != 0 && walletInitialized) {
             return (
                 <div class={style.container}>

@@ -39,9 +39,9 @@ func main() {
 			if *regtest {
 				log.Fatal("can't use -regtest with -mainnet")
 			}
-			return backend.NewBackend(backend.DefaultAppFolder())
+			return backend.NewBackend(backend.DefaultAppFolder(), false, false)
 		}
-		return backend.NewBackendForTesting(backend.DefaultAppFolder(), *regtest)
+		return backend.NewBackend(backend.DefaultAppFolder(), true, *regtest)
 	}()
 	if err != nil {
 		log.Fatal(err)

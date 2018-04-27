@@ -1,6 +1,7 @@
 package btc
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -27,7 +28,8 @@ const (
 
 // Interface is the API of a Account.
 type Interface interface {
-	Init()
+	Code() string
+	Init() error
 	Initialized() bool
 	Close()
 	Transactions() []*transactions.TxInfo
@@ -44,16 +46,22 @@ type Interface interface {
 type Account struct {
 	locker.Locker
 
-	net        *chaincfg.Params
-	db         transactions.DBInterface
-	keyStore   keystore.Keystore
-	blockchain blockchain.Interface
+	coin                  *Coin
+	dbFolder              string
+	code                  string
+	name                  string
+	net                   *chaincfg.Params
+	db                    transactions.DBInterface
+	accountDerivationPath signing.AbsoluteKeypath
+	keyStore              keystore.Keystore
+	blockchain            blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
 	changeAddresses  *addresses.AddressChain
 
 	transactions *transactions.Transactions
 	headers      headers.Interface
+	addressType  addresses.AddressType
 
 	synchronizer *synchronizer.Synchronizer
 
@@ -62,6 +70,18 @@ type Account struct {
 	initialSyncDone bool
 	onEvent         func(Event)
 	log             *logrus.Entry
+}
+
+func (account *Account) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Code                  string `json:"code"`
+		Name                  string `json:"name"`
+		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
+	}{
+		Code: account.code,
+		Name: account.name,
+		BlockExplorerTxPrefix: account.coin.blockExplorerTxPrefix,
+	})
 }
 
 // Status indicates the connection and initialization status.
@@ -82,12 +102,14 @@ const (
 
 // NewAccount creats a new Account.
 func NewAccount(
+	coin *Coin,
+	dbFolder string,
+	code string,
+	name string,
 	net *chaincfg.Params,
 	db *transactionsdb.DB,
 	accountDerivationPath signing.AbsoluteKeypath,
 	keyStore keystore.Keystore,
-	blockchain blockchain.Interface,
-	theHeaders headers.Interface,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 	log *logrus.Entry,
@@ -95,20 +117,16 @@ func NewAccount(
 	log = log.WithField("group", "btc")
 	log.Debug("Creating new account")
 
-	xpub, err := keyStore.ExtendedPublicKey(accountDerivationPath)
-	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to fetch the xPub")
-	}
-	xpub.SetNet(net)
-
-	if xpub.IsPrivate() {
-		return nil, errp.New("Extended key is private! Only public keys are accepted")
-	}
 	account := &Account{
-		net:        net,
-		db:         db,
-		keyStore:   keyStore,
-		blockchain: blockchain,
+		coin:     coin,
+		dbFolder: dbFolder,
+		code:     code,
+		name:     name,
+		net:      net,
+		db:       db,
+		accountDerivationPath: accountDerivationPath,
+		keyStore:              keyStore,
+		addressType:           addressType,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -132,29 +150,49 @@ func NewAccount(
 		},
 		log,
 	)
-	account.receiveAddresses = addresses.NewAddressChain(accountDerivationPath, xpub, net, gapLimit, 0, addressType, log)
-	account.changeAddresses = addresses.NewAddressChain(accountDerivationPath, xpub, net, changeGapLimit, 1, addressType, log)
-	account.headers = theHeaders
-	account.headers.SubscribeEvent(func(event headers.Event) {
-		if event == headers.EventSynced {
-			onEvent(EventHeadersSynced)
-		}
-	})
-	account.transactions = transactions.NewTransactions(
-		net, account.db, account.headers, account.synchronizer, blockchain, log)
 	return account, nil
 }
 
-// Init initializes the account.
-func (account *Account) Init() {
-	account.ensureAddresses()
-	if err := account.blockchain.HeadersSubscribe(
-		account.onNewHeader,
-		func() {},
-	); err != nil {
-		// TODO
-		panic(err)
+func (account *Account) Code() string {
+	return account.code
+}
+
+// Init initializes the acconut.
+func (account *Account) Init() error {
+	electrumClient, err := account.coin.ElectrumClient()
+	if err != nil {
+		return err
 	}
+	account.blockchain = electrumClient
+
+	theHeaders, err := account.coin.GetHeaders(account.dbFolder)
+	if err != nil {
+		return err
+	}
+	account.headers = theHeaders
+	account.headers.SubscribeEvent(func(event headers.Event) {
+		if event == headers.EventSynced {
+			account.onEvent(EventHeadersSynced)
+		}
+	})
+	account.transactions = transactions.NewTransactions(
+		account.net, account.db, account.headers, account.synchronizer, account.blockchain, account.log)
+
+	xpub, err := account.keyStore.ExtendedPublicKey(account.accountDerivationPath)
+	if err != nil {
+		return errp.WithMessage(err, "Failed to fetch the xPub")
+	}
+	xpub.SetNet(account.net)
+
+	if xpub.IsPrivate() {
+		return errp.New("Extended key is private! Only public keys are accepted")
+	}
+
+	account.receiveAddresses = addresses.NewAddressChain(account.accountDerivationPath, xpub, account.net, gapLimit, 0, account.addressType, account.log)
+	account.changeAddresses = addresses.NewAddressChain(account.accountDerivationPath, xpub, account.net, changeGapLimit, 1, account.addressType, account.log)
+
+	account.ensureAddresses()
+	return account.blockchain.HeadersSubscribe(account.onNewHeader, func() {})
 }
 
 func (account *Account) onNewHeader(header *client.Header) error {
