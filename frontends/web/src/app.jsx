@@ -1,13 +1,10 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 
-import { Button } from './components/forms';
+import { Button, Input } from './components/forms';
 import { BitBox } from './components/icon/logo';
 
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
 
-import Dialog from './components/dialog/dialog';
 import Device from './routes/device/device';
 
 import { Router, route } from 'preact-router';
@@ -155,7 +152,7 @@ class SkipForTestingButton extends Component {
         }
         return (
             <form onsubmit={this.registerTestingDevice}>
-              <Textfield
+              <Input
                 type="password"
                 autoComplete="off"
                 id="testPIN"
@@ -163,7 +160,7 @@ class SkipForTestingButton extends Component {
                 onInput={this.handleFormChange}
                 value={testPIN}
                 />
-              <Button type="submit" primary={true} raised={true}>
+              <Button type="submit" secondary={true}>
                 Skip for Testing
               </Button>
             </form>
