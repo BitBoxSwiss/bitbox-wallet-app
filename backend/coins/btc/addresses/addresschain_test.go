@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
@@ -14,35 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
-
-func TestNewAddressChain(t *testing.T) {
-	log := logging.Log.WithGroup("addresses_test")
-	xprvSerialized := "xprv9s21ZrQH143K2UBLkdzwqFV6PXipLq4VWMAcJNPUGcWiGbvpjNPAjiiVaBddzafxkPBqxQoNcLWNh5RkPLdPThhsAzLkuHBBjfZdriiyqaZ"
-	xprv, err := hdkeychain.NewKeyFromString(xprvSerialized)
-	require.NoError(t, err)
-	xprv.SetNet(net)
-
-	// Can't pass a private key.
-	require.Panics(t,
-		func() {
-			addresses.NewAddressChain(signing.NewEmptyAbsoluteKeypath(), xprv, net, 6, 0, addresses.AddressTypeP2PKH, log)
-		})
-
-	// Can't pass with the wrong net.
-	xpub, err := xprv.Neuter()
-	require.NoError(t, err)
-	xpub.SetNet(&chaincfg.MainNetParams)
-	require.Panics(t,
-		func() {
-			addresses.NewAddressChain(
-				signing.NewEmptyAbsoluteKeypath(), xpub, net, 6, 0, addresses.AddressTypeP2PKH, log)
-		})
-
-	// Public and matching net.
-	xpub.SetNet(net)
-	_ = addresses.NewAddressChain(
-		signing.NewEmptyAbsoluteKeypath(), xpub, net, 6, 0, addresses.AddressTypeP2PKH, log)
-}
 
 type addressChainTestSuite struct {
 	suite.Suite
@@ -64,8 +34,8 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		signing.NewEmptyAbsoluteKeypath(),
-		xpub, net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.log)
+		signing.NewConfiguration(signing.NewEmptyAbsoluteKeypath(), []*hdkeychain.ExtendedKey{xpub}, 1),
+		net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.log)
 }
 
 func TestAddressChainTestSuite(t *testing.T) {

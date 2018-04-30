@@ -119,7 +119,7 @@ func (account *Account) SendTx(
 		}
 		panic("address must be present")
 	}
-	if err := SignTransaction(account.keyStore, txProposal, utxo, getAddress, account.log); err != nil {
+	if err := SignTransaction(account.keystores, txProposal, utxo, getAddress, account.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")

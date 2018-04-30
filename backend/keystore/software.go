@@ -19,7 +19,6 @@ import (
 
 // SoftwareBasedKeystore implements a keystore in software.
 type SoftwareBasedKeystore struct {
-	configuration *signing.Configuration
 	cosignerIndex int
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
@@ -29,14 +28,12 @@ type SoftwareBasedKeystore struct {
 
 // NewSoftwareBasedKeystore creates a new keystore with the given configuration, index and key.
 func NewSoftwareBasedKeystore(
-	configuration *signing.Configuration,
 	cosignerIndex int,
 	master *hdkeychain.ExtendedKey,
 ) *SoftwareBasedKeystore {
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
 	return &SoftwareBasedKeystore{
-		configuration: configuration,
 		cosignerIndex: cosignerIndex,
 		master:        master,
 		identifier:    hex.EncodeToString(hash[:]),
@@ -51,12 +48,12 @@ func NewSoftwareBasedKeystoreFromPIN(pin string) *SoftwareBasedKeystore {
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewSoftwareBasedKeystore(nil, 0, master)
+	return NewSoftwareBasedKeystore(0, master)
 }
 
 // Configuration implements keystore.Keystore.
 func (keystore *SoftwareBasedKeystore) Configuration() *signing.Configuration {
-	return keystore.configuration
+	return nil
 }
 
 // CosignerIndex implements keystore.Keystore.
@@ -74,8 +71,8 @@ func (keystore *SoftwareBasedKeystore) HasSecureOutput() bool {
 	return false
 }
 
-// DisplayAddress implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) DisplayAddress(signing.AbsoluteKeypath, coin.Interface) error {
+// OutputAddress implements keystore.Keystore.
+func (keystore *SoftwareBasedKeystore) OutputAddress(signing.AbsoluteKeypath, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
@@ -119,7 +116,7 @@ func (keystore *SoftwareBasedKeystore) sign(
 
 // SignTransaction implements keystore.Keystore.
 func (keystore *SoftwareBasedKeystore) SignTransaction(
-	proposedTransaction interface{},
+	proposedTransaction coin.ProposedTransaction,
 ) (coin.ProposedTransaction, error) {
 	panic("Transaction signing is not yet supported by the software-based keystore!")
 }

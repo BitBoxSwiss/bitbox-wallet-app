@@ -22,9 +22,9 @@ import (
 
 const (
 	// dev server for now
-	electrumServerBitcoinRegtest = "127.0.0.1:52001"
-	electrumServerBitcoinTestnet = "dev.shiftcrypto.ch:51002"
 	electrumServerBitcoinMainnet = "dev.shiftcrypto.ch:50002"
+	electrumServerBitcoinTestnet = "dev.shiftcrypto.ch:51002"
+	electrumServerBitcoinRegtest = "127.0.0.1:52001"
 )
 
 const (
@@ -32,8 +32,13 @@ const (
 	tlsNo  = false
 )
 
-var MainnetCoin = NewCoin("btc", &chaincfg.MainNetParams, electrumServerBitcoinTestnet, tlsYes, "https://blockchain.info/tx/")
+// MainnetCoin stores the mainnet coin.
+var MainnetCoin = NewCoin("btc", &chaincfg.MainNetParams, electrumServerBitcoinMainnet, tlsYes, "https://blockchain.info/tx/")
+
+// TestnetCoin stores the testnet coin.
 var TestnetCoin = NewCoin("tbtc", &chaincfg.TestNet3Params, electrumServerBitcoinTestnet, tlsYes, "https://testnet.blockchain.info/tx/")
+
+// RegtestCoin stores the regtest coin.
 var RegtestCoin = NewCoin("rbtc", &chaincfg.RegressionNetParams, electrumServerBitcoinRegtest, tlsNo, "")
 
 // connectionError indicates an error when establishing a network connection.
@@ -46,6 +51,7 @@ func maybeConnectionError(err error) error {
 	return err
 }
 
+// Coin models a Bitcoin-related coin.
 type Coin struct {
 	name                  string
 	net                   *chaincfg.Params
@@ -62,6 +68,7 @@ type Coin struct {
 	log *logrus.Entry
 }
 
+// NewCoin creates a new coin with the given parameters.
 func NewCoin(name string, net *chaincfg.Params, electrumServer string, tls bool, blockExplorerTxPrefix string) *Coin {
 	return &Coin{
 		name:                  name,
@@ -76,6 +83,7 @@ func NewCoin(name string, net *chaincfg.Params, electrumServer string, tls bool,
 	}
 }
 
+// ElectrumClient returns the electrum client for the coin.
 func (coin *Coin) ElectrumClient() (blockchain.Interface, error) {
 	defer coin.electrumClientsLock.Lock()()
 	if _, ok := coin.electrumClients[coin.net.Net]; !ok {
@@ -107,6 +115,7 @@ func (coin *Coin) ElectrumClient() (blockchain.Interface, error) {
 	return coin.electrumClients[coin.net.Net], nil
 }
 
+// GetHeaders returns the headers from the given folder.
 func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
 	defer coin.headersLock.Lock()()
 	if _, ok := coin.headers[coin.net.Net]; !ok {
@@ -134,28 +143,21 @@ func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
 	return coin.headers[coin.net.Net], nil
 }
 
+// NewAccount returns a new account with the given parameters for the coin.
 func (coin *Coin) NewAccount(
 	dbFolder string,
-	keystore keystore.Keystore,
 	code string,
 	name string,
-	derivationPath string,
+	configuration *signing.Configuration,
+	keystores keystore.Keystores,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 ) (*Account, error) {
 	log := coin.log.WithFields(logrus.Fields{"coin": code, "address-type": addressType})
 
-	identifier, err := keystore.Identifier()
-	if err != nil {
-		return nil, err
-	}
 	db, err := transactionsdb.NewDB(path.Join(
 		dbFolder,
-		fmt.Sprintf("account-%s-%s.db", identifier, code)))
-	if err != nil {
-		return nil, err
-	}
-	walletDerivationPath, err := signing.NewAbsoluteKeypath(derivationPath)
+		fmt.Sprintf("account-%s-%s.db", configuration.Hash(), code)))
 	if err != nil {
 		return nil, err
 	}
@@ -166,8 +168,8 @@ func (coin *Coin) NewAccount(
 		name,
 		coin.net,
 		db,
-		walletDerivationPath,
-		keystore,
+		configuration,
+		keystores,
 		addressType,
 		onEvent,
 		log,

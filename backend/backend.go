@@ -3,14 +3,10 @@ package backend
 import (
 	"os"
 	"path"
-	"time"
-
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/sirupsen/logrus"
 
 	"golang.org/x/text/language"
 
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
@@ -18,8 +14,12 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
+	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -28,9 +28,9 @@ var (
 )
 
 const (
-	// reattemptPeriod is the time until re-establishing of the connection
-	// to a coin backend is attempted.
-	reattemptPeriod = 30 * time.Second
+// reattemptPeriod is the time until re-establishing of the connection
+// to a coin backend is attempted.
+// reattemptPeriod = 30 * time.Second
 )
 
 // Interface is the API of the backend.
@@ -54,11 +54,6 @@ type Interface interface {
 // DefaultAppFolder returns the default location to store application data.
 func DefaultAppFolder() string {
 	return "."
-}
-
-type backendEvent struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
 }
 
 type deviceEvent struct {
@@ -85,15 +80,15 @@ type Backend struct {
 	events    chan interface{}
 
 	device         device.Interface
-	keystore       keystore.Keystore
+	keystores      keystore.Keystores
 	onWalletInit   func(*btc.Account)
 	onWalletUninit func(*btc.Account)
 	onDeviceInit   func(device.Interface)
 	onDeviceUninit func()
 
-	accounts          []*btc.Account
-	accountsLock      locker.Locker
-	accountsSyncStart time.Time
+	accounts     []*btc.Account
+	accountsLock locker.Locker
+	// accountsSyncStart time.Time
 
 	log *logrus.Entry
 }
@@ -113,65 +108,71 @@ func NewBackend(appFolder string, testing bool, regtest bool) (*Backend, error) 
 		appFolder: appFolder,
 		dbFolder:  dbFolder,
 		events:    make(chan interface{}, 1000),
+		keystores: keystore.NewKeystores(),
 
 		log: log,
 	}, nil
 }
 
-func (backend *Backend) initAccounts() error {
+func (backend *Backend) addAccount(
+	coin *btc.Coin,
+	code string,
+	name string,
+	keypath string,
+	addressType addresses.AddressType,
+) error {
 	onEvent := func(code string) func(btc.Event) {
 		return func(event btc.Event) {
 			backend.events <- WalletEvent{Type: "wallet", Code: code, Data: string(event)}
 		}
 	}
+	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
+	if err != nil {
+		return err
+	}
+	configuration, err := backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
+	if err != nil {
+		return err
+	}
+	account, err := coin.NewAccount(backend.dbFolder, code, name, configuration, backend.keystores, addresses.AddressTypeP2PKH, onEvent(code))
+	if err != nil {
+		return err
+	}
+	backend.accounts = append(backend.accounts, account)
+	return nil
+}
+
+func (backend *Backend) initAccounts() error {
 	backend.accounts = []*btc.Account{}
-	var account *btc.Account
-	var err error
 	if backend.testing {
 		if backend.regtest {
-			account, err = btc.RegtestCoin.NewAccount(backend.dbFolder, backend.keystore, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", addresses.AddressTypeP2PKH, onEvent("rbtc"))
-			if err != nil {
+			if err := backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", addresses.AddressTypeP2PKH); err != nil {
 				return err
 			}
-			backend.accounts = append(backend.accounts, account)
-			account, err = btc.RegtestCoin.NewAccount(backend.dbFolder, backend.keystore, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("rbtc-p2wpkh-p2sh"))
-			if err != nil {
+			if err := backend.addAccount(btc.RegtestCoin, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
-			backend.accounts = append(backend.accounts, account)
 		} else {
-			account, err = btc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", addresses.AddressTypeP2PKH, onEvent("tbtc"))
-			if err != nil {
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", addresses.AddressTypeP2PKH); err != nil {
 				return err
 			}
-			backend.accounts = append(backend.accounts, account)
-			account, err = btc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("tbtc-p2wpkh-p2sh"))
-			if err != nil {
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
-			backend.accounts = append(backend.accounts, account)
-			account, err = ltc.TestnetCoin.NewAccount(backend.dbFolder, backend.keystore, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("tltc-p2wpkh-p2sh"))
-			if err != nil {
+			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
-			backend.accounts = append(backend.accounts, account)
 		}
 	} else {
-		account, err = btc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "btc", "Bitcoin", "m/44'/0'/0'", addresses.AddressTypeP2PKH, onEvent("btc"))
-		if err != nil {
+		if err := backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", addresses.AddressTypeP2PKH); err != nil {
 			return err
 		}
-		backend.accounts = append(backend.accounts, account)
-		account, err = btc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("btc-p2wpkh-p2sh"))
-		if err != nil {
+		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 			return err
 		}
-		backend.accounts = append(backend.accounts, account)
-		account, err = ltc.MainnetCoin.NewAccount(backend.dbFolder, backend.keystore, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", addresses.AddressTypeP2WPKHP2SH, onEvent("ltc-p2wpkh-p2sh"))
-		if err != nil {
+		if err := backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 			return err
 		}
-		backend.accounts = append(backend.accounts, account)
 	}
 	for _, account := range backend.accounts {
 		go func(account *btc.Account) {
@@ -187,7 +188,7 @@ func (backend *Backend) initAccounts() error {
 
 // WalletStatus returns whether the wallets have been initialized.
 func (backend *Backend) WalletStatus() string {
-	if backend.keystore != nil {
+	if backend.keystores.Count() > 0 {
 		return "initialized"
 	}
 	return "uninitialized"
@@ -324,11 +325,13 @@ func (backend *Backend) uninitWallets() {
 
 // RegisterKeystore registers the given keystore at this backend.
 func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
-	backend.keystore = keystore
+	if err := backend.keystores.Add(keystore); err != nil {
+		backend.log.Panic("Failed to add a keystore.", err)
+		panic(err)
+	}
 	backend.uninitWallets()
 	if err := backend.initWallets(); err != nil {
-		backend.log.Panic("Failed to initialize wallets")
-		// TODO
+		backend.log.Panic("Failed to initialize wallets.", err)
 		panic(err)
 	}
 	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
@@ -336,7 +339,7 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
-	backend.keystore = nil
+	backend.keystores = keystore.NewKeystores()
 	backend.uninitWallets()
 	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
 }
@@ -349,7 +352,14 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.device.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreAvailable:
-			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(nil))
+			absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
+			extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)
+			if err != nil {
+				panic(err)
+			}
+			configuration := signing.NewConfiguration(absoluteKeypath,
+				[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(configuration, 0))
 		}
 		backend.events <- deviceEvent{Type: "device", Data: string(event)}
 	})

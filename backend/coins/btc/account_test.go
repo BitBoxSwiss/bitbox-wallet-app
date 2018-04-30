@@ -1,25 +1,25 @@
 package btc_test
 
-import (
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/shiftdevices/godbb/backend/coins/btc"
-	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
-	"github.com/shiftdevices/godbb/backend/keystore/mocks"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/suite"
-)
+// import (
+// 	"github.com/btcsuite/btcd/chaincfg"
+// 	"github.com/shiftdevices/godbb/backend/coins/btc"
+// 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
+// 	"github.com/shiftdevices/godbb/backend/keystore/mocks"
+// 	"github.com/sirupsen/logrus"
+// 	"github.com/stretchr/testify/suite"
+// )
 
-type accountSuite struct {
-	suite.Suite
+// type accountSuite struct {
+// 	suite.Suite
 
-	net            *chaincfg.Params
-	keyStoreMock   mocks.Keystore
-	blockchainMock blockchainMock.Interface
-	onEvent        func(btc.Event)
-	account        *btc.Account
+// 	net            *chaincfg.Params
+// 	keyStoreMock   mocks.Keystore
+// 	blockchainMock blockchainMock.Interface
+// 	onEvent        func(btc.Event)
+// 	account        *btc.Account
 
-	log *logrus.Entry
-}
+// 	log *logrus.Entry
+// }
 
 // func (s *accountSuite) SetupTest() {
 // 	s.log = logging.Log.WithGroup("btc_test")

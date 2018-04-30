@@ -16,6 +16,7 @@ import (
 type keystore struct {
 	dbb           *Device
 	configuration *signing.Configuration
+	cosignerIndex int
 	log           *logrus.Entry
 }
 
@@ -26,7 +27,7 @@ func (keystore *keystore) Configuration() *signing.Configuration {
 
 // CosignerIndex implements keystore.Keystore.
 func (keystore *keystore) CosignerIndex() int {
-	return 0
+	return keystore.cosignerIndex
 }
 
 // Identifier implements keystore.Keystore.
@@ -43,8 +44,8 @@ func (keystore *keystore) HasSecureOutput() bool {
 	return keystore.dbb.channel != nil
 }
 
-// DisplayAddress implements keystore.Keystore.
-func (keystore *keystore) DisplayAddress(keyPath signing.AbsoluteKeypath, _ coin.Interface) error {
+// OutputAddress implements keystore.Keystore.
+func (keystore *keystore) OutputAddress(keyPath signing.AbsoluteKeypath, _ coin.Coin) error {
 	if !keystore.HasSecureOutput() {
 		panic("HasSecureOutput must be true")
 	}
@@ -59,7 +60,7 @@ func (keystore *keystore) ExtendedPublicKey(
 
 // SignTransaction implements keystore.Keystore.
 func (keystore *keystore) SignTransaction(
-	proposedTx interface{}) (coin.ProposedTransaction, error) {
+	proposedTx coin.ProposedTransaction) (coin.ProposedTransaction, error) {
 	btcProposedTx, ok := proposedTx.(*btc.ProposedTransaction)
 	if !ok {
 		panic("only btc")

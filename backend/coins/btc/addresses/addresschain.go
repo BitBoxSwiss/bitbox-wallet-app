@@ -3,56 +3,46 @@ package addresses
 import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil/hdkeychain"
 )
 
 // AddressChain manages a chain of addresses derived from an xpub.
 type AddressChain struct {
-	derivationPath signing.AbsoluteKeypath
-	xpub           *hdkeychain.ExtendedKey
-	net            *chaincfg.Params
-	gapLimit       int
-	chainIndex     uint32
-	addressType    AddressType
-	addresses      []*Address
-	log            *logrus.Entry
+	configuration *signing.Configuration
+	net           *chaincfg.Params
+	gapLimit      int
+	chainIndex    uint32
+	addressType   AddressType
+	addresses     []*Address
+	log           *logrus.Entry
 }
 
-// NewAddressChain creates an address chain starting at m/<chainIndex> from the given xpub. xpub
-// must be public (neutered) and the xpub type must match the passed net.
+// NewAddressChain creates an address chain starting at m/<chainIndex> from the given configuration.
 func NewAddressChain(
-	derivationPath signing.AbsoluteKeypath,
-	xpub *hdkeychain.ExtendedKey,
+	configuration *signing.Configuration,
 	net *chaincfg.Params,
 	gapLimit int,
 	chainIndex uint32,
 	addressType AddressType,
 	log *logrus.Entry,
 ) *AddressChain {
-	if xpub.IsPrivate() {
-		panic("Extended key is private! Only public keys are accepted")
-	}
-	if !xpub.IsForNet(net) {
-		panic(errp.New("xpub does not match provided net"))
-	}
-	chainXPub, err := xpub.Child(chainIndex)
+	chainConfiguration, err := configuration.Derive(
+		signing.NewEmptyRelativeKeypath().Child(chainIndex, signing.NonHardened),
+	)
 	if err != nil {
 		log.WithField("error", err).WithError(err)
 		panic(err)
 	}
 	return &AddressChain{
-		derivationPath: derivationPath,
-		xpub:           chainXPub,
-		net:            net,
-		gapLimit:       gapLimit,
-		chainIndex:     chainIndex,
-		addressType:    addressType,
-		addresses:      []*Address{},
+		configuration: chainConfiguration,
+		net:           net,
+		gapLimit:      gapLimit,
+		chainIndex:    chainIndex,
+		addressType:   addressType,
+		addresses:     []*Address{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "address-type": addressType}),
 	}
@@ -69,13 +59,18 @@ func (addresses *AddressChain) GetUnused() *Address {
 
 func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {
 	addresses.log.Debug("Get public key")
-	xpub, err := addresses.xpub.Child(index)
+	configuration, err := addresses.configuration.Derive(
+		signing.NewEmptyRelativeKeypath().Child(index, signing.NonHardened),
+	)
 	if err != nil {
 		addresses.log.WithFields(logrus.Fields{"index": index, "error": err}).
-			Panic("Failed to get XPub child")
+			Panic("Failed to get configuration child")
 		panic(err)
 	}
-	publicKey, err := xpub.ECPubKey()
+	if configuration.NumberOfSigners() > 1 {
+		panic("Multisig is not yet supported.")
+	}
+	publicKey, err := configuration.ExtendedPublicKeys()[0].ECPubKey()
 	if err != nil {
 		addresses.log.WithField("error", err).Panic("Failed to get EC pubkey")
 		panic(err)
@@ -91,7 +86,7 @@ func (addresses *AddressChain) addAddress() *Address {
 	addressWithPK := NewAddress(
 		publicKey,
 		addresses.net,
-		addresses.derivationPath.Child(addresses.chainIndex, false).Child(uint32(index), false),
+		addresses.configuration.AbsoluteKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(uint32(index), signing.NonHardened),
 		addresses.addressType,
 		addresses.log,
 	)

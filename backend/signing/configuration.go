@@ -1,8 +1,7 @@
 package signing
 
 import (
-	"bytes"
-	"encoding/gob"
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 
@@ -10,19 +9,24 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
-// Configuration contains info to determine how to sign.
+// Configuration models a signing configuration, which can be singlesig or multisig.
 type Configuration struct {
 	absoluteKeypath    AbsoluteKeypath
 	extendedPublicKeys []*hdkeychain.ExtendedKey
 	signingThreshold   int
 }
 
-// NewConfiguration creates a new Configuration.
+// NewConfiguration creates a new configuration.
 func NewConfiguration(
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKeys []*hdkeychain.ExtendedKey,
 	signingThreshold int,
 ) *Configuration {
+	for _, extendedKey := range extendedPublicKeys {
+		if extendedKey.IsPrivate() {
+			panic("An extended key is private! Only extended public keys are accepted.")
+		}
+	}
 	return &Configuration{
 		absoluteKeypath:    absoluteKeypath,
 		extendedPublicKeys: extendedPublicKeys,
@@ -52,7 +56,7 @@ func (configuration *Configuration) NumberOfSigners() int {
 
 // Derive derives a subkeypath from the configuration's base absolute keypath.
 func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Configuration, error) {
-	if !relativeKeypath.NonHardened() {
+	if relativeKeypath.Hardened() {
 		return nil, errp.New("A configuration can only be derived with a non-hardened relative keypath.")
 	}
 
@@ -111,12 +115,12 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 	return nil
 }
 
-// Hash returns a hash covering all of the configuration.
+// Hash returns a hash of the configuration.
 func (configuration *Configuration) Hash() string {
-	buffer := &bytes.Buffer{}
-	encoder := gob.NewEncoder(buffer)
-	if err := encoder.Encode(configuration); err != nil {
+	bytes, err := json.Marshal(configuration)
+	if err != nil {
 		panic(err)
 	}
-	return hex.EncodeToString(buffer.Bytes())
+	hash := sha256.Sum256(bytes)
+	return hex.EncodeToString(hash[:])
 }

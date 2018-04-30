@@ -1,7 +1,7 @@
 package coin
 
-// Interface models the currency of a blockchain.
-type Interface interface {
+// Coin models the currency of a blockchain.
+type Coin interface {
 	// Code returns the acronym of the currency in lowercase.
 	// Code() string
 
@@ -26,8 +26,7 @@ type Interface interface {
 	// BlockExplorerTransactionURLPrefix() string
 }
 
-// Coin represents a cryptocurrency.
-type Coin struct {
+type implementation struct {
 	code     string
 	name     string
 	coinType uint32
@@ -50,8 +49,8 @@ func NewCoin(
 	accountBased bool,
 
 	blockExplorerTransactionURLPrefix string,
-) *Coin {
-	return &Coin{
+) Coin {
+	return &implementation{
 		code:     code,
 		name:     name,
 		coinType: coinType,

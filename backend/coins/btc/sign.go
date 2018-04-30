@@ -21,13 +21,13 @@ type ProposedTransaction struct {
 // SignTransaction signs all inputs. It assumes all outputs spent belong to this
 // wallet. previousOutputs must contain all outputs which are spent by the transaction.
 func SignTransaction(
-	keyStore keystore.Keystore,
+	keystores keystore.Keystores,
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
 	getAddress func(client.ScriptHashHex) *addresses.Address,
 	log *logrus.Entry,
 ) error {
-	_, err := keyStore.SignTransaction(&ProposedTransaction{
+	_, err := keystores.SignTransaction(&ProposedTransaction{
 		TXProposal:      txProposal,
 		PreviousOutputs: previousOutputs,
 		GetAddress:      getAddress,

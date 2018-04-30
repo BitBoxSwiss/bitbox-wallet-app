@@ -42,20 +42,6 @@ func (_m *Keystore) CosignerIndex() int {
 	return r0
 }
 
-// DisplayAddress provides a mock function with given fields: _a0, _a1
-func (_m *Keystore) DisplayAddress(_a0 signing.AbsoluteKeypath, _a1 coin.Interface) error {
-	ret := _m.Called(_a0, _a1)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(signing.AbsoluteKeypath, coin.Interface) error); ok {
-		r0 = rf(_a0, _a1)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // ExtendedPublicKey provides a mock function with given fields: _a0
 func (_m *Keystore) ExtendedPublicKey(_a0 signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 	ret := _m.Called(_a0)
@@ -114,13 +100,27 @@ func (_m *Keystore) Identifier() (string, error) {
 	return r0, r1
 }
 
-// SignTransaction provides a mock function with given fields: proposedTransaction
-func (_m *Keystore) SignTransaction(proposedTransaction interface{}) (coin.ProposedTransaction, error) {
-	ret := _m.Called(proposedTransaction)
+// OutputAddress provides a mock function with given fields: _a0, _a1
+func (_m *Keystore) OutputAddress(_a0 signing.AbsoluteKeypath, _a1 coin.Coin) error {
+	ret := _m.Called(_a0, _a1)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(signing.AbsoluteKeypath, coin.Coin) error); ok {
+		r0 = rf(_a0, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// SignTransaction provides a mock function with given fields: _a0
+func (_m *Keystore) SignTransaction(_a0 coin.ProposedTransaction) (coin.ProposedTransaction, error) {
+	ret := _m.Called(_a0)
 
 	var r0 coin.ProposedTransaction
-	if rf, ok := ret.Get(0).(func(interface{}) coin.ProposedTransaction); ok {
-		r0 = rf(proposedTransaction)
+	if rf, ok := ret.Get(0).(func(coin.ProposedTransaction) coin.ProposedTransaction); ok {
+		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(coin.ProposedTransaction)
@@ -128,8 +128,8 @@ func (_m *Keystore) SignTransaction(proposedTransaction interface{}) (coin.Propo
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
-		r1 = rf(proposedTransaction)
+	if rf, ok := ret.Get(1).(func(coin.ProposedTransaction) error); ok {
+		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
 	}

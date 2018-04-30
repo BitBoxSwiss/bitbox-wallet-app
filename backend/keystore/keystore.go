@@ -24,15 +24,15 @@ type Keystore interface {
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	HasSecureOutput() bool
 
-	// DisplayAddress outputs the public key at the given absolute keypath for the given coin.
+	// OutputAddress outputs the public key at the given absolute keypath for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	DisplayAddress(signing.AbsoluteKeypath, coin.Interface) error
+	OutputAddress(signing.AbsoluteKeypath, coin.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
-	// SignMessage(string, *signing.AbsoluteKeypath, coin.CoinInterface) (*big.Int, error)
+	// SignMessage(string, *signing.AbsoluteKeypath, coin.Coin) (*big.Int, error)
 
 	// SignTransaction signs the given transaction proposal.
-	SignTransaction(proposedTransaction interface{}) (coin.ProposedTransaction, error)
+	SignTransaction(coin.ProposedTransaction) (coin.ProposedTransaction, error)
 }

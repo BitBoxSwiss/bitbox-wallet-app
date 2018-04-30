@@ -1,6 +1,7 @@
 package device
 
 import (
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
 )
@@ -27,8 +28,11 @@ type Interface interface {
 
 	// UserChosenName() string
 
+	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
+	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
+
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
-	KeystoreForConfiguration(*signing.Configuration) keystore.Keystore
+	KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystore.Keystore
 
 	// Locked() bool
 

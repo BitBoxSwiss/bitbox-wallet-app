@@ -254,7 +254,7 @@ func isAPITokenValid(w http.ResponseWriter, r *http.Request, apiData *Connection
 	methodLogEntry := log.WithField("path", r.URL.Path)
 	// In dev mode, we allow unauthorized requests
 	if apiData.devMode {
-		methodLogEntry.Warning("Allowing access without authorization token in dev mode")
+		// methodLogEntry.Debug("Allowing access without authorization token in dev mode")
 		return true
 	}
 	methodLogEntry.Debug("Checking API token")

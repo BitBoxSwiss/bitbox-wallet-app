@@ -1000,15 +1000,23 @@ func (dbb *Device) Identifier() string {
 	return dbb.deviceID
 }
 
+// ExtendedPublicKey implements device.Interface.
+func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
+	return dbb.XPub(keypath.Encode())
+}
+
 // KeystoreForConfiguration implements device.Interface.
 func (dbb *Device) KeystoreForConfiguration(
-	configuration *signing.Configuration) keystoreInterface.Keystore {
+	configuration *signing.Configuration,
+	cosignerIndex int,
+) keystoreInterface.Keystore {
 	if dbb.Status() != StatusSeeded {
 		return nil
 	}
 	return &keystore{
 		dbb:           dbb,
 		configuration: configuration,
+		cosignerIndex: cosignerIndex,
 		log:           dbb.log,
 	}
 }

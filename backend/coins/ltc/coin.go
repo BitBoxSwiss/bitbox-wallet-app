@@ -11,5 +11,8 @@ const (
 	tlsYes = true
 )
 
+// MainnetCoin stores the mainnet coin.
 var MainnetCoin = btc.NewCoin("ltc", &MainNetParams, electrumServerLitecoinMainnet, tlsYes, "https://insight.litecore.io/tx/")
+
+// TestnetCoin stores the testnet coin.
 var TestnetCoin = btc.NewCoin("tltc", &TestNet4Params, electrumServerLitecoinTestnet, tlsYes, "http://explorer.litecointools.com/tx/")

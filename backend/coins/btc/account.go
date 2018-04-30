@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/shiftdevices/godbb/backend/signing"
+
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
@@ -16,7 +18,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 )
@@ -38,7 +39,7 @@ type Interface interface {
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddress() *addresses.Address
-	KeyStore() keystore.Keystore
+	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 }
 
@@ -46,15 +47,15 @@ type Interface interface {
 type Account struct {
 	locker.Locker
 
-	coin                  *Coin
-	dbFolder              string
-	code                  string
-	name                  string
-	net                   *chaincfg.Params
-	db                    transactions.DBInterface
-	accountDerivationPath signing.AbsoluteKeypath
-	keyStore              keystore.Keystore
-	blockchain            blockchain.Interface
+	coin          *Coin
+	dbFolder      string
+	code          string
+	name          string
+	net           *chaincfg.Params
+	db            transactions.DBInterface
+	configuration *signing.Configuration
+	keystores     keystore.Keystores
+	blockchain    blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
 	changeAddresses  *addresses.AddressChain
@@ -72,6 +73,7 @@ type Account struct {
 	log             *logrus.Entry
 }
 
+// MarshalJSON implements json.Marshaler.
 func (account *Account) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Code                  string `json:"code"`
@@ -108,8 +110,8 @@ func NewAccount(
 	name string,
 	net *chaincfg.Params,
 	db *transactionsdb.DB,
-	accountDerivationPath signing.AbsoluteKeypath,
-	keyStore keystore.Keystore,
+	configuration *signing.Configuration,
+	keystores keystore.Keystores,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 	log *logrus.Entry,
@@ -118,15 +120,15 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:     coin,
-		dbFolder: dbFolder,
-		code:     code,
-		name:     name,
-		net:      net,
-		db:       db,
-		accountDerivationPath: accountDerivationPath,
-		keyStore:              keyStore,
-		addressType:           addressType,
+		coin:          coin,
+		dbFolder:      dbFolder,
+		code:          code,
+		name:          name,
+		net:           net,
+		db:            db,
+		configuration: configuration,
+		keystores:     keystores,
+		addressType:   addressType,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -153,6 +155,7 @@ func NewAccount(
 	return account, nil
 }
 
+// Code returns the coe of the account.
 func (account *Account) Code() string {
 	return account.code
 }
@@ -178,18 +181,8 @@ func (account *Account) Init() error {
 	account.transactions = transactions.NewTransactions(
 		account.net, account.db, account.headers, account.synchronizer, account.blockchain, account.log)
 
-	xpub, err := account.keyStore.ExtendedPublicKey(account.accountDerivationPath)
-	if err != nil {
-		return errp.WithMessage(err, "Failed to fetch the xPub")
-	}
-	xpub.SetNet(account.net)
-
-	if xpub.IsPrivate() {
-		return errp.New("Extended key is private! Only public keys are accepted")
-	}
-
-	account.receiveAddresses = addresses.NewAddressChain(account.accountDerivationPath, xpub, account.net, gapLimit, 0, account.addressType, account.log)
-	account.changeAddresses = addresses.NewAddressChain(account.accountDerivationPath, xpub, account.net, changeGapLimit, 1, account.addressType, account.log)
+	account.receiveAddresses = addresses.NewAddressChain(account.configuration, account.net, gapLimit, 0, account.addressType, account.log)
+	account.changeAddresses = addresses.NewAddressChain(account.configuration, account.net, changeGapLimit, 1, account.addressType, account.log)
 
 	account.ensureAddresses()
 	return account.blockchain.HeadersSubscribe(account.onNewHeader, func() {})
@@ -392,9 +385,9 @@ func (account *Account) GetUnusedReceiveAddress() *addresses.Address {
 	return account.receiveAddresses.GetUnused()
 }
 
-// KeyStore returns the key store of the account.
-func (account *Account) KeyStore() keystore.Keystore {
-	return account.keyStore
+// Keystores returns the keystores of the account.
+func (account *Account) Keystores() keystore.Keystores {
+	return account.keystores
 }
 
 // HeadersStatus returns the status of the headers.

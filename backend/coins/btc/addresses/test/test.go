@@ -24,5 +24,6 @@ func NewAddressChain() *addresses.AddressChain {
 	if err != nil {
 		panic(err)
 	}
-	return addresses.NewAddressChain(derivationPath, xpub, net, 20, 0, addresses.AddressTypeP2PKH, log)
+	configuration := signing.NewConfiguration(derivationPath, []*hdkeychain.ExtendedKey{xpub}, 1)
+	return addresses.NewAddressChain(configuration, net, 20, 0, addresses.AddressTypeP2PKH, log)
 }

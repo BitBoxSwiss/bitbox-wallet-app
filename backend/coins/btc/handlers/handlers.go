@@ -15,10 +15,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Handlers provides a web api to the wallet.
+// Handlers provides a web api to the account.
 type Handlers struct {
-	wallet btc.Interface
-	log    *logrus.Entry
+	account btc.Interface
+	log     *logrus.Entry
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -26,26 +26,26 @@ func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log}
 
-	handleFunc("/status", handlers.getWalletStatus).Methods("GET")
-	handleFunc("/transactions", handlers.ensureWalletInitialized(handlers.getWalletTransactions)).Methods("GET")
-	handleFunc("/balance", handlers.ensureWalletInitialized(handlers.getWalletBalance)).Methods("GET")
-	handleFunc("/sendtx", handlers.ensureWalletInitialized(handlers.postWalletSendTx)).Methods("POST")
-	handleFunc("/fee-targets", handlers.ensureWalletInitialized(handlers.getWalletFeeTargets)).Methods("GET")
-	handleFunc("/tx-proposal", handlers.ensureWalletInitialized(handlers.getWalletTxProposal)).Methods("POST")
-	handleFunc("/headers/status", handlers.ensureWalletInitialized(handlers.getHeadersStatus)).Methods("GET")
-	handleFunc("/receive-address", handlers.ensureWalletInitialized(handlers.getReceiveAddress)).Methods("GET")
+	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
+	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
+	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
+	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
+	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
+	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
+	handleFunc("/headers/status", handlers.ensureAccountInitialized(handlers.getHeadersStatus)).Methods("GET")
+	handleFunc("/receive-address", handlers.ensureAccountInitialized(handlers.getReceiveAddress)).Methods("GET")
 	return handlers
 }
 
-// Init installs a wallet as a base for the web api. This needs to be called before any requests are
+// Init installs a account as a base for the web api. This needs to be called before any requests are
 // made.
-func (handlers *Handlers) Init(wallet btc.Interface) {
-	handlers.wallet = wallet
+func (handlers *Handlers) Init(account btc.Interface) {
+	handlers.account = account
 }
 
-// Uninit removes the wallet. After this, no requests should be made.
+// Uninit removes the account. After this, no requests should be made.
 func (handlers *Handlers) Uninit() {
-	handlers.wallet = nil
+	handlers.account = nil
 }
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
@@ -59,18 +59,18 @@ type Transaction struct {
 	Addresses []string `json:"addresses"`
 }
 
-func (handlers *Handlers) ensureWalletInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
+func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
 	return func(request *http.Request) (interface{}, error) {
-		if handlers.wallet == nil {
-			return nil, errp.New("Wallet was uninitialized. Cannot handle request.")
+		if handlers.account == nil {
+			return nil, errp.New("Account was uninitialized. Cannot handle request.")
 		}
 		return h(request)
 	}
 }
 
-func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, error) {
 	result := []Transaction{}
-	txs := handlers.wallet.Transactions()
+	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
 		var feeString = ""
 		if txInfo.Fee != nil {
@@ -98,8 +98,8 @@ func (handlers *Handlers) getWalletTransactions(_ *http.Request) (interface{}, e
 	return result, nil
 }
 
-func (handlers *Handlers) getWalletBalance(_ *http.Request) (interface{}, error) {
-	balance := handlers.wallet.Balance()
+func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
+	balance := handlers.account.Balance()
 	unit := btcutil.AmountBTC.String()
 	strip := func(s string) string {
 		return strings.TrimSpace(strings.TrimSuffix(s, unit))
@@ -149,13 +149,13 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	return nil
 }
 
-func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
 	input := &sendTxInput{log: handlers.log}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	err := handlers.wallet.SendTx(input.address, input.sendAmount, input.feeTargetCode)
+	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode)
 	if bitbox.IsErrorAbort(err) {
 		return map[string]interface{}{"success": false}, nil
 	}
@@ -165,12 +165,12 @@ func (handlers *Handlers) postWalletSendTx(r *http.Request) (interface{}, error)
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, error) {
 	input := &sendTxInput{}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	outputAmount, fee, err := handlers.wallet.TxProposal(
+	outputAmount, fee, err := handlers.account.TxProposal(
 		input.sendAmount,
 		input.feeTargetCode,
 	)
@@ -184,11 +184,11 @@ func (handlers *Handlers) getWalletTxProposal(r *http.Request) (interface{}, err
 }
 
 func (handlers *Handlers) getHeadersStatus(r *http.Request) (interface{}, error) {
-	return handlers.wallet.HeadersStatus()
+	return handlers.account.HeadersStatus()
 }
 
-func (handlers *Handlers) getWalletFeeTargets(_ *http.Request) (interface{}, error) {
-	feeTargets, defaultFeeTarget := handlers.wallet.FeeTargets()
+func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, error) {
+	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
 		result = append(result,
@@ -202,10 +202,10 @@ func (handlers *Handlers) getWalletFeeTargets(_ *http.Request) (interface{}, err
 	}, nil
 }
 
-func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) {
-	if handlers.wallet == nil {
+func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
+	if handlers.account == nil {
 		return btc.Disconnected, nil
-	} else if !handlers.wallet.Initialized() {
+	} else if !handlers.account.Initialized() {
 		return btc.Connected, nil
 	} else {
 		return btc.Initialized, nil
@@ -213,9 +213,9 @@ func (handlers *Handlers) getWalletStatus(_ *http.Request) (interface{}, error) 
 }
 
 func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
-	address := handlers.wallet.GetUnusedReceiveAddress()
-	if handlers.wallet.KeyStore().HasSecureOutput() {
-		if err := handlers.wallet.KeyStore().DisplayAddress(address.KeyPath, nil); err != nil {
+	address := handlers.account.GetUnusedReceiveAddress()
+	if handlers.account.Keystores().HaveSecureOutput() {
+		if err := handlers.account.Keystores().OutputAddress(address.KeyPath, nil); err != nil {
 			return nil, err
 		}
 	}
