@@ -44,12 +44,12 @@
 
 .secondary {
     composes: button;
+    background-color: var(--color-softblack);
     border-color: var(--color-softblack);
+    color: var(--color-white);
 }
 
 .secondary:hover {
-    background-color: var(--color-softblack);
-    color: var(--color-white);
 }
 
 .button[disabled] {
