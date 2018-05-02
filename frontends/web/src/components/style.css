@@ -12,6 +12,7 @@
 }
 
 .button {
+	position: relative;
 	display: inline-block;
 	border: none;
 	border-radius: 2px;
@@ -38,5 +39,24 @@
 
 .button.isPrimary:hover {
 	background-color: #222222;
+}
+
+.button.isDanger {
+	background-color: var(--color-danger);
+	color: var(--color-white);
+}
+
+.button.isDanger:hover {
+	background-color: var(--color-swissred);
+}
+
+.button .badge {
+	position: absolute;
+	top: -5px;
+	right: -5px;
+	width: 14px;
+	height: 14px;
+	background-color: var(--color-danger);
+	border-radius: 50%;
 }
 /* BUTTONS END */

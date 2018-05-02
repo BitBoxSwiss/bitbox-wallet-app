@@ -3,8 +3,9 @@
   background-color: white;
   border: solid 1px var(--color-brightblue);
   border-radius: 2px;
-  height: 24px;
-  margin-top: var(--spacing-half);
+  height: 36px;
+  min-width: 120px;
+  max-width: 300px;
   padding: 0 var(--spacing-half);
 }
 

@@ -1,5 +1,4 @@
 :root {
-
     /* colors */
     --color-greentea: #91B496;
     --color-coolblue: #7b98a3;;
@@ -26,6 +25,7 @@
     --color-warn: var(--color-coolgold);
     --color-warning: var(--color-warn);
     --color-error: var(--color-swissred);
+    --color-danger: #EC644B;
 
     /* background colors */
     --background: var(--color-lightgray);
@@ -47,5 +47,4 @@
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-
 }

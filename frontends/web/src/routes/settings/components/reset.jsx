@@ -11,35 +11,46 @@ import 'preact-material-components/Dialog/style.css';
 export default class Reset extends Component {
   state = {
     isConfirming: false,
+    activeDialog: false,
   }
 
   resetDevice = () => {
-    this.setState({ isConfirming: true });
+    this.setState({
+      activeDialog: false,
+      isConfirming: true,
+    });
     apiPost('devices/' + this.props.deviceID + '/reset').then(() => {
       this.setState({ isConfirming: false });
     });
   };
 
-  showDialog = () => {
-    this.resetDialog.MDComponent.show();
-  }
-
-  render() {
+  render({}, {
+    isConfirming,
+    activeDialog,
+  }) {
     return (
       <div>
-        <Button danger onClick={this.showDialog}>Reset Device</Button>
-        <Dialog ref={resetDialog => this.resetDialog = resetDialog} onAccept={this.resetDevice}>
-          <Dialog.Header>Reset Device</Dialog.Header>
-          <Dialog.Body>
-            Resetting the device means ... ...
-          </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
-            <Dialog.FooterButton accept={true}>Reset Device</Dialog.FooterButton>
-          </Dialog.Footer>
-        </Dialog>
+        <Button danger onClick={() => this.setState({ activeDialog: true })}>Reset Device</Button>
+        <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+          <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+            <h3 class="modalHeader">Reset Device</h3>
+            <p>Resetting the device means ... ...</p>
+            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
+              <button
+                class={[componentStyle.button, componentStyle.isDanger].join(' ')}
+                onClick={() => this.setState({ activeDialog: false })}>
+                Abort
+              </button>
+              <button
+                class={[componentStyle.button, componentStyle.isPrimary].join(' ')}
+                onClick={this.resetDevice}>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
         <WaitDialog
-          active={this.state.isConfirming}
+          active={isConfirming}
           title="Reset Device"
         />
       </div>

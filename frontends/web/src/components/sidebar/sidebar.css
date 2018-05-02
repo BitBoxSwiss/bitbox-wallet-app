@@ -5,41 +5,47 @@
   flex-direction: column;
   flex-shrink: 0;
   height: 100vh;
-  padding-top: var(--spacing-default);
+  padding: var(--spacing-large) 0;
   overflow-y: scroll;
+}
+
+.sideBarItem {
+  position: relative;
+  display: block;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .sidebar a {
   color: white;
   display: block;
-  padding: 6px 16px;
+  padding: var(--spacing-half) var(--spacing-default);
   position: relative;
-  text-align: left;
-  white-space: nowrap;
 }
 
 a.sidebar-active {
   text-decoration: none;
-  transition: filter .1s ease-out;
+  transition: filter 0.1s ease-out;
+  background-color: rgba(255, 255, 255, 0.7);
 }
 
-.sidebar a::after {
-  background: var(--background);
-  border-radius: 3px;
+
+/* .sidebar a::after {
+  background: rgba(255, 255, 255, 0.4);
   content: "";
   display: inline-block;
-  height: 40px;
-  width: 12px;
-  top: 12px;
+  height: 56px;
+  width: 100%;
+  top: 0px;
   right: 0;
   position: absolute;
-  transform: translateX(16px);
-  transition: transform .2s ease-out;
+  transform: translateX(100%);
+  transition: transform .1s ease-out;
 }
 
 a.sidebar-active::after  {
-  transform: translateX(6px);
-}
+  transform: translateX(0px);
+} */
 
 .sidebar a:not(.sidebar-active) {
   -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
@@ -47,7 +53,7 @@ a.sidebar-active::after  {
 }
 
 .sidebar img {
-  max-width: 50px;
+  max-width: 40px;
   vertical-align: middle;
   transition: transform .1s ease-out;
 }
@@ -70,10 +76,10 @@ a.sidebar-active::after  {
 }
 
 .sidebar_bottom {
-  padding: 0 0 1rem 0;
+  padding: 0;
   text-align: center;
 }
 
 .sidebar_settings {
-  width: 50px;
+  width: 40px;
 }

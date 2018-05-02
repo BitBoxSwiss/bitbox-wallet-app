@@ -5,6 +5,7 @@ import QRCode from '../../../routes/account/receive/qrcode';
 import { apiGet, apiPost } from '../../../utils/request';
 import componentStyle from '../../../components/style.css';
 
+
 export default class MobilePairing extends Component {
   state = {
     channel: null,
@@ -32,8 +33,8 @@ export default class MobilePairing extends Component {
         </Button>
         <div class={['overlay', active ? 'active' : ''].join(' ')}>
           <div class={['modal', active ? 'active' : ''].join(' ')}>
+            <h3 class="modalHeader">Scan with a Mobile Device</h3>
             <div class="flex flex-column flex-center flex-items-center">
-              <h3 class="modalHeader">Scan with a Mobile Device</h3>
               {
                 channel ? (
                   <QRCode data={JSON.stringify(channel)} />
@@ -41,13 +42,13 @@ export default class MobilePairing extends Component {
                   <p>Loading...</p>
                 )
               }
-              <div>
-                <button
-                  class={[componentStyle.button, componentStyle.isPrimary].join(' ')}
-                  onClick={() => this.setState({ active: false })}>
-                  Close
-                </button>
-              </div>
+            </div>
+            <div class="flex flex-row flex-end">
+              <button
+                class={[componentStyle.button, componentStyle.isPrimary].join(' ')}
+                onClick={() => this.setState({ active: false })}>
+                Close
+              </button>
             </div>
           </div>
         </div>

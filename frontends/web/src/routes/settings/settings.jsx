@@ -14,41 +14,48 @@ import style from './settings.css';
 export default class Settings extends Component {
   state = {
     version: null,
+    firmwareVersion: null,
   }
 
   componentDidMount() {
     apiGet('version').then(result => this.setState({ version: result }));
-    apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
-      if (sdcard) {
-        alert('Keep the SD card stored securely unless you want to manage backups.');
-      }
+    apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard }) => {
+      this.setState({ firmwareVersion: version.replace('v', '') });
+      if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
     });
   }
 
-  render({ t, deviceID }, { version }) {
+  render({
+    t,
+    deviceID,
+  }, {
+    version,
+    firmwareVersion,
+  }) {
     return (
       <div class="container">
         <div class="innerContainer">
           <div class="header">
             <h2>Device Settings</h2>
-            {
-              version && (
-                <div class={[style.version, 'flex', 'flex-column', 'flex-end'].join(' ')}>
-                  <p>Version: {version}</p>
-                  <LanguageSwitch />
-                </div>
-              )
-            }
           </div>
-          <div class="content">
-            <div class={['flex', 'flex-row', 'flex-between', 'flex-items-center'].join(' ')}>
+          <div class="content flex flex-column flex-start">
+            <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
               <ButtonLink href={`/manage-backups/${deviceID}`}>
                 { t('device.manageBackups') }
               </ButtonLink>
               <MobilePairing deviceID={deviceID} />
-              <UpgradeFirmware deviceID={deviceID} />
+              <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
               <Reset deviceID={deviceID} />
             </div>
+            {
+              version && (
+                <div class={[style.version, 'flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
+                  <p>Firmware Version: {firmwareVersion || 'N/A'}</p>
+                  <p>App Version: {version}</p>
+                  <LanguageSwitch />
+                </div>
+              )
+            }
           </div>
         </div>
       </div>

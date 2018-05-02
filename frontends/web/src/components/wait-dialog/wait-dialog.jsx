@@ -3,6 +3,7 @@ import createFocusTrap from 'focus-trap';
 import MDCDialog from 'preact-material-components/Dialog';
 import 'preact-material-components/Dialog/style.css';
 
+
 export default class WaitDialog extends Component {
   componentDidMount() {
     // super.componentDidMount.apply(this);
@@ -21,9 +22,9 @@ export default class WaitDialog extends Component {
       <div class={['overlay', active].join(' ')}>
         <div class={['modal', active].join(' ')}>
           <h3 class="modalHeader">{this.props.title}</h3>
-          <div class="content flex flex-column flex-center flex-items-center">
+          <div class="flex flex-column flex-center flex-items-center">
             {
-              this.props.children ? this.props.children : (
+              this.props.children.length > 0 ? this.props.children : (
                 <div>
                   <p>Short touch to abort</p>
                   <p>Long touch to confirm</p>

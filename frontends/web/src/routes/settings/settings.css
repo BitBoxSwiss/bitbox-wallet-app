@@ -8,4 +8,5 @@
   font-weight: bold;
   font-size: var(--size-small);
   color: var(--color-brightgray);
+  margin-right: var(--spacing-default);
 }
