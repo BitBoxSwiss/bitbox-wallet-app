@@ -18,8 +18,8 @@ export default class WaitDialog extends Component {
   render() {
     const active = this.props.active ? 'active' : '';
     return (
-      <div class={['overlay', 'flex', 'flex-column', 'flex-center', 'flex-items-center', active].join(' ')}>
-        <div class="modal">
+      <div class={['overlay', active].join(' ')}>
+        <div class={['modal', active].join(' ')}>
           <h3 class="modalHeader">{this.props.title}</h3>
           <div class="content flex flex-column flex-center flex-items-center">
             {

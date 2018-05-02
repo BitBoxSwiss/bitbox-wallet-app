@@ -1,10 +1,16 @@
 import { Component } from 'preact';
+<<<<<<< HEAD
 import { Button } from '../../../components/forms';
 import Dialog from 'preact-material-components/Dialog';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../utils/request';
 import componentStyle from '../../../components/style.css';
 import 'preact-material-components/Dialog/style.css';
+=======
+import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import { apiGet, apiPost } from '../../../utils/request';
+import componentStyle from '../../../components/style.css';
+>>>>>>> frontend: wip mobile pairing and firmware upgrade
 
 
 export default class UpgradeFirmware extends Component {
@@ -13,6 +19,7 @@ export default class UpgradeFirmware extends Component {
     currentVersion: '',
     newVersion: '',
     isConfirming: false,
+    activeDialog: false,
   }
 
   upgradeFirmware = () => {
@@ -33,11 +40,13 @@ export default class UpgradeFirmware extends Component {
     });
   }
 
-  showDialog = () => {
-    this.dialog.MDComponent.show();
-  }
-
-  render({}, { unlocked, currentVersion, newVersion }) {
+  render({}, {
+    unlocked,
+    currentVersion,
+    newVersion,
+    isConfirming,
+    activeDialog,
+  }) {
     let dialogText = <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>;
     if (unlocked) {
       dialogText = (
@@ -48,24 +57,27 @@ export default class UpgradeFirmware extends Component {
       <div>
         <Button
           secondary
-          onClick={this.showDialog}>
+          onClick={this.setState({ activeDialog: true })}>
           Upgrade Firmware
         </button>
-        <Dialog ref={dialog => this.dialog = dialog} onAccept={this.upgradeFirmware}>
-          <Dialog.Header>Upgrade Firmware</Dialog.Header>
-          <Dialog.Body>
-            Do you want to Upgrade the Firmware from version {currentVersion} to {newVersion}?
-          </Dialog.Body>
-          <Dialog.Footer>
-            <Dialog.FooterButton cancel={true}>Abort</Dialog.FooterButton>
-            <Dialog.FooterButton accept={true}>Upgrade</Dialog.FooterButton>
-          </Dialog.Footer>
-        </Dialog>
-        <WaitDialog
-          active={this.state.isConfirming}
-          title="Upgrade Firmware">
-          {dialogText}
-        </WaitDialog>
+        <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+          <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+            <h3 class="modalHeader">Upgrade Firmware</h3>
+            <p>Do you want to Upgrade the Firmware from version {currentVersion} to {newVersion}?</p>
+            <div class="flex flex-row flex-end buttons">
+              <button
+                class={[componentStyle.button, componentStyle.isPrimary].join(' ')}
+                onClick={() => this.setState({ activeDialog: false })}>
+                Abort
+              </button>
+              <button
+                class={[componentStyle.button, componentStyle.isPrimary].join(' ')}
+                onClick={this.upgradeFirmware}>
+                Abort
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

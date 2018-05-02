@@ -81,26 +81,33 @@
 /* MODAL */
 .overlay {
 	position: fixed;
-	top: 0;
+	bottom: -100%;
 	left: 0;
 	height: 100%;
 	width: 100%;
 	background-color: rgba(0, 0, 0, 0.2);
-	display: none;
   z-index: 100;
 }
 
 .overlay.active {
-	display: flex;
+	bottom: 0;
 }
 
 .modal {
+  position: fixed;
+  top: -100%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 	background-color: white;
 	max-width: 480px;
 	width: 50%;
 	border-radius: 2px;
 	padding: var(--spacing-large);
 	box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal.active {
+  top: 50%;
 }
 
 .modal .modalHeader {
