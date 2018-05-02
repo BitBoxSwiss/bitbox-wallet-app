@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"net/http"
 	"os"
@@ -23,37 +22,20 @@ func main() {
 	logging.Log.Out = os.Stderr
 	log := logging.Log.WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
-		// recover from all panics and log error before panicing again
+		// recover from all panics and log error before panicking again
 		if r := recover(); r != nil {
 			log.WithField("error", r).Error(r)
 			panic(r)
 		}
 	}(log)
 	log.Info("--------------- Started application --------------")
-	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
-	regtest := flag.Bool("regtest", false, "use regtest instead of testnet")
-	flag.Parse()
-
-	backendInterface, err := func() (backend.Interface, error) {
-		if *mainnet {
-			if *regtest {
-				log.Fatal("can't use -regtest with -mainnet")
-			}
-			return backend.NewBackend(backend.DefaultAppFolder(), false, false)
-		}
-		return backend.NewBackend(backend.DefaultAppFolder(), true, *regtest)
-	}()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(port, "")
-	handlers := backendHandlers.NewHandlers(backendInterface, connectionData)
+	backend := backend.NewBackend(backend.ParseArguments())
+	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
-	err = http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router)
-	if err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {
 		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")
 	}
 }

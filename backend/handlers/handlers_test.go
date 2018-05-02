@@ -9,16 +9,15 @@ import (
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/test"
-	"github.com/stretchr/testify/require"
 )
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
 	connectionData := handlers.NewConnectionData(8082, "")
-	backend, err := backend.NewBackend(test.TstTempDir("godbb-listroutes-"), false, false)
-	require.NoError(t, err)
+	arguments := backend.NewArguments(test.TstTempDir("godbb-listroutes-"), false, false, false)
+	backend := backend.NewBackend(arguments)
 	handlers := handlers.NewHandlers(backend, connectionData)
-	err = handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	err := handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()
 		if err != nil {
 			return err

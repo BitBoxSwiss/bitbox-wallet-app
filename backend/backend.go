@@ -1,9 +1,6 @@
 package backend
 
 import (
-	"os"
-	"path"
-
 	"golang.org/x/text/language"
 
 	"github.com/cloudfoundry-attic/jibber_jabber"
@@ -14,7 +11,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
@@ -77,12 +73,9 @@ type WalletEvent struct {
 
 // Backend ties everything together and is the main starting point to use the godbb library.
 type Backend struct {
-	testing bool
-	regtest bool
+	arguments *Arguments
 
-	appFolder string
-	dbFolder  string
-	events    chan interface{}
+	events chan interface{}
 
 	devices        map[string]device.Interface
 	keystores      keystore.Keystores
@@ -98,27 +91,18 @@ type Backend struct {
 	log *logrus.Entry
 }
 
-// NewBackend creates a new backend.
-func NewBackend(appFolder string, testing bool, regtest bool) (*Backend, error) {
+// NewBackend creates a new backend with the given arguments.
+func NewBackend(arguments *Arguments) *Backend {
 	log := logging.Log.WithGroup("backend")
-	log.Infof("App folder: %s", appFolder)
-	dbFolder := path.Join(appFolder, "cache")
-	if err := os.MkdirAll(dbFolder, 0700); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	log.Infof("Created db folder: %s", dbFolder)
+	log.Infof("Arguments: %+v", arguments)
 	return &Backend{
-		testing:   testing,
-		regtest:   regtest,
-		appFolder: appFolder,
-		dbFolder:  dbFolder,
+		arguments: arguments,
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
-
-		log: log,
-	}, nil
+		log:       log,
+	}
 }
 
 func (backend *Backend) addAccount(
@@ -140,7 +124,7 @@ func (backend *Backend) addAccount(
 	getConfiguration := func() (*signing.Configuration, error) {
 		return backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
 	}
-	account, err := coin.NewAccount(backend.dbFolder, code, name, getConfiguration, backend.keystores, addresses.AddressTypeP2PKH, onEvent(code))
+	account, err := coin.NewAccount(backend.arguments.CacheDirectoryPath(), code, name, getConfiguration, backend.keystores, addressType, onEvent(code))
 	if err != nil {
 		return err
 	}
@@ -150,8 +134,8 @@ func (backend *Backend) addAccount(
 
 func (backend *Backend) initAccounts() error {
 	backend.accounts = []*btc.Account{}
-	if backend.testing {
-		if backend.regtest {
+	if backend.arguments.Testing() {
+		if backend.arguments.Regtest() {
 			if err := backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", addresses.AddressTypeP2PKH); err != nil {
 				return err
 			}
@@ -202,7 +186,7 @@ func (backend *Backend) WalletStatus() string {
 
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
-	return backend.testing
+	return backend.arguments.Testing()
 }
 
 // Accounts returns the supported accounts.
