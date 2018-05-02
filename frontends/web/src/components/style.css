@@ -12,16 +12,19 @@
 }
 
 .button {
+	display: inline-block;
 	border: none;
 	border-radius: 2px;
-	padding: 0;
+	padding: 0 var(--spacing-default);
 	height: 36px;
-	min-width: 120px;
-	font-size: 14px;
+	min-width: 100px;
+	font-size: var(--size-small);
 	font-weight: bold;
 	line-height: 36px;
+	text-decoration: none;
 	text-transform: uppercase;
 	cursor: pointer;
+	white-space: nowrap;
 }
 
 .button:focus {
@@ -34,6 +37,6 @@
 }
 
 .button.isPrimary:hover {
-	background-color: #333;
+	background-color: #222222;
 }
 /* BUTTONS END */

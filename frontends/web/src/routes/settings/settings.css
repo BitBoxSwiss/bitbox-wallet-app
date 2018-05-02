@@ -1,0 +1,11 @@
+.version {
+  min-height: 36px;
+}
+
+.version p {
+  margin: 0;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: var(--size-small);
+  color: var(--color-brightgray);
+}

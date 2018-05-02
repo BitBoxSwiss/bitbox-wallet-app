@@ -76,9 +76,7 @@ export default class FeeTargets extends Component {
           disabled={disabled}
           id="feeTarget"
           onChange={this.handleFeeTargetChange}>
-          {
-            feeTargets && feeTargets.map(option)
-          }
+          { feeTargets && feeTargets.map(option) }
         </select>
       </div>
     );

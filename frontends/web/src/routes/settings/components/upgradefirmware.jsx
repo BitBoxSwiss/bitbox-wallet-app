@@ -1,9 +1,9 @@
 import { Component } from 'preact';
-
 import { Button } from '../../../components/forms';
 import Dialog from 'preact-material-components/Dialog';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../utils/request';
+import componentStyle from '../../../components/style.css';
 import 'preact-material-components/Dialog/style.css';
 
 
@@ -50,7 +50,7 @@ export default class UpgradeFirmware extends Component {
           secondary
           onClick={this.showDialog}>
           Upgrade Firmware
-        </Button>
+        </button>
         <Dialog ref={dialog => this.dialog = dialog} onAccept={this.upgradeFirmware}>
           <Dialog.Header>Upgrade Firmware</Dialog.Header>
           <Dialog.Body>
