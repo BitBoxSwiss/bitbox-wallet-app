@@ -220,7 +220,8 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 		return nil, errp.WithStack(err)
 	}
 	pin := jsonBody["pin"]
-	softwareBasedKeystore := keystore.NewSoftwareBasedKeystoreFromPIN(pin)
+	softwareBasedKeystore := keystore.NewSoftwareBasedKeystoreFromPIN(
+		handlers.backend.Keystores().Count(), pin)
 	handlers.backend.RegisterKeystore(softwareBasedKeystore)
 	return true, nil
 }

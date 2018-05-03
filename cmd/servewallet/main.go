@@ -18,6 +18,7 @@ const (
 )
 
 func main() {
+	logging.Log.Level = logrus.InfoLevel
 	// Log to stderr during development.
 	logging.Log.Out = os.Stderr
 	log := logging.Log.WithGroup("servewallet")

@@ -20,6 +20,8 @@ servewallet-mainnet:
 	go install ./cmd/servewallet/... && servewallet -mainnet
 servewallet-regtest:
 	go install ./cmd/servewallet/... && servewallet -regtest
+servewallet-multisig:
+	go install ./cmd/servewallet/... && servewallet -multisig
 generate:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build

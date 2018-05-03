@@ -216,9 +216,9 @@ func (headers *Headers) processBatch(
 	if len(blockHeaders) == min(max, headers.headersPerBatch) {
 		// Received max number of headers per batch, so there might be more.
 		headers.kick()
-		headers.log.Infof("Syncing headers; tip: %d", tip)
+		headers.log.Debugf("Syncing headers; tip: %d", tip)
 	} else if len(blockHeaders) != 0 {
-		headers.log.Infof("Synced headers; tip: %d", tip)
+		headers.log.Debugf("Synced headers; tip: %d", tip)
 		headers.notifyEvent(EventSynced)
 	}
 	headers.headersPerBatch = max
@@ -246,7 +246,7 @@ func (headers *Headers) kick() {
 
 // update should be called when there is a new header.
 func (headers *Headers) update(blockHeight int) error {
-	headers.log.Infof("new target %d", blockHeight)
+	headers.log.Debugf("new target %d", blockHeight)
 	headers.kick()
 	headers.targetHeight = blockHeight
 	return nil

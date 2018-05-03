@@ -40,6 +40,7 @@ type Interface interface {
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() []string
 	Start() <-chan interface{}
+	Keystores() keystore.Keystores
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
 	Register(device device.Interface) error
@@ -124,6 +125,9 @@ func (backend *Backend) addAccount(
 	getConfiguration := func() (*signing.Configuration, error) {
 		return backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
 	}
+	if backend.arguments.Multisig() {
+		name = name + " Multisig"
+	}
 	account, err := coin.NewAccount(backend.arguments.CacheDirectoryPath(), code, name, getConfiguration, backend.keystores, addressType, onEvent(code))
 	if err != nil {
 		return err
@@ -205,7 +209,7 @@ func (backend *Backend) UserLanguage() language.Tag {
 		language.German,
 	}
 	tag, _, _ := language.NewMatcher(languages).Match(language.Make(userLocale))
-	backend.log.WithField("user-language", tag).Info("Detected user language")
+	backend.log.WithField("user-language", tag).Debug("Detected user language")
 	return tag
 }
 
@@ -317,11 +321,20 @@ func (backend *Backend) uninitWallets() {
 	}
 }
 
+// Keystores returns the keystores registered at this backend.
+func (backend *Backend) Keystores() keystore.Keystores {
+	return backend.keystores
+}
+
 // RegisterKeystore registers the given keystore at this backend.
 func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
+	backend.log.Infof("Add keystore to %v keystores.", backend.keystores.Count())
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
 		panic(err)
+	}
+	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
+		return
 	}
 	backend.uninitWallets()
 	if err := backend.initWallets(); err != nil {

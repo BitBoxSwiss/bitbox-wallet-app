@@ -86,7 +86,7 @@ func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient,
 	if err != nil {
 		return nil, err
 	}
-	log.WithField("server-version", version).Info("electrumx server version")
+	log.WithField("server-version", version).Debug("electrumx server version")
 
 	go electrumClient.ping()
 

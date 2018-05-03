@@ -42,13 +42,13 @@ func NewSoftwareBasedKeystore(
 }
 
 // NewSoftwareBasedKeystoreFromPIN creates a new unique keystore derived from the PIN.
-func NewSoftwareBasedKeystoreFromPIN(pin string) *SoftwareBasedKeystore {
+func NewSoftwareBasedKeystoreFromPIN(cosignerIndex int, pin string) *SoftwareBasedKeystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
 	master, err := hdkeychain.NewMaster(seed[:], &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewSoftwareBasedKeystore(0, master)
+	return NewSoftwareBasedKeystore(cosignerIndex, master)
 }
 
 // Configuration implements keystore.Keystore.

@@ -203,7 +203,7 @@ func (account *Account) Init() error {
 }
 
 func (account *Account) onNewHeader(header *client.Header) error {
-	account.log.WithField("block-height", header.BlockHeight).Info("Received new header")
+	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
 	return nil
@@ -229,7 +229,7 @@ func (account *Account) updateFeeTargets() {
 				defer account.Lock()()
 				feeTarget.FeeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
-					"fee-rate-per-kb": feeRatePerKb}).Info("Fee estimate per kb")
+					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
 				account.onEvent(EventFeeTargetsChanged)
 				return nil
 			}
@@ -238,8 +238,10 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.Blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
-						account.log.WithField("fee-target", feeTarget.Blocks).
-							Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+						if account.code != "tltc" {
+							account.log.WithField("fee-target", feeTarget.Blocks).
+								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
+						}
 						return account.blockchain.RelayFee(setFee, func() {})
 					}
 					return setFee(*feeRatePerKb)
@@ -305,7 +307,7 @@ func (account *Account) onAddressStatus(address *addresses.Address, status strin
 		return nil
 	}
 
-	account.log.Info("Address status changed, fetching history.")
+	account.log.Debug("Address status changed, fetching history.")
 
 	done := account.synchronizer.IncRequestsCounter()
 	return account.blockchain.ScriptHashGetHistory(

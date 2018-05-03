@@ -9,7 +9,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
-// AddressChain manages a chain of addresses derived from an xpub.
+// AddressChain manages a chain of addresses derived from a configuration.
 type AddressChain struct {
 	configuration *signing.Configuration
 	net           *chaincfg.Params
@@ -68,7 +68,7 @@ func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {
 		panic(err)
 	}
 	if configuration.NumberOfSigners() > 1 {
-		panic("Multisig is not yet supported.")
+		// panic("Multisig is not yet supported.")
 	}
 	publicKey, err := configuration.ExtendedPublicKeys()[0].ECPubKey()
 	if err != nil {

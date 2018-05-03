@@ -52,7 +52,7 @@ func hashMerkleRoot(merkle []client.TXHash, start chainhash.Hash, pos int) chain
 
 func (transactions *Transactions) verifyTransactions() {
 	unverifiedTransactions := transactions.unverifiedTransactions()
-	transactions.log.Infof("verifying %d transactions", len(unverifiedTransactions))
+	transactions.log.Debugf("verifying %d transactions", len(unverifiedTransactions))
 	for txHash, height := range unverifiedTransactions {
 		transactions.verifyTransaction(txHash, height)
 	}
@@ -81,8 +81,7 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 					fmt.Sprintf("Merkle root verification failed for %s", txHash))
 				return nil
 			}
-			transactions.log.Info(
-				fmt.Sprintf("Merkle root verification succeeded for %s", txHash))
+			transactions.log.Debugf("Merkle root verification succeeded for %s", txHash)
 
 			defer transactions.Lock()()
 			dbTx, err := transactions.db.Begin()
