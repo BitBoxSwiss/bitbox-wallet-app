@@ -41,7 +41,7 @@ func DeviceInfos() []hid.DeviceInfo {
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
-	device device.Interface
+	devices map[string]device.Interface
 
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
@@ -56,6 +56,7 @@ func NewManager(
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
+		devices:      map[string]device.Interface{},
 		onRegister:   onRegister,
 		onUnregister: onUnregister,
 		log:          logging.Log.WithGroup("manager"),
@@ -67,6 +68,12 @@ func deviceIdentifier(productName string, serial string) string {
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
+	deviceID := deviceIdentifier(bitbox.ProductName, deviceInfo.Serial)
+	// Skip if already registered.
+	if _, ok := manager.devices[deviceID]; ok {
+		return nil
+	}
+	manager.log.WithField("device-id", deviceID).Error("Registering device")
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
@@ -85,7 +92,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	}
 
 	device, err := bitbox.NewDevice(
-		deviceIdentifier(bitbox.ProductName, deviceInfo.Serial),
+		deviceID,
 		bootloader,
 		firmwareVersion,
 		NewCommunication(hidDevice),
@@ -96,7 +103,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	if err := manager.onRegister(device); err != nil {
 		return errp.WithMessage(err, "Failed to execute on-register")
 	}
-	manager.device = device
+	manager.devices[deviceID] = device
 
 	// Unlock the device automatically if the user set the PIN as an environment variable.
 	pin := os.Getenv("BITBOX_PIN")
@@ -110,17 +117,13 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 }
 
 // checkIfRemoved returns true if a device was plugged in, but is not plugged in anymore.
-func (manager *Manager) checkIfRemoved() bool {
-	if manager.device == nil {
-		return false
-	}
-
+func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	// In edge cases, device enumeration hangs waiting for the device, and can be empty for a very
 	// short amount of time even though the device is still plugged in. The workaround is to check
 	// multiple times.
 	for i := 0; i < 5; i++ {
 		for _, deviceInfo := range DeviceInfos() {
-			if deviceIdentifier(bitbox.ProductName, deviceInfo.Serial) == manager.device.Identifier() {
+			if deviceIdentifier(bitbox.ProductName, deviceInfo.Serial) == deviceID {
 				return false
 			}
 		}
@@ -132,21 +135,19 @@ func (manager *Manager) checkIfRemoved() bool {
 // ListenHID listens for inserted/removed devices forever. Run this in a goroutine.
 func (manager *Manager) ListenHID() {
 	for {
-		// Check if device was removed.
-		if manager.checkIfRemoved() {
-			deviceID := manager.device.Identifier()
-			manager.device = nil
-			manager.onUnregister(deviceID)
-			manager.log.Debug("Unregistered device")
+		for deviceID := range manager.devices {
+			// Check if device was removed.
+			if manager.checkIfRemoved(deviceID) {
+				delete(manager.devices, deviceID)
+				manager.onUnregister(deviceID)
+				manager.log.WithField("device-id", deviceID).Info("Unregistered device")
+			}
 		}
 
 		// Check if device was inserted.
 		deviceInfos := DeviceInfos()
-		if len(deviceInfos) > 1 {
-			manager.log.WithField("device-amount", len(deviceInfos)).Panic("Multiple devices detected")
-			panic("TODO: multiple devices?")
-		} else if manager.device == nil && len(deviceInfos) == 1 {
-			if err := manager.register(deviceInfos[0]); err != nil {
+		for _, deviceInfo := range deviceInfos {
+			if err := manager.register(deviceInfo); err != nil {
 				manager.log.WithField("error", err).Error("Failed to register device")
 				return
 			}

@@ -346,6 +346,9 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
+	if backend.device != nil {
+		return nil
+	}
 	backend.device = theDevice
 	backend.onDeviceInit(backend.device)
 	backend.device.Init(backend.Testing())
@@ -372,7 +375,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if deviceID == backend.device.Identifier() {
+	if backend.device != nil && deviceID == backend.device.Identifier() {
 		backend.device = nil
 		backend.onDeviceUninit()
 		backend.DeregisterKeystore()
