@@ -215,7 +215,8 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
 	address := handlers.account.GetUnusedReceiveAddress()
 	if handlers.account.Keystores().HaveSecureOutput() {
-		if err := handlers.account.Keystores().OutputAddress(address.KeyPath, nil); err != nil {
+		absoluteKeypath := address.Configuration.AbsoluteKeypath()
+		if err := handlers.account.Keystores().OutputAddress(absoluteKeypath, nil); err != nil {
 			return nil, err
 		}
 	}

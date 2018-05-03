@@ -76,7 +76,7 @@ func (account *Account) newTx(
 			wireUTXO,
 			wire.NewTxOut(int64(amount.amount), pkScript),
 			*feeTarget.FeeRatePerKb,
-			func() *addresses.Address {
+			func() *addresses.AccountAddress {
 				return account.changeAddresses.GetUnused()
 			},
 			account.log,
@@ -110,7 +110,7 @@ func (account *Account) SendTx(
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create transaction")
 	}
-	getAddress := func(scriptHashHex client.ScriptHashHex) *addresses.Address {
+	getAddress := func(scriptHashHex client.ScriptHashHex) *addresses.AccountAddress {
 		if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
 		}

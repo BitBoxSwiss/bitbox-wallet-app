@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
@@ -13,6 +14,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
+
+var tx1 = &client.TxInfo{
+	Height: 10,
+	TXHash: client.TXHash(chainhash.HashH([]byte("tx1"))),
+	Fee:    nil,
+}
 
 type addressChainTestSuite struct {
 	suite.Suite
@@ -25,7 +32,8 @@ type addressChainTestSuite struct {
 
 func (s *addressChainTestSuite) SetupTest() {
 	s.log = logging.Log.WithGroup("addresses_test")
-	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"
+	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM" +
+		"58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"
 	xpub, err := hdkeychain.NewKeyFromString(xpubSerialized)
 	if err != nil || xpub.IsPrivate() {
 		panic(err)
@@ -34,7 +42,7 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		signing.NewConfiguration(signing.NewEmptyAbsoluteKeypath(), []*hdkeychain.ExtendedKey{xpub}, 1),
+		signing.NewSinglesigConfiguration(signing.NewEmptyAbsoluteKeypath(), xpub),
 		net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.log)
 }
 
@@ -60,17 +68,16 @@ func (s *addressChainTestSuite) TestGetUnused() {
 func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	newAddresses := s.addresses.EnsureAddresses()
 	for _, address := range newAddresses {
-		require.Equal(s.T(), address, s.addresses.LookupByScriptHashHex(address.ScriptHashHex()))
+		require.Equal(s.T(), address,
+			s.addresses.LookupByScriptHashHex(address.PubkeyScriptHashHex()))
 	}
 	// Produce addresses beyond  the gapLimit to ensure the gapLimit does not confuse Contains().
 	newAddresses[0].HistoryStatus = client.TxHistory{tx1}.Status()
 	newAddresses = s.addresses.EnsureAddresses()
 	require.Len(s.T(), newAddresses, 1)
 	require.Equal(s.T(),
-		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].ScriptHashHex()))
-
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, s.log)
-	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(address.ScriptHashHex()))
+		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].PubkeyScriptHashHex()))
+	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(getAddress().PubkeyScriptHashHex()))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {
@@ -96,7 +103,7 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 		return publicKey
 	}
 	for index, address := range newAddresses {
-		require.Equal(s.T(), getPubKey(index), address.PublicKey)
+		require.Equal(s.T(), getPubKey(index), address.Configuration.PublicKeys()[0])
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
 	newAddresses2 := s.addresses.EnsureAddresses()

@@ -5,7 +5,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/sirupsen/logrus"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 )
 
@@ -16,7 +15,7 @@ type AddressChain struct {
 	gapLimit      int
 	chainIndex    uint32
 	addressType   AddressType
-	addresses     []*Address
+	addresses     []*AccountAddress
 	log           *logrus.Entry
 }
 
@@ -33,8 +32,7 @@ func NewAddressChain(
 		signing.NewEmptyRelativeKeypath().Child(chainIndex, signing.NonHardened),
 	)
 	if err != nil {
-		log.WithField("error", err).WithError(err)
-		panic(err)
+		log.WithField("error", err).Panic("Could not derive the chain configuration.")
 	}
 	return &AddressChain{
 		configuration: chainConfiguration,
@@ -42,14 +40,14 @@ func NewAddressChain(
 		gapLimit:      gapLimit,
 		chainIndex:    chainIndex,
 		addressType:   addressType,
-		addresses:     []*Address{},
+		addresses:     []*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"gap-limit": gapLimit, "address-type": addressType}),
 	}
 }
 
 // GetUnused returns the first unused address. EnsureAddresses() must be called beforehand.
-func (addresses *AddressChain) GetUnused() *Address {
+func (addresses *AddressChain) GetUnused() *AccountAddress {
 	unusedTailCount := addresses.unusedTailCount()
 	if unusedTailCount < addresses.gapLimit {
 		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
@@ -57,42 +55,25 @@ func (addresses *AddressChain) GetUnused() *Address {
 	return addresses.addresses[len(addresses.addresses)-unusedTailCount]
 }
 
-func (addresses *AddressChain) getPubKey(index uint32) *btcec.PublicKey {
-	addresses.log.Debug("Get public key")
+// addAddress appends a new address at the end of the chain.
+func (addresses *AddressChain) addAddress() *AccountAddress {
+	addresses.log.Debug("Add new address to chain")
+	index := uint32(len(addresses.addresses))
 	configuration, err := addresses.configuration.Derive(
 		signing.NewEmptyRelativeKeypath().Child(index, signing.NonHardened),
 	)
 	if err != nil {
-		addresses.log.WithFields(logrus.Fields{"index": index, "error": err}).
-			Panic("Failed to get configuration child")
-		panic(err)
+		addresses.log.WithField("error", err).Panic("Failed to derive the configuration.")
 	}
-	if configuration.NumberOfSigners() > 1 {
-		// panic("Multisig is not yet supported.")
-	}
-	publicKey, err := configuration.ExtendedPublicKeys()[0].ECPubKey()
-	if err != nil {
-		addresses.log.WithField("error", err).Panic("Failed to get EC pubkey")
-		panic(err)
-	}
-	return publicKey
-}
 
-// addAddress appends a new address at the end of the chain.
-func (addresses *AddressChain) addAddress() *Address {
-	addresses.log.Debug("Add new address to chain")
-	index := len(addresses.addresses)
-	publicKey := addresses.getPubKey(uint32(index))
-	addressWithPK := NewAddress(
-		publicKey,
-		addresses.net,
-		addresses.configuration.AbsoluteKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(uint32(index), signing.NonHardened),
+	address := NewAccountAddress(
+		configuration,
 		addresses.addressType,
+		addresses.net,
 		addresses.log,
 	)
-	addresses.addresses = append(addresses.addresses, addressWithPK)
-	return addressWithPK
-
+	addresses.addresses = append(addresses.addresses, address)
+	return address
 }
 
 // unusedTailCount returns the number of unused addresses at the end of the chain.
@@ -110,10 +91,10 @@ func (addresses *AddressChain) unusedTailCount() int {
 
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
-func (addresses *AddressChain) LookupByScriptHashHex(scriptHashHex client.ScriptHashHex) *Address {
+func (addresses *AddressChain) LookupByScriptHashHex(hashHex client.ScriptHashHex) *AccountAddress {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
-		if address.ScriptHashHex() == scriptHashHex {
+		if address.PubkeyScriptHashHex() == hashHex {
 			return address
 		}
 	}
@@ -122,8 +103,8 @@ func (addresses *AddressChain) LookupByScriptHashHex(scriptHashHex client.Script
 
 // EnsureAddresses appends addresses to the address chain until there are `gapLimit` unused unused
 // ones, and returns the new addresses.
-func (addresses *AddressChain) EnsureAddresses() []*Address {
-	addedAddresses := []*Address{}
+func (addresses *AddressChain) EnsureAddresses() []*AccountAddress {
+	addedAddresses := []*AccountAddress{}
 	unusedAddressCount := addresses.unusedTailCount()
 	for i := 0; i < addresses.gapLimit-unusedAddressCount; i++ {
 		addedAddresses = append(addedAddresses, addresses.addAddress())

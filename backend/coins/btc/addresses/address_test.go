@@ -1,55 +1,67 @@
 package addresses_test
 
 import (
-	"encoding/hex"
 	"testing"
 
-	"github.com/shiftdevices/godbb/util/logging"
-
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/suite"
 )
 
-var keyPath = signing.NewEmptyAbsoluteKeypath().Child(0, false).Child(10, false)
+const xpub = "tpubDCxoQyC5JaGydxN3yprM6sgqgu65LruN3JBm1fnSmGxXR3AcuNwr" +
+	"E7J2CVaCvuLPJtJNySjshNsYbR96Y7yfEdcywYqWubzUQLVGh2b4mF9"
 
-var (
-	pkBytes, _      = hex.DecodeString("03c9b80dd4ba5c004d85ed37c9077bbffd3e7315a5a4ca589c9023a9665fb1af1f")
-	payToAddrScript = []byte{
-		0x76, 0xa9, 0x14, 0xc6, 0xcb, 0xae, 0xc, 0x80, 0xdf, 0x54, 0xc8, 0x85, 0x7d,
-		0x56, 0xd6, 0x3a, 0xa2, 0xe5, 0xab, 0xe1, 0xa6, 0x41, 0xb7, 0x88, 0xac}
-	pk, _ = btcec.ParsePubKey(pkBytes, btcec.S256())
-	net   = &chaincfg.TestNet3Params
-	tx1   = &client.TxInfo{
-		Height: 10,
-		TXHash: client.TXHash(chainhash.HashH([]byte("tx1"))),
-		Fee:    nil,
+var net = &chaincfg.TestNet3Params
+
+var absoluteKeypath = signing.NewEmptyAbsoluteKeypath().Child(0, false).Child(10, false)
+
+type addressTestSuite struct {
+	suite.Suite
+
+	address *addresses.AccountAddress
+}
+
+func getAddress() *addresses.AccountAddress {
+	extendedPublicKey, err := hdkeychain.NewKeyFromString(xpub)
+	if err != nil {
+		panic(err)
 	}
-	log = logging.Log.WithGroup("addresses_test")
-)
-
-func TestNewAddress(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, log)
-	require.Equal(t, keyPath, address.KeyPath)
-	require.Equal(t,
-		"mye65xn4WGxC9XgRtaNbyAfWwBqAYLgtKB",
-		address.EncodeAddress())
-	require.Equal(t, "", address.HistoryStatus)
-	require.True(t, address.IsForNet(net))
+	configuration := signing.NewSinglesigConfiguration(absoluteKeypath, extendedPublicKey)
+	return addresses.NewAccountAddress(
+		configuration,
+		addresses.AddressTypeP2PKH,
+		net,
+		logging.Log.WithGroup("addresses_test"),
+	)
 }
 
-func TestPkScript(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, log)
-	require.Equal(t, payToAddrScript, address.PkScript())
+func TestAddressTestSuite(t *testing.T) {
+	testSuite := new(addressTestSuite)
+	testSuite.address = getAddress()
+	suite.Run(t, testSuite)
 }
 
-func TestScriptHashHex(t *testing.T) {
-	address := addresses.NewAddress(pk, net, keyPath, addresses.AddressTypeP2PKH, log)
-	require.Equal(t,
-		client.ScriptHashHex("9d7adb4dafdab53b92b59d68378dc2a65585e22dea93f3cefc4598f1a803af40"),
-		address.ScriptHashHex())
+func (s *addressTestSuite) TestNewAddress() {
+	require.Equal(s.T(), absoluteKeypath, s.address.Configuration.AbsoluteKeypath())
+	require.Equal(s.T(), "n2gAErwJCuPmnQuhzPkkWi2haGz9oQxjnX", s.address.EncodeAddress())
+	require.Equal(s.T(), "", s.address.HistoryStatus)
+	require.True(s.T(), s.address.IsForNet(net))
+}
+
+func (s *addressTestSuite) TestPubkeyScript() {
+	payToAddrScript := []byte{
+		0x76, 0xa9, 0x14, 0xe8, 0x18, 0x5b, 0x34, 0x52, 0x22, 0xbe, 0x2b, 0x77, 0x2f,
+		0x7a, 0xef, 0x16, 0x2c, 0x11, 0x85, 0x73, 0x2, 0x9d, 0xf4, 0x88, 0xac}
+	require.Equal(s.T(), payToAddrScript, s.address.PubkeyScript())
+}
+
+func (s *addressTestSuite) TestScriptHashHex() {
+	require.Equal(s.T(),
+		client.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
+		s.address.PubkeyScriptHashHex())
 }

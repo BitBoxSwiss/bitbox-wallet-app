@@ -129,14 +129,14 @@ func (s *transactionsSuite) updateAddressHistory(address btcutil.Address, txs []
 func newTx(
 	fromTxHash chainhash.Hash,
 	fromTxIndex uint32,
-	toAddress *addresses.Address,
+	toAddress *addresses.AccountAddress,
 	amount btcutil.Amount) *wire.MsgTx {
 	return &wire.MsgTx{
 		Version: wire.TxVersion,
 		TxIn: []*wire.TxIn{
 			wire.NewTxIn(&wire.OutPoint{Hash: fromTxHash, Index: fromTxIndex}, nil, nil),
 		},
-		TxOut:    []*wire.TxOut{wire.NewTxOut(int64(amount), toAddress.PkScript())},
+		TxOut:    []*wire.TxOut{wire.NewTxOut(int64(amount), toAddress.PubkeyScript())},
 		LockTime: 0,
 	}
 }
@@ -198,7 +198,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		s.transactions.Balance(),
 	)
 	utxo := &transactions.TxOut{
-		TxOut: wire.NewTxOut(int64(expectedAmount), address.PkScript()),
+		TxOut: wire.NewTxOut(int64(expectedAmount), address.PubkeyScript()),
 	}
 	require.Equal(s.T(),
 		map[wire.OutPoint]*transactions.TxOut{
@@ -367,7 +367,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	tx2 := newTx(chainhash.HashH(nil), 1, address2, 34)
 	// tx3 touches both address1 and address2. It also spends the output of tx1.
 	tx3 := newTx(tx1.TxHash(), 0, address1, 2)
-	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PkScript()))
+	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PubkeyScript()))
 	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Twice()
 	s.updateAddressHistory(address1, []*client.TxInfo{

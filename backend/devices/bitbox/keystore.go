@@ -1,6 +1,7 @@
 package bitbox
 
 import (
+	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -74,10 +75,9 @@ func (keystore *keystore) SignTransaction(
 		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
 			keystore.log.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
-			panic("output/input mismatch; there needs to be exactly one output being spent ber input")
 		}
 		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
-		isSegwit, subScript := address.SigHashData()
+		isSegwit, subScript := address.ScriptForHashToSign()
 		var signatureHash []byte
 		if isSegwit {
 			var err error
@@ -98,7 +98,7 @@ func (keystore *keystore) SignTransaction(
 		}
 
 		signatureHashes = append(signatureHashes, signatureHash)
-		keyPaths = append(keyPaths, address.KeyPath.Encode())
+		keyPaths = append(keyPaths, address.Configuration.AbsoluteKeypath().Encode())
 	}
 
 	// Special serialization of the unsigned transaction for the mobile verification app.
@@ -116,13 +116,12 @@ func (keystore *keystore) SignTransaction(
 	for index, input := range transaction.TxIn {
 		spentOutput := btcProposedTx.PreviousOutputs[input.PreviousOutPoint]
 		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
-		signature := signatures[index]
-		input.SignatureScript, input.Witness = address.InputData(signature)
+		signatures := []*btcec.Signature{&signatures[index]}
+		input.SignatureScript, input.Witness = address.SignatureScript(signatures)
 	}
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(transaction, btcProposedTx.PreviousOutputs, sigHashes); err != nil {
 		keystore.log.WithField("error", err).Panic("Failed to pass transaction validity check")
-		panic(err)
 	}
 
 	return nil, nil

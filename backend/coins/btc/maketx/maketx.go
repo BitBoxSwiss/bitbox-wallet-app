@@ -19,7 +19,7 @@ type TxProposal struct {
 	Fee         btcutil.Amount
 	Transaction *wire.MsgTx
 	// ChangeAddress is the address of the wallet to which the change of the transaction is sent.
-	ChangeAddress *addresses.Address
+	ChangeAddress *addresses.AccountAddress
 }
 
 type byValue struct {
@@ -105,7 +105,7 @@ func NewTx(
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
-	getChangeAddress func() *addresses.Address,
+	getChangeAddress func() *addresses.AccountAddress,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
@@ -146,10 +146,10 @@ func NewTx(
 		if changeIsDust {
 			finalFee = selectedOutputsSum - targetAmount
 		}
-		var changeAddress *addresses.Address
+		var changeAddress *addresses.AccountAddress
 		if changeAmount != 0 && !changeIsDust {
 			changeAddress = getChangeAddress()
-			changePKScript := changeAddress.PkScript()
+			changePKScript := changeAddress.PubkeyScript()
 			if len(changePKScript) > P2PKHPkScriptSize {
 				return nil, errp.WithContext(errp.New("fee estimation requires change scripts no "+
 					"larger than P2PKH output scripts"),

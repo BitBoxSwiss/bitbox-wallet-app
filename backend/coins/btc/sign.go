@@ -15,7 +15,7 @@ import (
 type ProposedTransaction struct {
 	TXProposal      *maketx.TxProposal
 	PreviousOutputs map[wire.OutPoint]*transactions.TxOut
-	GetAddress      func(client.ScriptHashHex) *addresses.Address
+	GetAddress      func(client.ScriptHashHex) *addresses.AccountAddress
 }
 
 // SignTransaction signs all inputs. It assumes all outputs spent belong to this
@@ -24,7 +24,7 @@ func SignTransaction(
 	keystores keystore.Keystores,
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
-	getAddress func(client.ScriptHashHex) *addresses.Address,
+	getAddress func(client.ScriptHashHex) *addresses.AccountAddress,
 	log *logrus.Entry,
 ) error {
 	_, err := keystores.SignTransaction(&ProposedTransaction{

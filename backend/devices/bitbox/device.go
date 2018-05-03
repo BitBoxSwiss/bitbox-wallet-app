@@ -808,10 +808,14 @@ func (dbb *Device) signBatch(
 		command["sign"]["meta"] = hex.EncodeToString(chainhash.DoubleHashB([]byte(transaction)))
 
 		if txProposal.ChangeAddress != nil {
-			command["sign"]["checkpub"] = []map[string]interface{}{{
-				"pubkey":  hex.EncodeToString(txProposal.ChangeAddress.PublicKey.SerializeCompressed()),
-				"keypath": txProposal.ChangeAddress.KeyPath.Encode(),
-			}}
+			configuration := txProposal.ChangeAddress.Configuration
+			if configuration.Singlesig() {
+				publicKey := configuration.PublicKeys()[0]
+				command["sign"]["checkpub"] = []map[string]interface{}{{
+					"pubkey":  hex.EncodeToString(publicKey.SerializeCompressed()),
+					"keypath": configuration.AbsoluteKeypath().Encode(),
+				}}
+			}
 		}
 	}
 

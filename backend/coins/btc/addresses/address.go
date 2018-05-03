@@ -12,22 +12,26 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Address is a HD address of a wallet, containing the info needed to receive funds on it and to
-// spend it.  To receive funds, the Address is used. To sign a spending tx in the context of a HD
-// wallet, the keypath to the pubkey is needed as well.
-type Address struct {
+// AccountAddress models an address that belongs to an account of the user.
+// It contains all the information needed to receive and spend funds.
+type AccountAddress struct {
 	btcutil.Address
-	PublicKey *btcec.PublicKey
-	KeyPath   signing.AbsoluteKeypath
+
+	// Configuration contains the absolute keypath and the extended public keys of the address.
+	Configuration *signing.Configuration
+
 	// HistoryStatus is used to determine if the address status changed, and to determine if the
 	// address has been used before or not. The status corresponds to
 	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status.
 	HistoryStatus string
-	// p2shScript is the redeem script of a BIP16 P2SH output. Nil if this output is not a P2SH
-	// output.
-	p2shScript  []byte
+
+	// addressType stores whether the account address is a segwit address.
 	addressType AddressType
-	log         *logrus.Entry
+
+	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
+	redeemScript []byte
+
+	log *logrus.Entry
 }
 
 // AddressType indicates which type of output should be produced.
@@ -41,126 +45,179 @@ const (
 	AddressTypeP2WPKHP2SH = "p2wpkh-p2sh"
 )
 
-// NewAddress creates a new address.
-func NewAddress(
-	publicKey *btcec.PublicKey,
-	net *chaincfg.Params,
-	keyPath signing.AbsoluteKeypath,
+// NewAccountAddress creates a new account address.
+func NewAccountAddress(
+	configuration *signing.Configuration,
 	addressType AddressType,
+	chain *chaincfg.Params,
 	log *logrus.Entry,
-) *Address {
-	log = log.WithFields(logrus.Fields{"key-path": keyPath, "address-type": addressType})
-	log.Debug("Creating new address")
-	pkHash := btcutil.Hash160(publicKey.SerializeCompressed())
+) *AccountAddress {
+	log = log.WithFields(logrus.Fields{
+		"key-path":     configuration.AbsoluteKeypath().Encode(),
+		"address-type": addressType,
+	})
+	log.Debug("Creating new account address")
 
+	var err error
+	var redeemScript []byte
 	var address btcutil.Address
-	var script []byte
-	switch addressType {
-	case AddressTypeP2PKH:
-		var err error
-		address, err = btcutil.NewAddressPubKeyHash(pkHash, net)
-		if err != nil {
-			// The only possible failure is a wrong pkHash size, but we are sure we are passing 160
-			// bits.
-			log.WithField("error", err).Panic("Failed to get address pubkey hash for p2pkh")
-			panic(err)
+
+	if configuration.Multisig() {
+		sortedPublicKeys := configuration.SortedPublicKeys()
+		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
+		for index, publicKey := range sortedPublicKeys {
+			addresses[index], err = btcutil.NewAddressPubKey(publicKey.SerializeCompressed(), chain)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get a P2PK address from a public key.")
+			}
 		}
-	case AddressTypeP2WPKHP2SH:
-		swAddress, err := btcutil.NewAddressWitnessPubKeyHash(pkHash, net)
+		redeemScript, err = txscript.MultiSigScript(addresses, configuration.SigningThreshold())
 		if err != nil {
-			// The only possible failure is a wrong pkHash size, but we are sure we are passing 160
-			// bits.
-			log.WithField("error", err).Panic("Failed to get address witness pubkey hash for p2wpkh-p2sh")
-			panic(err)
+			log.WithField("error", err).Panic("Failed to get the redeem script for multisig.")
 		}
-		script, err = txscript.PayToAddrScript(swAddress)
+		address, err = btcutil.NewAddressScriptHash(redeemScript, chain)
 		if err != nil {
-			log.WithField("error", err).Panic("Failed to get payment script for p2wpkh-p2sh")
-			panic(err)
+			log.WithField("error", err).Panic("Failed to get a P2SH address for multisig.")
 		}
-		address, err = btcutil.NewAddressScriptHash(script, net)
-		if err != nil {
-			log.WithField("error", err).Panic("Failed to get new address script hash for p2wpkh-p2sh")
-			panic(err)
+	} else {
+		publicKeyHash := btcutil.Hash160(configuration.PublicKeys()[0].SerializeCompressed())
+		switch addressType {
+		case AddressTypeP2PKH:
+			address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, chain)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
+			}
+		case AddressTypeP2WPKHP2SH:
+			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, chain)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get segwit addr. from publ. key hash.")
+			}
+			redeemScript, err = txscript.PayToAddrScript(segwitAddress)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get redeem script for segwit address.")
+			}
+			address, err = btcutil.NewAddressScriptHash(redeemScript, chain)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get a P2SH address for segwit.")
+			}
+		default:
+			log.Panic("Unrecognized address type.")
 		}
-	default:
-		log.Panic("Unrecognized address type")
-		panic("unrecognized address type")
 	}
 
-	return &Address{
+	return &AccountAddress{
 		Address:       address,
-		PublicKey:     publicKey,
-		KeyPath:       keyPath,
+		Configuration: configuration,
 		HistoryStatus: "",
 		addressType:   addressType,
-		p2shScript:    script,
+		redeemScript:  redeemScript,
 		log:           log,
 	}
 }
 
-func (address *Address) isUsed() bool {
+func (address *AccountAddress) isUsed() bool {
 	return address.HistoryStatus != ""
 }
 
-// PkScript returns the pubkey script of this address. Use this in a tx output to receive funds.
-func (address *Address) PkScript() []byte {
+// PubkeyScript returns the pubkey script of this address. Use this in a tx output to receive funds.
+func (address *AccountAddress) PubkeyScript() []byte {
 	script, err := txscript.PayToAddrScript(address.Address)
 	if err != nil {
-		address.log.WithField("error", err).Panic("Failed to get pubkey script")
-		panic(err)
+		address.log.WithField("error", err).Panic("Failed to get the pubkey script for an address.")
 	}
 	return script
 }
 
-// ScriptHashHex returns the hash of the output script in hex format. Used to subscribe to
-// notifications with Electrum.
-func (address *Address) ScriptHashHex() client.ScriptHashHex {
-	return client.ScriptHashHex(chainhash.HashH(address.PkScript()).String())
+// PubkeyScriptHashHex returns the hash of the pubkey script in hex format.
+// It is used to subscribe to notifications at the ElectrumX server.
+func (address *AccountAddress) PubkeyScriptHashHex() client.ScriptHashHex {
+	return client.ScriptHashHex(chainhash.HashH(address.PubkeyScript()).String())
 }
 
-// SigHashData returns whether this address is a segwit output, and the subScript used when
-// calculating the signature hash in a transaction. This info is needed when trying to spend this
-// output.
-func (address *Address) SigHashData() (bool, []byte) {
-	switch address.addressType {
-	case AddressTypeP2PKH:
-		return false, address.PkScript()
-	case AddressTypeP2WPKHP2SH:
-		return true, address.p2shScript
-	default:
-		address.log.Panic("Unrecognized address type")
-		panic("unrecognized address type")
+// ScriptForHashToSign returns whether this address is a segwit output and the script used when
+// calculating the hash to be signed in a transaction. This info is needed when trying to spend
+// from this address.
+func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
+	if address.Configuration.Multisig() {
+		return false, address.redeemScript
 	}
-}
-
-// InputData returns the sigScript/witness needed to spend this output.
-func (address *Address) InputData(signature btcec.Signature) ([]byte, wire.TxWitness) {
 	switch address.addressType {
 	case AddressTypeP2PKH:
-		sigScript, err := txscript.NewScriptBuilder().
+		return false, address.PubkeyScript()
+	case AddressTypeP2WPKHP2SH:
+		return true, address.redeemScript
+	default:
+		address.log.Panic("Unrecognized address type.")
+	}
+	panic("The end of the function cannot be reached.")
+}
+
+func index(publicKey *btcec.PublicKey, sortedPublicKeys []*btcec.PublicKey) int {
+	for index, sortedPublicKey := range sortedPublicKeys {
+		if sortedPublicKey == publicKey {
+			return index
+		}
+	}
+	panic("Could not find a public key among the sorted public keys.")
+}
+
+// SignatureScript returns the signature script (and witness) needed to spend from this address.
+// The signatures have to be provided in the order of the configuration (and some can be nil).
+func (address *AccountAddress) SignatureScript(
+	signatures []*btcec.Signature,
+) ([]byte, wire.TxWitness) {
+	if len(signatures) != address.Configuration.NumberOfSigners() {
+		address.log.Panic("The wrong number of signatures were provided.")
+	}
+	if address.Configuration.Multisig() {
+		length := address.Configuration.NumberOfSigners()
+		publicKeys := address.Configuration.PublicKeys()
+		sortedPublicKeys := address.Configuration.SortedPublicKeys()
+		sortedSignatures := make([]*btcec.Signature, length)
+		for i := 0; i < length; i++ {
+			sortedSignatures[index(publicKeys[i], sortedPublicKeys)] = signatures[i]
+		}
+		scriptBuilder := txscript.NewScriptBuilder().AddOp(txscript.OP_0)
+		for _, signature := range sortedSignatures {
+			if signature != nil {
+				scriptBuilder.AddData(append(signature.Serialize(), byte(txscript.SigHashAll)))
+			}
+		}
+		signatureScript, err := scriptBuilder.AddData(address.redeemScript).Script()
+		if err != nil {
+			address.log.WithField("error", err).Panic("Failed to build signa. script for multisig.")
+		}
+		return signatureScript, nil
+	}
+	signature := signatures[0]
+	if signature == nil {
+		address.log.Panic("At least one signature has to be provided.")
+	}
+	publicKey := address.Configuration.PublicKeys()[0]
+	switch address.addressType {
+	case AddressTypeP2PKH:
+		signatureScript, err := txscript.NewScriptBuilder().
 			AddData(append(signature.Serialize(), byte(txscript.SigHashAll))).
-			AddData(address.PublicKey.SerializeCompressed()).
+			AddData(publicKey.SerializeCompressed()).
 			Script()
 		if err != nil {
-			address.log.WithField("error", err).Panic("Failed to build p2pkh signature script")
-			panic(err)
+			address.log.WithField("error", err).Panic("Failed to build signature script for P2PKH.")
 		}
-		return sigScript, nil
+		return signatureScript, nil
 	case AddressTypeP2WPKHP2SH:
-		sigScript, err := txscript.NewScriptBuilder().
-			AddData(address.p2shScript).
+		signatureScript, err := txscript.NewScriptBuilder().
+			AddData(address.redeemScript).
 			Script()
 		if err != nil {
-			address.log.WithField("error", err).Panic("Failed to build p2wpkh-p2ph signature script")
-			panic(err)
+			address.log.WithField("error", err).Panic("Failed to build segwit signature script.")
 		}
-		witness := wire.TxWitness{
+		txWitness := wire.TxWitness{
 			append(signature.Serialize(), byte(txscript.SigHashAll)),
-			address.PublicKey.SerializeCompressed()}
-		return sigScript, witness
+			publicKey.SerializeCompressed(),
+		}
+		return signatureScript, txWitness
 	default:
-		address.log.Panic("Unrecognized address type")
-		panic("unrecognized address type")
+		address.log.Panic("Unrecognized address type.")
 	}
+	panic("The end of the function cannot be reached.")
 }

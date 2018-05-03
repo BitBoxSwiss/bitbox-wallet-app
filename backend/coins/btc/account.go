@@ -40,7 +40,7 @@ type Interface interface {
 	SendTx(string, SendAmount, FeeTargetCode) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
-	GetUnusedReceiveAddress() *addresses.Address
+	GetUnusedReceiveAddress() *addresses.AccountAddress
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 }
@@ -301,7 +301,7 @@ func (account *Account) addresses(change bool) *addresses.AddressChain {
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
-func (account *Account) onAddressStatus(address *addresses.Address, status string) error {
+func (account *Account) onAddressStatus(address *addresses.AccountAddress, status string) error {
 	if status == address.HistoryStatus {
 		// Address didn't change.
 		return nil
@@ -311,7 +311,7 @@ func (account *Account) onAddressStatus(address *addresses.Address, status strin
 
 	done := account.synchronizer.IncRequestsCounter()
 	return account.blockchain.ScriptHashGetHistory(
-		address.ScriptHashHex(),
+		address.PubkeyScriptHashHex(),
 		func(history client.TxHistory) error {
 			func() {
 				defer account.Lock()()
@@ -370,7 +370,7 @@ func (account *Account) ensureAddresses() {
 }
 
 func (account *Account) subscribeAddress(
-	dbTx transactions.DBTxInterface, address *addresses.Address) error {
+	dbTx transactions.DBTxInterface, address *addresses.AccountAddress) error {
 	addressHistory, err := dbTx.AddressHistory(address)
 	if err != nil {
 		return err
@@ -379,7 +379,7 @@ func (account *Account) subscribeAddress(
 
 	done := account.synchronizer.IncRequestsCounter()
 	return account.blockchain.ScriptHashSubscribe(
-		address.ScriptHashHex(),
+		address.PubkeyScriptHashHex(),
 		func(status string) error { return account.onAddressStatus(address, status) },
 		done,
 	)
@@ -394,7 +394,7 @@ func (account *Account) Transactions() []*transactions.TxInfo {
 }
 
 // GetUnusedReceiveAddress returns a fresh receive address.
-func (account *Account) GetUnusedReceiveAddress() *addresses.Address {
+func (account *Account) GetUnusedReceiveAddress() *addresses.AccountAddress {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
