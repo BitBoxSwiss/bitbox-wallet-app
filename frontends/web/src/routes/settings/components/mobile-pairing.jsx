@@ -8,7 +8,7 @@ import 'preact-material-components/Dialog/style.css';
 
 import QRCode from '../../../routes/account/receive/qrcode';
 
-import { apiGet, apiPost } from '../../../utils/request';
+import { apiPost } from '../../../utils/request';
 
 export default class MobilePairing extends Component {
     constructor(props) {
@@ -19,7 +19,7 @@ export default class MobilePairing extends Component {
     startPairing = () => {
         this.setState({ channel: null });
 
-        apiPost('device/pairing/start').then(channel => {
+        apiPost('devices/' + this.props.deviceID + '/pairing/start').then(channel => {
             this.setState({ channel: channel });
             this.dialog.MDComponent.show();
         });

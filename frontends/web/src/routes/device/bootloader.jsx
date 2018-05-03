@@ -40,7 +40,7 @@ export default class Bootloader extends Component {
     }
 
     onStatusChanged = () => {
-        apiGet('device/bootloader-status').then(status => {
+        apiGet('devices/' + this.props.deviceID + '/bootloader-status').then(status => {
             this.setState({
                 upgrading: status.upgrading,
                 progress: status.progress,
@@ -51,7 +51,7 @@ export default class Bootloader extends Component {
     }
 
     upgradeFirmware = () => {
-        apiPost('device/bootloader/upgrade-firmware');
+        apiPost('devices/' + this.props.deviceID + '/bootloader/upgrade-firmware');
     }
 
     render({}, { upgrading, progress, upgradeSuccessful, errMsg }) {

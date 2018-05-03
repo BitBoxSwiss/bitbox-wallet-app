@@ -119,14 +119,20 @@ func NewHandlers(
 		theAccountHandlers[account.Code()].Uninit()
 	})
 
-	theDeviceHandlers := bitboxHandlers.NewHandlers(
-		getAPIRouter(apiRouter.PathPrefix("/device").Subrouter()), log,
-	)
+	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
+	getDeviceHandlers := func(deviceID string) *bitboxHandlers.Handlers {
+		if _, ok := deviceHandlersMap[deviceID]; !ok {
+			deviceHandlersMap[deviceID] = bitboxHandlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/devices/%s", deviceID)).Subrouter(),
+			), log)
+		}
+		return deviceHandlersMap[deviceID]
+	}
 	theBackend.OnDeviceInit(func(device device.Interface) {
-		theDeviceHandlers.Init(device.(*bitbox.Device))
+		getDeviceHandlers(device.Identifier()).Init(device.(*bitbox.Device))
 	})
-	theBackend.OnDeviceUninit(func() {
-		theDeviceHandlers.Uninit()
+	theBackend.OnDeviceUninit(func(deviceID string) {
+		getDeviceHandlers(deviceID).Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
@@ -205,7 +211,7 @@ func (handlers *Handlers) getQRCodeHandler(w http.ResponseWriter, r *http.Reques
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.DeviceRegistered(), nil
+	return handlers.backend.DevicesRegistered(), nil
 }
 
 func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {

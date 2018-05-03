@@ -47,7 +47,7 @@ export default class Seed extends Component {
             error: ''
         });
         this.setState({ state: this.stateEnum.WAITING });
-        apiPost('device/create-wallet', {
+        apiPost('devices/' + this.props.deviceID + '/create-wallet', {
             walletName: this.state.walletName,
             backupPassword: this.state.backupPassword
         }).then(data => {

@@ -44,6 +44,7 @@ export default class App extends Component {
             walletInitialized: false,
             deviceRegistered: false,
             deviceStatus: null,
+            deviceID: null,
             testing: false,
             wallets: [],
             activeWallet: null,
@@ -80,7 +81,7 @@ export default class App extends Component {
             case 'device':
                 switch (data.data) {
                 case 'statusChanged':
-                    this.onDeviceStatusChanged();
+                    this.onDeviceStatusChanged(data.deviceID);
                     break;
                 }
                 break;
@@ -97,7 +98,8 @@ export default class App extends Component {
     }
 
     onDevicesRegisteredChanged = () => {
-        apiGet('devices/registered').then(registered => {
+        apiGet('devices/registered').then(deviceIDs => {
+            let registered = deviceIDs.length == 1;
             // reset deviceStatus, otherwise a previous (but now
             // invalid) component will be rendered before it is
             // updated below.
@@ -105,7 +107,7 @@ export default class App extends Component {
                 deviceRegistered: registered,
                 deviceStatus: null
             });
-            this.onDeviceStatusChanged();
+            this.onDeviceStatusChanged(deviceIDs[0]);
         });
     }
 
@@ -122,28 +124,30 @@ export default class App extends Component {
         });
     }
 
-    onDeviceStatusChanged = () => {
+    onDeviceStatusChanged = (deviceID) => {
         if (this.state.deviceRegistered) {
-            apiGet('device/status').then(deviceStatus => {
+            this.setState({ deviceID });
+            apiGet('devices/' + deviceID + '/status').then(deviceStatus => {
                 this.setState({ deviceStatus });
             });
         }
     }
 
-    render({}, { walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
+    render({}, { deviceID, walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
         console.log(walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing );
         if (wallets && wallets.length != 0 && walletInitialized) {
             return (
                 <div class={style.container}>
                     <div style="display: flex; flex: 1 1 auto;">
-                        <Sidebar accounts={wallets} activeWallet={activeWallet} />
+                        <Sidebar accounts={wallets} activeWallet={activeWallet} deviceID={deviceID}/>
                         <Router onChange={this.handleRoute}>
                             <Redirect path="/" to={`/account/${wallets[0].code}`} />
                             <Account path="/account/:code" wallets={wallets} />
-                            <Settings path="/settings/" />
+                            <Settings path="/settings/:deviceID" />
                             <ManageBackups
-                                path="/manage-backups"
+                                path="/manage-backups/:deviceID"
                                 showCreate={true}
+                                displayError={(msg) => { if (msg) alert("TODO" + msg); }}
                             />
                         </Router>
                     </div>
@@ -161,13 +165,13 @@ export default class App extends Component {
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return <Bootloader />;
+            return <Bootloader deviceID={deviceID} />;
         case DeviceStatus.INITIALIZED:
-            return <Login />;
+            return <Login deviceID={deviceID} />;
         case DeviceStatus.UNINITIALIZED:
-            return <Initialize />;
+            return <Initialize deviceID={deviceID} />;
         case DeviceStatus.LOGGED_IN:
-            return <Seed />;
+            return <Seed deviceID={deviceID} />;
         }
     }
 }

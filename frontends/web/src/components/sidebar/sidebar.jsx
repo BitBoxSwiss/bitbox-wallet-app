@@ -21,7 +21,7 @@ class Sidebar extends Component {
         //     apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
         // }
     }
-    render({ t, accounts }, { emulated }) {
+    render({ t, accounts, deviceID }, { emulated }) {
         return (
             <nav className="sidebar">
                 {accounts.map(getWalletLink)}
@@ -33,7 +33,7 @@ class Sidebar extends Component {
                             <span className="sidebar_label">{ t('sidebar.leave') }</span>
                         </a>
                         : null}
-                    <Link activeClassName="sidebar-active" href="/settings/" title={ t('sidebar.settings') }>
+                    <Link activeClassName="sidebar-active" href={`/settings/${deviceID}`} title={ t('sidebar.settings') }>
                         <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                         <span className="sidebar_label">{ t('sidebar.settings') }</span>
                     </Link>

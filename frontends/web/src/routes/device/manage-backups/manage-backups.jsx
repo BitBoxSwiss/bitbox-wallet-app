@@ -26,7 +26,7 @@ export default class ManageBackups extends Component {
     }
 
     refresh = () => {
-        apiGet('device/backups/list').then(({ sdCardInserted, backupList }) => {
+        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList }) => {
             this.setState({
                 selectedBackup: null,
                 sdCardInserted,
@@ -43,7 +43,7 @@ export default class ManageBackups extends Component {
         this.props.displayError(errorMessage);
     }
 
-    render({ showCreate }, { backupList, selectedBackup, sdCardInserted }) {
+    render({ showCreate, deviceID }, { backupList, selectedBackup, sdCardInserted }) {
         if (!sdCardInserted) {
             return (
                 <div className={style.container}>
@@ -69,13 +69,17 @@ export default class ManageBackups extends Component {
                         onChange={this.handleBackuplistChange}
                     >{ backupList.map(renderOption) }
                     </select>
-                    <Restore selectedBackup={selectedBackup} displayError={this.displayError} />
+                    <Restore
+                        selectedBackup={selectedBackup}
+                        displayError={this.displayError}
+                        deviceID={deviceID} />
                     &nbsp;
                     <Erase
                         selectedBackup={selectedBackup}
                         onErase={this.refresh}
+                        deviceID={deviceID}
                     />
-                    {showCreate && <span>&nbsp;<Create onCreate={this.refresh} /></span>}
+                    {showCreate && <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>}
                 </div>
             </div>
         );

@@ -49,7 +49,7 @@ export default class Login extends Component {
         this.setState({
             state: this.stateEnum.WAITING
         });
-        apiPost('device/login', { password: this.state.password }).then(data => {
+        apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
             if (!data.success) {
                 if (data.code) {
                     this.setState({ errorCode: data.code });

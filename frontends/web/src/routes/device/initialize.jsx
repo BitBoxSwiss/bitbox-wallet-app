@@ -39,7 +39,7 @@ export default class Initialize extends Component {
             error: ''
         });
         this.setState({ state: this.stateEnum.WAITING });
-        apiPost('device/set-password', { password: this.state.password }).then(data => {
+        apiPost('devices/' + this.props.deviceID + '/set-password', { password: this.state.password }).then(data => {
             if (!data.success) {
                 if (data.code) {
                     this.setState({ errorCode: data.code });

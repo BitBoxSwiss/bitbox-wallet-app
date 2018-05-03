@@ -17,7 +17,7 @@ export default class UpgradeFirmware extends Component {
 
   upgradeFirmware = () => {
     this.setState({ isConfirming: true });
-    apiPost('device/unlock-bootloader').then(() => {
+    apiPost('devices/' + this.props.deviceID + '/unlock-bootloader').then(() => {
       this.setState({ unlocked: true });
     }).catch(e => {
       this.setState({ isConfirming: false });
@@ -25,10 +25,10 @@ export default class UpgradeFirmware extends Component {
   };
 
   componentDidMount() {
-    apiGet('device/info').then(({ version }) => {
+    apiGet('devices/' + this.props.deviceID + '/info').then(({ version }) => {
       this.setState({ currentVersion: version });
     });
-    apiGet('device/bundled-firmware-version').then(version => {
+    apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(version => {
       this.setState({ newVersion: version });
     });
   }

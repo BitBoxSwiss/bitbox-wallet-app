@@ -20,23 +20,23 @@ export default class Settings extends Component {
 
     componentDidMount() {
         apiGet('version').then(result => this.setState({ version: result }));
-        apiGet('device/info').then(({ sdcard }) => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
             if (sdcard) {
                 alert('Keep the SD card stored securely unless you want to manage backups.');
             }
         });
     }
 
-    render({ t }, { version }) {
+    render({ t, deviceID }, { version }) {
         return (
             <div style="padding-left: 1rem;">
                 <h1>BitBox</h1>
                 {version ? <p>Version: {version}</p> : null}
-                <p><Reset /></p>
-                <p><MobilePairing /></p>
-                <p><UpgradeFirmware /></p>
+                <p><Reset deviceID={deviceID} /></p>
+                <p><MobilePairing deviceID={deviceID} /></p>
+                <p><UpgradeFirmware deviceID={deviceID} /></p>
                 <p><LanguageSwitch /></p>
-                <Link href="/manage-backups/">
+                <Link href={`/manage-backups/${deviceID}`}>
                     { t('device.manageBackups') }
                 </Link>
             </div>

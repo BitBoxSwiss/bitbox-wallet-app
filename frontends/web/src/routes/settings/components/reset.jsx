@@ -14,7 +14,7 @@ export default class Reset extends Component {
 
   resetDevice = () => {
     this.setState({ isConfirming: true });
-    apiPost('device/reset').then(() => {
+    apiPost('devices/' + this.props.deviceID + '/reset').then(() => {
       this.setState({ isConfirming: false });
     });
   };

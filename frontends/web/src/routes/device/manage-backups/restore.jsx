@@ -28,7 +28,7 @@ export default class Restore extends Component {
     }
     this.confirmDialog.MDComponent.close();
     this.setState({ isConfirming: true });
-    apiPost('device/backups/restore', {
+    apiPost('devices/' + this.props.deviceID + '/backups/restore', {
       password: this.state.password,
       filename: this.props.selectedBackup
     }).catch(() => {

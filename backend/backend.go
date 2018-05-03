@@ -41,8 +41,8 @@ type Interface interface {
 	OnWalletInit(f func(*btc.Account))
 	OnWalletUninit(f func(*btc.Account))
 	OnDeviceInit(f func(device.Interface))
-	OnDeviceUninit(f func())
-	DeviceRegistered() bool
+	OnDeviceUninit(f func(deviceID string))
+	DevicesRegistered() []string
 	Start() <-chan interface{}
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
@@ -55,9 +55,15 @@ func DefaultAppFolder() string {
 	return "."
 }
 
-type deviceEvent struct {
+type backendEvent struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
+}
+
+type deviceEvent struct {
+	DeviceID string `json:"deviceID"`
+	Type     string `json:"type"`
+	Data     string `json:"data"`
 }
 
 type devicesEvent deviceEvent
@@ -83,7 +89,7 @@ type Backend struct {
 	onWalletInit   func(*btc.Account)
 	onWalletUninit func(*btc.Account)
 	onDeviceInit   func(device.Interface)
-	onDeviceUninit func()
+	onDeviceUninit func(string)
 
 	accounts     []*btc.Account
 	accountsLock locker.Locker
@@ -233,7 +239,7 @@ func (backend *Backend) OnDeviceInit(f func(device.Interface)) {
 }
 
 // OnDeviceUninit installs a callback to be called when a device is uninitialized.
-func (backend *Backend) OnDeviceUninit(f func()) {
+func (backend *Backend) OnDeviceUninit(f func(string)) {
 	backend.onDeviceUninit = f
 }
 
@@ -307,9 +313,12 @@ func (backend *Backend) initWallets() error {
 	// return nil
 }
 
-// DeviceRegistered returns whether a device is plugged in.
-func (backend *Backend) DeviceRegistered() bool {
-	return backend.device != nil
+// DevicesRegistered returns a slice of device IDs of registered devices.
+func (backend *Backend) DevicesRegistered() []string {
+	if backend.device != nil {
+		return []string{backend.device.Identifier()}
+	}
+	return []string{}
 }
 
 func (backend *Backend) uninitWallets() {
@@ -332,14 +341,14 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 		backend.log.Panic("Failed to initialize wallets.", err)
 		panic(err)
 	}
-	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
+	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
 }
 
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitWallets()
-	backend.events <- deviceEvent{Type: "backend", Data: "walletStatusChanged"}
+	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
 }
 
 // Register registers the given device at this backend.
@@ -362,10 +371,17 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(nil, 0))
 		}
-		backend.events <- deviceEvent{Type: "device", Data: string(event)}
+		backend.events <- deviceEvent{
+			DeviceID: backend.device.Identifier(),
+			Type:     "device",
+			Data:     string(event),
+		}
 	})
 	select {
-	case backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}:
+	case backend.events <- backendEvent{
+		Type: "devices",
+		Data: "registeredChanged",
+	}:
 	default:
 	}
 	return nil
@@ -375,7 +391,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 func (backend *Backend) Deregister(deviceID string) {
 	if backend.device != nil && deviceID == backend.device.Identifier() {
 		backend.device = nil
-		backend.onDeviceUninit()
+		backend.onDeviceUninit(deviceID)
 		backend.DeregisterKeystore()
 		backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
 	}

@@ -14,7 +14,7 @@ export default class Erase extends Component {
         if (!filename) {
             return;
         }
-        apiPost('device/backups/erase', { filename }).then(() => {
+        apiPost('devices/' + this.props.deviceID + '/backups/erase', { filename }).then(() => {
             this.props.onErase();
         });
     }
