@@ -68,7 +68,7 @@ export default class Seed extends Component {
         this.setState({ backupPassword });
     }
 
-    render({}, state) {
+    render({ deviceID }, state) {
         const FormSubmissionState = props => {
             switch (props.state){
             case this.stateEnum.DEFAULT:
@@ -117,7 +117,7 @@ export default class Seed extends Component {
                     <FormSubmissionState {...state} />
                 </form>
                 <p>-- OR --</p>
-                <ManageBackups showCreate={false} displayError={this.displayError} />
+                <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID}/>
             </Dialog>
         );
     }

@@ -8,14 +8,10 @@ import Textfield from 'preact-material-components/Textfield';
 import 'preact-material-components/Textfield/style.css';
 
 import Dialog from './components/dialog/dialog';
-import Bootloader from './routes/device/bootloader';
-import Login from './routes/device/unlock';
-import Seed from './routes/device/seed';
-import Initialize from './routes/device/initialize';
+import Device from './routes/device/device';
 
 import { Router, route } from 'preact-router';
 import Account from './routes/account/account';
-import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 
 import Alert from './components/alert/Alert';
@@ -28,23 +24,13 @@ import { debug } from './utils/env';
 
 import style from './components/style';
 
-const DeviceStatus = Object.freeze({
-    BOOTLOADER: 'bootloader',
-    INITIALIZED: 'initialized',
-    UNINITIALIZED: 'uninitialized',
-    LOGGED_IN: 'logged_in',
-    SEEDED: 'seeded'
-});
-
 @translate()
 export default class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
             walletInitialized: false,
-            deviceRegistered: false,
-            deviceStatus: null,
-            deviceID: null,
+            deviceIDs: [],
             testing: false,
             wallets: [],
             activeWallet: null,
@@ -78,13 +64,6 @@ export default class App extends Component {
                     break;
                 }
                 break;
-            case 'device':
-                switch (data.data) {
-                case 'statusChanged':
-                    this.onDeviceStatusChanged(data.deviceID);
-                    break;
-                }
-                break;
             }
         });
 
@@ -99,15 +78,7 @@ export default class App extends Component {
 
     onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(deviceIDs => {
-            let registered = deviceIDs.length == 1;
-            // reset deviceStatus, otherwise a previous (but now
-            // invalid) component will be rendered before it is
-            // updated below.
-            this.setState({
-                deviceRegistered: registered,
-                deviceStatus: null
-            });
-            this.onDeviceStatusChanged(deviceIDs[0]);
+            this.setState({ deviceIDs });
         });
     }
 
@@ -124,26 +95,20 @@ export default class App extends Component {
         });
     }
 
-    onDeviceStatusChanged = (deviceID) => {
-        if (this.state.deviceRegistered) {
-            this.setState({ deviceID });
-            apiGet('devices/' + deviceID + '/status').then(deviceStatus => {
-                this.setState({ deviceStatus });
-            });
-        }
-    }
-
-    render({}, { deviceID, walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing }) {
-        console.log(walletInitialized, wallets, activeWallet, deviceRegistered, deviceStatus, testing );
+    render({}, { deviceIDs, walletInitialized, wallets, activeWallet, testing }) {
         if (wallets && wallets.length != 0 && walletInitialized) {
             return (
                 <div class={style.container}>
                     <div style="display: flex; flex: 1 1 auto;">
-                        <Sidebar accounts={wallets} activeWallet={activeWallet} deviceID={deviceID}/>
+                        <Sidebar
+                            accounts={wallets}
+                            activeWallet={activeWallet}
+                            deviceIDs={deviceIDs}
+                          />
                         <Router onChange={this.handleRoute}>
                             <Redirect path="/" to={`/account/${wallets[0].code}`} />
                             <Account path="/account/:code" wallets={wallets} />
-                            <Settings path="/settings/:deviceID" />
+                            <Device path="/device/:deviceID" />
                             <ManageBackups
                                 path="/manage-backups/:deviceID"
                                 showCreate={true}
@@ -155,7 +120,7 @@ export default class App extends Component {
                 </div>
             );
         }
-        if (!deviceRegistered || !deviceStatus) {
+        if (deviceIDs.length == 0) {
             return (
                 <Dialog>
                     <h3>Waiting for device...</h3>
@@ -163,16 +128,7 @@ export default class App extends Component {
                 </Dialog>
             );
         }
-        switch (deviceStatus) {
-        case DeviceStatus.BOOTLOADER:
-            return <Bootloader deviceID={deviceID} />;
-        case DeviceStatus.INITIALIZED:
-            return <Login deviceID={deviceID} />;
-        case DeviceStatus.UNINITIALIZED:
-            return <Initialize deviceID={deviceID} />;
-        case DeviceStatus.LOGGED_IN:
-            return <Seed deviceID={deviceID} />;
-        }
+        return <Device deviceID={deviceIDs[0]} />;
     }
 }
 

@@ -84,7 +84,7 @@ type Backend struct {
 	dbFolder  string
 	events    chan interface{}
 
-	device         device.Interface
+	devices        map[string]device.Interface
 	keystores      keystore.Keystores
 	onWalletInit   func(*btc.Account)
 	onWalletUninit func(*btc.Account)
@@ -113,6 +113,8 @@ func NewBackend(appFolder string, testing bool, regtest bool) (*Backend, error) 
 		appFolder: appFolder,
 		dbFolder:  dbFolder,
 		events:    make(chan interface{}, 1000),
+
+		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
 
 		log: log,
@@ -315,10 +317,11 @@ func (backend *Backend) initWallets() error {
 
 // DevicesRegistered returns a slice of device IDs of registered devices.
 func (backend *Backend) DevicesRegistered() []string {
-	if backend.device != nil {
-		return []string{backend.device.Identifier()}
+	deviceIDs := []string{}
+	for deviceID := range backend.devices {
+		deviceIDs = append(deviceIDs, deviceID)
 	}
-	return []string{}
+	return deviceIDs
 }
 
 func (backend *Backend) uninitWallets() {
@@ -353,13 +356,12 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
-	if backend.device != nil {
-		return nil
-	}
-	backend.device = theDevice
-	backend.onDeviceInit(backend.device)
-	backend.device.Init(backend.Testing())
-	backend.device.SetOnEvent(func(event device.Event) {
+	backend.devices[theDevice.Identifier()] = theDevice
+	backend.onDeviceInit(theDevice)
+	theDevice.Init(backend.Testing())
+
+	mainKeystore := len(backend.devices) == 1
+	theDevice.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreAvailable:
 			// absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
@@ -369,10 +371,12 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// }
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
-			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(nil, 0))
+			if mainKeystore {
+				backend.RegisterKeystore(theDevice.KeystoreForConfiguration(nil, 0))
+			}
 		}
 		backend.events <- deviceEvent{
-			DeviceID: backend.device.Identifier(),
+			DeviceID: theDevice.Identifier(),
 			Type:     "device",
 			Data:     string(event),
 		}
@@ -389,11 +393,13 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
-	if backend.device != nil && deviceID == backend.device.Identifier() {
-		backend.device = nil
+	if _, ok := backend.devices[deviceID]; ok {
+		delete(backend.devices, deviceID)
 		backend.onDeviceUninit(deviceID)
-		backend.DeregisterKeystore()
-		backend.events <- devicesEvent{Type: "devices", Data: "registeredChanged"}
+		if len(backend.devices) == 0 {
+			backend.DeregisterKeystore()
+		}
+		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
 	}
 }
 

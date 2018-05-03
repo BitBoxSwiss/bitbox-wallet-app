@@ -63,12 +63,12 @@ func NewManager(
 	}
 }
 
-func deviceIdentifier(productName string, serial string) string {
-	return hex.EncodeToString([]byte(fmt.Sprintf("%s%s", productName, serial)))
+func deviceIdentifier(productName string, path string) string {
+	return hex.EncodeToString([]byte(fmt.Sprintf("%s%s", productName, path)))
 }
 
 func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
-	deviceID := deviceIdentifier(bitbox.ProductName, deviceInfo.Serial)
+	deviceID := deviceIdentifier(bitbox.ProductName, deviceInfo.Path)
 	// Skip if already registered.
 	if _, ok := manager.devices[deviceID]; ok {
 		return nil
@@ -123,7 +123,7 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	// multiple times.
 	for i := 0; i < 5; i++ {
 		for _, deviceInfo := range DeviceInfos() {
-			if deviceIdentifier(bitbox.ProductName, deviceInfo.Serial) == deviceID {
+			if deviceIdentifier(bitbox.ProductName, deviceInfo.Path) == deviceID {
 				return false
 			}
 		}
