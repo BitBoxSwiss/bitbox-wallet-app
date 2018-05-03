@@ -9,9 +9,9 @@ import (
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
 //go:generate mockery -name Keystore
 type Keystore interface {
-	// Configuration returns the configuration of the keystore.
-	// The keypath is m/44' for singlesig and m/46' for multisig.
-	Configuration() *signing.Configuration
+	// // Configuration returns the configuration of the keystore.
+	// // The keypath is m/44' for singlesig and m/46' for multisig.
+	// Configuration() *signing.Configuration
 
 	// CosignerIndex returns the index at which the keystore signs in a multisig configuration.
 	// The returned value is always zero for a singlesig configuration.

@@ -6,7 +6,6 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
@@ -130,11 +129,10 @@ func (backend *Backend) addAccount(
 	if err != nil {
 		return err
 	}
-	configuration, err := backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
-	if err != nil {
-		return err
+	getConfiguration := func() (*signing.Configuration, error) {
+		return backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
 	}
-	account, err := coin.NewAccount(backend.dbFolder, code, name, configuration, backend.keystores, addresses.AddressTypeP2PKH, onEvent(code))
+	account, err := coin.NewAccount(backend.dbFolder, code, name, getConfiguration, backend.keystores, addresses.AddressTypeP2PKH, onEvent(code))
 	if err != nil {
 		return err
 	}
@@ -355,14 +353,14 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.device.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreAvailable:
-			absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
-			extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)
-			if err != nil {
-				panic(err)
-			}
-			configuration := signing.NewConfiguration(absoluteKeypath,
-				[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
-			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(configuration, 0))
+			// absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
+			// extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)
+			// if err != nil {
+			// 	panic(err)
+			// }
+			// configuration := signing.NewConfiguration(absoluteKeypath,
+			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+			backend.RegisterKeystore(backend.device.KeystoreForConfiguration(nil, 0))
 		}
 		backend.events <- deviceEvent{Type: "device", Data: string(event)}
 	})

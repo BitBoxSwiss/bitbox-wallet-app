@@ -2,7 +2,9 @@ package btc
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"path"
 
 	"github.com/shiftdevices/godbb/backend/signing"
 
@@ -47,15 +49,16 @@ type Interface interface {
 type Account struct {
 	locker.Locker
 
-	coin          *Coin
-	dbFolder      string
-	code          string
-	name          string
-	net           *chaincfg.Params
-	db            transactions.DBInterface
-	configuration *signing.Configuration
-	keystores     keystore.Keystores
-	blockchain    blockchain.Interface
+	coin             *Coin
+	dbFolder         string
+	code             string
+	name             string
+	net              *chaincfg.Params
+	db               transactions.DBInterface
+	getConfiguration func() (*signing.Configuration, error)
+	configuration    *signing.Configuration
+	keystores        keystore.Keystores
+	blockchain       blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
 	changeAddresses  *addresses.AddressChain
@@ -109,8 +112,7 @@ func NewAccount(
 	code string,
 	name string,
 	net *chaincfg.Params,
-	db *transactionsdb.DB,
-	configuration *signing.Configuration,
+	getConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
 	addressType addresses.AddressType,
 	onEvent func(Event),
@@ -120,15 +122,14 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:          coin,
-		dbFolder:      dbFolder,
-		code:          code,
-		name:          name,
-		net:           net,
-		db:            db,
-		configuration: configuration,
-		keystores:     keystores,
-		addressType:   addressType,
+		coin:             coin,
+		dbFolder:         dbFolder,
+		code:             code,
+		name:             name,
+		net:              net,
+		getConfiguration: getConfiguration,
+		keystores:        keystores,
+		addressType:      addressType,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -162,6 +163,19 @@ func (account *Account) Code() string {
 
 // Init initializes the acconut.
 func (account *Account) Init() error {
+	configuration, err := account.getConfiguration()
+	if err != nil {
+		return err
+	}
+	account.configuration = configuration
+	db, err := transactionsdb.NewDB(path.Join(
+		account.dbFolder,
+		fmt.Sprintf("account-%s-%s.db", account.configuration.Hash(), account.code)))
+	if err != nil {
+		return err
+	}
+	account.db = db
+
 	electrumClient, err := account.coin.ElectrumClient()
 	if err != nil {
 		return err

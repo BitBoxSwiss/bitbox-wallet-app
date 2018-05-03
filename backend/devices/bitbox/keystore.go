@@ -20,10 +20,10 @@ type keystore struct {
 	log           *logrus.Entry
 }
 
-// Configuration implements keystore.Keystore.
-func (keystore *keystore) Configuration() *signing.Configuration {
-	return keystore.configuration
-}
+// // Configuration implements keystore.Keystore.
+// func (keystore *keystore) Configuration() *signing.Configuration {
+// 	return keystore.configuration
+// }
 
 // CosignerIndex implements keystore.Keystore.
 func (keystore *keystore) CosignerIndex() int {

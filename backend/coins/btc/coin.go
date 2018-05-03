@@ -11,7 +11,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -148,27 +147,20 @@ func (coin *Coin) NewAccount(
 	dbFolder string,
 	code string,
 	name string,
-	configuration *signing.Configuration,
+	getConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
 	addressType addresses.AddressType,
 	onEvent func(Event),
 ) (*Account, error) {
 	log := coin.log.WithFields(logrus.Fields{"coin": code, "address-type": addressType})
 
-	db, err := transactionsdb.NewDB(path.Join(
-		dbFolder,
-		fmt.Sprintf("account-%s-%s.db", configuration.Hash(), code)))
-	if err != nil {
-		return nil, err
-	}
 	return NewAccount(
 		coin,
 		dbFolder,
 		code,
 		name,
 		coin.net,
-		db,
-		configuration,
+		getConfiguration,
 		keystores,
 		addressType,
 		onEvent,
