@@ -73,7 +73,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	if _, ok := manager.devices[deviceID]; ok {
 		return nil
 	}
-	manager.log.WithField("device-id", deviceID).Error("Registering device")
+	manager.log.WithField("device-id", deviceID).Info("Registering device")
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
