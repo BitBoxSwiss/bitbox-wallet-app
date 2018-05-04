@@ -28,3 +28,45 @@
 .notAllowed {
   cursor: not-allowed;
 }
+
+.confirmationInstructions {
+  margin-top: var(--spacing-default);
+}
+
+.shortTouch {
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-danger);
+  border-radius: 50%;
+}
+
+.longTouch {
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-success);
+  border-radius: 50%;
+}
+
+.confirmationBox {
+  background-color: var(--color-lightgray);
+  border-radius: 2px;
+  padding: 0 var(--spacing-default) var(--spacing-default) var(--spacing-default);
+  margin-top: var(--spacing-half);
+}
+
+.confirmationLabel {
+  margin-bottom: var(--spacing-half);
+  margin-top: var(--spacing-default);
+  line-height: var(--size-label);
+}
+
+.confirmationValue {
+  font-weight: bold;
+  font-size: var(--size-medium);
+  margin: 0;
+}
+
+.confirmationValue.standOut {
+  font-size: var(--size-large);
+  line-height: var(--size-large);
+}

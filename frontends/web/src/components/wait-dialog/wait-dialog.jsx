@@ -22,16 +22,20 @@ export default class WaitDialog extends Component {
       <div class={['overlay', active].join(' ')}>
         <div class={['modal', active].join(' ')}>
           <h3 class="modalHeader">{this.props.title}</h3>
-          <div class="flex flex-column flex-center flex-items-center">
-            {
-              this.props.children.length > 0 ? this.props.children : (
+          {
+            this.props.children.length > 0 ? (
+              <div class="flex flex-column flex-start">
+                {this.props.children}
+              </div>
+            ) : (
+              <div class="flex flex-column flex-center flex-items-center">
                 <div>
                   <p>Short touch to abort</p>
                   <p>Long touch to confirm</p>
                 </div>
-              )
-            }
-          </div>
+              </div>
+            )
+          }
         </div>
       </div>
     );

@@ -28,6 +28,10 @@ export default class Send extends Component {
           proposedFee: null,
           amount: null,
         });
+      } else {
+        this.setState({
+          isConfirming: false,
+        });
       }
     });
   }
@@ -75,8 +79,22 @@ export default class Send extends Component {
     this.validateAndDisplayFee();
   }
 
-  render({ walletCode, walletInitialized }, { proposedFee, recipientAddress, proposedAmount, amount, sendAll }) {
-    console.log(this.state)
+  render({
+    walletCode,
+    walletInitialized,
+    unit,
+  }, {
+    proposedFee,
+    recipientAddress,
+    proposedAmount,
+    amount,
+    sendAll,
+    feeTarget,
+    isConfirming,
+    isSent,
+  }) {
+    const strippedFee = proposedFee ? proposedFee.split(' ')[0] : null;
+    const totalAmount = (amount && proposedFee) ? (parseFloat(amount) + parseFloat(strippedFee)).toFixed(strippedFee.length - 2) : 'N/A';
     return (
       <div class="innerContainer">
         <div class="header">
@@ -151,15 +169,42 @@ export default class Send extends Component {
           </div>
         </div>
         <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-end'].join(' ')}>
-          <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.props.onClose}>Cancel</button>
+          <button class={[componentStyle.button, componentStyle.isDanger].join(' ')} onClick={this.props.onClose}>Cancel</button>
           <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.send}>Send</button>
         </div>
         <WaitDialog
-          active={this.state.isConfirming}
-          title="Confirm Transaction"
-        />
+          active={isConfirming}
+          title="Confirm Transaction">
+          <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
+          <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
+            <div class="flex flex-column flex-center flex-items-center">
+              <div class={style.shortTouch}></div>
+              <p class="text-bold">Tap to <span class="text-red">abort</span></p>
+            </div>
+            <div class="flex flex-column flex-center flex-items-center">
+              <div class={style.longTouch}></div>
+              <p class="text-bold">Hold 3+ secs to <span class="text-green">confirm</span></p>
+            </div>
+          </div>
+          <div class={style.confirmationBox}>
+            <p class={['label', style.confirmationLabel].join(' ')}>Address</p>
+            <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
+            <div class="flex flex-row flex-start has-gutter">
+              <div>
+                <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
+                <p class={style.confirmationValue}>{amount || 'N/A'} {unit}</p>
+              </div>
+              <div>
+                <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
+                <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
+              </div>
+            </div>
+            <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
+            <p class={[style.confirmationValue, style.standOut].join(' ')}>{totalAmount || 'N/A'} {unit}</p>
+          </div>
+        </WaitDialog>
         <Toast
-          trigger={this.state.isSent}
+          trigger={isSent}
           theme="success"
           message="Your transaction was successful."
           onHide={() => this.setState({ isSent: false })}

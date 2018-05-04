@@ -4,7 +4,8 @@ import { translate } from 'react-i18next';
 import { apiPost, apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
-import settings from '../../assets/icons/settings.svg';
+import settings from '../../assets/icons/settings-alt.svg';
+import backups from '../../assets/icons/backups.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
 @translate()
@@ -50,7 +51,8 @@ class Sidebar extends Component {
             ))
           }
           <Link activeClassName="sidebar-active" href="/manage-backups">
-            <img src="http://placehold.it/36x36" />
+            <img src={backups} />
+            <span className="sidebar_label">Manage Backups</span>
           </Link>
         </div>
       </nav>

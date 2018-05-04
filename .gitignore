@@ -11,3 +11,5 @@
 /frontends/web/.eslintcache
 /vendor/
 **/*/output.log
+
+.DS_Store

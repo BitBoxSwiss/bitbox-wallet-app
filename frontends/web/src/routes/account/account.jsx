@@ -211,6 +211,7 @@ export default class Account extends Component {
             <Send
               walletCode={wallet.code}
               walletInitialized={walletInitialized}
+              unit={balance.unit}
               onClose={() => this.setState({ isSend: false })}
             />
           )
