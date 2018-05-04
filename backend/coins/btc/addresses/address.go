@@ -154,7 +154,7 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 
 func index(publicKey *btcec.PublicKey, sortedPublicKeys []*btcec.PublicKey) int {
 	for index, sortedPublicKey := range sortedPublicKeys {
-		if sortedPublicKey == publicKey {
+		if sortedPublicKey.IsEqual(publicKey) {
 			return index
 		}
 	}

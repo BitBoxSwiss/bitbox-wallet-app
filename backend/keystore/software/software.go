@@ -1,4 +1,4 @@
-package keystore
+package software
 
 import (
 	"crypto/sha256"
@@ -8,9 +8,11 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/sirupsen/logrus"
 
+	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -37,7 +39,7 @@ func NewSoftwareBasedKeystore(
 		cosignerIndex: cosignerIndex,
 		master:        master,
 		identifier:    hex.EncodeToString(hash[:]),
-		log:           logging.Log.WithGroup("servewallet"),
+		log:           logging.Log.WithGroup("software"),
 	}
 }
 
@@ -117,6 +119,54 @@ func (keystore *SoftwareBasedKeystore) sign(
 // SignTransaction implements keystore.Keystore.
 func (keystore *SoftwareBasedKeystore) SignTransaction(
 	proposedTransaction coin.ProposedTransaction,
-) (coin.ProposedTransaction, error) {
-	panic("Transaction signing is not yet supported by the software-based keystore!")
+) error {
+	btcProposedTx, ok := proposedTransaction.(*btc.ProposedTransaction)
+	if !ok {
+		panic("Only BTC supported for now.")
+	}
+	keystore.log.Info("Sign transaction.")
+	signatureHashes := [][]byte{}
+	keyPaths := []signing.AbsoluteKeypath{}
+	transaction := btcProposedTx.TXProposal.Transaction
+	for index, txIn := range transaction.TxIn {
+		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		if !ok {
+			keystore.log.Panic("There needs to be exactly one output being spent per input!")
+		}
+		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
+		isSegwit, subScript := address.ScriptForHashToSign()
+		var signatureHash []byte
+		if isSegwit {
+			var err error
+			signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+				txscript.SigHashAll, transaction, index, spentOutput.Value)
+			if err != nil {
+				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
+			}
+			keystore.log.Debug("Calculated segwit signature hash")
+		} else {
+			var err error
+			signatureHash, err = txscript.CalcSignatureHash(
+				subScript, txscript.SigHashAll, transaction, index)
+			if err != nil {
+				return errp.Wrap(err, "Failed to calculate legacy signature hash")
+			}
+			keystore.log.Debug("Calculated legacy signature hash")
+		}
+
+		signatureHashes = append(signatureHashes, signatureHash)
+		keyPaths = append(keyPaths, address.Configuration.AbsoluteKeypath())
+	}
+
+	signatures, err := keystore.sign(signatureHashes, keyPaths)
+	if err != nil {
+		return errp.WithMessage(err, "Failed to sign signature hash")
+	}
+	if len(signatures) != len(transaction.TxIn) {
+		panic("number of signatures doesn't match number of inputs")
+	}
+	for i, signature := range signatures {
+		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature
+	}
+	return nil
 }

@@ -34,5 +34,5 @@ type Keystore interface {
 	// SignMessage(string, *signing.AbsoluteKeypath, coin.Coin) (*big.Int, error)
 
 	// SignTransaction signs the given transaction proposal.
-	SignTransaction(coin.ProposedTransaction) (coin.ProposedTransaction, error)
+	SignTransaction(coin.ProposedTransaction) error
 }

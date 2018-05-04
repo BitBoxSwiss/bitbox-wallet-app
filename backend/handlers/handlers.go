@@ -27,7 +27,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/device"
-	"github.com/shiftdevices/godbb/backend/keystore"
+	"github.com/shiftdevices/godbb/backend/keystore/software"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	qrcode "github.com/skip2/go-qrcode"
 )
@@ -220,7 +220,7 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 		return nil, errp.WithStack(err)
 	}
 	pin := jsonBody["pin"]
-	softwareBasedKeystore := keystore.NewSoftwareBasedKeystoreFromPIN(
+	softwareBasedKeystore := software.NewSoftwareBasedKeystoreFromPIN(
 		handlers.backend.Keystores().Count(), pin)
 	handlers.backend.RegisterKeystore(softwareBasedKeystore)
 	return true, nil

@@ -131,7 +131,7 @@ func (account *Account) SendTx(
 func (account *Account) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
 	btcutil.Amount, btcutil.Amount, error) {
 
-	account.log.Info("Proposing transaction")
+	account.log.Debug("Proposing transaction")
 	// Dummy recipient, we won't sent the tx, just return the fee.
 	recipientAddress := account.receiveAddresses.GetUnused().Address
 	_, txProposal, err := account.newTx(
@@ -143,6 +143,6 @@ func (account *Account) TxProposal(amount SendAmount, feeTargetCode FeeTargetCod
 		return 0, 0, err
 	}
 
-	account.log.WithField("fee", txProposal.Fee).Info("Returning fee")
+	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
 	return txProposal.Amount, txProposal.Fee, nil
 }

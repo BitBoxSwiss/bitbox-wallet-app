@@ -63,8 +63,6 @@ type deviceEvent struct {
 	Data     string `json:"data"`
 }
 
-type devicesEvent deviceEvent
-
 // WalletEvent models an event triggered by a wallet.
 type WalletEvent struct {
 	Type string `json:"type"`
@@ -328,10 +326,8 @@ func (backend *Backend) Keystores() keystore.Keystores {
 
 // RegisterKeystore registers the given keystore at this backend.
 func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
-	backend.log.Infof("Add keystore to %v keystores.", backend.keystores.Count())
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
-		panic(err)
 	}
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
@@ -339,7 +335,6 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	backend.uninitWallets()
 	if err := backend.initWallets(); err != nil {
 		backend.log.Panic("Failed to initialize wallets.", err)
-		panic(err)
 	}
 	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
 }

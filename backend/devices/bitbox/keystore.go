@@ -1,13 +1,9 @@
 package bitbox
 
 import (
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/btcsuite/btcutil/txsort"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
-	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -60,8 +56,7 @@ func (keystore *keystore) ExtendedPublicKey(
 }
 
 // SignTransaction implements keystore.Keystore.
-func (keystore *keystore) SignTransaction(
-	proposedTx coin.ProposedTransaction) (coin.ProposedTransaction, error) {
+func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) error {
 	btcProposedTx, ok := proposedTx.(*btc.ProposedTransaction)
 	if !ok {
 		panic("only btc")
@@ -70,21 +65,20 @@ func (keystore *keystore) SignTransaction(
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	transaction := btcProposedTx.TXProposal.Transaction
-	sigHashes := txscript.NewTxSigHashes(transaction)
 	for index, txIn := range transaction.TxIn {
 		spentOutput, ok := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
 		if !ok {
-			keystore.log.Panic("output/input mismatch; there needs to be exactly one output being spent ber input")
+			keystore.log.Panic("There needs to be exactly one output being spent per input!")
 		}
 		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
 		isSegwit, subScript := address.ScriptForHashToSign()
 		var signatureHash []byte
 		if isSegwit {
 			var err error
-			signatureHash, err = txscript.CalcWitnessSigHash(
-				subScript, sigHashes, txscript.SigHashAll, transaction, index, spentOutput.Value)
+			signatureHash, err = txscript.CalcWitnessSigHash(subScript, btcProposedTx.SigHashes,
+				txscript.SigHashAll, transaction, index, spentOutput.Value)
 			if err != nil {
-				return nil, errp.Wrap(err, "Failed to calculate SegWit signature hash")
+				return errp.Wrap(err, "Failed to calculate SegWit signature hash")
 			}
 			keystore.log.Debug("Calculated segwit signature hash")
 		} else {
@@ -92,7 +86,7 @@ func (keystore *keystore) SignTransaction(
 			signatureHash, err = txscript.CalcSignatureHash(
 				subScript, txscript.SigHashAll, transaction, index)
 			if err != nil {
-				return nil, errp.Wrap(err, "Failed to calculate legacy signature hash")
+				return errp.Wrap(err, "Failed to calculate legacy signature hash")
 			}
 			keystore.log.Debug("Calculated legacy signature hash")
 		}
@@ -108,46 +102,13 @@ func (keystore *keystore) SignTransaction(
 
 	signatures, err := keystore.dbb.Sign(btcProposedTx.TXProposal, signatureHashes, keyPaths)
 	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to sign signature hash")
+		return errp.WithMessage(err, "Failed to sign signature hash")
 	}
 	if len(signatures) != len(transaction.TxIn) {
 		panic("number of signatures doesn't match number of inputs")
 	}
-	for index, input := range transaction.TxIn {
-		spentOutput := btcProposedTx.PreviousOutputs[input.PreviousOutPoint]
-		address := btcProposedTx.GetAddress(spentOutput.ScriptHashHex())
-		signatures := []*btcec.Signature{&signatures[index]}
-		input.SignatureScript, input.Witness = address.SignatureScript(signatures)
-	}
-	// Sanity check: see if the created transaction is valid.
-	if err := txValidityCheck(transaction, btcProposedTx.PreviousOutputs, sigHashes); err != nil {
-		keystore.log.WithField("error", err).Panic("Failed to pass transaction validity check")
-	}
-
-	return nil, nil
-}
-
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]*transactions.TxOut,
-	sigHashes *txscript.TxSigHashes) error {
-	if !txsort.IsSorted(transaction) {
-		return errp.New("tx not bip69 conformant")
-	}
-	for index, txIn := range transaction.TxIn {
-		spentOutput, ok := previousOutputs[txIn.PreviousOutPoint]
-		if !ok {
-			return errp.New("output/input mismatch; there needs to be exactly one output being spent per input")
-		}
-		engine, err := txscript.NewEngine(
-			spentOutput.PkScript,
-			transaction,
-			index,
-			txscript.StandardVerifyFlags, nil, sigHashes, spentOutput.Value)
-		if err != nil {
-			return errp.WithStack(err)
-		}
-		if err := engine.Execute(); err != nil {
-			return errp.WithStack(err)
-		}
+	for i, signature := range signatures {
+		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature
 	}
 	return nil
 }

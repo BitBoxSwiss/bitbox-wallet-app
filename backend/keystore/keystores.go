@@ -26,7 +26,7 @@ type Keystores interface {
 	OutputAddress(signing.AbsoluteKeypath, coin.Coin) error
 
 	// SignTransaction signs the given proposed transaction on all keystores.
-	SignTransaction(coin.ProposedTransaction) (coin.ProposedTransaction, error)
+	SignTransaction(coin.ProposedTransaction) error
 
 	// Configuration returns the configuration at the given path with the given signing threshold.
 	Configuration(signing.AbsoluteKeypath, int) (*signing.Configuration, error)
@@ -104,17 +104,13 @@ func (keystores *implementation) OutputAddress(
 }
 
 // SignTransaction implements the above interface.
-func (keystores *implementation) SignTransaction(
-	proposedTransaction coin.ProposedTransaction,
-) (coin.ProposedTransaction, error) {
+func (keystores *implementation) SignTransaction(proposedTransaction coin.ProposedTransaction) error {
 	for _, keystore := range keystores.keystores {
-		var err error
-		proposedTransaction, err = keystore.SignTransaction(proposedTransaction)
-		if err != nil {
-			return nil, err
+		if err := keystore.SignTransaction(proposedTransaction); err != nil {
+			return err
 		}
 	}
-	return proposedTransaction, nil
+	return nil
 }
 
 // Configuration implements the above interface.

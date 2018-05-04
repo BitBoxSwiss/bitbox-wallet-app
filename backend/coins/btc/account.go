@@ -168,9 +168,9 @@ func (account *Account) Init() error {
 		return err
 	}
 	account.configuration = configuration
-	db, err := transactionsdb.NewDB(path.Join(
-		account.dbFolder,
-		fmt.Sprintf("account-%s-%s.db", account.configuration.Hash(), account.code)))
+	dbName := fmt.Sprintf("account-%s-%s.db", account.configuration.Hash(), account.code)
+	account.log.Debugf("Using the database '%s' to persist the transactions.", dbName)
+	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
 	if err != nil {
 		return err
 	}
