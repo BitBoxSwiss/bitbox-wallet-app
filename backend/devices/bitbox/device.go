@@ -85,7 +85,9 @@ type Interface interface {
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	DisplayAddress(keyPath string) error
-	VerifyPass(string) (interface{}, error)
+	ECDHPKhash(string) (interface{}, error)
+	ECDHPK(string) (interface{}, error)
+	ECDHchallenge() error
 	StartPairing() (*relay.Channel, error)
 }
 
@@ -973,21 +975,58 @@ func (dbb *Device) DisplayAddress(keyPath string) error {
 	return nil
 }
 
-// VerifyPass passes the ECDH public key of the mobile to the device and returns its response.
-func (dbb *Device) VerifyPass(mobileECDHPK string) (interface{}, error) {
+// ECDHPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
+func (dbb *Device) ECDHPKhash(mobileECDHPKhash string) (interface{}, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
 	command := map[string]interface{}{
-		"verifypass": map[string]interface{}{
-			"ecdh": mobileECDHPK,
+		"ecdh": map[string]interface{}{
+			"hash_pubkey": mobileECDHPKhash,
 		},
 	}
 	reply, err := dbb.send(command, dbb.pin)
 	if err != nil {
 		return nil, err
 	}
-	return reply["verifypass"], nil
+	return reply["ecdh"], nil
+}
+
+// ECDHPK passes the ECDH public key of the mobile to the device and returns its response.
+func (dbb *Device) ECDHPK(mobileECDHPK string) (interface{}, error) {
+	if dbb.bootloaderStatus != nil {
+		return nil, errp.WithStack(errNoBootloader)
+	}
+	command := map[string]interface{}{
+		"ecdh": map[string]interface{}{
+			"pubkey": mobileECDHPK,
+		},
+	}
+	reply, err := dbb.send(command, dbb.pin)
+	if err != nil {
+		return nil, err
+	}
+	return reply["ecdh"], nil
+}
+
+// ECDHchallenge forwards a ecdh challenge command to the Bitbox
+func (dbb *Device) ECDHchallenge() error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(errNoBootloader)
+	}
+	command := map[string]interface{}{
+		"ecdh": map[string]interface{}{
+			"challenge": true,
+		},
+	}
+	reply, err := dbb.send(command, dbb.pin)
+	if err != nil {
+		return err
+	}
+	if reply["ecdh"] != "success" {
+		return errp.New("Unexpected response from bitbox")
+	}
+	return nil
 }
 
 // StartPairing creates, stores and returns a new channel and finishes the pairing asynchronously.

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/util/config"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -19,6 +21,8 @@ type Channel struct {
 
 	// EncryptionKey is used to encrypt the communication between the desktop and the mobile.
 	EncryptionKey []byte `json:"key"`
+
+	log *logrus.Entry
 }
 
 // NewChannel returns a new channel with the given channel identifier and encryption key.
@@ -26,6 +30,7 @@ func NewChannel(channelID string, encryptionKey []byte) *Channel {
 	return &Channel{
 		ChannelID:     channelID,
 		EncryptionKey: encryptionKey,
+		log:           logging.Log.WithGroup("channel"),
 	}
 }
 
@@ -105,6 +110,7 @@ func (channel *Channel) waitForValue(duration time.Duration, name string) (strin
 	deadline := time.Now().Add(duration)
 	for {
 		message, err := PullOldestMessage(relayServer(), channel)
+		channel.log.Debugf("oldest message: %s", string(message))
 		if err != nil {
 			return "", err
 		}
@@ -130,16 +136,36 @@ func (channel *Channel) WaitForScanningSuccess(duration time.Duration) error {
 	return channel.waitForMessage(duration, map[string]string{"id": "success"})
 }
 
+// WaitForMobilePublicKeyHash waits for the given duration for the ECDH public key hash from the mobile.
+// Returns an error if no ECDH public key hash has been received from the server in the given duration.
+func (channel *Channel) WaitForMobilePublicKeyHash(duration time.Duration) (string, error) {
+	return channel.waitForValue(duration, "hash_ecdh_pubkey")
+}
+
 // WaitForMobilePublicKey waits for the given duration for the ECDH public key from the mobile.
 // Returns an error if no ECDH public key has been received from the server in the given duration.
 func (channel *Channel) WaitForMobilePublicKey(duration time.Duration) (string, error) {
+	return channel.waitForValue(duration, "ecdh_pubkey")
+}
+
+// WaitForCommand waits for the given duration for an ECDH command from mobile.
+// Returns the command or an error if no command has been received from the server in the given duration.
+func (channel *Channel) WaitForCommand(duration time.Duration) (string, error) {
+	channel.log.Debug("WaitForCommand")
 	return channel.waitForValue(duration, "ecdh")
 }
 
-// SendVerifyPass sends the verify pass from the BitBox to the paired mobile to finish pairing.
-func (channel *Channel) SendVerifyPass(verifyPass interface{}) error {
+// SendHashPubKey sends the hash of the public key from the BitBox to the paired mobile to finish pairing.
+func (channel *Channel) SendHashPubKey(verifyPass interface{}) error {
 	return PushMessage(relayServer(), channel, map[string]interface{}{
-		"verifypass": verifyPass,
+		"ecdh": verifyPass,
+	})
+}
+
+// SendPubKey sends the ECDH public key from the BitBox to the paired mobile to finish pairing.
+func (channel *Channel) SendPubKey(verifyPass interface{}) error {
+	return PushMessage(relayServer(), channel, map[string]interface{}{
+		"ecdh": verifyPass,
 	})
 }
 
