@@ -25,7 +25,7 @@ class Sidebar extends Component {
   render({
     t,
     accounts,
-    deviceIds,
+    deviceIDs,
   }, { emulated }) {
     return (
       <nav className="sidebar">
@@ -44,16 +44,18 @@ class Sidebar extends Component {
           }
           {
             deviceIDs.map(deviceID => (
-              <Link activeClassName="sidebar-active" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
-                <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
-                <span className="sidebar_label">{ t('sidebar.settings') }</span>
-              </Link>
+              <div>
+                <Link activeClassName="sidebar-active" href={`/manage-backups/${deviceID}`}>
+                  <img src={backups} />
+                  <span className="sidebar_label">Manage Backups</span>
+                </Link>
+                <Link activeClassName="sidebar-active" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
+                  <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                  <span className="sidebar_label">{ t('sidebar.settings') }</span>
+                </Link>
+              </div>
             ))
           }
-          <Link activeClassName="sidebar-active" href="/manage-backups">
-            <img src={backups} />
-            <span className="sidebar_label">Manage Backups</span>
-          </Link>
         </div>
       </nav>
     );
