@@ -12,22 +12,6 @@ type Keystore struct {
 	mock.Mock
 }
 
-// Configuration provides a mock function with given fields:
-func (_m *Keystore) Configuration() *signing.Configuration {
-	ret := _m.Called()
-
-	var r0 *signing.Configuration
-	if rf, ok := ret.Get(0).(func() *signing.Configuration); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*signing.Configuration)
-		}
-	}
-
-	return r0
-}
-
 // CosignerIndex provides a mock function with given fields:
 func (_m *Keystore) CosignerIndex() int {
 	ret := _m.Called()
