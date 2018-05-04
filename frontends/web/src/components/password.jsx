@@ -2,32 +2,28 @@ import { Component } from 'preact';
 
 import { Input, Checkbox, Field } from './forms';
 
-export class PasswordInput extends Component {
-
-    tryPaste = event => {
-        if (event.target.type === 'password') {
-            event.preventDefault();
-            alert('TODO nice message: to paste text, enable \"see plaintext\"');
-        }
-    }
-
-    render(props) {
-        const { seePlaintext, ...rest } = props;
-        return (
-            <Input
-                type={seePlaintext ? 'text' : 'password'}
-                autoComplete="off"
-                onPaste={this.tryPaste}
-                {...rest}
-            />
-        );
-    }
+export function PasswordInput (props) {
+    const { seePlaintext, ...rest } = props;
+    return (
+        <Input
+            type={seePlaintext ? 'text' : 'password'}
+            autoComplete="off"
+            {...rest}
+        />
+    );
 }
 
 export class PasswordRepeatInput extends Component {
     constructor(props) {
         super(props);
         this.state = this.getInitialState();
+    }
+
+    tryPaste = event => {
+        if (event.target.type === 'password') {
+            event.preventDefault();
+            alert('to paste text, enable \"see plaintext\"');
+        }
     }
 
     clear = () => {
@@ -77,6 +73,7 @@ export class PasswordRepeatInput extends Component {
                     placeholder={helptext}
                     disabled={disabled}
                     onInput={this.handleFormChange}
+                    onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     value={password}
@@ -87,6 +84,7 @@ export class PasswordRepeatInput extends Component {
                     label={`Repeat ${label}`}
                     disabled={disabled}
                     onInput={this.handleFormChange}
+                    onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     value={passwordRepeat}
