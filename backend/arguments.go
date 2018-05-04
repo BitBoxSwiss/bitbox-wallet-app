@@ -84,7 +84,7 @@ func (arguments *Arguments) Regtest() bool {
 
 // Multisig returns whether the backend is in multisig mode.
 func (arguments *Arguments) Multisig() bool {
-	return arguments.testing
+	return arguments.multisig
 }
 
 var productionArguments = NewArguments(defaultMainDirectoryPath, false, false, false)
