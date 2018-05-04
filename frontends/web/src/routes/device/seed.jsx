@@ -90,6 +90,10 @@ export default class Seed extends Component {
                                 onInput={this.handleFormChange}
                                 value={walletName}
                             />
+                            <p>TODO: Explain that the Password is used for Master Key
+                            Derivation (?) and can NOT be changed nomore never ever
+                            (with simpler or nicer words)</p>
+
                             <PasswordRepeatInput
                                 label="Password"
                                 ref={ref => this.backupPasswordInput = ref}
