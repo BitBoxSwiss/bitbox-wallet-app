@@ -103,7 +103,7 @@ func (transactions *Transactions) processTxForAddress(
 	// Newly confirmed tx. Try to verify it.
 	if previousHeight <= 0 && height > 0 {
 		transactions.log.Debug("Try to verify newly confirmed tx")
-		transactions.verifyTransaction(txHash, height)
+		go transactions.verifyTransaction(txHash, height)
 	}
 
 	if err := dbTx.AddAddressToTx(txHash, address); err != nil {
