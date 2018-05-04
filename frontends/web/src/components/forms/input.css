@@ -7,15 +7,15 @@
 }
 
 .input input {
-    background-color: var(--color-lightgray);
+    background-color: var(--color-white);
+    border-color: var(--color-brightgray);
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
     display: block;
     font-family: var(--font-family);
     font-size: 1rem;
     font-weight: 500;
-    border-width: 2px;
-    border-style: solid;
-    border-color: transparent;
-    border-radius: 2px;
     height: 2.25em;
     margin-bottom: var(--spacing-default);
     padding: calc(0.375em - 1px) 0.75em;
@@ -26,4 +26,8 @@
     background-color: var(--color-white) !important;
     border-color: var(--color-brightgray) !important;
     color: var(--color-brightgray) !important;
+}
+
+.input input:invalid {
+    outline: 2px solid var(--color-error);
 }

@@ -81,6 +81,8 @@ export default class Initialize extends Component {
                     <p>Please set a PIN to interact with your device</p>
                     <form onsubmit={this.handleSubmit}>
                         <PasswordRepeatInput
+                            pattern="^[0-9]+$"
+                            title="Only Numbers are allowed"
                             label="PIN"
                             ref={ref => this.passwordInput = ref}
                             disabled={state.state === this.stateEnum.WAITING}

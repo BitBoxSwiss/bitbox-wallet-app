@@ -8,6 +8,7 @@ export function PasswordInput (props) {
         <Input
             type={seePlaintext ? 'text' : 'password'}
             autoComplete="off"
+            autoCorrect="off"
             {...rest}
         />
     );
@@ -17,6 +18,12 @@ export class PasswordRepeatInput extends Component {
     constructor(props) {
         super(props);
         this.state = this.getInitialState();
+    }
+
+    componentDidMount() {
+        if (this.props.pattern) {
+            this.regex = new RegExp(this.props.pattern);
+        }
     }
 
     tryPaste = event => {
@@ -61,11 +68,24 @@ export class PasswordRepeatInput extends Component {
         this.setState({ capsLock });
     }
 
-    render({ disabled, helptext, label }, { password, passwordRepeat, seePlaintext, capsLock }) {
+    render({
+        disabled,
+        helptext,
+        label,
+        pattern = false,
+        title
+    }, {
+        password,
+        passwordRepeat,
+        seePlaintext,
+        capsLock
+    }) {
         const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
         return (
             <div>
                 <PasswordInput
+                    pattern={pattern}
+                    title={title}
                     autoFocus
                     id="password"
                     seePlaintext={seePlaintext}
@@ -78,7 +98,14 @@ export class PasswordRepeatInput extends Component {
                     onKeyDown={this.handleCheckCaps}
                     value={password}
                 />
+                <MatchesPattern
+                    regex={this.regex}
+                    text={title}
+                    value={password}
+                />
                 <PasswordInput
+                    pattern={pattern}
+                    title={title}
                     id="passwordRepeat"
                     seePlaintext={seePlaintext}
                     label={`Repeat ${label}`}
@@ -87,6 +114,11 @@ export class PasswordRepeatInput extends Component {
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
+                    value={passwordRepeat}
+                />
+                <MatchesPattern
+                    regex={this.regex}
+                    text={title}
                     value={passwordRepeat}
                 />
                 {warning}
@@ -101,4 +133,14 @@ export class PasswordRepeatInput extends Component {
             </div>
         );
     }
+}
+
+function MatchesPattern({ regex, value = '', text }) {
+    if (!regex || !value.length || regex.test(value)) {
+        return null;
+    }
+
+    return (
+        <p style="color: var(--color-error);">{text}</p>
+    );
 }
