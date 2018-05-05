@@ -19,8 +19,8 @@ import (
 	"github.com/shiftdevices/godbb/util/logging"
 )
 
-// SoftwareBasedKeystore implements a keystore in software.
-type SoftwareBasedKeystore struct {
+// Keystore implements a keystore in software.
+type Keystore struct {
 	cosignerIndex int
 	// The master extended private key from which all keys are derived.
 	master     *hdkeychain.ExtendedKey
@@ -28,14 +28,14 @@ type SoftwareBasedKeystore struct {
 	log        *logrus.Entry
 }
 
-// NewSoftwareBasedKeystore creates a new keystore with the given configuration, index and key.
-func NewSoftwareBasedKeystore(
+// NewKeystore creates a new keystore with the given configuration, index and key.
+func NewKeystore(
 	cosignerIndex int,
 	master *hdkeychain.ExtendedKey,
-) *SoftwareBasedKeystore {
+) *Keystore {
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
-	return &SoftwareBasedKeystore{
+	return &Keystore{
 		cosignerIndex: cosignerIndex,
 		master:        master,
 		identifier:    hex.EncodeToString(hash[:]),
@@ -43,43 +43,43 @@ func NewSoftwareBasedKeystore(
 	}
 }
 
-// NewSoftwareBasedKeystoreFromPIN creates a new unique keystore derived from the PIN.
-func NewSoftwareBasedKeystoreFromPIN(cosignerIndex int, pin string) *SoftwareBasedKeystore {
+// NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
+func NewKeystoreFromPIN(cosignerIndex int, pin string) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
 	master, err := hdkeychain.NewMaster(seed[:], &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
-	return NewSoftwareBasedKeystore(cosignerIndex, master)
+	return NewKeystore(cosignerIndex, master)
 }
 
 // Configuration implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) Configuration() *signing.Configuration {
+func (keystore *Keystore) Configuration() *signing.Configuration {
 	return nil
 }
 
 // CosignerIndex implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) CosignerIndex() int {
+func (keystore *Keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
 }
 
 // Identifier implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) Identifier() (string, error) {
+func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil
 }
 
 // HasSecureOutput implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) HasSecureOutput() bool {
+func (keystore *Keystore) HasSecureOutput() bool {
 	return false
 }
 
 // OutputAddress implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) OutputAddress(signing.AbsoluteKeypath, coin.Coin) error {
+func (keystore *Keystore) OutputAddress(signing.AbsoluteKeypath, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
 // ExtendedPublicKey implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) ExtendedPublicKey(
+func (keystore *Keystore) ExtendedPublicKey(
 	absoluteKeypath signing.AbsoluteKeypath,
 ) (*hdkeychain.ExtendedKey, error) {
 	extendedPrivateKey, err := absoluteKeypath.Derive(keystore.master)
@@ -89,7 +89,7 @@ func (keystore *SoftwareBasedKeystore) ExtendedPublicKey(
 	return extendedPrivateKey.Neuter()
 }
 
-func (keystore *SoftwareBasedKeystore) sign(
+func (keystore *Keystore) sign(
 	signatureHashes [][]byte,
 	keyPaths []signing.AbsoluteKeypath,
 ) ([]btcec.Signature, error) {
@@ -117,7 +117,7 @@ func (keystore *SoftwareBasedKeystore) sign(
 }
 
 // SignTransaction implements keystore.Keystore.
-func (keystore *SoftwareBasedKeystore) SignTransaction(
+func (keystore *Keystore) SignTransaction(
 	proposedTransaction coin.ProposedTransaction,
 ) error {
 	btcProposedTx, ok := proposedTransaction.(*btc.ProposedTransaction)
