@@ -3,7 +3,7 @@ import style from './input.css';
 
 export default function Input({
     disabled, label, id,
-    children, ...props
+    children, getRef, ...props
 }) {
     return (
         <div className={style.input}>
@@ -11,6 +11,7 @@ export default function Input({
             <input
                 id={id}
                 disabled={disabled}
+                ref={getRef}
                 {...props}
             />
             {children}

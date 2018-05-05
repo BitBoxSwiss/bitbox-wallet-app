@@ -47,6 +47,9 @@ export class PasswordRepeatInput extends Component {
     }
 
     validate = () => {
+        if (this.regex && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)) {
+            return this.props.onValidPassword(null);
+        }
         if (this.state.password && this.state.password === this.state.passwordRepeat) {
             this.props.onValidPassword(this.state.password);
         } else {
@@ -83,19 +86,23 @@ export class PasswordRepeatInput extends Component {
         const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
         return (
             <div>
-                <PasswordInput
+                <Input
+                    autoComplete="off"
+                    autoCorrect="off"
+                    autoFocus
+                    disabled={disabled}
+                    type={seePlaintext ? 'text' : 'password'}
+
                     pattern={pattern}
                     title={title}
-                    autoFocus
                     id="password"
-                    seePlaintext={seePlaintext}
                     label={label}
                     placeholder={helptext}
-                    disabled={disabled}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
+                    getRef={ref => this.password = ref}
                     value={password}
                 />
                 <MatchesPattern
@@ -103,17 +110,21 @@ export class PasswordRepeatInput extends Component {
                     text={title}
                     value={password}
                 />
-                <PasswordInput
+                <Input
+                    autoComplete="off"
+                    autoCorrect="off"
+                    disabled={disabled}
+                    type={seePlaintext ? 'text' : 'password'}
+
                     pattern={pattern}
                     title={title}
                     id="passwordRepeat"
-                    seePlaintext={seePlaintext}
                     label={`Repeat ${label}`}
-                    disabled={disabled}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
+                    getRef={ref => this.passwordRepeat = ref}
                     value={passwordRepeat}
                 />
                 <MatchesPattern
