@@ -166,6 +166,7 @@ func (keystore *Keystore) SignTransaction(
 		panic("number of signatures doesn't match number of inputs")
 	}
 	for i, signature := range signatures {
+		signature := signature
 		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature
 	}
 	return nil
