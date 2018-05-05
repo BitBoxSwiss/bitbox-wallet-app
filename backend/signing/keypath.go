@@ -111,7 +111,8 @@ func (relativeKeypath RelativeKeypath) Encode() string {
 
 // Child appends the given node to this relative keypath.
 func (relativeKeypath RelativeKeypath) Child(index uint32, hardened bool) RelativeKeypath {
-	return append(relativeKeypath, keyNode{index, hardened})
+	newKeypath := append(RelativeKeypath{}, relativeKeypath...)
+	return append(newKeypath, keyNode{index, hardened})
 }
 
 // Hardened returns whether the keypath contains a hardened derivation.
@@ -160,12 +161,14 @@ func (absoluteKeypath AbsoluteKeypath) Encode() string {
 
 // Child appends the given node to this absolute keypath.
 func (absoluteKeypath AbsoluteKeypath) Child(index uint32, hardened bool) AbsoluteKeypath {
-	return append(absoluteKeypath, keyNode{index, hardened})
+	newKeypath := append(AbsoluteKeypath{}, absoluteKeypath...)
+	return append(newKeypath, keyNode{index, hardened})
 }
 
 // Append appends a relative keypath to this absolute keypath.
 func (absoluteKeypath AbsoluteKeypath) Append(suffix RelativeKeypath) AbsoluteKeypath {
-	return append(absoluteKeypath, suffix...)
+	newKeypath := append(AbsoluteKeypath{}, absoluteKeypath...)
+	return append(newKeypath, suffix...)
 }
 
 // Derive derives the extended key at this path from the given extended key.
