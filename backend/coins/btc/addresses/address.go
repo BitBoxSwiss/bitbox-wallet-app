@@ -49,7 +49,7 @@ const (
 func NewAccountAddress(
 	configuration *signing.Configuration,
 	addressType AddressType,
-	chain *chaincfg.Params,
+	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
 	log = log.WithFields(logrus.Fields{
@@ -66,7 +66,7 @@ func NewAccountAddress(
 		sortedPublicKeys := configuration.SortedPublicKeys()
 		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
 		for index, publicKey := range sortedPublicKeys {
-			addresses[index], err = btcutil.NewAddressPubKey(publicKey.SerializeCompressed(), chain)
+			addresses[index], err = btcutil.NewAddressPubKey(publicKey.SerializeCompressed(), net)
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get a P2PK address from a public key.")
 			}
@@ -75,7 +75,7 @@ func NewAccountAddress(
 		if err != nil {
 			log.WithField("error", err).Panic("Failed to get the redeem script for multisig.")
 		}
-		address, err = btcutil.NewAddressScriptHash(redeemScript, chain)
+		address, err = btcutil.NewAddressScriptHash(redeemScript, net)
 		if err != nil {
 			log.WithField("error", err).Panic("Failed to get a P2SH address for multisig.")
 		}
@@ -83,12 +83,12 @@ func NewAccountAddress(
 		publicKeyHash := btcutil.Hash160(configuration.PublicKeys()[0].SerializeCompressed())
 		switch addressType {
 		case AddressTypeP2PKH:
-			address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, chain)
+			address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
 			}
 		case AddressTypeP2WPKHP2SH:
-			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, chain)
+			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get segwit addr. from publ. key hash.")
 			}
@@ -96,7 +96,7 @@ func NewAccountAddress(
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get redeem script for segwit address.")
 			}
-			address, err = btcutil.NewAddressScriptHash(redeemScript, chain)
+			address, err = btcutil.NewAddressScriptHash(redeemScript, net)
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get a P2SH address for segwit.")
 			}
