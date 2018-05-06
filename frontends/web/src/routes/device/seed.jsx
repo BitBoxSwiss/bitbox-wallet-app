@@ -25,7 +25,7 @@ export default class Seed extends Component {
     }
 
     validate = () => {
-        return this.state.backupPassword !== '' && this.state.walletName !== '';
+        return this.state.backupPassword && this.state.walletName !== '';
     }
 
     handleFormChange = event => {
@@ -38,10 +38,9 @@ export default class Seed extends Component {
             return;
         }
         this.setState({
-            state: this.stateEnum.DEFAULT,
+            state: this.stateEnum.WAITING,
             error: ''
         });
-        this.setState({ state: this.stateEnum.WAITING });
         apiPost('devices/' + this.props.deviceID + '/create-wallet', {
             walletName: this.state.walletName,
             backupPassword: this.state.backupPassword
@@ -52,6 +51,7 @@ export default class Seed extends Component {
             if (this.backupPasswordInput) {
                 this.backupPasswordInput.clear();
             }
+            this.setState({ backupPassword: '' });
         });
     };
 
@@ -79,7 +79,7 @@ export default class Seed extends Component {
                 {BitBox}
                 <div className={style.content}>
                     <form onsubmit={this.handleSubmit}>
-                        { state === this.stateEnum.ERROR ? <p>{error}</p> : null }
+                        { state === this.stateEnum.ERROR ? <p style="color: var(--color-error);">{error}</p> : null }
                         <div>
                             <Input
                                 autoFocus
@@ -90,9 +90,6 @@ export default class Seed extends Component {
                                 onInput={this.handleFormChange}
                                 value={walletName}
                             />
-                            <p>TODO: Explain that the Password is used for Master Key
-                            Derivation (?) and can NOT be changed nomore never ever
-                            (with simpler or nicer words)</p>
 
                             <PasswordRepeatInput
                                 label="Password"
@@ -101,10 +98,13 @@ export default class Seed extends Component {
                                 onValidPassword={this.setValidBackupPassword}
                             />
                         </div>
+                        <p>TODO: Explain that the Password is used for Master Key
+                        Derivation (?) and can NOT be changed nomore never ever
+                        (with simpler or nicer words)</p>
                         <div>
                             <Button
                                 type="submit"
-                                secondary={true}
+                                primary
                                 disabled={!this.validate() || state === this.stateEnum.WAITING}
                             >Create Wallet</Button>
                         </div>
