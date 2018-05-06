@@ -7,8 +7,8 @@
     cursor: default;
     display: inline-flex;
     font-family: var(--font-family);
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: var(--size-button);
+    font-weight: bold;
     justify-content: center;
     line-height: 1.5;
     margin-bottom: 4px;
@@ -20,36 +20,46 @@
     outline: none;
     text-align: center;
     text-decoration: none;
+    text-transform: uppercase;
     transition: background-color 0.25s, border-color 0.25s, color 0.25s;
     vertical-align: top;
     -webkit-appearance: none;
 }
 
-.button:hover {
-    border-color: var(--color-softblack);
+.primary {
+    composes: button;
+    background: var(--color-default);
+    color: var(--color-white);
 }
 
-.primary {
+.primary:focus,
+.primary:hover {
+    background-color: var(--color-dark);
+}
+
+.secondary {
+    composes: button;
+    background-color: var(--color-rock);
+    border-color: var(--color-rock);
+    color: var(--color-white);
+}
+
+.secondary:hover {
+    background-color: var(--color-gray);
+    border-color: var(--color-gray);
+}
+
+.danger {
     composes: button;
     background-color: var(--color-swissred);
     border-color: var(--color-swissred);
     color: var(--color-white);
 }
 
-.primary:hover {
+.danger:hover {
     background-color: var(--color-white);
     border-color: var(--color-swissred);
     color: var(--color-swissred);
-}
-
-.secondary {
-    composes: button;
-    background-color: var(--color-softblack);
-    border-color: var(--color-softblack);
-    color: var(--color-white);
-}
-
-.secondary:hover {
 }
 
 .button[disabled] {

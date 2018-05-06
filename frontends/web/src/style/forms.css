@@ -26,3 +26,12 @@ input::-webkit-credentials-auto-fill-button {
     position: absolute;
     right: 0;
 }
+
+button:focus,
+input[type="checkbox"]:focus + label::before,
+input[type="radio"]:focus + label::before {
+  outline-color: rgb(59, 153, 252);
+  outline-offset: -2px;
+  outline-style: auto;
+  outline-width: 4px;
+}
