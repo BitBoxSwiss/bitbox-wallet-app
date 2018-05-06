@@ -22,7 +22,6 @@
     text-decoration: none;
     text-transform: uppercase;
     transition: background-color 0.25s, border-color 0.25s, color 0.25s;
-    vertical-align: top;
     -webkit-appearance: none;
 }
 

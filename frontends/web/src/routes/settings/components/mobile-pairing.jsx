@@ -25,7 +25,7 @@ export default class MobilePairing extends Component {
     render({}, { channel }) {
         return (
             <span>
-                <Button secondary={true} onClick={this.startPairing}>
+                <Button secondary onClick={this.startPairing}>
                     Pair with Mobile
                 </Button>
                 <Dialog ref={dialog => { this.dialog = dialog; }} onAccept={this.send}>

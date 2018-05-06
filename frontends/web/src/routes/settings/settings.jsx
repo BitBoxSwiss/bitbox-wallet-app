@@ -1,5 +1,5 @@
 import { Component } from 'preact';
-import { Link } from 'preact-router/match';
+import { ButtonLink } from '../../components/forms';
 import { translate } from 'react-i18next';
 
 import { apiGet } from '../../utils/request';
@@ -36,9 +36,9 @@ export default class Settings extends Component {
                 <p><MobilePairing deviceID={deviceID} /></p>
                 <p><UpgradeFirmware deviceID={deviceID} /></p>
                 <p><LanguageSwitch /></p>
-                <Link href={`/manage-backups/${deviceID}`}>
+                <ButtonLink href={`/manage-backups/${deviceID}`}>
                     { t('device.manageBackups') }
-                </Link>
+                </ButtonLink>
             </div>
         );
     }

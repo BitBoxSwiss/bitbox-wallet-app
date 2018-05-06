@@ -27,7 +27,7 @@ export default class Reset extends Component {
   render() {
     return (
       <div>
-        <Button primary={true} raised={true} onClick={this.showDialog}>Reset Device</Button>
+        <Button danger onClick={this.showDialog}>Reset Device</Button>
         <Dialog ref={resetDialog => this.resetDialog = resetDialog} onAccept={this.resetDevice}>
           <Dialog.Header>Reset Device</Dialog.Header>
           <Dialog.Body>

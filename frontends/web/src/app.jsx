@@ -151,7 +151,7 @@ class SkipForTestingButton extends Component {
             return;
         }
         return (
-            <form onsubmit={this.registerTestingDevice}>
+            <form onSubmit={this.registerTestingDevice}>
               <Input
                 type="password"
                 autoComplete="off"
@@ -161,7 +161,7 @@ class SkipForTestingButton extends Component {
                 onInput={this.handleFormChange}
                 value={testPIN}
                 />
-              <Button type="submit" secondary={true}>
+              <Button type="submit" secondary>
                 Skip for Testing
               </Button>
             </form>

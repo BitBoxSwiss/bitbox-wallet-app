@@ -17,6 +17,8 @@ class Sidebar extends Component {
     }
     componentDidMount() {
         this.setState({ emulated: true });
+
+        // TODO: get device/info back
         // if (debug) {
         //     apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
         // }

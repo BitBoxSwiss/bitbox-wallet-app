@@ -55,7 +55,7 @@ export default class Restore extends Component {
     return (
       <span>
         <Button
-          secondary={true}
+          secondary
           disabled={selectedBackup === null}
           onclick={this.showDialog}>
           Restore

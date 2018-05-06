@@ -57,7 +57,7 @@ export default class Create extends Component {
         return (
             <span>
                 <Button
-                    secondary={true}
+                    secondary
                     onclick={this.showDialog}
                 >
                     Create

@@ -91,7 +91,7 @@ export default class Initialize extends Component {
                         <div>
                             <Button
                                 type="submit"
-                                secondary={true}
+                                primary
                                 disabled={!state.password || state.state === this.stateEnum.WAITING}
                             >Set PIN</Button>
                         </div>

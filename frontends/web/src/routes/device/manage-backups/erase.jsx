@@ -26,7 +26,7 @@ export default class Erase extends Component {
         return (
             <span>
                 <Button
-                    primary={true}
+                    danger
                     disabled={selectedBackup === null}
                     onClick={this.showDialog}
                 >Erase</Button>

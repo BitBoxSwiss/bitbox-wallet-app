@@ -47,7 +47,7 @@ export default class UpgradeFirmware extends Component {
     return (
       <div>
         <Button
-          secondary={true}
+          secondary
           onClick={this.showDialog}>
           Upgrade Firmware
         </Button>

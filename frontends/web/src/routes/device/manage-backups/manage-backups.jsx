@@ -44,10 +44,9 @@ export default class ManageBackups extends Component {
             return (
                 <div>
                     <p>Please insert SD card to manage backups.</p>
-                    <Button
-                        secondary={true}
-                        onclick={this.refresh}
-                    >I have inserted the SD card</Button>
+                    <Button secondary onClick={this.refresh}>
+                        I have inserted the SD card
+                    </Button>
                 </div>
             );
         }

@@ -87,30 +87,34 @@ export default class Unlock extends Component {
         return (
             <div className={style.container}>
                 {BitBox}
-                <form onsubmit={this.handleSubmit} class={style.content}>
+                <div className={style.content}>
                     {submissionState}
-                    <div>
-                        <Input
-                            autoFocus
-                            autoComplete="off"
-                            id="password"
-                            type="password"
-                            label={t('PIN')}
-                            disabled={state === this.stateEnum.WAITING}
-                            placeholder={t('Please enter your PIN to log in')}
-                            onInput={this.handleFormChange}
-                            value={password}
-                        />
-                    </div>
-                    <div>
-                        <Button
-                            secondary
-                            type="submit"
-                            disabled={!this.validate() || state === this.stateEnum.WAITING}
-                            style={{ width: '100%' }}
-                        >{t('Login')}</Button>
-                    </div>
-                </form>
+                    {state !== this.stateEnum.WAITING && (
+                        <form onsubmit={this.handleSubmit}>
+                            <div>
+                                <Input
+                                    autoFocus
+                                    autoComplete="off"
+                                    id="password"
+                                    type="password"
+                                    label={t('PIN')}
+                                    disabled={state === this.stateEnum.WAITING}
+                                    placeholder={t('Please enter your PIN to log in')}
+                                    onInput={this.handleFormChange}
+                                    value={password}
+                                />
+                            </div>
+                            <div>
+                                <Button
+                                    primary
+                                    type="submit"
+                                    disabled={!this.validate() || state === this.stateEnum.WAITING}
+                                    style={{ width: '100%' }}
+                                >{t('Login')}</Button>
+                            </div>
+                        </form>
+                    )}
+                </div>
             </div>
         );
     }

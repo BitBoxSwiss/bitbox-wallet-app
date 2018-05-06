@@ -1,16 +1,24 @@
 :root {
 
     /* colors */
+    --color-greentea: #91B496;
     --color-coolblue: #7b98a3;;
     --color-coolgold: #a39771;
     --color-swissred: #e10000;
     --color-brightblue: #699ec6;
-    --color-gray: #848484;
-    --color-brightgray: #dfdfdf; /* TODO: incorrect color */
-    --color-lightgray: #fbfafa; /* TODO: incorrect color */
-    --color-softblack: #3d3935;
     --color-white: #fff;
-    --color-greentea: #91B496;
+    --color-lightgray: #fbfafa;
+    --color-brightgray: #dfdfdf;
+    --color-rock: #aaa;
+    --color-gray: #848484;
+    --color-softblack: #3d3935;
+    --color-dark: #323230;
+
+    /* font colors */
+    --color-default: var(--color-softblack);
+    --color-primary: var(--color-coolblue);
+    --color-secondary: var(--color-gray);
+    --color-light: var(--color-brightgray);
 
     /* status colors */
     --color-success: var(--color-greentea);
@@ -25,17 +33,12 @@
     --background-active: var(--color-white);
     --background-sidebar: var(--color-brightgray);
 
-    /* font colors */
-    --color-default: var(--color-softblack);
-    --color-primary: var(--color-coolblue);
-    --color-secondary: var(--color-gray);
-    --color-light: var(--color-brightgray);
-
     /* font sizes */
     --size-large: 2rem;
     --size-medium: 1rem;
-    --size-small: .7rem;
+    --size-small: 12px;
     --size-label: var(--size-small);
+    --size-button: 14px;
 
     /* spacing */
     --spacing-large: 2rem;
@@ -43,6 +46,6 @@
     --spacing-half: .5rem;
 
     /* typography */
-    --font-family: 'Helvetica Neue', arial, sans-serif;
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 
 }
