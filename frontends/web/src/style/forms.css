@@ -8,9 +8,15 @@ label {
 label {
     color: var(--color-secondary);
     font-size: var(--size-small);
-    font-weight: 700;
+    font-weight: bold;
     text-align: left;
+    text-indent: 2px;
     text-transform: uppercase;
+}
+
+input:invalid {
+    border-color: var(--color-error);
+    outline: 3px solid var(--color-error);
 }
 
 input::-webkit-credentials-auto-fill-button {
