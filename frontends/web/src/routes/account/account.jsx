@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-import List from 'preact-material-components/List';
 import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import Balance from '../../components/balance/balance';
@@ -39,7 +38,7 @@ export default class Account extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.code !== prevProps.code) {
-            console.log("componentDidUpdate(" + this.props.code + ")");
+            console.log('componentDidUpdate(' + this.props.code + ')');
             this.onStatusChanged();
         }
     }
@@ -67,17 +66,6 @@ export default class Account extends Component {
         }
     }
 
-    componentWillUnmount() {
-        this.unsubscribe();
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        if (this.props.code !== prevProps.code) {
-            console.log("componentDidUpdate(" + this.props.code + ")")
-            this.onStatusChanged();
-        }
-    }
-
     onWalletEvent = data => {
         if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
@@ -93,16 +81,16 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        console.log("Wallet " + this.props.code + " requesting status.")
-        apiGet("wallet/" + this.props.code + "/status").then(status => {
-            if (status == "initialized") {
+        console.log('Wallet ' + this.props.code + ' requesting status.')
+        apiGet('wallet/' + this.props.code + '/status').then(status => {
+            if (status === 'initialized') {
                 this.setState({
                     walletInitialized: true,
                     walletConnected: true,
                     isReceive: false,
                     isSend: false,
                 });
-            } else if (status == "connected") {
+            } else if (status === 'connected') {
                 this.setState({
                     walletInitialized: false,
                     walletConnected: true,
@@ -119,15 +107,15 @@ export default class Account extends Component {
 
     onWalletChanged = () => {
         if (this.state.walletInitialized && this.state.walletConnected) {
-            console.log("Wallet " + this.props.code + " initialized.");
+            console.log('Wallet ' + this.props.code + ' initialized.');
             apiGet('wallet/' + this.props.code + '/transactions').then(transactions => {
-              this.setState({ transactions });
+                this.setState({ transactions });
             });
             apiGet('wallet/' + this.props.code + '/balance').then(balance => {
                 this.setState({ balance });
             });
         } else {
-            console.log("Wallet " + this.props.code + " disconnected. Should rerender");
+            console.log('Wallet ' + this.props.code + ' disconnected. Should rerender');
             this.setState({
                 balance: {
                     available: 0,

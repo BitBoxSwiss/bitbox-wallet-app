@@ -4,12 +4,9 @@ import { apiWebsocket } from '../../../utils/websocket';
 import style from './feetargets.css';
 
 export default class FeeTargets extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            feeTargets: null,
-            feeTarget: null,
-        };
+    state = {
+        feeTargets: null,
+        feeTarget: null,
     }
 
     componentDidMount() {

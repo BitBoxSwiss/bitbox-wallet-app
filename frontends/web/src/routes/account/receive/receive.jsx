@@ -5,9 +5,8 @@ import componentStyle from '../../../components/style.css';
 import style from './receive.css';
 
 export default class ReceiveButton extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { receiveAddress: null };
+    state = {
+        receiveAddress: null
     }
 
     componentDidMount() {
