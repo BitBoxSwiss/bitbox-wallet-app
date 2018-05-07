@@ -1,4 +1,5 @@
 .input {
+    width: 100%;
 }
 
 .input label {
@@ -18,12 +19,13 @@
     font-weight: normal;
     height: 2.75em;
     margin-bottom: var(--spacing-default);
-    padding: calc(0.375em - 1px) 0.75em;
+    padding: var(--spacing-half) var(--spacing-default);
     width: 100%;
 }
 
 .input input[disabled] {
     background-color: var(--color-white) !important;
     border-color: var(--color-brightgray) !important;
-    color: var(--color-brightgray) !important;
+    color: var(--color-rock) !important;
+    cursor: not-allowed;
 }

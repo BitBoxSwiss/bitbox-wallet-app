@@ -1,11 +1,15 @@
 import { Component } from 'preact';
-import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import { translate } from 'react-i18next';
 import { apiPost } from '../../../utils/request';
+import { Button, Checkbox, Input, Label } from '../../../components/forms';
+
+import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
 import componentStyle from '../../../components/style.css';
 import style from './send.css';
 
+@translate()
 export default class Send extends Component {
     state = {
         feeTarget: null,
@@ -80,6 +84,7 @@ export default class Send extends Component {
     }
 
     render({
+        t,
         walletCode,
         walletInitialized,
         unit,
@@ -98,68 +103,49 @@ export default class Send extends Component {
         return (
             <div class="innerContainer">
                 <div class="header">
-                    <h2>Send Coins</h2>
+                    <h2>{t('send.title')}</h2>
                 </div>
                 <div class="content">
                     <div class="row">
-                        <div class="flex flex-row flex-between flex-items-center">
-                            <p class="label">Address</p>
-                        </div>
-                        <input
-                            type="text"
-                            class={[style.input, style.inputFull].join(' ')}
+                        <Input
+                            label={t('send.address.label')}
+                            placeholder={t('send.address.placeholder')}
                             id="recipientAddress"
                             onInput={this.handleFormChange}
                             onChange={this.validateAndDisplayFee}
                             value={recipientAddress}
-                            placeholder="Enter bitcoin address"
                             autocomplete="off"
-                            autofocus
-                        />
+                            autofocus />
                     </div>
                     <div class="row">
                         <div class="flex flex-row flex-between flex-items-center">
-                            <p class="label">Amount</p>
-                            <p class="label">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        id="sendAll"
-                                        style="margin-right: 5px;"
-                                        onChange={this.sendAll}
-                                        checked={sendAll}
-                                    />
-                                    Maximum Amount
-                                </label>
-                            </p>
+                            <Label for="amount">{t('send.amount.label')}</Label>
+                            <Checkbox
+                                label={t('send.maximum')}
+                                id="sendAll"
+                                onChange={this.sendAll}
+                                checked={sendAll} />
                         </div>
-                        <div class="flex flex-row flex-between flex-items-center">
-                            <input
-                                type="text"
-                                class={[style.input, style.inputFull, sendAll ? style.notAllowed : null].join(' ')}
-                                id="amount"
-                                autocomplete="off"
-                                onInput={this.handleFormChange}
-                                onChange={this.validateAndDisplayFee}
-                                disabled={sendAll}
-                                value={sendAll ? proposedAmount : amount}
-                                placeholder="Enter bitcoin amount"
-                            />
-                        </div>
+                        <Input
+                            id="amount"
+                            autocomplete="off"
+                            onInput={this.handleFormChange}
+                            onChange={this.validateAndDisplayFee}
+                            disabled={sendAll}
+                            value={sendAll ? proposedAmount : amount}
+                            placeholder={t('send.amount.placeholder')} />
                     </div>
                     <div class="row">
-                        <div class="flex flex-row flex-start flex-items-center">
-                            <p class={['label', style.labelHalf].join(' ')}>Bitcoin Network Fee</p>
-                            <p class={['label', style.labelHalf].join(' ')}>Network Priority</p>
-                        </div>
-                        <div class="flex flex-row flex-between flex-items-center">
-                            <input
-                                type="text"
-                                class={[style.input, style.inputHalf, style.notAllowed].join(' ')}
-                                value={ proposedFee ? proposedFee : 'Not available'}
+                        <div class="flex flex-1 flex-row flex-between flex-items-center">
+                            <Input
+                                label={t('send.fee.label')}
+                                value={ proposedFee ? proposedFee : t('send.fee.placeholder')}
                                 disabled
                             />
+                            &nbsp;
                             <FeeTargets
+                                label={t('send.feeTarget.label')}
+                                placeholder={t('send.feeTarget.placeholder')}
                                 walletCode={walletCode}
                                 disabled={!amount && !sendAll}
                                 walletInitialized={walletInitialized}
@@ -169,8 +155,13 @@ export default class Send extends Component {
                     </div>
                 </div>
                 <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                    <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.props.onClose}>Cancel</button>
-                    <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.send}>Send</button>
+                    <Button secondary onClick={this.props.onClose}>
+                        {t('button.cancel')}
+                    </Button>
+                    &nbsp;
+                    <Button primary onClick={this.send}>
+                        {t('button.send')}
+                    </Button>
                 </div>
                 <WaitDialog
                     active={isConfirming}

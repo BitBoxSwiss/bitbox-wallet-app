@@ -8,8 +8,10 @@ label {
 .label,
 label {
     color: var(--color-secondary);
+    display: block;
     font-size: var(--size-small);
     font-weight: bold;
+    margin-bottom: var(--spacing-half);
     text-indent: 2px;
     text-transform: uppercase;
 }
@@ -28,6 +30,8 @@ input::-webkit-credentials-auto-fill-button {
 }
 
 button:focus,
+input:focus,
+select:focus,
 input[type="checkbox"]:focus + label::before,
 input[type="radio"]:focus + label::before {
   outline-color: rgb(59, 153, 252);

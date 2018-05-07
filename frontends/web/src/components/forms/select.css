@@ -1,0 +1,24 @@
+.select {
+    width: 100%;
+}
+
+.select select {
+    appearance: none;
+    background-color: var(--color-white);
+    border: solid 1px var(--color-brightgray);
+    border-radius: 2px;
+    font-family: var(--font-family);
+    font-size: var(--size-medium);
+    height: 2.75em;
+    margin-bottom: var(--spacing-default);
+    padding: var(--spacing-half) var(--spacing-default);
+    width: 100%;
+}
+
+.select option {
+    width: 100%;
+    padding: var(--spacing-default);
+    border-radius: 2px;
+    border: solid 1px var(--color-lightgray);
+    background-color: white;
+}

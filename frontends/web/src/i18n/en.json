@@ -14,5 +14,33 @@
     },
     "device": {
         "manageBackups": "Manage Backups"
-    }
+    },
+    "receive": {
+        "title": "Get Coins",
+        "label": "Your Bitcoin address"
+    },
+    "send": {
+        "title": "Send Coins",
+        "address": {
+            "label": "Address",
+            "placeholder": "Enter Bitcoin address"
+        },
+        "amount": {
+            "label": "Amount",
+            "placeholder": "Enter Bitcoin amount"
+        },
+        "maximum": "Maximum Amount",
+        "fee": {
+            "label": "Bitcoin Network Fee",
+            "placeholder": "Not available"
+        },
+        "feeTarget": {
+            "label": "Network Priority"
+        }
+    },
+    "button": {
+      "send": "Send",
+      "cancel": "Cancel"
+    },
+    "loading": "loading…"
 }

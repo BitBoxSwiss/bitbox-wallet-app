@@ -1,20 +1,29 @@
 html,
 body {
-	background: var(--background);
-	color: var(--color-default);
-	font-family: var(--font-family);
-	font-weight: 400;
-	height: 100%;
-	margin: 0;
-	padding: 0;
-	width: 100%;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+    background: var(--background);
+    color: var(--color-default);
+    font-family: var(--font-family);
+    font-weight: 400;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+	  -webkit-user-select: none;
+	  -webkit-app-region: drag;
 }
 
+/*
+::selection:not(textarea):not(input) {
+    background-color: transparent;
+}
+*/
+
 * {
-	box-sizing: border-box;
-	transition: all 0.2s ease;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
 }
 
 p {

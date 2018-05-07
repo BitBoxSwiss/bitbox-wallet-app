@@ -5,6 +5,10 @@
     width: 400px;
 }
 
+.receiveContent img {
+    margin-bottom: var(--spacing-default);
+}
+
 .addressField {
     display: inline-block;
 }

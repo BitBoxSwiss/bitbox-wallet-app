@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
-import style from './feetargets.css';
+import { Select } from '../../../components/forms';
 
 export default class FeeTargets extends Component {
     state = {
@@ -53,29 +53,21 @@ export default class FeeTargets extends Component {
         this.props.onFeeTargetChange(feeTarget);
     }
 
-    render({ disabled }, { feeTargets, feeTarget }) {
+    render({ disabled, label, placeholder }, { feeTargets, feeTarget }) {
         if (!feeTargets) {
             return (
-                <span>Fetching fee data</span>
+                <span>{placeholder}</span>
             );
         }
-        const option = target => (
-            <option
-                value={target.code}
-                selected={feeTarget === target.code}>
-                {target.code}
-            </option>
-        );
 
         return (
-            <div class={style.feeTargets}>
-                <select
-                    disabled={disabled}
-                    id="feeTarget"
-                    onChange={this.handleFeeTargetChange}>
-                    { feeTargets && feeTargets.map(option) }
-                </select>
-            </div>
+            <Select
+                label={label}
+                id="feeTarget"
+                disabled={disabled}
+                onChange={this.handleFeeTargetChange}
+                selected={feeTarget}
+                options={feeTargets} />
         );
     }
 }

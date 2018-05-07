@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import style from './field.css';
 
-export default function Button({
+export default function Field({
     children, ...props
 }) {
     return (

@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import style from './checkbox.css';
 
-export default function Input({
+export default function Checkbox({
     disabled, label, id,
     children, ...props
 }) {
