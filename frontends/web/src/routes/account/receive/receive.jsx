@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
+import { Button, Input } from '../../../components/forms';
 import QRCode from './qrcode';
-import componentStyle from '../../../components/style.css';
 import style from './receive.css';
 
 export default class ReceiveButton extends Component {
@@ -30,20 +30,26 @@ export default class ReceiveButton extends Component {
                     <h2>Get Coins</h2>
                 </div>
                 <div class="content isVerticallyCentered">
-                    {
-                        receiveAddress ? (
-                            <div class={style.receiveContent}>
-                                <p class="label">Your bitcoin address</p>
-                                <div><QRCode data={receiveAddress} /></div>
-                                <p><input type="text" class={style.addressField} value={receiveAddress} onFocus={focus} autocomplete="off" autofocus readonly /></p>
-                            </div>
-                        ) : (
-                            'loading…'
-                        )
-                    }
+                    <div class={style.receiveContent}>
+                        {
+                            receiveAddress ? (
+                                <div>
+                                    <p class="label">Your bitcoin address</p>
+                                    <QRCode data={receiveAddress} />
+                                    <Input
+                                        readOnly
+                                        className={style.addressField}
+                                        onFocus={focus}
+                                        value={receiveAddress} />
+                                </div>
+                            ) : (
+                                'loading…'
+                            )
+                        }
+                    </div>
                 </div>
                 <div class="flex flex-row flex-end">
-                    <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={this.props.onClose}>Cancel</button>
+                    <Button primary onClick={this.props.onClose}>Cancel</Button>
                 </div>
             </div>
         );

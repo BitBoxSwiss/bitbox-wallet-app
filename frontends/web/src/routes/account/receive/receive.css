@@ -1,12 +1,15 @@
-.addressField {
-  padding: var(--spacing-default) var(--spacing-large);
-  border-radius: 2px;
-  border: solid 1px var(--color-brightgray);
-  width: 256px;
-  font-size: var(--size-medium);
+.receiveContent {
+    height: 400px;
+    margin: 0 auto;
+    text-align: center;
+    width: 400px;
 }
 
-.receiveContent {
-  width: 256px;
-  margin: 0 auto;
+.addressField {
+    display: inline-block;
+}
+
+.addressField input {
+    text-align: center;
+    width: 400px;
 }
