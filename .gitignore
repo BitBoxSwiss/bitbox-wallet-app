@@ -8,5 +8,6 @@
 /frontends/qt/build/
 /frontends/web/build/
 /frontends/web/node_modules/
+/frontends/web/.eslintcache
 /vendor/
 **/*/output.log

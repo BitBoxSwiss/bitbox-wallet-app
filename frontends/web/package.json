@@ -7,7 +7,7 @@
     "build": "preact build",
     "serve": "preact build && preact serve",
     "dev": "preact watch",
-    "lint": "eslint src"
+    "lint": "eslint --cache --ignore-path ../../.gitignore ."
   },
   "eslintConfig": {
     "extends": "eslint-config-synacor"
