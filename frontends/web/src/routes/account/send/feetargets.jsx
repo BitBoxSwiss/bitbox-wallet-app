@@ -4,71 +4,71 @@ import { apiWebsocket } from '../../../utils/websocket';
 import style from './feetargets.css';
 
 export default class FeeTargets extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      feeTargets: null,
-      feeTarget: null,
-    };
-  }
-
-  componentDidMount() {
-    this.unsubscribe = apiWebsocket(this.onEvent);
-    if (this.props.walletInitialized) {
-      this.updateFeeTargets(this.props.walletCode);
+    constructor(props) {
+        super(props);
+        this.state = {
+            feeTargets: null,
+            feeTarget: null,
+        };
     }
-  }
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  componentWillReceiveProps({ walletInitialized, walletCode }) {
-    if (walletInitialized && !this.props.walletInitialized || this.props.walletCode != walletCode) {
-      this.updateFeeTargets(walletCode);
+    componentDidMount() {
+      this.unsubscribe = apiWebsocket(this.onEvent);
+      if (this.props.walletInitialized) {
+        this.updateFeeTargets(this.props.walletCode);
+      }
     }
-  }
 
-  onEvent = data => {
-    if (data.type !== 'wallet' || data.code !== this.props.walletCode) {
-      return;
+    componentWillUnmount() {
+      this.unsubscribe();
     }
-    switch (data.data) {
-    case "feeTargetsChanged":
-      this.updateFeeTargets(this.props.walletCode);
-      break;
+
+    componentWillReceiveProps({ walletInitialized, walletCode }) {
+      if (walletInitialized && !this.props.walletInitialized || this.props.walletCode != walletCode) {
+        this.updateFeeTargets(walletCode);
+      }
     }
-  }
 
-  updateFeeTargets = (walletCode) => {
-    apiGet('wallet/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
-      this.setState({ feeTargets });
-      this.setFeeTarget(defaultFeeTarget);
-    });
-  }
+    onEvent = data => {
+      if (data.type !== 'wallet' || data.code !== this.props.walletCode) {
+        return;
+      }
+      switch (data.data) {
+      case "feeTargetsChanged":
+        this.updateFeeTargets(this.props.walletCode);
+        break;
+      }
+    }
 
-  handleFeeTargetChange = event => {
-    this.setFeeTarget(this.state.feeTargets[event.target.selectedIndex].code);
-  }
+    updateFeeTargets = (walletCode) => {
+      apiGet('wallet/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+        this.setState({ feeTargets });
+        this.setFeeTarget(defaultFeeTarget);
+      });
+    }
 
-  setFeeTarget = feeTarget => {
-    this.setState({ feeTarget });
-    this.props.onFeeTargetChange(feeTarget);
-  }
+    handleFeeTargetChange = event => {
+      this.setFeeTarget(this.state.feeTargets[event.target.selectedIndex].code);
+    }
 
-  render({ disabled }, { feeTargets, feeTarget }) {
-    if (!feeTargets) {
-      return (
-        <span>Fetching fee data</span>
+    setFeeTarget = feeTarget => {
+      this.setState({ feeTarget });
+      this.props.onFeeTargetChange(feeTarget);
+    }
+
+    render({ disabled }, { feeTargets, feeTarget }) {
+      if (!feeTargets) {
+        return (
+          <span>Fetching fee data</span>
+        );
+      }
+      const option = target => (
+        <option
+          value={target.code}
+          selected={feeTarget === target.code}>
+          {target.code}
+        </option>
       );
-    }
-    const option = target => (
-      <option
-        value={target.code}
-        selected={feeTarget === target.code}>
-        {target.code}
-      </option>
-    );
 
     return (
       <div class={style.feeTargets}>
@@ -79,6 +79,6 @@ export default class FeeTargets extends Component {
           { feeTargets && feeTargets.map(option) }
         </select>
       </div>
-    );
-  }
+        );
+    }
 }
