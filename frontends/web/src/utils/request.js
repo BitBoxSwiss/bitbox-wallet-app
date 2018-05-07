@@ -14,6 +14,7 @@ export function apiURL(endpoint) {
 function handleError(json) {
     return new Promise((resolve, reject) => {
         if (json && json.error) {
+            /* eslint no-alert: "warn" */
             alert(json.error + ' (todo: nice error msgs)');
             reject(json.error);
             return;
