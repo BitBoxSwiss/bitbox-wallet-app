@@ -5,11 +5,11 @@ label {
     user-select: none;
 }
 
+.label,
 label {
     color: var(--color-secondary);
     font-size: var(--size-small);
     font-weight: bold;
-    text-align: left;
     text-indent: 2px;
     text-transform: uppercase;
 }

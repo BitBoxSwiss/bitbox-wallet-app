@@ -60,14 +60,6 @@
   line-height: 36px;
 }
 
-.label {
-  font-size: var(--size-label);
-  text-transform: uppercase;
-  font-weight: bold;
-	text-indent: 1px;
-	color: var(--color-softblack);
-}
-
 .content {
   margin: var(--spacing-large) 0 0 0;
   flex: 1;
