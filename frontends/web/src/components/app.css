@@ -15,3 +15,7 @@
 .content {
     height: 450px;
 }
+
+.content form {
+    text-align: left;
+}

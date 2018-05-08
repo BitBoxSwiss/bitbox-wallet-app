@@ -38,8 +38,8 @@
     width: 0.3em;
     height: 0.55em;
     position: absolute;
-    top: 0.6em;
-    left: 0.5em;
+    top: 0.45em;
+    left: 0.45em;
     margin-left: -1px;
     margin-top: -2px;
     opacity: 0;
@@ -50,7 +50,6 @@
 
 .checkbox input:checked + label::before {
     background-color: var(--color-white);
-    border-color: var(--color-default);
 }
 
 .checkbox input:checked + label::after {
