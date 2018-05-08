@@ -35,7 +35,8 @@
             "placeholder": "Not available"
         },
         "feeTarget": {
-            "label": "Network Priority"
+            "label": "Network Priority",
+            "placeholder": "Calculating fee estimation"
         }
     },
     "button": {
