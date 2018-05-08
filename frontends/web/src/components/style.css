@@ -7,7 +7,11 @@
 }
 
 /* BUTTONS */
-.buttons .button:not(:last-child) {
+.buttons button:not(:last-child) {
+	margin-right: var(--spacing-half);
+}
+
+.buttons a:not(:last-child) {
 	margin-right: var(--spacing-half);
 }
 

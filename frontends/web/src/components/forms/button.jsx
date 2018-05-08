@@ -3,10 +3,12 @@ import { Link } from 'preact-router/match';
 import style from './button.css';
 
 export function ButtonLink({
-    primary, secondary, danger,
-    children, ...props
-}){
-
+    primary,
+    secondary,
+    danger,
+    children,
+    ...props
+}) {
     const className = primary && 'primary'
         || secondary && 'secondary'
         || danger && 'danger'
@@ -20,10 +22,12 @@ export function ButtonLink({
 }
 
 export default function Button({
-    primary, secondary, danger,
-    children, ...props
+    primary,
+    secondary,
+    danger,
+    children,
+    ...props
 }) {
-
     const className = primary && 'primary'
         || secondary && 'secondary'
         || danger && 'danger'
@@ -32,8 +36,7 @@ export default function Button({
     return (
         <button
             className={style[className]}
-            {...props}
-        >
+            {...props}>
             {children}
         </button>
     );

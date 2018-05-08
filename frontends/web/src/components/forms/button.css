@@ -11,11 +11,12 @@
     font-weight: bold;
     justify-content: center;
     line-height: 1.5;
-    margin-bottom: 4px;
-    min-width: 180px;
+    /*margin-bottom: 4px;*/
+    min-width: 148px;
     height: 2.75em;
     overflow: hidden;
     padding: calc(0.375em - 1px) 0.75em;
+    padding: 0 0.75em;
     position: relative;
     outline: none;
     text-align: center;
@@ -23,6 +24,11 @@
     text-transform: uppercase;
     transition: background-color 0.25s, border-color 0.25s, color 0.25s;
     -webkit-appearance: none;
+    cursor: pointer;
+}
+
+.button:focus {
+    outline: none;
 }
 
 .primary {
@@ -50,8 +56,8 @@
 
 .danger {
     composes: button;
-    background-color: var(--color-swissred);
-    border-color: var(--color-swissred);
+    background-color: var(--color-softred);
+    border-color: var(--color-softred);
     color: var(--color-white);
 }
 

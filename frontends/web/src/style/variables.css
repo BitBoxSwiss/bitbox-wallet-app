@@ -3,6 +3,7 @@
     --color-greentea: #91B496;
     --color-coolblue: #7b98a3;;
     --color-coolgold: #a39771;
+    --color-softred: #EC644B;
     --color-swissred: #e10000;
     --color-brightblue: #699ec6;
     --color-white: #fff;
@@ -25,7 +26,6 @@
     --color-warn: var(--color-coolgold);
     --color-warning: var(--color-warn);
     --color-error: var(--color-swissred);
-    --color-danger: #EC644B;
 
     /* background colors */
     --background: var(--color-lightgray);
@@ -38,7 +38,7 @@
     --size-medium: 1rem;
     --size-small: 12px;
     --size-label: var(--size-small);
-    --size-button: 14px;
+    --size-button: 12px;
 
     /* spacing */
     --spacing-large: 2rem;
