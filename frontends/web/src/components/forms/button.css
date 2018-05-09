@@ -10,21 +10,18 @@
     font-size: var(--size-button);
     font-weight: bold;
     justify-content: center;
-    line-height: 1.5;
+    line-height: 32px;
     /*margin-bottom: 4px;*/
-    min-width: 148px;
-    height: 2.75em;
+    min-width: 120px;
+    height: 36px;
     overflow: hidden;
-    padding: calc(0.375em - 1px) 0.75em;
-    padding: 0 0.75em;
+    padding: 0 var(--spacing-default);
     position: relative;
     outline: none;
     text-align: center;
     text-decoration: none;
     text-transform: uppercase;
-    transition: background-color 0.25s, border-color 0.25s, color 0.25s;
     -webkit-appearance: none;
-    cursor: pointer;
 }
 
 .button:focus {
