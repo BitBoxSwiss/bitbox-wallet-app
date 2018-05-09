@@ -89,7 +89,7 @@ export default class Seed extends Component {
                                 disabled={state === this.stateEnum.WAITING}
                                 onInput={this.handleFormChange}
                                 value={walletName}
-                            />
+                                pattern="[^\s]+" />
 
                             <PasswordRepeatInput
                                 label="Password"
