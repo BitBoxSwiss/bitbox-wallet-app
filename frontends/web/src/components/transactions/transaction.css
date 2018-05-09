@@ -4,21 +4,21 @@
 }
 
 .transactionContainer:nth-child(odd) {
-  background-color: var(--color-lightgray);
+  background-color: var(--color-white);
 }
 
 .transactionContainer:hover {
   cursor: pointer;
 }
 
-.expanded {
-}
-
 .transaction {
+  margin: 0 auto;
+  max-width: 800px;
   padding: var(--spacing-default) var(--spacing-large);
 }
 
 .date {
+  color: var(--color-secondary);
   font-size: var(--size-small);
   font-weight: bolder;
 }
@@ -79,23 +79,25 @@
 
 .address {
   font-weight: bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.collapedContent {
+.collapsedContent {
   margin-top: var(--spacing-half);
 }
 
-.collapedContent .transactionLabel {
+.collapsedContent .transactionLabel {
   width: auto;
   text-align: left;
   background-color: transparent;
-  color: lightgray;
+  color: var(--color-secondary);
 }
 
-.collapedContent a {
+.collapsedContent a {
   color: var(--color-coolblue);
 }
 
-.collapedContent a:hover {
+.collapsedContent a:hover {
   color: var(--color-brightblue);
 }

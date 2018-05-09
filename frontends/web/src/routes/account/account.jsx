@@ -1,6 +1,8 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
+import { Button } from '../../components/forms';
 import Balance from '../../components/balance/balance';
 import Send from './send/send';
 import Receive from './receive/receive';
@@ -8,6 +10,7 @@ import Transactions from '../../components/transactions/transactions';
 import componentStyle from '../../components/style.css';
 import style from './account.css';
 
+@translate()
 export default class Account extends Component {
     state = {
         walletInitialized: false,
@@ -51,18 +54,6 @@ export default class Account extends Component {
             });
         } else {
             return;
-        }
-    }
-
-    onWalletEvent = data => {
-        if (data.type !== 'wallet') return;
-        switch (data.data) {
-        case 'statusChanged':
-            this.onStatusChanged();
-            break;
-        case 'syncdone':
-            this.onWalletChanged();
-            break;
         }
     }
 
@@ -127,6 +118,7 @@ export default class Account extends Component {
     }
 
     render({
+        t,
         wallets,
     }, {
         walletInitialized,
@@ -138,29 +130,47 @@ export default class Account extends Component {
     }) {
         const wallet = wallets.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
+        // currently no status if everything is ok 'account.connect'
+        const connectionStatusContainer = walletConnected ? null : (
+            <div class={style.connectionStatusContainer}>
+                <div class={[style.connectionStatus, style.warning].join(' ')}>
+                    <p>{t('account.disconnect')}</p>
+                </div>
+            </div>
+        );
         return (
             <div class="container">
                 {
                     (!isReceive && !isSend) && (
-                        <div class="innerContainer">
-                            <div class="header">
+                        <div class={style.container}>
+                            {connectionStatusContainer}
+                            <div class={style.header}>
                                 <Balance name={wallet.name} amount={balance.available} unit={balance.unit}>
                                     {
                                         balance.hasIncoming && (
-                                            <h5 class={style.pendingBalance}>{balance.incoming} Pending</h5>
+                                            <h5 class={style.pendingBalance}>
+                                                {balance.incoming}
+                                                <span style="color: var(--color-light);">{balance.unit}</span>
+                                                {' '}
+                                                {t('account.pending')}
+                                            </h5>
                                         )
                                     }
                                 </Balance>
-                                <div class={[componentStyle.buttons].join(' ')}>
-                                    <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={() => this.setState({ isReceive: true })}>Receive</button>
-                                    <button class={[componentStyle.button, componentStyle.isPrimary].join(' ')} onClick={() => this.setState({ isSend: true })}>Send</button>
+                                <div class={componentStyle.buttons}>
+                                    <Button primary onClick={() => this.setState({ isReceive: true })}>
+                                        {t('button.receive')}
+                                    </Button>
+                                    <Button primary onClick={() => this.setState({ isSend: true })}>
+                                        {t('button.send')}
+                                    </Button>
                                 </div>
                             </div>
                             <div class="content">
                                 {
                                     !walletInitialized ? (
                                         <div class="flex flex-row flex-center">
-                                            <p style="font-weight: bold;">Initializing...</p>
+                                            <p style="font-weight: bold;">{t('account.initializing')}</p>
                                         </div>
                                     ) : (
                                         <Transactions
@@ -169,19 +179,6 @@ export default class Account extends Component {
                                         />
                                     )
                                 }
-                                <div class={style.connectionStatusContainer}>
-                                    {
-                                        walletConnected ? (
-                                            <div class={[style.connectionStatus, style.success].join(' ')}>
-                                                <p>Connection established</p>
-                                            </div>
-                                        ) : (
-                                            <div class={[style.connectionStatus, style.warning].join(' ')}>
-                                                <p>Connection lost. Retrying...</p>
-                                            </div>
-                                        )
-                                    }
-                                </div>
                             </div>
                         </div>
                     )

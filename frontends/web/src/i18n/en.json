@@ -6,7 +6,7 @@
             "109_touch": "$t(dbb.error.109_normal) The next login requires holding the touch button.",
             "102": "The password length must be at least 4 characters."
         },
-        "unlocking": "Unlocking..."
+        "unlocking": "Unlocking…"
     },
     "sidebar": {
         "settings": "Settings",
@@ -14,6 +14,27 @@
     },
     "device": {
         "manageBackups": "Manage Backups"
+    },
+    "account": {
+        "connect": "Connection established",
+        "disconnect": "Connection lost. Retrying…",
+        "pending": "Pending",
+        "initializing": "Initializing…"
+    },
+    "transactions": {
+        "placeholder": "No transactions yet."
+    },
+    "transaction": {
+        "pending": "Pending Transaction",
+        "badge": {
+            "to": "To",
+            "from": "From",
+            "self": "Self"
+        },
+        "confirmation": "Number of confirmations",
+        "fee": "Fee",
+        "fiatHistorical": "Historical",
+        "explorer": "Transaction ID (Open in external block Explorer)"
     },
     "receive": {
         "title": "Get Coins",
@@ -41,6 +62,7 @@
     },
     "button": {
       "send": "Send",
+      "receive": "Receive",
       "cancel": "Cancel"
     },
     "loading": "loading…"
