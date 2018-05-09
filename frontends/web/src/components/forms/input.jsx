@@ -11,6 +11,9 @@ export default function Input({
         <div className={[input, className].join(' ')} style={style}>
             {label && <label for={id}>{label}</label>}
             <input
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
                 type={type}
                 id={id}
                 disabled={disabled}

@@ -94,7 +94,6 @@ export default class Unlock extends Component {
                             <div>
                                 <Input
                                     autoFocus
-                                    autoComplete="off"
                                     id="password"
                                     type="password"
                                     label={t('PIN')}

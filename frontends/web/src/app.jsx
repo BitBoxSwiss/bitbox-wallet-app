@@ -154,7 +154,6 @@ class SkipForTestingButton extends Component {
             <form onSubmit={this.registerTestingDevice}>
               <Input
                 type="password"
-                autoComplete="off"
                 autoFocus
                 id="testPIN"
                 label="Test PIN"

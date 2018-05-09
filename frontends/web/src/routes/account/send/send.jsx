@@ -114,7 +114,6 @@ export default class Send extends Component {
                             onInput={this.handleFormChange}
                             onChange={this.validateAndDisplayFee}
                             value={recipientAddress}
-                            autocomplete="off"
                             autofocus />
                     </div>
                     <div class="row">
@@ -128,7 +127,6 @@ export default class Send extends Component {
                         </div>
                         <Input
                             id="amount"
-                            autocomplete="off"
                             onInput={this.handleFormChange}
                             onChange={this.validateAndDisplayFee}
                             disabled={sendAll}

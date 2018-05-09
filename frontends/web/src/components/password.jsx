@@ -7,8 +7,6 @@ export function PasswordInput (props) {
     return (
         <Input
             type={seePlaintext ? 'text' : 'password'}
-            autoComplete="off"
-            autoCorrect="off"
             {...rest}
         />
     );
@@ -87,8 +85,6 @@ export class PasswordRepeatInput extends Component {
         return (
             <div>
                 <Input
-                    autoComplete="off"
-                    autoCorrect="off"
                     autoFocus
                     disabled={disabled}
                     type={seePlaintext ? 'text' : 'password'}
@@ -111,8 +107,6 @@ export class PasswordRepeatInput extends Component {
                     value={password}
                 />
                 <Input
-                    autoComplete="off"
-                    autoCorrect="off"
                     disabled={disabled}
                     type={seePlaintext ? 'text' : 'password'}
 
