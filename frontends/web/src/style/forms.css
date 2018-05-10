@@ -16,7 +16,8 @@ label {
     text-transform: uppercase;
 }
 
-input:invalid {
+input:invalid,
+input:invalid:focus {
     border-color: var(--color-error);
     outline: 3px solid var(--color-error);
 }
