@@ -60,6 +60,24 @@
             "placeholder": "Calculating fee estimation"
         }
     },
+    "seed": {
+        "creating": "Creating wallet…",
+        "walletName": {
+            "label": "Wallet Name",
+            "placeholder": ""
+        },
+        "password": {
+            "label": "Password"
+        },
+        "description": "This password is part of the Seed to generate the Master Key and therefore can NOT be changed later.",
+        "create": "Create Wallet"
+    },
+    "initialize": {
+        "creating": "Setting PIN…",
+        "description": "Please set a PIN to interact with your device",
+        "invalid": "Only Numbers are allowed",
+        "create": "Set PIN"
+    },
     "button": {
       "send": "Send",
       "receive": "Receive",
