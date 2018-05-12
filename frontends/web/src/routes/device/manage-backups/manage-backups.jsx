@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-
 import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import Create from './create';
@@ -8,13 +7,10 @@ import Erase from './erase';
 import style from './manage-backups.css';
 
 export default class ManageBackups extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            backupList: [],
-            selectedBackup: null,
-            sdCardInserted: false
-        };
+    state = {
+        backupList: [],
+        selectedBackup: null,
+        sdCardInserted: false,
     }
 
     componentDidMount() {
@@ -26,20 +22,29 @@ export default class ManageBackups extends Component {
             this.setState({
                 selectedBackup: null,
                 sdCardInserted,
-                backupList
+                backupList,
             });
         });
     }
 
     handleBackuplistChange = event => {
-        this.setState({ selectedBackup: this.state.backupList[event.target.selectedIndex] });
+        this.setState({
+            selectedBackup: this.state.backupList[event.target.selectedIndex],
+        });
     }
 
     displayError = (errorMessage) => {
         this.props.displayError(errorMessage);
     }
 
-    render({ showCreate, deviceID }, { backupList, selectedBackup, sdCardInserted }) {
+    render({
+        showCreate,
+        deviceID,
+    }, {
+        backupList,
+        selectedBackup,
+        sdCardInserted,
+    }) {
         if (!sdCardInserted) {
             return (
                 <div>
@@ -60,8 +65,10 @@ export default class ManageBackups extends Component {
                             id="backupList"
                             size="6"
                             className={style.backupList}
-                            onChange={this.handleBackuplistChange}
-                        >{ backupList.map(renderOption) }
+                            onChange={this.handleBackuplistChange}>
+                            {
+                                backupList.map(renderOption)
+                            }
                         </select>
                     </div>
                     <Restore
@@ -74,7 +81,9 @@ export default class ManageBackups extends Component {
                         onErase={this.refresh}
                         deviceID={deviceID}
                     />
-                    {showCreate && <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>}
+                    {
+                        showCreate && <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>
+                    }
                 </div>
             </div>
         );
