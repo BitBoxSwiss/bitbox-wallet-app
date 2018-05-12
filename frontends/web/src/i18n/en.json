@@ -13,6 +13,7 @@
         "leave": "Leave"
     },
     "device": {
+        "waiting": "Waiting for device…",
         "manageBackups": "Manage Backups"
     },
     "account": {

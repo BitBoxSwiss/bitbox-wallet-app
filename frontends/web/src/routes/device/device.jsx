@@ -1,14 +1,13 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 
-import Dialog from '../../components/dialog/dialog';
+import { apiGet } from '../../utils/request';
+import { apiWebsocket } from '../../utils/websocket';
 import Bootloader from '../device/bootloader';
 import Login from '../device/unlock';
 import Seed from '../device/seed';
 import Initialize from '../device/initialize';
 import Settings from '../settings/settings';
-
-import { apiGet } from '../../utils/request';
-import { apiWebsocket } from '../../utils/websocket';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -18,23 +17,20 @@ const DeviceStatus = Object.freeze({
     SEEDED: 'seeded'
 });
 
+@translate()
 export default class Device extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            deviceRegistered: false,
-            deviceStatus: null,
-        };
+    state = {
+        deviceRegistered: false,
+        deviceStatus: null,
     }
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
-        this.unsubscribe = apiWebsocket(data => {
-            console.log(data);
-            if (data.type == 'devices' && data.data == 'registeredChanged') {
+        this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
+            if (type === 'devices' && data === 'registeredChanged') {
                 this.onDevicesRegisteredChanged();
             }
-            if (data.type == 'device' && data.deviceID == this.props.deviceID) {
+            if (type === 'device' && deviceID === this.props.deviceID) {
                 this.onDeviceStatusChanged();
             }
         });
@@ -52,11 +48,12 @@ export default class Device extends Component {
 
     onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(deviceIDs => {
+            const deviceRegistered = deviceIDs.includes(this.props.deviceID);
             this.setState({
-                deviceRegistered: deviceIDs.includes(this.props.deviceID),
+                deviceRegistered,
                 deviceStatus: null
             });
-            if (this.state.deviceRegistered) {
+            if (deviceRegistered) {
                 this.onDeviceStatusChanged();
             }
         });
@@ -70,14 +67,9 @@ export default class Device extends Component {
         }
     }
 
-
-    render({ deviceID }, { deviceRegistered, deviceStatus }) {
+    render({ t, deviceID }, { deviceRegistered, deviceStatus }) {
         if (!deviceRegistered || !deviceStatus) {
-            return (
-                <Dialog>
-                  <h3>Waiting for device...</h3>
-                </Dialog>
-            );
+            return <h3>{t('device.waiting')}</h3>;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
@@ -89,7 +81,7 @@ export default class Device extends Component {
         case DeviceStatus.LOGGED_IN:
             return <Seed deviceID={deviceID} />;
         case DeviceStatus.SEEDED:
-            return <Settings deviceID={deviceID} />
+            return <Settings deviceID={deviceID} />;
         }
     }
 }

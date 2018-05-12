@@ -1,37 +1,28 @@
 import { Component } from 'preact';
-import { translate } from 'react-i18next';
-
-import { Button, Input } from './components/forms';
-import { BitBox } from './components/icon/logo';
-
-
-import Device from './routes/device/device';
-
 import { Router, route } from 'preact-router';
-import Account from './routes/account/account';
-import ManageBackups from './routes/device/manage-backups/manage-backups';
-
-import Alert from './components/alert/Alert';
-import Sidebar from './components/sidebar/sidebar';
+import { translate } from 'react-i18next';
 
 import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
-
+import Sidebar from './components/sidebar/sidebar';
+import Device from './routes/device/device';
+import Account from './routes/account/account';
+import ManageBackups from './routes/device/manage-backups/manage-backups';
+import Alert from './components/alert/Alert';
+import { Button, Input } from './components/forms';
+import { BitBox } from './components/icon/logo';
 import { debug } from './utils/env';
 
 import style from './components/app.css';
 
 @translate()
 export default class App extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            walletInitialized: false,
-            deviceIDs: [],
-            testing: false,
-            wallets: [],
-            activeWallet: null,
-        };
+    state = {
+        walletInitialized: false,
+        deviceIDs: [],
+        testing: false,
+        wallets: [],
+        activeWallet: null,
     }
 
     /** Gets fired when the route changes.
@@ -47,7 +38,7 @@ export default class App extends Component {
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(data => {
             switch (data.type) {
-            case "backend":
+            case 'backend':
                 switch (data.data) {
                 case 'walletStatusChanged':
                     this.onWalletStatusChanged();
@@ -82,7 +73,7 @@ export default class App extends Component {
     onWalletStatusChanged = () => {
         apiGet('wallet-status').then(status => {
             this.setState({
-                walletInitialized: status == "initialized"
+                walletInitialized: status === 'initialized'
             });
             if (this.state.walletInitialized) {
                 apiGet('wallets').then(wallets => {
@@ -92,8 +83,8 @@ export default class App extends Component {
         });
     }
 
-    render({}, { deviceIDs, walletInitialized, wallets, activeWallet, testing }) {
-        if (wallets && wallets.length != 0 && walletInitialized) {
+    render({ t }, { deviceIDs, walletInitialized, wallets, activeWallet, testing }) {
+        if (wallets && wallets.length && walletInitialized) {
             return (
                 <div style="display: flex; flex: 1 1 auto;">
                     <Sidebar
@@ -115,13 +106,13 @@ export default class App extends Component {
                 </div>
             );
         }
-        if (deviceIDs.length == 0) {
+        if (!deviceIDs.length) {
             return (
                 <div className={style.container}>
                     {BitBox}
                     <div className={style.content}>
-                        <h3>Waiting for device...</h3>
-                        <SkipForTestingButton show={debug && testing}/>
+                        <h3>{t('device.waiting')}</h3>
+                        <SkipForTestingButton show={debug && testing} />
                     </div>
                 </div>
             );
@@ -134,7 +125,7 @@ class SkipForTestingButton extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            testPIN: ""
+            testPIN: ''
         };
     }
 
@@ -148,21 +139,20 @@ class SkipForTestingButton extends Component {
 
     render({ show }, { testPIN }) {
         if (!show) {
-            return;
+            return null;
         }
         return (
             <form onSubmit={this.registerTestingDevice}>
-              <Input
-                type="password"
-                autoFocus
-                id="testPIN"
-                label="Test PIN"
-                onInput={this.handleFormChange}
-                value={testPIN}
-                />
-              <Button type="submit" secondary>
-                Skip for Testing
-              </Button>
+                <Input
+                    type="password"
+                    autoFocus
+                    id="testPIN"
+                    label="Test PIN"
+                    onInput={this.handleFormChange}
+                    value={testPIN} />
+                <Button type="submit" secondary>
+                    Skip for Testing
+                </Button>
             </form>
         );
     }
