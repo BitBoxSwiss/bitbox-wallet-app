@@ -31,7 +31,7 @@
     --background: var(--color-lightgray);
     --background-hover: var(--background);
     --background-active: var(--color-white);
-    --background-sidebar: var(--color-brightgray);
+    --background-sidebar: var(--color-softblack);
 
     /* font sizes */
     --size-large: 2rem;

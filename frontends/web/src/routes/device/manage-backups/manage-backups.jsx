@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
-import { Button } from '../../../components/forms';
+import { Button, ButtonLink, } from '../../../components/forms';
 import Create from './create';
 import Restore from './restore';
 import Erase from './erase';
@@ -18,7 +18,7 @@ export default class ManageBackups extends Component {
     }
 
     refresh = () => {
-        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList }) => {
+        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, }) => {
             this.setState({
                 selectedBackup: null,
                 sdCardInserted,
@@ -28,12 +28,10 @@ export default class ManageBackups extends Component {
     }
 
     handleBackuplistChange = event => {
-        this.setState({
-            selectedBackup: this.state.backupList[event.target.selectedIndex],
-        });
+        this.setState({ selectedBackup: event.target.value });
     }
 
-    displayError = (errorMessage) => {
+    displayError = errorMessage => {
         this.props.displayError(errorMessage);
     }
 
@@ -47,49 +45,88 @@ export default class ManageBackups extends Component {
     }) {
         if (!sdCardInserted) {
             return (
-                <div>
-                    <p>Please insert SD card to manage backups.</p>
-                    <Button secondary onClick={this.refresh}>
-                        I have inserted the SD card
-                    </Button>
+                <div class="container">
+                    <div class="innerContainer">
+                        <div class="header">
+                            <h2>Manage Backups</h2>
+                        </div>
+                        <div class="content">
+                            <p>Please insert SD card to manage backups.</p>
+                            <Button secondary onClick={this.refresh}>I have inserted the SD card</Button>
+                        </div>
+                    </div>
                 </div>
             );
         }
 
         return (
-            <div>
-                <h1>Manage Backups</h1>
-                <div>
-                    <div>
-                        <select
-                            id="backupList"
-                            size="6"
-                            className={style.backupList}
-                            onChange={this.handleBackuplistChange}>
-                            {
-                                backupList.map(renderOption)
-                            }
-                        </select>
+            <div class="container">
+                <div class="innerContainer">
+                    <div class="header">
+                        <h2>Manage Backups</h2>
+                        <div>
+                            <ButtonLink primary href={`/device/${deviceID}`}>Close</ButtonLink>
+                        </div>
                     </div>
-                    <Restore
-                        selectedBackup={selectedBackup}
-                        displayError={this.displayError}
-                        deviceID={deviceID} />
-                    &nbsp;
-                    <Erase
-                        selectedBackup={selectedBackup}
-                        onErase={this.refresh}
-                        deviceID={deviceID}
-                    />
-                    {
-                        showCreate && <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>
-                    }
+                    <div class="content">
+                        <div class={style.backupsList}>
+                            {
+                                backupList.map(backup => <BackupsListItem backup={backup} selectedBackup= {selectedBackup} handleChange={this.handleBackuplistChange} />)
+                            }
+                        </div>
+                    </div>
+                    <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                        <Restore
+                            selectedBackup={selectedBackup}
+                            displayError={this.displayError}
+                            deviceID={deviceID} />
+                        {
+                            showCreate && (
+                                <Erase
+                                    selectedBackup={selectedBackup}
+                                    onErase={this.refresh}
+                                    deviceID={deviceID}
+                                />
+                            )
+                        }
+                        {
+                            showCreate && (
+                                <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>
+                            )
+                        }
+                    </div>
                 </div>
             </div>
         );
     }
 }
 
-function renderOption(filename) {
-    return <option className="mdc-list-item">{ filename }</option>;
+class BackupsListItem extends Component {
+    handleSelection = e => {
+        this.checkbox.click();
+    }
+
+    render({
+        backup,
+        selectedBackup,
+        handleChange,
+    }, {}) {
+        return (
+            <div class={['flex', 'flex-row', 'flex-center', 'flex-items-start', style.backupsListItem].join(' ')}>
+                <div class={style.checkbox}>
+                    <input
+                        type="checkbox"
+                        checked={selectedBackup === backup}
+                        onChange={handleChange}
+                        value={backup}
+                        ref={checkbox => this.checkbox = checkbox}
+                    />
+                </div>
+                <div class={['flex-1', 'flex-column', 'flex-start', style.itemInfo].join(' ')} onClick={this.handleSelection}>
+                    <div class="text-bold">{backup}</div>
+                    <div class="text-small text-gray">2018/05/02 2:30PM</div>
+                </div>
+            </div>
+        );
+    }
 }

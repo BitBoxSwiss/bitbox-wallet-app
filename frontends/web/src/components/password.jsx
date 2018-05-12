@@ -114,6 +114,7 @@ export class PasswordRepeatInput extends Component {
                     title={title}
                     id="passwordRepeat"
                     label={`Repeat ${label}`}
+                    placeholder="Please confirm password"
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}

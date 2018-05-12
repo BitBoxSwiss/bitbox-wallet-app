@@ -21,6 +21,7 @@
 .text-bold { font-weight: bold; }
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
+.text-gray { color: var(--color-rock); }
 
 .flex-items-start > div:not(:last-child) {
   margin-right: var(--spacing-default);
@@ -112,10 +113,19 @@
 	margin: 0;
 }
 
+.modal .modalContent {
+  margin-top: var(--spacing-large);
+}
+
 .modal .buttons button:not(:last-child) {
   margin-right: var(--spacing-half);
 }
 
 .modal .buttons {
   margin-top: var(--spacing-large);
+}
+
+/* UTILITIES */
+.buttons > *:not(:last-child) {
+  margin-right: var(--spacing-half);
 }

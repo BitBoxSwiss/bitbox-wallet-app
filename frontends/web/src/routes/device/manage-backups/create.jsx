@@ -1,25 +1,14 @@
 import { Component } from 'preact';
-
 import { Button, Input } from '../../../components/forms';
-
-import Dialog from 'preact-material-components/Dialog';
-import 'preact-material-components/Dialog/style.css';
-
 import { PasswordInput } from '../../../components/password';
-
-import Textfield from 'preact-material-components/Textfield';
-import 'preact-material-components/Textfield/style.css';
-
 import { apiPost } from '../../../utils/request';
 
 export default class Create extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            waiting: false,
-            backupName: '',
-            recoveryPassword: ''
-        };
+    state = {
+        waiting: false,
+        backupName: '',
+        recoveryPassword: '',
+        activeDialog: false,
     }
 
     handleFormChange = event => {
@@ -30,79 +19,67 @@ export default class Create extends Component {
         return !this.waiting && this.state.backupName !== '';
     }
 
-    create = (event) => {
+    create = event => {
         event.preventDefault();
-        if (!this.validate()) {
-            return;
-        }
+        if (!this.validate()) return;
         this.setState({ waiting: true });
-        apiPost('devices/' + this.props.deviceID + '/backups/create', { backupName: this.state.backupName,
-                recoveryPassword: this.state.recoveryPassword }).then(() => {
-            this.props.onCreate();
-        }).catch(() => {}).then(() => {
+        apiPost('devices/' + this.props.deviceID + '/backups/create', {
+            backupName: this.state.backupName,
+            recoveryPassword: this.state.recoveryPassword,
+        }).then(() => this.props.onCreate()).catch(() => {}).then(() => {
             this.setState({
                 waiting: false,
                 backupName: '',
-                recoveryPassword: ''
+                recoveryPassword: '',
+                activeDialog: false,
             });
-            this.confirmDialog.MDComponent.close();
         });
     }
 
-    showDialog = () => {
-        this.confirmDialog.MDComponent.show();
-    }
-
-    render({}, { waiting, recoveryPassword, backupName }) {
+    render({}, {
+        waiting,
+        recoveryPassword,
+        backupName,
+        activeDialog,
+    }) {
         return (
             <span>
                 <Button
-                    secondary
-                    onclick={this.showDialog}
-                >
+                    primary
+                    onclick={() => this.setState({ activeDialog: true })}>
                     Create
                 </Button>
-                <Dialog
-                    ref={confirmDialog => this.confirmDialog = confirmDialog }
-                    onAccept={this.erase}
-                >
-                    <Dialog.Header>Create Backup</Dialog.Header>
-                    <form onSubmit={this.create}>
-                        <Dialog.Body>
+                <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+                    <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+                        <h3 class="modalHeader">Create Backup</h3>
+                        <div class="modalContent">
                             <Input
                                 autoFocus
                                 autoComplete="off"
                                 ref={pwf => this.pwf = pwf}
                                 id="backupName"
                                 label="Backup Name"
-                                placeholder="Please name the backup."
+                                placeholder="Please name the backup"
                                 onInput={this.handleFormChange}
                                 value={backupName}
                             />
                             <PasswordInput
-                                    ref={ref => this.passwordInput = ref}
-                                    helptext="Please enter the same password as when the wallet was created."
-                                    helptextPersistent={true}
-                                    id="recoveryPassword"
-                                    onInput={this.handleFormChange}
-                                    value={recoveryPassword}/>
-                        </Dialog.Body>
-                        <Dialog.Footer>
-                            <Dialog.FooterButton
-                                type="button"
-                                cancel={true}
-                            >
-                                Abort
-                            </Dialog.FooterButton>
-                            <Dialog.FooterButton
-                                type="submit"
-                                disabled={waiting || !this.validate()}
-                            >
-                                Create
-                            </Dialog.FooterButton>
-                        </Dialog.Footer>
-                    </form>
-                </Dialog>
+                                ref={ref => this.passwordInput = ref}
+                                helptext="Please enter the same password as when the wallet was created."
+                                helptextPersistent={true}
+                                id="recoveryPassword"
+                                label="Password"
+                                placeholder="Please enter your password"
+                                onInput={this.handleFormChange}
+                                value={recoveryPassword}
+                            />
+                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
+                                <Button primary disabled={waiting || !this.validate()} onClick={this.create}>Create</Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </span>
         );
     }

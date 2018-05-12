@@ -6,7 +6,7 @@
   flex-shrink: 0;
   height: 100vh;
   padding: var(--spacing-large) 0;
-  overflow-y: scroll;
+  overflow-y: hidden;
 }
 
 .sideBarItem {
