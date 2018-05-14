@@ -1,7 +1,5 @@
 import { Component } from 'preact';
 import { Button } from '../../../components/forms';
-import Dialog from 'preact-material-components/Dialog';
-import 'preact-material-components/Dialog/style.css';
 import { apiPost } from '../../../utils/request';
 
 

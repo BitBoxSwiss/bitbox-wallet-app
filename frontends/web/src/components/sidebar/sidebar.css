@@ -64,3 +64,7 @@ a.sidebar-active {
 .sidebar_settings {
   width: 40px;
 }
+
+.sidebar .settings:not(.sidebar-active) {
+  filter: invert(100%);
+}
