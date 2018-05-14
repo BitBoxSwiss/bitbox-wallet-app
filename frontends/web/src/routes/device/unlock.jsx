@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import { BitBox } from '../../components/icon/logo';
+import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
 
 @translate()
@@ -113,6 +114,7 @@ export default class Unlock extends Component {
                             </div>
                         </form>
                     )}
+                    <Footer />
                 </div>
             </div>
         );

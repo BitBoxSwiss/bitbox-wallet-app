@@ -1,0 +1,12 @@
+.footer {
+    padding-top: var(--spacing-default);
+}
+
+.footer p {
+    color: var(--color-secondary);
+    font-weight: bold;
+    font-size: var(--size-small);
+    margin: 0;
+    margin-right: var(--spacing-default);
+    text-transform: uppercase;
+}

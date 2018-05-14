@@ -1,9 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import style from './language-switch.css';
+import style from './language.css';
 
 @translate()
-
 export default class LanguageSwitcher extends Component {
   constructor(props) {
     super(props);

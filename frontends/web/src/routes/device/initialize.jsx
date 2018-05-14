@@ -5,7 +5,7 @@ import { apiPost } from '../../utils/request';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button } from '../../components/forms';
 import { BitBox } from '../../components/icon/logo';
-import LanguageSwitcher from '../settings/components/language-switch';
+import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
 
 const stateEnum = Object.freeze({
@@ -104,7 +104,7 @@ export default class Initialize extends Component {
                             </Button>
                         </div>
                     </form>
-                    <LanguageSwitcher />
+                    <Footer />
                 </div>
             </div>
         );

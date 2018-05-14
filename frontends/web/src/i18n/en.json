@@ -16,6 +16,9 @@
         "waiting": "Waiting for device…",
         "manageBackups": "Manage Backups"
     },
+    "settings": {
+        "title": "Device Settings"
+    },
     "account": {
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",
@@ -79,10 +82,13 @@
         "invalid": "Only Numbers are allowed",
         "create": "Set PIN"
     },
+    "footer": {
+        "appVersion": "App Version:"
+    },
     "button": {
-      "send": "Send",
-      "receive": "Receive",
-      "cancel": "Cancel"
+        "send": "Send",
+        "receive": "Receive",
+        "cancel": "Cancel"
     },
     "loading": "loading…"
 }

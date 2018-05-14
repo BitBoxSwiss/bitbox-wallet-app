@@ -1,10 +1,11 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
-//import ManageBackups from '../../routes/device/manage-backups/manage-backups';
+import ManageBackups from '../../routes/device/manage-backups/manage-backups';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input } from '../../components/forms';
 import { BitBox } from '../../components/icon/logo';
+import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
 
 const stateEnum = Object.freeze({
@@ -19,7 +20,8 @@ export default class Seed extends Component {
         status: stateEnum.DEFAULT,
         walletName: '',
         backupPassword: '',
-        error: ''
+        error: '',
+        fromBackup: false,
     }
 
     validate = () => {
@@ -56,15 +58,18 @@ export default class Seed extends Component {
         });
     };
 
-    displayError = (errorMessage) => {
-        this.setState({ status: stateEnum.ERROR, error: errorMessage });
+    displayError = (error) => {
+        this.setState({
+            status: stateEnum.ERROR,
+            error
+        });
     }
 
     setValidBackupPassword = backupPassword => {
         this.setState({ backupPassword });
     }
 
-    render({ t, deviceID }, { status, walletName, error }) {
+    render({ t, deviceID }, { status, walletName, error, fromBackup }) {
 
         if (status === stateEnum.WAITING) {
             return (
@@ -75,43 +80,51 @@ export default class Seed extends Component {
             );
         }
 
+        const errorMessage = status === stateEnum.ERROR ? <p style="color: var(--color-error);">{error}</p> : null;
+
+        const content = fromBackup ? (
+            <ManageBackups
+                showCreate={false}
+                displayError={this.displayError}
+                deviceID={deviceID} />
+        ) : (
+            <form onSubmit={this.handleSubmit}>
+                <div>
+                    <Input
+                        pattern="[^\s]+"
+                        autoFocus
+                        id="walletName"
+                        label={t('seed.walletName.label')}
+                        placeholder={t('seed.walletName.placeholder')}
+                        disabled={status === stateEnum.WAITING}
+                        onInput={this.handleFormChange}
+                        getRef={ref => this.walletNameInput = ref}
+                        value={walletName} />
+                    <PasswordRepeatInput
+                        label={t('seed.password.label')}
+                        ref={ref => this.backupPasswordInput = ref}
+                        disabled={status === stateEnum.WAITING}
+                        onValidPassword={this.setValidBackupPassword} />
+                </div>
+                <p>{t('seed.description')}</p>
+                <div>
+                    <Button
+                        type="submit"
+                        primary
+                        disabled={!this.validate() || status === stateEnum.WAITING}>
+                        {t('seed.create')}
+                    </Button>
+                </div>
+            </form>
+        );
+
         return (
             <div className={style.container}>
                 {BitBox}
                 <div className={style.content}>
-                    <form onsubmit={this.handleSubmit}>
-                        { status === stateEnum.ERROR ? <p style="color: var(--color-error);">{error}</p> : null }
-                        <div>
-                            <Input
-                                pattern="[^\s]+"
-                                autoFocus
-                                id="walletName"
-                                label={t('seed.walletName.label')}
-                                placeholder={t('seed.walletName.placeholder')}
-                                disabled={status === stateEnum.WAITING}
-                                onInput={this.handleFormChange}
-                                getRef={ref => this.walletNameInput = ref}
-                                value={walletName} />
-                            <PasswordRepeatInput
-                                label={t('seed.password.label')}
-                                ref={ref => this.backupPasswordInput = ref}
-                                disabled={status === stateEnum.WAITING}
-                                onValidPassword={this.setValidBackupPassword} />
-                        </div>
-                        <p>{t('seed.description')}</p>
-                        <div>
-                            <Button
-                                type="submit"
-                                primary
-                                disabled={!this.validate() || status === stateEnum.WAITING}>
-                                {t('seed.create')}
-                            </Button>
-                        </div>
-                    </form>
-                    {/*
-                    <p>-- OR --</p>
-                    <ManageBackups showCreate={false} displayError={this.displayError} deviceID={deviceID} />
-                    */}
+                    {errorMessage}
+                    {content}
+                    <Footer />
                 </div>
             </div>
         );
