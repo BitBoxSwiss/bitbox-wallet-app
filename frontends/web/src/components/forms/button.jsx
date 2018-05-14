@@ -5,12 +5,14 @@ import style from './button.css';
 export function ButtonLink({
     primary,
     secondary,
+    transparent,
     danger,
     children,
     ...props
 }) {
     const className = primary && 'primary'
         || secondary && 'secondary'
+        || transparent && 'transparent'
         || danger && 'danger'
         || 'secondary';
 
@@ -24,12 +26,14 @@ export function ButtonLink({
 export default function Button({
     primary,
     secondary,
+    transparent,
     danger,
     children,
     ...props
 }) {
     const className = primary && 'primary'
         || secondary && 'secondary'
+        || transparent && 'transparent'
         || danger && 'danger'
         || 'button';
 

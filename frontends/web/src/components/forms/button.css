@@ -63,6 +63,16 @@
     border-color: var(--color-swissred);
 }
 
+.transparent {
+    background-color: transparent;
+    composes: button;
+    color: var(--color-brightblue);
+}
+
+.transparent:hover {
+    color: var(--color-darkblue);
+}
+
 .button[disabled] {
     background-color: var(--color-white) !important;
     border-color: var(--color-brightgray) !important;
