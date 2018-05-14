@@ -27,6 +27,7 @@
     --color-warn: var(--color-coolgold);
     --color-warning: var(--color-warn);
     --color-error: var(--color-swissred);
+    --color-focus: rgb(59, 153, 252);
 
     /* background colors */
     --background: var(--color-lightgray);
