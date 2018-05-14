@@ -71,14 +71,6 @@
 }
 
 .innerContainer .header {
-<<<<<<< HEAD
-    min-height: 36px;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex: none;
-=======
   min-height: var(--header-height);
   margin: calc(var(--spacing-large) * -1) calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
   padding: var(--spacing-default) var(--spacing-large);
@@ -88,7 +80,13 @@
   justify-content: space-between;
   align-items: flex-start;
 	flex: none;
->>>>>>> frontend: update header styles and add compatibility for fixed headers
+}
+
+.innerContainer:not(.withFixedContent) .header {
+  min-height: var(--header-height);
+  margin: calc(var(--spacing-large) * -1) calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
+  padding: var(--spacing-default) var(--spacing-large);
+  background-color: var(--color-white);
 }
 
 .header h2 {
