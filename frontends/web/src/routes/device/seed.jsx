@@ -131,7 +131,7 @@ export default class Seed extends Component {
                     <Button
                         type="button"
                         transparent
-                        onClick={() => this.setState({ fromBackup: true })}>
+                        onClick={() => this.setState({ fromBackup: true, error: '' })}>
                         {t('seed.backup')}
                     </Button>
                 </div>
