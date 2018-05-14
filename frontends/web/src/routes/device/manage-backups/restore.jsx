@@ -51,7 +51,7 @@ export default class Restore extends Component {
         return (
             <span>
                 <Button
-                    primary
+                    danger
                     disabled={selectedBackup === null}
                     onclick={() => this.setState({ activeDialog: true })}>
                     Restore
@@ -68,7 +68,7 @@ export default class Restore extends Component {
                             />
                             <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                 <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button primary disabled={!this.validate()} onClick={this.restore}>Restore</Button>
+                                <Button danger disabled={!this.validate()} onClick={this.restore}>Restore</Button>
                             </div>
                         </div>
                     </div>
