@@ -25,7 +25,7 @@
 
 .input input[disabled] {
     background-color: var(--color-white) !important;
-    border-color: var(--color-brightgray) !important;
+    border-color: var(--color-disabled) !important;
     color: var(--color-rock) !important;
     cursor: not-allowed;
 }

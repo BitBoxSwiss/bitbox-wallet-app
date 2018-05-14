@@ -9,7 +9,7 @@
 
 .info {
     composes: message;
-    color: var(--color-info);
+    color: var(--color-default);
 }
 
 .warning {

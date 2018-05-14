@@ -13,9 +13,11 @@ export function PasswordInput (props) {
 }
 
 export class PasswordRepeatInput extends Component {
-    constructor(props) {
-        super(props);
-        this.state = this.getInitialState();
+    state = {
+        password: '',
+        passwordRepeat: '',
+        seePlaintext: false,
+        capsLock: false
     }
 
     componentDidMount() {
@@ -32,16 +34,12 @@ export class PasswordRepeatInput extends Component {
     }
 
     clear = () => {
-        this.setState(this.getInitialState());
-    }
-
-    getInitialState() {
-        return {
+        this.setState({
             password: '',
             passwordRepeat: '',
             seePlaintext: false,
             capsLock: false
-        };
+        });
     }
 
     validate = () => {
@@ -88,7 +86,6 @@ export class PasswordRepeatInput extends Component {
                     autoFocus
                     disabled={disabled}
                     type={seePlaintext ? 'text' : 'password'}
-
                     pattern={pattern}
                     title={title}
                     id="password"

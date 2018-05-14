@@ -15,7 +15,7 @@
         "unlocking": "Unlocking…",
         "input": {
             "label": "PIN",
-            "placeholder": "Please enter your PIN to log in"
+            "placeholder": "Enter your PIN to unlock the device"
         }
     },
     "device": {
