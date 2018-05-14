@@ -104,7 +104,7 @@ export default class Unlock extends Component {
                 <div className={style.content}>
                     {submissionState}
                     {status !== stateEnum.WAITING && (
-                        <form onsubmit={this.handleSubmit}>
+                        <form onSubmit={this.handleSubmit}>
                             <div>
                                 <Input
                                     autoFocus
@@ -115,20 +115,20 @@ export default class Unlock extends Component {
                                     disabled={status === stateEnum.WAITING}
                                     placeholder={t('unlock.input.placeholder')}
                                     onInput={this.handleFormChange}
-                                    value={password}
-                                />
+                                    value={password} />
                             </div>
                             <div>
                                 <Button
                                     primary
                                     type="submit"
-                                    disabled={!this.validate() || status === stateEnum.WAITING}
-                                    style={{ width: '100%' }}
-                                >{t('Login')}</Button>
+                                    disabled={!this.validate() || status === stateEnum.WAITING}>
+                                  {t('Login')}
+                                </Button>
                             </div>
+                            <hr />
+                            <Footer />
                         </form>
                     )}
-                    <Footer />
                 </div>
             </div>
         );

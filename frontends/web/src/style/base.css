@@ -10,7 +10,6 @@ body {
     width: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-
 	  -webkit-app-region: drag;
 }
 
@@ -26,5 +25,13 @@ body {
 }
 
 p {
-	line-height: 1.3rem;
+    line-height: 1.3rem;
+}
+
+hr {
+    background: none;
+    border-color: var(--color-brightgray) transparent;
+    border-style: solid;
+    border-width: 1px 0 0 0;
+    margin: var(--spacing-large) 0;
 }

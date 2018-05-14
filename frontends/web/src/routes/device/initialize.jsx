@@ -115,6 +115,7 @@ export default class Initialize extends Component {
                             </Button>
                         </div>
                     </form>
+                    <hr />
                     <Footer />
                 </div>
             </div>

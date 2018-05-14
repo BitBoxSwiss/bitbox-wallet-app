@@ -144,6 +144,7 @@ export default class Seed extends Component {
                 <div className={style.content}>
                     {errorMessage}
                     {content}
+                    <hr />
                     <Footer />
                 </div>
             </div>
