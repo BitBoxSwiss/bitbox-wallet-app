@@ -7,6 +7,6 @@
   text-transform: uppercase;
   font-weight: bold;
   font-size: var(--size-small);
-  color: var(--color-brightgray);
+  color: var(--color-secondary);
   margin-right: var(--spacing-default);
 }
