@@ -111,6 +111,7 @@ func (backend *Backend) addAccount(
 	keypath string,
 	addressType addresses.AddressType,
 ) error {
+	backend.log.WithField("code", code).WithField("name", name).Info("init account")
 	onEvent := func(code string) func(btc.Event) {
 		return func(event btc.Event) {
 			backend.events <- WalletEvent{Type: "wallet", Code: code, Data: string(event)}
@@ -326,6 +327,7 @@ func (backend *Backend) Keystores() keystore.Keystores {
 
 // RegisterKeystore registers the given keystore at this backend.
 func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
+	backend.log.Info("registering keystore")
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
 	}
@@ -341,6 +343,7 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
+	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitWallets()
 	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}

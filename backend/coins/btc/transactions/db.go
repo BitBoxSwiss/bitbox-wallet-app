@@ -60,4 +60,5 @@ type DBInterface interface {
 	// Begin starts a DB transaction. Apply `defer tx.Rollback()` in any case after. Use
 	// `tx.Commit()` to commit the write operations.
 	Begin() (DBTxInterface, error)
+	Close() error
 }

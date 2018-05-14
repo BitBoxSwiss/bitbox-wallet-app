@@ -176,12 +176,14 @@ func (account *Account) Init() error {
 	}
 	account.db = db
 
+	account.log.Debug("getting electrum client")
 	electrumClient, err := account.coin.ElectrumClient()
 	if err != nil {
 		return err
 	}
 	account.blockchain = electrumClient
 
+	account.log.Debug("getting headers")
 	theHeaders, err := account.coin.GetHeaders(account.dbFolder)
 	if err != nil {
 		return err
@@ -217,6 +219,9 @@ func (account *Account) Initialized() bool {
 
 // Close stops the account.
 func (account *Account) Close() {
+	if err := account.db.Close(); err != nil {
+		account.log.WithError(err).Error("couldn't close db")
+	}
 	account.initialSyncDone = false
 	account.onEvent(EventStatusChanged)
 }

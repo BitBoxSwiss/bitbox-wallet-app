@@ -73,6 +73,11 @@ func (db *DB) Begin() (transactions.DBTxInterface, error) {
 	}, nil
 }
 
+// Close implements transactions.Begin.
+func (db *DB) Close() error {
+	return errp.WithStack(db.db.Close())
+}
+
 // Tx implements transactions.DBTxInterface.
 type Tx struct {
 	tx *bbolt.Tx
