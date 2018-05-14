@@ -1,10 +1,7 @@
 import { Component } from 'preact';
 import { Button } from '../../../components/forms';
-import Dialog from 'preact-material-components/Dialog';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../utils/request';
-import componentStyle from '../../../components/style.css';
-import 'preact-material-components/Button/style.css';
 import 'preact-material-components/Dialog/style.css';
 
 
@@ -38,8 +35,8 @@ export default class Reset extends Component {
                         <h3 class="modalHeader">Reset Device</h3>
                         <p>Resetting the device means ... ...</p>
                         <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                            <Button danger onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                            <Button primary onClick={this.resetDevice}>Reset Device</Button>
+                            <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
+                            <Button danger onClick={this.resetDevice}>Reset Device</Button>
                         </div>
                     </div>
                 </div>
