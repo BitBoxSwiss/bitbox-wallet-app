@@ -82,7 +82,7 @@ export default class ManageBackups extends Component {
                             selectedBackup={selectedBackup}
                             displayError={this.displayError}
                             deviceID={deviceID} />
-                        {
+                        {/*
                             showCreate && (
                                 <Erase
                                     selectedBackup={selectedBackup}
@@ -90,7 +90,7 @@ export default class ManageBackups extends Component {
                                     deviceID={deviceID}
                                 />
                             )
-                        }
+                        */}
                         {
                             showCreate && (
                                 <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>
