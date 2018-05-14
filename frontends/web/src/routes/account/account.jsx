@@ -132,29 +132,30 @@ export default class Account extends Component {
             <div class="container">
                 {
                     (!isReceive && !isSend) && (
-                        <div class={style.container}>
+                        <div class="innerContainer fluid withFixedContent">
                             {connectionStatusContainer}
-                            <div class={style.header}>
-                                <Balance name={wallet.name} balance={balance}>
-                                    {
-                                        balance && balance.hasIncoming && (
-                                            <h5 class={style.pendingBalance}>
-                                                {balance.incoming}
-                                                {' '}
-                                                <span style="color: var(--color-light);">{balance.unit}</span>
-                                                {' '}
-                                                {t('account.incoming')}
-                                            </h5>
-                                        )
-                                    }
-                                </Balance>
-                                <div class={componentStyle.buttons}>
-                                    <Button primary onClick={() => this.setState({ isReceive: true })}>
-                                        {t('button.receive')}
-                                    </Button>
-                                    <Button primary onClick={() => this.setState({ isSend: true })}>
-                                        {t('button.send')}
-                                    </Button>
+                            <div class="headerContainer">
+                                <div class="header">
+                                    <Balance name={wallet.name} balance={balance}>
+                                        {
+                                            balance && balance.hasIncoming && (
+                                                <h5 class={style.pendingBalance}>
+                                                    {balance.incoming}
+                                                    <span style="color: var(--color-light);">{balance.unit}</span>
+                                                    {' '}
+                                                    {t('account.incoming')}
+                                                </h5>
+                                            )
+                                        }
+                                    </Balance>
+                                    <div class={componentStyle.buttons}>
+                                        <Button primary onClick={() => this.setState({ isReceive: true })}>
+                                            {t('button.receive')}
+                                        </Button>
+                                        <Button primary onClick={() => this.setState({ isSend: true })}>
+                                            {t('button.send')}
+                                        </Button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="content">

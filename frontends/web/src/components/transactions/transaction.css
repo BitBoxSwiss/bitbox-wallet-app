@@ -1,10 +1,11 @@
 .transactionContainer {
   margin: 0 calc(var(--spacing-large) * -1);
-  padding: var(--spacing-half) 0;
+  padding: var(--spacing-half) var(--spacing-large);
+  background-color: var(--color-white);
 }
 
 .transactionContainer:nth-child(odd) {
-  background-color: var(--color-white);
+  background-color: var(--color-lightgray);
 }
 
 .transactionContainer:hover {
@@ -14,7 +15,7 @@
 .transaction {
   margin: 0 auto;
   max-width: 800px;
-  padding: var(--spacing-default) var(--spacing-large);
+  padding: var(--spacing-default) 0;
 }
 
 .date {

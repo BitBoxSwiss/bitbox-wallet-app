@@ -67,7 +67,7 @@ export default class Transaction extends Component {
                                 <div className={style.address}>{addresses}</div>
                             </div>
                             <div className={[style.amount, style[type]].join(' ')}>
-                                {sign}{amount}
+                                {sign} {amount}
                             </div>
                         </div>
                         <div className={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>

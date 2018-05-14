@@ -7,6 +7,7 @@
   height: 100vh;
   padding: var(--spacing-large) 0;
   overflow-y: hidden;
+  width: var(--sidebar-width);
 }
 
 .sideBarItem {

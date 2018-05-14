@@ -8,7 +8,7 @@
     --color-softred: #EC644B;
     --color-swissred: #e10000;
     --color-white: #fff;
-    --color-lightgray: #fbfafa;
+    --color-lightgray: #E9E9E9;
     --color-brightgray: #dfdfdf;
     --color-rock: #aaa;
     --color-gray: #848484;
@@ -50,4 +50,10 @@
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+
+    /* sidebar */
+    --sidebar-width: 72px;
+
+    /* header */
+    --header-height: 68px;
 }
