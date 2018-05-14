@@ -3,28 +3,40 @@ import { translate } from 'react-i18next';
 
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
+import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
 
+const stateEnum = Object.freeze({
+    DEFAULT: 'default',
+    WAITING: 'waiting',
+    ERROR: 'error'
+});
+
 @translate()
 export default class Unlock extends Component {
-    stateEnum = Object.freeze({
-        DEFAULT: 'default',
-        WAITING: 'waiting',
-        ERROR: 'error'
-    })
+    state = {
+        state: stateEnum.DEFAULT,
+        errorMessage: '',
+        errorCode: null,
+        remainingAttempts: null,
+        needsLongTouch: false,
+        password: ''
+    }
 
-    constructor(props) {
-        super(props);
-        this.state = {
-            state: this.stateEnum.DEFAULT,
-            errorMessage: '',
-            errorCode: null,
-            remainingAttempts: null,
-            needsLongTouch: false,
-            password: ''
-        };
+    componentDidMount() {
+        this.focus();
+    }
+
+    componentDidUpdate() {
+        this.focus();
+    }
+
+    focus() {
+        if (this.passwordInput) {
+            this.passwordInput.focus();
+        }
     }
 
     handleFormChange = event => {
@@ -41,7 +53,7 @@ export default class Unlock extends Component {
             return;
         }
         this.setState({
-            state: this.stateEnum.WAITING
+            state: stateEnum.WAITING
         });
         apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
             if (!data.success) {
@@ -54,7 +66,7 @@ export default class Unlock extends Component {
                 if (data.needsLongTouch) {
                     this.setState({ needsLongTouch: data.needsLongTouch });
                 }
-                this.setState({ state: this.stateEnum.ERROR, errorMessage: data.errorMessage });
+                this.setState({ state: stateEnum.ERROR, errorMessage: data.errorMessage });
             }
         });
         this.setState({ password: '' });
@@ -68,20 +80,21 @@ export default class Unlock extends Component {
         let submissionState = null;
 
         switch (state) {
-        case this.stateEnum.DEFAULT:
+        case stateEnum.DEFAULT:
+            submissionState = <Message />;
             break;
-        case this.stateEnum.WAITING:
-            submissionState = <p>{t('dbb.unlocking')}</p>;
+        case stateEnum.WAITING:
+            submissionState = <Message type="info">{t('unlock.unlocking')}</Message>;
             break;
-        case this.stateEnum.ERROR:
+        case stateEnum.ERROR:
             submissionState = (
-                <p>
+                <Message type="error">
                     {t(`dbb.error.${errorCode}`, {
                         defaultValue: errorMessage,
                         remainingAttempts,
                         context: needsLongTouch ? 'touch' : 'normal'
                     })}
-                </p>
+                </Message>
             );
         }
 
@@ -90,16 +103,17 @@ export default class Unlock extends Component {
                 {BitBox}
                 <div className={style.content}>
                     {submissionState}
-                    {state !== this.stateEnum.WAITING && (
+                    {state !== stateEnum.WAITING && (
                         <form onsubmit={this.handleSubmit}>
                             <div>
                                 <Input
                                     autoFocus
+                                    getRef={ref => this.passwordInput = ref}
                                     id="password"
                                     type="password"
-                                    label={t('PIN')}
-                                    disabled={state === this.stateEnum.WAITING}
-                                    placeholder={t('Please enter your PIN to log in')}
+                                    label={t('unlock.input.label')}
+                                    disabled={state === stateEnum.WAITING}
+                                    placeholder={t('unlock.input.placeholder')}
                                     onInput={this.handleFormChange}
                                     value={password}
                                 />
@@ -108,7 +122,7 @@ export default class Unlock extends Component {
                                 <Button
                                     primary
                                     type="submit"
-                                    disabled={!this.validate() || state === this.stateEnum.WAITING}
+                                    disabled={!this.validate() || state === stateEnum.WAITING}
                                     style={{ width: '100%' }}
                                 >{t('Login')}</Button>
                             </div>

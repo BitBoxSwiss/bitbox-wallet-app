@@ -4,6 +4,7 @@ import { apiPost } from '../../utils/request';
 import ManageBackups from '../../routes/device/manage-backups/manage-backups';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input } from '../../components/forms';
+import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
@@ -80,7 +81,11 @@ export default class Seed extends Component {
             );
         }
 
-        const errorMessage = status === stateEnum.ERROR ? <p style="color: var(--color-error);">{error}</p> : null;
+        const errorMessage = (
+            <Message type={status === 'error' && 'error'}>
+                {status === stateEnum.ERROR ? error : null}
+            </Message>
+        );
 
         const content = fromBackup ? (
             <div>

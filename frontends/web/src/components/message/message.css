@@ -1,0 +1,23 @@
+.message {
+    min-height: 2rem;
+}
+
+.success {
+    composes: message;
+    color: var(--color-success);
+}
+
+.info {
+    composes: message;
+    color: var(--color-info);
+}
+
+.warning {
+    composes: message;
+    color: var(--color-warning);
+}
+
+.error {
+    composes: message;
+    color: var(--color-error);
+}
