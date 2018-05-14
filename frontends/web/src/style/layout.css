@@ -37,7 +37,8 @@
 .innerContainer {
     max-width: 800px;
     width: 100%;
-    min-height: 100%;
+    min-height: 100vh;
+    max-height: 100vh;
     padding: var(--spacing-large);
     margin: 0 auto;
     display: flex;
@@ -62,7 +63,9 @@
 
 .content {
     margin: var(--spacing-large) 0 0 0;
-    flex: 1;
+    flex: 1 1 auto;
+    overflow-x: visible;
+    overflow-y: auto;
 }
 
 .content .row:not(:first-child) {

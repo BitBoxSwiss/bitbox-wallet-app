@@ -89,6 +89,9 @@
         "invalid": "Only Numbers are allowed",
         "create": "Set PIN"
     },
+    "backup": {
+        "title": "Manage Backups"
+    },
     "footer": {
         "appVersion": "App Version:"
     },

@@ -1,11 +1,13 @@
-import { Component } from 'preact';
+import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
-import { Button, ButtonLink, } from '../../../components/forms';
+import { Button, ButtonLink, Radio } from '../../../components/forms';
 import Create from './create';
 import Restore from './restore';
 import Erase from './erase';
 import style from './manage-backups.css';
 
+@translate()
 export default class ManageBackups extends Component {
     state = {
         backupList: [],
@@ -36,6 +38,7 @@ export default class ManageBackups extends Component {
     }
 
     render({
+        t,
         showCreate,
         deviceID,
         children,
@@ -49,7 +52,7 @@ export default class ManageBackups extends Component {
                 <div class="container">
                     <div class="innerContainer">
                         <div class="header">
-                            <h2>Manage Backups</h2>
+                            <h2>{t('backup.title')}</h2>
                         </div>
                         <div class="content">
                             <p>Please insert SD card to manage backups.</p>
@@ -64,7 +67,7 @@ export default class ManageBackups extends Component {
             <div class="container">
                 <div class="innerContainer">
                     <div class="header">
-                        <h2>Manage Backups</h2>
+                        <h2>{t('backup.title')}</h2>
                         <div>
                             <ButtonLink primary href={`/device/${deviceID}`}>Close</ButtonLink>
                         </div>
@@ -72,7 +75,7 @@ export default class ManageBackups extends Component {
                     <div class="content">
                         <div class={style.backupsList}>
                             {
-                                backupList.map(backup => <BackupsListItem backup={backup} selectedBackup= {selectedBackup} handleChange={this.handleBackuplistChange} />)
+                                backupList.map(backup => <BackupsListItem backup={backup} selectedBackup={selectedBackup} handleChange={this.handleBackuplistChange} />)
                             }
                         </div>
                     </div>
@@ -103,32 +106,22 @@ export default class ManageBackups extends Component {
     }
 }
 
-class BackupsListItem extends Component {
-    handleSelection = e => {
-        this.checkbox.click();
-    }
-
-    render({
-        backup,
-        selectedBackup,
-        handleChange,
-    }, {}) {
-        return (
-            <div class={['flex', 'flex-row', 'flex-center', 'flex-items-start', style.backupsListItem].join(' ')}>
-                <div class={style.checkbox}>
-                    <input
-                        type="checkbox"
-                        checked={selectedBackup === backup}
-                        onChange={handleChange}
-                        value={backup}
-                        ref={checkbox => this.checkbox = checkbox}
-                    />
-                </div>
-                <div class={['flex-1', 'flex-column', 'flex-start', style.itemInfo].join(' ')} onClick={this.handleSelection}>
-                    <div class="text-bold">{backup}</div>
-                    <div class="text-small text-gray">2018/05/02 2:30PM</div>
-                </div>
-            </div>
-        );
-    }
+function BackupsListItem({
+    backup,
+    selectedBackup,
+    handleChange,
+}) {
+    return (
+        <div className={['flex', 'flex-row', 'flex-items-start', style.backupsListItem].join(' ')}>
+            <Radio
+                checked={selectedBackup === backup}
+                onChange={handleChange}
+                id={backup}
+                label={backup}
+                value={backup}
+            >
+                <span className="text-small text-gray">2018/05/02 2:30PM</span>
+            </Radio>
+        </div>
+    );
 }

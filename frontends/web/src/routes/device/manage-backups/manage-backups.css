@@ -10,6 +10,10 @@
     width: 20px;
 }
 
+.itemInfo .label {
+    font-size: var(--size-medium);
+}
+
 .itemInfo > div:not(:first-child) {
     margin-top: var(--spacing-half);
 }

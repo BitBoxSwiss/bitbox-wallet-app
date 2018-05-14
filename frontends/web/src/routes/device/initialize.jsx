@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button } from '../../components/forms';
+import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
 import style from '../../components/app.css';
@@ -62,32 +63,42 @@ export default class Initialize extends Component {
         errorMessage
     }) {
 
+        let formSubmissionState = null;
+
+        switch (status) {
+        case stateEnum.DEFAULT:
+            formSubmissionState = <Message>{t('initialize.description')}</Message>;
+            break;
+        case stateEnum.WAITING:
+            formSubmissionState = <Message type="info">{t('initialize.creating')}</Message>;
+            break;
+        case stateEnum.ERROR:
+            formSubmissionState = (
+                <Message type="error">
+                    {t(`dbb.error.${errorCode}`, {
+                        defaultValue: errorMessage
+                    })}
+                </Message>
+            );
+        }
+
         if (status === stateEnum.WAITING) {
             return (
                 <div className={style.container}>
                     {BitBox}
                     <div className={style.content}>
-                        {t('initialize.creating')}
+                        {formSubmissionState}
                     </div>
                 </div>
             );
         }
 
-        const FormSubmissionState = status !== stateEnum.ERROR ? null : (
-            <div style="color: var(--color-error);">
-                {t(`dbb.error.${errorCode}`, {
-                    defaultValue: errorMessage
-                })}
-            </div>
-        );
-
         return (
             <div className={style.container}>
                 {BitBox}
                 <div className={style.content}>
-                    <p>{t('initialize.description')}</p>
+                    {formSubmissionState}
                     <form onSubmit={this.handleSubmit}>
-                        {FormSubmissionState}
                         <PasswordRepeatInput
                             pattern="^[0-9]+$"
                             title={t('initialize.invalid')}
