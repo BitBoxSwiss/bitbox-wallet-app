@@ -83,10 +83,19 @@ export default class Seed extends Component {
         const errorMessage = status === stateEnum.ERROR ? <p style="color: var(--color-error);">{error}</p> : null;
 
         const content = fromBackup ? (
-            <ManageBackups
-                showCreate={false}
-                displayError={this.displayError}
-                deviceID={deviceID} />
+            <div>
+                <ManageBackups
+                    showCreate={false}
+                    displayError={this.displayError}
+                    deviceID={deviceID}>
+                    <Button
+                        type="button"
+                        transparent
+                        onClick={() => this.setState({ fromBackup: false })}>
+                        {t('button.back')}
+                    </Button>
+                </ManageBackups>
+            </div>
         ) : (
             <form onSubmit={this.handleSubmit}>
                 <div>
@@ -113,6 +122,12 @@ export default class Seed extends Component {
                         primary
                         disabled={!this.validate() || status === stateEnum.WAITING}>
                         {t('seed.create')}
+                    </Button>
+                    <Button
+                        type="button"
+                        transparent
+                        onClick={() => this.setState({ fromBackup: true })}>
+                        {t('seed.backup')}
                     </Button>
                 </div>
             </form>

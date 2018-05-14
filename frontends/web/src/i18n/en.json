@@ -74,7 +74,8 @@
             "label": "Password"
         },
         "description": "This password is part of the Seed to generate the Master Key and therefore can NOT be changed later.",
-        "create": "Create Wallet"
+        "create": "Create Wallet",
+        "backup": "or restore a Backup…"
     },
     "initialize": {
         "creating": "Setting PIN…",
@@ -88,7 +89,8 @@
     "button": {
         "send": "Send",
         "receive": "Receive",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "back": "Back"
     },
     "loading": "loading…"
 }

@@ -38,6 +38,7 @@ export default class ManageBackups extends Component {
     render({
         showCreate,
         deviceID,
+        children,
     }, {
         backupList,
         selectedBackup,
@@ -76,6 +77,7 @@ export default class ManageBackups extends Component {
                         </div>
                     </div>
                     <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                        {children}
                         <Restore
                             selectedBackup={selectedBackup}
                             displayError={this.displayError}
