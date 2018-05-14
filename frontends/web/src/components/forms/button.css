@@ -59,9 +59,8 @@
 }
 
 .danger:hover {
-    background-color: var(--color-white);
+    background-color: var(--color-swissred);
     border-color: var(--color-swissred);
-    color: var(--color-swissred);
 }
 
 .button[disabled] {
