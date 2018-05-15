@@ -33,17 +33,21 @@ export default class ReceiveButton extends Component {
         );
 
         return (
-            <div class="innerContainer">
-                <div class="header">
-                    <h2>{t('receive.title')}</h2>
-                </div>
-                <div class="content isVerticallyCentered">
-                    <div class={style.receiveContent}>
-                        {content}
+            <div class="container">
+                <div class="headerContainer">
+                    <div class="header">
+                        <h2>{t('receive.title')}</h2>
                     </div>
                 </div>
-                <div class="flex flex-row flex-end">
-                    <Button primary onClick={this.props.onClose}>{t('cancel')}</Button>
+                <div class="innerContainer">
+                    <div class="content isVerticallyCentered">
+                        <div class={style.receiveContent}>
+                            {content}
+                        </div>
+                    </div>
+                    <div class="content flex flex-row flex-end flex-none">
+                        <Button primary onClick={this.props.onClose}>{t('cancel')}</Button>
+                    </div>
                 </div>
             </div>
         );

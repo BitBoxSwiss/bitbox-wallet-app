@@ -128,72 +128,69 @@ export default class Account extends Component {
                 </div>
             </div>
         );
-        return (
-            <div class="container">
-                {
-                    (!isReceive && !isSend) && (
-                        <div class="innerContainer fluid withFixedContent">
-                            {connectionStatusContainer}
-                            <div class="headerContainer">
-                                <div class="header">
-                                    <Balance name={wallet.name} balance={balance}>
-                                        {
-                                            balance && balance.hasIncoming && (
-                                                <h5 class={style.pendingBalance}>
-                                                    {balance.incoming}
-                                                    <span style="color: var(--color-light);">{balance.unit}</span>
-                                                    {' '}
-                                                    {t('account.incoming')}
-                                                </h5>
-                                            )
-                                        }
-                                    </Balance>
-                                    <div class={componentStyle.buttons}>
-                                        <Button primary onClick={() => this.setState({ isReceive: true })}>
-                                            {t('button.receive')}
-                                        </Button>
-                                        <Button primary onClick={() => this.setState({ isSend: true })}>
-                                            {t('button.send')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="content">
+
+        if (!isReceive && !isSend) {
+            return (
+                <div class="container">
+                    <div class="headerContainer fixed">
+                        <div class="header">
+                            <Balance name={wallet.name} balance={balance}>
                                 {
-                                    !walletInitialized ? (
-                                        <div class="flex flex-row flex-center">
-                                            <p style="font-weight: bold;">{t('account.initializing')}</p>
-                                        </div>
-                                    ) : (
-                                        <Transactions
-                                            explorerURL={wallet.blockExplorerTxPrefix}
-                                            transactions={transactions}
-                                        />
+                                    balance.hasIncoming && (
+                                        <h5 class={style.pendingBalance}>
+                                            {balance.incoming}
+                                            <span style="color: var(--color-light);">{balance.unit}</span>
+                                            {' '}
+                                            {t('account.pending')}
+                                        </h5>
                                     )
                                 }
+                            </Balance>
+                            <div class={componentStyle.buttons}>
+                                <Button primary onClick={() => this.setState({ isReceive: true })}>
+                                    {t('button.receive')}
+                                </Button>
+                                <Button primary onClick={() => this.setState({ isSend: true })}>
+                                    {t('button.send')}
+                                </Button>
                             </div>
                         </div>
-                    )
-                }
-                {
-                    isReceive && (
-                        <Receive
-                            code={this.props.code}
-                            onClose={() => this.setState({ isReceive: false })}
-                        />
-                    )
-                }
-                {
-                    isSend && (
-                        <Send
-                            walletCode={wallet.code}
-                            walletInitialized={walletInitialized}
-                            unit={balance.unit}
-                            onClose={() => this.setState({ isSend: false })}
-                        />
-                    )
-                }
-            </div>
-        );
+                    </div>
+                    <div class="innerContainer withFixedContent">
+                        {connectionStatusContainer}
+                        <div class="">
+                            {
+                                !walletInitialized ? (
+                                    <div class="flex flex-row flex-center">
+                                        <p style="font-weight: bold;">{t('account.initializing')}</p>
+                                    </div>
+                                ) : (
+                                    <Transactions
+                                        explorerURL={wallet.blockExplorerTxPrefix}
+                                        transactions={transactions}
+                                    />
+                                )
+                            }
+                        </div>
+                    </div>
+                </div>
+            );
+        } else if (isReceive) {
+            return (
+                <Receive
+                    code={this.props.code}
+                    onClose={() => this.setState({ isReceive: false })}
+                />
+            );
+        } else if (isSend) {
+            return (
+                <Send
+                    walletCode={wallet.code}
+                    walletInitialized={walletInitialized}
+                    unit={balance.unit}
+                    onClose={() => this.setState({ isSend: false })}
+                />
+            );
+        }
     }
 }

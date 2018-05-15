@@ -12,6 +12,7 @@
 .flex-wrap { flex-wrap: wrap; }
 .flex-nowrap { flex-wrap: nowrap; }
 .flex-1 { flex: 1; }
+.flex-none { flex: none !important; }
 .has-gutter > div:not(:last-child) { margin-right: var(--spacing-default); }
 
 .text-center { text-align: center; }
@@ -35,10 +36,8 @@
 }
 
 .innerContainer {
-    max-width: 800px;
     width: 100%;
-    min-height: 100vh;
-    max-height: 100vh;
+    min-height: calc(100% - var(--header-height));
     padding: var(--spacing-large);
     margin: 0 auto;
     display: flex;
@@ -46,7 +45,7 @@
     justify-content: flex-start;
 }
 
-.innerContainer.fluid {
+.fluid {
   max-width: none;
 }
 
@@ -55,38 +54,28 @@
 }
 
 .headerContainer {
+  background-color: var(--color-white);
+  padding: var(--spacing-default) var(--spacing-large);
+  height: var(--header-height);
+  width: 100%;
+}
+
+.headerContainer.fixed {
   position: fixed;
   top: 0;
   left: var(--sidebar-width);
   width: calc(100% - var(--sidebar-width));
-  background-color: var(--color-white);
-  padding: var(--spacing-default) var(--spacing-large);
-  height: var(--header-height);
 }
 
 .headerContainer .header {
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
-}
-
-.innerContainer .header {
-  min-height: var(--header-height);
-  margin: calc(var(--spacing-large) * -1) calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
-  padding: var(--spacing-default) var(--spacing-large);
-  background-color: var(--color-white);
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-start;
-	flex: none;
-}
-
-.innerContainer:not(.withFixedContent) .header {
-  min-height: var(--header-height);
-  margin: calc(var(--spacing-large) * -1) calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
-  padding: var(--spacing-default) var(--spacing-large);
-  background-color: var(--color-white);
+  flex: none;
 }
 
 .header h2 {
@@ -96,10 +85,10 @@
 }
 
 .content {
-    margin: var(--spacing-large) 0 0 0;
-    flex: 1 1 auto;
-    overflow-x: visible;
-    overflow-y: auto;
+  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+  flex: 1;
 }
 
 .withFixedContent .content {
@@ -111,10 +100,9 @@
 }
 
 .isVerticallyCentered {
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 /* MODAL */
