@@ -104,8 +104,8 @@ func NewHandlers(
 
 	theAccountHandlers := map[string]*accountHandlers.Handlers{}
 	for _, accountCode := range []string{
-		"btc", "btc-p2wpkh-p2sh", "ltc-p2wpkh-p2sh",
-		"tbtc", "tbtc-p2wpkh-p2sh", "tltc-p2wpkh-p2sh",
+		"btc", "btc-p2wpkh-p2sh", "btc-p2wpkh", "ltc-p2wpkh-p2sh",
+		"tbtc", "tbtc-p2wpkh-p2sh", "tbtc-p2wpkh", "tltc-p2wpkh-p2sh",
 		"rbtc", "rbtc-p2wpkh-p2sh",
 	} {
 		theAccountHandlers[accountCode] = accountHandlers.NewHandlers(getAPIRouter(

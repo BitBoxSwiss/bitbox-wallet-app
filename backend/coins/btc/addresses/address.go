@@ -43,6 +43,9 @@ const (
 
 	// AddressTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
 	AddressTypeP2WPKHP2SH = "p2wpkh-p2sh"
+
+	// AddressTypeP2WPKH is a segwit PayToPubKeyHash output.
+	AddressTypeP2WPKH = "p2wpkh"
 )
 
 // NewAccountAddress creates a new account address.
@@ -87,10 +90,15 @@ func NewAccountAddress(
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
 			}
+		case AddressTypeP2WPKH:
+			address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
+			}
 		case AddressTypeP2WPKHP2SH:
 			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get segwit addr. from publ. key hash.")
+				log.WithField("error", err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
 			}
 			redeemScript, err = txscript.PayToAddrScript(segwitAddress)
 			if err != nil {
@@ -146,6 +154,8 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 		return false, address.PubkeyScript()
 	case AddressTypeP2WPKHP2SH:
 		return true, address.redeemScript
+	case AddressTypeP2WPKH:
+		return true, address.PubkeyScript()
 	default:
 		address.log.Panic("Unrecognized address type.")
 	}
@@ -216,6 +226,12 @@ func (address *AccountAddress) SignatureScript(
 			publicKey.SerializeCompressed(),
 		}
 		return signatureScript, txWitness
+	case AddressTypeP2WPKH:
+		txWitness := wire.TxWitness{
+			append(signature.Serialize(), byte(txscript.SigHashAll)),
+			publicKey.SerializeCompressed(),
+		}
+		return []byte{}, txWitness
 	default:
 		address.log.Panic("Unrecognized address type.")
 	}

@@ -152,6 +152,9 @@ func (backend *Backend) initAccounts() error {
 			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", addresses.AddressTypeP2WPKH); err != nil {
+				return err
+			}
 			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
@@ -161,6 +164,9 @@ func (backend *Backend) initAccounts() error {
 			return err
 		}
 		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+			return err
+		}
+		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", addresses.AddressTypeP2WPKH); err != nil {
 			return err
 		}
 		if err := backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
