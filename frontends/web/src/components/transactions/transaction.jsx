@@ -46,9 +46,7 @@ export default class Transaction extends Component {
     }, {
         collapsed,
     }) {
-        const badge = t(`transaction.badge.${
-            ((type === 'send') && 'to') || ((type === 'receive') && 'from') || ((type === 'send_to_self') && 'self')
-        }`);
+        const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         // TODO: check if 'Time not yet available' is needed
         const date = time ? this.parseTime(time) : (height <= 0 ? t('transaction.pending') : 'Time not yet available');

@@ -37,9 +37,9 @@
     "transaction": {
         "pending": "Pending Transaction",
         "badge": {
-            "to": "To",
-            "from": "From",
-            "self": "Self"
+            "send": "Out",
+            "receive": "In",
+            "send_to_self": "Self"
         },
         "confirmation": "Number of confirmations",
         "fee": "Fee",
