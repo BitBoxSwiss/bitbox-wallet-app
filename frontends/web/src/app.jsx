@@ -2,18 +2,15 @@ import { Component } from 'preact';
 import { Router, route } from 'preact-router';
 import { translate } from 'react-i18next';
 
-import { apiGet, apiPost } from './utils/request';
+import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import Sidebar from './components/sidebar/sidebar';
+import Waiting from './routes/device/waiting';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
-import { Button, Input } from './components/forms';
-import { BitBox } from './components/icon/logo';
 import { debug } from './utils/env';
-
-import style from './components/app.css';
 
 @translate()
 export default class App extends Component {
@@ -107,54 +104,9 @@ export default class App extends Component {
             );
         }
         if (!deviceIDs.length) {
-            return (
-                <div className={style.container}>
-                    {BitBox}
-                    <div className={style.content}>
-                        <h3>{t('device.waiting')}</h3>
-                        <SkipForTestingButton show={debug && testing} />
-                    </div>
-                </div>
-            );
+            return <Waiting testing={testing} />;
         }
         return <Device deviceID={deviceIDs[0]} />;
-    }
-}
-
-class SkipForTestingButton extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            testPIN: ''
-        };
-    }
-
-    registerTestingDevice = () => {
-        apiPost('test/register', { pin: this.state.testPIN });
-    }
-
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
-    };
-
-    render({ show }, { testPIN }) {
-        if (!show) {
-            return null;
-        }
-        return (
-            <form onSubmit={this.registerTestingDevice}>
-                <Input
-                    type="password"
-                    autoFocus
-                    id="testPIN"
-                    label="Test PIN"
-                    onInput={this.handleFormChange}
-                    value={testPIN} />
-                <Button type="submit" secondary>
-                    Skip for Testing
-                </Button>
-            </form>
-        );
     }
 }
 

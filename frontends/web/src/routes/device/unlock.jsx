@@ -6,7 +6,7 @@ import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
-import style from '../../components/app.css';
+import style from './device.css';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
