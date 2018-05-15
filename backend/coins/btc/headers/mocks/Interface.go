@@ -74,3 +74,17 @@ func (_m *Interface) Status() (*headers.Status, error) {
 func (_m *Interface) SubscribeEvent(f func(headers.Event)) {
 	_m.Called(f)
 }
+
+// TipHeight provides a mock function with given fields:
+func (_m *Interface) TipHeight() int {
+	ret := _m.Called()
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func() int); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	return r0
+}
