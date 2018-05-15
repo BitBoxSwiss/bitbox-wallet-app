@@ -16,11 +16,7 @@ export default class Account extends Component {
         walletInitialized: false,
         transactions: [],
         walletConnected: false,
-        balance: {
-            available: '',
-            incoming: '',
-            hasIncoming: false,
-        },
+        balance: null,
         isReceive: false,
         isSend: false,
     }
@@ -107,13 +103,7 @@ export default class Account extends Component {
             });
         } else {
             console.log('Wallet ' + this.props.code + ' disconnected. Should rerender');
-            this.setState({
-                balance: {
-                    available: 0,
-                    hasIncoming: false,
-                    incoming: 0,
-                },
-            });
+            this.setState({ balance: null });
         }
     }
 
@@ -145,9 +135,9 @@ export default class Account extends Component {
                         <div class={style.container}>
                             {connectionStatusContainer}
                             <div class={style.header}>
-                                <Balance name={wallet.name} amount={balance.available} unit={balance.unit}>
+                                <Balance name={wallet.name} balance={balance}>
                                     {
-                                        balance.hasIncoming && (
+                                        balance && balance.hasIncoming && (
                                             <h5 class={style.pendingBalance}>
                                                 {balance.incoming}
                                                 <span style="color: var(--color-light);">{balance.unit}</span>
