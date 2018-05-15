@@ -142,7 +142,7 @@ export default class Account extends Component {
                                                 {balance.incoming}
                                                 <span style="color: var(--color-light);">{balance.unit}</span>
                                                 {' '}
-                                                {t('account.pending')}
+                                                {t('account.incoming')}
                                             </h5>
                                         )
                                     }

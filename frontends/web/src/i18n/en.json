@@ -28,7 +28,7 @@
     "account": {
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",
-        "pending": "Pending",
+        "incoming": "Incoming",
         "initializing": "Initializing…"
     },
     "transactions": {
