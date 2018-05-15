@@ -76,7 +76,11 @@ export default class Seed extends Component {
             return (
                 <div className={style.container}>
                     {BitBox}
-                    <div className={style.content}>{t('seed.creating')}</div>
+                    <div className={style.content}>
+                        <Message type="info">
+                            {t('seed.creating')}
+                        </Message>
+                    </div>
                 </div>
             );
         }
