@@ -25,10 +25,8 @@ export default class Transaction extends Component {
         let arr;
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        arr = time.split(' ');
-        arr.pop();
-        const dt = new Date(Date.parse(arr.join(' ')));
-        return `${days[dt.getDay()]} ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()} - ${dt.getHours()}:${dt.getMinutes()}`;
+        const dt = new Date(Date.parse(time));
+        return `${days[dt.getDay()]} ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()} - ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
     }
 
     render({

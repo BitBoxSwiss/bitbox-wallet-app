@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
@@ -79,7 +80,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
-			t := txInfo.Timestamp.String()
+			t := txInfo.Timestamp.Format(time.RFC3339)
 			formattedTime = &t
 		}
 		result = append(result, Transaction{
