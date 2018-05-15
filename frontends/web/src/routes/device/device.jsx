@@ -69,7 +69,7 @@ export default class Device extends Component {
 
     render({ t, deviceID }, { deviceRegistered, deviceStatus }) {
         if (!deviceRegistered || !deviceStatus) {
-            return <h3>{t('device.waiting')}</h3>;
+            return null; //<h3>{t('device.waiting')}</h3>;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:

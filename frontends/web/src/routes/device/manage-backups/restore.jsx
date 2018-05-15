@@ -1,9 +1,11 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 import { Button } from '../../../components/forms';
-import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import Confirm from '../../../components/confirm/confirm';
 import { PasswordRepeatInput } from '../../../components/password';
 import { apiPost } from '../../../utils/request';
 
+@translate()
 export default class Restore extends Component {
     state = {
         password: null,
@@ -24,7 +26,6 @@ export default class Restore extends Component {
         if (!this.validate()) return;
         this.setState({
             isConfirming: true,
-            activeDialog: false,
         });
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
             password: this.state.password,
@@ -34,6 +35,7 @@ export default class Restore extends Component {
             if (this.passwordInput) this.passwordInput.clear();
             this.setState({
                 isConfirming: false,
+                activeDialog: false,
             });
         });
     }
@@ -43,9 +45,11 @@ export default class Restore extends Component {
     }
 
     render({
+        t,
         selectedBackup,
     }, {
         password,
+        isConfirming,
         activeDialog,
     }) {
         return (
@@ -54,29 +58,33 @@ export default class Restore extends Component {
                     danger
                     disabled={selectedBackup === null}
                     onclick={() => this.setState({ activeDialog: true })}>
-                    Restore
+                    {t('backup.restore')}
                 </Button>
-                <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                    <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                        <h3 class="modalHeader">Restore {selectedBackup}</h3>
-                        <div class="modalContent">
-                            <PasswordRepeatInput
-                                label="Password"
-                                ref={ref => this.passwordInput = ref}
-                                helptext="Password when backup was created"
-                                onValidPassword={this.setValidPassword}
-                            />
-                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button danger disabled={!this.validate()} onClick={this.restore}>Restore</Button>
+                { activeDialog ? (
+                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+                            <h3 class="modalHeader">Restore {selectedBackup}</h3>
+                            <div class="modalContent">
+                                <Confirm
+                                    active={isConfirming}
+                                    title="Restore Backup">
+                                    <form onSubmit={this.restore}>
+                                        <PasswordRepeatInput
+                                            label="Password"
+                                            ref={ref => this.passwordInput = ref}
+                                            helptext="Password when backup was created"
+                                            onValidPassword={this.setValidPassword}
+                                        />
+                                        <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                            <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
+                                            <Button type="submit" danger disabled={!this.validate()}>Restore</Button>
+                                        </div>
+                                    </form>
+                                </Confirm>
                             </div>
                         </div>
                     </div>
-                </div>
-                <WaitDialog
-                    active={this.state.isConfirming}
-                    title="Restore Backup"
-                />
+                ) : null }
             </span>
         );
     }

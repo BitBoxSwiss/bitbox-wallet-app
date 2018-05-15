@@ -4,7 +4,7 @@ import { apiGet } from '../../../utils/request';
 import { Button, ButtonLink, Radio } from '../../../components/forms';
 import Create from './create';
 import Restore from './restore';
-import Erase from './erase';
+// import Erase from './erase';
 import style from './manage-backups.css';
 
 @translate()
@@ -12,7 +12,7 @@ export default class ManageBackups extends Component {
     state = {
         backupList: [],
         selectedBackup: null,
-        sdCardInserted: false,
+        sdCardInserted: null,
     }
 
     componentDidMount() {
@@ -47,7 +47,7 @@ export default class ManageBackups extends Component {
         selectedBackup,
         sdCardInserted,
     }) {
-        if (!sdCardInserted) {
+        if (sdCardInserted === false) {
             return (
                 <div class="container">
                     <div class="innerContainer">
@@ -61,6 +61,8 @@ export default class ManageBackups extends Component {
                     </div>
                 </div>
             );
+        } else if (!sdCardInserted) {
+            return null;
         }
 
         return (
@@ -88,13 +90,11 @@ export default class ManageBackups extends Component {
                             displayError={this.displayError}
                             deviceID={deviceID} />
                         {/*
-                            showCreate && (
-                                <Erase
-                                    selectedBackup={selectedBackup}
-                                    onErase={this.refresh}
-                                    deviceID={deviceID}
-                                />
-                            )
+                            <Erase
+                                selectedBackup={selectedBackup}
+                                onErase={this.refresh}
+                                deviceID={deviceID}
+                            />
                         */}
                         {
                             showCreate && (
@@ -120,8 +120,7 @@ function BackupsListItem({
                 onChange={handleChange}
                 id={backup}
                 label={backup}
-                value={backup}
-            >
+                value={backup}>
                 <span className="text-small text-gray">2018/05/02 2:30PM</span>
             </Radio>
         </div>

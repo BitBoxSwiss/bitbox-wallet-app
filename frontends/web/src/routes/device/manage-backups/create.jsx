@@ -46,40 +46,48 @@ export default class Create extends Component {
             <span>
                 <Button
                     primary
-                    onclick={() => this.setState({ activeDialog: true })}>
+                    onClick={() => this.setState({ activeDialog: true })}>
                     Create
                 </Button>
-                <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                    <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                        <h3 class="modalHeader">Create Backup</h3>
-                        <div class="modalContent">
-                            <Input
-                                autoFocus
-                                autoComplete="off"
-                                ref={pwf => this.pwf = pwf}
-                                id="backupName"
-                                label="Backup Name"
-                                placeholder="Please name the backup"
-                                onInput={this.handleFormChange}
-                                value={backupName}
-                            />
-                            <PasswordInput
-                                ref={ref => this.passwordInput = ref}
-                                helptext="Please enter the same password as when the wallet was created."
-                                helptextPersistent={true}
-                                id="recoveryPassword"
-                                label="Password"
-                                placeholder="Please enter your password"
-                                onInput={this.handleFormChange}
-                                value={recoveryPassword}
-                            />
-                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button primary disabled={waiting || !this.validate()} onClick={this.create}>Create</Button>
+                { activeDialog ? (
+                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+                            <h3 class="modalHeader">Create Backup</h3>
+                            <div class="modalContent">
+                                <form onSubmit={this.create}>
+                                    <Input
+                                        autoFocus
+                                        autoComplete="off"
+                                        ref={pwf => this.pwf = pwf}
+                                        id="backupName"
+                                        label="Backup Name"
+                                        placeholder="Please name the backup"
+                                        onInput={this.handleFormChange}
+                                        value={backupName}
+                                    />
+                                    <PasswordInput
+                                        ref={ref => this.passwordInput = ref}
+                                        helptext="Please enter the same password as when the wallet was created."
+                                        helptextPersistent={true}
+                                        id="recoveryPassword"
+                                        label="Password"
+                                        placeholder="Please enter your password"
+                                        onInput={this.handleFormChange}
+                                        value={recoveryPassword}
+                                    />
+                                    <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                        <Button secondary onClick={() => this.setState({ activeDialog: false })}>
+                                            Abort
+                                        </Button>
+                                        <Button type="submit" primary disabled={waiting || !this.validate()}>
+                                            Create
+                                        </Button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </div>
+                ) : null }
             </span>
         );
     }

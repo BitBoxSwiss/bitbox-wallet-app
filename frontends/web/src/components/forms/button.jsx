@@ -24,6 +24,7 @@ export function ButtonLink({
 }
 
 export default function Button({
+    type = 'button',
     primary,
     secondary,
     transparent,
@@ -39,6 +40,7 @@ export default function Button({
 
     return (
         <button
+            type={type}
             className={style[className]}
             {...props}>
             {children}

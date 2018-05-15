@@ -98,7 +98,8 @@
         "create": "Set PIN"
     },
     "backup": {
-        "title": "Manage Backups"
+        "title": "Manage Backups",
+        "restore": "Restore"
     },
     "footer": {
         "appVersion": "App Version:"

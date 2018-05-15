@@ -30,18 +30,20 @@ export default class Erase extends Component {
                     onClick={() => this.setState({ activeDialog: true })}>
                     Erase
                 </Button>
-                <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                    <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                        <h3 class="modalHeader">Erase {selectedBackup}</h3>
-                        <div class="modalContent">
-                            Do you really want to erase {selectedBackup}?
-                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button primary onClick={this.erase}>Erase</Button>
+                { activeDialog ? (
+                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+                            <h3 class="modalHeader">Erase {selectedBackup}</h3>
+                            <div class="modalContent">
+                                Do you really want to erase {selectedBackup}?
+                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                    <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
+                                    <Button primary onClick={this.erase}>Erase</Button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                ) : null }
             </span>
         );
     }
