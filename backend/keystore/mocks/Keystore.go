@@ -99,24 +99,15 @@ func (_m *Keystore) OutputAddress(_a0 signing.AbsoluteKeypath, _a1 coin.Coin) er
 }
 
 // SignTransaction provides a mock function with given fields: _a0
-func (_m *Keystore) SignTransaction(_a0 coin.ProposedTransaction) (coin.ProposedTransaction, error) {
+func (_m *Keystore) SignTransaction(_a0 coin.ProposedTransaction) error {
 	ret := _m.Called(_a0)
 
-	var r0 coin.ProposedTransaction
-	if rf, ok := ret.Get(0).(func(coin.ProposedTransaction) coin.ProposedTransaction); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(coin.ProposedTransaction) error); ok {
 		r0 = rf(_a0)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(coin.ProposedTransaction)
-		}
+		r0 = ret.Error(0)
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(coin.ProposedTransaction) error); ok {
-		r1 = rf(_a0)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
