@@ -50,13 +50,14 @@ func (handlers *Handlers) Uninit() {
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID        string   `json:"id"`
-	Height    int      `json:"height"`
-	Type      string   `json:"type"`
-	Amount    string   `json:"amount"`
-	Fee       string   `json:"fee"`
-	Time      *string  `json:"time"`
-	Addresses []string `json:"addresses"`
+	ID               string   `json:"id"`
+	NumConfirmations int      `json:"numConfirmations"`
+	Height           int      `json:"height"`
+	Type             string   `json:"type"`
+	Amount           string   `json:"amount"`
+	Fee              string   `json:"fee"`
+	Time             *string  `json:"time"`
+	Addresses        []string `json:"addresses"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -82,8 +83,9 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			formattedTime = &t
 		}
 		result = append(result, Transaction{
-			ID:     txInfo.Tx.TxHash().String(),
-			Height: txInfo.Height,
+			ID:               txInfo.Tx.TxHash().String(),
+			NumConfirmations: txInfo.NumConfirmations,
+			Height:           txInfo.Height,
 			Type: map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",
 				transactions.TxTypeSend:     "send",

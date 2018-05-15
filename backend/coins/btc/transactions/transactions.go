@@ -38,6 +38,10 @@ type Transactions struct {
 	headers      headers.Interface
 	requestedTXs map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx)
 
+	// headersTipHeight is the current chain tip height, so we can compute the number of
+	// confirmations of a transaction.
+	headersTipHeight int
+
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
 	log          *logrus.Entry
@@ -57,6 +61,8 @@ func NewTransactions(
 		db:           db,
 		headers:      headers,
 		requestedTXs: map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx){},
+
+		headersTipHeight: headers.TipHeight(),
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
@@ -452,9 +458,12 @@ const (
 
 // TxInfo contains additional tx information to display to the user.
 type TxInfo struct {
-	Tx     *wire.MsgTx
+	Tx *wire.MsgTx
+	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
 	Height int
-	Type   TxType
+	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
+	NumConfirmations int
+	Type             TxType
 	// Amount is always >0 and is the amount received or sent (not including the fee).
 	Amount btcutil.Amount
 	// Fee is nil if for a receiving tx (TxTypeReceive). The fee is only displayed (and relevant)
@@ -547,14 +556,19 @@ func (transactions *Transactions) txInfo(
 		addresses = receiveAddresses
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
+	numConfirmations := 0
+	if height > 0 && transactions.headersTipHeight > 0 {
+		numConfirmations = transactions.headersTipHeight - height + 1
+	}
 	return &TxInfo{
-		Tx:        tx,
-		Height:    height,
-		Type:      txType,
-		Amount:    result,
-		Fee:       feeP,
-		Timestamp: timestamp,
-		Addresses: addresses,
+		Tx:               tx,
+		NumConfirmations: numConfirmations,
+		Height:           height,
+		Type:             txType,
+		Amount:           result,
+		Fee:              feeP,
+		Timestamp:        timestamp,
+		Addresses:        addresses,
 	}
 }
 

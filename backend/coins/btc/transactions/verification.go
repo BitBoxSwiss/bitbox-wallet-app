@@ -9,8 +9,15 @@ import (
 )
 
 func (transactions *Transactions) onHeadersEvent(event headers.Event) {
-	if event == headers.EventSynced {
+	switch event {
+	case headers.EventSynced:
 		transactions.verifyTransactions()
+		break
+	case headers.EventNewTip:
+		done := transactions.synchronizer.IncRequestsCounter()
+		transactions.headersTipHeight = transactions.headers.TipHeight()
+		done()
+		break
 	}
 }
 

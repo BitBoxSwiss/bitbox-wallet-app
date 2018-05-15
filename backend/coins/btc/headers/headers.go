@@ -20,7 +20,9 @@ type Event string
 
 const (
 	// EventSynced is fired when the headers finished syncing.
-	EventSynced Event = "statusChanged"
+	EventSynced Event = "synced"
+	// EventNewTip is fired when a new tip is known.
+	EventNewTip Event = "newTip"
 )
 
 // Interface represents the public API of this package.
@@ -29,6 +31,7 @@ type Interface interface {
 	Init() error
 	SubscribeEvent(f func(Event))
 	HeaderByHeight(int) (*wire.BlockHeader, error)
+	TipHeight() int
 	Status() (*Status, error)
 }
 
@@ -82,6 +85,11 @@ func NewHeaders(
 // SubscribeEvent subscribes to header events. The provided callback will be notified of events.
 func (headers *Headers) SubscribeEvent(f func(event Event)) {
 	headers.eventCallbacks = append(headers.eventCallbacks, f)
+}
+
+// TipHeight returns the height of the tip.
+func (headers *Headers) TipHeight() int {
+	return headers.targetHeight
 }
 
 // Init starts the syncing process.
@@ -249,6 +257,7 @@ func (headers *Headers) update(blockHeight int) error {
 	headers.log.Debugf("new target %d", blockHeight)
 	headers.kick()
 	headers.targetHeight = blockHeight
+	headers.notifyEvent(EventNewTip)
 	return nil
 }
 

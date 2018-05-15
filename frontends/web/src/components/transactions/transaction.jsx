@@ -40,7 +40,7 @@ export default class Transaction extends Component {
         fiat = '',
         fiat_historical = '',
         fee,
-        height,
+        numConfirmations,
         time,
         addresses,
     }, {
@@ -49,7 +49,7 @@ export default class Transaction extends Component {
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         // TODO: check if 'Time not yet available' is needed
-        const date = time ? this.parseTime(time) : (height <= 0 ? t('transaction.pending') : 'Time not yet available');
+        const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div
                 className={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}
@@ -81,7 +81,7 @@ export default class Transaction extends Component {
                             <div className={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row].join(' ')}>
                                 <div>
                                     <div className={style.transactionLabel}>{t('transaction.confirmation')}</div>
-                                    <div className={style.address}>{height}</div>
+                                    <div className={style.address}>{numConfirmations}</div>
                                 </div>
                                 {
                                     fee && (
