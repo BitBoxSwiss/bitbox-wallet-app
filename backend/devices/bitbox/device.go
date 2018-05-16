@@ -77,7 +77,7 @@ type Interface interface {
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
 	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
-	UnlockBootloader() error
+	UnlockBootloader() (bool, error)
 	LockBootloader() error
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
@@ -733,19 +733,22 @@ func (dbb *Device) EraseBackup(filename string) error {
 	return nil
 }
 
-// UnlockBootloader unlocks the bootloader.
-func (dbb *Device) UnlockBootloader() error {
+// UnlockBootloader unlocks the bootloader. It returns true on success, and false on user abort.
+func (dbb *Device) UnlockBootloader() (bool, error) {
 	if dbb.bootloaderStatus != nil {
-		return errp.WithStack(errNoBootloader)
+		return false, errp.WithStack(errNoBootloader)
 	}
 	reply, err := dbb.sendKV("bootloader", "unlock", dbb.pin)
+	if IsErrorAbort(err) {
+		return false, nil
+	}
 	if err != nil {
-		return errp.WithMessage(err, "Failed to unlock bootloader")
+		return false, errp.WithMessage(err, "Failed to unlock bootloader")
 	}
 	if val, ok := reply["bootloader"].(string); !ok || val != "unlock" {
-		return errp.New("unexpected reply")
+		return false, errp.New("unexpected reply")
 	}
-	return nil
+	return true, nil
 }
 
 // LockBootloader locks the bootloader.

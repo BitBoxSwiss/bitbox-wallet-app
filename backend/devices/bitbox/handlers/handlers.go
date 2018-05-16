@@ -151,7 +151,7 @@ func (handlers *Handlers) postLockBootloaderHandler(_ *http.Request) (interface{
 }
 
 func (handlers *Handlers) postUnlockBootloaderHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.UnlockBootloader()
+	return handlers.device.UnlockBootloader()
 }
 
 func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{}, error) {

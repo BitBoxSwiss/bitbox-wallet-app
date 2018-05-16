@@ -18,9 +18,10 @@ export default class UpgradeFirmware extends Component {
             activeDialog: false,
             isConfirming: true,
         });
-        apiPost('devices/' + this.props.deviceID + '/unlock-bootloader').then(() => {
+        apiPost('devices/' + this.props.deviceID + '/unlock-bootloader').then((success) => {
             this.setState({
-                unlocked: true,
+                unlocked: success,
+                isConfirming: success,
             });
         }).catch(e => {
             this.setState({
@@ -43,6 +44,7 @@ export default class UpgradeFirmware extends Component {
         isConfirming,
         activeDialog,
     }) {
+        console.log("LO",unlocked);
         return (
             <div>
                 <Button
@@ -70,9 +72,9 @@ export default class UpgradeFirmware extends Component {
                     title="Upgrade Firmware">
                     {
                         unlocked ? (
-                            <p>To upgrade from ${currentVersion} to ${newVersion}, please do a long touch.</p>
-                        ) : (
                             <p>The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.</p>
+                        ) : (
+                            <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>
                         )
                     }
                 </WaitDialog>
