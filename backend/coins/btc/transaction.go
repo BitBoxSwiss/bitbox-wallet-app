@@ -12,6 +12,13 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+// TxValidationError represents errors in the tx proposal input data.
+type TxValidationError string
+
+func (err TxValidationError) Error() string {
+	return string(err)
+}
+
 // SendAmount is either a concrete amount, or "all"/"max".
 type SendAmount struct {
 	amount  btcutil.Amount
@@ -35,10 +42,18 @@ func NewSendAmountAll() SendAmount {
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
 // transaction.
 func (account *Account) newTx(
-	address btcutil.Address, amount SendAmount, feeTargetCode FeeTargetCode) (
+	recipientAddress string, amount SendAmount, feeTargetCode FeeTargetCode) (
 	map[wire.OutPoint]*transactions.TxOut, *maketx.TxProposal, error) {
 
 	account.log.Debug("Prepare new transaction")
+
+	address, err := btcutil.DecodeAddress(recipientAddress, account.net)
+	if err != nil {
+		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
+	}
+	if !address.IsForNet(account.net) {
+		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
+	}
 
 	var feeTarget *FeeTarget
 	for _, target := range account.feeTargets {
@@ -94,16 +109,8 @@ func (account *Account) SendTx(
 	amount SendAmount,
 	feeTargetCode FeeTargetCode) error {
 	account.log.Info("Sending transaction")
-	address, err := btcutil.DecodeAddress(recipientAddress, account.net)
-	if err != nil {
-		return errp.WithStack(err)
-	}
-	if !address.IsForNet(account.net) {
-		return errp.WithContext(errp.New("invalid address for this network"), errp.Context{
-			"net": account.net.Name})
-	}
 	utxo, txProposal, err := account.newTx(
-		address,
+		recipientAddress,
 		amount,
 		feeTargetCode,
 	)
@@ -127,13 +134,12 @@ func (account *Account) SendTx(
 }
 
 // TxProposal creates a tx from the relevant input and returns information about it for display in
-// the UI (the output amount and the fee).
-func (account *Account) TxProposal(amount SendAmount, feeTargetCode FeeTargetCode) (
+// the UI (the output amount and the fee). At the same time, it validates the input.
+func (account *Account) TxProposal(
+	recipientAddress string, amount SendAmount, feeTargetCode FeeTargetCode) (
 	btcutil.Amount, btcutil.Amount, error) {
 
 	account.log.Debug("Proposing transaction")
-	// Dummy recipient, we won't sent the tx, just return the fee.
-	recipientAddress := account.receiveAddresses.GetUnused().Address
 	_, txProposal, err := account.newTx(
 		recipientAddress,
 		amount,

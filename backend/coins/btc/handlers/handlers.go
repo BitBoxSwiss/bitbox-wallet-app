@@ -138,15 +138,15 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	} else {
 		amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
 		if err != nil {
-			return errp.WithStack(err)
+			return errp.WithStack(btc.TxValidationError("invalid amount"))
 		}
 		btcAmount, err := btcutil.NewAmount(amount)
 		if err != nil {
-			return errp.WithStack(err)
+			return errp.WithStack(btc.TxValidationError("invalid amount"))
 		}
 		input.sendAmount, err = btc.NewSendAmount(btcAmount)
 		if err != nil {
-			return errp.WithMessage(err, "Failed to create BTC send amount")
+			return errp.WithStack(btc.TxValidationError("invalid amount"))
 		}
 	}
 	return nil
@@ -168,21 +168,33 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	return map[string]interface{}{"success": true}, nil
 }
 
+func txProposalError(err error) (interface{}, error) {
+	if validationErr, ok := errp.Cause(err).(btc.TxValidationError); ok {
+		return map[string]interface{}{
+			"success": false,
+			"errMsg":  validationErr.Error(),
+		}, nil
+	}
+	return nil, errp.WithMessage(err, "Failed to create transaction proposal")
+}
+
 func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, error) {
 	input := &sendTxInput{}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		return nil, errp.WithStack(err)
+		return txProposalError(errp.WithStack(err))
 	}
 	outputAmount, fee, err := handlers.account.TxProposal(
+		input.address,
 		input.sendAmount,
 		input.feeTargetCode,
 	)
 	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to create transaction proposal")
+		return txProposalError(err)
 	}
-	return map[string]string{
-		"amount": outputAmount.String(),
-		"fee":    fee.String(),
+	return map[string]interface{}{
+		"success": true,
+		"amount":  outputAmount.String(),
+		"fee":     fee.String(),
 	}, nil
 }
 

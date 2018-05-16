@@ -14,6 +14,7 @@ export default class Send extends Component {
         feeTarget: null,
         proposedFee: null,
         proposedAmount: null,
+        valid: false,
         sendAll: false,
         isConfirming: false,
         isSent: false,
@@ -46,18 +47,29 @@ export default class Send extends Component {
         sendAll: this.state.sendAll ? 'yes' : 'no',
     })
 
+    sendDisabled = () => {
+        const txInput = this.txInput();
+        return !txInput.address || !txInput.feeTarget || (txInput.sendAll === 'no' && !txInput.amount);
+    }
+
     validateAndDisplayFee = () => {
         this.setState({ proposedFee: null });
-        const txInput = this.txInput();
-        if (!txInput.feeTarget || (txInput.sendAll === 'no' && !txInput.amount)) {
-            // TODO proper validation
+        if (this.sendDisabled()) {
             return;
         }
-        apiPost('wallet/' + this.props.walletCode + '/tx-proposal', txInput).then(({ amount, fee }) => {
-            this.setState({
-                proposedFee: fee,
-                proposedAmount: amount,
-            });
+        const txInput = this.txInput();
+        apiPost('wallet/' + this.props.walletCode + '/tx-proposal', txInput).then(result => {
+            this.setState({ valid: result.success });
+            if (result.success) {
+                this.setState({
+                    proposedFee: result.fee,
+                    proposedAmount: result.amount,
+                });
+            } else {
+                alert(result.errMsg);
+            }
+        }).catch(() => {
+            this.setState({ valid: false });
         });
     }
 
@@ -91,6 +103,7 @@ export default class Send extends Component {
         proposedFee,
         recipientAddress,
         proposedAmount,
+        valid,
         amount,
         sendAll,
         feeTarget,
@@ -164,7 +177,7 @@ export default class Send extends Component {
                             {t('button.cancel')}
                         </Button>
                         &nbsp;
-                        <Button primary onClick={this.send}>
+                        <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
                             {t('button.send')}
                         </Button>
                     </div>
