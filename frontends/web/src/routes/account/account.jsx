@@ -136,12 +136,12 @@ export default class Account extends Component {
                         <div class="header">
                             <Balance name={wallet.name} balance={balance}>
                                 {
-                                    balance.hasIncoming && (
+                                    balance && balance.hasIncoming && (
                                         <h5 class={style.pendingBalance}>
                                             {balance.incoming}
                                             <span style="color: var(--color-light);">{balance.unit}</span>
                                             {' '}
-                                            {t('account.pending')}
+                                            {t('account.incoming')}
                                         </h5>
                                     )
                                 }
