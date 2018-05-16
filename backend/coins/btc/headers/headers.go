@@ -29,7 +29,7 @@ const (
 //go:generate mockery -name Interface
 type Interface interface {
 	Init() error
-	SubscribeEvent(f func(Event))
+	SubscribeEvent(f func(Event)) func()
 	HeaderByHeight(int) (*wire.BlockHeader, error)
 	TipHeight() int
 	Status() (*Status, error)
@@ -82,9 +82,14 @@ func NewHeaders(
 	}
 }
 
-// SubscribeEvent subscribes to header events. The provided callback will be notified of events.
-func (headers *Headers) SubscribeEvent(f func(event Event)) {
+// SubscribeEvent subscribes to header events. The provided callback will be notified of events. The
+// returned function unsubscribes.
+func (headers *Headers) SubscribeEvent(f func(event Event)) func() {
 	headers.eventCallbacks = append(headers.eventCallbacks, f)
+	index := len(headers.eventCallbacks) - 1
+	return func() {
+		headers.eventCallbacks[index] = nil
+	}
 }
 
 // TipHeight returns the height of the tip.
@@ -200,7 +205,9 @@ func (headers *Headers) reorg(dbTx DBTxInterface, tip int) {
 
 func (headers *Headers) notifyEvent(event Event) {
 	for _, f := range headers.eventCallbacks {
-		go f(event)
+		if f != nil {
+			go f(event)
+		}
 	}
 }
 

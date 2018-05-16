@@ -106,7 +106,8 @@ func (s *transactionsSuite) SetupTest() {
 		panic(err)
 	}
 	s.headersMock = &headersMock.Interface{}
-	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return()
+	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return(func() {})
+	s.headersMock.On("TipHeight").Return(15).Once()
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		db,

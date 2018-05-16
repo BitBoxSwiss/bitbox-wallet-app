@@ -42,6 +42,8 @@ type Transactions struct {
 	// confirmations of a transaction.
 	headersTipHeight int
 
+	unsubscribeHeadersEvent func()
+
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
 	log          *logrus.Entry
@@ -68,8 +70,13 @@ func NewTransactions(
 		blockchain:   blockchain,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
-	headers.SubscribeEvent(transactions.onHeadersEvent)
+	transactions.unsubscribeHeadersEvent = headers.SubscribeEvent(transactions.onHeadersEvent)
 	return transactions
+}
+
+// Close cleans up when finished using.
+func (transactions *Transactions) Close() {
+	transactions.unsubscribeHeadersEvent()
 }
 
 func (transactions *Transactions) txInHistory(

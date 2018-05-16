@@ -223,6 +223,7 @@ func (account *Account) Close() {
 		account.log.WithError(err).Error("couldn't close db")
 	}
 	account.initialSyncDone = false
+	account.transactions.Close()
 	account.onEvent(EventStatusChanged)
 }
 
