@@ -23,6 +23,9 @@
         "manageBackups": "Manage Backups"
     },
     "settings": {
+        "title": "Settings"
+    },
+    "deviceSettings": {
         "title": "Device Settings"
     },
     "account": {
@@ -99,7 +102,8 @@
         "send": "Send",
         "receive": "Receive",
         "cancel": "Cancel",
-        "back": "Back"
+        "back": "Back",
+        "save": "Save"
     },
     "loading": "loading…"
 }

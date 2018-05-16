@@ -24,6 +24,7 @@ import (
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	accountHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
+	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
 	"github.com/shiftdevices/godbb/backend/devices/device"
@@ -92,6 +93,8 @@ func NewHandlers(
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/qr", handlers.getQRCodeHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/wallets", handlers.getWalletsHandler).Methods("GET")
@@ -179,6 +182,18 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)
 	}
+}
+
+func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Config(), nil
+}
+
+func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
+	appConfig := config.AppConfig{}
+	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.backend.SetConfig(appConfig)
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {

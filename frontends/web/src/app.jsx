@@ -8,6 +8,7 @@ import Sidebar from './components/sidebar/sidebar';
 import Waiting from './routes/device/waiting';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
+import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
 import { debug } from './utils/env';
@@ -93,6 +94,7 @@ export default class App extends Component {
                         <Redirect path="/" to={`/account/${wallets[0].code}`} />
                         <Account path="/account/:code" wallets={wallets} />
                         <Device path="/device/:deviceID" />
+                        <Settings path="/settings" />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}

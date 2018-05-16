@@ -12,13 +12,16 @@ const defaultMainDirectoryPath = "."
 type Arguments struct {
 	mainDirectoryPath string
 
-	// Folder stores the location where application data is stored.
+	// cacheDirectoryPath stores the location where application data is stored.
 	cacheDirectoryPath string
+
+	// configFilename stores the filename of the application configuration.
+	configFilename string
 
 	// Testing stores whether the application is for testing only.
 	testing bool
 
-	// Testing stores whether the application is for testing only.
+	// Testing stores whether the application is for regtest.
 	regtest bool
 
 	// Multisig stores whether the application is in multisig mode.
@@ -44,6 +47,7 @@ func NewArguments(
 	return &Arguments{
 		mainDirectoryPath:  mainDirectoryPath,
 		cacheDirectoryPath: cacheDirectoryPath,
+		configFilename:     path.Join(mainDirectoryPath, "config.json"),
 		testing:            testing,
 		regtest:            regtest,
 		multisig:           multisig,

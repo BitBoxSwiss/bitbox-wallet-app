@@ -4,7 +4,8 @@ import { translate } from 'react-i18next';
 import { apiPost, apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
-import settings from '../../assets/icons/wallet-dark.svg';
+import settings from '../../assets/icons/settings-alt.svg';
+import deviceSettings from '../../assets/icons/wallet-dark.svg';
 import backups from '../../assets/icons/backups.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
@@ -48,12 +49,18 @@ class Sidebar extends Component {
                         deviceIDs.map(deviceID => (
                             <div>
                                 <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
-                                    <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                                    <img className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.settings') } />
                                     <span className="sidebar_label">{ t('sidebar.settings') }</span>
                                 </Link>
                             </div>
                         ))
                     }
+                    <div>
+                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
+                            <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                            <span className="sidebar_label">{ t('sidebar.settings') }</span>
+                        </Link>
+                    </div>
                 </div>
             </nav>
         );

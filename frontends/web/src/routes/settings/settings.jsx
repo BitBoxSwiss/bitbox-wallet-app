@@ -1,50 +1,89 @@
 import { Component } from 'preact';
-import { ButtonLink } from '../../components/forms';
 import { translate } from 'react-i18next';
-import { apiGet } from '../../utils/request';
-import Reset from './components/reset';
-import MobilePairing from './components/mobile-pairing';
-import UpgradeFirmware from './components/upgradefirmware';
-import Footer from '../../components/footer/footer';
+import { apiGet, apiPost } from '../../utils/request';
+import { Button, Checkbox } from '../../components/forms';
+import Toast from '../../components/toast/Toast';
 
 @translate()
 export default class Settings extends Component {
     state = {
-        firmwareVersion: null,
+        toast: false,
+        config: null,
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard }) => {
-            this.setState({ firmwareVersion: version.replace('v', '') });
-            if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
+        apiGet('config').then(config => this.setState({ config }));
+    }
+
+    toggleAccountActive = event => {
+        let config = this.state.config;
+        config.backend[event.target.id] = event.target.checked;
+        this.setState({ config });
+    }
+
+    save = event => {
+        if (!this.state.config) {
+            return;
+        }
+        apiPost('config', this.state.config).then(() => {
+            this.setState({ toast: true });
         });
     }
 
     render({
         t,
-        deviceID,
     }, {
-        firmwareVersion,
+        config, toast
     }) {
         return (
             <div class="container">
-                <div class="innerContainer">
-                    <div class="header">
-                        <h2>{t('settings.title')}</h2>
-                    </div>
-                    <div class="content flex flex-column flex-start">
-                        <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
-                            <ButtonLink primary href={`/manage-backups/${deviceID}`}>{t('device.manageBackups')}</ButtonLink>
-                            <MobilePairing deviceID={deviceID} />
-                            <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
-                            <Reset deviceID={deviceID} />
-                        </div>
-                        <Footer>
-                            { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
-                        </Footer>
-                    </div>
+              <div class="innerContainer">
+                <div class="header">
+                  <h2>{t('settings.title')}</h2>
                 </div>
+                <div class="content flex flex-column flex-start">
+                  { config && (
+                      <div>
+                        Active accounts:<br/>
+                        <Checkbox
+                          checked={config.backend.bitcoinP2PKHActive}
+                          id="bitcoinP2PKHActive"
+                          onChange={this.toggleAccountActive}
+                          label="Bitcoin Legacy"
+                          />
+                        <Checkbox
+                          checked={config.backend.bitcoinP2WPKHP2SHActive}
+                          id="bitcoinP2WPKHP2SHActive"
+                          onChange={this.toggleAccountActive}
+                          label="Bitcoin Segwit"
+                          />
+                        <Checkbox
+                          checked={config.backend.bitcoinP2WPKHActive}
+                          id="bitcoinP2WPKHActive"
+                          onChange={this.toggleAccountActive}
+                          label="Bitcoin Native Segwit"
+                          />
+                        <Checkbox
+                          checked={config.backend.litecoinP2WPKHP2SHActive}
+                          id="litecoinP2WPKHP2SHActive"
+                          onChange={this.toggleAccountActive}
+                          label="Litecoin Segwit"
+                          />
+                      </div>
+                  )
+                  }
             </div>
+                <Button primary onClick={this.save}>
+                {t('button.save')}
+            </Button>
+                </div>
+                <Toast
+                    trigger={toast}
+                    theme="success"
+                    message="Settings saved. Please restart the application for the changes to take effect."
+                    onHide={() => this.setState({ toast: false })}
+                />
+                </div>
         );
     }
 }

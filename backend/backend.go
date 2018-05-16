@@ -7,6 +7,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
+	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
@@ -30,6 +31,8 @@ const (
 
 // Interface is the API of the backend.
 type Interface interface {
+	Config() config.AppConfig
+	SetConfig(config.AppConfig) error
 	WalletStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
@@ -74,6 +77,8 @@ type WalletEvent struct {
 type Backend struct {
 	arguments *Arguments
 
+	config *config.Config
+
 	events chan interface{}
 
 	devices        map[string]device.Interface
@@ -96,6 +101,7 @@ func NewBackend(arguments *Arguments) *Backend {
 	log.Infof("Arguments: %+v", arguments)
 	return &Backend{
 		arguments: arguments,
+		config:    config.NewConfig(arguments.configFilename),
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
@@ -111,6 +117,10 @@ func (backend *Backend) addAccount(
 	keypath string,
 	addressType addresses.AddressType,
 ) error {
+	if !backend.config.Config().Backend.AccountActive(code) {
+		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
+		return nil
+	}
 	backend.log.WithField("code", code).WithField("name", name).Info("init account")
 	onEvent := func(code string) func(btc.Event) {
 		return func(event btc.Event) {
@@ -183,6 +193,16 @@ func (backend *Backend) initAccounts() error {
 		}(account)
 	}
 	return nil
+}
+
+// Config returns the app config.
+func (backend *Backend) Config() config.AppConfig {
+	return backend.config.Config()
+}
+
+// SetConfig sets the app config.
+func (backend *Backend) SetConfig(appConfig config.AppConfig) error {
+	return backend.config.Set(appConfig)
 }
 
 // WalletStatus returns whether the wallets have been initialized.

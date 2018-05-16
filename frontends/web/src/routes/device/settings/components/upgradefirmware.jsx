@@ -1,8 +1,8 @@
 import { Component } from 'preact';
-import { Button } from '../../../components/forms';
-import WaitDialog from '../../../components/wait-dialog/wait-dialog';
-import { apiGet, apiPost } from '../../../utils/request';
-import componentStyle from '../../../components/style.css';
+import { Button } from '../../../../components/forms';
+import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
+import { apiGet, apiPost } from '../../../../utils/request';
+import componentStyle from '../../../../components/style.css';
 
 
 export default class UpgradeFirmware extends Component {

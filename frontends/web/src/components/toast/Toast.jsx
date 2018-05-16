@@ -9,7 +9,7 @@ export default class Toast extends Component {
   componentDidUpdate(prevProps, prevState) {
     if (!prevProps.trigger && this.props.trigger) {
       this.setState({ active: true });
-      setTimeout(this.hide, 2000);
+      setTimeout(this.hide, 5000);
     }
   }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/jsonp"
 )
 
 // Configuration models a signing configuration, which can be singlesig or multisig.
@@ -166,10 +167,6 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 
 // Hash returns a hash of the configuration.
 func (configuration *Configuration) Hash() string {
-	bytes, err := json.Marshal(configuration)
-	if err != nil {
-		panic(err)
-	}
-	hash := sha256.Sum256(bytes)
+	hash := sha256.Sum256(jsonp.MustMarshal(configuration))
 	return hex.EncodeToString(hash[:])
 }

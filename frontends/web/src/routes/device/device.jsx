@@ -7,7 +7,7 @@ import Bootloader from '../device/bootloader';
 import Login from '../device/unlock';
 import Seed from '../device/seed';
 import Initialize from '../device/initialize';
-import Settings from '../settings/settings';
+import Settings from './settings/settings';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',

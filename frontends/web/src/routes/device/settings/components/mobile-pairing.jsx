@@ -1,9 +1,9 @@
 import { Component } from 'preact';
-import { Button } from '../../../components/forms';
+import { Button } from '../../../../components/forms';
 import Dialog from 'preact-material-components/Dialog';
-import QRCode from '../../../routes/account/receive/qrcode';
-import { apiGet, apiPost } from '../../../utils/request';
-import componentStyle from '../../../components/style.css';
+import QRCode from '../../../../routes/account/receive/qrcode';
+import { apiGet, apiPost } from '../../../../utils/request';
+import componentStyle from '../../../../components/style.css';
 
 
 export default class MobilePairing extends Component {
