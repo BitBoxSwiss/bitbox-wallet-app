@@ -18,6 +18,7 @@ type Backend struct {
 	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
 }
 
+// AccountActive returns the Active setting for a coin by code.
 func (backend Backend) AccountActive(code string) bool {
 	switch code {
 	case "tbtc", "btc":
