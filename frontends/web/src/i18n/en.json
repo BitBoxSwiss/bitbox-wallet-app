@@ -101,6 +101,11 @@
         "title": "Manage Backups",
         "restore": "Restore"
     },
+    "confirm": {
+        "title": "Approve with the BitBox",
+        "reject": "Touch only briefly",
+        "approve": "Hold 3+ seconds"
+    },
     "footer": {
         "appVersion": "App Version:"
     },

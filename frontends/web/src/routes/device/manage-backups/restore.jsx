@@ -47,6 +47,7 @@ export default class Restore extends Component {
     render({
         t,
         selectedBackup,
+        requireConfirmation
     }, {
         password,
         isConfirming,
@@ -66,7 +67,7 @@ export default class Restore extends Component {
                             <h3 class="modalHeader">Restore {selectedBackup}</h3>
                             <div class="modalContent">
                                 <Confirm
-                                    active={isConfirming}
+                                    active={isConfirming && requireConfirmation}
                                     title="Restore Backup">
                                     <form onSubmit={this.restore}>
                                         <PasswordRepeatInput

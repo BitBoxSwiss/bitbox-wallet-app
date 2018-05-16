@@ -42,6 +42,7 @@ export default class ManageBackups extends Component {
         showCreate,
         deviceID,
         children,
+        requireConfirmation = true,
     }, {
         backupList,
         selectedBackup,
@@ -83,12 +84,13 @@ export default class ManageBackups extends Component {
                             }
                         </div>
                     </div>
-                    <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                    <div class="buttons">
                         {children}
                         <Restore
                             selectedBackup={selectedBackup}
                             displayError={this.displayError}
-                            deviceID={deviceID} />
+                            deviceID={deviceID}
+                            requireConfirmation={requireConfirmation} />
                         {/*
                             <Erase
                                 selectedBackup={selectedBackup}
