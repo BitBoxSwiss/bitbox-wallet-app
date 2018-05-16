@@ -168,6 +168,9 @@ func (backend *Backend) initAccounts() error {
 			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
 				return err
 			}
+			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", addresses.AddressTypeP2WPKH); err != nil {
+				return err
+			}
 		}
 	} else {
 		if err := backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", addresses.AddressTypeP2PKH); err != nil {

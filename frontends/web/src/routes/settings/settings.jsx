@@ -69,6 +69,12 @@ export default class Settings extends Component {
                           onChange={this.toggleAccountActive}
                           label="Litecoin Segwit"
                           />
+                        <Checkbox
+                          checked={config.backend.litecoinP2WPKHActive}
+                          id="litecoinP2WPKHActive"
+                          onChange={this.toggleAccountActive}
+                          label="Litecoin Native Segwit"
+                          />
                       </div>
                   )
                   }

@@ -17,7 +17,9 @@ const logoMap = {
     'tbtc-p2wpkh': BTC,
     ltc: LTC,
     'ltc-p2wpkh-p2sh': LTC,
+    'ltc-p2wpkh': LTC,
     'tltc-p2wpkh-p2sh': LTC,
+    'tltc-p2wpkh': LTC,
 };
 
 export default function Logo({ code, ...props }) {
