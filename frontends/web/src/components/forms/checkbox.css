@@ -5,9 +5,9 @@
 
 .checkbox input + label {
     display: inline-block;
-    line-height: 1.64;
+    /*line-height: 1.64;*/
     margin-right: 1em;
-    padding-left: 2em;
+    padding-left: 1.5em;
     position: relative;
 }
 
@@ -19,7 +19,7 @@
     width: 1em;
     height: 1em;
     position: absolute;
-    top: .19em;
+    /*top: .19em;*/
     left: 0;
     vertical-align: top;
     text-align: center;
@@ -38,7 +38,7 @@
     width: 0.3em;
     height: 0.55em;
     position: absolute;
-    top: 0.45em;
+    top: 0.25em;
     left: 0.45em;
     margin-left: -1px;
     margin-top: -2px;

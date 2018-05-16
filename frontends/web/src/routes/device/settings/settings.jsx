@@ -28,10 +28,12 @@ export default class Settings extends Component {
     }) {
         return (
             <div class="container">
-                <div class="innerContainer">
+                <div class="headerContainer">
                     <div class="header">
                         <h2>{t('deviceSettings.title')}</h2>
                     </div>
+                </div>
+                <div class="innerContainer">
                     <div class="content flex flex-column flex-start">
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
                             <ButtonLink primary href={`/manage-backups/${deviceID}`}>{t('device.manageBackups')}</ButtonLink>

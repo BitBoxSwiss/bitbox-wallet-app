@@ -60,6 +60,11 @@
   line-height: 16px;
   text-align: center;
   margin-right: var(--spacing-half);
+  margin-bottom: 3px;
+}
+
+.transactionLabel.flat {
+  margin-bottom: 0;
 }
 
 .transactionLabel.receive {

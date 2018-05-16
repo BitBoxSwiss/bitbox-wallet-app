@@ -24,8 +24,8 @@
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-rock); }
 
-.flex-items-start > div:not(:last-child) {
-    margin-right: var(--spacing-default);
+.spaced > div:not(:last-child) {
+  margin-right: var(--spacing-default);
 }
 
 .container {

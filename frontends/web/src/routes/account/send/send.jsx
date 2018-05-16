@@ -136,13 +136,18 @@ export default class Send extends Component {
                                 placeholder={t('send.amount.placeholder')} />
                         </div>
                         <div class="row">
-                            <div class="flex flex-1 flex-row flex-between flex-items-center">
+                            <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                 <Input
                                     label={t('send.fee.label')}
-                                    value={ proposedFee ? proposedFee : t('send.fee.placeholder')}
+                                    value={proposedFee ? proposedFee : null}
+                                    placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
+                                    disabled={feeTarget !==  'custom'}
+                                />
+                                <Input
+                                    label={t('send.customFee.label')}
+                                    placeholder={t('send.customFee.placeholder')}
                                     disabled
                                 />
-                                &nbsp;
                                 <FeeTargets
                                     label={t('send.feeTarget.label')}
                                     placeholder={t('send.feeTarget.placeholder')}

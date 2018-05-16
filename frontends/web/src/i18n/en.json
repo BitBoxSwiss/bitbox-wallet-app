@@ -66,11 +66,16 @@
         "maximum": "Maximum Amount",
         "fee": {
             "label": "Bitcoin Network Fee",
-            "placeholder": "Not available"
+            "placeholder": "Not available",
+            "customPlaceholder": "Enter amount"
         },
         "feeTarget": {
             "label": "Network Priority",
             "placeholder": "Calculating fee estimation"
+        },
+        "customFee": {
+            "label": "Converted Fee",
+            "placeholder": "Converted Fee"
         }
     },
     "seed": {

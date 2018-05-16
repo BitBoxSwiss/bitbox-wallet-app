@@ -65,13 +65,15 @@ export default class ManageBackups extends Component {
 
         return (
             <div class="container">
-                <div class="innerContainer">
+                <div class="headerContainer">
                     <div class="header">
                         <h2>{t('backup.title')}</h2>
                         <div>
                             <ButtonLink primary href={`/device/${deviceID}`}>Close</ButtonLink>
                         </div>
                     </div>
+                </div>
+                <div class="innerContainer">
                     <div class="content">
                         <div class={style.backupsList}>
                             {

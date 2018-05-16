@@ -1,0 +1,23 @@
+.confirmationLabel {
+  margin-bottom: var(--spacing-half);
+  margin-top: var(--spacing-default);
+  line-height: var(--size-label);
+}
+
+.confirmationInstructions {
+  margin-top: var(--spacing-default);
+}
+
+.shortTouch {
+  width: 24px;
+  height: 24px;
+  background-color: var(--color-warn);
+  border-radius: 50%;
+}
+
+.longTouch {
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-success);
+  border-radius: 50%;
+}

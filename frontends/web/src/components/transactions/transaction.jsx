@@ -61,7 +61,7 @@ export default class Transaction extends Component {
                     <div className="flex-1">
                         <div className={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
                             <div className="flex flex-row flex-start flex-items-center">
-                                <div className={[style.transactionLabel, style[type]].join(' ')}>
+                                <div className={[style.transactionLabel, style[type], style.flat].join(' ')}>
                                     {badge}
                                 </div>
                                 <div className={style.address}>{addresses}</div>

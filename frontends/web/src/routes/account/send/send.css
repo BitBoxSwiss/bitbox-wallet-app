@@ -36,7 +36,7 @@
 .shortTouch {
   width: 24px;
   height: 24px;
-  background-color: var(--color-danger);
+  background-color: var(--color-warn);
   border-radius: 50%;
 }
 
