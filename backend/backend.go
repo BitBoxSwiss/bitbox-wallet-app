@@ -396,6 +396,10 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
 			if mainKeystore {
+
+				// HACK: for device based, only one is supported at the moment.
+				backend.keystores = keystore.NewKeystores()
+
 				backend.RegisterKeystore(theDevice.KeystoreForConfiguration(nil, 0))
 			}
 		}
