@@ -96,7 +96,8 @@ export default class Seed extends Component {
                 <ManageBackups
                     showCreate={false}
                     displayError={this.displayError}
-                    deviceID={deviceID}>
+                    deviceID={deviceID}
+                    requireConfirmation={false}>
                     <Button
                         type="button"
                         transparent
