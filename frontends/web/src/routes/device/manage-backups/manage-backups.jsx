@@ -37,6 +37,14 @@ export default class ManageBackups extends Component {
         this.props.displayError(errorMessage);
     }
 
+    scrollIntoView = ({ target }) => {
+        const top = Math.max((target.offsetTop + target.parentNode.offsetHeight) - this.scrollableContainer.offsetHeight, 0);
+        this.scrollableContainer.scroll({
+            top,
+            behavior: 'smooth'
+        });
+    }
+
     render({
         t,
         showCreate,
@@ -68,7 +76,7 @@ export default class ManageBackups extends Component {
 
         return (
             <div class="container">
-                <div class="headerContainer">
+                <div class="headerContainer fixed">
                     <div class="header">
                         <h2>{t('backup.title')}</h2>
                         <div>
@@ -76,33 +84,34 @@ export default class ManageBackups extends Component {
                         </div>
                     </div>
                 </div>
-                <div class="innerContainer">
+                <div class="innerContainer withFixedContent">
                     <div class="content">
-                        <div class={style.backupsList}>
+                        <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                             {
-                                backupList.map(backup => <BackupsListItem backup={backup} selectedBackup={selectedBackup} handleChange={this.handleBackuplistChange} />)
+                                backupList.map(backup => <BackupsListItem backup={backup} selectedBackup={selectedBackup} handleChange={this.handleBackuplistChange} onFocus={this.scrollIntoView} />)
                             }
                         </div>
-                    </div>
-                    <div class="buttons">
-                        {children}
-                        <Restore
-                            selectedBackup={selectedBackup}
-                            displayError={this.displayError}
-                            deviceID={deviceID}
-                            requireConfirmation={requireConfirmation} />
-                        {/*
-                            <Erase
+                        <div class="buttons">
+                            {children}
+                            <Restore
                                 selectedBackup={selectedBackup}
-                                onErase={this.refresh}
+                                displayError={this.displayError}
                                 deviceID={deviceID}
-                            />
-                        */}
-                        {
-                            showCreate && (
-                                <span>&nbsp;<Create onCreate={this.refresh} deviceID={deviceID} /></span>
-                            )
-                        }
+                                requireConfirmation={requireConfirmation} />
+                            {/*
+                                <Erase
+                                    selectedBackup={selectedBackup}
+                                    onErase={this.refresh}
+                                    deviceID={deviceID}
+                                />
+                            */}
+                            {' '}
+                            {
+                                showCreate && (
+                                    <Create onCreate={this.refresh} deviceID={deviceID} />
+                                )
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -114,17 +123,17 @@ function BackupsListItem({
     backup,
     selectedBackup,
     handleChange,
+    onFocus,
 }) {
     return (
-        <div className={['flex', 'flex-row', 'flex-items-start', style.backupsListItem].join(' ')}>
-            <Radio
-                checked={selectedBackup === backup}
-                onChange={handleChange}
-                id={backup}
-                label={backup}
-                value={backup}>
-                <span className="text-small text-gray">2018/05/02 2:30PM</span>
-            </Radio>
-        </div>
+        <Radio
+            checked={selectedBackup === backup}
+            onChange={handleChange}
+            id={backup}
+            label={backup}
+            value={backup}
+            onFocus={onFocus}>
+            <span className="text-small text-gray">2018/05/02 2:30PM</span>
+        </Radio>
     );
 }

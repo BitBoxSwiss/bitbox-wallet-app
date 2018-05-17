@@ -29,19 +29,21 @@
 }
 
 .container {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
     height: 100vh;
-    min-height: 100%;
     width: 100%;
-    overflow-y: auto;
 }
 
 .innerContainer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
     width: 100%;
     min-height: calc(100% - var(--header-height));
     padding: var(--spacing-large);
     margin: 0 auto;
-    display: flex;
-    flex-direction: column;
     justify-content: flex-start;
 }
 
@@ -51,6 +53,10 @@
 
 .innerContainer.withFixedContent {
     padding-top: var(--header-height);
+}
+
+.scrollableContainer {
+    overflow: auto;
 }
 
 .headerContainer {
@@ -65,6 +71,7 @@
     top: 0;
     left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width));
+    z-index: 1001;
 }
 
 .headerContainer .header {
@@ -85,10 +92,13 @@
 }
 
 .content {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
     margin: 0 auto;
     max-width: 800px;
+    height: 100%;
     width: 100%;
-    flex: 1;
 }
 
 .withFixedContent .content {

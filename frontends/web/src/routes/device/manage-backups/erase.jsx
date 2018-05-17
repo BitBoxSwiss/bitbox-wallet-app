@@ -8,6 +8,26 @@ export default class Erase extends Component {
         activeDialog: false,
     }
 
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown = e => {
+        if (e.keyCode === 27) {
+            this.abort();
+        }
+    }
+
+    abort = () => {
+        this.setState({
+            activeDialog: false,
+        });
+    }
+
     erase = () => {
         const filename = this.props.selectedBackup;
         if (!filename) return;
@@ -37,8 +57,8 @@ export default class Erase extends Component {
                             <div class="modalContent">
                                 Do you really want to erase {selectedBackup}?
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                    <Button primary onClick={this.erase}>Erase</Button>
+                                    <Button secondary onClick={this.abort}>Abort</Button>
+                                    <Button danger onClick={this.erase}>Erase</Button>
                                 </div>
                             </div>
                         </div>

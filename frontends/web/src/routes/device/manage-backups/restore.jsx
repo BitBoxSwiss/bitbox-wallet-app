@@ -13,6 +13,31 @@ export default class Restore extends Component {
         activeDialog: false,
     }
 
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown = e => {
+        if (e.keyCode === 27) {
+            this.abort();
+        }
+    }
+
+    abort = () => {
+        this.setState({
+            password: null,
+            isConfirming: false,
+            activeDialog: false,
+        });
+        if (this.passwordInput) {
+            this.passwordInput.clear();
+        }
+    }
+
     handleFormChange = event => {
         this.setState({ [event.target.id]: event.target.value });
     }
@@ -32,11 +57,7 @@ export default class Restore extends Component {
             filename: this.props.selectedBackup,
         }).catch(() => {}).then(data => {
             if (!data.didRestore) this.props.displayError(data.errorMessage);
-            if (this.passwordInput) this.passwordInput.clear();
-            this.setState({
-                isConfirming: false,
-                activeDialog: false,
-            });
+            this.abort();
         });
     }
 
@@ -59,26 +80,30 @@ export default class Restore extends Component {
                     danger
                     disabled={selectedBackup === null}
                     onclick={() => this.setState({ activeDialog: true })}>
-                    {t('backup.restore')}
+                    {t('button.restore')}
                 </Button>
                 { activeDialog ? (
                     <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
                         <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                            <h3 class="modalHeader">Restore {selectedBackup}</h3>
+                            <h3 class="modalHeader">{t('backup.restore.title')} {selectedBackup}</h3>
                             <div class="modalContent">
                                 <Confirm
                                     active={isConfirming && requireConfirmation}
-                                    title="Restore Backup">
+                                    title={t('backup.restore.confirmTitle')}>
                                     <form onSubmit={this.restore}>
                                         <PasswordRepeatInput
-                                            label="Password"
                                             ref={ref => this.passwordInput = ref}
-                                            helptext="Password when backup was created"
+                                            label={t('backup.restore.password.label')}
+                                            helptext={t('backup.restore.password.helptext')}
                                             onValidPassword={this.setValidPassword}
                                         />
                                         <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                            <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                            <Button type="submit" danger disabled={!this.validate()}>Restore</Button>
+                                            <Button secondary onClick={this.abort}>
+                                                {t('button.abort')}
+                                            </Button>
+                                            <Button type="submit" danger disabled={!this.validate()}>
+                                                {t('button.restore')}
+                                            </Button>
                                         </div>
                                     </form>
                                 </Confirm>

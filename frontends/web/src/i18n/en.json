@@ -99,7 +99,25 @@
     },
     "backup": {
         "title": "Manage Backups",
-        "restore": "Restore"
+        "create": {
+            "title": "Create Backup",
+            "name": {
+                "label": "Backup Name",
+                "placeholder": "Please name the backup"
+            },
+            "password": {
+                "label": "Password",
+                "placeholder": "Please enter your password"
+            }
+        },
+        "restore": {
+            "title": "Restore",
+            "confirmTitle": "Restore Backup",
+            "password": {
+                "label": "Password",
+                "helptext": "Password when backup was created"
+            }
+        }
     },
     "confirm": {
         "title": "Approve with the BitBox",
@@ -114,7 +132,10 @@
         "receive": "Receive",
         "cancel": "Cancel",
         "back": "Back",
-        "save": "Save"
+        "save": "Save",
+        "restore": "Restore",
+        "create": "Create",
+        "abort": "Abort"
     },
     "loading": "loading…"
 }

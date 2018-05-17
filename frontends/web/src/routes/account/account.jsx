@@ -156,7 +156,7 @@ export default class Account extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class="innerContainer withFixedContent">
+                    <div class="innerContainer withFixedContent scrollableContainer">
                         {connectionStatusContainer}
                         <div class="">
                             {

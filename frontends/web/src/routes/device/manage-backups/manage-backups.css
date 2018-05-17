@@ -1,19 +1,8 @@
 .backupsList {
+    display: flex;
+    flex-direction: column;
+    margin: var(--spacing-default) 0;
+    overflow: auto;
+    position: relative;
     text-align: left;
-}
-
-.backupsListItem {
-    margin-bottom: var(--spacing-default);
-}
-
-.checkbox {
-    width: 20px;
-}
-
-.itemInfo .label {
-    font-size: var(--size-medium);
-}
-
-.itemInfo > div:not(:first-child) {
-    margin-top: var(--spacing-half);
 }
