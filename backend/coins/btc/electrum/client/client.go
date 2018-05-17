@@ -385,7 +385,7 @@ func (client *ElectrumClient) ScriptHashListUnspent(scriptHashHex string) ([]*UT
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionbroadcast
 func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) error {
 	rawTx := &bytes.Buffer{}
-	_ = transaction.Serialize(rawTx)
+	_ = transaction.BtcEncode(rawTx, 0, wire.WitnessEncoding)
 	rawTxHex := hex.EncodeToString(rawTx.Bytes())
 	var response string
 	if err := client.rpc.MethodSync(&response, "blockchain.transaction.broadcast", rawTxHex); err != nil {

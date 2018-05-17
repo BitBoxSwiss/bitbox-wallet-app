@@ -4,17 +4,13 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
-
-const xpub = "tpubDCxoQyC5JaGydxN3yprM6sgqgu65LruN3JBm1fnSmGxXR3AcuNwr" +
-	"E7J2CVaCvuLPJtJNySjshNsYbR96Y7yfEdcywYqWubzUQLVGh2b4mF9"
 
 var net = &chaincfg.TestNet3Params
 
@@ -26,23 +22,9 @@ type addressTestSuite struct {
 	address *addresses.AccountAddress
 }
 
-func getAddress() *addresses.AccountAddress {
-	extendedPublicKey, err := hdkeychain.NewKeyFromString(xpub)
-	if err != nil {
-		panic(err)
-	}
-	configuration := signing.NewSinglesigConfiguration(absoluteKeypath, extendedPublicKey)
-	return addresses.NewAccountAddress(
-		configuration,
-		addresses.AddressTypeP2PKH,
-		net,
-		logging.Log.WithGroup("addresses_test"),
-	)
-}
-
 func TestAddressTestSuite(t *testing.T) {
 	testSuite := new(addressTestSuite)
-	testSuite.address = getAddress()
+	testSuite.address = test.GetAddress(addresses.AddressTypeP2PKH)
 	suite.Run(t, testSuite)
 }
 

@@ -25,8 +25,8 @@ type AccountAddress struct {
 	// https://github.com/kyuupichan/electrumx/blob/46f245891cb62845f9eec0f9549526a7e569eb03/docs/protocol-basics.rst#status.
 	HistoryStatus string
 
-	// addressType stores whether the account address is a segwit address.
-	addressType AddressType
+	// AddressType stores whether the account address is a segwit address.
+	AddressType AddressType
 
 	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
 	redeemScript []byte
@@ -39,13 +39,13 @@ type AddressType string
 
 const (
 	// AddressTypeP2PKH is a PayToPubKeyHash output.
-	AddressTypeP2PKH = "p2pkh"
+	AddressTypeP2PKH AddressType = "p2pkh"
 
 	// AddressTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
-	AddressTypeP2WPKHP2SH = "p2wpkh-p2sh"
+	AddressTypeP2WPKHP2SH AddressType = "p2wpkh-p2sh"
 
 	// AddressTypeP2WPKH is a segwit PayToPubKeyHash output.
-	AddressTypeP2WPKH = "p2wpkh"
+	AddressTypeP2WPKH AddressType = "p2wpkh"
 )
 
 // NewAccountAddress creates a new account address.
@@ -90,11 +90,6 @@ func NewAccountAddress(
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
 			}
-		case AddressTypeP2WPKH:
-			address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
-			if err != nil {
-				log.WithField("error", err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
-			}
 		case AddressTypeP2WPKHP2SH:
 			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
@@ -108,6 +103,11 @@ func NewAccountAddress(
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get a P2SH address for segwit.")
 			}
+		case AddressTypeP2WPKH:
+			address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+			if err != nil {
+				log.WithField("error", err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
+			}
 		default:
 			log.Panic("Unrecognized address type.")
 		}
@@ -117,7 +117,7 @@ func NewAccountAddress(
 		Address:       address,
 		Configuration: configuration,
 		HistoryStatus: "",
-		addressType:   addressType,
+		AddressType:   addressType,
 		redeemScript:  redeemScript,
 		log:           log,
 	}
@@ -149,7 +149,7 @@ func (address *AccountAddress) ScriptForHashToSign() (bool, []byte) {
 	if address.Configuration.Multisig() {
 		return false, address.redeemScript
 	}
-	switch address.addressType {
+	switch address.AddressType {
 	case AddressTypeP2PKH:
 		return false, address.PubkeyScript()
 	case AddressTypeP2WPKHP2SH:
@@ -204,7 +204,7 @@ func (address *AccountAddress) SignatureScript(
 		address.log.Panic("At least one signature has to be provided.")
 	}
 	publicKey := address.Configuration.PublicKeys()[0]
-	switch address.addressType {
+	switch address.AddressType {
 	case AddressTypeP2PKH:
 		signatureScript, err := txscript.NewScriptBuilder().
 			AddData(append(signature.Serialize(), byte(txscript.SigHashAll))).

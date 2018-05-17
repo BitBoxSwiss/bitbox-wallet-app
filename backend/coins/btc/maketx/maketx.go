@@ -62,6 +62,7 @@ func coinSelection(
 
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
+	inputAddressType addresses.AddressType,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
 	feePerKb btcutil.Amount,
@@ -78,8 +79,8 @@ func NewTxSpendAll(
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
 	}
 	output := wire.NewTxOut(0, outputPkScript)
-	txSize := EstimateSerializeSize(len(selectedOutPoints), []*wire.TxOut{output}, false)
-	maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, log)
+	txSize := estimateTxSize(len(selectedOutPoints), inputAddressType, len(outputPkScript), 0)
+	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
 		return nil, errp.New("Insufficient funds for fee")
 	}
@@ -102,6 +103,7 @@ func NewTxSpendAll(
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
 // the unspent outputs is selected to cover the needed amount. A change output is added if needed.
 func NewTx(
+	inputAddressType addresses.AddressType,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
 	feePerKb btcutil.Amount,
@@ -110,9 +112,10 @@ func NewTx(
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
 	outputs := []*wire.TxOut{output}
-	estimatedSize := EstimateSerializeSize(1, outputs, true)
-	targetFee := FeeForSerializeSize(feePerKb, estimatedSize, log)
-
+	changeAddress := getChangeAddress()
+	changePKScript := changeAddress.PubkeyScript()
+	estimatedSize := estimateTxSize(1, inputAddressType, len(output.PkScript), len(changePKScript))
+	targetFee := feeForSerializeSize(feePerKb, estimatedSize, log)
 	for {
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
@@ -123,8 +126,8 @@ func NewTx(
 			return nil, err
 		}
 
-		txSize := EstimateSerializeSize(len(selectedOutPoints), outputs, true)
-		maxRequiredFee := FeeForSerializeSize(feePerKb, txSize, log)
+		txSize := estimateTxSize(len(selectedOutPoints), inputAddressType, len(output.PkScript), len(changePKScript))
+		maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 		if selectedOutputsSum-targetAmount < maxRequiredFee {
 			targetFee = maxRequiredFee
 			continue
@@ -141,22 +144,17 @@ func NewTx(
 			LockTime: 0,
 		}
 		changeAmount := selectedOutputsSum - targetAmount - maxRequiredFee
-		changeIsDust := IsDustAmount(changeAmount, P2PKHPkScriptSize, feePerKb)
+		changeIsDust := isDustAmount(changeAmount, len(changePKScript), changeAddress.AddressType, feePerKb)
 		finalFee := maxRequiredFee
 		if changeIsDust {
+			log.Info("change is dust")
 			finalFee = selectedOutputsSum - targetAmount
 		}
-		var changeAddress *addresses.AccountAddress
 		if changeAmount != 0 && !changeIsDust {
-			changeAddress = getChangeAddress()
-			changePKScript := changeAddress.PubkeyScript()
-			if len(changePKScript) > P2PKHPkScriptSize {
-				return nil, errp.WithContext(errp.New("fee estimation requires change scripts no "+
-					"larger than P2PKH output scripts"),
-					errp.Context{"change-script-size": len(changePKScript)})
-			}
-			changeOutput := wire.NewTxOut(int64(changeAmount), changePKScript)
-			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut, changeOutput)
+			unsignedTransaction.TxOut = append(unsignedTransaction.TxOut,
+				wire.NewTxOut(int64(changeAmount), changePKScript))
+		} else {
+			changeAddress = nil
 		}
 		txsort.InPlaceSort(unsignedTransaction)
 		log.WithField("fee", finalFee).Debug("Preparing transaction")

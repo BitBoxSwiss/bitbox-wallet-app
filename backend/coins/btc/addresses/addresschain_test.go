@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/logging"
@@ -77,7 +78,7 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	require.Len(s.T(), newAddresses, 1)
 	require.Equal(s.T(),
 		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].PubkeyScriptHashHex()))
-	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(getAddress().PubkeyScriptHashHex()))
+	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(test.GetAddress(addresses.AddressTypeP2PKH).PubkeyScriptHashHex()))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {
