@@ -24,10 +24,6 @@
     -webkit-appearance: none;
 }
 
-.button:focus {
-    outline: none;
-}
-
 .primary {
     composes: button;
     background: var(--color-default);
@@ -61,6 +57,10 @@
 .danger:hover {
     background-color: var(--color-swissred);
     border-color: var(--color-swissred);
+}
+
+.danger:focus {
+    outline-color: var(--color-swissred);
 }
 
 .transparent {
