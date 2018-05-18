@@ -3,6 +3,7 @@ package maketx
 import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/signing"
 )
 
 func calcInputSize(sigScriptSize int) int {
@@ -20,13 +21,13 @@ func outputSize(pkScriptSize int) int {
 // estimateTxSize gives the worst case tx size estimate. All inputs are assumed to be of the same
 // structure.
 // inputCount is the number of inputs in the tx.
-// inputAddressType defines the structure of every input.
+// inputConfiguration defines the structure of every input.
 // outputPkScriptSize is the size of the output pkScript. One output is assumed (apart from change).
 // changePkScriptSize  is the size of the change pkScript. A value of 0 means that there is no change output.
 // This function computes the virtual size of a transaction, taking segwit discount into account.
 func estimateTxSize(
 	inputCount int,
-	inputAddressType addresses.AddressType,
+	inputConfiguration *signing.Configuration,
 	outputPkScriptSize int,
 	changePkScriptSize int) int {
 	const (
@@ -35,7 +36,7 @@ func estimateTxSize(
 		lockTimeSize = 4
 		nonWitness   = 4 // factor for non-witness fields
 	)
-	sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(inputAddressType)
+	sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(inputConfiguration)
 	inputSize := calcInputSize(sigScriptSize)
 
 	txWeight := nonWitness * (versionSize + lockTimeSize + wire.VarIntSerializeSize(uint64(inputCount)) +

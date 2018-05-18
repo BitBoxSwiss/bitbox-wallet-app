@@ -14,7 +14,6 @@ type AddressChain struct {
 	net           *chaincfg.Params
 	gapLimit      int
 	chainIndex    uint32
-	addressType   AddressType
 	addresses     []*AccountAddress
 	log           *logrus.Entry
 }
@@ -25,7 +24,6 @@ func NewAddressChain(
 	net *chaincfg.Params,
 	gapLimit int,
 	chainIndex uint32,
-	addressType AddressType,
 	log *logrus.Entry,
 ) *AddressChain {
 	chainConfiguration, err := configuration.Derive(
@@ -39,10 +37,9 @@ func NewAddressChain(
 		net:           net,
 		gapLimit:      gapLimit,
 		chainIndex:    chainIndex,
-		addressType:   addressType,
 		addresses:     []*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
-			"gap-limit": gapLimit, "address-type": addressType}),
+			"gap-limit": gapLimit, "configuration": configuration.String()}),
 	}
 }
 
@@ -68,7 +65,6 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 
 	address := NewAccountAddress(
 		configuration,
-		addresses.addressType,
 		addresses.net,
 		addresses.log,
 	)

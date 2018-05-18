@@ -8,6 +8,7 @@ package maketx
 import (
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,12 +35,12 @@ func feeForSerializeSize(relayFeePerKb btcutil.Amount, txSerializeSize int, log 
 func isDustAmount(
 	amount btcutil.Amount,
 	pkScriptSize int,
-	addressType addresses.AddressType,
+	configuration *signing.Configuration,
 	relayFeePerKb btcutil.Amount) bool {
 	// Calculate the total (estimated) cost to the network.  This is
 	// calculated using the serialize size of the output plus the serial
 	// size of a transaction input which redeems it.
-	sigScriptSize, _ := addresses.SigScriptWitnessSize(addressType)
+	sigScriptSize, _ := addresses.SigScriptWitnessSize(configuration)
 	inputSize := calcInputSize(sigScriptSize)
 	totalSize := outputSize(pkScriptSize) + inputSize
 

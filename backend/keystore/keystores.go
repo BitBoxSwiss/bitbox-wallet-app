@@ -29,7 +29,7 @@ type Keystores interface {
 	SignTransaction(coin.ProposedTransaction) error
 
 	// Configuration returns the configuration at the given path with the given signing threshold.
-	Configuration(signing.AbsoluteKeypath, int) (*signing.Configuration, error)
+	Configuration(signing.ScriptType, signing.AbsoluteKeypath, int) (*signing.Configuration, error)
 }
 
 type implementation struct {
@@ -115,6 +115,7 @@ func (keystores *implementation) SignTransaction(proposedTransaction coin.Propos
 
 // Configuration implements the above interface.
 func (keystores *implementation) Configuration(
+	scriptType signing.ScriptType,
 	absoluteKeypath signing.AbsoluteKeypath,
 	signingThreshold int,
 ) (*signing.Configuration, error) {
@@ -129,5 +130,6 @@ func (keystores *implementation) Configuration(
 		}
 		extendedPublicKeys[index] = extendedPublicKey
 	}
-	return signing.NewConfiguration(absoluteKeypath, extendedPublicKeys, signingThreshold), nil
+	return signing.NewConfiguration(
+		scriptType, absoluteKeypath, extendedPublicKeys, signingThreshold), nil
 }

@@ -24,7 +24,7 @@ type addressTestSuite struct {
 
 func TestAddressTestSuite(t *testing.T) {
 	testSuite := new(addressTestSuite)
-	testSuite.address = test.GetAddress(addresses.AddressTypeP2PKH)
+	testSuite.address = test.GetAddress(signing.ScriptTypeP2PKH)
 	suite.Run(t, testSuite)
 }
 

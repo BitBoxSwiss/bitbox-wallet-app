@@ -5,7 +5,6 @@ import (
 
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/device"
@@ -115,7 +114,7 @@ func (backend *Backend) addAccount(
 	code string,
 	name string,
 	keypath string,
-	addressType addresses.AddressType,
+	scriptType signing.ScriptType,
 ) error {
 	if !backend.config.Config().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
@@ -132,12 +131,12 @@ func (backend *Backend) addAccount(
 		return err
 	}
 	getConfiguration := func() (*signing.Configuration, error) {
-		return backend.keystores.Configuration(absoluteKeypath, backend.keystores.Count())
+		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
 	}
 	if backend.arguments.Multisig() {
 		name = name + " Multisig"
 	}
-	account, err := coin.NewAccount(backend.arguments.CacheDirectoryPath(), code, name, getConfiguration, backend.keystores, addressType, onEvent(code))
+	account, err := coin.NewAccount(backend.arguments.CacheDirectoryPath(), code, name, getConfiguration, backend.keystores, onEvent(code))
 	if err != nil {
 		return err
 	}
@@ -149,40 +148,40 @@ func (backend *Backend) initAccounts() error {
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
-			if err := backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", addresses.AddressTypeP2PKH); err != nil {
+			if err := backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", signing.ScriptTypeP2PKH); err != nil {
 				return err
 			}
-			if err := backend.addAccount(btc.RegtestCoin, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+			if err := backend.addAccount(btc.RegtestCoin, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
 				return err
 			}
 		} else {
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", addresses.AddressTypeP2PKH); err != nil {
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", signing.ScriptTypeP2PKH); err != nil {
 				return err
 			}
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
 				return err
 			}
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", addresses.AddressTypeP2WPKH); err != nil {
+			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH); err != nil {
 				return err
 			}
-			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
 				return err
 			}
-			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", addresses.AddressTypeP2WPKH); err != nil {
+			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH); err != nil {
 				return err
 			}
 		}
 	} else {
-		if err := backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", addresses.AddressTypeP2PKH); err != nil {
+		if err := backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", signing.ScriptTypeP2PKH); err != nil {
 			return err
 		}
-		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
 			return err
 		}
-		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", addresses.AddressTypeP2WPKH); err != nil {
+		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH); err != nil {
 			return err
 		}
-		if err := backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", addresses.AddressTypeP2WPKHP2SH); err != nil {
+		if err := backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
 			return err
 		}
 	}

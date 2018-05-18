@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"sort"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -13,15 +14,33 @@ import (
 	"github.com/shiftdevices/godbb/util/jsonp"
 )
 
+// ScriptType indicates which type of output should be produced in case of singlesig.
+type ScriptType string
+
+const (
+	// ScriptTypeP2PKH is a PayToPubKeyHash output.
+	ScriptTypeP2PKH ScriptType = "p2pkh"
+
+	// ScriptTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
+	ScriptTypeP2WPKHP2SH ScriptType = "p2wpkh-p2sh"
+
+	// ScriptTypeP2WPKH is a segwit PayToPubKeyHash output.
+	ScriptTypeP2WPKH ScriptType = "p2wpkh"
+)
+
 // Configuration models a signing configuration, which can be singlesig or multisig.
 type Configuration struct {
+	scriptType         ScriptType
 	absoluteKeypath    AbsoluteKeypath
 	extendedPublicKeys []*hdkeychain.ExtendedKey
 	signingThreshold   int
 }
 
-// NewConfiguration creates a new configuration.
+// NewConfiguration creates a new configuration. At the moment, multisig is a predefined
+// multisig-P2SH script, and is active if there are more than one xpubs. Otherwise, it's single sig
+// and `scriptType` defines the type of script.
 func NewConfiguration(
+	scriptType ScriptType,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKeys []*hdkeychain.ExtendedKey,
 	signingThreshold int,
@@ -35,6 +54,7 @@ func NewConfiguration(
 		}
 	}
 	return &Configuration{
+		scriptType:         scriptType,
 		absoluteKeypath:    absoluteKeypath,
 		extendedPublicKeys: extendedPublicKeys,
 		signingThreshold:   signingThreshold,
@@ -43,10 +63,20 @@ func NewConfiguration(
 
 // NewSinglesigConfiguration creates a new singlesig configuration.
 func NewSinglesigConfiguration(
+	scriptType ScriptType,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
-	return NewConfiguration(absoluteKeypath, []*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+	return NewConfiguration(
+		scriptType, absoluteKeypath, []*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+}
+
+// ScriptType returns the configuration's keypath.
+func (configuration *Configuration) ScriptType() ScriptType {
+	if configuration.Multisig() {
+		panic("scriptType is only defined for single sig")
+	}
+	return configuration.scriptType
 }
 
 // AbsoluteKeypath returns the configuration's keypath.
@@ -119,6 +149,7 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 		derivedPublicKeys[index] = derivedPublicKey
 	}
 	return &Configuration{
+		scriptType:         configuration.scriptType,
 		absoluteKeypath:    configuration.absoluteKeypath.Append(relativeKeypath),
 		extendedPublicKeys: derivedPublicKeys,
 		signingThreshold:   configuration.signingThreshold,
@@ -169,4 +200,13 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 func (configuration *Configuration) Hash() string {
 	hash := sha256.Sum256(jsonp.MustMarshal(configuration))
 	return hex.EncodeToString(hash[:])
+}
+
+// String returns a short summary of the configuration to be used in logs, etc.
+func (configuration *Configuration) String() string {
+	if configuration.Multisig() {
+		return fmt.Sprintf("multisig, %d/%d",
+			configuration.SigningThreshold(), configuration.NumberOfSigners())
+	}
+	return fmt.Sprintf("single sig, scriptType: %s", configuration.scriptType)
 }

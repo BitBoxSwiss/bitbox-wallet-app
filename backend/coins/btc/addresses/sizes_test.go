@@ -7,13 +7,14 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
+	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 
-var addressTypes = []addresses.AddressType{
-	addresses.AddressTypeP2PKH,
-	addresses.AddressTypeP2WPKHP2SH,
-	addresses.AddressTypeP2WPKH,
+var scriptTypes = []signing.ScriptType{
+	signing.ScriptTypeP2PKH,
+	signing.ScriptTypeP2WPKHP2SH,
+	signing.ScriptTypeP2WPKH,
 }
 
 func TestSigScriptWitnessSize(t *testing.T) {
@@ -25,10 +26,11 @@ func TestSigScriptWitnessSize(t *testing.T) {
 	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
 	require.NoError(t, err)
 
-	for _, addressType := range addressTypes {
-		t.Run(string(addressType), func(t *testing.T) {
-			sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(addressType)
-			sigScript, witness := test.GetAddress(addressType).SignatureScript([]*btcec.Signature{sig})
+	for _, scriptType := range scriptTypes {
+		t.Run(string(scriptType), func(t *testing.T) {
+			address := test.GetAddress(scriptType)
+			sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(address.Configuration)
+			sigScript, witness := address.SignatureScript([]*btcec.Signature{sig})
 			require.Equal(t, len(sigScript), sigScriptSize)
 			require.Equal(t, witness != nil, hasWitness)
 		})

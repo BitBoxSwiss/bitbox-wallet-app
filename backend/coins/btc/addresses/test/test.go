@@ -31,20 +31,20 @@ func NewAddressChain() *addresses.AddressChain {
 	if err != nil {
 		panic(err)
 	}
-	configuration := signing.NewConfiguration(derivationPath, []*hdkeychain.ExtendedKey{xpub}, 1)
-	return addresses.NewAddressChain(configuration, net, 20, 0, addresses.AddressTypeP2PKH, log)
+	configuration := signing.NewConfiguration(
+		signing.ScriptTypeP2PKH, derivationPath, []*hdkeychain.ExtendedKey{xpub}, 1)
+	return addresses.NewAddressChain(configuration, net, 20, 0, log)
 }
 
 // GetAddress returns a dummy address for a given address type.
-func GetAddress(addressType addresses.AddressType) *addresses.AccountAddress {
+func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 	extendedPublicKey, err := hdkeychain.NewKeyFromString(xpub)
 	if err != nil {
 		panic(err)
 	}
-	configuration := signing.NewSinglesigConfiguration(absoluteKeypath, extendedPublicKey)
+	configuration := signing.NewSinglesigConfiguration(scriptType, absoluteKeypath, extendedPublicKey)
 	return addresses.NewAccountAddress(
 		configuration,
-		addressType,
 		net,
 		logging.Log.WithGroup("addresses_test"),
 	)

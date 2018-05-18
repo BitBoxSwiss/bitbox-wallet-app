@@ -43,8 +43,8 @@ func (s *addressChainTestSuite) SetupTest() {
 	s.chainIndex = 1
 	s.xpub = xpub
 	s.addresses = addresses.NewAddressChain(
-		signing.NewSinglesigConfiguration(signing.NewEmptyAbsoluteKeypath(), xpub),
-		net, s.gapLimit, s.chainIndex, addresses.AddressTypeP2PKH, s.log)
+		signing.NewSinglesigConfiguration(signing.ScriptTypeP2PKH, signing.NewEmptyAbsoluteKeypath(), xpub),
+		net, s.gapLimit, s.chainIndex, s.log)
 }
 
 func TestAddressChainTestSuite(t *testing.T) {
@@ -78,7 +78,7 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 	require.Len(s.T(), newAddresses, 1)
 	require.Equal(s.T(),
 		newAddresses[0], s.addresses.LookupByScriptHashHex(newAddresses[0].PubkeyScriptHashHex()))
-	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(test.GetAddress(addresses.AddressTypeP2PKH).PubkeyScriptHashHex()))
+	require.Nil(s.T(), s.addresses.LookupByScriptHashHex(test.GetAddress(signing.ScriptTypeP2PKH).PubkeyScriptHashHex()))
 }
 
 func (s *addressChainTestSuite) TestEnsureAddresses() {

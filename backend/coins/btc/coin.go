@@ -6,7 +6,6 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
@@ -149,10 +148,9 @@ func (coin *Coin) NewAccount(
 	name string,
 	getConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
-	addressType addresses.AddressType,
 	onEvent func(Event),
 ) (*Account, error) {
-	log := coin.log.WithFields(logrus.Fields{"coin": code, "address-type": addressType})
+	log := coin.log.WithFields(logrus.Fields{"coin": code, "name": name})
 
 	return NewAccount(
 		coin,
@@ -162,7 +160,6 @@ func (coin *Coin) NewAccount(
 		coin.net,
 		getConfiguration,
 		keystores,
-		addressType,
 		onEvent,
 		log,
 	)

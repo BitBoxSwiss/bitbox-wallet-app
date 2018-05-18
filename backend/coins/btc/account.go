@@ -65,7 +65,6 @@ type Account struct {
 
 	transactions *transactions.Transactions
 	headers      headers.Interface
-	addressType  addresses.AddressType
 
 	synchronizer *synchronizer.Synchronizer
 
@@ -114,7 +113,6 @@ func NewAccount(
 	net *chaincfg.Params,
 	getConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
-	addressType addresses.AddressType,
 	onEvent func(Event),
 	log *logrus.Entry,
 ) (*Account, error) {
@@ -129,7 +127,6 @@ func NewAccount(
 		net:              net,
 		getConfiguration: getConfiguration,
 		keystores:        keystores,
-		addressType:      addressType,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -197,8 +194,8 @@ func (account *Account) Init() error {
 	account.transactions = transactions.NewTransactions(
 		account.net, account.db, account.headers, account.synchronizer, account.blockchain, account.log)
 
-	account.receiveAddresses = addresses.NewAddressChain(account.configuration, account.net, gapLimit, 0, account.addressType, account.log)
-	account.changeAddresses = addresses.NewAddressChain(account.configuration, account.net, changeGapLimit, 1, account.addressType, account.log)
+	account.receiveAddresses = addresses.NewAddressChain(account.configuration, account.net, gapLimit, 0, account.log)
+	account.changeAddresses = addresses.NewAddressChain(account.configuration, account.net, changeGapLimit, 1, account.log)
 
 	account.ensureAddresses()
 	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})
