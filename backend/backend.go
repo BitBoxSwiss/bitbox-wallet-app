@@ -386,6 +386,8 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event device.Event) {
 		switch event {
+		case device.EventKeystoreGone:
+			backend.DeregisterKeystore()
 		case device.EventKeystoreAvailable:
 			// absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
 			// extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)

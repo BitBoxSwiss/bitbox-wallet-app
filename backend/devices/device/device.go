@@ -13,6 +13,10 @@ const (
 	// EventKeystoreAvailable is fired when the device's keystore becomes available (e.g. after
 	// unlocking it).
 	EventKeystoreAvailable Event = "keystoreAvailable"
+	// EventKeystoreGone is fired when teh device's keystoer becomes unavailable, e.g. after a
+	// reset. NOTE: it is not fired when the keystore is replaced. In that case, only
+	// EventKeystoreAvailable is fired.
+	EventKeystoreGone Event = "keystoreGone"
 )
 
 // Interface represents a hardware wallet device.

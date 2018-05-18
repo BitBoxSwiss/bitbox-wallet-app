@@ -228,8 +228,11 @@ func (dbb *Device) fireEvent(event device.Event) {
 
 func (dbb *Device) onStatusChanged() {
 	dbb.fireEvent(EventStatusChanged)
-	if dbb.Status() == StatusSeeded {
+	switch dbb.Status() {
+	case StatusSeeded:
 		dbb.fireEvent(device.EventKeystoreAvailable)
+	case StatusUninitialized:
+		dbb.fireEvent(device.EventKeystoreGone)
 	}
 }
 

@@ -44,7 +44,6 @@ export default class UpgradeFirmware extends Component {
         isConfirming,
         activeDialog,
     }) {
-        console.log("LO",unlocked);
         return (
             <div>
                 <Button
