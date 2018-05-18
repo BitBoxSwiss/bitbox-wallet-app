@@ -5,6 +5,7 @@ import { Button, Checkbox } from '../../components/forms';
 import Toast from '../../components/toast/Toast';
 
 @translate()
+
 export default class Settings extends Component {
     state = {
         toast: false,
@@ -33,55 +34,64 @@ export default class Settings extends Component {
     render({
         t,
     }, {
-        config, toast
+        config,
+        toast,
     }) {
         return (
             <div class="container">
-              <div class="innerContainer">
-                <div class="header">
-                  <h2>{t('settings.title')}</h2>
+                <div class="headerContainer">
+                    <div class="header">
+                        <h2>{t('settings.title')}</h2>
+                    </div>
                 </div>
-                <div class="content flex flex-column flex-start">
-                  { config && (
-                      <div>
-                        Active accounts:<br/>
-                        <Checkbox
-                          checked={config.backend.bitcoinP2PKHActive}
-                          id="bitcoinP2PKHActive"
-                          onChange={this.toggleAccountActive}
-                          label="Bitcoin Legacy"
-                          />
-                        <Checkbox
-                          checked={config.backend.bitcoinP2WPKHP2SHActive}
-                          id="bitcoinP2WPKHP2SHActive"
-                          onChange={this.toggleAccountActive}
-                          label="Bitcoin Segwit"
-                          />
-                        <Checkbox
-                          checked={config.backend.bitcoinP2WPKHActive}
-                          id="bitcoinP2WPKHActive"
-                          onChange={this.toggleAccountActive}
-                          label="Bitcoin Native Segwit"
-                          />
-                        <Checkbox
-                          checked={config.backend.litecoinP2WPKHP2SHActive}
-                          id="litecoinP2WPKHP2SHActive"
-                          onChange={this.toggleAccountActive}
-                          label="Litecoin Segwit"
-                          />
-                        <Checkbox
-                          checked={config.backend.litecoinP2WPKHActive}
-                          id="litecoinP2WPKHActive"
-                          onChange={this.toggleAccountActive}
-                          label="Litecoin Native Segwit"
-                          />
-                      </div>
-                  )
-                  }
-            </div>
-                <Button primary onClick={this.save}>
-                {t('button.save')}
-            </Button>
+                <div class="innerContainer">
+                    <div class="content flex flex-column flex-start">
+                        {
+                            config && (
+                                <div>
+                                    <div class="subHeaderContainer">
+                                        <div class="subHeader">
+                                            <h3>Active accounts</h3>
+                                        </div>
+                                    </div>
+                                    <Checkbox
+                                        checked={config.backend.bitcoinP2PKHActive}
+                                        id="bitcoinP2PKHActive"
+                                        onChange={this.toggleAccountActive}
+                                        label="Bitcoin Legacy"
+                                        className="text-medium"
+                                    />
+                                    <Checkbox
+                                        checked={config.backend.bitcoinP2WPKHP2SHActive}
+                                        id="bitcoinP2WPKHP2SHActive"
+                                        onChange={this.toggleAccountActive}
+                                        label="Bitcoin Segwit"
+                                    />
+                                    <Checkbox
+                                        checked={config.backend.bitcoinP2WPKHActive}
+                                        id="bitcoinP2WPKHActive"
+                                        onChange={this.toggleAccountActive}
+                                        label="Bitcoin Native Segwit"
+                                    />
+                                    <Checkbox
+                                        checked={config.backend.litecoinP2WPKHP2SHActive}
+                                        id="litecoinP2WPKHP2SHActive"
+                                        onChange={this.toggleAccountActive}
+                                        label="Litecoin Segwit"
+                                    />
+                                    <Checkbox
+                                        checked={config.backend.litecoinP2WPKHActive}
+                                        id="litecoinP2WPKHActive"
+                                        onChange={this.toggleAccountActive}
+                                        label="Litecoin Native Segwit"
+                                    />
+                                </div>
+                            )
+                        }
+                    </div>
+                    <div class="content flex-none flex flex-row flex-end">
+                        <Button primary onClick={this.save}>{t('button.save')}</Button>
+                    </div>
                 </div>
                 <Toast
                     trigger={toast}
@@ -89,7 +99,7 @@ export default class Settings extends Component {
                     message="Settings saved. Please restart the application for the changes to take effect."
                     onHide={() => this.setState({ toast: false })}
                 />
-                </div>
+            </div>
         );
     }
 }

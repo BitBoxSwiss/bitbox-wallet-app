@@ -9,6 +9,7 @@ import componentStyle from '../../../components/style.css';
 import style from './send.css';
 
 @translate()
+
 export default class Send extends Component {
     state = {
         feeTarget: null,
@@ -16,31 +17,23 @@ export default class Send extends Component {
         proposedAmount: null,
         valid: false,
         sendAll: false,
-        isConfirming: false,
         isSent: false,
     }
 
     send = () => {
-        this.setState({ isConfirming: true });
+        this.props.setConfirmation({ isConfirming: true });
         apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(res => {
             if (res.success) {
                 this.setState({
-                    isConfirming: false,
                     isSent: true,
                     recipientAddress: null,
                     proposedAmount: null,
                     proposedFee: null,
                     amount: null,
                 });
-            } else {
-                this.setState({
-                    isConfirming: false,
-                });
             }
         }).catch(() => {
-            this.setState({
-                isConfirming: false,
-            });
+            this.props.setConfirmation({ isConfirming: false });
         });
     }
 
@@ -103,6 +96,7 @@ export default class Send extends Component {
         walletCode,
         walletInitialized,
         unit,
+        isConfirming,
     }, {
         proposedFee,
         recipientAddress,
@@ -111,7 +105,6 @@ export default class Send extends Component {
         amount,
         sendAll,
         feeTarget,
-        isConfirming,
         isSent,
     }) {
         const strippedFee = proposedFee ? proposedFee.split(' ')[0] : null;

@@ -96,6 +96,19 @@
     line-height: 36px;
 }
 
+.subHeaderContainer {
+    margin-bottom: var(--spacing-default);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.subHeaderContainer .subHeader h3 {
+    margin: 0;
+    font-size: var(--size-subheader);
+}
+
 .content {
     display: flex;
     flex: 1 1 auto;

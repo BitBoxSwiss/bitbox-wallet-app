@@ -21,6 +21,7 @@ export default class Account extends Component {
         balance: null,
         isReceive: false,
         isSend: false,
+        isConfirming: false,
     }
 
     componentWillMount() {
@@ -56,7 +57,7 @@ export default class Account extends Component {
     }
 
     handleKeyDown = e => {
-        if (e.keyCode === 27) {
+        if (e.keyCode === 27 && !this.state.isConfirming) {
             this.setState({
                 isReceive: false,
                 isSend: false,
@@ -130,6 +131,7 @@ export default class Account extends Component {
         balance,
         isReceive,
         isSend,
+        isConfirming,
     }) {
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
@@ -196,8 +198,11 @@ export default class Account extends Component {
                 />
             );
         } else if (isSend) {
+            console.log(isConfirming)
             return (
                 <Send
+                    isConfirming={isConfirming}
+                    setConfirmation={state => this.setState(state)}
                     walletCode={wallet.code}
                     walletInitialized={walletInitialized}
                     unit={balance.unit}

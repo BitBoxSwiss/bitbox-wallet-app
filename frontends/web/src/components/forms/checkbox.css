@@ -5,10 +5,13 @@
 
 .checkbox input + label {
     display: inline-block;
-    /*line-height: 1.64;*/
     margin-right: 1em;
     padding-left: 1.5em;
     position: relative;
+}
+
+.checkbox input.text-medium + label {
+    font-size: var(--size-medium);
 }
 
 .checkbox input + label::before,

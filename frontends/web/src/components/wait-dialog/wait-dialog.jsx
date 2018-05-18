@@ -3,22 +3,11 @@ import createFocusTrap from 'focus-trap';
 import style from './wait-dialog.css';
 
 export default class WaitDialog extends Component {
-    componentDidMount() {
-        // super.componentDidMount.apply(this);
-        // Prevent canceling the dialog by ESC or clicking the backdrop.
-        // this.MDComponent.foundation_.cancel = () => {};
-        // Usually, the accept button gets focus, but we don't have
-        // one, so use the whole dialog as the focus element.
-        // this.MDComponent.focusTrap_ = createFocusTrap(this.MDComponent.dialogSurface_, {
-        //   initialFocus: this.MDComponent.dialogSurface_
-        // });
-    }
-
-    render() {
-        const active = this.props.active ? 'active' : '';
+    render({ active }, {}) {
+        const isActive = active ? 'active' : '';
         return (
-            <div class={['overlay', active].join(' ')}>
-                <div class={['modal', active].join(' ')}>
+            <div class={['overlay', isActive].join(' ')}>
+                <div class={['modal', isActive].join(' ')}>
                     <h3 class="modalHeader">{this.props.title}</h3>
                     {
                         this.props.children.length > 0 ? (
