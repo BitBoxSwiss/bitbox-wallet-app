@@ -77,6 +77,9 @@ export default class App extends Component {
                 apiGet('wallets').then(wallets => {
                     this.setState({ wallets, activeWallet: wallets && wallets.length ? wallets[0] : null });
                 });
+            } else {
+                console.log('redirect /', status === 'initialized', this.state.walletInitialized);
+                route('/', true);
             }
         });
     }
