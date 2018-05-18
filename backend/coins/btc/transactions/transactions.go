@@ -379,7 +379,7 @@ func (transactions *Transactions) doForTransaction(
 			delete(transactions.requestedTXs, txHash)
 			return dbTx.Commit()
 		},
-		done,
+		func(error) { done() },
 	); err != nil {
 		transactions.log.WithField("error", err).Panic("Failed to retrieve transaction")
 		// TODO

@@ -12,11 +12,13 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const responseTimeout = 100 * time.Second
+const responseTimeout = 30 * time.Second
 
 type callbacks struct {
 	success func([]byte) error
-	cleanup func()
+	// cleanup will receive errors related to the response. SocketErrors are directed to
+	// the failure callback of the RPCClient instance.
+	cleanup func(error)
 }
 
 // SocketError indicates an error when reading from or writing to a network socket.
@@ -37,8 +39,9 @@ type RPCClient struct {
 
 	notificationsCallbacks     map[string][]func([]byte)
 	notificationsCallbacksLock sync.RWMutex
-	failureCallback            func(error)
-	log                        *logrus.Entry
+	// failureCallback will receive SocketErrors and other errors not related to request responses.
+	failureCallback func(error)
+	log             *logrus.Entry
 }
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
@@ -102,9 +105,15 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 		client.failureCallback(ResponseError(errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)))
 		return
 	}
-	if response.Error != nil {
-		client.failureCallback(ResponseError(errp.New(string(*response.Error))))
-		return
+
+	parseError := func(msg json.RawMessage) string {
+		errStruct := &struct {
+			Message string `json:"message"`
+		}{}
+		if err := json.Unmarshal(msg, errStruct); err != nil {
+			return string(msg)
+		}
+		return errStruct.Message
 	}
 
 	// Handle method response.
@@ -114,18 +123,23 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 			responseCallbacks, ok := client.responseCallbacks[*response.ID]
 			client.responseCallbacksLock.RUnlock()
 			if ok {
-				if len(response.Result) == 0 {
-					client.failureCallback(ResponseError(errp.New("unexpected reply")))
+				var responseError error
+				if response.Error != nil {
+					responseError = errp.New(parseError(*response.Error))
+				} else if len(response.Result) == 0 {
+					responseError = errp.New("unexpected reply")
+				} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
+					responseError = err
 				}
-				if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-					client.failureCallback(ResponseError(errp.WithMessage(err, "success callback error")))
-				}
-				responseCallbacks.cleanup()
+				responseCallbacks.cleanup(responseError)
 				client.responseCallbacksLock.Lock()
 				delete(client.responseCallbacks, *response.ID)
 				client.responseCallbacksLock.Unlock()
 			}
 		}()
+	} else if response.Error != nil {
+		client.failureCallback(ResponseError(errp.New(parseError(*response.Error))))
+		return
 	}
 
 	// Handle notification.
@@ -141,7 +155,6 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 			for _, responseCallback := range responseCallbacks {
 				responseCallback([]byte(response.Params))
 			}
-
 		}()
 	}
 }
@@ -151,7 +164,7 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 // anywhere.
 func (client *RPCClient) Method(
 	success func([]byte) error,
-	cleanup func(),
+	cleanup func(err error),
 	method string,
 	params ...interface{},
 ) error {
@@ -182,16 +195,23 @@ func (client *RPCClient) Method(
 // json-deserialized into response.
 func (client *RPCClient) MethodSync(response interface{}, method string, params ...interface{}) error {
 	responseChan := make(chan []byte)
+	errChan := make(chan error)
 	if err := client.Method(
 		func(responseBytes []byte) error {
 			responseChan <- responseBytes
 			return nil
 		},
-		func() {},
+		func(err error) {
+			if err != nil {
+				errChan <- err
+			}
+		},
 		method, params...); err != nil {
 		return err
 	}
 	select {
+	case err := <-errChan:
+		return err
 	case responseBytes := <-responseChan:
 		if response != nil {
 			if err := json.Unmarshal(responseBytes, response); err != nil {
@@ -216,6 +236,7 @@ func (client *RPCClient) SubscribeNotifications(method string, callback func([]b
 }
 
 func (client *RPCClient) send(msg []byte) error {
+	// fmt.Println("send: ", string(msg))
 	_, err := client.conn.Write(msg)
 	if err != nil {
 		client.failureCallback(SocketError(errp.WithStack(err)))

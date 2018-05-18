@@ -102,7 +102,7 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 			}
 			return dbTx.Commit()
 		},
-		done,
+		func(error) { done() },
 	); err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve merkle")
 	}

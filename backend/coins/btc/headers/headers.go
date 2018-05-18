@@ -104,7 +104,7 @@ func (headers *Headers) Init() error {
 		func(header *client.Header) error {
 			return headers.update(header.BlockHeight)
 		},
-		func() {},
+		func(error) {},
 	); err != nil {
 		return err
 	}
@@ -142,7 +142,7 @@ func (headers *Headers) download() {
 					func(blockHeaders []*wire.BlockHeader, max int) error {
 						batchChan <- batchInfo{blockHeaders, max}
 						return nil
-					}, func() {})
+					}, func(error) {})
 				if err != nil {
 					// TODO
 					panic(err)

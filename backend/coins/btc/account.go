@@ -201,7 +201,7 @@ func (account *Account) Init() error {
 	account.changeAddresses = addresses.NewAddressChain(account.configuration, account.net, changeGapLimit, 1, account.addressType, account.log)
 
 	account.ensureAddresses()
-	return account.blockchain.HeadersSubscribe(account.onNewHeader, func() {})
+	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})
 }
 
 func (account *Account) onNewHeader(header *client.Header) error {
@@ -248,11 +248,11 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.Blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						return account.blockchain.RelayFee(setFee, func() {})
+						return account.blockchain.RelayFee(setFee, func(error) {})
 					}
 					return setFee(*feeRatePerKb)
 				},
-				func() {},
+				func(error) {},
 			)
 			if err != nil {
 				account.log.WithField("error", err).Error("Failed to update fee targets")
@@ -330,7 +330,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 			account.ensureAddresses()
 			return nil
 		},
-		done,
+		func(error) { done() },
 	)
 }
 
@@ -387,7 +387,7 @@ func (account *Account) subscribeAddress(
 	return account.blockchain.ScriptHashSubscribe(
 		address.PubkeyScriptHashHex(),
 		func(status string) error { return account.onAddressStatus(address, status) },
-		done,
+		func(error) { done() },
 	)
 }
 

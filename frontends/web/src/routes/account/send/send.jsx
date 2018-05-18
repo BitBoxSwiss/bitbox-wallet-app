@@ -37,6 +37,10 @@ export default class Send extends Component {
                     isConfirming: false,
                 });
             }
+        }).catch(() => {
+            this.setState({
+                isConfirming: false,
+            });
         });
     }
 

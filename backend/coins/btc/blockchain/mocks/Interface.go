@@ -18,11 +18,11 @@ func (_m *Interface) Close() {
 }
 
 // EstimateFee provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 func()) error {
+func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, func(*btcutil.Amount) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(int, func(*btcutil.Amount) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -32,11 +32,11 @@ func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 f
 }
 
 // GetMerkle provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]client.TXHash, int) error, _a3 func()) error {
+func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]client.TXHash, int) error, _a3 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(chainhash.Hash, int, func([]client.TXHash, int) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(chainhash.Hash, int, func([]client.TXHash, int) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)
@@ -46,11 +46,11 @@ func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]client.TX
 }
 
 // Headers provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int) error, _a3 func()) error {
+func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int) error, _a3 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(int, int, func([]*wire.BlockHeader, int) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(int, int, func([]*wire.BlockHeader, int) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2, _a3)
 	} else {
 		r0 = ret.Error(0)
@@ -60,11 +60,11 @@ func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int
 }
 
 // HeadersSubscribe provides a mock function with given fields: _a0, _a1
-func (_m *Interface) HeadersSubscribe(_a0 func(*client.Header) error, _a1 func()) error {
+func (_m *Interface) HeadersSubscribe(_a0 func(*client.Header) error, _a1 func(error)) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(func(*client.Header) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(func(*client.Header) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -74,11 +74,11 @@ func (_m *Interface) HeadersSubscribe(_a0 func(*client.Header) error, _a1 func()
 }
 
 // RelayFee provides a mock function with given fields: _a0, _a1
-func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func()) error {
+func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func(error)) error {
 	ret := _m.Called(_a0, _a1)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(func(btcutil.Amount) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(func(btcutil.Amount) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1)
 	} else {
 		r0 = ret.Error(0)
@@ -88,11 +88,11 @@ func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func()) error 
 }
 
 // ScriptHashGetHistory provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashGetHistory(_a0 client.ScriptHashHex, _a1 func(client.TxHistory) error, _a2 func()) error {
+func (_m *Interface) ScriptHashGetHistory(_a0 client.ScriptHashHex, _a1 func(client.TxHistory) error, _a2 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(client.TxHistory) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(client.TxHistory) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -102,11 +102,11 @@ func (_m *Interface) ScriptHashGetHistory(_a0 client.ScriptHashHex, _a1 func(cli
 }
 
 // ScriptHashSubscribe provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashSubscribe(_a0 client.ScriptHashHex, _a1 func(string) error, _a2 func()) error {
+func (_m *Interface) ScriptHashSubscribe(_a0 client.ScriptHashHex, _a1 func(string) error, _a2 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(string) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(client.ScriptHashHex, func(string) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
@@ -130,11 +130,11 @@ func (_m *Interface) TransactionBroadcast(_a0 *wire.MsgTx) error {
 }
 
 // TransactionGet provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) TransactionGet(_a0 chainhash.Hash, _a1 func(*wire.MsgTx) error, _a2 func()) error {
+func (_m *Interface) TransactionGet(_a0 chainhash.Hash, _a1 func(*wire.MsgTx) error, _a2 func(error)) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(chainhash.Hash, func(*wire.MsgTx) error, func()) error); ok {
+	if rf, ok := ret.Get(0).(func(chainhash.Hash, func(*wire.MsgTx) error, func(error)) error); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
