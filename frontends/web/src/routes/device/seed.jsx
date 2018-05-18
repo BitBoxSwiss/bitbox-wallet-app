@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
-import ManageBackups from '../../routes/device/manage-backups/manage-backups';
+import Backups from '../../components/backups/backups';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
@@ -92,20 +92,18 @@ export default class Seed extends Component {
         );
 
         const content = fromBackup ? (
-            <div>
-                <ManageBackups
-                    showCreate={false}
-                    displayError={this.displayError}
-                    deviceID={deviceID}
-                    requireConfirmation={false}>
-                    <Button
-                        type="button"
-                        transparent
-                        onClick={() => this.setState({ fromBackup: false })}>
-                        {t('button.back')}
-                    </Button>
-                </ManageBackups>
-            </div>
+            <Backups
+                showCreate={false}
+                displayError={this.displayError}
+                deviceID={deviceID}
+                requireConfirmation={false}>
+                <Button
+                    type="button"
+                    transparent
+                    onClick={() => this.setState({ fromBackup: false })}>
+                    Or go back to create a new wallet…
+                </Button>
+            </Backups>
         ) : (
             <form onSubmit={this.handleSubmit}>
                 <div>

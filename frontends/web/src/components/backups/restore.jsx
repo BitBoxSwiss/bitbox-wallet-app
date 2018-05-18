@@ -1,9 +1,9 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../../../components/forms';
-import Confirm from '../../../components/confirm/confirm';
-import { PasswordRepeatInput } from '../../../components/password';
-import { apiPost } from '../../../utils/request';
+import { Button } from '../forms';
+import Confirm from '../confirm/confirm';
+import { PasswordRepeatInput } from '../password';
+import { apiPost } from '../../utils/request';
 
 @translate()
 export default class Restore extends Component {

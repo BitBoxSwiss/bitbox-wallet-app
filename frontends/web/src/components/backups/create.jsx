@@ -1,8 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { Button, Input } from '../../../components/forms';
-import { PasswordInput } from '../../../components/password';
-import { apiPost } from '../../../utils/request';
+import { Button, Input } from '../forms';
+import { PasswordInput } from '../password';
+import { apiPost } from '../../utils/request';
 
 @translate()
 export default class Create extends Component {
@@ -83,8 +83,7 @@ export default class Create extends Component {
                                         label={t('backup.create.name.label')}
                                         placeholder={t('backup.create.name.placeholder')}
                                         onInput={this.handleFormChange}
-                                        value={backupName}
-                                    />
+                                        value={backupName} />
                                     <PasswordInput
                                         ref={ref => this.passwordInput = ref}
                                         helptext="Please enter the same password as when the wallet was created."
@@ -93,8 +92,7 @@ export default class Create extends Component {
                                         label={t('backup.create.password.label')}
                                         placeholder={t('backup.create.password.placeholder')}
                                         onInput={this.handleFormChange}
-                                        value={recoveryPassword}
-                                    />
+                                        value={recoveryPassword} />
                                     <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                         <Button secondary onClick={this.abort}>
                                             {t('button.abort')}
