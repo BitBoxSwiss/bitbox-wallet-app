@@ -9,11 +9,11 @@ export default function Balance({ name, balance, children }) {
     }
     return (
         <header className={style.balance}>
-            <h2 className={style.amount}>
+            <span className={style.amount}>
                 {balance.available}
                 {' '}
                 <span className={style.unit}>{balance.unit}</span>
-            </h2>
+            </span>
             {children}
         </header>
     );

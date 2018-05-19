@@ -1,12 +1,13 @@
 .balance {
-
+    font-weight: bold;
 }
 
 .amount {
-  font-size: var(--size-large);
+  font-size: var(--size-extra-large);
   margin: 0;
 }
 
 .unit {
-  color: var(--color-light);
+  color: var(--color-secondary);
+  font-size: var(--size-large);
 }

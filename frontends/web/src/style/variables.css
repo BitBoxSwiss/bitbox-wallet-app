@@ -37,6 +37,7 @@
     --background-sidebar: var(--color-softblack);
 
     /* font sizes */
+    --size-extra-large: 2.2rem;
     --size-large: 2rem;
     --size-medium: 1rem;
     --size-small: 12px;
