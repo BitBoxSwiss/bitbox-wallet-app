@@ -36,7 +36,7 @@
 }
 
 .amount.send {
-  color: var(--color-secondary);
+  color: var(--color-softred);
 }
 
 .amount.send_to_self {
@@ -72,7 +72,7 @@
 }
 
 .transactionLabel.send {
-  background-color: var(--color-secondary);
+  background-color: var(--color-softred);
 }
 
 .transactionLabel.send_to_self {
