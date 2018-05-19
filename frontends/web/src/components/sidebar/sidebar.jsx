@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import { Link } from 'preact-router/match';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiPost, apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
@@ -13,11 +14,10 @@ import ejectIcon from '../../assets/icons/eject.svg';
 class Sidebar extends Component {
     state = {
         accounts: [],
-        emulated: false,
+        emulated: true,
     }
 
     componentDidMount() {
-        this.setState({ emulated: true });
         apiGet('wallets').then(accounts => {
             this.setState({ accounts });
         });
@@ -36,7 +36,7 @@ class Sidebar extends Component {
         return (
             <nav className="sidebar">
                 {
-                    accounts.map(getWalletLink)
+                    accounts && accounts.map(getWalletLink)
                 }
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
@@ -83,6 +83,7 @@ function getWalletLink({ code, name }) {
 
 function eject(e) {
     apiPost('test/deregister');
+    route('/', true);
     e.preventDefault();
 }
 

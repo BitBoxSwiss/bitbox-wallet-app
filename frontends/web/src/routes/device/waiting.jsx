@@ -21,15 +21,13 @@ export default function Waiting({ testing }) {
 }
 
 class SkipForTestingButton extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            testPIN: ''
-        };
+    state = {
+        testPIN: ''
     }
 
-    registerTestingDevice = () => {
+    registerTestingDevice = (e) => {
         apiPost('test/register', { pin: this.state.testPIN });
+        e.preventDefault();
     }
 
     handleFormChange = event => {

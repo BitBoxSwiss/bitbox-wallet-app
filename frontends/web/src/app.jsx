@@ -5,20 +5,17 @@ import { translate } from 'react-i18next';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import Sidebar from './components/sidebar/sidebar';
-import Waiting from './routes/device/waiting';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
-import { debug } from './utils/env';
 
 @translate()
 export default class App extends Component {
     state = {
         walletInitialized: false,
         deviceIDs: [],
-        testing: false,
     }
 
     /** Gets fired when the route changes.
@@ -41,13 +38,16 @@ export default class App extends Component {
                     break;
                 }
                 break;
-            case 'device':
-                switch (data) {
-                case 'keystoreAvailable':
-                    route('/', true);
-                    break;
-                }
-                break;
+            // case 'device':
+            //     switch (data) {
+            //     case 'keystoreAvailable':
+            //         this.onWalletStatusChanged();
+            //         break;
+            //     case 'keystoreGone':
+            //         this.onWalletStatusChanged();
+            //         break;
+            //     }
+            //     break;
             case 'devices':
                 switch (data) {
                 case 'registeredChanged':
@@ -57,10 +57,6 @@ export default class App extends Component {
                 break;
             }
         });
-
-        if (debug) {
-            apiGet('testing').then(testing => this.setState({ testing }));
-        }
     }
 
     componentWillUnmount() {
@@ -75,49 +71,40 @@ export default class App extends Component {
 
     onWalletStatusChanged = () => {
         apiGet('wallet-status').then(status => {
+            const walletInitialized = status === 'initialized';
             this.setState({
-                walletInitialized: status === 'initialized'
+                walletInitialized
             });
+            if (!walletInitialized) {
+                // console.log('uninitialized! route to /')
+                route('/', true);
+            }
         });
     }
 
-    render({ t }, { deviceIDs, walletInitialized, testing }) {
-        if (walletInitialized) {
-            return (
-                <div style="display: flex; flex: 1 1 auto;">
-                    <Sidebar
-                        deviceIDs={deviceIDs}
-                    />
-                    <Router onChange={this.handleRoute}>
-                        {/*
-                          <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                        */}
-                        <Account path="/account/:code" />
-                        <Device path="/device/:deviceID" />
-                        <Settings path="/settings" />
-                        <ManageBackups
-                            path="/manage-backups/:deviceID"
-                            showCreate={true}
-                            displayError={(msg) => { if (msg) alert("TODO" + msg); }}
-                        />
-                    </Router>
-                    <Alert />
-                </div>
-            );
-        }
-        if (!deviceIDs.length) {
-            return <Waiting testing={testing} />;
-        }
-        return <Device deviceID={deviceIDs[0]} />;
-    }
-}
-
-class Redirect extends Component {
-    componentWillMount() {
-        route(this.props.to, true);
-    }
-
-    render() {
-        return null;
+    render({ t }, { deviceIDs, walletInitialized }) {
+        return (
+            <div className="app">
+                { walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
+                <Router onChange={this.handleRoute}>
+                    {/*
+                      <Redirect path="/" to={`/account/${wallets[0].code}`} />
+                    */}
+                    <Account path="/account/:code?" deviceIDs={deviceIDs} />
+                    <Settings path="/settings" deviceIDs={deviceIDs} />
+                    <ManageBackups
+                        path="/manage-backups/:deviceID"
+                        showCreate={true}
+                        displayError={(msg) => { if (msg) alert("TODO" + msg); }}
+                        deviceIDs={deviceIDs} />
+                    <Device path="/device/:deviceID" deviceIDs={deviceIDs} />
+                    <Device
+                        default
+                        deviceID={deviceIDs[0]}
+                        deviceIDs={deviceIDs} />
+                </Router>
+                <Alert />
+            </div>
+        );
     }
 }

@@ -28,6 +28,11 @@
     margin-right: var(--spacing-default);
 }
 
+.app {
+  display: flex;
+  flex: 1 1 auto;
+}
+
 .container {
     display: flex;
     flex: 1 1 auto;

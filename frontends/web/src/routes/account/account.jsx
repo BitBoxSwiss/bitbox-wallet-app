@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
@@ -27,11 +28,14 @@ export default class Account extends Component {
     }
 
     componentDidMount() {
-        this.onStatusChanged();
-        this.unsubscribe = apiWebsocket(this.onWalletEvent);
         apiGet('wallets').then(accounts => {
             this.setState({ accounts });
         });
+        this.unsubscribe = apiWebsocket(this.onWalletEvent);
+        if (!this.props.code) {
+            return;
+        }
+        this.onStatusChanged();
     }
 
     componentWillUnmount() {
@@ -43,6 +47,11 @@ export default class Account extends Component {
         if (this.props.code !== prevProps.code) {
             console.log('componentDidUpdate(' + this.props.code + ')');
             this.onStatusChanged();
+        }
+        if (!this.props.code) {
+            if (this.state.accounts.length) {
+                route(`/account/${this.state.accounts[0].code}`, true);
+            }
         }
     }
 

@@ -1,12 +1,13 @@
 import { Component } from 'preact';
-import { translate } from 'react-i18next';
-
+import { route } from 'preact-router';
 import { apiGet } from '../../utils/request';
+import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
-import Bootloader from '../device/bootloader';
-import Login from '../device/unlock';
-import Seed from '../device/seed';
-import Initialize from '../device/initialize';
+import Waiting from './waiting';
+import Bootloader from './bootloader';
+import Login from './unlock';
+import Seed from './seed';
+import Initialize from './initialize';
 import Settings from './settings/settings';
 
 const DeviceStatus = Object.freeze({
@@ -17,27 +18,45 @@ const DeviceStatus = Object.freeze({
     SEEDED: 'seeded'
 });
 
-@translate()
 export default class Device extends Component {
     state = {
         deviceRegistered: false,
         deviceStatus: null,
+        walletInitialized: null,
+        testing: false,
     }
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
+        this.onDeviceStatusChanged();
+        this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
+            if (type === 'backend' && data === 'walletStatusChanged') {
+                this.onWalletStatusChanged();
+            }
             if (type === 'devices' && data === 'registeredChanged') {
                 this.onDevicesRegisteredChanged();
             }
-            if (type === 'device' && deviceID === this.props.deviceID) {
+            if (type === 'device' && deviceID === this.getDeviceID()) {
                 this.onDeviceStatusChanged();
             }
         });
+
+        if (debug) {
+            apiGet('testing').then(testing => this.setState({ testing }));
+        }
     }
 
     componentWillUnmount() {
         this.unsubscribe();
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextProps.default && nextState.deviceRegistered !== null && nextState.walletInitialized) {
+            route('/account', true);
+            return false;
+        }
+        return true;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -46,13 +65,22 @@ export default class Device extends Component {
         }
     }
 
+    onWalletStatusChanged = () => {
+        apiGet('wallet-status').then(status => {
+            this.setState({
+                walletInitialized: status === 'initialized'
+            });
+        });
+    }
+
     onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(deviceIDs => {
-            const deviceRegistered = deviceIDs.includes(this.props.deviceID);
+            const deviceRegistered = deviceIDs.includes(this.getDeviceID());
             this.setState({
                 deviceRegistered,
                 deviceStatus: null
             });
+            // only if deviceRegistered or softwarekeystore
             if (deviceRegistered) {
                 this.onDeviceStatusChanged();
             }
@@ -67,10 +95,26 @@ export default class Device extends Component {
         }
     }
 
-    render({ t, deviceID }, { deviceRegistered, deviceStatus }) {
-        if (!deviceRegistered || !deviceStatus) {
-            return null; //<h3>{t('device.waiting')}</h3>;
+    getDeviceID() {
+        return this.props.deviceID || this.props.deviceIDs[0] || null;
+    }
+
+    render({
+        deviceID,
+        deviceIDs,
+    }, {
+        deviceRegistered,
+        deviceStatus,
+        walletInitialized,
+        testing,
+    }) {
+        if (!deviceIDs.length && !walletInitialized) {
+            return <Waiting testing={testing} />;
         }
+        if (!deviceRegistered || !deviceStatus) {
+            return null; //<h3>waiting</h3>;
+        }
+
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
             return <Bootloader deviceID={deviceID} />;
@@ -83,5 +127,6 @@ export default class Device extends Component {
         case DeviceStatus.SEEDED:
             return <Settings deviceID={deviceID} />;
         }
+        console.warn('ohnoes')
     }
 }

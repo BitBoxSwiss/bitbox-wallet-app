@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
 import Confirm from '../confirm/confirm';
@@ -55,9 +56,13 @@ export default class Restore extends Component {
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
             password: this.state.password,
             filename: this.props.selectedBackup,
-        }).catch(() => {}).then(data => {
-            if (!data.didRestore) this.props.displayError(data.errorMessage);
+        }).catch(() => {}).then(({ didRestore, errorMessage }) => {
             this.abort();
+            if (didRestore) {
+                route('/', true);
+            } else {
+                this.props.displayError(errorMessage);
+            }
         });
     }
 
