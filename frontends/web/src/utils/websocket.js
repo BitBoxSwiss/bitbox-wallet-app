@@ -31,7 +31,13 @@ export function apiWebsocket(msgCallback) {
     }
 
     return () => {
+        if (!currentListeners.includes(msgCallback)) {
+            console.warn('!currentListeners.includes(msgCallback)');
+        }
         const index = currentListeners.indexOf(msgCallback);
-        currentListeners.splice(index);
+        currentListeners.splice(index, 1);
+        if (currentListeners.includes(msgCallback)) {
+            console.warn('currentListeners.includes(msgCallback)');
+        }
     };
 }
