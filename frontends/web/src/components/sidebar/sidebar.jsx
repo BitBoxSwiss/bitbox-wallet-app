@@ -10,14 +10,17 @@ import backups from '../../assets/icons/backups.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
 @translate()
-
 class Sidebar extends Component {
     state = {
+        accounts: [],
         emulated: false,
     }
 
     componentDidMount() {
         this.setState({ emulated: true });
+        apiGet('wallets').then(accounts => {
+            this.setState({ accounts });
+        });
         // if (debug) {
         //     apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
         // }
@@ -25,9 +28,9 @@ class Sidebar extends Component {
 
     render({
         t,
-        accounts,
         deviceIDs,
     }, {
+        accounts,
         emulated,
     }) {
         return (

@@ -13,6 +13,7 @@ import style from './account.css';
 @translate()
 export default class Account extends Component {
     state = {
+        accounts: [],
         walletInitialized: false,
         transactions: [],
         walletConnected: false,
@@ -28,6 +29,9 @@ export default class Account extends Component {
     componentDidMount() {
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(this.onWalletEvent);
+        apiGet('wallets').then(accounts => {
+            this.setState({ accounts });
+        });
     }
 
     componentWillUnmount() {
@@ -109,8 +113,8 @@ export default class Account extends Component {
 
     render({
         t,
-        wallets,
     }, {
+        accounts,
         walletInitialized,
         transactions,
         walletConnected,
@@ -118,7 +122,7 @@ export default class Account extends Component {
         isReceive,
         isSend,
     }) {
-        const wallet = wallets.find(({ code }) => code === this.props.code);
+        const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
         // currently no status if everything is ok 'account.connect'
         const connectionStatusContainer = walletConnected ? null : (

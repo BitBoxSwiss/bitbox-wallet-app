@@ -19,7 +19,6 @@ export default class App extends Component {
         walletInitialized: false,
         deviceIDs: [],
         testing: false,
-        wallets: [],
     }
 
     /** Gets fired when the route changes.
@@ -79,25 +78,21 @@ export default class App extends Component {
             this.setState({
                 walletInitialized: status === 'initialized'
             });
-            if (this.state.walletInitialized) {
-                apiGet('wallets').then(wallets => {
-                    this.setState({ wallets });
-                });
-            }
         });
     }
 
-    render({ t }, { deviceIDs, walletInitialized, wallets, testing }) {
-        if (wallets && wallets.length && walletInitialized) {
+    render({ t }, { deviceIDs, walletInitialized, testing }) {
+        if (walletInitialized) {
             return (
                 <div style="display: flex; flex: 1 1 auto;">
                     <Sidebar
-                        accounts={wallets}
                         deviceIDs={deviceIDs}
                     />
                     <Router onChange={this.handleRoute}>
-                        <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                        <Account path="/account/:code" wallets={wallets} />
+                        {/*
+                          <Redirect path="/" to={`/account/${wallets[0].code}`} />
+                        */}
+                        <Account path="/account/:code" />
                         <Device path="/device/:deviceID" />
                         <Settings path="/settings" />
                         <ManageBackups
