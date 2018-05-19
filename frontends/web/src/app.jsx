@@ -20,7 +20,6 @@ export default class App extends Component {
         deviceIDs: [],
         testing: false,
         wallets: [],
-        activeWallet: null,
     }
 
     /** Gets fired when the route changes.
@@ -34,17 +33,24 @@ export default class App extends Component {
     componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onWalletStatusChanged();
-        this.unsubscribe = apiWebsocket(data => {
-            switch (data.type) {
+        this.unsubscribe = apiWebsocket(({ type, data }) => {
+            switch (type) {
             case 'backend':
-                switch (data.data) {
+                switch (data) {
                 case 'walletStatusChanged':
                     this.onWalletStatusChanged();
                     break;
                 }
                 break;
+            case 'device':
+                switch (data) {
+                case 'keystoreAvailable':
+                    route('/', true);
+                    break;
+                }
+                break;
             case 'devices':
-                switch (data.data) {
+                switch (data) {
                 case 'registeredChanged':
                     this.onDevicesRegisteredChanged();
                     break;
@@ -75,19 +81,18 @@ export default class App extends Component {
             });
             if (this.state.walletInitialized) {
                 apiGet('wallets').then(wallets => {
-                    this.setState({ wallets, activeWallet: wallets && wallets.length ? wallets[0] : null });
+                    this.setState({ wallets });
                 });
             }
         });
     }
 
-    render({ t }, { deviceIDs, walletInitialized, wallets, activeWallet, testing }) {
+    render({ t }, { deviceIDs, walletInitialized, wallets, testing }) {
         if (wallets && wallets.length && walletInitialized) {
             return (
                 <div style="display: flex; flex: 1 1 auto;">
                     <Sidebar
                         accounts={wallets}
-                        activeWallet={activeWallet}
                         deviceIDs={deviceIDs}
                     />
                     <Router onChange={this.handleRoute}>

@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import { Button } from '../../../../components/forms';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
@@ -16,10 +17,13 @@ export default class Reset extends Component {
             activeDialog: false,
             isConfirming: true,
         });
-        apiPost('devices/' + this.props.deviceID + '/reset').then(() => {
+        apiPost('devices/' + this.props.deviceID + '/reset').then(({ didReset }) => {
             this.setState({
                 isConfirming: false,
             });
+            if (didReset) {
+                route('/', true);
+            }
         });
     };
 
