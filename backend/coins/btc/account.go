@@ -112,7 +112,7 @@ func NewAccount(
 	keystores keystore.Keystores,
 	onEvent func(Event),
 	log *logrus.Entry,
-) (*Account, error) {
+) *Account {
 	log = log.WithField("group", "btc").
 		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
 	log.Debug("Creating new account")
@@ -147,7 +147,7 @@ func NewAccount(
 		},
 		log,
 	)
-	return account, nil
+	return account
 }
 
 // Code returns the coe of the account.

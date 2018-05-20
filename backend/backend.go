@@ -115,10 +115,10 @@ func (backend *Backend) addAccount(
 	name string,
 	keypath string,
 	scriptType signing.ScriptType,
-) error {
+) {
 	if !backend.config.Config().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
-		return nil
+		return
 	}
 	backend.log.WithField("code", code).WithField("name", name).Info("init account")
 	onEvent := func(code string) func(btc.Event) {
@@ -128,7 +128,7 @@ func (backend *Backend) addAccount(
 	}
 	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
-		return err
+		panic(err)
 	}
 	getConfiguration := func() (*signing.Configuration, error) {
 		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
@@ -136,55 +136,29 @@ func (backend *Backend) addAccount(
 	if backend.arguments.Multisig() {
 		name = name + " Multisig"
 	}
-	account, err := btc.NewAccount(coin, backend.arguments.CacheDirectoryPath(), code, name,
+	account := btc.NewAccount(coin, backend.arguments.CacheDirectoryPath(), code, name,
 		getConfiguration, backend.keystores, onEvent(code), backend.log)
-	if err != nil {
-		return err
-	}
 	backend.accounts = append(backend.accounts, account)
-	return nil
 }
 
 func (backend *Backend) initAccounts() error {
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
-			if err := backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", signing.ScriptTypeP2PKH); err != nil {
-				return err
-			}
-			if err := backend.addAccount(btc.RegtestCoin, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
-				return err
-			}
+			backend.addAccount(btc.RegtestCoin, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
+			backend.addAccount(btc.RegtestCoin, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 		} else {
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", signing.ScriptTypeP2PKH); err != nil {
-				return err
-			}
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
-				return err
-			}
-			if err := backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH); err != nil {
-				return err
-			}
-			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
-				return err
-			}
-			if err := backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH); err != nil {
-				return err
-			}
+			backend.addAccount(btc.TestnetCoin, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
+			backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(btc.TestnetCoin, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
+			backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(ltc.TestnetCoin, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
 		}
 	} else {
-		if err := backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", signing.ScriptTypeP2PKH); err != nil {
-			return err
-		}
-		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
-			return err
-		}
-		if err := backend.addAccount(btc.MainnetCoin, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH); err != nil {
-			return err
-		}
-		if err := backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH); err != nil {
-			return err
-		}
+		backend.addAccount(btc.MainnetCoin, "btc", "Bitcoin", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
+		backend.addAccount(btc.MainnetCoin, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
+		backend.addAccount(btc.MainnetCoin, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
+		backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH)
 	}
 	for _, account := range backend.accounts {
 		go func(account *btc.Account) {
