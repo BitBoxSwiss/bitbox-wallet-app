@@ -49,3 +49,29 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 		logging.Log.WithGroup("addresses_test"),
 	)
 }
+
+// GetMultisigAddress returns a dummy multisig address.
+func GetMultisigAddress(signingThreshold, numberOfSigners int) *addresses.AccountAddress {
+	xpubs := make([]*hdkeychain.ExtendedKey, numberOfSigners)
+	for i := range xpubs {
+		seed, err := hdkeychain.GenerateSeed(32)
+		if err != nil {
+			panic(err)
+		}
+		master, err := hdkeychain.NewMaster(seed, net)
+		if err != nil {
+			panic(err)
+		}
+		xpub, err := master.Neuter()
+		if err != nil {
+			panic(err)
+		}
+		xpubs[i] = xpub
+	}
+	configuration := signing.NewConfiguration(signing.ScriptTypeP2PKH, absoluteKeypath, xpubs, signingThreshold)
+	return addresses.NewAccountAddress(
+		configuration,
+		net,
+		logging.Log.WithGroup("addresses_test"),
+	)
+}

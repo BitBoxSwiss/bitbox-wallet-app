@@ -26,13 +26,33 @@ func TestSigScriptWitnessSize(t *testing.T) {
 	sig, err := btcec.ParseDERSignature(sigBytes, btcec.S256())
 	require.NoError(t, err)
 
+	// Test all singlesig configurations.
 	for _, scriptType := range scriptTypes {
-		t.Run(string(scriptType), func(t *testing.T) {
-			address := test.GetAddress(scriptType)
+		address := test.GetAddress(scriptType)
+		t.Run(string(address.Configuration.String()), func(t *testing.T) {
 			sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(address.Configuration)
 			sigScript, witness := address.SignatureScript([]*btcec.Signature{sig})
 			require.Equal(t, len(sigScript), sigScriptSize)
 			require.Equal(t, witness != nil, hasWitness)
 		})
+	}
+
+	// Test all multisig configurations.
+	for numberOfSigners := 2; numberOfSigners <= 15; numberOfSigners++ {
+		for signingThreshold := 1; signingThreshold <= numberOfSigners; signingThreshold++ {
+			address := test.GetMultisigAddress(signingThreshold, numberOfSigners)
+			t.Run(string(address.Configuration.String()), func(t *testing.T) {
+				// create a slice of `n` sigs, `m` of which contain a signature, the rest being
+				// nil. This is how SignatureScript() expects it.
+				sigs := make([]*btcec.Signature, numberOfSigners)
+				for numSigs := 0; numSigs < signingThreshold; numSigs++ {
+					sigs[numSigs] = sig
+				}
+				sigScriptSize, hasWitness := addresses.SigScriptWitnessSize(address.Configuration)
+				sigScript, _ := address.SignatureScript(sigs)
+				require.Equal(t, len(sigScript), sigScriptSize)
+				require.False(t, hasWitness)
+			})
+		}
 	}
 }
