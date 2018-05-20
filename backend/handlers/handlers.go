@@ -15,6 +15,7 @@ import (
 	"regexp"
 
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
 
@@ -105,25 +106,29 @@ func NewHandlers(
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 
-	theAccountHandlers := map[string]*accountHandlers.Handlers{}
-	for _, accountCode := range []string{
-		"btc", "btc-p2wpkh-p2sh", "btc-p2wpkh", "ltc-p2wpkh-p2sh", "ltc-p2wpkh",
-		"tbtc", "tbtc-p2wpkh-p2sh", "tbtc-p2wpkh", "tltc-p2wpkh-p2sh", "tltc-p2wpkh",
-		"rbtc", "rbtc-p2wpkh-p2sh",
-	} {
-		theAccountHandlers[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
-			apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", accountCode)).Subrouter()), log)
+	handlersMapLock := locker.Locker{}
+
+	accountHandlersMap := map[string]*accountHandlers.Handlers{}
+	getAccountHandlers := func(accountCode string) *accountHandlers.Handlers {
+		defer handlersMapLock.Lock()()
+		if _, ok := accountHandlersMap[accountCode]; !ok {
+			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", accountCode)).Subrouter(),
+			), log)
+		}
+		return accountHandlersMap[accountCode]
 	}
 
 	theBackend.OnWalletInit(func(account *btc.Account) {
-		theAccountHandlers[account.Code()].Init(account)
+		getAccountHandlers(account.Code()).Init(account)
 	})
 	theBackend.OnWalletUninit(func(account *btc.Account) {
-		theAccountHandlers[account.Code()].Uninit()
+		getAccountHandlers(account.Code()).Uninit()
 	})
 
 	deviceHandlersMap := map[string]*bitboxHandlers.Handlers{}
 	getDeviceHandlers := func(deviceID string) *bitboxHandlers.Handlers {
+		defer handlersMapLock.Lock()()
 		if _, ok := deviceHandlersMap[deviceID]; !ok {
 			deviceHandlersMap[deviceID] = bitboxHandlers.NewHandlers(getAPIRouter(
 				apiRouter.PathPrefix(fmt.Sprintf("/devices/%s", deviceID)).Subrouter(),
