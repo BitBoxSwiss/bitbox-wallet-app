@@ -38,16 +38,16 @@ export default class App extends Component {
                     break;
                 }
                 break;
-            // case 'device':
-            //     switch (data) {
-            //     case 'keystoreAvailable':
-            //         this.onWalletStatusChanged();
-            //         break;
-            //     case 'keystoreGone':
-            //         this.onWalletStatusChanged();
-            //         break;
-            //     }
-            //     break;
+            case 'device':
+                switch (data) {
+                case 'keystoreAvailable':
+                    this.onWalletStatusChanged();
+                    break;
+                case 'keystoreGone':
+                    this.onWalletStatusChanged();
+                    break;
+                }
+                break;
             case 'devices':
                 switch (data) {
                 case 'registeredChanged':
