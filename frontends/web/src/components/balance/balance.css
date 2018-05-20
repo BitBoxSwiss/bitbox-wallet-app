@@ -4,6 +4,7 @@
 
 .amount {
   font-size: var(--size-extra-large);
+  line-height: 1;
   margin: 0;
 }
 
