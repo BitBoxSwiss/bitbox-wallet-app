@@ -136,7 +136,8 @@ func (backend *Backend) addAccount(
 	if backend.arguments.Multisig() {
 		name = name + " Multisig"
 	}
-	account, err := coin.NewAccount(backend.arguments.CacheDirectoryPath(), code, name, getConfiguration, backend.keystores, onEvent(code))
+	account, err := btc.NewAccount(coin, backend.arguments.CacheDirectoryPath(), code, name,
+		getConfiguration, backend.keystores, onEvent(code), backend.log)
 	if err != nil {
 		return err
 	}

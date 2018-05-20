@@ -8,7 +8,6 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/signing"
 
-	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
 
@@ -53,7 +52,6 @@ type Account struct {
 	dbFolder         string
 	code             string
 	name             string
-	net              *chaincfg.Params
 	db               transactions.DBInterface
 	getConfiguration func() (*signing.Configuration, error)
 	configuration    *signing.Configuration
@@ -110,13 +108,13 @@ func NewAccount(
 	dbFolder string,
 	code string,
 	name string,
-	net *chaincfg.Params,
 	getConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
 	onEvent func(Event),
 	log *logrus.Entry,
 ) (*Account, error) {
-	log = log.WithField("group", "btc")
+	log = log.WithField("group", "btc").
+		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
 	log.Debug("Creating new account")
 
 	account := &Account{
@@ -124,7 +122,6 @@ func NewAccount(
 		dbFolder:         dbFolder,
 		code:             code,
 		name:             name,
-		net:              net,
 		getConfiguration: getConfiguration,
 		keystores:        keystores,
 
@@ -192,10 +189,13 @@ func (account *Account) Init() error {
 		}
 	})
 	account.transactions = transactions.NewTransactions(
-		account.net, account.db, account.headers, account.synchronizer, account.blockchain, account.log)
+		account.coin.Net(), account.db, account.headers, account.synchronizer,
+		account.blockchain, account.log)
 
-	account.receiveAddresses = addresses.NewAddressChain(account.configuration, account.net, gapLimit, 0, account.log)
-	account.changeAddresses = addresses.NewAddressChain(account.configuration, account.net, changeGapLimit, 1, account.log)
+	account.receiveAddresses = addresses.NewAddressChain(
+		account.configuration, account.coin.Net(), gapLimit, 0, account.log)
+	account.changeAddresses = addresses.NewAddressChain(
+		account.configuration, account.coin.Net(), changeGapLimit, 1, account.log)
 
 	account.ensureAddresses()
 	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})

@@ -157,9 +157,10 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 }
 
 type configurationEncoding struct {
-	Keypath   AbsoluteKeypath `json:"keypath"`
-	Threshold int             `json:"threshold"`
-	Xpubs     []string        `json:"xpubs"`
+	ScriptType string          `json:"scriptType"`
+	Keypath    AbsoluteKeypath `json:"keypath"`
+	Threshold  int             `json:"threshold"`
+	Xpubs      []string        `json:"xpubs"`
 }
 
 // MarshalJSON implements json.Marshaler.
@@ -170,9 +171,10 @@ func (configuration Configuration) MarshalJSON() ([]byte, error) {
 		xpubs[i] = configuration.extendedPublicKeys[i].String()
 	}
 	return json.Marshal(&configurationEncoding{
-		Keypath:   configuration.absoluteKeypath,
-		Threshold: configuration.signingThreshold,
-		Xpubs:     xpubs,
+		ScriptType: string(configuration.scriptType),
+		Keypath:    configuration.absoluteKeypath,
+		Threshold:  configuration.signingThreshold,
+		Xpubs:      xpubs,
 	})
 }
 
@@ -182,6 +184,7 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 	if err := json.Unmarshal(bytes, &encoding); err != nil {
 		return errp.Wrap(err, "Could not unmarshal a signing configuration.")
 	}
+	configuration.scriptType = ScriptType(encoding.ScriptType)
 	configuration.absoluteKeypath = encoding.Keypath
 	configuration.signingThreshold = encoding.Threshold
 	length := len(encoding.Xpubs)

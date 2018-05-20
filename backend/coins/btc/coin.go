@@ -10,8 +10,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
@@ -81,6 +79,11 @@ func NewCoin(name string, net *chaincfg.Params, electrumServer string, tls bool,
 	}
 }
 
+// Net returns the coin's network params.
+func (coin *Coin) Net() *chaincfg.Params {
+	return coin.net
+}
+
 // ElectrumClient returns the electrum client for the coin.
 func (coin *Coin) ElectrumClient() (blockchain.Interface, error) {
 	defer coin.electrumClientsLock.Lock()()
@@ -141,26 +144,6 @@ func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
 	return coin.headers[coin.net.Net], nil
 }
 
-// NewAccount returns a new account with the given parameters for the coin.
-func (coin *Coin) NewAccount(
-	dbFolder string,
-	code string,
-	name string,
-	getConfiguration func() (*signing.Configuration, error),
-	keystores keystore.Keystores,
-	onEvent func(Event),
-) (*Account, error) {
-	log := coin.log.WithFields(logrus.Fields{"coin": code, "name": name})
-
-	return NewAccount(
-		coin,
-		dbFolder,
-		code,
-		name,
-		coin.net,
-		getConfiguration,
-		keystores,
-		onEvent,
-		log,
-	)
+func (coin *Coin) String() string {
+	return coin.name
 }

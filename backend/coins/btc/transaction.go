@@ -47,11 +47,11 @@ func (account *Account) newTx(
 
 	account.log.Debug("Prepare new transaction")
 
-	address, err := btcutil.DecodeAddress(recipientAddress, account.net)
+	address, err := btcutil.DecodeAddress(recipientAddress, account.coin.Net())
 	if err != nil {
 		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
 	}
-	if !address.IsForNet(account.net) {
+	if !address.IsForNet(account.coin.Net()) {
 		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
 	}
 
