@@ -3,6 +3,7 @@
     padding: var(--spacing-half) var(--spacing-large);
     background-color: var(--color-white);
     position: relative;
+    overflow: hidden;
 }
 
 .transactionContainer:nth-child(odd) {
