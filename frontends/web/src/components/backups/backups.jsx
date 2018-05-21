@@ -76,7 +76,16 @@ export default class ManageBackups extends Component {
             <div class="content">
                 <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                     {
-                        backupList.map(backup => <BackupsListItem backup={backup} selectedBackup={selectedBackup} handleChange={this.handleBackuplistChange} onFocus={this.scrollIntoView} />)
+                        backupList.map(backup => {
+                            return (
+                                <BackupsListItem
+                                    backup={backup}
+                                    selectedBackup={selectedBackup}
+                                    handleChange={this.handleBackuplistChange}
+                                    onFocus={this.scrollIntoView}
+                                />
+                            );
+                        })
                     }
                 </div>
                 <div class="buttons">

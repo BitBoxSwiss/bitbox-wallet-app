@@ -19,10 +19,18 @@
 .text-right { text-align: right; }
 .text-small { font-size: var(--size-small); }
 .text-medium { font-size: var(--size-medium); }
+.text-medium + label {
+    font-size: var(--size-medium);
+    text-transform: none;
+}
 .text-bold { font-weight: bold; }
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-rock); }
+.text-black { color: var(--color-softblack); }
+.text-black + label {
+    color: var(--color-softblack);
+}
 
 .spaced > div:not(:last-child) {
     margin-right: var(--spacing-default);
@@ -47,7 +55,7 @@
     flex-grow: 1;
     width: 100%;
     min-height: calc(100% - var(--header-height));
-    padding: var(--spacing-large);
+    padding: var(--spacing-default) var(--spacing-large);
     margin: 0 auto;
     justify-content: flex-start;
 }

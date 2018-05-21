@@ -10,10 +10,6 @@
     position: relative;
 }
 
-.checkbox input.text-medium + label {
-    font-size: var(--size-medium);
-}
-
 .checkbox input + label::before,
 .checkbox input + label::after {
     background: rgb(255, 255, 255);

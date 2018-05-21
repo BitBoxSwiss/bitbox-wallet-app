@@ -2,8 +2,12 @@ import { h } from 'preact';
 import style from './radio.css';
 
 export default function Radio({
-    disabled, label, id,
-    children, ...props
+    disabled,
+    label,
+    id,
+    children,
+    className,
+    ...props,
 }) {
     return (
         <span className={style.radio}>
