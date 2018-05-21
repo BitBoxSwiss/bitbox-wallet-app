@@ -1,15 +1,42 @@
 .transactionContainer {
-  margin: 0 calc(var(--spacing-large) * -1);
-  padding: var(--spacing-half) var(--spacing-large);
-  background-color: var(--color-white);
+    margin: 0 calc(var(--spacing-large) * -1);
+    padding: var(--spacing-half) var(--spacing-large);
+    background-color: var(--color-white);
+    position: relative;
 }
 
 .transactionContainer:nth-child(odd) {
-  background-color: var(--color-lightgray);
+    background-color: var(--color-lightgray);
 }
 
-.transactionContainer:hover {
-  cursor: pointer;
+.transactionContainer.expanded {
+    padding: var(--spacing-large);
+}
+
+.toggleButton {
+    position: absolute;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    height: var(--spacing-default);
+    font-size: var(--size-small);
+    font-weight: bold;
+    line-height: var(--spacing-default);
+    color: var(--color-white);
+    text-align: center;
+    text-transform: uppercase;
+    background-color: var(--color-rock);
+    padding: 0 var(--spacing-default);
+    cursor: pointer;
+}
+
+.transactionContainer:hover .toggleButton,
+.transactionContainer.expanded .toggleButton {
+    bottom: 0;
+}
+
+.toggleButton:hover {
+    background-color: var(--color-secondary);
 }
 
 .transaction {

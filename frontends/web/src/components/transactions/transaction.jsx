@@ -21,7 +21,7 @@ export default class Transaction extends Component {
         this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
     }
 
-    parseTime = (time) => {
+    parseTime = time => {
         let arr;
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -49,66 +49,66 @@ export default class Transaction extends Component {
         // TODO: check if 'Time not yet available' is needed
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
-            <div
-                className={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}
-                onClick={this.onUncollapse}>
-                <div className={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.transaction].join(' ')}>
+            <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
+                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.transaction].join(' ')}>
                     {/*
                     <div>
                         <img src={transferIconMap[type]} height="22" style="margin-right: var(--spacing-default)" />
                     </div>
                     */}
-                    <div className="flex-1">
-                        <div className={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
-                            <div className="flex flex-row flex-start flex-items-center">
-                                <div className={[style.transactionLabel, style[type], style.flat].join(' ')}>
+                    <div class="flex-1">
+                        <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
+                            <div class="flex flex-row flex-start flex-items-center">
+                                <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
                                     {badge}
                                 </div>
-                                <div className={style.address}>{addresses}</div>
+                                <div class={style.address}>{addresses}</div>
                             </div>
-                            <div className={[style.amount, style[type]].join(' ')}>
+                            <div class={[style.amount, style[type]].join(' ')}>
                                 {sign} {amount}
                             </div>
                         </div>
-                        <div className={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
-                            <div className={style.date}>{date}</div>
-                            <div className={[style.amount, style.converted].join(' ')}>{fiat}</div>
+                        <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
+                            <div class={style.date}>{date}</div>
+                            <div class={[style.amount, style.converted].join(' ')}>{fiat}</div>
                         </div>
 
-                        <div hidden={collapsed ? 'hidden' : null} className={style.collapsedContent}>
-                            <div className={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row].join(' ')}>
+                        <div hidden={collapsed ? 'hidden' : null} class={style.collapsedContent}>
+                            <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row].join(' ')}>
                                 <div>
-                                    <div className={style.transactionLabel}>{t('transaction.confirmation')}</div>
-                                    <div className={style.address}>{numConfirmations}</div>
+                                    <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
+                                    <div class={style.address}>{numConfirmations}</div>
                                 </div>
                                 {
                                     fee && (
                                         <div>
-                                            <div className={style.transactionLabel}>{t('transaction.fee')}</div>
-                                            <div className={style.address}>{fee}</div>
+                                            <div class={style.transactionLabel}>{t('transaction.fee')}</div>
+                                            <div class={style.address}>{fee}</div>
                                         </div>
                                     )
                                 }
                                 {
                                     fiat_historical && (
                                         <div style="align-self: flex-end; margin-left: auto; text-align: right;">
-                                            <div className={style.transactionLabel} style="margin-right: 0;">
+                                            <div class={style.transactionLabel} style="margin-right: 0;">
                                               {t('transaction.fiatHistorical')}
                                             </div>
-                                            <div className={style.address}>{fiat_historical}</div>
+                                            <div class={style.address}>{fiat_historical}</div>
                                         </div>
                                     )
                                 }
                             </div>
-                            <div className={style.row}>
-                                <div className={style.transactionLabel}>{t('transaction.explorer')}</div>
-                                <div className={style.address}>
+                            <div class={style.row}>
+                                <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
+                                <div class={style.address}>
                                     <a href={ explorerURL + id } target="_blank">{id}</a>
                                 </div>
                             </div>
                         </div>
-
                     </div>
+                </div>
+                <div class={style.toggleButton} onClick={this.onUncollapse}>
+                    {collapsed ? "Expand" : "Collapse"}
                 </div>
             </div>
         );
