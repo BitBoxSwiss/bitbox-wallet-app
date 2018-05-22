@@ -14,16 +14,12 @@ import ejectIcon from '../../assets/icons/eject.svg';
 class Sidebar extends Component {
     state = {
         accounts: [],
-        emulated: true,
     }
 
     componentDidMount() {
         apiGet('wallets').then(accounts => {
             this.setState({ accounts });
         });
-        // if (debug) {
-        //     apiGet('device/info').then(({ name }) => this.setState({ emulated: name === 'Emulated BitBox' }));
-        // }
     }
 
     render({
@@ -31,7 +27,6 @@ class Sidebar extends Component {
         deviceIDs,
     }, {
         accounts,
-        emulated,
     }) {
         return (
             <nav className="sidebar">
@@ -41,7 +36,7 @@ class Sidebar extends Component {
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {
-                        (emulated && debug) && (
+                        (debug && deviceIDs.length == 0) && (
                             <a href="#" onClick={eject}>
                                 <img className="sidebar_settings" src={ejectIcon} />
                                 <span className="sidebar_label">{t('sidebar.leave')}</span>
