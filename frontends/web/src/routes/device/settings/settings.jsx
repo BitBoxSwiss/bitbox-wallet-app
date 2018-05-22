@@ -7,7 +7,6 @@ import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
-import Footer from '../../../components/footer/footer';
 
 @translate()
 export default class Settings extends Component {
@@ -50,9 +49,9 @@ export default class Settings extends Component {
                             <Blink deviceID={deviceID} />
                             <Reset deviceID={deviceID} />
                         </div>
-                        <Footer>
+                        <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
                             { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
-                        </Footer>
+                        </footer>
                     </div>
                 </div>
             </div>

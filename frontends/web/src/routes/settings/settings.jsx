@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { Button, Checkbox } from '../../components/forms';
+import Footer from '../../components/footer/footer';
 import Toast from '../../components/toast/Toast';
 
 @translate()
@@ -93,9 +94,10 @@ export default class Settings extends Component {
                             )
                         }
                     </div>
-                    <div class="content flex-none flex flex-row flex-end">
+                    <div class="content flex-none flex flex-row flex-end" style="margin-bottom: 16px;">
                         <Button primary onClick={this.save}>{t('button.save')}</Button>
                     </div>
+                    <Footer></Footer>
                 </div>
                 <Toast
                     trigger={toast}
