@@ -145,6 +145,7 @@ export default class Account extends Component {
         );
 
         if (!isReceive && !isSend) {
+            const noTransactions = (walletInitialized && transactions.length <= 0) ? 'isVerticallyCentered' : '';
             return (
                 <div class="container">
                     <div class="headerContainer fixed">
@@ -171,22 +172,20 @@ export default class Account extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class="innerContainer withFixedContent scrollableContainer">
+                    <div class={['innerContainer', 'withFixedContent', 'scrollableContainer', noTransactions].join(' ')}>
                         {connectionStatusContainer}
-                        <div class="">
-                            {
-                                !walletInitialized ? (
-                                    <div class="flex flex-row flex-center">
-                                        <p style="font-weight: bold;">{t('account.initializing')}</p>
-                                    </div>
-                                ) : (
-                                    <Transactions
-                                        explorerURL={wallet.blockExplorerTxPrefix}
-                                        transactions={transactions}
-                                    />
-                                )
-                            }
-                        </div>
+                        {
+                            !walletInitialized ? (
+                                <div class="flex flex-row flex-center">
+                                    <p style="font-weight: bold;">{t('account.initializing')}</p>
+                                </div>
+                            ) : (
+                                <Transactions
+                                    explorerURL={wallet.blockExplorerTxPrefix}
+                                    transactions={transactions}
+                                />
+                            )
+                        }
                     </div>
                 </div>
             );

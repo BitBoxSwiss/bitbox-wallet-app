@@ -11,7 +11,7 @@ export default function Transactions({ explorerURL, transactions }) {
                     <Transaction key={props.id} explorerURL={explorerURL} {...props} />
                 )) : (
                     <div class="flex flex-row flex-center">
-                        <p style="font-weight: bold;">
+                        <p class="text-bold text-gray">
                             {i18n.t('transactions.placeholder')}
                         </p>
                     </div>
