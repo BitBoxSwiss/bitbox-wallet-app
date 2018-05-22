@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../../utils/request';
 import { Button, Checkbox, Input, Label } from '../../../components/forms';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
 import componentStyle from '../../../components/style.css';
@@ -94,10 +95,12 @@ export default class Send extends Component {
 
     render({
         t,
+        wallet,
         walletCode,
         walletInitialized,
         unit,
         isConfirming,
+        balance,
     }, {
         proposedFee,
         recipientAddress,
@@ -114,6 +117,18 @@ export default class Send extends Component {
             <div class="container">
                 <div class="headerContainer">
                     <div class="header">
+                        <Balance name={wallet.name} balance={balance}>
+                            {
+                                balance && balance.hasIncoming && (
+                                    <h5 class={style.pendingBalance}>
+                                        {balance.incoming}
+                                        <span style="color: var(--color-light);">{balance.unit}</span>
+                                        {' '}
+                                        {t('account.incoming')}
+                                    </h5>
+                                )
+                            }
+                        </Balance>
                         <h2>{t('send.title')}</h2>
                     </div>
                 </div>

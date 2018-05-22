@@ -202,8 +202,10 @@ export default class Account extends Component {
                 <Send
                     isConfirming={isConfirming}
                     setConfirmation={state => this.setState(state)}
+                    wallet={wallet}
                     walletCode={wallet.code}
                     walletInitialized={walletInitialized}
+                    balance={balance}
                     unit={balance.unit}
                     onClose={() => this.setState({ isSend: false })}
                 />
