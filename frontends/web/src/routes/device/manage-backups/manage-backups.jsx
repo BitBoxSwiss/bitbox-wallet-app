@@ -4,6 +4,7 @@ import { ButtonLink } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 
 export default function ManageBackups({
+    disabled,
     deviceID,
     displayError,
 }) {
@@ -13,7 +14,7 @@ export default function ManageBackups({
                 <div class="header">
                     <h2>{i18n.t('backup.title')}</h2>
                     <div>
-                        <ButtonLink primary href={`/device/${deviceID}`}>
+                        <ButtonLink primary disabled={disabled} href={`/device/${deviceID}`}>
                             {i18n.t('button.back')}
                         </ButtonLink>
                     </div>

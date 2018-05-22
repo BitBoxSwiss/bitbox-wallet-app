@@ -12,11 +12,15 @@ import Footer from '../../../components/footer/footer';
 export default class Settings extends Component {
     state = {
         firmwareVersion: null,
+        lock: true,
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard }) => {
-            this.setState({ firmwareVersion: version.replace('v', '') });
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock }) => {
+            this.setState({
+                firmwareVersion: version.replace('v', ''),
+                locked: lock,
+            });
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });
     }
@@ -26,6 +30,7 @@ export default class Settings extends Component {
         deviceID,
     }, {
         firmwareVersion,
+        lock,
     }) {
         return (
             <div class="container">
@@ -37,8 +42,8 @@ export default class Settings extends Component {
                 <div class="innerContainer">
                     <div class="content flex flex-column flex-start">
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
-                            <ButtonLink primary href={`/manage-backups/${deviceID}`}>{t('device.manageBackups')}</ButtonLink>
-                            <MobilePairing deviceID={deviceID} />
+                            <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
+                            <MobilePairing deviceID={deviceID} disabled={lock}/>
                             <DeviceLock deviceID={deviceID} />
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                             <Reset deviceID={deviceID} />
