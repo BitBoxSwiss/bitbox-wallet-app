@@ -32,6 +32,7 @@ export default class Send extends Component {
                     amount: null,
                 });
             }
+            this.props.setConfirmation({ isConfirming: false });
         }).catch(() => {
             this.props.setConfirmation({ isConfirming: false });
         });
