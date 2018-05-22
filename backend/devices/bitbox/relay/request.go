@@ -3,7 +3,6 @@ package relay
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -54,7 +53,6 @@ func (request *request) encode() string {
 
 // send sends the request to the relay server and returns its response.
 func (request *request) send() (*response, error) {
-	fmt.Println("Sending:", request.encode())
 	httpResponse, err := http.Post(
 		string(request.server),
 		"application/x-www-form-urlencoded",

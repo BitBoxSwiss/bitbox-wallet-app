@@ -110,6 +110,8 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	if pin != "" {
 		if _, _, err := device.Login(pin); err != nil {
 			return errp.WithMessage(err, "Failed to unlock the BitBox with the provided PIN.")
+		} else {
+			manager.log.Info("Successfully unlocked the device with the PIN from the environment.")
 		}
 	}
 

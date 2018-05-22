@@ -335,7 +335,6 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
 	}
-	backend.uninitWallets()
 	backend.initWallets()
 	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
 }
@@ -354,7 +353,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.onDeviceInit(theDevice)
 	theDevice.Init(backend.Testing())
 
-	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreGone:
@@ -367,13 +365,9 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// }
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
-			if mainKeystore {
 
-				// HACK: for device based, only one is supported at the moment.
-				backend.keystores = keystore.NewKeystores()
-
-				backend.RegisterKeystore(theDevice.KeystoreForConfiguration(nil, 0))
-			}
+			backend.RegisterKeystore(
+				theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
 		}
 		backend.events <- deviceEvent{
 			DeviceID: theDevice.Identifier(),
@@ -396,9 +390,7 @@ func (backend *Backend) Deregister(deviceID string) {
 	if _, ok := backend.devices[deviceID]; ok {
 		delete(backend.devices, deviceID)
 		backend.onDeviceUninit(deviceID)
-		if len(backend.devices) == 0 {
-			backend.DeregisterKeystore()
-		}
+		backend.DeregisterKeystore()
 		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
 	}
 }
