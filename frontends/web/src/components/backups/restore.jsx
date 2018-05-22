@@ -103,7 +103,7 @@ export default class Restore extends Component {
                                             onValidPassword={this.setValidPassword}
                                         />
                                         <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                            <Button secondary onClick={this.abort}>
+                                            <Button secondary onClick={this.abort} disabled={isConfirming}>
                                                 {t('button.abort')}
                                             </Button>
                                             <Button type="submit" danger disabled={!this.validate() || isConfirming}>
