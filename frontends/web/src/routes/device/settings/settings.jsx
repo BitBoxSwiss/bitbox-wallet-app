@@ -41,12 +41,14 @@ export default class Settings extends Component {
                 </div>
                 <div class="innerContainer">
                     <div class="content flex flex-column flex-start">
-                        <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
+                    <div class={['flex', 'flex-row', 'flex-between'].join(' ')} style="margin-bottom: 20px;">
                             <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
                             <MobilePairing deviceID={deviceID} disabled={lock}/>
-                            <DeviceLock deviceID={deviceID} />
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                             <Blink deviceID={deviceID} />
+                        </div>
+                        <div class={['flex', 'flex-row', 'flex-between'].join(' ')}>
+                            <DeviceLock deviceID={deviceID} />
                             <Reset deviceID={deviceID} />
                         </div>
                         <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
