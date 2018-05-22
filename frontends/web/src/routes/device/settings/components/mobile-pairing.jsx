@@ -30,7 +30,7 @@ export default class MobilePairing extends Component {
     }) {
         return (
             <div>
-                <Button primary onClick={this.startPairing}>Pair with Mobile</Button>
+                <Button primary onClick={this.startPairing}>Connect Mobile App</Button>
                 <div class={['overlay', active ? 'active' : ''].join(' ')}>
                     <div class={['modal', active ? 'active' : ''].join(' ')}>
                         <h3 class="modalHeader">Scan with a Mobile Device</h3>
