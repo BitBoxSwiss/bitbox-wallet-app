@@ -106,7 +106,7 @@ export default class Restore extends Component {
                                             <Button secondary onClick={this.abort}>
                                                 {t('button.abort')}
                                             </Button>
-                                            <Button type="submit" danger disabled={!this.validate()}>
+                                            <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                                 {t('button.restore')}
                                             </Button>
                                         </div>
