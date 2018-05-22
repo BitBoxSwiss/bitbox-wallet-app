@@ -141,7 +141,7 @@ func (backend *Backend) addAccount(
 	backend.accounts = append(backend.accounts, account)
 }
 
-func (backend *Backend) initAccounts() error {
+func (backend *Backend) initAccounts() {
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
@@ -169,7 +169,6 @@ func (backend *Backend) initAccounts() error {
 			}
 		}(account)
 	}
-	return nil
 }
 
 // Config returns the app config.
@@ -283,9 +282,9 @@ func (backend *Backend) Start() <-chan interface{} {
 // 	}
 // }
 
-func (backend *Backend) initWallets() error {
+func (backend *Backend) initWallets() {
 	defer backend.accountsLock.Lock()()
-	return backend.initAccounts()
+	backend.initAccounts()
 	// wg := sync.WaitGroup{}
 	// backend.walletsSyncStart = time.Now()
 	// for _, wallet := range backend.wallets {
@@ -302,7 +301,6 @@ func (backend *Backend) initWallets() error {
 	// }
 	// wg.Wait()
 	// backend.log.Info("wallets init finished")
-	// return nil
 }
 
 // DevicesRegistered returns a slice of device IDs of registered devices.
@@ -338,9 +336,7 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 		return
 	}
 	backend.uninitWallets()
-	if err := backend.initWallets(); err != nil {
-		backend.log.Panic("Failed to initialize wallets.", err)
-	}
+	backend.initWallets()
 	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
 }
 

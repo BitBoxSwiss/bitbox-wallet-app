@@ -75,7 +75,8 @@ func NewAccountAddress(
 				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
 			}
 		case signing.ScriptTypeP2WPKHP2SH:
-			segwitAddress, err := btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
+			var segwitAddress *btcutil.AddressWitnessPubKeyHash
+			segwitAddress, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
 				log.WithField("error", err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
 			}

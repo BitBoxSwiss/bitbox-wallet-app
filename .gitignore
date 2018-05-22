@@ -2,6 +2,7 @@
 /backend/devices/bitbox/assets.go
 /cache
 /cmd/playground/
+/config.json
 /config/certificates/frontend/
 /frontends/qt/server/server.h
 /frontends/qt/server/server.a

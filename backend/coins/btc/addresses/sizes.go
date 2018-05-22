@@ -18,7 +18,7 @@ func SigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {
 		// 72 bytes of signature data (including SIGHASH op)
 		// ) <redeemScript>
 
-		// the redeemScript is prefixed with it's length. If its length is below OP_PUSHDATA1 (76),
+		// The redeemScript is prefixed with its length. If its length is below OP_PUSHDATA1 (76),
 		// 1 byte is used. If it's below 0xff, 2 bytes are needed. For longer multisig
 		// redeemScripts, 3 bytes are needed.
 		redeemScriptLenSize := 1
@@ -46,7 +46,6 @@ func SigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {
 	case signing.ScriptTypeP2WPKH:
 		return 0, true // hooray
 	default:
-		// TODO: multisig
 		panic("unknown address type")
 	}
 }
