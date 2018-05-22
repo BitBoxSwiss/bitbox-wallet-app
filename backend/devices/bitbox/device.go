@@ -76,6 +76,7 @@ type Interface interface {
 	SetPassword(string) error
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
+	Blink() error
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
 	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
@@ -606,7 +607,7 @@ func (dbb *Device) Blink() error {
 		return errp.WithStack(errNoBootloader)
 	}
 	dbb.log.Info("Blink")
-	_, err := dbb.sendKV("led", "abort", dbb.pin)
+	_, err := dbb.sendKV("led", "blink", dbb.pin)
 	return errp.WithMessage(err, "Failed to blink")
 }
 

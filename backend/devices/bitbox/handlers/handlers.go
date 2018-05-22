@@ -30,6 +30,7 @@ func NewHandlers(
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
+	handleFunc("/blink", handlers.postBlinkDeviceHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetDeviceHandler).Methods("POST")
 	handleFunc("/login", handlers.postLoginHandler).Methods("POST")
 	handleFunc("/lock-bootloader", handlers.postLockBootloaderHandler).Methods("POST")
@@ -196,12 +197,21 @@ func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{},
 	return handlers.device.StartPairing()
 }
 
+func (handlers *Handlers) postBlinkDeviceHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Blink")
+	err := handlers.device.Blink()
+	if err != nil {
+		return nil, err
+	}
+	return true, nil
+}
+
 func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Reset")
 	didReset, err := handlers.device.Reset()
 	if err != nil {
 		return nil, err
 	}
-	handlers.log.Debug("Reset")
 	return map[string]interface{}{"didReset": didReset}, nil
 }
 

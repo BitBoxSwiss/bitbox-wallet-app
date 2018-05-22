@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { ButtonLink } from '../../../components/forms';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
+import Blink from './components/blink';
 import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
@@ -46,6 +47,7 @@ export default class Settings extends Component {
                             <MobilePairing deviceID={deviceID} disabled={lock}/>
                             <DeviceLock deviceID={deviceID} />
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                            <Blink deviceID={deviceID} />
                             <Reset deviceID={deviceID} />
                         </div>
                         <Footer>
