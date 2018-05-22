@@ -46,10 +46,12 @@ const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged device.Event = "statusChanged"
 
-	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status using BootloaderStatus().
+	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status
+	// using BootloaderStatus().
 	EventBootloaderStatusChanged device.Event = "bootloaderStatusChanged"
 
-	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch (with one long-touch).
+	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch
+	// (with one long-touch).
 	signatureBatchSize = 15
 
 	// ProductName is the name of the bitbox.
@@ -89,6 +91,7 @@ type Interface interface {
 	ECDHPK(string) (interface{}, error)
 	ECDHchallenge() error
 	StartPairing() (*relay.Channel, error)
+	Lock() (bool, error)
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -853,8 +856,11 @@ func (dbb *Device) signBatch(
 			return nil, errp.New("Signing failed because the device is locked but not paired.")
 		}
 		nonce, err = dbb.channel.WaitForSigningPin(2 * time.Minute)
+		if err != nil {
+			return nil, errp.WithMessage(err, "waiting for signing pin failed")
+		}
 		if nonce == "abort" {
-			return nil, errp.WithMessage(err, "The user aborted the signing from the mobile.")
+			return nil, errp.WithStack(NewError("Aborted from mobile", ErrTouchAbort))
 		}
 	}
 
@@ -1068,4 +1074,23 @@ func (dbb *Device) KeystoreForConfiguration(
 		cosignerIndex: cosignerIndex,
 		log:           dbb.log,
 	}
+}
+
+// Lock locks the device for full 2FA. Returns true if successful and false if aborted by the user.
+func (dbb *Device) Lock() (bool, error) {
+	reply, err := dbb.sendKV("device", "lock", dbb.pin)
+	if IsErrorAbort(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, errp.WithMessage(err, "Failed to lock the device")
+	}
+	replyDevice, ok := reply["device"].(map[string]interface{})
+	if !ok {
+		return false, errp.New("unexpected reply")
+	}
+	if replyLock, ok := replyDevice["lock"].(bool); !ok || !replyLock {
+		return false, errp.New("unexpected reply")
+	}
+	return true, nil
 }

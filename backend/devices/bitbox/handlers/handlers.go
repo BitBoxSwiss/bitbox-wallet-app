@@ -40,6 +40,7 @@ func NewHandlers(
 	handleFunc("/pairing/start", handlers.postPairingStartHandler).Methods("POST")
 	handleFunc("/bootloader/upgrade-firmware",
 		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
+	handleFunc("/lock", handlers.postLockHandler).Methods("POST")
 	return handlers
 }
 
@@ -206,4 +207,8 @@ func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, 
 
 func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
+}
+
+func (handlers *Handlers) postLockHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.Lock()
 }

@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
+import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
 import Footer from '../../../components/footer/footer';
 
@@ -38,6 +39,7 @@ export default class Settings extends Component {
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-1'].join(' ')}>
                             <ButtonLink primary href={`/manage-backups/${deviceID}`}>{t('device.manageBackups')}</ButtonLink>
                             <MobilePairing deviceID={deviceID} />
+                            <DeviceLock deviceID={deviceID} />
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                             <Reset deviceID={deviceID} />
                         </div>
