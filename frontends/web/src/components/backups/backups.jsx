@@ -73,27 +73,30 @@ export default class ManageBackups extends Component {
         }
 
         return (
-            <div class="content">
-                <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
-                    {
-                        backupList.map(backup => {
-                            return (
-                                <BackupsListItem
-                                    backup={backup}
-                                    selectedBackup={selectedBackup}
-                                    handleChange={this.handleBackuplistChange}
-                                    onFocus={this.scrollIntoView}
-                                />
-                            );
-                        })
-                    }
+            <div class="innerContainer withFixedContent">
+                <div class="content">
+                    <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
+                        {
+                            backupList.map(backup => {
+                                return (
+                                    <BackupsListItem
+                                        backup={backup}
+                                        selectedBackup={selectedBackup}
+                                        handleChange={this.handleBackuplistChange}
+                                        onFocus={this.scrollIntoView}
+                                    />
+                                );
+                            })
+                        }
+                    </div>
                 </div>
-                <div class="buttons">
+                <div class="buttons flex flex-row flex-end">
                     <Restore
                         selectedBackup={selectedBackup}
                         displayError={this.displayError}
                         deviceID={deviceID}
-                        requireConfirmation={requireConfirmation} />
+                        requireConfirmation={requireConfirmation}
+                    />
                     {/*
                         <Erase
                             selectedBackup={selectedBackup}
@@ -101,7 +104,6 @@ export default class ManageBackups extends Component {
                             deviceID={deviceID}
                         />
                     */}
-                    {' '}
                     {
                         showCreate && (
                             <Create onCreate={this.refresh} deviceID={deviceID} />

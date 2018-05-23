@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
+import WaitDialog from '../wait-dialog/wait-dialog';
 import Confirm from '../confirm/confirm';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
@@ -23,8 +24,10 @@ export default class Restore extends Component {
     }
 
     handleKeyDown = e => {
-        if (e.keyCode === 27) {
+        if (e.keyCode === 27 && !this.state.isConfirming) {
             this.abort();
+        } else {
+            return;
         }
     }
 
@@ -47,10 +50,11 @@ export default class Restore extends Component {
         return this.props.selectedBackup && this.state.password;
     }
 
-    restore = (event) => {
+    restore = event => {
         event.preventDefault();
         if (!this.validate()) return;
         this.setState({
+            activeDialog: false,
             isConfirming: true,
         });
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
@@ -87,14 +91,12 @@ export default class Restore extends Component {
                     onclick={() => this.setState({ activeDialog: true })}>
                     {t('button.restore')}
                 </Button>
-                { activeDialog ? (
-                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                            <h3 class="modalHeader">{t('backup.restore.title')} {selectedBackup}</h3>
-                            <div class="modalContent">
-                                <Confirm
-                                    active={isConfirming && requireConfirmation}
-                                    title={t('backup.restore.confirmTitle')}>
+                {
+                    activeDialog && (
+                        <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
+                            <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
+                                <h3 class="modalHeader">{t('backup.restore.title')} {selectedBackup}</h3>
+                                <div class="modalContent">
                                     <form onSubmit={this.restore}>
                                         <PasswordRepeatInput
                                             ref={ref => this.passwordInput = ref}
@@ -111,11 +113,16 @@ export default class Restore extends Component {
                                             </Button>
                                         </div>
                                     </form>
-                                </Confirm>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ) : null }
+                    )
+                }
+                {
+                    (isConfirming && requireConfirmation) && (
+                        <WaitDialog title={t('backup.restore.confirmTitle')} />
+                    )
+                }
             </span>
         );
     }

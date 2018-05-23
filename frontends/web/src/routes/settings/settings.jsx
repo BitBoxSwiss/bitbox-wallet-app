@@ -99,12 +99,15 @@ export default class Settings extends Component {
                     </div>
                     <Footer></Footer>
                 </div>
-                <Toast
-                    trigger={toast}
-                    theme="success"
-                    message="Settings saved. Please restart the application for the changes to take effect."
-                    onHide={() => this.setState({ toast: false })}
-                />
+                {
+                    toast && (
+                        <Toast
+                            theme="success"
+                            message="Settings saved. Please restart the application for the changes to take effect."
+                            onHide={() => this.setState({ toast: false })}
+                        />
+                    )
+                }
             </div>
         );
     }

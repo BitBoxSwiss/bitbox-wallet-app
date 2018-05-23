@@ -44,10 +44,14 @@ export default class Reset extends Component {
                         </div>
                     </div>
                 </div>
-                <WaitDialog
-                    active={isConfirming}
-                    title="Reset Device"
-                />
+                {
+                    isConfirming && (
+                        <WaitDialog
+                            active={isConfirming}
+                            title="Reset Device"
+                        />
+                    )
+                }
             </div>
         );
     }

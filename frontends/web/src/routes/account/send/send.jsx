@@ -129,11 +129,17 @@ export default class Send extends Component {
                                 )
                             }
                         </Balance>
-                        <h2>{t('send.title')}</h2>
                     </div>
                 </div>
                 <div class="innerContainer">
                     <div class="content">
+                        <div class="row">
+                            <div class="subHeaderContainer">
+                                <div class="subHeader">
+                                    <h3>{t('send.title')}</h3>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <Input
                                 label={t('send.address.label')}
@@ -142,7 +148,8 @@ export default class Send extends Component {
                                 onInput={this.handleFormChange}
                                 onChange={this.validateAndDisplayFee}
                                 value={recipientAddress}
-                                autofocus />
+                                autofocus
+                            />
                         </div>
                         <div class="row">
                             <div class="flex flex-row flex-between flex-items-center">
@@ -151,7 +158,8 @@ export default class Send extends Component {
                                     label={t('send.maximum')}
                                     id="sendAll"
                                     onChange={this.sendAll}
-                                    checked={sendAll} />
+                                    checked={sendAll}
+                                />
                             </div>
                             <Input
                                 id="amount"
@@ -159,7 +167,8 @@ export default class Send extends Component {
                                 onChange={this.validateAndDisplayFee}
                                 disabled={sendAll}
                                 value={sendAll ? proposedAmount : amount}
-                                placeholder={t('send.amount.placeholder')} />
+                                placeholder={t('send.amount.placeholder')}
+                            />
                         </div>
                         <div class="row">
                             <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
@@ -194,43 +203,48 @@ export default class Send extends Component {
                             {t('button.send')}
                         </Button>
                     </div>
-                    <WaitDialog
-                        active={isConfirming}
-                        title="Confirm Transaction">
-                        <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
-                        <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
-                            <div class="flex flex-column flex-center flex-items-center">
-                                <div class={style.shortTouch}></div>
-                                <p class="text-bold">Tap to <span class="text-red">abort</span></p>
-                            </div>
-                            <div class="flex flex-column flex-center flex-items-center">
-                                <div class={style.longTouch}></div>
-                                <p class="text-bold">Hold 3+ secs to <span class="text-green">confirm</span></p>
-                            </div>
-                        </div>
-                        <div class={style.confirmationBox}>
-                            <p class={['label', style.confirmationLabel].join(' ')}>Address</p>
-                            <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
-                            <div class="flex flex-row flex-start has-gutter">
-                                <div>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
-                                    <p class={style.confirmationValue}>{amount || 'N/A'} {unit}</p>
+                    {
+                        isConfirming && (
+                            <WaitDialog title="Confirm Transaction">
+                                <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
+                                <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
+                                    <div class="flex flex-column flex-center flex-items-center">
+                                        <div class={style.shortTouch}></div>
+                                        <p class="text-bold">Tap to <span class="text-red">abort</span></p>
+                                    </div>
+                                    <div class="flex flex-column flex-center flex-items-center">
+                                        <div class={style.longTouch}></div>
+                                        <p class="text-bold">Hold 3+ secs to <span class="text-green">confirm</span></p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
-                                    <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
+                                <div class={style.confirmationBox}>
+                                    <p class={['label', style.confirmationLabel].join(' ')}>Address</p>
+                                    <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
+                                    <div class="flex flex-row flex-start has-gutter">
+                                        <div>
+                                            <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
+                                            <p class={style.confirmationValue}>{amount || 'N/A'} {unit}</p>
+                                        </div>
+                                        <div>
+                                            <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
+                                            <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
+                                        </div>
+                                    </div>
+                                    <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
+                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{totalAmount || 'N/A'} {unit}</p>
                                 </div>
-                            </div>
-                            <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                            <p class={[style.confirmationValue, style.standOut].join(' ')}>{totalAmount || 'N/A'} {unit}</p>
-                        </div>
-                    </WaitDialog>
-                    <Toast
-                        trigger={isSent}
-                        theme="success"
-                        message="Your transaction was successful."
-                        onHide={() => this.setState({ isSent: false })}
-                    />
+                            </WaitDialog>
+                        )
+                    }
+                    {
+                        isSent && (
+                            <Toast
+                                theme="success"
+                                message="Your transaction was successful."
+                                onHide={() => this.setState({ isSent: false })}
+                            />
+                        )
+                    }
                 </div>
             </div>
         );

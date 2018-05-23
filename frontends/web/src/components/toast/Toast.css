@@ -1,7 +1,8 @@
 .toast {
   position: fixed;
+  display: block;
   top: var(--spacing-half);
-  right: var(--spacing-half);
+  right: -100%;
   min-width: 180px;
   min-height: 20px;
   border-radius: 2px;
@@ -11,11 +12,7 @@
 }
 
 .active {
-  display: block;
-}
-
-.disabled {
-  display: none;
+  right: var(--spacing-default);
 }
 
 .success {

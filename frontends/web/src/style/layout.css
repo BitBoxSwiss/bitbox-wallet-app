@@ -57,7 +57,7 @@
     flex-grow: 1;
     width: 100%;
     min-height: calc(100% - var(--header-height));
-    padding: var(--spacing-default) var(--spacing-large);
+    padding: var(--spacing-large) var(--spacing-large) var(--spacing-default) var(--spacing-large);
     margin: 0 auto;
     justify-content: flex-start;
 }
@@ -133,7 +133,7 @@
     margin-top: 0;
 }
 
-.content .row:not(:first-child) {
+.row:not(:first-child) {
     margin-top: var(--spacing-default);
 }
 

@@ -66,17 +66,19 @@ export default class UpgradeFirmware extends Component {
                         </div>
                     </div>
                 </div>
-                <WaitDialog
-                    active={isConfirming}
-                    title="Upgrade Firmware">
-                    {
-                        unlocked ? (
-                            <p>The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.</p>
-                        ) : (
-                            <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>
-                        )
-                    }
-                </WaitDialog>
+                {
+                    isConfirming && (
+                        <WaitDialog title="Upgrade Firmware">
+                            {
+                                unlocked ? (
+                                    <p>The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.</p>
+                                ) : (
+                                    <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>
+                                )
+                            }
+                        </WaitDialog>
+                    )
+                }
             </div>
         );
     }

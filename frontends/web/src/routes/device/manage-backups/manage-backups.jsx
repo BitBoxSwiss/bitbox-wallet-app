@@ -20,12 +20,10 @@ export default function ManageBackups({
                     </div>
                 </div>
             </div>
-            <div class="innerContainer withFixedContent">
-                <Backups
-                    deviceID={deviceID}
-                    showCreate={true}
-                    displayError={displayError} />
-            </div>
+            <Backups
+                deviceID={deviceID}
+                showCreate={true}
+                displayError={displayError} />
         </div>
     );
 }
