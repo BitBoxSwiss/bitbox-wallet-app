@@ -21,9 +21,9 @@ type Keystores interface {
 	// HaveSecureOutput returns whether any of the keystores has a secure output.
 	HaveSecureOutput() bool
 
-	// OutputAddress outputs the address for the given coin at the given keypath on all keystores
-	// that have a secure output.
-	OutputAddress(signing.AbsoluteKeypath, coin.Coin) error
+	// OutputAddress outputs the address for the given coin with the given configuration on all
+	// keystores that have a secure output.
+	OutputAddress(*signing.Configuration, coin.Coin) error
 
 	// SignTransaction signs the given proposed transaction on all keystores.
 	SignTransaction(coin.ProposedTransaction) error
@@ -85,13 +85,14 @@ func (keystores *implementation) HaveSecureOutput() bool {
 
 // OutputAddress implements the above interface.
 func (keystores *implementation) OutputAddress(
-	keypath signing.AbsoluteKeypath,
+	configuration *signing.Configuration,
 	coin coin.Coin,
 ) error {
+	keypath := configuration.AbsoluteKeypath()
 	found := false
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput() {
-			if err := keystore.OutputAddress(keypath, coin); err != nil {
+		if keystore.HasSecureOutput() && configuration.Singlesig() {
+			if err := keystore.OutputAddress(keypath, configuration.ScriptType(), coin); err != nil {
 				return err
 			}
 			found = true

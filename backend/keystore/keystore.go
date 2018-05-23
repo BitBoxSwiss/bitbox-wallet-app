@@ -26,7 +26,7 @@ type Keystore interface {
 
 	// OutputAddress outputs the public key at the given absolute keypath for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	OutputAddress(signing.AbsoluteKeypath, coin.Coin) error
+	OutputAddress(signing.AbsoluteKeypath, signing.ScriptType, coin.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)

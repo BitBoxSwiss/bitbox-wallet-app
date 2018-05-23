@@ -31,6 +31,7 @@ const (
 // Interface is the API of a Account.
 type Interface interface {
 	Code() string
+	Coin() *Coin
 	Init() error
 	Initialized() bool
 	Close()
@@ -150,9 +151,14 @@ func NewAccount(
 	return account
 }
 
-// Code returns the coe of the account.
+// Code returns the code of the account.
 func (account *Account) Code() string {
 	return account.code
+}
+
+// Coin returns the coin of the account.
+func (account *Account) Coin() *Coin {
+	return account.coin
 }
 
 // Init initializes the acconut.

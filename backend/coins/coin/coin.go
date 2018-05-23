@@ -5,8 +5,8 @@ type Coin interface {
 	// Code returns the acronym of the currency in lowercase.
 	// Code() string
 
-	// // Name returns the written-out name of the coin.
-	// Name() string
+	// Name returns the written-out name of the coin.
+	Name() string
 
 	// // Type returns the coin type according to BIP44:
 	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
@@ -67,9 +67,10 @@ func NewCoin(
 // 	return coin.code
 // }
 
-// func (coin *Coin) Name() string {
-// 	return coin.name
-// }
+// Name returns the coin name.
+func (coin *implementation) Name() string {
+	return coin.name
+}
 
 // func (coin *Coin) Type() uint32 {
 // 	return coin.coinType

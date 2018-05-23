@@ -79,6 +79,11 @@ func NewCoin(name string, net *chaincfg.Params, electrumServer string, tls bool,
 	}
 }
 
+// Name returns the coin's name.
+func (coin *Coin) Name() string {
+	return coin.name
+}
+
 // Net returns the coin's network params.
 func (coin *Coin) Net() *chaincfg.Params {
 	return coin.net

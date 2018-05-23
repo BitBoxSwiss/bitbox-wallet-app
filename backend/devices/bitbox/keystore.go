@@ -1,6 +1,8 @@
 package bitbox
 
 import (
+	"fmt"
+
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
@@ -42,11 +44,12 @@ func (keystore *keystore) HasSecureOutput() bool {
 }
 
 // OutputAddress implements keystore.Keystore.
-func (keystore *keystore) OutputAddress(keyPath signing.AbsoluteKeypath, _ coin.Coin) error {
+func (keystore *keystore) OutputAddress(
+	keyPath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Coin) error {
 	if !keystore.HasSecureOutput() {
 		panic("HasSecureOutput must be true")
 	}
-	return keystore.dbb.DisplayAddress(keyPath.Encode())
+	return keystore.dbb.DisplayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Name(), string(scriptType)))
 }
 
 // ExtendedPublicKey implements keystore.Keystore.

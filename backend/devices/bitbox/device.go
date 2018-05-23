@@ -87,7 +87,7 @@ type Interface interface {
 	CreateBackup(string, string) error
 	BackupList() ([]string, error)
 	BootloaderUpgradeFirmware([]byte) error
-	DisplayAddress(keyPath string) error
+	DisplayAddress(keyPath string, typ string) error
 	ECDHPKhash(string) (interface{}, error)
 	ECDHPK(string) (interface{}, error)
 	ECDHchallenge() error
@@ -842,8 +842,10 @@ func (dbb *Device) signBatch(
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
-		if err = dbb.channel.SendSigningEcho(signingEcho, transaction); err != nil {
-			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
+		if txProposal.AccountConfiguration.Singlesig() {
+			if err = dbb.channel.SendSigningEcho(signingEcho, txProposal.Coin.Name(), string(txProposal.AccountConfiguration.ScriptType()), transaction); err != nil {
+				return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
+			}
 		}
 	}
 
@@ -957,7 +959,7 @@ func (dbb *Device) Sign(
 }
 
 // DisplayAddress triggers the display of the address at the given key path.
-func (dbb *Device) DisplayAddress(keyPath string) error {
+func (dbb *Device) DisplayAddress(keyPath string, typ string) error {
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)
 	}
@@ -975,7 +977,7 @@ func (dbb *Device) DisplayAddress(keyPath string) error {
 		dbb.log.Error("The echo from the BitBox to display the address is not a string.")
 		return nil
 	}
-	if err := dbb.channel.SendXpubEcho(xpubEcho); err != nil {
+	if err := dbb.channel.SendXpubEcho(xpubEcho, typ); err != nil {
 		dbb.log.WithField("error", err).Error("Sending the xpub echo to the mobile failed.")
 		return nil
 	}

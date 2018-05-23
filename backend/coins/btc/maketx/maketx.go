@@ -7,6 +7,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
+	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
@@ -14,6 +15,9 @@ import (
 
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
+	// Coin is the coin this tx was made for.
+	Coin                 coin.Coin
+	AccountConfiguration *signing.Configuration
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
 	// Fee is the mining fee used.
@@ -63,6 +67,7 @@ func coinSelection(
 
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
+	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
@@ -95,15 +100,18 @@ func NewTxSpendAll(
 	txsort.InPlaceSort(unsignedTransaction)
 	log.WithField("fee", maxRequiredFee).Debug("Preparing transaction to spend all outputs")
 	return &TxProposal{
-		Amount:      btcutil.Amount(output.Value),
-		Fee:         maxRequiredFee,
-		Transaction: unsignedTransaction,
+		Coin:                 coin,
+		AccountConfiguration: inputConfiguration,
+		Amount:               btcutil.Amount(output.Value),
+		Fee:                  maxRequiredFee,
+		Transaction:          unsignedTransaction,
 	}, nil
 }
 
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
 // the unspent outputs is selected to cover the needed amount. A change output is added if needed.
 func NewTx(
+	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,
@@ -161,10 +169,12 @@ func NewTx(
 		txsort.InPlaceSort(unsignedTransaction)
 		log.WithField("fee", finalFee).Debug("Preparing transaction")
 		return &TxProposal{
-			Amount:        targetAmount,
-			Fee:           finalFee,
-			Transaction:   unsignedTransaction,
-			ChangeAddress: changeAddress,
+			Coin:                 coin,
+			AccountConfiguration: inputConfiguration,
+			Amount:               targetAmount,
+			Fee:                  finalFee,
+			Transaction:          unsignedTransaction,
+			ChangeAddress:        changeAddress,
 		}, nil
 	}
 }

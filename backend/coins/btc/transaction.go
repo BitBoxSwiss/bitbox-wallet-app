@@ -78,6 +78,7 @@ func (account *Account) newTx(
 	var txProposal *maketx.TxProposal
 	if amount.sendAll {
 		txProposal, err = maketx.NewTxSpendAll(
+			account.coin,
 			account.configuration,
 			wireUTXO,
 			pkScript,
@@ -89,6 +90,7 @@ func (account *Account) newTx(
 		}
 	} else {
 		txProposal, err = maketx.NewTx(
+			account.coin,
 			account.configuration,
 			wireUTXO,
 			wire.NewTxOut(int64(amount.amount), pkScript),

@@ -198,18 +198,20 @@ func (channel *Channel) SendClear() error {
 }
 
 // SendXpubEcho sends the encrypted xpub echo from the BitBox to the paired mobile.
-func (channel *Channel) SendXpubEcho(xpubEcho string) error {
+func (channel *Channel) SendXpubEcho(xpubEcho string, typ string) error {
 	return PushMessage(relayServer(), channel, map[string]string{
 		"echo": xpubEcho,
-		"type": "p2pkh",
+		"type": typ,
 	})
 }
 
 // SendSigningEcho sends the encrypted signing echo from the BitBox to the paired mobile.
-func (channel *Channel) SendSigningEcho(signingEcho string, transaction string) error {
+func (channel *Channel) SendSigningEcho(signingEcho string, coin string, scriptType string, transaction string) error {
 	return PushMessage(relayServer(), channel, map[string]string{
-		"echo": signingEcho,
-		"tx":   transaction,
+		"echo":               signingEcho,
+		"coin":               coin,
+		"inputAndChangeType": scriptType,
+		"tx":                 transaction,
 	})
 }
 

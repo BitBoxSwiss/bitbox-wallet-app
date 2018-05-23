@@ -74,7 +74,7 @@ func (keystore *Keystore) HasSecureOutput() bool {
 }
 
 // OutputAddress implements keystore.Keystore.
-func (keystore *Keystore) OutputAddress(signing.AbsoluteKeypath, coin.Coin) error {
+func (keystore *Keystore) OutputAddress(signing.AbsoluteKeypath, signing.ScriptType, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
