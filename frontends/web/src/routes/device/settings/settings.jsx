@@ -19,7 +19,7 @@ export default class Settings extends Component {
         apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
-                locked: lock,
+                lock: lock,
             });
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });

@@ -8,6 +8,7 @@ export function ButtonLink({
     transparent,
     danger,
     children,
+    disabled,
     ...props
 }) {
     const className = primary && 'primary'
@@ -15,7 +16,17 @@ export function ButtonLink({
         || transparent && 'transparent'
         || danger && 'danger'
         || 'secondary';
-
+    if (disabled) {
+        return <Button
+        primary={primary}
+        secondary={secondary}
+        transparent={transparent}
+        danger={danger}
+        children={children}
+        disabled={disabled}
+        {...props}
+            />;
+    }
     return (
         <Link className={style[className]} {...props}>
             {children}
