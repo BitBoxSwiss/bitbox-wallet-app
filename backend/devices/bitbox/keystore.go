@@ -96,11 +96,9 @@ func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) e
 
 		signatureHashes = append(signatureHashes, signatureHash)
 		keyPaths = append(keyPaths, address.Configuration.AbsoluteKeypath().Encode())
-	}
 
-	// Special serialization of the unsigned transaction for the mobile verification app.
-	for _, txIn := range transaction.TxIn {
-		txIn.SignatureScript = btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint].PkScript
+		// Special serialization of the unsigned transaction for the mobile verification app.
+		txIn.SignatureScript = subScript
 	}
 
 	signatures, err := keystore.dbb.Sign(btcProposedTx.TXProposal, signatureHashes, keyPaths)
