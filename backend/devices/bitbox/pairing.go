@@ -71,7 +71,6 @@ func finishPairing(device *Device) {
 		return
 	}
 	device.log.Debug("Waiting for challenge command")
-	var errDevice error
 	challenge, err := device.channel.WaitForCommand(2 * time.Minute)
 	for err == nil && challenge == "challenge" {
 		device.log.Debug("Forwarded challenge cmd to device")

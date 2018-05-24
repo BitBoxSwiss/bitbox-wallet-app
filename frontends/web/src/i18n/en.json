@@ -62,6 +62,33 @@
         "title": "Reset Device",
         "description": "Resetting the device means"
     },
+    "pairing": {
+        "button": "Connect Mobile App",
+        "start": {
+            "title": "Scan with a Mobile Device"
+        },
+        "started": {
+            "title": "Great",
+            "text": "Now please follow the instructions in the app"
+        },
+        "timeout": {
+            "title": "Timeout",
+            "text": "too slow"
+        },
+        "aborted": {
+            "title": "Aborted",
+            "text": "The pairing was aborted"
+        },
+        "error": {
+            "title": "Error",
+            "text": "The was an error"
+        },
+        "success": {
+            "title": "Success",
+            "text": "The device is successfully paired"
+        }
+
+    },
     "settings": {
         "title": "Settings"
     },
