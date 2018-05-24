@@ -46,7 +46,7 @@ export default class ReceiveButton extends Component {
                         </div>
                     </div>
                     <div class="flex flex-row flex-end">
-                        <Button primary onClick={this.props.onClose}>{t('cancel')}</Button>
+                        <Button secondary onClick={this.props.onClose}>{t('cancel')}</Button>
                     </div>
                 </div>
             </div>
