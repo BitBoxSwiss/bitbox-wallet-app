@@ -6,10 +6,10 @@
     "Login": "Einloggen",
     "unlock": {
         "unlocking": "Wird entsperrt…",
-            "input": {
-                "label": "PIN",
-                "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
-            },
+        "input": {
+            "label": "PIN",
+            "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
+        },
         "error": {
             "113": "Aufgrund zu vieler Login Versuche musst du beim nächsten Login den Touch-button für 3 Sekunden gedrückt halten.",
             "109_normal": "Falsches Password. Noch {{remainingAttempts}} Versuche bis sich dein Gerät auf Werkseinstellungen zurücksetzt.",
