@@ -37,8 +37,10 @@
 }
 
 .app {
-  display: flex;
-  flex: 1 1 auto;
+    background-color: rgba(255, 255, 255, .5);
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 100vh;
 }
 
 .container {

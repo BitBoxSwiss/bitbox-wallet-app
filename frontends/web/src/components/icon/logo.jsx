@@ -5,8 +5,8 @@ import LTC from '../../assets/icons/litecoin.svg';
 import BitBoxLogo from '../../assets/icons/bitbox-logo.svg';
 import ShiftLogo from '../../assets/icons/shift-cryptosecurity-logo.svg';
 
-export const BitBox = <img src={BitBoxLogo} alt="BitBox" className={style.logo} />;
-export const Shift = <img src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
+export const BitBox = props => <img {...props} src={BitBoxLogo} alt="BitBox" className={style.logo} />;
+export const Shift = props => <img {...props} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
 
 const logoMap = {
     btc: BTC,

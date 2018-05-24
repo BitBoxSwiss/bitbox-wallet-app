@@ -3,7 +3,7 @@ import i18n from '../../i18n/i18n';
 import Transaction from './transaction';
 
 export default function Transactions({ explorerURL, transactions }) {
-    console.table(transactions);
+    // console.table(transactions);
     return (
         <div>
             {

@@ -11,7 +11,7 @@ import style from './device.css';
 export default function Waiting({ testing }) {
     return (
         <div className={style.container}>
-            {BitBox}
+            <BitBox />
             <div className={style.content}>
                 <h3 style="text-align: center;">{i18n.t('device.waiting')}</h3>
                 <SkipForTestingButton show={debug && testing} />

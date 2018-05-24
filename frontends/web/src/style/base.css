@@ -1,6 +1,6 @@
 html,
 body {
-    background: var(--background);
+    background-color: var(--background);
     color: var(--color-default);
     font-family: var(--font-family);
     font-weight: 400;

@@ -143,7 +143,7 @@ export default class Seed extends Component {
 
         return (
             <div className={style.container}>
-                {BitBox}
+                <BitBox />
                 <div className={style.content}>
                     {errorMessage}
                     {content}

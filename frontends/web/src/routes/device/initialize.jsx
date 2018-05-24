@@ -85,7 +85,7 @@ export default class Initialize extends Component {
         if (status === stateEnum.WAITING) {
             return (
                 <div className={style.container}>
-                    {BitBox}
+                    <BitBox />
                     <div className={style.content}>
                         {formSubmissionState}
                     </div>
@@ -95,7 +95,7 @@ export default class Initialize extends Component {
 
         return (
             <div className={style.container}>
-                {BitBox}
+                <BitBox />
                 <div className={style.content}>
                     {formSubmissionState}
                     <form onSubmit={this.handleSubmit}>

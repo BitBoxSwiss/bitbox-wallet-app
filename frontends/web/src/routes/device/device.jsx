@@ -5,7 +5,7 @@ import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
 import Waiting from './waiting';
 import Bootloader from './bootloader';
-import Login from './unlock';
+import Unlock from './unlock';
 import Seed from './seed';
 import Initialize from './initialize';
 import Settings from './settings/settings';
@@ -119,7 +119,7 @@ export default class Device extends Component {
         case DeviceStatus.BOOTLOADER:
             return <Bootloader deviceID={deviceID} />;
         case DeviceStatus.INITIALIZED:
-            return <Login deviceID={deviceID} />;
+            return <Unlock deviceID={deviceID} />;
         case DeviceStatus.UNINITIALIZED:
             return <Initialize deviceID={deviceID} />;
         case DeviceStatus.LOGGED_IN:

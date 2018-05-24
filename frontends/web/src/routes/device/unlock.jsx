@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
-import { BitBox } from '../../components/icon/logo';
+import { BitBox, Shift } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
 import style from './device.css';
 
@@ -100,7 +100,7 @@ export default class Unlock extends Component {
 
         return (
             <div className={style.container}>
-                {BitBox}
+                <BitBox />
                 <div className={style.content}>
                     {submissionState}
                     {status !== stateEnum.WAITING && (
@@ -122,11 +122,17 @@ export default class Unlock extends Component {
                                     primary
                                     type="submit"
                                     disabled={!this.validate() || status === stateEnum.WAITING}>
-                                  {t('Login')}
+                                    {t('Login')}
                                 </Button>
                             </div>
                             <hr />
-                            <Footer />
+                            <p>
+
+                            </p>
+
+                            <Footer>
+                                <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                            </Footer>
                         </form>
                     )}
                 </div>
