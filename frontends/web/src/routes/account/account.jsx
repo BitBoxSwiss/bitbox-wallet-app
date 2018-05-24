@@ -197,7 +197,6 @@ export default class Account extends Component {
                 />
             );
         } else if (isSend) {
-            console.log(isConfirming)
             return (
                 <Send
                     isConfirming={isConfirming}

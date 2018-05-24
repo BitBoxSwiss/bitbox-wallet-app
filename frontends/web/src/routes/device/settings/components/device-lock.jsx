@@ -43,10 +43,11 @@ export default class DeviveLock extends Component {
                         </div>
                     </div>
                 </div>
-                <WaitDialog
-                    active={isConfirming}
-                    title="Enable full 2FA"
-                />
+                {
+                    isConfirming && (
+                        <WaitDialog title="Enable full 2FA" />
+                    )
+                }
             </div>
         );
     }

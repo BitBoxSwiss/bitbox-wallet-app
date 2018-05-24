@@ -1,5 +1,7 @@
 .input {
     width: 100%;
+    margin-bottom: var(--spacing-default);
+    position: relative;
 }
 
 .input label {
@@ -18,7 +20,6 @@
     font-size: 1rem;
     font-weight: normal;
     height: 2.75em;
-    margin-bottom: var(--spacing-default);
     padding: var(--spacing-half) var(--spacing-default);
     width: 100%;
 }
@@ -28,4 +29,12 @@
     border-color: var(--color-disabled) !important;
     color: var(--color-rock) !important;
     cursor: not-allowed;
+}
+
+.errorText {
+    color: var(--color-softred);
+}
+
+.errorText > span > span {
+    margin-left: 5px;
 }

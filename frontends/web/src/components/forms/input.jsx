@@ -1,15 +1,34 @@
 import { h } from 'preact';
-import { input } from './input.css';
+import { input, errorText } from './input.css';
 
 export default function Input({
     type = 'text',
-    disabled, label, id,
-    className, style,
-    children, getRef, ...props
+    disabled,
+    label,
+    id,
+    error,
+    className,
+    style,
+    children,
+    getRef,
+    ...props,
 }) {
     return (
         <div className={[input, className].join(' ')} style={style}>
-            {label && <label for={id}>{label}</label>}
+            {
+                label && (
+                    <div class="flex flex-row flex-between flex-items-start">
+                        <label for={id} class={error ? errorText : ''}>
+                            {label}
+                            {
+                                error && (
+                                    <span>:<span>{error}</span></span>
+                                )
+                            }
+                        </label>
+                    </div>
+                )
+            }
             <input
                 autoComplete="off"
                 autoCorrect="off"

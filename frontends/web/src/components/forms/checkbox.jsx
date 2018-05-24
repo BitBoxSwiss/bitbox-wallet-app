@@ -2,11 +2,15 @@ import { h } from 'preact';
 import style from './checkbox.css';
 
 export default function Checkbox({
-    disabled, label, id,
-    children, ...props
+    disabled,
+    label,
+    id,
+    className,
+    children,
+    ...props,
 }) {
     return (
-        <span className={style.checkbox}>
+        <span className={[style.checkbox, className].join(' ')}>
             <input
                 type="checkbox"
                 id={id}

@@ -9,6 +9,7 @@ import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
 
 @translate()
+
 export default class Settings extends Component {
     state = {
         firmwareVersion: null,
@@ -40,10 +41,11 @@ export default class Settings extends Component {
                     </div>
                 </div>
                 <div class="innerContainer">
-                    <div class="content flex flex-column flex-start">
-                    <div class={['flex', 'flex-row', 'flex-between'].join(' ')} style="margin-bottom: 20px;">
+                    <div class="content">
+                        <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                             <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
                             <MobilePairing deviceID={deviceID} disabled={lock}/>
+                            <DeviceLock deviceID={deviceID} />
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                             <Blink deviceID={deviceID} />
                         </div>
@@ -51,10 +53,10 @@ export default class Settings extends Component {
                             <DeviceLock deviceID={deviceID} />
                             <Reset deviceID={deviceID} />
                         </div>
-                        <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
-                            { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
-                        </footer>
                     </div>
+                    <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
+                        { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
+                    </footer>
                 </div>
             </div>
         );

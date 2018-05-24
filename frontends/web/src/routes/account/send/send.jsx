@@ -10,13 +10,14 @@ import componentStyle from '../../../components/style.css';
 import style from './send.css';
 
 @translate()
-
 export default class Send extends Component {
     state = {
         feeTarget: null,
         proposedFee: null,
         proposedAmount: null,
         valid: false,
+        addressError: null,
+        amountError: null,
         sendAll: false,
         isSent: false,
     }
@@ -52,7 +53,11 @@ export default class Send extends Component {
     }
 
     validateAndDisplayFee = () => {
-        this.setState({ proposedFee: null });
+        this.setState({
+            proposedFee: null,
+            addressError: null,
+            amountError: null,
+        });
         if (this.sendDisabled()) {
             return;
         }
@@ -65,7 +70,17 @@ export default class Send extends Component {
                     proposedAmount: result.amount,
                 });
             } else {
-                alert(result.errMsg);
+                const error = result.errMsg;
+                switch (error) {
+                    case 'invalid address':
+                        this.setState({ addressError: error });
+                        break;
+                    case 'invalid amount':
+                        this.setState({ amountError: error});
+                        break;
+                    default:
+                        alert(error);
+                }
             }
         }).catch(() => {
             this.setState({ valid: false });
@@ -110,6 +125,8 @@ export default class Send extends Component {
         sendAll,
         feeTarget,
         isSent,
+        addressError,
+        amountError,
     }) {
         const strippedFee = proposedFee ? proposedFee.split(' ')[0] : null;
         const totalAmount = (amount && proposedFee) ? (parseFloat(amount) + parseFloat(strippedFee)).toFixed(strippedFee.length - 2) : 'N/A';
@@ -145,6 +162,7 @@ export default class Send extends Component {
                                 label={t('send.address.label')}
                                 placeholder={t('send.address.placeholder')}
                                 id="recipientAddress"
+                                error={addressError}
                                 onInput={this.handleFormChange}
                                 onChange={this.validateAndDisplayFee}
                                 value={recipientAddress}
@@ -152,23 +170,23 @@ export default class Send extends Component {
                             />
                         </div>
                         <div class="row">
-                            <div class="flex flex-row flex-between flex-items-center">
-                                <Label for="amount">{t('send.amount.label')}</Label>
+                            <Input
+                                label={t('send.amount.label')}
+                                id="amount"
+                                onInput={this.handleFormChange}
+                                onChange={this.validateAndDisplayFee}
+                                disabled={sendAll}
+                                error={amountError}
+                                value={sendAll ? proposedAmount : amount}
+                                placeholder={t('send.amount.placeholder')}>
                                 <Checkbox
                                     label={t('send.maximum')}
                                     id="sendAll"
                                     onChange={this.sendAll}
                                     checked={sendAll}
+                                    className={style.maxAmount}
                                 />
-                            </div>
-                            <Input
-                                id="amount"
-                                onInput={this.handleFormChange}
-                                onChange={this.validateAndDisplayFee}
-                                disabled={sendAll}
-                                value={sendAll ? proposedAmount : amount}
-                                placeholder={t('send.amount.placeholder')}
-                            />
+                            </Input>
                         </div>
                         <div class="row">
                             <div class="flex flex-1 flex-row flex-between flex-items-center spaced">

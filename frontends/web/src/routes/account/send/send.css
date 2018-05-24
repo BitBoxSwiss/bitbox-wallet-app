@@ -70,3 +70,9 @@
   font-size: var(--size-large);
   line-height: var(--size-large);
 }
+
+.maxAmount {
+  position: absolute;
+  top: -3px;
+  right: 0;
+}

@@ -194,6 +194,10 @@
 }
 
 /* UTILITIES */
+.buttons.wrapped > * {
+    margin-bottom: var(--spacing-default);
+}
+
 .buttons > *:not(:last-child) {
     margin-right: var(--spacing-half);
 }
