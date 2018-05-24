@@ -19,7 +19,7 @@
 .text-right { text-align: right; }
 .text-small { font-size: var(--size-small); }
 .text-medium { font-size: var(--size-medium); }
-.text-medium + label {
+.text-medium > label {
     font-size: var(--size-medium);
     text-transform: none;
 }
