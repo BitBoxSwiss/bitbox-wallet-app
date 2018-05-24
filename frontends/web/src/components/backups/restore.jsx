@@ -54,7 +54,6 @@ export default class Restore extends Component {
         event.preventDefault();
         if (!this.validate()) return;
         this.setState({
-            activeDialog: false,
             isConfirming: true,
         });
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
