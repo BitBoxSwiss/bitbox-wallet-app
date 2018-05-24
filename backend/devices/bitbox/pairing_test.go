@@ -33,6 +33,6 @@ func TestChannel(t *testing.T) {
 		assert.NoError(t, channel.WaitForPong(40*time.Second))
 		assert.NoError(t, channel.SendPairingTest(tfaTestString))
 		time.Sleep(5 * time.Second)
-		assert.NoError(t, channel.SendXpubEcho(xpubEcho))
+		assert.NoError(t, channel.SendXpubEcho(xpubEcho, "btc-p2pkh"))
 	}
 }
