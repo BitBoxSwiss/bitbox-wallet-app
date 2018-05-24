@@ -90,7 +90,7 @@ export default class Unlock extends Component {
         case stateEnum.ERROR:
             submissionState = (
                 <Message type="error">
-                    {t(`dbb.error.${errorCode}`, {
+                    {t(`unlock.error.${errorCode}`, {
                         defaultValue: errorMessage,
                         remainingAttempts,
                         context: needsLongTouch ? 'touch' : 'normal'

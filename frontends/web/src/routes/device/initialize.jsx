@@ -77,7 +77,7 @@ export default class Initialize extends Component {
         case stateEnum.ERROR:
             formSubmissionState = (
                 <Message type="error">
-                    {t(`dbb.error.${errorCode}`, {
+                    {t(`initialize.error.${errorCode}`, {
                         defaultValue: errorMessage
                     })}
                 </Message>

@@ -1,24 +1,24 @@
 {
     "appName": "Shift Wallet",
     "appNameWithDefiniteArticle": "der Shift Wallet",
-    "dbb": {
+    "Password": "Passwort",
+    "Please enter your PIN to log in": "Bitte geben Sie Ihr PIN ein",
+    "Login": "Einloggen",
+    "unlock": {
+        "unlocking": "Wird entsperrt…",
+            "input": {
+                "label": "PIN",
+                "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
+            },
         "error": {
             "113": "Aufgrund zu vieler Login Versuche musst du beim nächsten Login den Touch-button für 3 Sekunden gedrückt halten.",
             "109_normal": "Falsches Password. Noch {{remainingAttempts}} Versuche bis sich dein Gerät auf Werkseinstellungen zurücksetzt.",
-            "109_touch": "$t(dbb.error.109_normal) Beim nächsten Login musst du den Touch-button gedrückt gehalten.",
-            "102": "Dein Passwort muss mindestens 4 Stellen haben. "
+            "109_touch": "$t(dbb.error.109_normal) Beim nächsten Login musst du den Touch-button gedrückt gehalten."
         }
     },
     "sidebar": {
         "settings": "Einstellungen",
         "leave": "Verlassen"
-    },
-    "unlock": {
-        "unlocking": "Wird entsperrt…",
-        "input": {
-            "label": "PIN",
-            "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
-        }
     },
     "device": {
         "waiting": "Bitte schließe dein Gerät an…",
@@ -107,7 +107,10 @@
         "creating": "PIN wird gespeichert…",
         "description": "Bitte lege einen PIN für dein Gerät fest.",
         "invalid": "Nur Zahlen sind erlaubt.",
-        "create": "PIN speichern"
+        "create": "PIN speichern",
+        "error": {
+            "102": "Der PIN muss aus mindestens 4 Zahlen bestehen."
+        }
     },
     "backup": {
         "title": "Backups verwalten",

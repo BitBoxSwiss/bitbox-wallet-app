@@ -1,14 +1,4 @@
 {
-    "appName": "Shift Wallet",
-    "appNameWithDefiniteArticle": "the Shift Wallet",
-    "dbb": {
-        "error": {
-            "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
-            "109_normal": "Wrong password. {{remainingAttempts}} attempts remain before the device is reset.",
-            "109_touch": "$t(dbb.error.109_normal) The next login requires holding the touch button.",
-            "102": "The password length must be at least 4 characters."
-        }
-    },
     "sidebar": {
         "settings": "Settings",
         "leave": "Leave"
@@ -18,6 +8,11 @@
         "input": {
             "label": "PIN",
             "placeholder": "Enter your PIN to unlock the device"
+        },
+        "error": {
+            "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
+            "109_normal": "Wrong password. {{remainingAttempts}} attempts remain before the device is reset.",
+            "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
         }
     },
     "device": {
@@ -115,7 +110,10 @@
         "creating": "Setting PIN…",
         "description": "Please set a PIN to interact with your device",
         "invalid": "Only digits are allowed",
-        "create": "Set PIN"
+        "create": "Set PIN",
+        "error" : {
+            "102": "The PIN must consist of at least 4 digits."
+        }
     },
     "backup": {
         "title": "Manage Backups",
