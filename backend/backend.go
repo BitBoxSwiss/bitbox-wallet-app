@@ -164,6 +164,7 @@ func (backend *Backend) initAccounts() {
 	}
 	for _, account := range backend.accounts {
 		go func(account *btc.Account) {
+			backend.onWalletInit(account)
 			if err := account.Init(); err != nil {
 				if _, ok := errp.Cause(err).(usb.CommunicationErr); ok {
 					// hack: if a device is unplugged, the keystore is deregistered and the account
@@ -175,7 +176,6 @@ func (backend *Backend) initAccounts() {
 					panic(err)
 				}
 			}
-			backend.onWalletInit(account)
 		}(account)
 	}
 }
