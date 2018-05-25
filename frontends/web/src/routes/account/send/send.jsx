@@ -223,18 +223,7 @@ export default class Send extends Component {
                     </div>
                     {
                         isConfirming && (
-                            <WaitDialog title="Confirm Transaction">
-                                <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
-                                <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
-                                    <div class="flex flex-column flex-center flex-items-center">
-                                        <div class={style.shortTouch}></div>
-                                        <p class="text-bold">Tap to <span class="text-red">abort</span></p>
-                                    </div>
-                                    <div class="flex flex-column flex-center flex-items-center">
-                                        <div class={style.longTouch}></div>
-                                        <p class="text-bold">Hold 3+ secs to <span class="text-green">confirm</span></p>
-                                    </div>
-                                </div>
+                            <WaitDialog title="Confirm Transaction" includeDefault>
                                 <div class={style.confirmationBox}>
                                     <p class={['label', style.confirmationLabel].join(' ')}>Address</p>
                                     <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>

@@ -17,6 +17,7 @@ export default class WaitDialog extends Component {
 
     render({
         includeDefault,
+        children,
     }, {
         active,
     }) {
@@ -36,19 +37,18 @@ export default class WaitDialog extends Component {
                 </div>
             </div>
         );
+        console.log(includeDefault)
         return (
             <div class={['overlay', isActive].join(' ')}>
                 <div class={['modal', isActive].join(' ')}>
                     <h3 class="modalHeader">{this.props.title}</h3>
                     {
-                        (this.props.children.length > 0 && includeDefault) && (
-                            {defaultContent}
-                        )
+                        (children.length > 0 && includeDefault) && defaultContent
                     }
                     {
-                        this.props.children.length > 0 ? (
+                        children.length > 0 ? (
                             <div class="flex flex-column flex-start">
-                                {this.props.children}
+                                {children}
                             </div>
                         ) : defaultContent
                     }
