@@ -35,6 +35,9 @@ type Communication struct {
 	log    *logrus.Entry
 }
 
+// CommunicationErr is returned if there was an error with the device IO.
+type CommunicationErr error
+
 // NewCommunication creates a new Communication.
 func NewCommunication(device io.ReadWriteCloser) *Communication {
 	return &Communication{
@@ -204,11 +207,11 @@ func (communication *Communication) SendPlain(msg string) (map[string]interface{
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
 	if err := communication.sendFrame(msg); err != nil {
-		return nil, err
+		return nil, CommunicationErr(err)
 	}
 	reply, err := communication.readFrame()
 	if err != nil {
-		return nil, err
+		return nil, CommunicationErr(err)
 	}
 	reply = bytes.TrimRightFunc(reply, func(r rune) bool { return unicode.IsSpace(r) || r == 0 })
 	err = logCensoredCmd(communication.log, string(reply), true)

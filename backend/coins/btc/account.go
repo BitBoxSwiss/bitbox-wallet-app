@@ -151,6 +151,11 @@ func NewAccount(
 	return account
 }
 
+// String returns a representation of the account for logging.
+func (account *Account) String() string {
+	return fmt.Sprintf("%s-%s", account.Coin().String(), account.code)
+}
+
 // Code returns the code of the account.
 func (account *Account) Code() string {
 	return account.code
@@ -222,11 +227,15 @@ func (account *Account) Initialized() bool {
 
 // Close stops the account.
 func (account *Account) Close() {
-	if err := account.db.Close(); err != nil {
-		account.log.WithError(err).Error("couldn't close db")
+	if account.db != nil {
+		if err := account.db.Close(); err != nil {
+			account.log.WithError(err).Error("couldn't close db")
+		}
 	}
 	account.initialSyncDone = false
-	account.transactions.Close()
+	if account.transactions != nil {
+		account.transactions.Close()
+	}
 	account.onEvent(EventStatusChanged)
 }
 

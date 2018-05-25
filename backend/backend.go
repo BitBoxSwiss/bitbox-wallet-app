@@ -11,6 +11,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
@@ -163,11 +164,18 @@ func (backend *Backend) initAccounts() {
 	}
 	for _, account := range backend.accounts {
 		go func(account *btc.Account) {
-			backend.onWalletInit(account)
 			if err := account.Init(); err != nil {
-				// TODO
-				panic(err)
+				if _, ok := errp.Cause(err).(usb.CommunicationErr); ok {
+					// hack: if a device is unplugged, the keystore is deregistered and the account
+					// uninitialized anyway, so no need to panic.
+					backend.log.WithError(err).
+						WithFields(logrus.Fields{"account": account.String()}).
+						Error("failed to init account")
+				} else {
+					panic(err)
+				}
 			}
+			backend.onWalletInit(account)
 		}(account)
 	}
 }
@@ -389,8 +397,8 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 // Deregister deregisters the device with the given ID from this backend.
 func (backend *Backend) Deregister(deviceID string) {
 	if _, ok := backend.devices[deviceID]; ok {
-		delete(backend.devices, deviceID)
 		backend.onDeviceUninit(deviceID)
+		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
 		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
 	}
