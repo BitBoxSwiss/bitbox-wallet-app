@@ -10,6 +10,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
+	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -34,7 +35,8 @@ func NewHandlers(
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
 	handleFunc("/headers/status", handlers.ensureAccountInitialized(handlers.getHeadersStatus)).Methods("GET")
-	handleFunc("/receive-address", handlers.ensureAccountInitialized(handlers.getReceiveAddress)).Methods("GET")
+	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
+	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	return handlers
 }
 
@@ -227,12 +229,24 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	}
 }
 
-func (handlers *Handlers) getReceiveAddress(_ *http.Request) (interface{}, error) {
-	address := handlers.account.GetUnusedReceiveAddress()
-	if handlers.account.Keystores().HaveSecureOutput() {
-		if err := handlers.account.Keystores().OutputAddress(address.Configuration, handlers.account.Coin()); err != nil {
-			return nil, err
-		}
+func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {
+	addresses := []interface{}{}
+	for _, address := range handlers.account.GetUnusedReceiveAddresses() {
+		addresses = append(addresses, struct {
+			Address       string `json:"address"`
+			ScriptHashHex string `json:"scriptHashHex"`
+		}{
+			Address:       address.EncodeAddress(),
+			ScriptHashHex: string(address.PubkeyScriptHashHex()),
+		})
 	}
-	return address.EncodeAddress(), nil
+	return addresses, nil
+}
+
+func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
+	var scriptHashHex string
+	if err := json.NewDecoder(r.Body).Decode(&scriptHashHex); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return handlers.account.VerifyAddress(client.ScriptHashHex(scriptHashHex))
 }

@@ -43,13 +43,14 @@ func NewAddressChain(
 	}
 }
 
-// GetUnused returns the first unused address. EnsureAddresses() must be called beforehand.
-func (addresses *AddressChain) GetUnused() *AccountAddress {
+// GetUnused returns the last `gapLimit` unused addresses. EnsureAddresses() must be called
+// beforehand.
+func (addresses *AddressChain) GetUnused() []*AccountAddress {
 	unusedTailCount := addresses.unusedTailCount()
 	if unusedTailCount < addresses.gapLimit {
 		addresses.log.Panic("Concurrency error: Addresses not synced correctly")
 	}
-	return addresses.addresses[len(addresses.addresses)-unusedTailCount]
+	return addresses.addresses[len(addresses.addresses)-unusedTailCount:]
 }
 
 // addAddress appends a new address at the end of the chain.

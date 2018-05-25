@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet } from '../../../utils/request';
+import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Input } from '../../../components/forms';
 import QRCode from './qrcode';
 import style from './receive.css';
@@ -8,25 +8,59 @@ import style from './receive.css';
 @translate()
 export default class ReceiveButton extends Component {
     state = {
-        receiveAddress: null
+        verifying: false,
+        activeIndex: null,
+        receiveAddresses: null
     }
 
     componentDidMount() {
-        apiGet('wallet/' + this.props.code + '/receive-address').then(receiveAddress => {
-            this.setState({ receiveAddress });
+        apiGet('wallet/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
+            this.setState({ receiveAddresses, activeIndex: 0 });
         });
     }
 
-    render({ t }, { receiveAddress }) {
-        const content = receiveAddress ? (
+    verifyAddress = () => {
+        this.setState({ verifying: true });
+        apiPost('wallet/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
+            this.setState({ verifying: false });
+            if (!hasSecureOutput) {
+                alert('Please pair the device to enable secure address verification. Go to the device settings.\n');
+            }
+        });
+    }
+
+    previous = () => {
+        this.setState({ activeIndex: (this.state.activeIndex + this.state.receiveAddresses.length - 1) % this.state.receiveAddresses.length});
+    };
+
+    next = () => {
+        this.setState({ activeIndex: (this.state.activeIndex + 1) % this.state.receiveAddresses.length});
+    };
+
+    render({ t }, { verifying, activeIndex, receiveAddresses }) {
+        const content = receiveAddresses ? (
             <div>
-                <p class="label">{t('receive.label')}</p>
-                <QRCode data={receiveAddress} />
+                <p class="label">{t('receive.label')} ({activeIndex+1}/{receiveAddresses.length})</p>
+                <QRCode data={receiveAddresses[activeIndex].address} />
                 <Input
                     readOnly
                     className={style.addressField}
                     onFocus={focus}
-                    value={receiveAddress} />
+                    value={receiveAddresses[activeIndex].address} />
+                <Button
+                    transparent
+                    disabled={verifying}
+                    onClick={this.previous}>Previous</Button>
+                {' '}
+                <Button
+                    primary
+                    disabled={verifying}
+                    onClick={this.verifyAddress}>Verify address securely</Button>
+                {' '}
+                <Button
+                    transparent
+                    disabled={verifying}
+                    onClick={this.next}>Next</Button>
             </div>
         ) : (
             t('loading')

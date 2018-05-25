@@ -40,7 +40,8 @@ type Interface interface {
 	SendTx(string, SendAmount, FeeTargetCode) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(string, SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
-	GetUnusedReceiveAddress() *addresses.AccountAddress
+	GetUnusedReceiveAddresses() []*addresses.AccountAddress
+	VerifyAddress(client.ScriptHashHex) (bool, error)
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 }
@@ -411,12 +412,27 @@ func (account *Account) Transactions() []*transactions.TxInfo {
 		})
 }
 
-// GetUnusedReceiveAddress returns a fresh receive address.
-func (account *Account) GetUnusedReceiveAddress() *addresses.AccountAddress {
+// GetUnusedReceiveAddresses returns a number of unused addresses.
+func (account *Account) GetUnusedReceiveAddresses() []*addresses.AccountAddress {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	return account.receiveAddresses.GetUnused()
+}
+
+// VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
+// exists.
+func (account *Account) VerifyAddress(scriptHashHex client.ScriptHashHex) (bool, error) {
+	account.synchronizer.WaitSynchronized()
+	defer account.RLock()()
+	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
+	if address == nil {
+		return false, errp.New("unknown address not found")
+	}
+	if account.Keystores().HaveSecureOutput() {
+		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
+	}
+	return false, nil
 }
 
 // Keystores returns the keystores of the account.

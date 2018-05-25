@@ -2,7 +2,6 @@
     height: 400px;
     margin: 0 auto;
     text-align: center;
-    width: 400px;
 }
 
 .receiveContent img {
@@ -10,10 +9,12 @@
 }
 
 .addressField {
-    display: inline-block;
+    text-align: center;
+    display: block;
 }
 
 .addressField input {
     text-align: center;
+    display: inline;
     width: 400px;
 }
