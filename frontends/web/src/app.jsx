@@ -30,7 +30,6 @@ export default class App extends Component {
         this.onDevicesRegisteredChanged();
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
-            console.log('websocket', type, data);
             switch (type) {
             case 'backend':
                 switch (data) {

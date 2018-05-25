@@ -53,7 +53,7 @@ export default class Device extends Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.default && nextState.deviceRegistered !== null && nextState.walletInitialized) {
-            route('/account', true);
+            apiGet('wallet-status').then(redirect);
             return false;
         }
         return true;
@@ -127,6 +127,9 @@ export default class Device extends Component {
         case DeviceStatus.SEEDED:
             return <Settings deviceID={deviceID} />;
         }
-        console.warn('ohnoes')
     }
+}
+
+function redirect(status) {
+    route(status === 'uninitialized' ? '/' : '/account', true);
 }
