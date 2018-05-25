@@ -185,7 +185,7 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return txProposalError(errp.WithStack(err))
 	}
-	outputAmount, fee, err := handlers.account.TxProposal(
+	outputAmount, fee, total, err := handlers.account.TxProposal(
 		input.address,
 		input.sendAmount,
 		input.feeTargetCode,
@@ -197,6 +197,7 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 		"success": true,
 		"amount":  handlers.account.Coin().FormatAmount(int64(outputAmount)),
 		"fee":     handlers.account.Coin().FormatAmount(int64(fee)),
+		"total":   handlers.account.Coin().FormatAmount(int64(total)),
 	}, nil
 }
 

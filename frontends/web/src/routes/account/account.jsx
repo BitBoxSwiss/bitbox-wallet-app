@@ -163,10 +163,10 @@ export default class Account extends Component {
                                 }
                             </Balance>
                             <div class={componentStyle.buttons}>
-                                <Button primary onClick={() => this.setState({ isReceive: true })}>
+                                <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
                                     {t('button.receive')}
                                 </Button>
-                                <Button primary onClick={() => this.setState({ isSend: true })}>
+                                <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isSend: true })}>
                                     {t('button.send')}
                                 </Button>
                             </div>

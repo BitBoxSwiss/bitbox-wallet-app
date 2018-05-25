@@ -142,7 +142,7 @@ func (account *Account) SendTx(
 // the UI (the output amount and the fee). At the same time, it validates the input.
 func (account *Account) TxProposal(
 	recipientAddress string, amount SendAmount, feeTargetCode FeeTargetCode) (
-	btcutil.Amount, btcutil.Amount, error) {
+	btcutil.Amount, btcutil.Amount, btcutil.Amount, error) {
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
@@ -151,9 +151,9 @@ func (account *Account) TxProposal(
 		feeTargetCode,
 	)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, 0, err
 	}
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
-	return txProposal.Amount, txProposal.Fee, nil
+	return txProposal.Amount, txProposal.Fee, txProposal.Total(), nil
 }

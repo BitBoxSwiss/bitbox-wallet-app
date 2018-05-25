@@ -39,7 +39,8 @@ type Interface interface {
 	Balance() *transactions.Balance
 	SendTx(string, SendAmount, FeeTargetCode) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, SendAmount, FeeTargetCode) (btcutil.Amount, btcutil.Amount, error)
+	TxProposal(string, SendAmount, FeeTargetCode) (
+		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddresses() []*addresses.AccountAddress
 	VerifyAddress(client.ScriptHashHex) (bool, error)
 	Keystores() keystore.Keystores

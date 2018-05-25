@@ -27,6 +27,11 @@ type TxProposal struct {
 	ChangeAddress *addresses.AccountAddress
 }
 
+// Total is amount+fee.
+func (txProposal *TxProposal) Total() btcutil.Amount {
+	return txProposal.Amount + txProposal.Fee
+}
+
 type byValue struct {
 	outPoints []wire.OutPoint
 	outputs   map[wire.OutPoint]*wire.TxOut

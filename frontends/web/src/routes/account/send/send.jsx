@@ -15,6 +15,7 @@ export default class Send extends Component {
         feeTarget: null,
         proposedFee: null,
         proposedAmount: null,
+        proposedTotal: null,
         valid: false,
         addressError: null,
         amountError: null,
@@ -31,6 +32,7 @@ export default class Send extends Component {
                     recipientAddress: null,
                     proposedAmount: null,
                     proposedFee: null,
+                    proposedTotal: null,
                     amount: null,
                 });
             }
@@ -55,6 +57,7 @@ export default class Send extends Component {
     validateAndDisplayFee = () => {
         this.setState({
             proposedFee: null,
+            proposedTotal: null,
             addressError: null,
             amountError: null,
         });
@@ -68,6 +71,7 @@ export default class Send extends Component {
                 this.setState({
                     proposedFee: result.fee,
                     proposedAmount: result.amount,
+                    proposedTotal: result.total,
                 });
             } else {
                 const error = result.errMsg;
@@ -95,6 +99,7 @@ export default class Send extends Component {
         this.setState({
             [event.target.id]: value,
             proposedFee: null,
+            proposedTotal: null,
         });
     }
 
@@ -118,6 +123,7 @@ export default class Send extends Component {
         balance,
     }, {
         proposedFee,
+        proposedTotal,
         recipientAddress,
         proposedAmount,
         valid,
@@ -128,8 +134,7 @@ export default class Send extends Component {
         addressError,
         amountError,
     }) {
-        const strippedFee = proposedFee ? proposedFee.split(' ')[0] : null;
-        const totalAmount = (amount && proposedFee) ? (parseFloat(amount) + parseFloat(strippedFee)).toFixed(strippedFee.length - 2) : 'N/A';
+        console.log("LOL", proposedFee, amount);
         return (
             <div class="container">
                 <div class="headerContainer">
@@ -230,7 +235,7 @@ export default class Send extends Component {
                                     <div class="flex flex-row flex-start has-gutter">
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
-                                            <p class={style.confirmationValue}>{amount || 'N/A'} {unit}</p>
+                                            <p class={style.confirmationValue}>{proposedAmount || 'N/A'} {unit}</p>
                                         </div>
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
@@ -238,7 +243,7 @@ export default class Send extends Component {
                                         </div>
                                     </div>
                                     <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{totalAmount || 'N/A'} {unit}</p>
+                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'} {unit}</p>
                                 </div>
                             </WaitDialog>
                         )
