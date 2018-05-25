@@ -235,17 +235,18 @@ func (s *backendTestSuite) TestBackend() {
 		s.get("/api/wallet/rbtc/balance"),
 	)
 
-	txTime := time.Unix(confirmBlockHeader.Time, 0).String()
+	txTime := time.Unix(confirmBlockHeader.Time, 0).Format(time.RFC3339)
 	require.JSONEq(s.T(),
 		marshal(
 			[]walletHandlers.Transaction{{
-				ID:        txID.String(),
-				Height:    102,
-				Type:      "receive",
-				Amount:    "10 RBTC",
-				Fee:       "",
-				Time:      &txTime,
-				Addresses: []string{receiveAddresses[0]["address"]},
+				ID:               txID.String(),
+				NumConfirmations: 1,
+				Height:           102,
+				Type:             "receive",
+				Amount:           "10 RBTC",
+				Fee:              "",
+				Time:             &txTime,
+				Addresses:        []string{receiveAddresses[0]["address"]},
 			}},
 		),
 		s.get("/api/wallet/rbtc/transactions"),
