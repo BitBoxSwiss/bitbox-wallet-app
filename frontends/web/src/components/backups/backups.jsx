@@ -59,12 +59,14 @@ export default class ManageBackups extends Component {
     }) {
         if (sdCardInserted === false) {
             return (
-                <div class="content">
-                    <p>Please insert SD card to manage backups.</p>
-                    <div class="buttons">
-                        <Button secondary onClick={this.refresh}>
-                            I have inserted the SD card
-                        </Button>
+                <div class="innerContainer">
+                    <div class="content">
+                        <p>Please insert SD card to manage backups.</p>
+                        <div class="buttons">
+                            <Button secondary onClick={this.refresh}>
+                                I have inserted the SD card
+                            </Button>
+                        </div>
                     </div>
                 </div>
             );

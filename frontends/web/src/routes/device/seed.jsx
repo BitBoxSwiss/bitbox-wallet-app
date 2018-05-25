@@ -12,7 +12,7 @@ import style from './device.css';
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
     WAITING: 'waiting',
-    ERROR: 'error'
+    ERROR: 'error',
 });
 
 @translate()
@@ -34,7 +34,7 @@ export default class Seed extends Component {
 
     handleFormChange = event => {
         this.setState({ [event.target.id]: event.target.value });
-    };
+    }
 
     handleSubmit = event => {
         event.preventDefault();
@@ -43,7 +43,7 @@ export default class Seed extends Component {
         }
         this.setState({
             status: stateEnum.WAITING,
-            error: ''
+            error: '',
         });
         apiPost('devices/' + this.props.deviceID + '/create-wallet', {
             walletName: this.state.walletName,
@@ -57,12 +57,12 @@ export default class Seed extends Component {
             }
             this.setState({ backupPassword: '' });
         });
-    };
+    }
 
-    displayError = (error) => {
+    displayError = error => {
         this.setState({
             status: stateEnum.ERROR,
-            error
+            error,
         });
     }
 
@@ -70,8 +70,15 @@ export default class Seed extends Component {
         this.setState({ backupPassword });
     }
 
-    render({ t, deviceID }, { status, walletName, error, fromBackup }) {
-
+    render({
+        t,
+        deviceID,
+    }, {
+        status,
+        walletName,
+        error,
+        fromBackup,
+    }) {
         if (status === stateEnum.WAITING) {
             return (
                 <div className={style.container}>
@@ -116,12 +123,14 @@ export default class Seed extends Component {
                         disabled={status === stateEnum.WAITING}
                         onInput={this.handleFormChange}
                         getRef={ref => this.walletNameInput = ref}
-                        value={walletName} />
+                        value={walletName}
+                    />
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
                         ref={ref => this.backupPasswordInput = ref}
                         disabled={status === stateEnum.WAITING}
-                        onValidPassword={this.setValidBackupPassword} />
+                        onValidPassword={this.setValidBackupPassword}
+                    />
                 </div>
                 <p>{t('seed.description')}</p>
                 <div>

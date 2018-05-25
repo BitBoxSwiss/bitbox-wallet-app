@@ -3,6 +3,7 @@ import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
 import WaitDialog from '../wait-dialog/wait-dialog';
+import Spinner from '../spinner/Spinner';
 import Confirm from '../confirm/confirm';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
@@ -13,6 +14,7 @@ export default class Restore extends Component {
         password: null,
         isConfirming: false,
         activeDialog: false,
+        isLoading: false,
     }
 
     componentWillMount() {
@@ -24,7 +26,11 @@ export default class Restore extends Component {
     }
 
     handleKeyDown = e => {
-        if (e.keyCode === 27 && !this.state.isConfirming) {
+        const {
+            isConfirming,
+            isLoading,
+        } = this.state;
+        if (e.keyCode === 27 && !isConfirming && !isLoading) {
             this.abort();
         } else {
             return;
@@ -53,9 +59,17 @@ export default class Restore extends Component {
     restore = event => {
         event.preventDefault();
         if (!this.validate()) return;
-        this.setState({
-            isConfirming: true,
-        });
+        if (this.props.requireConfirmation) {
+            this.setState({
+                activeDialog: false,
+                isConfirming: true,
+            });
+        } else {
+            this.setState({
+                activeDialog: false,
+                isLoading: true,
+            });
+        }
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
             password: this.state.password,
             filename: this.props.selectedBackup,
@@ -76,11 +90,12 @@ export default class Restore extends Component {
     render({
         t,
         selectedBackup,
-        requireConfirmation
+        requireConfirmation,
     }, {
         password,
         isConfirming,
         activeDialog,
+        isLoading,
     }) {
         return (
             <span>
@@ -120,6 +135,11 @@ export default class Restore extends Component {
                 {
                     (isConfirming && requireConfirmation) && (
                         <WaitDialog title={t('backup.restore.confirmTitle')} />
+                    )
+                }
+                {
+                    isLoading && (
+                        <Spinner />
                     )
                 }
             </span>
