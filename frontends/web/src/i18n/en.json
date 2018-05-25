@@ -51,21 +51,21 @@
     },
     "receive": {
         "title": "Get Coins",
-        "label": "Your Bitcoin address"
+        "label": "Your address"
     },
     "send": {
         "title": "Send Coins",
         "address": {
             "label": "Address",
-            "placeholder": "Enter Bitcoin address"
+            "placeholder": "Enter address"
         },
         "amount": {
             "label": "Amount",
-            "placeholder": "Enter Bitcoin amount"
+            "placeholder": "Enter amount"
         },
         "maximum": "Maximum Amount",
         "fee": {
-            "label": "Bitcoin Network Fee",
+            "label": "Network Fee",
             "placeholder": "Not available",
             "customPlaceholder": "Enter amount"
         },

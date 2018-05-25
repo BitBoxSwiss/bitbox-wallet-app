@@ -3,9 +3,11 @@ package btc
 import (
 	"fmt"
 	"path"
+	"strconv"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
@@ -29,13 +31,13 @@ const (
 )
 
 // MainnetCoin stores the mainnet coin.
-var MainnetCoin = NewCoin("btc", &chaincfg.MainNetParams, electrumServerBitcoinMainnet, tlsYes, "https://blockchain.info/tx/")
+var MainnetCoin = NewCoin("btc", "BTC", &chaincfg.MainNetParams, electrumServerBitcoinMainnet, tlsYes, "https://blockchain.info/tx/")
 
 // TestnetCoin stores the testnet coin.
-var TestnetCoin = NewCoin("tbtc", &chaincfg.TestNet3Params, electrumServerBitcoinTestnet, tlsYes, "https://testnet.blockchain.info/tx/")
+var TestnetCoin = NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, electrumServerBitcoinTestnet, tlsYes, "https://testnet.blockchain.info/tx/")
 
 // RegtestCoin stores the regtest coin.
-var RegtestCoin = NewCoin("rbtc", &chaincfg.RegressionNetParams, electrumServerBitcoinRegtest, tlsNo, "")
+var RegtestCoin = NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, electrumServerBitcoinRegtest, tlsNo, "")
 
 // connectionError indicates an error when establishing a network connection.
 type connectionError error
@@ -50,6 +52,7 @@ func maybeConnectionError(err error) error {
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	name                  string
+	unit                  string
 	net                   *chaincfg.Params
 	electrumServer        string
 	blockExplorerTxPrefix string
@@ -65,9 +68,16 @@ type Coin struct {
 }
 
 // NewCoin creates a new coin with the given parameters.
-func NewCoin(name string, net *chaincfg.Params, electrumServer string, tls bool, blockExplorerTxPrefix string) *Coin {
+func NewCoin(
+	name string,
+	unit string,
+	net *chaincfg.Params,
+	electrumServer string,
+	tls bool,
+	blockExplorerTxPrefix string) *Coin {
 	return &Coin{
 		name:                  name,
+		unit:                  unit,
 		electrumServer:        electrumServer,
 		tls:                   tls,
 		net:                   net,
@@ -87,6 +97,16 @@ func (coin *Coin) Name() string {
 // Net returns the coin's network params.
 func (coin *Coin) Net() *chaincfg.Params {
 	return coin.net
+}
+
+// Unit implements coin.Coin.
+func (coin *Coin) Unit() string {
+	return coin.unit
+}
+
+// FormatAmount implements coin.Coin.
+func (coin *Coin) FormatAmount(amount int64) string {
+	return strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f', -int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
 }
 
 // ElectrumClient returns the electrum client for the coin.

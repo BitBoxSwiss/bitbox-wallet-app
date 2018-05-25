@@ -76,7 +76,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	for _, txInfo := range txs {
 		var feeString = ""
 		if txInfo.Fee != nil {
-			feeString = txInfo.Fee.String()
+			feeString = handlers.account.Coin().FormatAmount(int64(*txInfo.Fee))
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -92,7 +92,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount:    txInfo.Amount.String(),
+			Amount:    handlers.account.Coin().FormatAmount(int64(txInfo.Amount)),
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: txInfo.Addresses,
@@ -103,9 +103,9 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
-	unit := btcutil.AmountBTC.String()
+	unit := handlers.account.Coin().Unit()
 	strip := func(s string) string {
-		return strings.TrimSpace(strings.TrimSuffix(s, unit))
+		return strings.TrimSpace(strings.TrimSuffix(s, btcutil.AmountBTC.String()))
 	}
 	return map[string]interface{}{
 		"available":   strip(balance.Available.Format(btcutil.AmountBTC)),
@@ -193,8 +193,8 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  outputAmount.String(),
-		"fee":     fee.String(),
+		"amount":  handlers.account.Coin().FormatAmount(int64(outputAmount)),
+		"fee":     handlers.account.Coin().FormatAmount(int64(fee)),
 	}, nil
 }
 

@@ -178,7 +178,7 @@ export default class Send extends Component {
                                 disabled={sendAll}
                                 error={amountError}
                                 value={sendAll ? proposedAmount : amount}
-                                placeholder={t('send.amount.placeholder')}>
+                                placeholder={t('send.amount.placeholder') + ' [' + unit + ']'}>
                                 <Checkbox
                                     label={t('send.maximum')}
                                     id="sendAll"
