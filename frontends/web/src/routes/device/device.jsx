@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
-import { apiGet } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
 import Waiting from './waiting';

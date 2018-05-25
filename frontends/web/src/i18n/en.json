@@ -115,7 +115,7 @@
             "confirmTitle": "Restore Backup",
             "password": {
                 "label": "Password",
-                "helptext": "Password when backup was created"
+                "placeholder": "Password when backup was created"
             }
         }
     },
@@ -136,6 +136,10 @@
         "restore": "Restore",
         "create": "Create",
         "abort": "Abort"
+    },
+    "password": {
+        "show": "Show {{label}}",
+        "hide": "{{label}} visible"
     },
     "loading": "loading…"
 }

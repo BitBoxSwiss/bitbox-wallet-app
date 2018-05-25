@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 
 import { Input, Checkbox, Field } from './forms';
 
@@ -12,6 +13,7 @@ export function PasswordInput (props) {
     );
 }
 
+@translate()
 export class PasswordRepeatInput extends Component {
     state = {
         password: '',
@@ -29,7 +31,7 @@ export class PasswordRepeatInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert('to paste text, enable \"see plaintext\"');
+            alert('to paste text, enable \"SHOW PIN\"');
         }
     }
 
@@ -68,16 +70,19 @@ export class PasswordRepeatInput extends Component {
     }
 
     render({
+        t,
         disabled,
-        helptext,
         label,
+        placeholder,
         pattern = false,
-        title
+        title,
+        repeatLabel,
+        repeatPlaceholder,
     }, {
         password,
         passwordRepeat,
         seePlaintext,
-        capsLock
+        capsLock,
     }) {
         const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
         return (
@@ -90,48 +95,44 @@ export class PasswordRepeatInput extends Component {
                     title={title}
                     id="password"
                     label={label}
-                    placeholder={helptext}
+                    placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.password = ref}
-                    value={password}
-                />
+                    value={password} />
                 <MatchesPattern
                     regex={this.regex}
                     text={title}
-                    value={password}
-                />
+                    value={password} />
                 <Input
                     disabled={disabled}
                     type={seePlaintext ? 'text' : 'password'}
-
                     pattern={pattern}
                     title={title}
                     id="passwordRepeat"
-                    label={`Repeat ${label}`}
-                    placeholder="Please confirm password"
+                    label={repeatLabel}
+                    placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.passwordRepeat = ref}
-                    value={passwordRepeat}
-                />
+                    value={passwordRepeat} />
                 <MatchesPattern
                     regex={this.regex}
                     text={title}
-                    value={passwordRepeat}
-                />
+                    value={passwordRepeat} />
                 {warning}
                 <Field>
                     <Checkbox
                         id="seePlaintext"
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
-                        label="See Plaintext"
-                    />
+                        label={t('password.' + (seePlaintext ? 'hide' : 'show'), {
+                            label
+                        })} />
                 </Field>
             </div>
         );

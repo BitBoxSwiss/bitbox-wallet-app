@@ -86,8 +86,6 @@ export default class Create extends Component {
                                         value={backupName} />
                                     <PasswordInput
                                         ref={ref => this.passwordInput = ref}
-                                        helptext="Please enter the same password as when the wallet was created."
-                                        helptextPersistent={true}
                                         id="recoveryPassword"
                                         label={t('backup.create.password.label')}
                                         placeholder={t('backup.create.password.placeholder')}

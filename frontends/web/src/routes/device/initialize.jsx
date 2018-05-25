@@ -103,6 +103,8 @@ export default class Initialize extends Component {
                             pattern="^[0-9]+$"
                             title={t('initialize.invalid')}
                             label="PIN"
+                            repeatLabel="Repeat PIN"
+                            repeatPlaceholder="Please confirm PIN"
                             ref={ref => this.passwordInput = ref}
                             disabled={status === stateEnum.WAITING}
                             onValidPassword={this.setValidPassword} />

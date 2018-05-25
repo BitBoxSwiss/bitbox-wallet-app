@@ -115,7 +115,7 @@ export default class Restore extends Component {
                                         <PasswordRepeatInput
                                             ref={ref => this.passwordInput = ref}
                                             label={t('backup.restore.password.label')}
-                                            helptext={t('backup.restore.password.helptext')}
+                                            placeholder={t('backup.restore.password.placeholder')}
                                             onValidPassword={this.setValidPassword}
                                         />
                                         <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
