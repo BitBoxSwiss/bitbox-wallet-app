@@ -66,6 +66,12 @@
     max-width: none;
 }
 
+.staticWidth {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
 .innerContainer.withFixedContent {
     padding-top: var(--header-height);
 }

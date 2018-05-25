@@ -57,16 +57,16 @@ export default class ManageBackups extends Component {
         selectedBackup,
         sdCardInserted,
     }) {
+        const styles = requireConfirmation ? 'innerContainer withFixedContent' : '';
+
         if (sdCardInserted === false) {
             return (
-                <div class="innerContainer">
-                    <div class="content">
-                        <p>Please insert SD card to manage backups.</p>
-                        <div class="buttons">
-                            <Button secondary onClick={this.refresh}>
-                                I have inserted the SD card
-                            </Button>
-                        </div>
+                <div class="content">
+                    <p>Please insert SD card to manage backups.</p>
+                    <div class="buttons">
+                        <Button secondary onClick={this.refresh}>
+                            I have inserted the SD card
+                        </Button>
                     </div>
                 </div>
             );
@@ -75,7 +75,7 @@ export default class ManageBackups extends Component {
         }
 
         return (
-            <div class="innerContainer withFixedContent">
+            <div class={styles}>
                 <div class="content">
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
@@ -92,7 +92,7 @@ export default class ManageBackups extends Component {
                         }
                     </div>
                 </div>
-                <div class="buttons flex flex-row flex-end">
+                <div class="buttons flex flex-row flex-end staticWidth">
                     <Restore
                         selectedBackup={selectedBackup}
                         displayError={this.displayError}

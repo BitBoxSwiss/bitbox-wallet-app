@@ -23,7 +23,8 @@ export default function ManageBackups({
             <Backups
                 deviceID={deviceID}
                 showCreate={true}
-                displayError={displayError} />
+                displayError={displayError}
+            />
         </div>
     );
 }
