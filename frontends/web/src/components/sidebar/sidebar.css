@@ -6,7 +6,8 @@
   flex-shrink: 0;
   height: 100vh;
   padding: var(--spacing-large) 0;
-  overflow-y: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   width: var(--sidebar-width);
 }
 
