@@ -184,8 +184,8 @@ func NewDevice(
 			time.Sleep(1 * time.Second)
 		}
 
-		// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds, so
-		// repeat the command until it is ready.
+		// Ping to check if the device is initialized. Sometimes, booting takes a couple of seconds,
+		// so repeat the command until it is ready.
 		var initialized bool
 		for i := 0; i < 20; i++ {
 			var err error
@@ -396,6 +396,9 @@ func (dbb *Device) Login(pin string) (bool, string, error) {
 	if dbb.bootloaderStatus != nil {
 		return false, "", errp.WithStack(errNoBootloader)
 	}
+	if !dbb.initialized {
+		return false, "", errp.New("the device must first be initialized before trying to login")
+	}
 	deviceInfo, err := dbb.deviceInfo(pin)
 	if err != nil {
 		var remainingAttempts string
@@ -410,6 +413,18 @@ func (dbb *Device) Login(pin string) (bool, string, error) {
 		}
 		dbb.log.WithFields(logrus.Fields{"needs-longtouch": needsLongTouch,
 			"remaining-attempts": remainingAttempts}).Debug("Failed to authenticate")
+
+		if needsLongTouch && remainingAttempts == "0" {
+			// Check if the device was resetted after too many failed attempts.
+			initialized, pingErr := dbb.Ping()
+			if pingErr == nil && !initialized {
+				dbb.initialized = false
+				dbb.seeded = false
+				dbb.pin = ""
+				dbb.onStatusChanged()
+			}
+		}
+
 		return needsLongTouch, remainingAttempts, err
 	}
 	dbb.pin = pin
