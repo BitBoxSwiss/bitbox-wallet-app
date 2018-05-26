@@ -23,11 +23,10 @@
 required = ["github.com/vektra/mockery"]
 
 [[constraint]]
-#  branch = "master"
+  branch = "master"
   name = "github.com/btcsuite/btcd"
 
-  branch = "sighash"
-  source = "https://github.com/benma/btcd.git"
+  source = "https://github.com/btcsuite/btcd.git"
 
 [[constraint]]
   branch = "master"

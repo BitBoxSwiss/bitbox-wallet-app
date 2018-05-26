@@ -2,17 +2,29 @@
 
 
 [[projects]]
-  branch = "sighash"
+  branch = "master"
+  name = "github.com/aead/siphash"
+  packages = ["."]
+  revision = "e404fcfc888570cadd1610538e2dbc89f66af814"
+
+[[projects]]
+  branch = "master"
   name = "github.com/btcsuite/btcd"
   packages = [
+    "blockchain",
+    "blockchain/indexers",
     "btcec",
+    "btcjson",
     "chaincfg",
     "chaincfg/chainhash",
+    "database",
+    "mempool",
+    "mining",
     "txscript",
     "wire"
   ]
-  revision = "1b82d0485f7d910dc75ca1642ec4eb75da21b314"
-  source = "https://github.com/benma/btcd.git"
+  revision = "bc0944904505aab55e089371a892be2f87883161"
+  source = "https://github.com/btcsuite/btcd.git"
 
 [[projects]]
   branch = "master"
@@ -27,10 +39,12 @@
     ".",
     "base58",
     "bech32",
+    "gcs",
+    "gcs/builder",
     "hdkeychain",
     "txsort"
   ]
-  revision = "501929d3d046174c3d39f0ea54ece471aa17238c"
+  revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
 
 [[projects]]
   branch = "master"
@@ -79,6 +93,12 @@
   name = "github.com/karalabe/hid"
   packages = ["."]
   revision = "93a94ab6671087f0768f1d4e701c0ec14f449df9"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kkdai/bstream"
+  packages = ["."]
+  revision = "f71540b9dfdcfe64dbf2818e9b66423c6aafcacd"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -170,6 +190,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8dbf51c957e55006540057719486589aaa7b5f5163b08cd405808c5090abc24a"
+  inputs-digest = "7d62d8dc843c9b32c68f086820eeae579b05a69afdf3cdcbbfdfe1c918976c00"
   solver-name = "gps-cdcl"
   solver-version = 1
