@@ -10,30 +10,14 @@ export default class FeeTargets extends Component {
     }
 
     componentDidMount() {
-        this.unsubscribe = apiWebsocket(this.onEvent);
         if (this.props.walletInitialized) {
             this.updateFeeTargets(this.props.walletCode);
         }
     }
 
-    componentWillUnmount() {
-        this.unsubscribe();
-    }
-
     componentWillReceiveProps({ walletInitialized, walletCode }) {
         if (walletInitialized && !this.props.walletInitialized || this.props.walletCode != walletCode) {
             this.updateFeeTargets(walletCode);
-        }
-    }
-
-    onEvent = data => {
-        if (data.type !== 'wallet' || data.code !== this.props.walletCode) {
-            return;
-        }
-        switch (data.data) {
-        case 'feeTargetsChanged':
-            this.updateFeeTargets(this.props.walletCode);
-            break;
         }
     }
 

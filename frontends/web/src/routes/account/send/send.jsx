@@ -134,7 +134,6 @@ export default class Send extends Component {
         addressError,
         amountError,
     }) {
-        console.log("LOL", proposedFee, amount);
         return (
             <div class="container">
                 <div class="headerContainer">
