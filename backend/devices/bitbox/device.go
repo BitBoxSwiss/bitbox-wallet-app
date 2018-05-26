@@ -77,6 +77,7 @@ type Interface interface {
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Blink() error
+	Random(string) (string, error)
 	Reset() (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
 	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
@@ -682,7 +683,7 @@ func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
 	return xpub1, nil
 }
 
-// Random generates a 16 byte random number, hex encoded.. typ can be either "true" or "pseudo".
+// Random generates a 16 byte random number, hex encoded. typ can be either "true" or "pseudo".
 func (dbb *Device) Random(typ string) (string, error) {
 	if dbb.bootloaderStatus != nil {
 		return "", errp.WithStack(errNoBootloader)

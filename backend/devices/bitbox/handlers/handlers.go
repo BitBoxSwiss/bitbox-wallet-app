@@ -31,6 +31,7 @@ func NewHandlers(
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
 	handleFunc("/blink", handlers.postBlinkDeviceHandler).Methods("POST")
+	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetDeviceHandler).Methods("POST")
 	handleFunc("/login", handlers.postLoginHandler).Methods("POST")
 	handleFunc("/lock-bootloader", handlers.postLockBootloaderHandler).Methods("POST")
@@ -198,11 +199,12 @@ func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{},
 
 func (handlers *Handlers) postBlinkDeviceHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Blink")
-	err := handlers.device.Blink()
-	if err != nil {
-		return nil, err
-	}
-	return true, nil
+	return nil, handlers.device.Blink()
+}
+
+func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Random Number")
+	return handlers.device.Random("true")
 }
 
 func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {
