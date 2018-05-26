@@ -73,7 +73,6 @@ type Interface interface {
 	Status() Status
 	BootloaderStatus() (*BootloaderStatus, error)
 	DeviceInfo() (*DeviceInfo, error)
-	SetName(string) error
 	SetPassword(string) error
 	SetHiddenPassword(string, string) (bool, error)
 	CreateWallet(string, string) error

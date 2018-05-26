@@ -3,7 +3,7 @@ import { translate } from 'react-i18next';
 
 import { apiPost } from '../../utils/request';
 import { PasswordRepeatInput } from '../../components/password';
-import { Input, Button } from '../../components/forms';
+import { Button } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
@@ -18,15 +18,10 @@ const stateEnum = Object.freeze({
 @translate()
 export default class Initialize extends Component {
     state = {
-        deviceName: "My BitBox",
         password: null,
         status: stateEnum.DEFAULT,
         errorCode: null,
         errorMessage: ''
-    }
-
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
     }
 
     handleSubmit = event => {
@@ -40,8 +35,7 @@ export default class Initialize extends Component {
             errorMessage: ''
         });
         apiPost('devices/' + this.props.deviceID + '/set-password', {
-            password: this.state.password,
-            deviceName: this.state.deviceName,
+            password: this.state.password
         }).then(data => {
             if (!data.success) {
                 if (data.code) {
@@ -64,7 +58,6 @@ export default class Initialize extends Component {
 
     render({ t }, {
         password,
-        deviceName,
         status,
         errorCode,
         errorMessage
@@ -106,14 +99,6 @@ export default class Initialize extends Component {
                 <div className={style.content}>
                     {formSubmissionState}
                     <form onSubmit={this.handleSubmit}>
-                      <Input
-                        autoFocus
-                        id="deviceName"
-                        title="title"
-                        label="Device name"
-                        value={deviceName}
-                        onChange={this.handleFormChange}
-                        />
                         <PasswordRepeatInput
                             pattern="^[0-9]+$"
                             title={t('initialize.invalid')}
