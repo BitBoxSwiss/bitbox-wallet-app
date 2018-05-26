@@ -67,8 +67,14 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 		return nil, errp.WithStack(err)
 	}
 	password := jsonBody["password"]
+	deviceName := jsonBody["deviceName"]
 	if err := handlers.device.SetPassword(password); err != nil {
 		return maybeDBBErr(err, handlers.log), nil
+	}
+	if deviceName != "" {
+		if err := handlers.device.SetName(deviceName); err != nil {
+			return maybeDBBErr(err, handlers.log), nil
+		}
 	}
 	handlers.log.Debug("Set password on device")
 	return map[string]interface{}{"success": true}, nil

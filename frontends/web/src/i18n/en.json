@@ -90,7 +90,7 @@
     },
     "initialize": {
         "creating": "Setting PIN…",
-        "description": "Please set a PIN to interact with your device",
+        "description": "Please set PIN to interact with your device",
         "invalid": "Only digits are allowed",
         "create": "Set PIN"
     },
