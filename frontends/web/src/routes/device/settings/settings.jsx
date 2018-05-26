@@ -16,13 +16,14 @@ export default class Settings extends Component {
     state = {
         firmwareVersion: null,
         lock: true,
+        name: null,
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock }) => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
-                lock: lock,
+                lock, name
             });
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });
@@ -34,12 +35,13 @@ export default class Settings extends Component {
     }, {
         firmwareVersion,
         lock,
+        name,
     }) {
         return (
             <div class="container">
                 <div class="headerContainer">
                     <div class="header">
-                        <h2>{t('deviceSettings.title')}</h2>
+                      <h2>{name === null ? '' : name || 'BitBox'}</h2>
                     </div>
                 </div>
                 <div class="innerContainer">

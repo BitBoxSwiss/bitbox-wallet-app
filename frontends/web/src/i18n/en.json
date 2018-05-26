@@ -25,9 +25,6 @@
     "settings": {
         "title": "Settings"
     },
-    "deviceSettings": {
-        "title": "Device Settings"
-    },
     "account": {
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",
