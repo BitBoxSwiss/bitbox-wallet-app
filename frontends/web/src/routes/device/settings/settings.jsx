@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import Blink from './components/blink';
 import RandomNumber from './components/randomnumber';
+import HiddenWallet from './components/hiddenwallet';
 import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
@@ -47,6 +48,7 @@ export default class Settings extends Component {
                         <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                             <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                            <HiddenWallet deviceID={deviceID} disabled={lock} />
                             <Reset deviceID={deviceID} />
                         </div>
                         <h3>Pairing</h3>

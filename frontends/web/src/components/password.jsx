@@ -22,6 +22,10 @@ export class PasswordRepeatInput extends Component {
         capsLock: false
     }
 
+    idPrefix = () => {
+        return this.props.idPrefix || "";
+    }
+
     componentDidMount() {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
@@ -60,7 +64,8 @@ export class PasswordRepeatInput extends Component {
         if (event.target.type === 'checkbox') {
             value = event.target.checked;
         }
-        this.setState({ [event.target.id]: value });
+        var stateKey = event.target.id.slice(this.idPrefix().length);
+        this.setState({ [stateKey]: value });
         this.validate();
     }
 
@@ -93,7 +98,7 @@ export class PasswordRepeatInput extends Component {
                     type={seePlaintext ? 'text' : 'password'}
                     pattern={pattern}
                     title={title}
-                    id="password"
+                    id={this.idPrefix() + "password"}
                     label={label}
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
@@ -111,7 +116,7 @@ export class PasswordRepeatInput extends Component {
                     type={seePlaintext ? 'text' : 'password'}
                     pattern={pattern}
                     title={title}
-                    id="passwordRepeat"
+                    id={this.idPrefix() + "passwordRepeat"}
                     label={repeatLabel}
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
@@ -127,10 +132,10 @@ export class PasswordRepeatInput extends Component {
                 {warning}
                 <Field>
                     <Checkbox
-                        id="seePlaintext"
+                        id={this.idPrefix() + "seePlaintext"}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
-                        label={t('password.' + (seePlaintext ? 'hide' : 'show'), {
+                        label={t('password.show', {
                             label
                         })} />
                 </Field>

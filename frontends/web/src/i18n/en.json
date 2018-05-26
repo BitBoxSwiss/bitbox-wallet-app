@@ -85,16 +85,16 @@
             "placeholder": ""
         },
         "password": {
-            "label": "Password"
+            "label": "Backup password"
         },
-        "description": "This password is part of the Seed to generate the Master Key and therefore can NOT be changed later.",
+        "description": "A backup is stored on your SD card. The backup password can NOT be changed later, and is required to restore the backup.",
         "create": "Create Wallet",
         "backup": "or restore a Backup…"
     },
     "initialize": {
         "creating": "Setting PIN…",
         "description": "Please set a PIN to interact with your device",
-        "invalid": "Only Numbers are allowed",
+        "invalid": "Only digits are allowed",
         "create": "Set PIN"
     },
     "backup": {
@@ -114,8 +114,8 @@
             "title": "Restore",
             "confirmTitle": "Restore Backup",
             "password": {
-                "label": "Password",
-                "placeholder": "Password when backup was created"
+                "label": "Backup password or hidden backup password",
+                "placeholder": "Password when backup or hidden wallet was created"
             }
         }
     },
@@ -135,11 +135,11 @@
         "save": "Save",
         "restore": "Restore",
         "create": "Create",
-        "abort": "Abort"
+        "abort": "Abort",
+        "hiddenwallet": "Create Hidden Wallet"
     },
     "password": {
-        "show": "Show {{label}}",
-        "hide": "{{label}} visible"
+        "show": "Show in clear text"
     },
     "loading": "loading…"
 }

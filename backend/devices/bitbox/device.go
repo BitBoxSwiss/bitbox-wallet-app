@@ -74,6 +74,7 @@ type Interface interface {
 	BootloaderStatus() (*BootloaderStatus, error)
 	DeviceInfo() (*DeviceInfo, error)
 	SetPassword(string) error
+	SetHiddenPassword(string, string) (bool, error)
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Blink() error
@@ -563,6 +564,38 @@ func (dbb *Device) CreateWallet(walletName string, backupPassword string) error 
 	return nil
 }
 
+// SetHiddenPassword creates a hidden pin/seed. Returns false if aborted by the user.
+func (dbb *Device) SetHiddenPassword(hiddenPIN string, hiddenBackupPassword string) (bool, error) {
+	if dbb.bootloaderStatus != nil {
+		return false, errp.WithStack(errNoBootloader)
+	}
+	if ok, err := dbb.pinPolicy.ValidatePassword(hiddenPIN); !ok {
+		return false, err
+	}
+	if ok, err := dbb.recoveryPasswordPolicy.ValidatePassword(hiddenBackupPassword); !ok {
+		return false, err
+	}
+	key := stretchKey(hiddenBackupPassword)
+	reply, err := dbb.send(
+		map[string]interface{}{
+			"hidden_password": map[string]string{
+				"key":      key,
+				"password": hiddenPIN,
+			},
+		},
+		dbb.pin)
+	if IsErrorAbort(err) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	if reply["hidden_password"] != "success" {
+		return false, errp.New("Unexpected result")
+	}
+	return true, nil
+}
+
 // IsErrorAbort returns whether the user aborted the operation.
 func IsErrorAbort(err error) bool {
 	dbbErr, ok := errp.Cause(err).(*Error)
@@ -632,8 +665,8 @@ func (dbb *Device) Reset() (bool, error) {
 	if dbb.bootloaderStatus != nil {
 		return false, errp.WithStack(errNoBootloader)
 	}
-	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	dbb.log.Info("Reset")
+	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	if IsErrorAbort(err) {
 		return false, nil
 	}

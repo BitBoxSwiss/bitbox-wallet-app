@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -28,6 +29,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
+	handleFunc("/set-hidden-password", handlers.postSetHiddenPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
 	handleFunc("/blink", handlers.postBlinkDeviceHandler).Methods("POST")
@@ -66,13 +68,25 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 	}
 	password := jsonBody["password"]
 	if err := handlers.device.SetPassword(password); err != nil {
-		if _, ok := errp.Cause(err).(bitbox.PasswordValidationError); ok {
-			return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
-		}
 		return maybeDBBErr(err, handlers.log), nil
 	}
 	handlers.log.Debug("Set password on device")
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSetHiddenPasswordHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	spew.Dump(jsonBody)
+	pin := jsonBody["pin"]
+	backupPassword := jsonBody["backupPassword"]
+	success, err := handlers.device.SetHiddenPassword(pin, backupPassword)
+	if err != nil {
+		return maybeDBBErr(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true, "didCreate": success}, nil
 }
 
 func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, error) {
