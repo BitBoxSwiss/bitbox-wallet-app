@@ -362,6 +362,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.onDeviceInit(theDevice)
 	theDevice.Init(backend.Testing())
 
+	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event device.Event) {
 		switch event {
 		case device.EventKeystoreGone:
@@ -374,9 +375,16 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			// }
 			// configuration := signing.NewConfiguration(absoluteKeypath,
 			// 	[]*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+			if backend.arguments.Multisig() {
+				backend.RegisterKeystore(
+					theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
+			} else if mainKeystore {
+				// HACK: for device based, only one is supported at the moment.
+				backend.keystores = keystore.NewKeystores()
 
-			backend.RegisterKeystore(
-				theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
+				backend.RegisterKeystore(
+					theDevice.KeystoreForConfiguration(nil, backend.keystores.Count()))
+			}
 		}
 		backend.events <- deviceEvent{
 			DeviceID: theDevice.Identifier(),
