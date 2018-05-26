@@ -15,7 +15,7 @@ export function apiWebsocket(msgCallback) {
         };
 
         socket.onerror = function(event) {
-            console.log('error');
+            console.log('websocket error');
             console.log(event);
         };
 
@@ -26,7 +26,7 @@ export function apiWebsocket(msgCallback) {
         };
 
         socket.onclose = function(event) {
-            console.log('close');
+            currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
         };
     }
 

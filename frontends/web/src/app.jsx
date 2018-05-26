@@ -14,6 +14,7 @@ import Alert from './components/alert/Alert';
 @translate()
 export default class App extends Component {
     state = {
+        backendConnected: true,
         walletInitialized: false,
         deviceIDs: [],
     }
@@ -31,6 +32,11 @@ export default class App extends Component {
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
             switch (type) {
+            case 'frontend': // special event from websocket.js
+                if (data == 'closed') {
+                    this.setState({ backendConnected: false });
+                }
+                break;
             case 'backend':
                 switch (data) {
                 case 'walletStatusChanged':
@@ -82,7 +88,14 @@ export default class App extends Component {
         });
     }
 
-    render({ t }, { deviceIDs, walletInitialized }) {
+    render({ t }, { backendConnected, deviceIDs, walletInitialized }) {
+        if (!backendConnected) {
+            return (
+                <div className="app">
+                  An error occurred. Please restart the application.
+                </div>
+            );
+        }
         return (
             <div className="app">
                 { walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
