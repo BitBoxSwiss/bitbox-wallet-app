@@ -519,7 +519,7 @@ func (dbb *Device) SetName(name string) error {
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)
 	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(name) {
+	if !regexp.MustCompile(`^[0-9a-zA-Z-_]{1,31}$`).MatchString(name) {
 		return errp.WithContext(errp.New("Invalid device name"),
 			errp.Context{"device-name": name})
 	}
@@ -544,10 +544,14 @@ func (dbb *Device) CreateWallet(walletName string, backupPassword string) error 
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)
 	}
-	if !regexp.MustCompile(`^[0-9a-zA-Z-_ ]{1,31}$`).MatchString(walletName) {
+	if !regexp.MustCompile(`^[0-9a-zA-Z-_.]{1,31}$`).MatchString(walletName) {
 		return errp.New("invalid wallet name")
 	}
 	if ok, err := dbb.recoveryPasswordPolicy.ValidatePassword(backupPassword); !ok {
+		return err
+	}
+	dbb.log.WithField("wallet-name", walletName).Info("Set name")
+	if err := dbb.SetName(walletName); err != nil {
 		return err
 	}
 	dbb.log.WithField("wallet-name", walletName).Info("Create wallet")
