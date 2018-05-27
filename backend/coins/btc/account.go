@@ -3,7 +3,6 @@ package btc
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"path"
 
 	"github.com/shiftdevices/godbb/backend/signing"
@@ -337,9 +336,9 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				defer account.Lock()()
 				address.HistoryStatus = history.Status()
 				if address.HistoryStatus != status {
-					log.Println("client status should match after sync")
+					account.log.Warning("client status should match after sync")
 				}
-				account.transactions.UpdateAddressHistory(address, history)
+				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 			}()
 			account.ensureAddresses()
 			return nil
@@ -391,7 +390,7 @@ func (account *Account) ensureAddresses() {
 
 func (account *Account) subscribeAddress(
 	dbTx transactions.DBTxInterface, address *addresses.AccountAddress) error {
-	addressHistory, err := dbTx.AddressHistory(address)
+	addressHistory, err := dbTx.AddressHistory(address.PubkeyScriptHashHex())
 	if err != nil {
 		return err
 	}

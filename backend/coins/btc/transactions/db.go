@@ -5,7 +5,6 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 )
 
@@ -22,8 +21,8 @@ type DBTxInterface interface {
 	DeleteTx(txHash chainhash.Hash)
 	// AddAddressToTx adds an address associated with a transaction. Retrieve them with with
 	// `TxInfo()`.
-	AddAddressToTx(chainhash.Hash, btcutil.Address) error
-	RemoveAddressFromTx(chainhash.Hash, btcutil.Address) (bool, error)
+	AddAddressToTx(chainhash.Hash, client.ScriptHashHex) error
+	RemoveAddressFromTx(chainhash.Hash, client.ScriptHashHex) (bool, error)
 	// TxInfo retrieves all data stored with for a transaction. Default values (nil, nil, 0, nil)
 	// are returned for the values not found.
 	TxInfo(chainhash.Hash) (
@@ -50,9 +49,9 @@ type DBTxInterface interface {
 	// DeleteOutput deletes an output (nothing happens if not found).
 	DeleteOutput(wire.OutPoint)
 	// PutAddressHistory stores an address history.
-	PutAddressHistory(btcutil.Address, client.TxHistory) error
+	PutAddressHistory(client.ScriptHashHex, client.TxHistory) error
 	// AddressHistory retrieves an address history. If not found, returns an empty history.
-	AddressHistory(btcutil.Address) (client.TxHistory, error)
+	AddressHistory(client.ScriptHashHex) (client.TxHistory, error)
 }
 
 // DBInterface can be implemented by database backends to open database transactions.

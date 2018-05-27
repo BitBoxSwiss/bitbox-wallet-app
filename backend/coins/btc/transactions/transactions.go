@@ -80,8 +80,8 @@ func (transactions *Transactions) Close() {
 }
 
 func (transactions *Transactions) txInHistory(
-	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash) bool {
-	history, err := dbTx.AddressHistory(address)
+	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash) bool {
+	history, err := dbTx.AddressHistory(scriptHashHex)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -95,10 +95,10 @@ func (transactions *Transactions) txInHistory(
 }
 
 func (transactions *Transactions) processTxForAddress(
-	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
+	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
 	// Don't process the tx if it is not found in the address history. It could have been removed
 	// from the history before this function was called.
-	if !transactions.txInHistory(dbTx, address, txHash) {
+	if !transactions.txInHistory(dbTx, scriptHashHex, txHash) {
 		return
 	}
 
@@ -119,17 +119,17 @@ func (transactions *Transactions) processTxForAddress(
 		go transactions.verifyTransaction(txHash, height)
 	}
 
-	if err := dbTx.AddAddressToTx(txHash, address); err != nil {
+	if err := dbTx.AddAddressToTx(txHash, scriptHashHex); err != nil {
 		// TODO
 		panic(err)
 	}
-	transactions.processInputsAndOutputsForAddress(dbTx, address, txHash, tx)
+	transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx)
 }
 
 // Go through the tx and extract all inputs and outputs which touch the address.
 func (transactions *Transactions) processInputsAndOutputsForAddress(
 	dbTx DBTxInterface,
-	address btcutil.Address,
+	scriptHashHex client.ScriptHashHex,
 	txHash chainhash.Hash,
 	tx *wire.MsgTx) {
 	// Gather transaction inputs that spend outputs of the given address.
@@ -155,26 +155,8 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	}
 	// Gather transaction outputs that belong to us.
 	for index, txOut := range tx.TxOut {
-		scriptClass, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(
-			txOut.PkScript,
-			transactions.net,
-		)
-		// We don't care about the script type, as the address alone uniquely identifies it. If the
-		// address belongs to the wallet, it already knows what kind of output it is.
-		_ = scriptClass
-		if err != nil {
-			transactions.log.WithField("error", err).Debug("Failed to extract pk script addresses")
-			// Unrecognized output. Skip.
-			continue
-		}
-		// For now we only look at single-address outputs (no multisig or other special contracts).
-		if len(extractedAddresses) != 1 {
-			transactions.log.WithField("addresses-length", len(extractedAddresses)).
-				Debug("Only supporting single-address outputs for now")
-			continue
-		}
 		// Check if output is ours.
-		if extractedAddresses[0].String() == address.String() {
+		if (&TxOut{txOut}).ScriptHashHex() == scriptHashHex {
 			err := dbTx.PutOutput(
 				wire.OutPoint{Hash: txHash, Index: uint32(index)},
 				txOut,
@@ -247,7 +229,7 @@ func isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
 }
 
 func (transactions *Transactions) removeTxForAddress(
-	dbTx DBTxInterface, address btcutil.Address, txHash chainhash.Hash) {
+	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
@@ -261,7 +243,7 @@ func (transactions *Transactions) removeTxForAddress(
 	}
 
 	transactions.log.Debug("Deleting transaction address")
-	empty, err := dbTx.RemoveAddressFromTx(txHash, address)
+	empty, err := dbTx.RemoveAddressFromTx(txHash, scriptHashHex)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -289,7 +271,7 @@ func (transactions *Transactions) removeTxForAddress(
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
-func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, txs []*client.TxInfo) {
+func (transactions *Transactions) UpdateAddressHistory(scriptHashHex client.ScriptHashHex, txs []*client.TxInfo) {
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
@@ -307,7 +289,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		// TODO
 		panic(err)
 	}
-	previousHistory, err := dbTx.AddressHistory(address)
+	previousHistory, err := dbTx.AddressHistory(scriptHashHex)
 	if err != nil {
 		// TODO
 		panic(err)
@@ -319,10 +301,10 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 		// A tx was previously in the address history but is not anymore.  If the tx was already
 		// downloaded and indexed, it will be removed.  If it is currently downloading (enqueued for
 		// indexing), it will not be processed.
-		transactions.removeTxForAddress(dbTx, address, entry.TXHash.Hash())
+		transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
 	}
 
-	if err := dbTx.PutAddressHistory(address, txs); err != nil {
+	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
 		// TODO
 		panic(err)
 	}
@@ -330,7 +312,7 @@ func (transactions *Transactions) UpdateAddressHistory(address btcutil.Address, 
 	for _, txInfo := range txs {
 		func(txHash chainhash.Hash, height int) {
 			transactions.doForTransaction(dbTx, txHash, func(innerDBTx DBTxInterface, tx *wire.MsgTx) {
-				transactions.processTxForAddress(innerDBTx, address, txHash, tx, height)
+				transactions.processTxForAddress(innerDBTx, scriptHashHex, txHash, tx, height)
 			})
 		}(txInfo.TXHash.Hash(), txInfo.Height)
 	}

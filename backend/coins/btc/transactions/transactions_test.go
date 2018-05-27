@@ -122,8 +122,9 @@ func TestTransactionsSuite(t *testing.T) {
 	suite.Run(t, &transactionsSuite{})
 }
 
-func (s *transactionsSuite) updateAddressHistory(address btcutil.Address, txs []*client.TxInfo) {
-	s.transactions.UpdateAddressHistory(address, txs)
+func (s *transactionsSuite) updateAddressHistory(
+	address *addresses.AccountAddress, txs []*client.TxInfo) {
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 }
 
@@ -166,7 +167,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 		syncFinished = true
 	}
 	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.log)
-	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
 	})
@@ -224,7 +225,7 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
 	tx2 := newTx(tx1.TxHash(), 0, address2, 123)
 	s.blockchainMock.RegisterTxs(tx1, tx2)
-	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
 		{TXHash: client.TXHash(tx1.TxHash()), Height: 0},
 		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
 	})
@@ -412,11 +413,11 @@ func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
 	address := s.addressChain.EnsureAddresses()[0]
 	tx := newTx(chainhash.HashH(nil), 0, address, 123)
 	s.blockchainMock.RegisterTxs(tx)
-	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
 		{TXHash: client.TXHash(tx.TxHash()), Height: 0},
 	})
 	// Callback for processing the tx is not called yet. We remove the tx.
-	s.transactions.UpdateAddressHistory(address, []*client.TxInfo{})
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{})
 	// Process the tx now. It should not be indexed anymore.
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 	require.Equal(s.T(),

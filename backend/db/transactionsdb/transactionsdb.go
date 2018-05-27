@@ -8,7 +8,6 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	bbolt "github.com/coreos/bbolt"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
@@ -179,17 +178,17 @@ func (tx *Tx) DeleteTx(txHash chainhash.Hash) {
 }
 
 // AddAddressToTx implements transactions.DBTxInterface.
-func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, address btcutil.Address) error {
+func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, scriptHashHex client.ScriptHashHex) error {
 	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
-		walletTx.Addresses[address.String()] = true
+		walletTx.Addresses[string(scriptHashHex)] = true
 	})
 }
 
 // RemoveAddressFromTx implements transactions.DBTxInterface.
-func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, address btcutil.Address) (bool, error) {
+func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, scriptHashHex client.ScriptHashHex) (bool, error) {
 	var empty bool
 	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
-		delete(walletTx.Addresses, address.String())
+		delete(walletTx.Addresses, string(scriptHashHex))
 		empty = len(walletTx.Addresses) == 0
 	})
 	return empty, err
@@ -312,13 +311,13 @@ func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) {
 }
 
 // PutAddressHistory implements transactions.DBTxInterface.
-func (tx *Tx) PutAddressHistory(address btcutil.Address, history client.TxHistory) error {
-	return writeJSON(tx.bucketAddressHistories, []byte(address.String()), history)
+func (tx *Tx) PutAddressHistory(scriptHashHex client.ScriptHashHex, history client.TxHistory) error {
+	return writeJSON(tx.bucketAddressHistories, []byte(string(scriptHashHex)), history)
 }
 
 // AddressHistory implements transactions.DBTxInterface.
-func (tx *Tx) AddressHistory(address btcutil.Address) (client.TxHistory, error) {
+func (tx *Tx) AddressHistory(scriptHashHex client.ScriptHashHex) (client.TxHistory, error) {
 	history := client.TxHistory{}
-	_, err := readJSON(tx.bucketAddressHistories, []byte(address.String()), &history)
+	_, err := readJSON(tx.bucketAddressHistories, []byte(string(scriptHashHex)), &history)
 	return history, err
 }
