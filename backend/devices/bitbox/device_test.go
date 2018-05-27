@@ -102,6 +102,21 @@ func (s *dbbTestSuite) login() error {
 
 func (s *dbbTestSuite) TestCreateWallet() {
 	require.NoError(s.T(), s.login())
+	const dummyWalletName = "walletname"
+	s.mockCommunication.On(
+		"SendEncrypt",
+		mock.MatchedBy(func(msg string) bool {
+			cmd := map[string]string{}
+			if err := json.Unmarshal([]byte(msg), &cmd); err != nil {
+				return false
+			}
+			name, ok := cmd["name"]
+			return ok && name == "walletname"
+		}),
+		pin,
+	).
+		Return(map[string]interface{}{"name": dummyWalletName}, nil).
+		Once()
 	s.mockCommunication.On(
 		"SendEncrypt",
 		mock.MatchedBy(func(msg string) bool {
@@ -124,13 +139,13 @@ func (s *dbbTestSuite) TestCreateWallet() {
 				return false
 			}
 			backup, ok := cmd["backup"]
-			return ok && strings.Contains(backup["check"], "walletname") && backup["key"] == stretchedKey
+			return ok && strings.Contains(backup["check"], dummyWalletName) && backup["key"] == stretchedKey
 		}),
 		pin,
 	).
 		Return(map[string]interface{}{"backup": "success"}, nil).
 		Once()
-	require.NoError(s.T(), s.dbb.CreateWallet("walletname", recoveryPassword))
+	require.NoError(s.T(), s.dbb.CreateWallet(dummyWalletName, recoveryPassword))
 }
 
 func (s *dbbTestSuite) TestSignZero() {
