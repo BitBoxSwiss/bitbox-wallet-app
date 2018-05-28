@@ -12,6 +12,10 @@
     position: relative;
 }
 
+.radio.textMedium input + label {
+    font-size: var(--size-medium);
+}
+
 .radio input + label::before,
 .radio input + label::after {
     background: rgb(255, 255, 255);
@@ -43,6 +47,12 @@
     left: 7px;
     opacity: 0;
     transform: scale(0);
+}
+
+.radio.textMedium input + label::after {
+    width: 10px;
+    height: 10px;
+    top:  7px;
 }
 
 /* checked */

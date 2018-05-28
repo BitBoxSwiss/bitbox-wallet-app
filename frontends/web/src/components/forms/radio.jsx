@@ -6,11 +6,11 @@ export default function Radio({
     label,
     id,
     children,
-    className,
+    sizeMedium,
     ...props,
 }) {
     return (
-        <span className={style.radio}>
+        <span className={[style.radio, sizeMedium ? style.textMedium : ''].join(' ')}>
             <input
                 type="radio"
                 id={id}

@@ -14,7 +14,8 @@ export default function BackupsListItem({
             id={backup}
             label={backup}
             value={backup}
-            onFocus={onFocus}>
+            onFocus={onFocus}
+            sizeMedium>
             <span className="text-small text-gray">2018/05/02 2:30PM</span>
         </Radio>
     );

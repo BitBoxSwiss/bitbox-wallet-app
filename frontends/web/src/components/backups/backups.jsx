@@ -57,8 +57,7 @@ export default class ManageBackups extends Component {
         selectedBackup,
         sdCardInserted,
     }) {
-        const styles = requireConfirmation ? 'innerContainer withFixedContent' : '';
-
+        const containerStyle = requireConfirmation ? '' : 'noPadding';
         if (sdCardInserted === false) {
             return (
                 <div class="content">
@@ -75,7 +74,7 @@ export default class ManageBackups extends Component {
         }
 
         return (
-            <div class={styles}>
+            <div class={['innerContainer', 'withFixedContent', containerStyle].join(' ')}>
                 <div class="content">
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
