@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { apiGet } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';
 import Balance from '../../components/balance/balance';
@@ -96,6 +96,7 @@ export default class Account extends Component {
                     walletInitialized: false,
                     walletConnected: true,
                 });
+                apiPost("wallet/" + this.props.code + "/init");
             } else {
                 this.setState({
                     walletInitialized: false,

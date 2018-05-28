@@ -28,6 +28,7 @@ func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route, log *logrus.Entry) *Handlers {
 	handlers := &Handlers{log: log}
 
+	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
@@ -218,6 +219,10 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 		"feeTargets":       result,
 		"defaultFeeTarget": defaultFeeTarget,
 	}, nil
+}
+
+func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
+	return nil, handlers.account.Init()
 }
 
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {

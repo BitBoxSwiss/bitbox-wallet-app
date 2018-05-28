@@ -11,7 +11,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
@@ -163,20 +162,20 @@ func (backend *Backend) initAccounts() {
 		backend.addAccount(ltc.MainnetCoin, "ltc-p2wpkh", "Litecoin Native Segwit", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
 	}
 	for _, account := range backend.accounts {
-		go func(account *btc.Account) {
-			backend.onWalletInit(account)
-			if err := account.Init(); err != nil {
-				if _, ok := errp.Cause(err).(usb.CommunicationErr); ok {
-					// hack: if a device is unplugged, the keystore is deregistered and the account
-					// uninitialized anyway, so no need to panic.
-					backend.log.WithError(err).
-						WithFields(logrus.Fields{"account": account.String()}).
-						Error("failed to init account")
-				} else {
-					panic(err)
-				}
-			}
-		}(account)
+		backend.onWalletInit(account)
+		// go func(account *btc.Account) {
+		// 	if err := account.Init(); err != nil {
+		// 		if _, ok := errp.Cause(err).(usb.CommunicationErr); ok {
+		// 			// hack: if a device is unplugged, the keystore is deregistered and the account
+		// 			// uninitialized anyway, so no need to panic.
+		// 			backend.log.WithError(err).
+		// 				WithFields(logrus.Fields{"account": account.String()}).
+		// 				Error("failed to init account")
+		// 		} else {
+		// 			panic(err)
+		// 		}
+		// 	}
+		// }(account)
 	}
 }
 

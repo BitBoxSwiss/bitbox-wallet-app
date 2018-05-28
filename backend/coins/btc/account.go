@@ -167,13 +167,27 @@ func (account *Account) Coin() *Coin {
 	return account.coin
 }
 
-// Init initializes the acconut.
+// Init initializes the account.
 func (account *Account) Init() error {
-	configuration, err := account.getConfiguration()
+	alreadyInitialized, err := func() (bool, error) {
+		defer account.Lock()()
+		if account.configuration != nil {
+			// Already initialized.
+			return true, nil
+		}
+		configuration, err := account.getConfiguration()
+		if err != nil {
+			return false, err
+		}
+		account.configuration = configuration
+		return false, nil
+	}()
 	if err != nil {
 		return err
 	}
-	account.configuration = configuration
+	if alreadyInitialized {
+		return nil
+	}
 	dbName := fmt.Sprintf("account-%s-%s.db", account.configuration.Hash(), account.code)
 	account.log.Debugf("Using the database '%s' to persist the transactions.", dbName)
 	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
@@ -208,7 +222,6 @@ func (account *Account) Init() error {
 		account.configuration, account.coin.Net(), gapLimit, 0, account.log)
 	account.changeAddresses = addresses.NewAddressChain(
 		account.configuration, account.coin.Net(), changeGapLimit, 1, account.log)
-
 	account.ensureAddresses()
 	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})
 }
