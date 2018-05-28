@@ -1,8 +1,10 @@
 package maketx
 
 import (
+	"errors"
 	"sort"
 
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
@@ -12,6 +14,8 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
 )
+
+var ErrInsufficientFunds = errors.New("insufficient funds")
 
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
@@ -39,6 +43,10 @@ type byValue struct {
 
 func (p *byValue) Len() int { return len(p.outPoints) }
 func (p *byValue) Less(i, j int) bool {
+	if p.outputs[p.outPoints[i]].Value == p.outputs[p.outPoints[j]].Value {
+		// Secondary sort to make coin selection deterministic.
+		return chainhash.HashH(p.outputs[p.outPoints[i]].PkScript).String() < chainhash.HashH(p.outputs[p.outPoints[j]].PkScript).String()
+	}
 	return p.outputs[p.outPoints[i]].Value < p.outputs[p.outPoints[j]].Value
 }
 func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[j], p.outPoints[i] }
@@ -64,8 +72,7 @@ func coinSelection(
 		outputsSum += btcutil.Amount(outputs[outPoint].Value)
 	}
 	if outputsSum < minAmount {
-		return 0, nil, errp.WithContext(errp.New("Insufficient funds"),
-			errp.Context{"min-amount": minAmount})
+		return 0, nil, errp.WithStack(ErrInsufficientFunds)
 	}
 	return outputsSum, selectedOutPoints, nil
 }
@@ -79,7 +86,6 @@ func NewTxSpendAll(
 	feePerKb btcutil.Amount,
 	log *logrus.Entry,
 ) (*TxProposal, error) {
-
 	selectedOutPoints := []wire.OutPoint{}
 	inputs := []*wire.TxIn{}
 	outputsSum := btcutil.Amount(0)
@@ -93,7 +99,7 @@ func NewTxSpendAll(
 	txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(outputPkScript), 0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
-		return nil, errp.New("Insufficient funds for fee")
+		return nil, errp.WithStack(ErrInsufficientFunds)
 	}
 	output = wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{
@@ -125,6 +131,9 @@ func NewTx(
 	log *logrus.Entry,
 ) (*TxProposal, error) {
 	targetAmount := btcutil.Amount(output.Value)
+	if targetAmount <= 0 {
+		panic("amount must be positive")
+	}
 	outputs := []*wire.TxOut{output}
 	changeAddress := getChangeAddress()
 	changePKScript := changeAddress.PubkeyScript()

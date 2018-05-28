@@ -98,7 +98,7 @@ func (s *transactionsSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
 	s.log = logging.Log.WithGroup("transactions_test")
 
-	s.addressChain = addressesTest.NewAddressChain()
+	_, s.addressChain = addressesTest.NewAddressChain()
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)
 	s.blockchainMock = NewBlockchainMock()
 	db, err := transactionsdb.NewDB(test.TstTempFile("godbb-db-"))

@@ -17,7 +17,7 @@ var (
 )
 
 // NewAddressChain returns an AddressChain for convenience in testing.
-func NewAddressChain() *addresses.AddressChain {
+func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
 	log := logging.Log.WithGroup("addresses_test")
 	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), net)
 	if err != nil {
@@ -33,7 +33,7 @@ func NewAddressChain() *addresses.AddressChain {
 	}
 	configuration := signing.NewConfiguration(
 		signing.ScriptTypeP2PKH, derivationPath, []*hdkeychain.ExtendedKey{xpub}, 1)
-	return addresses.NewAddressChain(configuration, net, 20, 0, log)
+	return configuration, addresses.NewAddressChain(configuration, net, 20, 0, log)
 }
 
 // GetAddress returns a dummy address for a given address type.
