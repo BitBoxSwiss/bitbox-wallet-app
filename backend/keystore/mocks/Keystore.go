@@ -84,13 +84,13 @@ func (_m *Keystore) Identifier() (string, error) {
 	return r0, r1
 }
 
-// OutputAddress provides a mock function with given fields: _a0, _a1
-func (_m *Keystore) OutputAddress(_a0 signing.AbsoluteKeypath, _a1 coin.Coin) error {
-	ret := _m.Called(_a0, _a1)
+// OutputAddress provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Keystore) OutputAddress(_a0 signing.AbsoluteKeypath, _a1 signing.ScriptType, _a2 coin.Coin) error {
+	ret := _m.Called(_a0, _a1, _a2)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(signing.AbsoluteKeypath, coin.Coin) error); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(signing.AbsoluteKeypath, signing.ScriptType, coin.Coin) error); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		r0 = ret.Error(0)
 	}
