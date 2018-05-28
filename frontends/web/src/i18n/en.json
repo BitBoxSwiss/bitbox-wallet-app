@@ -31,9 +31,14 @@
         "incoming": "Incoming",
         "initializing": "Initializing…",
         "info": {
-            "tbtc": "good ol' tbtc",
-            "tbtc-p2wpkh-p2sh": "tltc-p2wpkh-p2sh is the best",
-            "tltc-p2wpkh-p2sh": "tltc-p2wpkh-p2sh what else"
+            "btc": "Bitcoin Legacy - migrate to Bitcoin Segwit!",
+            "btc-p2wpkh-p2sh": "Bitcoin Segwit - recommended to use for lower fees",
+            "btc-p2wpkh": "Bitcoin Native Segwit - recommended to use for lowest fees, but the address format is not widely supported yet",
+            "ltc-p2wpkh-p2sh": "",
+            "tbtc": "$t(account.info.btc)",
+            "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
+            "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
+            "tltc-p2wpkh-p2sh": ""
         }
     },
     "transactions": {
