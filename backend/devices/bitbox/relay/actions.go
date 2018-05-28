@@ -1,9 +1,11 @@
 package relay
 
 import (
+	"encoding/base64"
 	"encoding/json"
 
-	"github.com/shiftdevices/godbb/util/aes"
+	"github.com/shiftdevices/godbb/util/crypto"
+	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // PushMessage pushes the encryption of the given data as JSON to the given server.
@@ -12,14 +14,15 @@ func PushMessage(server Server, channel *Channel, data interface{}) error {
 		panic("The channel may not be nil.")
 	}
 
-	jsonBytes, err := json.Marshal(data)
+	bytes, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	content, err := aes.Encrypt(channel.EncryptionKey, jsonBytes)
+	encrypted, err := crypto.EncryptThenMAC(bytes, channel.EncryptionKey, channel.AuthenticationKey)
 	if err != nil {
 		return err
 	}
+	content := base64.StdEncoding.EncodeToString(encrypted)
 
 	request := &request{
 		server:  server,
@@ -57,7 +60,12 @@ func PullOldestMessage(server Server, channel *Channel) ([]byte, error) {
 	}
 
 	if response.Status == "ok" && response.Data != nil && len(response.Data) > 0 {
-		return aes.Decrypt(channel.EncryptionKey, response.Data[0].Payload)
+		decodedPayload, err := base64.StdEncoding.DecodeString(response.Data[0].Payload)
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		return crypto.MACThenDecrypt(decodedPayload, channel.EncryptionKey,
+			channel.AuthenticationKey)
 	}
 
 	return nil, response.getErrorIfNok()

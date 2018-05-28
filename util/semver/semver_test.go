@@ -15,16 +15,16 @@ func TestNewSemVer(t *testing.T) {
 	var err error
 
 	_, err = semver.NewSemVerFromString("3.2")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	_, err = semver.NewSemVerFromString("3.2.")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	_, err = semver.NewSemVerFromString("3.2.A")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 
 	_, err = semver.NewSemVerFromString("3.2.4-")
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 }
 
 func TestAtLeast(t *testing.T) {

@@ -1,13 +1,13 @@
 package relay
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"reflect"
 	"time"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/random"
 	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/util/config"
@@ -22,32 +22,30 @@ type Channel struct {
 	// EncryptionKey is used to encrypt the communication between the desktop and the mobile.
 	EncryptionKey []byte `json:"key"`
 
+	// AuthenticationKey is used to authenticate messages between the desktop and the mobile.
+	AuthenticationKey []byte `json:"mac"`
+
 	log *logrus.Entry
 }
 
-// NewChannel returns a new channel with the given channel identifier and encryption key.
-func NewChannel(channelID string, encryptionKey []byte) *Channel {
+// NewChannel returns a new channel with the given channel ID, encryption and authentication key.
+func NewChannel(channelID string, encryptionKey []byte, authenticationKey []byte) *Channel {
 	return &Channel{
-		ChannelID:     channelID,
-		EncryptionKey: encryptionKey,
-		log:           logging.Log.WithGroup("channel"),
+		ChannelID:         channelID,
+		EncryptionKey:     encryptionKey,
+		AuthenticationKey: authenticationKey,
+		log:               logging.Log.WithGroup("channel"),
 	}
 }
 
 // NewChannelWithRandomKey returns a new channel with a random encryption key and identifier.
 func NewChannelWithRandomKey() *Channel {
-	channelID := make([]byte, 32)
-	if _, err := rand.Read(channelID); err != nil {
-		panic(err)
-	}
-
-	encryptionKey := make([]byte, 32)
-	if _, err := rand.Read(encryptionKey); err != nil {
-		panic(err)
-	}
+	channelID := random.BytesOrPanic(32)
+	encryptionKey := random.BytesOrPanic(32)
+	authenticationKey := random.BytesOrPanic(32)
 
 	// The channel identifier may not contain '=' and thus it cannot be encoded with base64.
-	return NewChannel(base58.Encode(channelID), encryptionKey)
+	return NewChannel(base58.Encode(channelID), encryptionKey, authenticationKey)
 }
 
 // NewChannelFromConfigFile returns a new channel with the channel identifier and encryption key
@@ -136,8 +134,8 @@ func (channel *Channel) WaitForScanningSuccess(duration time.Duration) error {
 	return channel.waitForMessage(duration, map[string]string{"id": "success"})
 }
 
-// WaitForMobilePublicKeyHash waits for the given duration for the ECDH public key hash from the mobile.
-// Returns an error if no ECDH public key hash has been received from the server in the given duration.
+// WaitForMobilePublicKeyHash waits for the given duration for the public key hash from the mobile.
+// Returns an error if no public key hash has been received from the server in the given duration.
 func (channel *Channel) WaitForMobilePublicKeyHash(duration time.Duration) (string, error) {
 	return channel.waitForValue(duration, "hash_ecdh_pubkey")
 }
@@ -149,13 +147,13 @@ func (channel *Channel) WaitForMobilePublicKey(duration time.Duration) (string, 
 }
 
 // WaitForCommand waits for the given duration for an ECDH command from mobile.
-// Returns the command or an error if no command has been received from the server in the given duration.
+// Returns the command or an error if no command has been received in the given duration.
 func (channel *Channel) WaitForCommand(duration time.Duration) (string, error) {
 	channel.log.Debug("WaitForCommand")
 	return channel.waitForValue(duration, "ecdh")
 }
 
-// SendHashPubKey sends the hash of the public key from the BitBox to the paired mobile to finish pairing.
+// SendHashPubKey sends the hash of the public key from the BitBox to the mobile to finish pairing.
 func (channel *Channel) SendHashPubKey(verifyPass interface{}) error {
 	return PushMessage(relayServer(), channel, map[string]interface{}{
 		"ecdh": verifyPass,
@@ -206,7 +204,12 @@ func (channel *Channel) SendXpubEcho(xpubEcho string, typ string) error {
 }
 
 // SendSigningEcho sends the encrypted signing echo from the BitBox to the paired mobile.
-func (channel *Channel) SendSigningEcho(signingEcho string, coin string, scriptType string, transaction string) error {
+func (channel *Channel) SendSigningEcho(
+	signingEcho string,
+	coin string,
+	scriptType string,
+	transaction string,
+) error {
 	return PushMessage(relayServer(), channel, map[string]string{
 		"echo":               signingEcho,
 		"coin":               coin,

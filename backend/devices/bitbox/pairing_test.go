@@ -14,10 +14,11 @@ const (
 	// the encryption key and channel ID from the configuration file (on macOS, run the following
 	// command: 'cat ~/Library/Application\ Support/DBB/config.dat') and the TFA test string and
 	// xpub echo with the Electron demo app from https://github.com/digitalbitbox/ElectronDemo.
-	encryptionKey = "F32H+9lxwWc0pAqmwhTSWfA+K7jT4cNx8frORb1LXoY="
-	channelID     = "5wq2CsSzWZmuAtN7d5YcaTCzg76yhTJfcZunmWWYPDJG"
-	tfaTestString = "5hcaTvjdIm6eb9KZv7wRuPKZQWcRSRsPwJ1rptJJApAes6mVHZ/+RTG6FkA3d3FS"
-	xpubEcho      = "Dumx+aTBaR3NHqf4XxT5b7VtstfsJ9XExu5b8ZovZud+dsVmdtULr5AiOp2RkAU11d9TopwSDnT6lz8itr2T66EWixCBu/WkHfRpehVcU+CY5hhr9zfEoxnBrddUg+0zhyTlbq5FryaqCgZT+qnMBvjKN7Zsc3FvKZ0yS5yvus0="
+	channelID         = "5wq2CsSzWZmuAtN7d5YcaTCzg76yhTJfcZunmWWYPDJG"
+	encryptionKey     = "F32H+9lxwWc0pAqmwhTSWfA+K7jT4cNx8frORb1LXoY="
+	authenticationKey = "L8dIdfcgobOdqH+EYgXs9vmZUp9P1UNAXLQ5Jy28yj4="
+	tfaTestString     = "5hcaTvjdIm6eb9KZv7wRuPKZQWcRSRsPwJ1rptJJApAes6mVHZ/+RTG6FkA3d3FS"
+	xpubEcho          = "Dumx+aTBaR3NHqf4XxT5b7VtstfsJ9XExu5b8ZovZud+dsVmdtULr5AiOp2RkAU11d9TopwSDnT6lz8itr2T66EWixCBu/WkHfRpehVcU+CY5hhr9zfEoxnBrddUg+0zhyTlbq5FryaqCgZT+qnMBvjKN7Zsc3FvKZ0yS5yvus0="
 )
 
 func TestChannel(t *testing.T) {
@@ -26,7 +27,12 @@ func TestChannel(t *testing.T) {
 		panic("Cannot decode the testing encryption key!")
 	}
 
-	channel := relay.NewChannel(channelID, encryptionKey)
+	authenticationKey, err := base64.StdEncoding.DecodeString(authenticationKey)
+	if err != nil {
+		panic("Cannot decode the testing authentication key!")
+	}
+
+	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey)
 
 	if false { // Activate once you have configured the constants above and opened the mobile app.
 		assert.NoError(t, channel.SendPing())

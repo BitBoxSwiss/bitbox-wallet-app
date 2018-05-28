@@ -2,6 +2,7 @@ package usb
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
 	"io"
@@ -11,7 +12,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/pkg/errors"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/util/aes"
+	"github.com/shiftdevices/godbb/util/crypto"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
@@ -250,16 +251,20 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		return nil, errp.WithMessage(err, "Invalid JSON passed. Continuing anyway")
 	}
 	secret := chainhash.DoubleHashB([]byte(password))
-	cipherText, err := aes.Encrypt(secret, []byte(msg))
+	cipherText, err := crypto.Encrypt([]byte(msg), secret)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to encrypt command")
 	}
-	jsonResult, err := communication.SendPlain(cipherText)
+	jsonResult, err := communication.SendPlain(base64.StdEncoding.EncodeToString(cipherText))
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to send cipher text")
 	}
 	if cipherText, ok := jsonResult["ciphertext"].(string); ok {
-		plainText, err := aes.Decrypt(secret, cipherText)
+		decodedMsg, err := base64.StdEncoding.DecodeString(cipherText)
+		if err != nil {
+			return nil, errp.WithMessage(err, "Failed to decode reply")
+		}
+		plainText, err := crypto.Decrypt(decodedMsg, secret)
 		if err != nil {
 			return nil, errp.WithMessage(err, "Failed to decrypt reply")
 		}

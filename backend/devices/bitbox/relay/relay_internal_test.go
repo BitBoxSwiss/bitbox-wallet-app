@@ -1,11 +1,12 @@
 package relay
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"testing"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/aes"
+	"github.com/shiftdevices/godbb/util/crypto"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,14 +20,15 @@ func TestDeleteAllMessages(t *testing.T) {
 
 func sendPongAsMobile(channel *Channel) error {
 	data := map[string]string{"action": "pong"}
-	jsonBytes, err := json.Marshal(data)
+	bytes, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	content, err := aes.Encrypt(channel.EncryptionKey, jsonBytes)
+	encrypted, err := crypto.EncryptThenMAC(bytes, channel.EncryptionKey, channel.AuthenticationKey)
 	if err != nil {
 		return err
 	}
+	content := base64.StdEncoding.EncodeToString(encrypted)
 
 	request := &request{
 		server:  relayServer(),
