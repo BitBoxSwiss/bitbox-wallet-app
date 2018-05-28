@@ -1,0 +1,44 @@
+.container {
+    margin: 0 calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
+    position: relative;
+}
+
+.status {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: var(--spacing-half) var(--spacing-large);
+    text-align: center;
+}
+
+.success {
+    background-color: var(--color-success);
+    color: var(--color-white);
+}
+
+.warning {
+    background-color: var(--color-swissred);
+    color: var(--color-white);
+}
+
+.info {
+    background-color: var(--color-info);
+    color: var(--color-white);
+}
+
+.status p {
+    margin: 0;
+    font-size: var(--size-small);
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.close {
+    background-color: transparent;
+    border: 0;
+    color: var(--color-white);
+    line-height: 36px;
+    min-width: auto;
+    padding: 0 var(--spacing-half);
+    position: absolute;
+    top: 0;
+    right: 0;
+}

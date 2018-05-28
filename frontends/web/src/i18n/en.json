@@ -29,7 +29,12 @@
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",
         "incoming": "Incoming",
-        "initializing": "Initializing…"
+        "initializing": "Initializing…",
+        "info": {
+            "tbtc": "good ol' tbtc",
+            "tbtc-p2wpkh-p2sh": "tltc-p2wpkh-p2sh is the best",
+            "tltc-p2wpkh-p2sh": "tltc-p2wpkh-p2sh what else"
+        }
     },
     "transactions": {
         "placeholder": "No transactions yet."

@@ -1,14 +1,18 @@
+.label {
+    margin-bottom: 0 !important;
+}
+
 .balance {
     font-weight: bold;
 }
 
 .amount {
-  font-size: var(--size-extra-large);
-  line-height: 1;
-  margin: 0;
+    font-size: var(--size-extra-large);
+    line-height: 1;
+    margin: 0;
 }
 
 .unit {
-  color: var(--color-secondary);
-  font-size: var(--size-large);
+    color: var(--color-secondary);
+    font-size: var(--size-large);
 }

@@ -5,6 +5,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';
 import Balance from '../../components/balance/balance';
+import Status from '../../components/status/status';
 import Send from './send/send';
 import Receive from './receive/receive';
 import Transactions from '../../components/transactions/transactions';
@@ -136,17 +137,9 @@ export default class Account extends Component {
     }) {
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
-        // currently no status if everything is ok 'account.connect'
-        const connectionStatusContainer = walletConnected ? null : (
-            <div class={style.connectionStatusContainer}>
-                <div class={[style.connectionStatus, style.warning].join(' ')}>
-                    <p>{t('account.disconnect')}</p>
-                </div>
-            </div>
-        );
 
         if (!isReceive && !isSend) {
-            const noTransactions = (walletInitialized && transactions.length <= 0) ? 'isVerticallyCentered' : '';
+            const noTransactions = (walletInitialized && transactions.length <= 0);
             return (
                 <div class="container">
                     <div class="headerContainer fixed">
@@ -163,7 +156,7 @@ export default class Account extends Component {
                                     )
                                 }
                             </Balance>
-                            <div class={componentStyle.buttons}>
+                            <div class={componentStyle.buttons} style="align-self: flex-end;">
                                 <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
                                     {t('button.receive')}
                                 </Button>
@@ -173,8 +166,20 @@ export default class Account extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class={['innerContainer', 'withFixedContent', 'scrollableContainer', noTransactions].join(' ')}>
-                        {connectionStatusContainer}
+                    <div class={['innerContainer', 'withFixedContent', 'scrollableContainer'].join(' ')}>
+
+                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                            <p>{t(`account.info.${this.props.code}`)}</p>
+                        </Status>
+                        <div>
+                            {
+                                !walletConnected && (
+                                    <Status>
+                                        <p>{t('account.disconnect')}</p>
+                                    </Status>
+                                )
+                            }
+                        </div>
                         {
                             !walletInitialized ? (
                                 <div class="flex flex-row flex-center">
@@ -184,6 +189,7 @@ export default class Account extends Component {
                                 <Transactions
                                     explorerURL={wallet.blockExplorerTxPrefix}
                                     transactions={transactions}
+                                    className={noTransactions ? 'isVerticallyCentered' : ''}
                                 />
                             )
                         }

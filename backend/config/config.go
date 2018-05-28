@@ -39,6 +39,7 @@ func (backend Backend) AccountActive(code string) bool {
 // AppConfig holds the whole app configuration.
 type AppConfig struct {
 	Backend Backend `json:"backend"`
+	Frontend interface{} `json:"frontend"`
 }
 
 func defaultAppConfig() AppConfig {

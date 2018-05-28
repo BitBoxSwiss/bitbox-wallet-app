@@ -24,29 +24,3 @@
     margin: 0;
     color: var(--color-secondary);
 }
-
-.connectionStatusContainer {
-    margin: 0 calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
-}
-
-.connectionStatus {
-    padding: var(--spacing-half) var(--spacing-large);
-    text-align: center;
-}
-
-.success {
-    background-color: var(--color-success);
-    color: var(--color-white);
-}
-
-.warning {
-    background-color: var(--color-swissred);
-    color: var(--color-white);
-}
-
-.connectionStatus p {
-    margin: 0;
-    font-size: var(--size-small);
-    text-transform: uppercase;
-    font-weight: bold;
-}
