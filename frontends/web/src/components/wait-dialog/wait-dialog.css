@@ -7,17 +7,3 @@
 .confirmationInstructions {
   margin-top: var(--spacing-default);
 }
-
-.shortTouch {
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-warn);
-  border-radius: 50%;
-}
-
-.longTouch {
-  width: 64px;
-  height: 64px;
-  background-color: var(--color-success);
-  border-radius: 50%;
-}

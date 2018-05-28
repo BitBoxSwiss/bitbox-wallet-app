@@ -1,8 +1,8 @@
 import { h } from 'preact';
 import i18n from '../../i18n/i18n';
 // import style from './message.css';
-import approve from './assets/approve.png';
-import reject from './assets/reject.png';
+import approve from '../../assets/device/approve.png';
+import reject from '../../assets/device/reject.png';
 
 export default function Confirm({
     active = false,
