@@ -40,11 +40,6 @@ The below instructions assume a unix environment.
 ### Requirements
 
 - [Go](https://golang.org/doc/install) version 1.9.2.
-- [Go dep](https://github.com/golang/dep) - for managing Go deps.
-  - Install with `go get -u github.com/golang/dep/cmd/dep`.
-- [goimports](https://godoc.org/golang.org/x/tools/cmd/goimports) - integrate with your editor to
-  automatically format the code and import packages.
-  - Install with `go get -u golang.org/x/tools/cmd/goimports`.
 - [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
 - [Qt5](https://www.qt.io)
   - Install on OSX: `brew install qt5 && brew link qt5`
@@ -53,7 +48,7 @@ Make sure $GOPATH is set and $GOPAH/bin is in your $PATH
 
 Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` is usually `~/go`).
 
-In the project root, run `dep ensure`, then `make init`.
+Only the first time, set up the project with `make init`.
 
 ## ElectrumX Backend
 
