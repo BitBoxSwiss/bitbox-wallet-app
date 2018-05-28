@@ -53,7 +53,7 @@ Make sure $GOPATH is set and $GOPAH/bin is in your $PATH
 
 Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` is usually `~/go`).
 
-In the project root, run `make init`.
+In the project root, run `dep ensure`, then `make init`.
 
 ## ElectrumX Backend
 
@@ -78,9 +78,9 @@ docker run -v /home/<user>/.electrumx-btc-testnet:/data -e DAEMON_URL="<rpcuser>
 `<host-ip>` should be the IP of your machine (check `ip addr`), not `localhost`, as that refers to
 the docker image.
 
-We are currently using our development server to host the ElectrumX servers. Running your own node 
-would require that you change the TLS root certificate currently located under 
-`config/certificates/electrumx/dev/ca.cert.pem`. 
+We are currently using our development server to host the ElectrumX servers. Running your own node
+would require that you change the TLS root certificate currently located under
+`config/certificates/electrumx/dev/ca.cert.pem`.
 
 Additionally, you have to create a new `assets.go` file in the `coins/btc/electrum` directory. You can do so by changing into
 the directory and executing:
@@ -114,6 +114,9 @@ code in  `frontends/web/src` are automatically detected and rebuilt.
 Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a
 devtool which serves the HTTP API.
 
+#### Update go dependencies
+
+Run `dep ensure` to update dependencies.
 
 ### Production build
 
