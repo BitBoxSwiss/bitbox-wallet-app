@@ -7,28 +7,34 @@ export function ButtonLink({
     secondary,
     transparent,
     danger,
+    className,
     children,
     disabled,
     ...props
 }) {
-    const className = primary && 'primary'
+    const classNames = [
+        style[primary && 'primary'
         || secondary && 'secondary'
         || transparent && 'transparent'
         || danger && 'danger'
-        || 'secondary';
+        || 'button'
+        ], className
+    ].join(' ');
+
     if (disabled) {
-        return <Button
-        primary={primary}
-        secondary={secondary}
-        transparent={transparent}
-        danger={danger}
-        children={children}
-        disabled={disabled}
-        {...props}
-            />;
+        return (
+            <Button
+                primary={primary}
+                secondary={secondary}
+                transparent={transparent}
+                danger={danger}
+                children={children}
+                disabled={disabled}
+                {...props} />
+        );
     }
     return (
-        <Link className={style[className]} {...props}>
+        <Link className={classNames} {...props}>
             {children}
         </Link>
     );
@@ -40,19 +46,23 @@ export default function Button({
     secondary,
     transparent,
     danger,
+    className,
     children,
     ...props
 }) {
-    const className = primary && 'primary'
+    const classNames = [
+        style[primary && 'primary'
         || secondary && 'secondary'
         || transparent && 'transparent'
         || danger && 'danger'
-        || 'button';
+        || 'button'
+        ], className
+    ].join(' ');
 
     return (
         <button
             type={type}
-            className={style[className]}
+            className={classNames}
             {...props}>
             {children}
         </button>
