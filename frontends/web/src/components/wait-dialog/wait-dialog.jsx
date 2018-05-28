@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-import createFocusTrap from 'focus-trap';
 import style from './wait-dialog.css';
 
 export default class WaitDialog extends Component {
@@ -37,7 +36,6 @@ export default class WaitDialog extends Component {
                 </div>
             </div>
         );
-        console.log(includeDefault)
         return (
             <div class={['overlay', isActive].join(' ')}>
                 <div class={['modal', isActive].join(' ')}>

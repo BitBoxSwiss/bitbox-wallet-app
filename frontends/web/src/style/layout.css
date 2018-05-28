@@ -113,11 +113,15 @@
 }
 
 .subHeaderContainer {
-    margin-bottom: var(--spacing-default);
+    margin: var(--spacing-default) 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
+}
+
+.subHeaderContainer.first {
+    margin-top: 0;
 }
 
 .subHeaderContainer .subHeader h3 {
@@ -200,8 +204,8 @@
 }
 
 /* UTILITIES */
-.buttons.wrapped > * {
-    margin-bottom: var(--spacing-default);
+.wrapped > * {
+    margin-bottom: var(--spacing-half);
 }
 
 .buttons > *:not(:last-child) {

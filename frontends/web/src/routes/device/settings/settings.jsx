@@ -46,19 +46,31 @@ export default class Settings extends Component {
                 </div>
                 <div class="innerContainer">
                     <div class="content">
-                        <h3>Device</h3>
+                        <div class="subHeaderContainer first">
+                            <div class="subHeader">
+                                <h3>Device</h3>
+                            </div>
+                        </div>
                         <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                             <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
                             <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                             <HiddenWallet deviceID={deviceID} disabled={lock} />
                             <Reset deviceID={deviceID} />
                         </div>
-                        <h3>Pairing</h3>
+                        <div class="subHeaderContainer">
+                            <div class="subHeader">
+                                <h3>Pairing</h3>
+                            </div>
+                        </div>
                         <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                             <MobilePairing deviceID={deviceID} disabled={lock}/>
                             <DeviceLock deviceID={deviceID} />
                         </div>
-                        <h3>Miscellaneous</h3>
+                        <div class="subHeaderContainer">
+                            <div class="subHeader">
+                                <h3>Miscellaneous</h3>
+                            </div>
+                        </div>
                         <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                             <Blink deviceID={deviceID} />
                             <RandomNumber deviceID={deviceID} />

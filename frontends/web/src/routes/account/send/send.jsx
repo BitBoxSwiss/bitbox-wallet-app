@@ -155,7 +155,7 @@ export default class Send extends Component {
                 <div class="innerContainer">
                     <div class="content">
                         <div class="row">
-                            <div class="subHeaderContainer">
+                            <div class="subHeaderContainer first">
                                 <div class="subHeader">
                                     <h3>{t('send.title')}</h3>
                                 </div>
