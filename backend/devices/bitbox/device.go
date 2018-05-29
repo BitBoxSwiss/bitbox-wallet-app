@@ -727,7 +727,6 @@ func (dbb *Device) Random(typ string) (string, error) {
 	}
 	if typ != "true" && typ != "pseudo" {
 		dbb.log.WithField("type", typ).Panic("Type must be 'true' or 'pseudo'")
-		panic("needs to be true or pseudo")
 	}
 	reply, err := dbb.sendKV("random", typ, dbb.pin)
 	if err != nil {
@@ -743,6 +742,17 @@ func (dbb *Device) Random(typ string) (string, error) {
 		dbb.log.WithField("random-length", len(rand)).Error("Unexpected length: expected 32 bytes")
 		return "", fmt.Errorf("unexpected length, expected 32, got %d", len(rand))
 	}
+
+	if dbb.channel != nil {
+		echo, ok := reply["echo"].(string)
+		if !ok {
+			return "", errp.WithMessage(err, "The random number echo from the BitBox was invalid.")
+		}
+		if err = dbb.channel.SendRandomNumberEcho(echo); err != nil {
+			return "", errp.WithMessage(err, "Could not send the random number echo to the mobile.")
+		}
+	}
+
 	return rand, nil
 }
 
