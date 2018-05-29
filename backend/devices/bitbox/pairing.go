@@ -19,12 +19,12 @@ func finishPairing(device *Device) {
 	}
 	bitboxECDHPKhash, err := device.ECDHPKhash(mobileECDHPKhash)
 	if err != nil {
-		device.log.WithField("error", err).Error("Failed to get the hash of the ECDH public key" +
+		device.log.WithField("error", err).Error("Failed to get the hash of the ECDH public key " +
 			"from the BitBox.")
 		return
 	}
 	if device.channel.SendHashPubKey(bitboxECDHPKhash) != nil {
-		device.log.WithField("error", err).Error("Failed to send the hash of the ECDH public key" +
+		device.log.WithField("error", err).Error("Failed to send the hash of the ECDH public key " +
 			"to the server.")
 		return
 	}
