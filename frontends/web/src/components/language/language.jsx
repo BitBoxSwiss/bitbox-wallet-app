@@ -24,7 +24,10 @@ export default class LanguageSwitcher extends Component {
     changeLanguage = ({ target }) => {
         const langCode = target.dataset.code;
         const index = parseInt(target.dataset.index);
-        this.setState({ selectedIndex: index });
+        this.setState({
+            selectedIndex: index,
+            activeDialog: false,
+        });
         this.context.i18n.changeLanguage(langCode);
     }
 
@@ -63,9 +66,6 @@ export default class LanguageSwitcher extends Component {
                                             );
                                         })
                                     }
-                                    <div class="row extra flex flex-row flex-end">
-                                        <Button primary onClick={() => this.setState({ activeDialog: false })}>Done</Button>
-                                    </div>
                                 </div>
                             </div>
                         </div>
