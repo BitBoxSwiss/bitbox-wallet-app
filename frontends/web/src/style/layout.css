@@ -147,6 +147,10 @@
     margin-top: var(--spacing-default);
 }
 
+.row:not(:first-child).extra {
+    margin-top: var(--spacing-large);
+}
+
 .isVerticallyCentered {
     display: flex;
     flex: 1 1 auto;
@@ -180,8 +184,12 @@
     width: 480px;
     border-radius: 2px;
     padding: var(--spacing-large);
-    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
     text-align: left;
+}
+
+.modal.small {
+    width: 280px;
 }
 
 .modal.active {

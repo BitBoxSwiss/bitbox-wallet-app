@@ -25,6 +25,9 @@
     "settings": {
         "title": "Settings"
     },
+    "language": {
+        "title": "Select language"
+    },
     "account": {
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",

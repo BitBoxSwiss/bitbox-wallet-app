@@ -1,12 +1,30 @@
 .languageSelect {
-  position: relative;
+  /*position: relative;
   background-color: white;
   border: solid 1px var(--color-brightblue);
   border-radius: 2px;
   height: 36px;
   min-width: 120px;
   max-width: 300px;
-  padding: 0 var(--spacing-half);
+  padding: 0 var(--spacing-half);*/
+}
+
+.language {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-half) 0;
+  color: var(--color-rock);
+  border: none;
+  background-color: transparent;
+  font-size: var(--size-default);
+}
+
+.language.selected {
+  color: var(--color-softblack);
+}
+
+.language:hover {
+  background-color: var(--color-lightgray);
 }
 
 .languageSelect select {
