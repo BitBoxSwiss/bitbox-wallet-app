@@ -1,6 +1,6 @@
 # godbb
 
-This repo contains the source code for the Digital Bitbox wallet and related tools.
+This repo contains the source code for the Shift Wallet and related tools.
 
 ## Tech Stack
 
@@ -24,12 +24,12 @@ Studio / XCode project. This is not part of this repo yet.
 - `cmd/servewallet/`: a development aid which serves the static web ui and the http api it talks
   to. See below.
 - `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
-- `electrum/`: A json rpc client library, talking to Electrum servers.
-- `devices/bitbox/`: Library to detect and talk to digital bitboxes. High level API access.
-- `coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
+- `backend/coins/btc/electrum/`: A json rpc client library, talking to Electrum servers.
+- `backend/devices/bitbox/`: Library to detect and talk to digital bitboxes. High level API access.
+- `backend/coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
-- `backend/`: The library that ties it all together. Uses the above packages to create a wallet talking
-  Electrum using the DBB for signing, and serve a high level HTTP API to control it.
+- `backend/`: The library that ties it all together. Uses the above packages to create a wallet
+  talking Electrum using the DBB for signing, and serve a high level HTTP API to control it.
 - `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
 - `frontends/web/`: home of the preact UI.
 
@@ -96,13 +96,16 @@ The godbb app connects to the server `dev.shiftcrypto.ch`, which at the moment, 
 
 ### Local Development
 
-Run `make servewallet` and `make webdev` in seperate terminals (screen or tmux recommended!),
+Run `make servewallet` and `make webdev` in seperate terminals.
 
 #### Watch and build the UI
 
-Run `make webdev` to develop the UI inside Chromium (for quick development, automatic rebuilds
+Run `make webdev` to develop the UI inside a web browser (for quick development, automatic rebuilds
 and devtools). This serves the UI on [localhost:8080](http://localhost:8080). Changes to the web
-code in  `frontends/web/src` are automatically detected and rebuilt.
+code in `frontends/web/src` are automatically detected and rebuilt. In order to have a rendering
+identical to the built Qt app, you should use the [Otter Browser](https://otter-browser.org).
+On macOS with a retina display, perform [these steps](https://github.com/OtterBrowser/otter-browser/issues/1492)
+before opening the Otter Browser for the first time.
 
 #### Run the HTTP API
 
