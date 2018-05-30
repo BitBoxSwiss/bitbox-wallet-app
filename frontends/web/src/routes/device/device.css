@@ -11,7 +11,7 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
-    padding: 2rem;
+    padding: 4rem;
 }
 
 .content {
@@ -27,4 +27,5 @@
     flex-grow: 1;
     flex-shrink: 1;
     text-align: left;
+    padding: 2rem;
 }

@@ -1,6 +1,7 @@
 package semver
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -67,4 +68,23 @@ func (version *SemVer) Between(fromVersion *SemVer, toVersion *SemVer) bool {
 
 func (version *SemVer) String() string {
 	return fmt.Sprintf("%d.%d.%d", version.major, version.minor, version.patch)
+}
+
+// MarshalJSON implements json.Marshaler.
+func (version SemVer) MarshalJSON() ([]byte, error) {
+	return json.Marshal(version.String())
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (version *SemVer) UnmarshalJSON(bytes []byte) error {
+	var input string
+	if err := json.Unmarshal(bytes, &input); err != nil {
+		return errp.Wrap(err, "Could not unmarshal a semantic version.")
+	}
+	decoded, err := NewSemVerFromString(input)
+	if err != nil {
+		return err
+	}
+	*version = *decoded
+	return nil
 }

@@ -1,5 +1,4 @@
 .container {
-    margin: 0 calc(var(--spacing-large) * -1) 0 calc(var(--spacing-large) * -1);
     position: relative;
 }
 

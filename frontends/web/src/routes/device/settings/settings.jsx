@@ -11,7 +11,6 @@ import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
 
 @translate()
-
 export default class Settings extends Component {
     state = {
         firmwareVersion: null,

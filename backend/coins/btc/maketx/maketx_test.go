@@ -87,7 +87,7 @@ func (s *newTxSuite) newTx(
 }
 
 func (s *newTxSuite) coin(i int) wire.OutPoint {
-	return wire.OutPoint{chainhash.HashH([]byte(`some-tx`)), uint32(i)}
+	return wire.OutPoint{Hash: chainhash.HashH([]byte(`some-tx`)), Index: uint32(i)}
 }
 
 // buildUTXO builds an utxo set from the input. All utxo outpoints are unique.

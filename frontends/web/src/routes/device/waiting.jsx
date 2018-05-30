@@ -7,7 +7,6 @@ import { BitBox } from '../../components/icon/logo';
 import { debug } from '../../utils/env';
 import style from './device.css';
 
-
 export default function Waiting({ testing }) {
     return (
         <div className={style.container}>

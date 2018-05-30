@@ -13,13 +13,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/shiftdevices/godbb/util/semver"
 	"github.com/sirupsen/logrus"
-)
-
-var (
-	// Version of the backend as displayed to the user.
-	Version = semver.NewSemVer(0, 1, 0)
 )
 
 const (
@@ -241,6 +235,10 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	go backend.listenHID()
+	err := backend.checkForUpdate()
+	if err != nil {
+		backend.log.WithField("error", err).Error("The update check failed.")
+	}
 	return backend.events
 }
 

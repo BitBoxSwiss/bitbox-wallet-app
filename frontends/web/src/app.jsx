@@ -10,6 +10,7 @@ import Account from './routes/account/account';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
+import Status from './components/status/status';
 
 @translate()
 export default class App extends Component {
@@ -17,6 +18,7 @@ export default class App extends Component {
         backendConnected: true,
         walletInitialized: false,
         deviceIDs: [],
+        update: null,
     }
 
     /** Gets fired when the route changes.
@@ -61,6 +63,9 @@ export default class App extends Component {
                     break;
                 }
                 break;
+            case 'update':
+                this.setState({ update: data });
+                break;
             }
         });
     }
@@ -88,34 +93,41 @@ export default class App extends Component {
         });
     }
 
-    render({ t }, { backendConnected, deviceIDs, walletInitialized }) {
+    render({ t }, { backendConnected, deviceIDs, walletInitialized, update }) {
         if (!backendConnected) {
             return (
-                <div className="app">
-                  An error occurred. Please restart the application.
+                <div className="app" style="padding: 40px">
+                    An error occurred. Please restart the application.
                 </div>
             );
         }
         return (
             <div className="app">
                 { walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
-                <Router onChange={this.handleRoute}>
-                    {/*
-                      <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                    */}
-                    <Account path="/account/:code?" deviceIDs={deviceIDs} />
-                    <Settings path="/settings" deviceIDs={deviceIDs} />
-                    <ManageBackups
-                        path="/manage-backups/:deviceID"
-                        showCreate={true}
-                        displayError={(msg) => { if (msg) alert("TODO" + msg); }}
-                        deviceIDs={deviceIDs} />
-                    <Device path="/device/:deviceID" deviceIDs={deviceIDs} />
-                    <Device
-                        default
-                        deviceID={deviceIDs[0]}
-                        deviceIDs={deviceIDs} />
-                </Router>
+                <div class="flex-column flex-1">
+                    { update && <Status dismissable keyName={`update-${update.version}`} type="info">
+                        A new version of this app is available! We recommend that you upgrade
+                        from { update.current } to { update.version }. { update.description }
+                        &nbsp;<a href="https://shiftcrypto.ch/start" target="_blank">Download</a>
+                    </Status> }
+                    <Router onChange={ this.handleRoute.bind(this) }>
+                        {/*
+                        <Redirect path="/" to={`/account/${wallets[0].code}`} />
+                        */}
+                        <Account path="/account/:code?" deviceIDs={deviceIDs} />
+                        <Settings path="/settings" deviceIDs={deviceIDs} />
+                        <ManageBackups
+                            path="/manage-backups/:deviceID"
+                            showCreate={true}
+                            displayError={(msg) => { if (msg) alert("TODO" + msg); }}
+                            deviceIDs={deviceIDs} />
+                        <Device path="/device/:deviceID" deviceIDs={deviceIDs} />
+                        <Device
+                            default
+                            deviceID={deviceIDs[0]}
+                            deviceIDs={deviceIDs} />
+                    </Router>
+                </div>
                 <Alert />
             </div>
         );

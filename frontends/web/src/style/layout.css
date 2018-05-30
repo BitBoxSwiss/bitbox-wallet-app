@@ -57,7 +57,6 @@
     flex-grow: 1;
     width: 100%;
     min-height: calc(100% - var(--header-height));
-    padding: var(--spacing-large) var(--spacing-large) var(--spacing-default) var(--spacing-large);
     margin: 0 auto;
     justify-content: flex-start;
 }
@@ -89,7 +88,6 @@
 
 .headerContainer.fixed {
     position: fixed;
-    top: 0;
     left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width));
     z-index: 1001;
