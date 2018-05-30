@@ -9,6 +9,7 @@ import Status from '../../components/status/status';
 import Send from './send/send';
 import Receive from './receive/receive';
 import Transactions from '../../components/transactions/transactions';
+import Spinner from '../../components/spinner/Spinner';
 import componentStyle from '../../components/style.css';
 import style from './account.css';
 
@@ -182,9 +183,7 @@ export default class Account extends Component {
                         </div>
                         {
                             !walletInitialized ? (
-                                <div class="flex flex-row flex-center">
-                                    <p style="font-weight: bold;">{t('account.initializing')}</p>
-                                </div>
+                                <Spinner />
                             ) : (
                                 <Transactions
                                     explorerURL={wallet.blockExplorerTxPrefix}

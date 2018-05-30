@@ -7,6 +7,7 @@ import { Button } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
+import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';
 
 const stateEnum = Object.freeze({
@@ -82,17 +83,6 @@ export default class Initialize extends Component {
             );
         }
 
-        if (status === stateEnum.WAITING) {
-            return (
-                <div className={style.container}>
-                    <BitBox />
-                    <div className={style.content}>
-                        {formSubmissionState}
-                    </div>
-                </div>
-            );
-        }
-
         return (
             <div className={style.container}>
                 <BitBox />
@@ -120,6 +110,11 @@ export default class Initialize extends Component {
                     <hr />
                     <Footer />
                 </div>
+                {
+                    status === stateEnum.WAITING && (
+                        <Spinner />
+                    )
+                }
             </div>
         );
     }
