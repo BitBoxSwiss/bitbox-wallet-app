@@ -1,14 +1,3 @@
-.languageSelect {
-  /*position: relative;
-  background-color: white;
-  border: solid 1px var(--color-brightblue);
-  border-radius: 2px;
-  height: 36px;
-  min-width: 120px;
-  max-width: 300px;
-  padding: 0 var(--spacing-half);*/
-}
-
 .language {
   display: block;
   width: 100%;
@@ -25,29 +14,4 @@
 
 .language:hover {
   background-color: var(--color-lightgray);
-}
-
-.languageSelect select {
-  width: 100%;
-  height: 100%;
-  appearance: none;
-  border: 0;
-  background-color: white;
-  font-size: var(--size-small);
-  font-weight: bold;
-  color: var(--color-brightblue);
-  display: block;
-}
-
-.languageSelect select:focus {
-  outline: none;
-}
-
-.languageSelect .caret {
-  position: absolute;
-  top: 50%;
-  right: var(--spacing-half);
-  color: var(--color-brightblue);
-  font-size: 12px;
-  transform: translateY(-50%);
 }
