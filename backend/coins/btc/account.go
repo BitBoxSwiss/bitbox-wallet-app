@@ -220,8 +220,15 @@ func (account *Account) Init() error {
 
 	account.receiveAddresses = addresses.NewAddressChain(
 		account.configuration, account.coin.Net(), gapLimit, 0, account.log)
+
+	fixChangeGapLimit := changeGapLimit
+	if account.configuration.Singlesig() && account.configuration.ScriptType() == signing.ScriptTypeP2PKH {
+		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
+		account.log.Warning("increased change gap limit to 20 for BWS compatibility")
+		fixChangeGapLimit = 20
+	}
 	account.changeAddresses = addresses.NewAddressChain(
-		account.configuration, account.coin.Net(), changeGapLimit, 1, account.log)
+		account.configuration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
 	account.ensureAddresses()
 	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})
 }

@@ -103,10 +103,13 @@ func (s *addressChainTestSuite) TestEnsureAddresses() {
 		}
 		return publicKey
 	}
+	require.Len(s.T(), newAddresses, s.gapLimit)
 	for index, address := range newAddresses {
 		require.Equal(s.T(), getPubKey(index), address.Configuration.PublicKeys()[0])
 	}
 	// Address statuses are still the same, so calling it again won't produce more addresses.
-	newAddresses2 := s.addresses.EnsureAddresses()
-	require.Empty(s.T(), newAddresses2)
+	require.Empty(s.T(), s.addresses.EnsureAddresses())
+
+	newAddresses[s.gapLimit-1].HistoryStatus = "used"
+	require.Len(s.T(), s.addresses.EnsureAddresses(), s.gapLimit)
 }
