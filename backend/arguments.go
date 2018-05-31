@@ -4,9 +4,11 @@ import (
 	"flag"
 	"os"
 	"path"
-)
+	"path/filepath"
+	"runtime"
 
-const defaultMainDirectoryPath = "."
+	"github.com/shiftdevices/godbb/util/logging"
+)
 
 // Arguments models a configuration of the backend.
 type Arguments struct {
@@ -61,7 +63,7 @@ func ParseArguments() *Arguments {
 	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
 	flag.Parse()
 
-	return NewArguments(defaultMainDirectoryPath, !*mainnet, *regtest, *multisig)
+	return NewArguments(".", !*mainnet, *regtest, *multisig)
 }
 
 // MainDirectoryPath returns the path to the main directory of the backend to store data.
@@ -91,9 +93,25 @@ func (arguments *Arguments) Multisig() bool {
 	return arguments.multisig
 }
 
-var productionArguments = NewArguments(defaultMainDirectoryPath, false, false, false)
-
 // ProductionArguments returns the arguments used for production.
 func ProductionArguments() *Arguments {
-	return productionArguments
+	// Get production application folder.
+	var appFolder string
+	switch runtime.GOOS {
+	case "windows":
+		appFolder = os.Getenv("APPDATA")
+	case "darwin":
+		// Usually /home/<User>/Library/Application Support
+		appFolder = os.Getenv("HOME") + "/Library/Application Support"
+	case "linux":
+		if os.Getenv("XDG_CONFIG_HOME") != "" {
+			// Usually /home/<User>/.config/
+			appFolder = os.Getenv("XDG_CONFIG_HOME")
+		} else {
+			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
+		}
+	}
+	appFolder = path.Join(appFolder, "bitbox")
+	logging.Log.WithGroup("arguments").Info("appFolder: ", appFolder)
+	return NewArguments(appFolder, false, false, false)
 }

@@ -49,11 +49,6 @@ type Interface interface {
 	Deregister(deviceID string)
 }
 
-// DefaultAppFolder returns the default location to store application data.
-func DefaultAppFolder() string {
-	return "."
-}
-
 type backendEvent struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
