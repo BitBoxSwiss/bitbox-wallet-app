@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import { Button } from '../../../../components/forms';
+import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
 
@@ -33,16 +34,17 @@ export default class Reset extends Component {
         return (
             <div>
                 <Button danger onClick={() => this.setState({ activeDialog: true })}>Reset Device</Button>
-                <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                    <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                        <h3 class="modalHeader">Reset Device</h3>
-                        <p>Resetting the device means ... ...</p>
-                        <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                            <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                            <Button danger onClick={this.resetDevice}>Reset Device</Button>
-                        </div>
-                    </div>
-                </div>
+                {
+                    activeDialog && (
+                        <Dialog title="Reset Device">
+                            <p>Resetting the device means ... ...</p>
+                            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
+                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
+                                <Button danger onClick={this.resetDevice}>Reset Device</Button>
+                            </div>
+                        </Dialog>
+                    )
+                }
                 {
                     isConfirming && (
                         <WaitDialog

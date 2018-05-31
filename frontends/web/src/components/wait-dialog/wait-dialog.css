@@ -1,9 +1,0 @@
-.confirmationLabel {
-  margin-bottom: var(--spacing-half);
-  margin-top: var(--spacing-default);
-  line-height: var(--size-label);
-}
-
-.confirmationInstructions {
-  margin-top: var(--spacing-default);
-}

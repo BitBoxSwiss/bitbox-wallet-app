@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import { Button, Input } from '../forms';
 import { PasswordInput } from '../password';
 import { apiPost } from '../../utils/request';
+import Dialog from '../dialog/dialog';
 
 @translate()
 export default class Create extends Component {
@@ -69,41 +70,38 @@ export default class Create extends Component {
                     onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.create')}
                 </Button>
-                { activeDialog ? (
-                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                            <h3 class="modalHeader">{t('backup.create.title')}</h3>
-                            <div class="modalContent">
-                                <form onSubmit={this.create}>
-                                    <Input
-                                        autoFocus
-                                        autoComplete="off"
-                                        ref={pwf => this.pwf = pwf}
-                                        id="backupName"
-                                        label={t('backup.create.name.label')}
-                                        placeholder={t('backup.create.name.placeholder')}
-                                        onInput={this.handleFormChange}
-                                        value={backupName} />
-                                    <PasswordInput
-                                        ref={ref => this.passwordInput = ref}
-                                        id="recoveryPassword"
-                                        label={t('backup.create.password.label')}
-                                        placeholder={t('backup.create.password.placeholder')}
-                                        onInput={this.handleFormChange}
-                                        value={recoveryPassword} />
-                                    <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                        <Button secondary onClick={this.abort}>
-                                            {t('button.abort')}
-                                        </Button>
-                                        <Button type="submit" primary disabled={waiting || !this.validate()}>
-                                            {t('button.create')}
-                                        </Button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                ) : null }
+                {
+                    activeDialog && (
+                        <Dialog title={t('backup.create.title')}>
+                            <form onSubmit={this.create}>
+                                <Input
+                                    autoFocus
+                                    autoComplete="off"
+                                    ref={pwf => this.pwf = pwf}
+                                    id="backupName"
+                                    label={t('backup.create.name.label')}
+                                    placeholder={t('backup.create.name.placeholder')}
+                                    onInput={this.handleFormChange}
+                                    value={backupName} />
+                                <PasswordInput
+                                    ref={ref => this.passwordInput = ref}
+                                    id="recoveryPassword"
+                                    label={t('backup.create.password.label')}
+                                    placeholder={t('backup.create.password.placeholder')}
+                                    onInput={this.handleFormChange}
+                                    value={recoveryPassword} />
+                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                    <Button secondary onClick={this.abort}>
+                                        {t('button.abort')}
+                                    </Button>
+                                    <Button type="submit" primary disabled={waiting || !this.validate()}>
+                                        {t('button.create')}
+                                    </Button>
+                                </div>
+                            </form>
+                        </Dialog>
+                    )
+                }
             </span>
         );
     }

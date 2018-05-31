@@ -1,6 +1,5 @@
 import { Component } from 'preact';
-import style from './wait-dialog.css';
-
+import style from '../dialog/dialog.css';
 import approve from '../../assets/device/approve.png';
 import reject from '../../assets/device/reject.png';
 
@@ -10,7 +9,7 @@ export default class WaitDialog extends Component {
     }
 
     componentDidMount() {
-        setTimeout(this.activate, 5);
+        setTimeout(this.activate, 10);
     }
 
     activate = () => {
@@ -24,12 +23,10 @@ export default class WaitDialog extends Component {
     }, {
         active,
     }) {
-        const isActive = active ? 'active' : '';
+        const isActive = active ? style.active : '';
         const defaultContent = (
             <div class="flex flex-column flex-start">
-                <p class={['label', style.confirmationLabel].join(' ')}>
-                    On your device
-                </p>
+                <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
                 <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
                     <div class="flex flex-column flex-center flex-items-center">
                         <img src={reject} alt="Reject" />
@@ -43,9 +40,9 @@ export default class WaitDialog extends Component {
             </div>
         );
         return (
-            <div class={['overlay', isActive].join(' ')}>
-                <div class={['modal', isActive].join(' ')}>
-                    <h3 class="modalHeader">{title}</h3>
+            <div class={[style.overlay, isActive].join(' ')}>
+                <div class={[style.modal, isActive].join(' ')}>
+                    <h3 class={style.modalHeader}>{title}</h3>
                     {
                         (children.length > 0 && includeDefault) && defaultContent
                     }

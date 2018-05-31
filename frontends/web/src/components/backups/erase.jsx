@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { Button } from '../../../components/forms';
 import { apiPost } from '../../../utils/request';
+import Dialog from '../dialog/dialog';
 
 
 export default class Erase extends Component {
@@ -50,20 +51,17 @@ export default class Erase extends Component {
                     onClick={() => this.setState({ activeDialog: true })}>
                     Erase
                 </Button>
-                { activeDialog ? (
-                    <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                        <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                            <h3 class="modalHeader">Erase {selectedBackup}</h3>
-                            <div class="modalContent">
-                                Do you really want to erase {selectedBackup}?
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort}>Abort</Button>
-                                    <Button danger onClick={this.erase}>Erase</Button>
-                                </div>
+                {
+                    activeDialog && (
+                        <Dialog title={`Erase ${selectedBackup}`}>
+                            <p>Do you really want to erase {selectedBackup}?</p>
+                            <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                <Button secondary onClick={this.abort}>Abort</Button>
+                                <Button danger onClick={this.erase}>Erase</Button>
                             </div>
-                        </div>
-                    </div>
-                ) : null }
+                        </Dialog>
+                    )
+                }
             </span>
         );
     }

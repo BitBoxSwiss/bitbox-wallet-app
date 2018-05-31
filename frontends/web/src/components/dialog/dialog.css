@@ -1,9 +1,58 @@
-.dialog {;
+.overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
     height: 100%;
-    padding: 2rem;
-    text-align: center;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    z-index: -1;
+    opacity: 0;
 }
 
-.dialog h3 {
-    margin: 0 0 1rem 0;
+.overlay.active {
+    z-index: 2001;
+    opacity: 1;
+}
+
+.modal {
+    position: fixed;
+    bottom: -100%;
+    left: 50%;
+    transform: translate(-50%, 50%);
+    background-color: white;
+    width: 480px;
+    border-radius: 2px;
+    padding: var(--spacing-large);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+.modal.active {
+    bottom: 50%;
+}
+
+.modal .modalHeader {
+    margin: 0;
+}
+
+.modal .modalContent {
+    margin-top: var(--spacing-default);
+}
+
+.modal .modalContent .buttons button:not(:last-child) {
+    margin-right: var(--spacing-half);
+}
+
+.modal .modalContent .buttons {
+    margin-top: var(--spacing-large);
+}
+
+.confirmationLabel {
+  margin-bottom: var(--spacing-half);
+  margin-top: var(--spacing-default);
+  line-height: var(--size-label);
+}
+
+.confirmationInstructions {
+  margin-top: var(--spacing-default);
 }

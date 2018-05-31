@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
+import Dialog from '../dialog/dialog';
 import WaitDialog from '../wait-dialog/wait-dialog';
 import Spinner from '../spinner/Spinner';
 import Confirm from '../confirm/confirm';
@@ -107,29 +108,24 @@ export default class Restore extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                            <div class={['modal', activeDialog ? 'active' : ''].join(' ')}>
-                                <h3 class="modalHeader">{t('backup.restore.title')} {selectedBackup}</h3>
-                                <div class="modalContent">
-                                    <form onSubmit={this.restore}>
-                                        <PasswordRepeatInput
-                                            ref={ref => this.passwordInput = ref}
-                                            label={t('backup.restore.password.label')}
-                                            placeholder={t('backup.restore.password.placeholder')}
-                                            onValidPassword={this.setValidPassword}
-                                        />
-                                        <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                            <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                                {t('button.abort')}
-                                            </Button>
-                                            <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                                                {t('button.restore')}
-                                            </Button>
-                                        </div>
-                                    </form>
+                        <Dialog title={t('backup.restore.title')}>
+                            <form onSubmit={this.restore}>
+                                <PasswordRepeatInput
+                                    ref={ref => this.passwordInput = ref}
+                                    label={t('backup.restore.password.label')}
+                                    placeholder={t('backup.restore.password.placeholder')}
+                                    onValidPassword={this.setValidPassword}
+                                />
+                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                    <Button secondary onClick={this.abort} disabled={isConfirming}>
+                                        {t('button.abort')}
+                                    </Button>
+                                    <Button type="submit" danger disabled={!this.validate() || isConfirming}>
+                                        {t('button.restore')}
+                                    </Button>
                                 </div>
-                            </div>
-                        </div>
+                            </form>
+                        </Dialog>
                     )
                 }
                 {
