@@ -1,21 +1,155 @@
 {
-    "Password": "Passwort",
-    "Please enter your PIN to log in": "Bitte geben Sie Ihr PIN ein",
-    "Login": "Einloggen",
     "dbb": {
         "error": {
-            "113": "Wegen zu vielen Versuchen muss der Touch-Button beim nächstem Mal für 3 Sekunden gedrückt werden.",
-            "109_normal": "Passwort falsch. {{remainingAttempts}} Versuche bevor sich das Gerät zurücksetzt.",
-            "109_touch": "$t(dbb.error.109_normal) Der nächste Versuch erfordert einen Knopfdruck.",
-            "102": "Das Password muss mindestens 4 Zeichen lang sein."
-        },
-        "unlocking": "Entsperren..."
+            "113": "Aufgrund zu vieler Login Versuche musst du beim nächsten Login den Touch-button für 3 Sekunden gedrückt halten.",
+            "109_normal": "Falsches Password. Noch {{remainingAttempts}} Versuche bis sich dein Gerät auf Werkseinstellungen zurücksetzt.",
+            "109_touch": "$t(dbb.error.109_normal) Beim nächsten Login musst du den Touch-button gedrückt gehalten.",
+            "102": "Dein Passwort muss mindestens 4 Stellen haben. "
+        }
     },
     "sidebar": {
         "settings": "Einstellungen",
         "leave": "Verlassen"
     },
+    "unlock": {
+        "unlocking": "Wird entsperrt…",
+        "input": {
+            "label": "PIN",
+            "placeholder": "Gib deinen PIN ein, um dein Geraät zu entsperren."
+        }
+    },
     "device": {
+        "waiting": "Bitte schließe dein Gerät an…",
         "manageBackups": "Backups verwalten"
-    }
+    },
+    "settings": {
+        "title": "Einstellungen"
+    },
+    "language": {
+        "title": "Sprache auswählen"
+    },
+    "account": {
+        "connect": "Verbindung hergestellt",
+        "disconnect": "Verbindung verloren. Warte auf Verbindung....",
+        "incoming": "Eingehend",
+        "initializing": "Wird initialisiert…",
+        "info": {
+            "btc": "Bitcoin Legacy - wechsel zu Bitcoin Segqit!",
+            "btc-p2wpkh-p2sh": "Bitcoin Segwit - empfohlen, um geringere Gebühren zahlen zu müssen.",
+            "btc-p2wpkh": "Bitcoin Native Segwit - empfohlen um die geringsten Gebühren zahlen zu können, allerdings ist das neue Adressenformat noch nicht weit verbreitet.",
+            "ltc-p2wpkh-p2sh": "",
+            "tbtc": "$t(account.info.btc)",
+            "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
+            "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
+            "tltc-p2wpkh-p2sh": ""
+        }
+    },
+    "transactions": {
+        "placeholder": "Noch keine Transaktionen."
+    },
+    "transaction": {
+        "pending": "Ausstehende Transaktion",
+        "badge": {
+            "send": "In",
+            "receive": "Out",
+            "send_to_self": "Self"
+        },
+        "confirmation": "Anzahl der Bestätigungen",
+        "fee": "Gebühr",
+        "fiatHistorical": "Historical",
+        "explorer": "Transaktions ID (In externem block Explorer öffnen)"
+    },
+    "receive": {
+        "title": "Coins erhalten",
+        "label": "Deine Adresse"
+    },
+    "send": {
+        "title": "Coins versenden",
+        "address": {
+            "label": "Adresse",
+            "placeholder": "Adresse eingeben"
+        },
+        "amount": {
+            "label": "Betrag",
+            "placeholder": "Betrag eingeben"
+        },
+        "maximum": "Alles versenden. Vorsicht!",
+        "fee": {
+            "label": "Netzwerk Gebühr",
+            "placeholder": "Nicht verfügbar",
+            "customPlaceholder": "Betrag eingeben"
+        },
+        "feeTarget": {
+            "label": "Netzwerk Priorität",
+            "placeholder": "Geschätzte Gebühr wird errechnet."
+        },
+        "customFee": {
+            "label": "Umgerechnete Gebühr",
+            "placeholder": "Umgerechnete Gebühr"
+        }
+    },
+    "seed": {
+        "creating": "Wallet wird erstellt…",
+        "walletName": {
+            "label": "Wallet Name",
+            "placeholder": "Gib deinem Wallet einen Namen"
+        },
+        "password": {
+            "label": "Backup Passwort"
+        },
+        "description": "Backups werden auf deiner SD Karte gespeichert. Das Passwort für dein Backup kann später NICHT mehr geändert werden und wird zum wiederherstellen deines Wallets unbedingt benötigt. Stelle sicher, dass du es nicht vergisst!",
+        "create": "Wallet erstellen",
+        "backup": "oder von Backup wiederherstellen..."
+    },
+    "initialize": {
+        "creating": "PIN wird gespeichert…",
+        "description": "Bitte lege einen PIN für dein Gerät fest.",
+        "invalid": "Nur Zahlen sind erlaubt.",
+        "create": "PIN speichern"
+    },
+    "backup": {
+        "title": "Backups verwalten",
+        "create": {
+            "title": "Backup erstellen",
+            "name": {
+                "label": "Backup Name",
+                "placeholder": "Bitte gib dem Backup einen Namen"
+            },
+            "password": {
+                "label": "Passwort",
+                "placeholder": "Bitte gib dein Passwort ein"
+            }
+        },
+        "restore": {
+            "title": "Wiederherstellen",
+            "confirmTitle": "Backup wiederherstellen",
+            "password": {
+                "label": "Passwort des Backups oder des verborgenen Backups eingeben.",
+                "placeholder": "Gib das Passwort ein, das du verwendet hast, als du das Backup oder das verbrogene Backup erstellt hast."
+            }
+        }
+    },
+    "confirm": {
+        "title": "Bestätige Aktion auf der BitBox",
+        "reject": "Kurz berühren",
+        "approve": "Halte für 3+ Sekunden"
+    },
+    "footer": {
+        "appVersion": "App Version:"
+    },
+    "button": {
+        "send": "Senden",
+        "receive": "Empfangen",
+        "cancel": "Abbrechen",
+        "back": "Zurück",
+        "save": "Speichern",
+        "restore": "wiederherstellen",
+        "create": "Erstellen",
+        "abort": "Abbrechen",
+        "hiddenwallet": "Verstecktes Wallet erstellen"
+    },
+    "password": {
+        "show": "Text zeigen"
+    },
+    "loading": "laden…"
 }
