@@ -15,7 +15,7 @@
         "unlocking": "Wird entsperrt…",
         "input": {
             "label": "PIN",
-            "placeholder": "Gib deinen PIN ein, um dein Geraät zu entsperren."
+            "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
         }
     },
     "device": {
@@ -34,7 +34,7 @@
         "incoming": "Eingehend",
         "initializing": "Wird initialisiert…",
         "info": {
-            "btc": "Bitcoin Legacy - wechsel zu Bitcoin Segqit!",
+            "btc": "Bitcoin Legacy - wechsel zu Bitcoin Segwit!",
             "btc-p2wpkh-p2sh": "Bitcoin Segwit - empfohlen, um geringere Gebühren zahlen zu müssen.",
             "btc-p2wpkh": "Bitcoin Native Segwit - empfohlen um die geringsten Gebühren zahlen zu können, allerdings ist das neue Adressenformat noch nicht weit verbreitet.",
             "ltc-p2wpkh-p2sh": "",
