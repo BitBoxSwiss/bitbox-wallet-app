@@ -62,7 +62,7 @@ export default class Transaction extends Component {
                                 <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
                                     {badge}
                                 </div>
-                                <div class={style.address}>{addresses}</div>
+                                <div class={style.address}>{addresses.join(', ')}</div>
                             </div>
                             <div class={[style.amount, style[type]].join(' ')}>
                                 {sign} {amount}
