@@ -1,11 +1,9 @@
 import { Component } from 'preact';
-import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import Spinner from '../../../../components/spinner/Spinner';
-import Confirm from '../../../../components/confirm/confirm';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 

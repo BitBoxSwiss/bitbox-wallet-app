@@ -22,6 +22,11 @@
         "waiting": "Please insert your device…",
         "manageBackups": "Manage Backups"
     },
+    "reset": {
+        "button": "Reset Device",
+        "title": "Reset Device",
+        "description": "Resetting the device means"
+    },
     "settings": {
         "title": "Settings"
     },

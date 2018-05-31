@@ -218,7 +218,7 @@ export default class Send extends Component {
                     </div>
                     <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-end'].join(' ')}>
                         <Button secondary onClick={this.props.onClose}>
-                            {t('button.cancel')}
+                            {t('button.back')}
                         </Button>
                         &nbsp;
                         <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>

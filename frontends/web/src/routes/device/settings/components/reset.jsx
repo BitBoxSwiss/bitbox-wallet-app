@@ -1,11 +1,12 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
+import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
 
-
+@translate()
 export default class Reset extends Component {
     state = {
         isConfirming: false,
@@ -27,20 +28,24 @@ export default class Reset extends Component {
         });
     };
 
-    render({}, {
+    render({
+        t
+    }, {
         isConfirming,
         activeDialog,
     }) {
         return (
             <div>
-                <Button danger onClick={() => this.setState({ activeDialog: true })}>Reset Device</Button>
+                <Button danger onClick={() => this.setState({ activeDialog: true })}>
+                    {t('reset.button')}
+                </Button>
                 {
                     activeDialog && (
-                        <Dialog title="Reset Device">
-                            <p>Resetting the device means ... ...</p>
+                        <Dialog title={t('reset.title')}>
+                            <p>{t('reset.description')}</p>
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button danger onClick={this.resetDevice}>Reset Device</Button>
+                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>{t('button.back')}</Button>
+                                <Button danger onClick={this.resetDevice}>{t('reset.button')}</Button>
                             </div>
                         </Dialog>
                     )

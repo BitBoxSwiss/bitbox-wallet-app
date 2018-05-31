@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-import { route } from 'preact-router';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
