@@ -5,13 +5,13 @@
     border-color: transparent;
     border-radius: 2px;
     cursor: default;
-    display: inline-flex;
+    /* Otter doesn't like display: inline-flex; */
+    display: inline-block;
     font-family: var(--font-family);
     font-size: var(--size-button);
     font-weight: bold;
     justify-content: center;
     line-height: 32px;
-    /*margin-bottom: 4px;*/
     min-width: 120px;
     height: 36px;
     overflow: hidden;
