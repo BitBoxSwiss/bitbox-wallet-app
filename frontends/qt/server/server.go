@@ -7,6 +7,7 @@ package main
 typedef struct ConnectionData {
     int port;
     char* token;
+    char* certFilename;
 } ConnectionData;
 
 */
@@ -25,6 +26,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
 	"time"
 
@@ -41,8 +43,6 @@ import (
 const (
 	// RSA key size.
 	rsaBits = 2048
-	// Name of the server certificate
-	tlsServerCertificate = "config/certificates/frontend/server.pem"
 )
 
 // generateRSAPrivateKey generates an RSA key pair and wraps it in the type rsa.PrivateKey.
@@ -156,7 +156,8 @@ func serve() C.struct_ConnectionData {
 	log.WithField("port", port).Debug("Serve backend")
 
 	connectionData := backendHandlers.NewConnectionData(port, token)
-	backend := backend.NewBackend(backend.ProductionArguments())
+	productionArguments := backend.ProductionArguments()
+	backend := backend.NewBackend(productionArguments)
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 
 	privateKey, err := generateRSAPrivateKey()
@@ -168,8 +169,10 @@ func serve() C.struct_ConnectionData {
 		log.WithField("error", err).Fatal("Failed to create self-signed certificate")
 	}
 	certificatePEM := derToPem("CERTIFICATE", certificate)
-	saveAsPEM(tlsServerCertificate, certificatePEM, log)
-
+	tlsServerCertificatePath := path.Join(
+		productionArguments.MainDirectoryPath(), "server.pem")
+	saveAsPEM(tlsServerCertificatePath, certificatePEM, log)
+	cWrappedConnectionData.certFilename = C.CString(tlsServerCertificatePath)
 	var certAndKey tls.Certificate
 	certAndKey.Certificate = [][]byte{certificate}
 	certAndKey.PrivateKey = privateKey

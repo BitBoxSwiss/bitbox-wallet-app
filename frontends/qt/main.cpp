@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     ConnectionData serveData = serve();
-    QSslSocket::addDefaultCaCertificates("config/certificates/frontend/server.pem", QSsl::Pem, QRegExp::Wildcard);
+    QSslSocket::addDefaultCaCertificates(serveData.certFilename, QSsl::Pem, QRegExp::Wildcard);
     QWebView view;
 
     view.setGeometry(0, 0, a.devicePixelRatio() * view.width(),a.devicePixelRatio() * view.height());
