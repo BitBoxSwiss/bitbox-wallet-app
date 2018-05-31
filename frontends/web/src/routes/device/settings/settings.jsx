@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { ButtonLink } from '../../../components/forms';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
+import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
@@ -78,6 +79,7 @@ export default class Settings extends Component {
                     <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
                         { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
                     </footer>
+                    { lock && (<Spinner />)}
                 </div>
             </div>
         );

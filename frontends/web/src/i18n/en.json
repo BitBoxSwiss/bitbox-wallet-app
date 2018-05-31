@@ -19,7 +19,7 @@
         }
     },
     "device": {
-        "waiting": "Waiting for device…",
+        "waiting": "Please insert your device…",
         "manageBackups": "Manage Backups"
     },
     "settings": {
