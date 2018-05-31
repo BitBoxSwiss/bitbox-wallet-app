@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 
 import { Input, Checkbox, Field } from './forms';
+import style from './password.css';
 
 export function PasswordInput (props) {
     const { seePlaintext, ...rest } = props;
@@ -23,13 +24,23 @@ export class PasswordRepeatInput extends Component {
     }
 
     idPrefix = () => {
-        return this.props.idPrefix || "";
+        return this.props.idPrefix || '';
+    }
+
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleCheckCaps);
+        document.addEventListener('keyup', this.handleCheckCaps);
     }
 
     componentDidMount() {
         if (this.props.pattern) {
             this.regex = new RegExp(this.props.pattern);
         }
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleCheckCaps);
+        document.removeEventListener('keyup', this.handleCheckCaps);
     }
 
     tryPaste = event => {
@@ -89,7 +100,10 @@ export class PasswordRepeatInput extends Component {
         seePlaintext,
         capsLock,
     }) {
-        const warning = (capsLock && !seePlaintext) && <p>WARNING: caps lock (⇪) are enabled</p>;
+        const warning = (capsLock && !seePlaintext) && (
+            <span className={style.capsWarning}
+                title="WARNING: caps lock (⇪) are enabled">⇪</span>
+        );
         return (
             <div>
                 <Input
@@ -98,7 +112,7 @@ export class PasswordRepeatInput extends Component {
                     type={seePlaintext ? 'text' : 'password'}
                     pattern={pattern}
                     title={title}
-                    id={this.idPrefix() + "password"}
+                    id={this.idPrefix() + 'password'}
                     label={label}
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
@@ -106,7 +120,9 @@ export class PasswordRepeatInput extends Component {
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.password = ref}
-                    value={password} />
+                    value={password}>
+                    {warning}
+                  </Input>
                 <MatchesPattern
                     regex={this.regex}
                     text={title}
@@ -116,7 +132,7 @@ export class PasswordRepeatInput extends Component {
                     type={seePlaintext ? 'text' : 'password'}
                     pattern={pattern}
                     title={title}
-                    id={this.idPrefix() + "passwordRepeat"}
+                    id={this.idPrefix() + 'passwordRepeat'}
                     label={repeatLabel}
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
@@ -124,15 +140,16 @@ export class PasswordRepeatInput extends Component {
                     onKeyUp={this.handleCheckCaps}
                     onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.passwordRepeat = ref}
-                    value={passwordRepeat} />
+                    value={passwordRepeat}>
+                    {warning}
+                </Input>
                 <MatchesPattern
                     regex={this.regex}
                     text={title}
                     value={passwordRepeat} />
-                {warning}
                 <Field>
                     <Checkbox
-                        id={this.idPrefix() + "seePlaintext"}
+                        id={this.idPrefix() + 'seePlaintext'}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
                         label={t('password.show', {

@@ -5,7 +5,7 @@ import { apiPost } from '../../utils/request';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button } from '../../components/forms';
 import Message from '../../components/message/message';
-import { BitBox } from '../../components/icon/logo';
+import { BitBox, Shift } from '../../components/icon/logo';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';
@@ -108,7 +108,9 @@ export default class Initialize extends Component {
                         </div>
                     </form>
                     <hr />
-                    <Footer />
+                    <Footer>
+                        <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                    </Footer>
                 </div>
                 {
                     status === stateEnum.WAITING && (
