@@ -80,8 +80,7 @@ func NewHandlers(
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		backendEvents: theBackend.Start(),
-		log:           logging.Log.WithGroup("handlers"),
+		log: logging.Log.WithGroup("handlers"),
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
@@ -165,6 +164,8 @@ func NewHandlers(
 					AssetInfo: AssetInfo,
 					Prefix:    "",
 				})), connData, log))
+
+	handlers.backendEvents = theBackend.Start()
 
 	return handlers
 }
