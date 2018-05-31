@@ -143,7 +143,20 @@ export default class Account extends Component {
             const noTransactions = (walletInitialized && transactions.length <= 0);
             return (
                 <div class="container">
-                    <div class="headerContainer fixed">
+                    <div class="headerContainer">
+
+                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                            <p>{t(`account.info.${this.props.code}`)}</p>
+                        </Status>
+                        <div>
+                            {
+                                !walletConnected && (
+                                    <Status>
+                                        <p>{t('account.disconnect')}</p>
+                                    </Status>
+                                )
+                            }
+                        </div>
                         <div class="header">
                             <Balance name={wallet.name} balance={balance}>
                                 {
@@ -167,20 +180,7 @@ export default class Account extends Component {
                             </div>
                         </div>
                     </div>
-                    <div class={['innerContainer', 'withFixedContent', 'scrollableContainer'].join(' ')}>
-
-                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                            <p>{t(`account.info.${this.props.code}`)}</p>
-                        </Status>
-                        <div>
-                            {
-                                !walletConnected && (
-                                    <Status>
-                                        <p>{t('account.disconnect')}</p>
-                                    </Status>
-                                )
-                            }
-                        </div>
+                    <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
                         {
                             !walletInitialized ? (
                                 <Spinner />

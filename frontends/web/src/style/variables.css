@@ -5,6 +5,7 @@
     --color-coolblue: #7b98a3;
     --color-darkblue: #4f7998;
     --color-coolgold: #a39771;
+    --color-softgreen: #38c34e;
     --color-softred: #EC644B;
     --color-swissred: #e10000;
     --color-white: #fff;
@@ -34,7 +35,7 @@
     --background: var(--color-lightgray);
     --background-hover: var(--background);
     --background-active: var(--color-white);
-    --background-sidebar: var(--color-softblack);
+    --background-sidebar: var(--color-lightgray);
 
     /* font sizes */
     --size-extra-large: 2.2rem;

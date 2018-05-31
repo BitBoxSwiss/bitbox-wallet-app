@@ -81,19 +81,20 @@
 
 .headerContainer {
     background-color: var(--color-white);
-    padding: var(--spacing-default) var(--spacing-large);
-    height: var(--header-height);
+    border-bottom: 1px solid #eee;
     width: 100%;
 }
 
 .headerContainer.fixed {
     position: fixed;
     left: var(--sidebar-width);
+    height: var(--header-height);
     width: calc(100% - var(--sidebar-width));
     z-index: 1001;
 }
 
 .headerContainer .header {
+    padding: var(--spacing-large) 0;
     max-width: 800px;
     width: 100%;
     margin: 0 auto;

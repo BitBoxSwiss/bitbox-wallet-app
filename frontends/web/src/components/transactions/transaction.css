@@ -1,16 +1,16 @@
 .transactionContainer {
-    padding: var(--spacing-half) var(--spacing-large);
     background-color: var(--color-white);
+    padding: var(--spacing-half) var(--spacing-large);
     position: relative;
     overflow: hidden;
 }
-
+/*
 .transactionContainer:nth-child(odd) {
     background-color: var(--color-lightgray);
-}
+}*/
 
 .transactionContainer.expanded {
-    padding: var(--spacing-large);
+    background-color: var(--color-white);
 }
 
 .toggleButton {
@@ -40,97 +40,96 @@
 }
 
 .transaction {
-  margin: 0 auto;
-  max-width: 800px;
-  padding: var(--spacing-default) 0;
+    margin: 0 auto;
+    max-width: 800px;
+    padding: var(--spacing-default) 0;
 }
 
 .date {
-  color: var(--color-secondary);
-  font-size: var(--size-small);
-  font-weight: bolder;
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: bolder;
 }
 
 .amount {
-  font-weight: bold;
-  min-width: 160px;
-  text-align: right;
-  line-height: 20px;
+    font-weight: bold;
+    min-width: 160px;
+    text-align: right;
+    line-height: 20px;
 }
 
 .amount.receive {
-  color: var(--color-brightblue);
+    color: var(--color-softgreen);
 }
 
 .amount.send {
-  color: var(--color-softred);
+    color: var(--color-softred);
 }
 
 .amount.send_to_self {
-  color: var(--color-coolblue);
+    color: var(--color-gray);
 }
 
 .amount.converted {
-  color: lightgrey;
+    color: lightgrey;
 }
 
 .transactionLabel {
-  display: inline-block;
-  font-size: var(--size-label);
-  font-weight: bold;
-  text-transform: uppercase;
-  background-color: var(--color-brightgray);
-  color: var(--color-white);
-  border-radius: 2px;
-  height: 16px;
-  width: 44px;
-  line-height: 18px;
-  text-align: center;
-  margin-right: var(--spacing-half);
-  margin-bottom: 3px;
+    display: inline-block;
+    font-size: var(--size-label);
+    font-weight: bold;
+    text-transform: uppercase;
+    background-color: var(--color-brightgray);
+    color: var(--color-white);
+    border-radius: 2px;
+    height: 16px;
+    width: 44px;
+    line-height: 18px;
+    text-align: center;
+    margin-right: var(--spacing-default);
+    margin-bottom: 3px;
 }
 
 .transactionLabel.flat {
-  margin-bottom: 0;
+    margin-bottom: 0;
 }
 
 .transactionLabel.receive {
-  background-color: var(--color-brightblue);
+    background-color: var(--color-rock);
 }
 
 .transactionLabel.send {
-  background-color: var(--color-softred);
+    background-color: var(--color-softred);
 }
 
 .transactionLabel.send_to_self {
-  background-color: var(--color-coolblue);
 }
 
 .row:not(:first-child) {
-  margin-top: var(--spacing-half);
+    margin-top: var(--spacing-half);
 }
 
 .address {
-  font-weight: bold;
-  overflow: hidden;
-  text-overflow: ellipsis;
+    font-weight: bold;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .collapsedContent {
-  margin-top: var(--spacing-half);
+    margin-top: var(--spacing-half);
 }
 
 .collapsedContent .transactionLabel {
-  width: auto;
-  text-align: left;
-  background-color: transparent;
-  color: var(--color-secondary);
+    width: auto;
+    text-align: left;
+    background-color: transparent;
+    color: var(--color-secondary);
 }
 
 .collapsedContent a {
-  color: var(--color-coolblue);
+    color: var(--color-coolblue);
 }
 
 .collapsedContent a:hover {
-  color: var(--color-brightblue);
+    color: var(--color-brightblue);
 }
