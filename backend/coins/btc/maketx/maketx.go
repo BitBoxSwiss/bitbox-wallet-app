@@ -15,6 +15,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount and
+// fee.
 var ErrInsufficientFunds = errors.New("insufficient funds")
 
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
