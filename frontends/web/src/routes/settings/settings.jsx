@@ -49,7 +49,7 @@ export default class Settings extends Component {
                     <div class="content flex flex-column flex-start">
                         {
                             config && (
-                                <div>
+                                <div class="flex-1">
                                     <div class="subHeaderContainer first">
                                         <div class="subHeader">
                                             <h3>Active accounts</h3>
@@ -95,8 +95,6 @@ export default class Settings extends Component {
                                 </div>
                             )
                         }
-                    </div>
-                    <div class="content flex-none flex flex-row flex-end" style="margin-bottom: 16px;">
                         <Button primary onClick={this.save}>{t('button.save')}</Button>
                     </div>
                     <Footer></Footer>
