@@ -4,12 +4,16 @@ package main
 #include <string.h>
 #include <stdint.h>
 
+typedef void (*pushNotificationsCallback) (const char*);
+static void pushNotify(pushNotificationsCallback f, const char* msg) {
+    f(msg);
+}
+
 typedef struct ConnectionData {
     int port;
     char* token;
     char* certFilename;
 } ConnectionData;
-
 */
 import "C"
 
@@ -31,6 +35,7 @@ import (
 	"time"
 
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/random"
 
 	"github.com/shiftdevices/godbb/backend"
@@ -138,7 +143,7 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 }
 
 //export serve
-func serve() C.struct_ConnectionData {
+func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_ConnectionData {
 	log := logging.Log.WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	token, err := random.HexString(16)
@@ -158,6 +163,12 @@ func serve() C.struct_ConnectionData {
 	connectionData := backendHandlers.NewConnectionData(port, token)
 	productionArguments := backend.ProductionArguments()
 	backend := backend.NewBackend(productionArguments)
+	events := backend.Events()
+	go func() {
+		for {
+			C.pushNotify(pushNotificationsCallback, C.CString(string(jsonp.MustMarshal(<-events))))
+		}
+	}()
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 
 	privateKey, err := generateRSAPrivateKey()

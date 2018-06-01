@@ -1,13 +1,16 @@
 import { apiPort, apiToken, isTLS } from './request';
+import { debug } from './env';
 
 const currentListeners = [];
 let socket = null;
 
 export function apiWebsocket(msgCallback) {
-
-    currentListeners.push(msgCallback);
-
-    if (!socket) {
+    if (!window.currentListeners) {
+        window.currentListeners = [];
+    }
+    window.currentListeners.push(msgCallback);
+    // In browser/debug mode, receive push notifications on a websocket.
+    if (debug && !socket) {
         socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
         socket.onopen = function(event) {
@@ -22,22 +25,22 @@ export function apiWebsocket(msgCallback) {
         // Listen for messages
         socket.onmessage = function(event) {
             const payload = JSON.parse(event.data);
-            currentListeners.forEach(listener => listener(payload));
+            window.currentListeners.forEach(listener => listener(payload));
         };
 
         socket.onclose = function(event) {
-            currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
+            window.currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
         };
     }
 
     return () => {
-        if (!currentListeners.includes(msgCallback)) {
-            console.warn('!currentListeners.includes(msgCallback)');
+        if (!window.currentListeners.includes(msgCallback)) {
+            console.warn('!window.currentListeners.includes(msgCallback)');
         }
-        const index = currentListeners.indexOf(msgCallback);
-        currentListeners.splice(index, 1);
-        if (currentListeners.includes(msgCallback)) {
-            console.warn('currentListeners.includes(msgCallback)');
+        const index = window.currentListeners.indexOf(msgCallback);
+        window.currentListeners.splice(index, 1);
+        if (window.currentListeners.includes(msgCallback)) {
+            console.warn('window.currentListeners.includes(msgCallback)');
         }
     };
 }

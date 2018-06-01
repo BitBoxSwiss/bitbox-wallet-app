@@ -242,6 +242,11 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
+// Events returns the push notifications channel.
+func (backend *Backend) Events() <-chan interface{} {
+	return backend.events
+}
+
 // // handleConnectionError listens on an error channel for incoming connection errors and attempts
 // // to re-initialize the wallet.
 // func (backend *Backend) handleConnectionError(wallet *btc.Account) {

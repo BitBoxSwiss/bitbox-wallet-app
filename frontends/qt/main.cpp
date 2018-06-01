@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QWebView>
 #include <QWebPage>
+#include <QWebFrame>
 #include <QSslSocket>
 #include <QSsl>
 #include <QRegExp>
@@ -12,6 +13,9 @@
 
 #include <server.h>
 #include <iostream>
+
+static QWebView* view;
+static bool pageLoaded = false;
 
 class BridgedNetworkAccessManager : public QNetworkAccessManager {
 public:
@@ -46,17 +50,23 @@ int main(int argc, char *argv[])
 #endif // QT_VERSION
 
     QApplication a(argc, argv);
-    ConnectionData serveData = serve();
+    view = new QWebView;
+    pageLoaded = false;
+    QObject::connect(view, &QWebView::loadFinished, [](bool ok){ pageLoaded = ok; });
+    ConnectionData serveData = serve([](const char* msg) {
+        if (!pageLoaded) return;
+        QString qmsg = QString::fromStdString(std::string("window.handlePushNotification(" + std::string(msg) + std::string(")")));
+        QMetaObject::invokeMethod(view->page()->mainFrame(), "evaluateJavaScript", Qt::QueuedConnection, Q_ARG(QString, qmsg));
+    });
     QSslSocket::addDefaultCaCertificates(serveData.certFilename, QSsl::Pem, QRegExp::Wildcard);
-    QWebView view;
 
-    view.setGeometry(0, 0, a.devicePixelRatio() * view.width(),a.devicePixelRatio() * view.height());
+    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(),a.devicePixelRatio() * view->height());
 
     // MyWebPage page;
-    // view.setPage(&page);
+    // view->setPage(&page);
     BridgedNetworkAccessManager bridgedNetworkAccessManager(serveData.token);
-    view.page()->setNetworkAccessManager(&bridgedNetworkAccessManager);
-    view.show();
-    view.load(QUrl((std::string("https://localhost:") + std::to_string(serveData.port)).c_str()));
+    view->page()->setNetworkAccessManager(&bridgedNetworkAccessManager);
+    view->show();
+    view->load(QUrl((std::string("https://localhost:") + std::to_string(serveData.port)).c_str()));
     return a.exec();
 }

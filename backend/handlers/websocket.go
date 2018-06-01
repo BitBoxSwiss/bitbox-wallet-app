@@ -22,7 +22,6 @@ func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Ent
 
 	quitChan := make(chan struct{})
 	sendChan := make(chan []byte)
-	authorizedChan := make(chan struct{}, 1)
 
 	readLoop := func() {
 		defer func() {
@@ -36,19 +35,13 @@ func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Ent
 			return nil
 		})
 		for {
-			_, msg, err := conn.ReadMessage()
+			_, _, err := conn.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
 					log.WithFields(logrus.Fields{"group": "websocket", "error": err}).Error(err.Error())
 				}
 				break
 			}
-			if string(msg) != "Authorization: Basic "+apiData.token {
-				log.Error("Expected authorization token as first message. Closing websocket.")
-				_ = conn.Close()
-				return
-			}
-			authorizedChan <- struct{}{}
 		}
 	}
 
@@ -63,28 +56,15 @@ func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Ent
 			ticker.Stop()
 			_ = conn.Close()
 		}()
-		authorized := false
-		var buffer [][]byte
 		for {
 			select {
-			case <-authorizedChan:
-				for _, message := range buffer {
-					if err := sendMessage(message); err != nil {
-						return
-					}
-				}
-				authorized = true
 			case message, ok := <-sendChan:
 				if !ok {
 					_ = conn.WriteMessage(websocket.CloseMessage, []byte{})
 					return
 				}
-				if authorized {
-					if sendMessage(message) != nil {
-						return
-					}
-				} else {
-					buffer = append(buffer, message)
+				if sendMessage(message) != nil {
+					return
 				}
 			case <-ticker.C:
 				_ = conn.SetWriteDeadline(time.Now().Add(writeWait))
