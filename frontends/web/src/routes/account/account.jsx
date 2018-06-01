@@ -147,18 +147,6 @@ export default class Account extends Component {
                 <div class="contentWithGuide">
                     <div class="container">
                         <div class="headerContainer">
-                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                                {t(`account.info.${this.props.code}`)}
-                            </Status>
-                            <div>
-                                {
-                                    !walletConnected && (
-                                        <Status>
-                                            <p>{t('account.disconnect')}</p>
-                                        </Status>
-                                    )
-                                }
-                            </div>
                             <div class="header">
                                 <Balance name={wallet.name} balance={balance}>
                                     {
@@ -180,6 +168,18 @@ export default class Account extends Component {
                                         {t('button.send')}
                                     </Button>
                                 </div>
+                            </div>
+                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                                {t(`account.info.${this.props.code}`)}
+                            </Status>
+                            <div>
+                                {
+                                    !walletConnected && (
+                                        <Status>
+                                            <p>{t('account.disconnect')}</p>
+                                        </Status>
+                                    )
+                                }
                             </div>
                         </div>
                         <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
