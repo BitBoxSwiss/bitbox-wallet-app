@@ -3,25 +3,25 @@ import appTranslationsDE from './de';
 import appTranslationsEN from './en';
 import { userLanguage } from '../utils/config';
 
-i18n
-    .init({
-        lng: userLanguage,
-        fallbackLng: 'en',
+i18n.init({
+    lng: userLanguage,
+    fallbackLng: 'en',
 
-        // have a common namespace used around the full app
-        ns: ['app', 'wallet'],
-        defaultNS: 'app',
+    // have a common namespace used around the full app
+    ns: ['app', 'wallet'],
+    defaultNS: 'app',
 
-        debug: false,
+    debug: false,
+    returnObjects: true,
 
-        interpolation: {
-            escapeValue: false // not needed for react
-        },
+    interpolation: {
+        escapeValue: false // not needed for react
+    },
 
-        react: {
-            wait: true
-        }
-    });
+    react: {
+        wait: true
+    }
+});
 
 i18n.addResourceBundle('en', 'app', appTranslationsEN);
 i18n.addResourceBundle('de', 'app', appTranslationsDE);

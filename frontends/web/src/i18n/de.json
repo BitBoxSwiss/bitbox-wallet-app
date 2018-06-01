@@ -1,4 +1,6 @@
 {
+    "appName": "Shift Wallet",
+    "appNameWithDefiniteArticle": "der Shift Wallet",
     "dbb": {
         "error": {
             "113": "Aufgrund zu vieler Login Versuche musst du beim nächsten Login den Touch-button für 3 Sekunden gedrückt halten.",
@@ -149,7 +151,47 @@
         "hiddenwallet": "Verstecktes Wallet erstellen"
     },
     "password": {
-        "show": "Text zeigen"
+        "show": "In Klartext anzeigen"
     },
-    "loading": "laden…"
+    "loading": "laden…",
+    "guide": {
+        "title": "Anleitung",
+        "waiting": [
+            {
+                "title": "Willkommen bei $t(appNameWithDefiniteArticle)!",
+                "text": [ "Danke, dass du dich für die quelloffene $t(appName) entschieden hast! Aber vergiss nicht:" ],
+                "link": { "text": "Vertrauen ist gut, Kontrolle ist besser!", "url": "https://github.com/digitalbitbox/" },
+                "shown": true
+            },
+            {
+                "title": "Wie verwende ich diese Anleitung?",
+                "text": [ "Du kannst diese Anleitung mit dem Knopf oben rechts ein- und ausblenden. Wenn Kryptowährungen neu für dich sind, empfehlen wir dir aber diese Anleitung für den Moment offen zu lassen. :-)" ],
+                "shown": true
+            },
+            {
+                "title": "Wie komme ich zu einem Gerät?",
+                "text": [ "Du kannst eine BitBox in unserem Online Laden kaufen:" ],
+                "link": { "text": "BitBox bestellen", "url": "https://shiftcrypto.ch/shop" }
+            },
+            {
+                "title": "Braucht diese Applikation eine Internetverbindung?",
+                "text": [ "Ja, eine Internetverbindung wird benötigt, um die Geldbörse mit der Blockchain zu synchronisieren und Transaktionen zu schicken." ]
+            },
+            {
+                "title": "Mit welchen Servern spricht diese Applikation?",
+                "text": [ "Diese Applikation kommuniziert mit Servern der Shift Cryptosecurity, um nach Updates zu fragen, Transaktionen zu laden und Informationen an gepaarte Mobiltelefone zu senden.." ]
+            },
+            {
+                "title": "Kann ich diese Applikation ohne euren Servern verwenden?",
+                "text": [ "Zur Zeit ist das noch nicht möglich, doch wir arbeiten daran, dass du eigene Server konfigurieren kannst." ]
+            }
+        ],
+        "waitingWithoutDevice": {
+            "title": "Kann ich diese Applikation auch ohne Gerät verwenden?",
+            "text": [
+                "Leider ist das zur Zeit noch nicht möglich.",
+                "Glücklicherweise hast du Entwicklerzugriff und kannst so einfach einen PIN eingeben, aus welchem deterministisch (d.h. ohne zusätzlicher Zufälligkeit) ein Hauptschlüssel abgeleitet wird."
+            ]
+        }
+    }
 }

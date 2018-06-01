@@ -1,4 +1,6 @@
 {
+    "appName": "Shift Wallet",
+    "appNameWithDefiniteArticle": "the Shift Wallet",
     "dbb": {
         "error": {
             "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
@@ -158,6 +160,43 @@
     },
     "loading": "loading…",
     "guide": {
-        "title": "Guide"
+        "title": "Guide",
+        "waiting": [
+            {
+                "title": "Welcome to $t(appNameWithDefiniteArticle)!",
+                "text": [ "Thanks for trusting the open-source $t(appName)! But always remember:" ],
+                "link": { "text": "Don't trust, verify!", "url": "https://github.com/digitalbitbox/" },
+                "shown": true
+            },
+            {
+                "title": "How do I use this guide?",
+                "text": [ "You can toggle this guide with the button in the upper right corner. If you are new to cryptocurrencies, we recommend that you leave the guide open for now. :-)" ],
+                "shown": true
+            },
+            {
+                "title": "How can I get a device?",
+                "text": [ "You can buy a BitBox in our online shop:" ],
+                "link": { "text": "Order a BitBox", "url": "https://shiftcrypto.ch/shop" }
+            },
+            {
+                "title": "Does this app require an Internet connection?",
+                "text": [ "Yes, an Internet connection is required to synchronize the wallet with the blockchain and send transactions." ]
+            },
+            {
+                "title": "Which servers does this app talk to?",
+                "text": [ "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps." ]
+            },
+            {
+                "title": "Can I use the app without your servers?",
+                "text": [ "Not at the moment but we are working on letting you configure servers of your own!" ]
+            }
+        ],
+        "waitingWithoutDevice": {
+            "title": "Can I use the app without a device?",
+            "text": [
+                "Unfortunately, this is not yet possible at the moment.",
+                "Luckily, you are currently in developer mode and can simply enter a PIN, from which a seed is derived deterministically (i.e. without additional randomness)."
+            ]
+        }
     }
 }

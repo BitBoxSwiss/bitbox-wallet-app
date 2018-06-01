@@ -23,12 +23,10 @@ export default function Waiting({ testing, guide }) {
                     </Footer>
                 </div>
             </div>
-            <Guide guide={guide}>
-                <Entry title="Welcome to the Shift Wallet!" highlighted>
-                    <p>You can toggle the guide with the button in the upper right corner.</p>
-                </Entry>
-                <Entry title="How can I get a BitBox?">
-                    <p>Buy one at https://shiftcrypto.ch/shop.</p>
+            <Guide guide={guide} screen="waiting">
+                <Entry title={i18n.t('guide.waitingWithoutDevice.title')}>
+                    {!(debug && testing) && <p>{i18n.t('guide.waitingWithoutDevice.text.0')}</p>}
+                    {debug && testing && <p>{i18n.t('guide.waitingWithoutDevice.text.1')}</p>}
                 </Entry>
             </Guide>
         </div>

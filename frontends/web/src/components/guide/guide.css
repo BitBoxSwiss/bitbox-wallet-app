@@ -4,24 +4,27 @@
 
 .toggler {
     position: fixed;
-    top: 2rem;
-    right: 2rem;
+    top: 1.7rem;
+    right: 1.7rem;
     z-index: 2000;
-    padding: 7px 12px;
-    border-radius: 20px;
-    min-width: 33px;
+    padding: 8px 12px;
+    border-radius: 19px;
+    width: 38px;
+    height: 38px;
     color: white;
+    cursor: pointer;
     font-weight: bold;
     text-align: center;
     background-color: var(--color-darkblue);
 }
 
 .guide {
-    height: 100%;
+    height: 100vh;
     padding: 2rem;
     width: 350px;
     color: white;
     background-color: var(--color-brightblue);
+    overflow-y: auto;
 }
 
 .entry {
