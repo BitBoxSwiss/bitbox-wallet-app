@@ -39,7 +39,11 @@ export default class ManageBackups extends Component {
     }
 
     scrollIntoView = ({ target }) => {
-        const top = Math.max((target.offsetTop + target.parentNode.offsetHeight) - this.scrollableContainer.offsetHeight, 0);
+        const offsetTop = target.offsetTop;
+        if (offsetTop > this.scrollableContainer.scrollTop + target.parentNode.offsetHeight) {
+            return;
+        }
+        const top = Math.max((offsetTop + target.parentNode.offsetHeight) - this.scrollableContainer.offsetHeight, 0);
         this.scrollableContainer.scroll({
             top,
             behavior: 'smooth'
