@@ -4,7 +4,7 @@
 
 .status {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: var(--spacing-half) var(--spacing-large);
+    padding: var(--spacing-half) calc(var(--spacing-large) * 2);
     text-align: center;
 }
 
@@ -36,7 +36,7 @@
     color: var(--color-white);
     line-height: 36px;
     min-width: auto;
-    padding: 0 var(--spacing-half);
+    padding: 0 var(--spacing-default);
     position: absolute;
     top: 0;
     right: 0;

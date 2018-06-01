@@ -54,6 +54,7 @@
     flex: 1 1 auto;
     flex-direction: column;
     height: 100vh;
+    position: relative;
     width: 100%;
 }
 
@@ -101,8 +102,8 @@
 }
 
 .headerContainer .header {
-    padding: var(--spacing-large) 0;
-    max-width: 800px;
+    padding: var(--spacing-large) var(--spacing-large);
+    max-width: var(--content-width);
     width: 100%;
     margin: 0 auto;
     display: flex;
@@ -140,7 +141,8 @@
     flex: 1 1 auto;
     flex-direction: column;
     margin: 0 auto;
-    max-width: 800px;
+    max-width: var(--content-width);
+    padding: 0 var(--spacing-large);
     height: 100%;
     width: 100%;
 }
@@ -175,10 +177,15 @@
 
 .buttons {
     flex-shrink: 0;
+    position: relative;
 }
 
 .buttons > *:not(:last-child) {
     margin-right: var(--spacing-half);
+}
+
+.buttons:last-child {
+    margin-bottom: var(--spacing-half);
 }
 
 /* Guide */

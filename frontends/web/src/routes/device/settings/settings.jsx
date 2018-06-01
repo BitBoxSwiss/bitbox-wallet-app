@@ -11,6 +11,7 @@ import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
+import Footer from '../../../components/footer/footer';
 
 @translate()
 export default class Settings extends Component {
@@ -49,39 +50,41 @@ export default class Settings extends Component {
                     </div>
                     <div class="innerContainer scrollableContainer">
                         <div class="content">
-                            <div class="subHeaderContainer first">
-                                <div class="subHeader">
-                                    <h3>Device</h3>
+                            <div class="flex-1">
+                                <div class="subHeaderContainer first">
+                                    <div class="subHeader">
+                                        <h3>Device</h3>
+                                    </div>
+                                </div>
+                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                    <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
+                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                    <HiddenWallet deviceID={deviceID} disabled={lock} />
+                                    <Reset deviceID={deviceID} />
+                                </div>
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>Pairing</h3>
+                                    </div>
+                                </div>
+                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                    <MobilePairing deviceID={deviceID} disabled={lock} />
+                                    <DeviceLock deviceID={deviceID} />
+                                </div>
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>Miscellaneous</h3>
+                                    </div>
+                                </div>
+                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                    <Blink deviceID={deviceID} />
+                                    <RandomNumber deviceID={deviceID} />
                                 </div>
                             </div>
-                            <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
-                                <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
-                                <HiddenWallet deviceID={deviceID} disabled={lock} />
-                                <Reset deviceID={deviceID} />
-                            </div>
-                            <div class="subHeaderContainer">
-                                <div class="subHeader">
-                                    <h3>Pairing</h3>
-                                </div>
-                            </div>
-                            <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                <MobilePairing deviceID={deviceID} disabled={lock}/>
-                                <DeviceLock deviceID={deviceID} />
-                            </div>
-                            <div class="subHeaderContainer">
-                                <div class="subHeader">
-                                    <h3>Miscellaneous</h3>
-                                </div>
-                            </div>
-                            <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                <Blink deviceID={deviceID} />
-                                <RandomNumber deviceID={deviceID} />
-                            </div>
+                            <Footer>
+                                { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
+                            </Footer>
                         </div>
-                        <footer class={['flex', 'flex-row', 'flex-items-center', 'flex-end'].join(' ')}>
-                            { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
-                        </footer>
                         { lock && (<Spinner />)}
                     </div>
                 </div>

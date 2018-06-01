@@ -148,7 +148,7 @@ export default class Account extends Component {
                     <div class="container">
                         <div class="headerContainer">
                             <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                                <p>{t(`account.info.${this.props.code}`)}</p>
+                                {t(`account.info.${this.props.code}`)}
                             </Status>
                             <div>
                                 {

@@ -93,26 +93,26 @@ export default class ManageBackups extends Component {
                             })
                         }
                     </div>
-                    <div class="buttons flex flex-row flex-end staticWidth">
-                      <Restore
-                        selectedBackup={selectedBackup}
-                        displayError={this.displayError}
-                        deviceID={deviceID}
-                        requireConfirmation={requireConfirmation}
-                      />
-                      {/*
-                        <Erase
-                        selectedBackup={selectedBackup}
-                        onErase={this.refresh}
-                        deviceID={deviceID}
-                      />
-                      */}
-                      {
-                        showCreate && (
-                          <Create onCreate={this.refresh} deviceID={deviceID} />
-                        )
-                      }
-                      {children}
+                    <div class="buttons flex flex-row flex-start staticWidth">
+                        {
+                            showCreate && (
+                                <Create onCreate={this.refresh} deviceID={deviceID} />
+                            )
+                        }
+                        <Restore
+                            selectedBackup={selectedBackup}
+                            displayError={this.displayError}
+                            deviceID={deviceID}
+                            requireConfirmation={requireConfirmation}
+                        />
+                        {/*
+                          <Erase
+                          selectedBackup={selectedBackup}
+                          onErase={this.refresh}
+                          deviceID={deviceID}
+                        />
+                        */}
+                        {children}
                     </div>
                 </div>
             </div>

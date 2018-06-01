@@ -95,12 +95,12 @@ export default class Settings extends Component {
                                                 className="text-medium"
                                             />
                                         </div>
+                                        <Button primary onClick={this.save}>{t('button.save')}</Button>
                                     </div>
                                 )
                             }
-                            <Button primary onClick={this.save}>{t('button.save')}</Button>
+                            <Footer></Footer>
                         </div>
-                        <Footer></Footer>
                     </div>
                     {
                         toast && (
