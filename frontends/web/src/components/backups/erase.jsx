@@ -1,6 +1,6 @@
 import { Component } from 'preact';
-import { Button } from '../../../components/forms';
-import { apiPost } from '../../../utils/request';
+import { Button } from '../forms';
+import { apiPost } from '../../utils/request';
 import Dialog from '../dialog/dialog';
 
 
