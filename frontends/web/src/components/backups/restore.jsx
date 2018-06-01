@@ -5,7 +5,6 @@ import { Button } from '../forms';
 import Dialog from '../dialog/dialog';
 import WaitDialog from '../wait-dialog/wait-dialog';
 import Spinner from '../spinner/Spinner';
-import Confirm from '../confirm/confirm';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
 

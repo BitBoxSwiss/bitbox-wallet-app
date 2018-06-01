@@ -62,7 +62,7 @@
     flex-direction: column;
     flex-grow: 1;
     width: 100%;
-    min-height: calc(100% - var(--header-height));
+    /* min-height: calc(100% - var(--header-height)); */
     margin: 0 auto;
     justify-content: flex-start;
 }

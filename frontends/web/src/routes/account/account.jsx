@@ -183,18 +183,6 @@ export default class Account extends Component {
                             </div>
                         </div>
                         <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
-                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                                <p>{t(`account.info.${this.props.code}`)}</p>
-                            </Status>
-                            <div>
-                                {
-                                    !walletConnected && (
-                                        <Status>
-                                            <p>{t('account.disconnect')}</p>
-                                        </Status>
-                                    )
-                                }
-                            </div>
                             {
                                 !walletInitialized ? (
                                     <Spinner />
