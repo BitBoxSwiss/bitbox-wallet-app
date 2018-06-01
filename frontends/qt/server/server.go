@@ -1,6 +1,8 @@
 package main
 
 /*
+#ifndef BACKEND_H
+#define BACKEND_H
 #include <string.h>
 #include <stdint.h>
 
@@ -14,6 +16,7 @@ typedef struct ConnectionData {
     char* token;
     char* certFilename;
 } ConnectionData;
+#endif
 */
 import "C"
 
@@ -25,13 +28,16 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"math/big"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/shiftdevices/godbb/util/errp"
@@ -49,6 +55,10 @@ const (
 	// RSA key size.
 	rsaBits = 2048
 )
+
+var theBackend *backend.Backend
+var handlers *backendHandlers.Handlers
+var token string
 
 // generateRSAPrivateKey generates an RSA key pair and wraps it in the type rsa.PrivateKey.
 func generateRSAPrivateKey() (*rsa.PrivateKey, error) {
@@ -142,11 +152,37 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	return tc, nil
 }
 
+//export backendCall
+func backendCall(s *C.char) *C.char {
+	if handlers == nil {
+		return C.CString("null")
+	}
+	query := map[string]string{}
+	jsonp.MustUnmarshal([]byte(C.GoString(s)), &query)
+	if query["method"] != "POST" && query["method"] != "GET" {
+		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
+	}
+	rec := httptest.NewRecorder()
+	request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
+	if err != nil {
+		panic(errp.WithStack(err))
+	}
+	request.Header.Set("Authorization", "Basic "+token)
+	handlers.Router.ServeHTTP(rec, request)
+	response := rec.Result()
+	responseBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		panic(errp.WithStack(err))
+	}
+	return C.CString(string(responseBytes))
+}
+
 //export serve
 func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_ConnectionData {
 	log := logging.Log.WithGroup("server")
 	log.Info("--------------- Started application --------------")
-	token, err := random.HexString(16)
+	var err error
+	token, err = random.HexString(16)
 	if err != nil {
 		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
@@ -162,14 +198,14 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 
 	connectionData := backendHandlers.NewConnectionData(port, token)
 	productionArguments := backend.ProductionArguments()
-	backend := backend.NewBackend(productionArguments)
-	events := backend.Events()
+	theBackend := backend.NewBackend(productionArguments)
+	events := theBackend.Events()
 	go func() {
 		for {
 			C.pushNotify(pushNotificationsCallback, C.CString(string(jsonp.MustMarshal(<-events))))
 		}
 	}()
-	handlers := backendHandlers.NewHandlers(backend, connectionData)
+	handlers = backendHandlers.NewHandlers(theBackend, connectionData)
 
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {
@@ -202,8 +238,8 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to listen on address")
 		}
 		log.WithField("address", server.Addr).Debug("Listening")
-		tlsListener := tls.NewListener(tcpKeepAliveListener{listener.(*net.TCPListener)}, server.TLSConfig)
-		err = server.Serve(tlsListener)
+		//tlsListener := tls.NewListener(tcpKeepAliveListener{listener.(*net.TCPListener)}, server.TLSConfig)
+		err = server.Serve(listener)
 		if err != nil {
 			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
 		}

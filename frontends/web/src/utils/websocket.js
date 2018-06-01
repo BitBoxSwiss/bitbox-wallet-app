@@ -1,16 +1,16 @@
 import { apiPort, apiToken, isTLS } from './request';
 import { debug } from './env';
+import { qtSubscribePushNotifications } from './qttransport';
 
-const currentListeners = [];
 let socket = null;
+let currentListeners = [];
 
 export function apiWebsocket(msgCallback) {
-    if (!window.currentListeners) {
-        window.currentListeners = [];
+    if (typeof qt !== 'undefined') {
+        return qtSubscribePushNotifications(msgCallback);
     }
-    window.currentListeners.push(msgCallback);
-    // In browser/debug mode, receive push notifications on a websocket.
-    if (debug && !socket) {
+    currentListeners.push(msgCallback);
+    if (!socket) {
         socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
         socket.onopen = function(event) {
@@ -25,22 +25,21 @@ export function apiWebsocket(msgCallback) {
         // Listen for messages
         socket.onmessage = function(event) {
             const payload = JSON.parse(event.data);
-            window.currentListeners.forEach(listener => listener(payload));
+            currentListeners.forEach(listener => listener(payload));
         };
 
         socket.onclose = function(event) {
-            window.currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
+            currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
         };
     }
-
     return () => {
-        if (!window.currentListeners.includes(msgCallback)) {
-            console.warn('!window.currentListeners.includes(msgCallback)');
+        if (!currentListeners.includes(msgCallback)) {
+            console.warn('!currentListeners.includes(msgCallback)');
         }
-        const index = window.currentListeners.indexOf(msgCallback);
-        window.currentListeners.splice(index, 1);
-        if (window.currentListeners.includes(msgCallback)) {
-            console.warn('window.currentListeners.includes(msgCallback)');
+        const index = currentListeners.indexOf(msgCallback);
+        currentListeners.splice(index, 1);
+        if (currentListeners.includes(msgCallback)) {
+            console.warn('currentListeners.includes(msgCallback)');
         }
     };
 }

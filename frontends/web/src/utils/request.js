@@ -1,4 +1,5 @@
 import { extConfig } from './config';
+import { call } from './qttransport';
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');
@@ -33,17 +34,27 @@ function handleError(endpoint) {
 }
 
 export function apiGet(endpoint) {
+    if (typeof qt !== 'undefined') {
+        return call(JSON.stringify({
+            "method": "GET",
+            "endpoint": endpoint
+        }));
+    }
     return fetch(apiURL(endpoint), {
         method: 'GET'
     }).then(r => r.json()).then(handleError(endpoint));
 }
 
 export function apiPost(endpoint, body) {
-    return fetch(
-        apiURL(endpoint),
-        {
-            method: 'POST',
+    if (typeof qt !== 'undefined') {
+        return call(JSON.stringify({
+            "method": "POST",
+            "endpoint": endpoint,
             body: JSON.stringify(body)
-        }).
-        then(r => r.json()).then(handleError(endpoint));
+        }));
+    }
+    return fetch(apiURL(endpoint), {
+        method: 'POST',
+        body: JSON.stringify(body)
+    }).then(r => r.json()).then(handleError(endpoint));
 }

@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT       += webkitwidgets
+QT       += webenginewidgets webchannel
 
 TARGET = dbb
 TEMPLATE = app
@@ -23,10 +23,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 QMAKE_CXXFLAGS += -std=c++11
 
+unix:!macx {
+    QMAKE_LFLAGS_RPATH=
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
+    //LIBS += -L/home/marko/test/webkitlib/qtwebkit-5.212.0_alpha2-qt59-linux-x64/lib
+    #QMAKE_LFLAGS += '-Wl,-rpath,/home/marko/test/webkitlib/qtwebkit-5.212.0_alpha2-qt59-linux-x64/lib'
+}
+
 SOURCES += \
         main.cpp
 
-HEADERS +=
+HEADERS += webclass.h
 
 INCLUDEPATH += ../server/
 

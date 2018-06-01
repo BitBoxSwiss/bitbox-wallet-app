@@ -30,14 +30,6 @@ export default class App extends Component {
     handleRoute = event => {}
 
     componentDidMount() {
-        // Called from Qt.
-        window.handlePushNotification = function(msg) {
-            if (window.currentListeners) {
-                window.currentListeners.forEach(listener => listener(msg));
-            }
-        };
-
-
         this.onDevicesRegisteredChanged();
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {

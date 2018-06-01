@@ -1,44 +1,32 @@
-#include <string>
 #include <QApplication>
-#include <QWebView>
-#include <QWebPage>
-#include <QWebFrame>
-#include <QSslSocket>
-#include <QSsl>
-#include <QRegExp>
-#include <QSslCertificate>
-#include <QNetworkAccessManager>
-#include <QNetworkReply>
+#include <QWebEngineView>
+#include <QWebEngineProfile>
+#include <QWebEnginePage>
+#include <QWebChannel>
+#include <QWebEngineUrlRequestInterceptor>
+#include <QThread>
 #include <QByteArray>
 
 #include <server.h>
 #include <iostream>
+#include <string>
 
-static QWebView* view;
+#include "webclass.h"
+
+static QWebEngineView* view;
 static bool pageLoaded = false;
+static WebClass* webClass;
 
-class BridgedNetworkAccessManager : public QNetworkAccessManager {
+class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
-    BridgedNetworkAccessManager(const char* _token) : QNetworkAccessManager () {
-        token = std::string(_token);
-    }
-    QNetworkReply* createRequest (Operation op, const QNetworkRequest& req, QIODevice* outgoingData){
-        QNetworkRequest copiedRequest(req);
+    explicit RequestInterceptor(const char* _token) : QWebEngineUrlRequestInterceptor(), token(_token) { }
+    void interceptRequest(QWebEngineUrlRequestInfo& info) override {
         std::string header = std::string("Basic ") + token;
-        copiedRequest.setRawHeader("Authorization", QByteArray(header.c_str()));
-        return QNetworkAccessManager::createRequest(op, copiedRequest, outgoingData);
-
-    }
+        info.setHttpHeader("Authorization", QByteArray(header.c_str()));
+    };
 private:
     std::string token;
 };
-
-// class MyWebPage : public QWebPage {
-// protected:
-//     void javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID) {
-//         std::cout << "JS console: " << message.toStdString() << " (linenumber: " << lineNumber << ", sourceID: " << sourceID.toStdString() << ")" << std::endl;
-//     }
-// };
 
 int main(int argc, char *argv[])
 {
@@ -51,25 +39,33 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     a.setApplicationName(QString("BitBox Wallet"));
-    view = new QWebView;
+    view = new QWebEngineView;
+    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
     view->setMinimumSize(850, 675);
     view->setContextMenuPolicy(Qt::NoContextMenu);
     pageLoaded = false;
-    QObject::connect(view, &QWebView::loadFinished, [](bool ok){ pageLoaded = ok; });
+    QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
+
+    QThread workerThread;
+    webClass = new WebClass();
+    // Run client queries in a sepearate to not block the UI.
+    webClass->moveToThread(&workerThread);
+    workerThread.start();
+    QObject::connect(&a, &QApplication::aboutToQuit, &workerThread, &QThread::quit);
+
     ConnectionData serveData = serve([](const char* msg) {
         if (!pageLoaded) return;
-        QString qmsg = QString::fromStdString(std::string("window.handlePushNotification(" + std::string(msg) + std::string(")")));
-        QMetaObject::invokeMethod(view->page()->mainFrame(), "evaluateJavaScript", Qt::QueuedConnection, Q_ARG(QString, qmsg));
+        webClass->pushNotify(QString(msg));
     });
-    QSslSocket::addDefaultCaCertificates(serveData.certFilename, QSsl::Pem, QRegExp::Wildcard);
 
-    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
-
-    // MyWebPage page;
-    // view->setPage(&page);
-    BridgedNetworkAccessManager bridgedNetworkAccessManager(serveData.token);
-    view->page()->setNetworkAccessManager(&bridgedNetworkAccessManager);
+    RequestInterceptor *interceptor = new RequestInterceptor(serveData.token);
+    view->page()->profile()->setRequestInterceptor(interceptor);
+    QWebChannel channel;
+    channel.registerObject("backend", webClass);
+    view->page()->setWebChannel(&channel);
     view->show();
-    view->load(QUrl((std::string("https://localhost:") + std::to_string(serveData.port)).c_str()));
+
+    view->load(QUrl((std::string("http://localhost:") + std::to_string(serveData.port)).c_str()));
+
     return a.exec();
 }
