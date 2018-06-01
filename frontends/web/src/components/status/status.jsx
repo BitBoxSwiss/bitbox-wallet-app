@@ -52,7 +52,7 @@ export default class Status extends Component {
     }, {
         show,
     }) {
-        if (dismissable && !show) {
+        if ((dismissable && !show) || (children.length === 1 && !children[0])) {
             return null;
         }
         return (
