@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
-import { apiGet, apiPost } from '../../utils/request';
+import { apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
 import Waiting from './waiting';
@@ -102,6 +102,7 @@ export default class Device extends Component {
     render({
         deviceID,
         deviceIDs,
+        guide,
     }, {
         deviceRegistered,
         deviceStatus,
@@ -109,7 +110,7 @@ export default class Device extends Component {
         testing,
     }) {
         if (!deviceIDs.length && !walletInitialized) {
-            return <Waiting testing={testing} />;
+            return <Waiting testing={testing} guide={guide} />;
         }
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
@@ -117,15 +118,15 @@ export default class Device extends Component {
 
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return <Bootloader deviceID={deviceID} />;
+            return <Bootloader deviceID={deviceID} guide={guide} />;
         case DeviceStatus.INITIALIZED:
-            return <Unlock deviceID={deviceID} />;
+            return <Unlock deviceID={deviceID} guide={guide} />;
         case DeviceStatus.UNINITIALIZED:
-            return <Initialize deviceID={deviceID} />;
+            return <Initialize deviceID={deviceID} guide={guide} />;
         case DeviceStatus.LOGGED_IN:
-            return <Seed deviceID={deviceID} />;
+            return <Seed deviceID={deviceID} guide={guide} />;
         case DeviceStatus.SEEDED:
-            return <Settings deviceID={deviceID} />;
+            return <Settings deviceID={deviceID} guide={guide} />;
         }
     }
 }

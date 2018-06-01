@@ -209,7 +209,7 @@ export default class Account extends Component {
                         </div>
                     </div>
                     <Guide guide={guide}>
-                    <Entry title="What does incoming mean?">
+                        <Entry title="What does incoming mean?">
                             <p>Not yet confirmed by the network.</p>
                         </Entry>
                     </Guide>

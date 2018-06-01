@@ -19,7 +19,7 @@
 .guide {
     height: 100%;
     padding: 2rem;
-    min-width: 350px;
+    width: 350px;
     color: white;
     background-color: var(--color-brightblue);
 }

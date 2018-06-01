@@ -6,6 +6,7 @@ import { PasswordRepeatInput } from '../../components/password';
 import { Button } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
+import { Guide, Entry } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';
@@ -57,7 +58,7 @@ export default class Initialize extends Component {
         this.setState({ password });
     }
 
-    render({ t }, {
+    render({ t, guide }, {
         password,
         status,
         errorCode,
@@ -84,39 +85,46 @@ export default class Initialize extends Component {
         }
 
         return (
-            <div className={style.container}>
-                <BitBox />
-                <div className={style.content}>
-                    {formSubmissionState}
-                    <form onSubmit={this.handleSubmit}>
-                        <PasswordRepeatInput
-                            pattern="^[0-9]+$"
-                            title={t('initialize.invalid')}
-                            label="PIN"
-                            repeatLabel="Repeat PIN"
-                            repeatPlaceholder="Please confirm PIN"
-                            ref={ref => this.passwordInput = ref}
-                            disabled={status === stateEnum.WAITING}
-                            onValidPassword={this.setValidPassword} />
-                        <div>
-                            <Button
-                                type="submit"
-                                primary
-                                disabled={!password || status === stateEnum.WAITING}>
-                                {t('initialize.create')}
-                            </Button>
-                        </div>
-                    </form>
-                    <hr />
-                    <Footer>
-                        <Shift style="max-width: 100px; margin: auto auto auto 0;" />
-                    </Footer>
+            <div class="contentWithGuide">
+                <div className={style.container}>
+                    <BitBox />
+                    <div className={style.content}>
+                        {formSubmissionState}
+                        <form onSubmit={this.handleSubmit}>
+                            <PasswordRepeatInput
+                                pattern="^[0-9]+$"
+                                title={t('initialize.invalid')}
+                                label="PIN"
+                                repeatLabel="Repeat PIN"
+                                repeatPlaceholder="Please confirm PIN"
+                                ref={ref => this.passwordInput = ref}
+                                disabled={status === stateEnum.WAITING}
+                                onValidPassword={this.setValidPassword} />
+                            <div>
+                                <Button
+                                    type="submit"
+                                    primary
+                                    disabled={!password || status === stateEnum.WAITING}>
+                                    {t('initialize.create')}
+                                </Button>
+                            </div>
+                        </form>
+                        <hr />
+                        <Footer>
+                            <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                        </Footer>
+                    </div>
+                    {
+                        status === stateEnum.WAITING && (
+                            <Spinner />
+                        )
+                    }
                 </div>
-                {
-                    status === stateEnum.WAITING && (
-                        <Spinner />
-                    )
-                }
+                <Guide guide={guide}>
+                    <Entry title="What is the PIN used for?">
+                        <p>To authenticate access to the device and encrypt its communication.</p>
+                    </Entry>
+                </Guide>
             </div>
         );
     }

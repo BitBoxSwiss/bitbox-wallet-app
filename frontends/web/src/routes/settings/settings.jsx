@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { Button, Checkbox } from '../../components/forms';
+import { Guide, Entry } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import Toast from '../../components/toast/Toast';
 
@@ -34,80 +35,88 @@ export default class Settings extends Component {
 
     render({
         t,
+        guide,
     }, {
         config,
         toast,
     }) {
         return (
-            <div class="container">
-                <div class="headerContainer">
-                    <div class="header">
-                        <h2>{t('settings.title')}</h2>
+            <div class="contentWithGuide">
+                <div class="container">
+                    <div class="headerContainer">
+                        <div class="header">
+                            <h2>{t('settings.title')}</h2>
+                        </div>
                     </div>
-                </div>
-                <div class="innerContainer scrollableContainer">
-                    <div class="content flex flex-column flex-start">
-                        {
-                            config && (
-                                <div class="flex-1">
-                                    <div class="subHeaderContainer first">
-                                        <div class="subHeader">
-                                            <h3>Active accounts</h3>
+                    <div class="innerContainer scrollableContainer">
+                        <div class="content flex flex-column flex-start">
+                            {
+                                config && (
+                                    <div class="flex-1">
+                                        <div class="subHeaderContainer first">
+                                            <div class="subHeader">
+                                                <h3>Active accounts</h3>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-row flex-start flex-wrap wrapped">
+                                            <Checkbox
+                                                checked={config.backend.bitcoinP2PKHActive}
+                                                id="bitcoinP2PKHActive"
+                                                onChange={this.toggleAccountActive}
+                                                label="Bitcoin Legacy"
+                                                className="text-medium"
+                                            />
+                                            <Checkbox
+                                                checked={config.backend.bitcoinP2WPKHP2SHActive}
+                                                id="bitcoinP2WPKHP2SHActive"
+                                                onChange={this.toggleAccountActive}
+                                                label="Bitcoin Segwit"
+                                                className="text-medium"
+                                            />
+                                            <Checkbox
+                                                checked={config.backend.bitcoinP2WPKHActive}
+                                                id="bitcoinP2WPKHActive"
+                                                onChange={this.toggleAccountActive}
+                                                label="Bitcoin Native Segwit"
+                                                className="text-medium"
+                                            />
+                                            <Checkbox
+                                                checked={config.backend.litecoinP2WPKHP2SHActive}
+                                                id="litecoinP2WPKHP2SHActive"
+                                                onChange={this.toggleAccountActive}
+                                                label="Litecoin Segwit"
+                                                className="text-medium"
+                                            />
+                                            <Checkbox
+                                                checked={config.backend.litecoinP2WPKHActive}
+                                                id="litecoinP2WPKHActive"
+                                                onChange={this.toggleAccountActive}
+                                                label="Litecoin Native Segwit"
+                                                className="text-medium"
+                                            />
                                         </div>
                                     </div>
-                                    <div class="flex flex-row flex-start flex-wrap wrapped">
-                                        <Checkbox
-                                            checked={config.backend.bitcoinP2PKHActive}
-                                            id="bitcoinP2PKHActive"
-                                            onChange={this.toggleAccountActive}
-                                            label="Bitcoin Legacy"
-                                            className="text-medium"
-                                        />
-                                        <Checkbox
-                                            checked={config.backend.bitcoinP2WPKHP2SHActive}
-                                            id="bitcoinP2WPKHP2SHActive"
-                                            onChange={this.toggleAccountActive}
-                                            label="Bitcoin Segwit"
-                                            className="text-medium"
-                                        />
-                                        <Checkbox
-                                            checked={config.backend.bitcoinP2WPKHActive}
-                                            id="bitcoinP2WPKHActive"
-                                            onChange={this.toggleAccountActive}
-                                            label="Bitcoin Native Segwit"
-                                            className="text-medium"
-                                        />
-                                        <Checkbox
-                                            checked={config.backend.litecoinP2WPKHP2SHActive}
-                                            id="litecoinP2WPKHP2SHActive"
-                                            onChange={this.toggleAccountActive}
-                                            label="Litecoin Segwit"
-                                            className="text-medium"
-                                        />
-                                        <Checkbox
-                                            checked={config.backend.litecoinP2WPKHActive}
-                                            id="litecoinP2WPKHActive"
-                                            onChange={this.toggleAccountActive}
-                                            label="Litecoin Native Segwit"
-                                            className="text-medium"
-                                        />
-                                    </div>
-                                </div>
-                            )
-                        }
-                        <Button primary onClick={this.save}>{t('button.save')}</Button>
+                                )
+                            }
+                            <Button primary onClick={this.save}>{t('button.save')}</Button>
+                        </div>
+                        <Footer></Footer>
                     </div>
-                    <Footer></Footer>
+                    {
+                        toast && (
+                            <Toast
+                                theme="success"
+                                message="Settings saved. Please restart the application for the changes to take effect."
+                                onHide={() => this.setState({ toast: false })}
+                            />
+                        )
+                    }
                 </div>
-                {
-                    toast && (
-                        <Toast
-                            theme="success"
-                            message="Settings saved. Please restart the application for the changes to take effect."
-                            onHide={() => this.setState({ toast: false })}
-                        />
-                    )
-                }
+                <Guide guide={guide}>
+                    <Entry title="Can I have several accounts of the same coin?">
+                        <p>Not yet supported, unfortunately.</p>
+                    </Entry>
+                </Guide>
             </div>
         );
     }

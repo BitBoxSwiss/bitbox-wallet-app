@@ -6,6 +6,7 @@ import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
+import { Guide, Entry } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';
@@ -74,6 +75,7 @@ export default class Seed extends Component {
     render({
         t,
         deviceID,
+        guide,
     }, {
         status,
         walletName,
@@ -139,19 +141,26 @@ export default class Seed extends Component {
         );
 
         return (
-            <div className={style.container}>
-                <BitBox />
-                <div className={style.content}>
-                    {errorMessage}
-                    {content}
-                    <hr />
-                    <Footer />
+            <div class="contentWithGuide">
+                <div className={style.container}>
+                    <BitBox />
+                    <div className={style.content}>
+                        {errorMessage}
+                        {content}
+                        <hr />
+                        <Footer />
+                    </div>
+                    {
+                        status === stateEnum.WAITING && (
+                            <Spinner />
+                        )
+                    }
                 </div>
-                {
-                    status === stateEnum.WAITING && (
-                        <Spinner />
-                    )
-                }
+                <Guide guide={guide}>
+                    <Entry title="Why can't I change the recovery password later on?">
+                        <p>Because it's used for key derivation and not seed encryption.</p>
+                    </Entry>
+                </Guide>
             </div>
         );
     }

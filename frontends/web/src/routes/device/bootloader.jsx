@@ -1,5 +1,4 @@
 import { Component } from 'preact';
-
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';

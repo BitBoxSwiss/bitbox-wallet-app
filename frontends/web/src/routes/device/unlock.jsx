@@ -5,6 +5,7 @@ import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
+import { Guide, Entry } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import style from './device.css';
 
@@ -72,7 +73,7 @@ export default class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t }, {
+    render({ t, guide }, {
         status, password,
         errorCode, errorMessage, remainingAttempts, needsLongTouch
     }) {
@@ -99,43 +100,49 @@ export default class Unlock extends Component {
         }
 
         return (
-            <div className={style.container}>
-                <BitBox />
-                <div className={style.content}>
-                    {submissionState}
-                    {status !== stateEnum.WAITING && (
-                        <form onSubmit={this.handleSubmit}>
-                            <div>
-                                <Input
-                                    autoFocus
-                                    getRef={ref => this.passwordInput = ref}
-                                    id="password"
-                                    type="password"
-                                    label={t('unlock.input.label')}
-                                    disabled={status === stateEnum.WAITING}
-                                    placeholder={t('unlock.input.placeholder')}
-                                    onInput={this.handleFormChange}
-                                    value={password} />
-                            </div>
-                            <div>
-                                <Button
-                                    primary
-                                    type="submit"
-                                    disabled={!this.validate() || status === stateEnum.WAITING}>
-                                    {t('Login')}
-                                </Button>
-                            </div>
-                            <hr />
-                            <p>
-
-                            </p>
-
-                            <Footer>
-                                <Shift style="max-width: 100px; margin: auto auto auto 0;" />
-                            </Footer>
-                        </form>
-                    )}
+            <div class="contentWithGuide">
+                <div className={style.container}>
+                    <BitBox />
+                    <div className={style.content}>
+                        {submissionState}
+                        {status !== stateEnum.WAITING && (
+                            <form onSubmit={this.handleSubmit}>
+                                <div>
+                                    <Input
+                                        autoFocus
+                                        getRef={ref => this.passwordInput = ref}
+                                        id="password"
+                                        type="password"
+                                        label={t('unlock.input.label')}
+                                        disabled={status === stateEnum.WAITING}
+                                        placeholder={t('unlock.input.placeholder')}
+                                        onInput={this.handleFormChange}
+                                        value={password} />
+                                </div>
+                                <div>
+                                    <Button
+                                        primary
+                                        type="submit"
+                                        disabled={!this.validate() || status === stateEnum.WAITING}>
+                                        {t('Login')}
+                                    </Button>
+                                </div>
+                                <hr />
+                                <Footer>
+                                    <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                                </Footer>
+                            </form>
+                        )}
+                    </div>
                 </div>
+                <Guide guide={guide}>
+                    <Entry title="What do I do if I forgot the PIN?">
+                        <p>Reset device and restore from backup.</p>
+                        <Entry title="How do I reset the device?">
+                            <p>Enter a wrong PIN 15 times. The last few attempts require a long touch on the device.</p>
+                        </Entry>
+                    </Entry>
+                </Guide>
             </div>
         );
     }
