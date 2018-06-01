@@ -50,7 +50,9 @@ int main(int argc, char *argv[])
 #endif // QT_VERSION
 
     QApplication a(argc, argv);
+    a.setApplicationName(QString("BitBox Wallet"));
     view = new QWebView;
+    view->setMinimumSize(850, 675);
     pageLoaded = false;
     QObject::connect(view, &QWebView::loadFinished, [](bool ok){ pageLoaded = ok; });
     ConnectionData serveData = serve([](const char* msg) {
@@ -60,7 +62,7 @@ int main(int argc, char *argv[])
     });
     QSslSocket::addDefaultCaCertificates(serveData.certFilename, QSsl::Pem, QRegExp::Wildcard);
 
-    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(),a.devicePixelRatio() * view->height());
+    view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
 
     // MyWebPage page;
     // view->setPage(&page);
