@@ -53,6 +53,7 @@ int main(int argc, char *argv[])
     a.setApplicationName(QString("BitBox Wallet"));
     view = new QWebView;
     view->setMinimumSize(850, 675);
+    view->setContextMenuPolicy(Qt::NoContextMenu);
     pageLoaded = false;
     QObject::connect(view, &QWebView::loadFinished, [](bool ok){ pageLoaded = ok; });
     ConnectionData serveData = serve([](const char* msg) {
