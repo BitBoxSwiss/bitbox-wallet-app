@@ -195,20 +195,18 @@ export default class Account extends Component {
                                     )
                                 }
                             </div>
+                            {
+                                !walletInitialized ? (
+                                    <Spinner />
+                                ) : (
+                                    <Transactions
+                                        explorerURL={wallet.blockExplorerTxPrefix}
+                                        transactions={transactions}
+                                        className={noTransactions ? 'isVerticallyCentered' : ''}
+                                    />
+                                )
+                            }
                         </div>
-                    </div>
-                    <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
-                        {
-                            !walletInitialized ? (
-                                <Spinner />
-                            ) : (
-                                <Transactions
-                                    explorerURL={wallet.blockExplorerTxPrefix}
-                                    transactions={transactions}
-                                    className={noTransactions ? 'isVerticallyCentered' : ''}
-                                />
-                            )
-                        }
                     </div>
                     <Guide guide={guide}>
                     <Entry title="What does incoming mean?">
