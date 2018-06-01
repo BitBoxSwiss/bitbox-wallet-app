@@ -1,5 +1,5 @@
 import { Component } from 'preact';
-import { translate } from 'react-i18next';
+import i18n from '../i18n/i18n';
 
 import { Input, Checkbox, Field } from './forms';
 import style from './password.css';
@@ -14,7 +14,6 @@ export function PasswordInput (props) {
     );
 }
 
-@translate()
 export class PasswordRepeatInput extends Component {
     state = {
         password: '',
@@ -152,7 +151,7 @@ export class PasswordRepeatInput extends Component {
                         id={this.idPrefix() + 'seePlaintext'}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
-                        label={t('password.show', {
+                        label={i18n.t('password.show', {
                             label
                         })} />
                 </Field>
