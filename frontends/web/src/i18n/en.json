@@ -156,5 +156,8 @@
     "password": {
         "show": "Show in clear text"
     },
-    "loading": "loading…"
+    "loading": "loading…",
+    "guide": {
+        "title": "Guide"
+    }
 }

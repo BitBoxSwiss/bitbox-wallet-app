@@ -43,6 +43,11 @@
     min-height: 100vh;
 }
 
+.contentWithGuide {
+    display: flex;
+    flex-direction: row;
+}
+
 .container {
     display: flex;
     flex: 1 1 auto;
@@ -81,6 +86,7 @@
 
 .headerContainer {
     background-color: var(--color-white);
+    min-height: var(--header-height);
     border-bottom: 1px solid #eee;
     width: 100%;
 }
@@ -168,4 +174,19 @@
 
 .buttons > *:not(:last-child) {
     margin-right: var(--spacing-half);
+}
+
+/* Guide */
+div.guide h1 {
+    margin-top: 0px;
+    font-size: 1.8em;
+}
+
+div.guide h2 {
+    font-size: 1.4em;
+    margin: 0px;
+}
+
+div.guide p {
+    margin: 0.4em 0;
 }

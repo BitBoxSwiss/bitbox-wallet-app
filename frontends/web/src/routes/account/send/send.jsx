@@ -1,7 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiPost } from '../../../utils/request';
-import { Button, Checkbox, Input, Label } from '../../../components/forms';
+import { Button, Checkbox, Input } from '../../../components/forms';
+import { Guide, Entry } from '../../../components/guide/guide';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
@@ -76,14 +77,14 @@ export default class Send extends Component {
             } else {
                 const error = result.errMsg;
                 switch (error) {
-                    case 'invalid address':
-                        this.setState({ addressError: error });
-                        break;
-                    case 'invalid amount':
-                        this.setState({ amountError: error});
-                        break;
-                    default:
-                        alert(error);
+                case 'invalid address':
+                    this.setState({ addressError: error });
+                    break;
+                case 'invalid amount':
+                    this.setState({ amountError: error });
+                    break;
+                default:
+                    alert(error);
                 }
             }
         }).catch(() => {
@@ -121,6 +122,7 @@ export default class Send extends Component {
         unit,
         isConfirming,
         balance,
+        guide,
     }, {
         proposedFee,
         proposedTotal,
@@ -135,95 +137,97 @@ export default class Send extends Component {
         amountError,
     }) {
         return (
-            <div class="container">
-                <div class="headerContainer">
-                    <div class="header">
-                        <Balance name={wallet.name} balance={balance}>
-                            {
-                                balance && balance.hasIncoming && (
-                                    <h5 class={style.pendingBalance}>
-                                        {balance.incoming}
-                                        <span style="color: var(--color-light);">{balance.unit}</span>
-                                        {' '}
-                                        {t('account.incoming')}
-                                    </h5>
-                                )
-                            }
-                        </Balance>
+            <div class="contentWithGuide">
+                <div class="container">
+                    <div class="headerContainer">
+                        <div class="header">
+                            <Balance name={wallet.name} balance={balance}>
+                                {
+                                    balance && balance.hasIncoming && (
+                                        <h5 class={style.pendingBalance}>
+                                            {balance.incoming}
+                                            <span style="color: var(--color-light);">{balance.unit}</span>
+                                            {' '}
+                                            {t('account.incoming')}
+                                        </h5>
+                                    )
+                                }
+                            </Balance>
+                        </div>
                     </div>
-                </div>
-                <div class="innerContainer">
-                    <div class="content">
-                        <div class="row">
-                            <div class="subHeaderContainer first">
-                                <div class="subHeader">
-                                    <h3>{t('send.title')}</h3>
+                    <div class="innerContainer">
+                        <div class="content">
+                            <div class="row">
+                                <div class="subHeaderContainer first">
+                                    <div class="subHeader">
+                                        <h3>{t('send.title')}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <Input
+                                    label={t('send.address.label')}
+                                    placeholder={t('send.address.placeholder')}
+                                    id="recipientAddress"
+                                    error={addressError}
+                                    onInput={this.handleFormChange}
+                                    onChange={this.validateAndDisplayFee}
+                                    value={recipientAddress}
+                                    autofocus
+                                />
+                            </div>
+                            <div class="row">
+                                <Input
+                                    label={t('send.amount.label')}
+                                    id="amount"
+                                    onInput={this.handleFormChange}
+                                    onChange={this.validateAndDisplayFee}
+                                    disabled={sendAll}
+                                    error={amountError}
+                                    value={sendAll ? proposedAmount : amount}
+                                    placeholder={t('send.amount.placeholder') + ' [' + unit + ']'}>
+                                    <Checkbox
+                                        label={t('send.maximum')}
+                                        id="sendAll"
+                                        onChange={this.sendAll}
+                                        checked={sendAll}
+                                        className={style.maxAmount}
+                                    />
+                                </Input>
+                            </div>
+                            <div class="row">
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Input
+                                        label={t('send.fee.label')}
+                                        value={proposedFee ? proposedFee : null}
+                                        placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
+                                        disabled={feeTarget !==  'custom'}
+                                    />
+                                    <Input
+                                        label={t('send.customFee.label')}
+                                        placeholder={t('send.customFee.placeholder')}
+                                        disabled
+                                    />
+                                    <FeeTargets
+                                        label={t('send.feeTarget.label')}
+                                        placeholder={t('send.feeTarget.placeholder')}
+                                        walletCode={walletCode}
+                                        disabled={!amount && !sendAll}
+                                        walletInitialized={walletInitialized}
+                                        onFeeTargetChange={this.feeTargetChange}
+                                    />
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <Input
-                                label={t('send.address.label')}
-                                placeholder={t('send.address.placeholder')}
-                                id="recipientAddress"
-                                error={addressError}
-                                onInput={this.handleFormChange}
-                                onChange={this.validateAndDisplayFee}
-                                value={recipientAddress}
-                                autofocus
-                            />
+                        <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                            <Button secondary onClick={this.props.onClose}>
+                                {t('button.back')}
+                            </Button>
+                            &nbsp;
+                            <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
+                                {t('button.send')}
+                            </Button>
                         </div>
-                        <div class="row">
-                            <Input
-                                label={t('send.amount.label')}
-                                id="amount"
-                                onInput={this.handleFormChange}
-                                onChange={this.validateAndDisplayFee}
-                                disabled={sendAll}
-                                error={amountError}
-                                value={sendAll ? proposedAmount : amount}
-                                placeholder={t('send.amount.placeholder') + ' [' + unit + ']'}>
-                                <Checkbox
-                                    label={t('send.maximum')}
-                                    id="sendAll"
-                                    onChange={this.sendAll}
-                                    checked={sendAll}
-                                    className={style.maxAmount}
-                                />
-                            </Input>
-                        </div>
-                        <div class="row">
-                            <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                                <Input
-                                    label={t('send.fee.label')}
-                                    value={proposedFee ? proposedFee : null}
-                                    placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
-                                    disabled={feeTarget !==  'custom'}
-                                />
-                                <Input
-                                    label={t('send.customFee.label')}
-                                    placeholder={t('send.customFee.placeholder')}
-                                    disabled
-                                />
-                                <FeeTargets
-                                    label={t('send.feeTarget.label')}
-                                    placeholder={t('send.feeTarget.placeholder')}
-                                    walletCode={walletCode}
-                                    disabled={!amount && !sendAll}
-                                    walletInitialized={walletInitialized}
-                                    onFeeTargetChange={this.feeTargetChange}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                        <Button secondary onClick={this.props.onClose}>
-                            {t('button.back')}
-                        </Button>
-                        &nbsp;
-                        <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
-                            {t('button.send')}
-                        </Button>
                     </div>
                     {
                         isConfirming && (
@@ -240,9 +244,9 @@ export default class Send extends Component {
                                             <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
                                             <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
                                         </div>
+                                        <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
+                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'} {unit}</p>
                                     </div>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'} {unit}</p>
                                 </div>
                             </WaitDialog>
                         )
@@ -257,6 +261,11 @@ export default class Send extends Component {
                         )
                     }
                 </div>
+                <Guide guide={guide}>
+                    <Entry title="Why is there a fee?">
+                        <p>To deter spam and reward miners.</p>
+                    </Entry>
+                </Guide>
             </div>
         );
     }

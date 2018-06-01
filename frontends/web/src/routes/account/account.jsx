@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';
+import { Guide, Entry } from '../../components/guide/guide';
 import Balance from '../../components/balance/balance';
 import Status from '../../components/status/status';
 import Send from './send/send';
@@ -84,7 +85,7 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        console.log('Wallet ' + this.props.code + ' requesting status.')
+        console.log('Wallet ' + this.props.code + ' requesting status.');
         apiGet('wallet/' + this.props.code + '/status').then(status => {
             if (status === 'initialized') {
                 this.setState({
@@ -126,6 +127,7 @@ export default class Account extends Component {
 
     render({
         t,
+        guide,
     }, {
         accounts,
         walletInitialized,
@@ -142,41 +144,56 @@ export default class Account extends Component {
         if (!isReceive && !isSend) {
             const noTransactions = (walletInitialized && transactions.length <= 0);
             return (
-                <div class="container">
-                    <div class="headerContainer">
-
-                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                            <p>{t(`account.info.${this.props.code}`)}</p>
-                        </Status>
-                        <div>
-                            {
-                                !walletConnected && (
-                                    <Status>
-                                        <p>{t('account.disconnect')}</p>
-                                    </Status>
-                                )
-                            }
-                        </div>
-                        <div class="header">
-                            <Balance name={wallet.name} balance={balance}>
+                <div class="contentWithGuide">
+                    <div class="container">
+                        <div class="headerContainer">
+                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                                <p>{t(`account.info.${this.props.code}`)}</p>
+                            </Status>
+                            <div>
                                 {
-                                    balance && balance.hasIncoming && (
-                                        <h5 class={style.pendingBalance}>
-                                            {balance.incoming}
-                                            <span style="color: var(--color-light);">{balance.unit}</span>
-                                            {' '}
-                                            {t('account.incoming')}
-                                        </h5>
+                                    !walletConnected && (
+                                        <Status>
+                                            <p>{t('account.disconnect')}</p>
+                                        </Status>
                                     )
                                 }
-                            </Balance>
-                            <div class={componentStyle.buttons} style="align-self: flex-end;">
-                                <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
-                                    {t('button.receive')}
-                                </Button>
-                                <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isSend: true })}>
-                                    {t('button.send')}
-                                </Button>
+                            </div>
+                            <div class="header">
+                                <Balance name={wallet.name} balance={balance}>
+                                    {
+                                        balance && balance.hasIncoming && (
+                                            <h5 class={style.pendingBalance}>
+                                                {balance.incoming}
+                                                <span style="color: var(--color-light);">{balance.unit}</span>
+                                                {' '}
+                                                {t('account.incoming')}
+                                            </h5>
+                                        )
+                                    }
+                                </Balance>
+                                <div class={componentStyle.buttons} style="align-self: flex-end;">
+                                    <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
+                                        {t('button.receive')}
+                                    </Button>
+                                    <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isSend: true })}>
+                                        {t('button.send')}
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
+                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                                <p>{t(`account.info.${this.props.code}`)}</p>
+                            </Status>
+                            <div>
+                                {
+                                    !walletConnected && (
+                                        <Status>
+                                            <p>{t('account.disconnect')}</p>
+                                        </Status>
+                                    )
+                                }
                             </div>
                         </div>
                     </div>
@@ -193,6 +210,11 @@ export default class Account extends Component {
                             )
                         }
                     </div>
+                    <Guide guide={guide}>
+                    <Entry title="What does incoming mean?">
+                            <p>Not yet confirmed by the network.</p>
+                        </Entry>
+                    </Guide>
                 </div>
             );
         } else if (isReceive) {
@@ -200,6 +222,7 @@ export default class Account extends Component {
                 <Receive
                     code={this.props.code}
                     onClose={() => this.setState({ isReceive: false })}
+                    guide={guide}
                 />
             );
         } else if (isSend) {
@@ -213,6 +236,7 @@ export default class Account extends Component {
                     balance={balance}
                     unit={balance.unit}
                     onClose={() => this.setState({ isSend: false })}
+                    guide={guide}
                 />
             );
         }

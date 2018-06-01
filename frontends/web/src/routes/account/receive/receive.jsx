@@ -2,6 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Input } from '../../../components/forms';
+import { Guide, Entry } from '../../../components/guide/guide';
 import QRCode from './qrcode';
 import style from './receive.css';
 
@@ -37,7 +38,7 @@ export default class ReceiveButton extends Component {
         this.setState({ activeIndex: (this.state.activeIndex + 1) % this.state.receiveAddresses.length});
     };
 
-    render({ t }, { verifying, activeIndex, receiveAddresses }) {
+    render({ t, guide }, { verifying, activeIndex, receiveAddresses }) {
         const content = receiveAddresses ? (
             <div>
                 <p class="label">{t('receive.label')} ({activeIndex+1}/{receiveAddresses.length})</p>
@@ -67,22 +68,29 @@ export default class ReceiveButton extends Component {
         );
 
         return (
-            <div class="container">
-                <div class="headerContainer">
-                    <div class="header">
-                        <h2>{t('receive.title')}</h2>
-                    </div>
-                </div>
-                <div class="innerContainer">
-                    <div class="content isVerticallyCentered">
-                        <div class={style.receiveContent}>
-                            {content}
+            <div class="contentWithGuide">
+                <div class="container">
+                    <div class="headerContainer">
+                        <div class="header">
+                            <h2>{t('receive.title')}</h2>
                         </div>
                     </div>
-                    <div class="flex flex-row flex-end">
-                        <Button secondary onClick={this.props.onClose}>{t('cancel')}</Button>
+                    <div class="innerContainer">
+                        <div class="content isVerticallyCentered">
+                            <div class={style.receiveContent}>
+                                {content}
+                            </div>
+                        </div>
+                        <div class="flex flex-row flex-end">
+                            <Button secondary onClick={this.props.onClose}>{t('cancel')}</Button>
+                        </div>
                     </div>
                 </div>
+                <Guide guide={guide}>
+                    <Entry title="What do I do with an address?">
+                        <p>Give it to others to send you coins.</p>
+                    </Entry>
+                </Guide>
             </div>
         );
     }

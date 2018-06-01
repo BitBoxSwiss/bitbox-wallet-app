@@ -19,15 +19,15 @@ export default class App extends Component {
         walletInitialized: false,
         deviceIDs: [],
         update: null,
+        guideShown: true,
     }
 
-    /** Gets fired when the route changes.
-     *@param {Object} event"change" event from [preact-router](http://git.io/preact-router)
-     *@param {string} event.urlThe newly routed URL
+    /**
+     * Gets fired when the route changes.
+     * @param {Object} event "change" event from [preact-router](http://git.io/preact-router)
+     * @param {string} event.url The newly routed URL
      */
-    handleRoute = e => {
-        // console.log(e.url);
-    };
+    handleRoute = event => {}
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
@@ -35,7 +35,7 @@ export default class App extends Component {
         this.unsubscribe = apiWebsocket(({ type, data }) => {
             switch (type) {
             case 'frontend': // special event from websocket.js
-                if (data == 'closed') {
+                if (data === 'closed') {
                     this.setState({ backendConnected: false });
                 }
                 break;
@@ -93,7 +93,19 @@ export default class App extends Component {
         });
     }
 
-    render({ t }, { backendConnected, deviceIDs, walletInitialized, update }) {
+    toggleGuide = () => {
+        this.setState(state => ({ guideShown: !state.guideShown }));
+    }
+
+    showGuide = () => {
+        this.setState({ guideShown: true });
+    }
+
+    hideGuide = () => {
+        this.setState({ guideShown: false });
+    }
+
+    render({ t }, { backendConnected, deviceIDs, walletInitialized, update, guideShown }) {
         if (!backendConnected) {
             return (
                 <div className="app" style="padding: 40px">
@@ -101,31 +113,34 @@ export default class App extends Component {
                 </div>
             );
         }
+        const guide = { shown: guideShown, toggle: this.toggleGuide, show: this.showGuide, hide: this.hideGuide };
         return (
             <div className="app">
-                { walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
+                {walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
                 <div class="flex-column flex-1">
-                    { update && <Status dismissable keyName={`update-${update.version}`} type="info">
+                    {update && <Status dismissable keyName={`update-${update.version}`} type="info">
                         A new version of this app is available! We recommend that you upgrade
-                        from { update.current } to { update.version }. { update.description }
-                        &nbsp;<a href="https://shiftcrypto.ch/start" target="_blank">Download</a>
-                    </Status> }
-                    <Router onChange={ this.handleRoute.bind(this) }>
+                        from {update.current} to {update.version}. {update.description}
+                        &nbsp;<a href="https://shiftcrypto.ch/start">Download</a>
+                    </Status>}
+                    <Router onChange={this.handleRoute}>
                         {/*
                         <Redirect path="/" to={`/account/${wallets[0].code}`} />
                         */}
-                        <Account path="/account/:code?" deviceIDs={deviceIDs} />
-                        <Settings path="/settings" deviceIDs={deviceIDs} />
+                        <Account path="/account/:code?" deviceIDs={deviceIDs} guide={guide} />
+                        <Settings path="/settings" deviceIDs={deviceIDs} guide={guide} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
-                            displayError={(msg) => { if (msg) alert("TODO" + msg); }}
-                            deviceIDs={deviceIDs} />
-                        <Device path="/device/:deviceID" deviceIDs={deviceIDs} />
+                            displayError={(msg) => { if (msg) alert('TODO' + msg); }}
+                            deviceIDs={deviceIDs}
+                            guide={guide} />
+                        <Device path="/device/:deviceID" deviceIDs={deviceIDs} guide={guide} />
                         <Device
                             default
                             deviceID={deviceIDs[0]}
-                            deviceIDs={deviceIDs} />
+                            deviceIDs={deviceIDs}
+                            guide={guide} />
                     </Router>
                 </div>
                 <Alert />

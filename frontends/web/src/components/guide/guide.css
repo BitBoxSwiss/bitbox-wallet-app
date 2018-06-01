@@ -1,0 +1,35 @@
+.wrapper {
+    position: relative;
+}
+
+.toggler {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2000;
+    padding: 7px 12px;
+    border-radius: 20px;
+    min-width: 33px;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    background-color: var(--color-darkblue);
+}
+
+.guide {
+    height: 100%;
+    padding: 2rem;
+    min-width: 350px;
+    color: white;
+    background-color: var(--color-brightblue);
+}
+
+.entry {
+    margin-top: 1.6em;
+}
+
+.highlighted {
+    margin: 1.1em -1em;
+    padding: 0.5em 1em;
+    background-color: var(--color-darkblue);
+}
