@@ -57,7 +57,6 @@ export default class ManageBackups extends Component {
         selectedBackup,
         sdCardInserted,
     }) {
-        const containerStyle = requireConfirmation ? '' : 'noPadding';
         if (sdCardInserted === false) {
             return (
                 <div class="content">
@@ -74,7 +73,7 @@ export default class ManageBackups extends Component {
         }
 
         return (
-            <div class={['innerContainer', 'withFixedContent', containerStyle].join(' ')}>
+            <div class={['innerContainer'].join(' ')}>
                 <div class="content">
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
@@ -90,27 +89,27 @@ export default class ManageBackups extends Component {
                             })
                         }
                     </div>
-                </div>
-                <div class="buttons flex flex-row flex-end staticWidth">
-                    <Restore
+                    <div class="buttons flex flex-row flex-end staticWidth">
+                      <Restore
                         selectedBackup={selectedBackup}
                         displayError={this.displayError}
                         deviceID={deviceID}
                         requireConfirmation={requireConfirmation}
-                    />
-                    {/*
+                      />
+                      {/*
                         <Erase
-                            selectedBackup={selectedBackup}
-                            onErase={this.refresh}
-                            deviceID={deviceID}
-                        />
-                    */}
-                    {
+                        selectedBackup={selectedBackup}
+                        onErase={this.refresh}
+                        deviceID={deviceID}
+                      />
+                      */}
+                      {
                         showCreate && (
-                            <Create onCreate={this.refresh} deviceID={deviceID} />
+                          <Create onCreate={this.refresh} deviceID={deviceID} />
                         )
-                    }
-                    {children}
+                      }
+                      {children}
+                    </div>
                 </div>
             </div>
         );

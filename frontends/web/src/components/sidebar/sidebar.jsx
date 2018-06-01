@@ -48,7 +48,7 @@ class Sidebar extends Component {
                             <div>
                                 <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
                                     <img className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.settings') } />
-                                    <span className="sidebar_label">{ t('sidebar.settings') }</span>
+                                    {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                                 </Link>
                             </div>
                         ))
@@ -56,7 +56,7 @@ class Sidebar extends Component {
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
                             <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
-                            <span className="sidebar_label">{ t('sidebar.settings') }</span>
+                            {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                         </Link>
                     </div>
                 </div>

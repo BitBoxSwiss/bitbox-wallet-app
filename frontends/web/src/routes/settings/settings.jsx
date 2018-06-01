@@ -45,7 +45,7 @@ export default class Settings extends Component {
                         <h2>{t('settings.title')}</h2>
                     </div>
                 </div>
-                <div class="innerContainer">
+                <div class="innerContainer scrollableContainer">
                     <div class="content flex flex-column flex-start">
                         {
                             config && (

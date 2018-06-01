@@ -86,7 +86,7 @@
 
 .headerContainer {
     background-color: var(--color-white);
-    min-height: var(--header-height);
+    /* min-height: var(--header-height); */
     border-bottom: 1px solid #eee;
     width: 100%;
 }
@@ -126,7 +126,7 @@
 }
 
 .subHeaderContainer.first {
-    margin-top: 0;
+    /* margin-top: 0; */
 }
 
 .subHeaderContainer .subHeader h3 {
@@ -170,6 +170,10 @@
 
 .wrapped > * {
     margin-bottom: var(--spacing-half);
+}
+
+.buttons {
+    flex-shrink: 0;
 }
 
 .buttons > *:not(:last-child) {

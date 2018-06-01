@@ -10,7 +10,7 @@ export default function ManageBackups({
 }) {
     return (
         <div class="container">
-            <div class="headerContainer fixed">
+            <div class="headerContainer">
                 <div class="header">
                     <h2>{i18n.t('backup.title')}</h2>
                     <div>

@@ -1,8 +1,8 @@
 .backupsList {
     display: flex;
     flex-direction: column;
-    margin: var(--spacing-default) 0;
     overflow: auto;
+    padding: var(--spacing-default) 0;
     position: relative;
     text-align: left;
 }

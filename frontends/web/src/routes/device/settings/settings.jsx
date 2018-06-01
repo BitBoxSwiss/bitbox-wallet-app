@@ -44,7 +44,7 @@ export default class Settings extends Component {
                       <h2>{name === null ? '' : name || 'BitBox'}</h2>
                     </div>
                 </div>
-                <div class="innerContainer">
+                <div class="innerContainer scrollableContainer">
                     <div class="content">
                         <div class="subHeaderContainer first">
                             <div class="subHeader">
