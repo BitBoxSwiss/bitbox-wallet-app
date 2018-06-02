@@ -40,4 +40,5 @@ unix:macx {
     # Waiting for https://github.com/golang/go/issues/11258 to be able to automatically capture link flags.
     LIBS += -framework CoreFoundation -framework Security
     LIBS += ../server/server.a
+    QMAKE_RPATHDIR = @executable_path/../Frameworks
 }
