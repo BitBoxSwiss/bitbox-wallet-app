@@ -58,8 +58,8 @@ int main(int argc, char *argv[])
         webClass->pushNotify(QString(msg));
     });
 
-    RequestInterceptor *interceptor = new RequestInterceptor(serveData.token);
-    view->page()->profile()->setRequestInterceptor(interceptor);
+    RequestInterceptor interceptor(serveData.token);
+    view->page()->profile()->setRequestInterceptor(&interceptor);
     QWebChannel channel;
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
