@@ -62,6 +62,9 @@
             "send_to_self": "Self"
         },
         "confirmation": "Number of confirmations",
+        "vsize": "virtual size",
+        "size": "size",
+        "weight": "weight",
         "fee": "Fee",
         "fiatHistorical": "Historical",
         "explorer": "Transaction ID (Open in external block Explorer)"

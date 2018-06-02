@@ -38,6 +38,10 @@ export default class Transaction extends Component {
         fiat = '',
         fiat_historical = '',
         fee,
+        feeRatePerKb,
+        vsize,
+        size,
+        weight,
         numConfirmations,
         time,
         addresses,
@@ -79,11 +83,23 @@ export default class Transaction extends Component {
                                     <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
                                     <div class={style.address}>{numConfirmations}</div>
                                 </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
+                                    <div class={style.address}>{vsize} bytes</div>
+                                </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.size')}</div>
+                                    <div class={style.address}>{size} bytes</div>
+                                </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.weight')}</div>
+                                    <div class={style.address}>{weight}</div>
+                                </div>
                                 {
                                     fee && (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.fee')}</div>
-                                            <div class={style.address}>{fee}</div>
+                                            <div class={style.address} title={feeRatePerKb + '/Kb'}>{fee}</div>
                                         </div>
                                     )
                                 }

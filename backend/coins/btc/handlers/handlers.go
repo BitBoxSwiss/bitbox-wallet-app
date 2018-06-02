@@ -55,11 +55,15 @@ func (handlers *Handlers) Uninit() {
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
 	ID               string   `json:"id"`
+	VSize            int64    `json:"vsize"`
+	Size             int64    `json:"size"`
+	Weight           int64    `json:"weight"`
 	NumConfirmations int      `json:"numConfirmations"`
 	Height           int      `json:"height"`
 	Type             string   `json:"type"`
 	Amount           string   `json:"amount"`
 	Fee              string   `json:"fee"`
+	FeeRatePerKb     string   `json:"feeRatePerKb"`
 	Time             *string  `json:"time"`
 	Addresses        []string `json:"addresses"`
 }
@@ -77,9 +81,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString = ""
+		var feeString, feeRatePerKbString string
 		if txInfo.Fee != nil {
 			feeString = handlers.account.Coin().FormatAmount(int64(*txInfo.Fee))
+			feeRatePerKbString = handlers.account.Coin().FormatAmount(int64(*txInfo.FeeRatePerKb()))
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -89,16 +94,20 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 		result = append(result, Transaction{
 			ID:               txInfo.Tx.TxHash().String(),
 			NumConfirmations: txInfo.NumConfirmations,
+			VSize:            txInfo.VSize,
+			Size:             txInfo.Size,
+			Weight:           txInfo.Weight,
 			Height:           txInfo.Height,
 			Type: map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount:    handlers.account.Coin().FormatAmount(int64(txInfo.Amount)),
-			Fee:       feeString,
-			Time:      formattedTime,
-			Addresses: txInfo.Addresses,
+			Amount:       handlers.account.Coin().FormatAmount(int64(txInfo.Amount)),
+			Fee:          feeString,
+			FeeRatePerKb: feeRatePerKbString,
+			Time:         formattedTime,
+			Addresses:    txInfo.Addresses,
 		})
 	}
 	return result, nil

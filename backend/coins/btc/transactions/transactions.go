@@ -4,8 +4,10 @@ import (
 	"sort"
 	"time"
 
+	btcdBlockchain "github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -448,6 +450,13 @@ const (
 // TxInfo contains additional tx information to display to the user.
 type TxInfo struct {
 	Tx *wire.MsgTx
+	// VSize is the tx virtual size in
+	// "vbytes". https://bitcoincore.org/en/segwit_wallet_dev/#transaction-fee-estimation
+	VSize int64
+	// Size is the serialized tx size in bytes.
+	Size int64
+	// Weight is the tx weight.
+	Weight int64
 	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
 	Height int
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
@@ -462,6 +471,15 @@ type TxInfo struct {
 	Timestamp *time.Time
 	// Addresses money was sent to / received on (without change addresses).
 	Addresses []string
+}
+
+// FeeRatePerKb returns the fee rate of the tx (fee / tx size).
+func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
+	if txInfo.Fee == nil {
+		return nil
+	}
+	feeRatePerKb := *txInfo.Fee * 1000 / btcutil.Amount(txInfo.VSize)
+	return &feeRatePerKb
 }
 
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
@@ -549,8 +567,12 @@ func (transactions *Transactions) txInfo(
 	if height > 0 && transactions.headersTipHeight > 0 {
 		numConfirmations = transactions.headersTipHeight - height + 1
 	}
+	btcutilTx := btcutil.NewTx(tx)
 	return &TxInfo{
 		Tx:               tx,
+		VSize:            mempool.GetTxVirtualSize(btcutilTx),
+		Size:             int64(tx.SerializeSize()),
+		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
 		NumConfirmations: numConfirmations,
 		Height:           height,
 		Type:             txType,
