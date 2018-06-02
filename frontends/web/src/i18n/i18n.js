@@ -3,10 +3,10 @@ import appTranslationsDE from './de';
 import appTranslationsEN from './en';
 import { apiGet, apiPost } from '../utils/request';
 import { userLanguage } from '../utils/config';
-import languageDetector from './detect';
+import languageFromConfig from './config';
 
 i18n
-    .use(languageDetector)
+    .use(languageFromConfig)
     .init({
         // lng: userLanguage,
         fallbackLng: userLanguage || 'en',
