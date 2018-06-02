@@ -5,7 +5,6 @@
   "license": "MIT",
   "scripts": {
     "build": "preact build --no-prerender --service-worker=false",
-    "serve": "preact build && preact serve",
     "dev": "preact watch",
     "lint": "eslint --cache --ignore-path ../../.gitignore ."
   },
