@@ -227,7 +227,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 	go func() {
 		server := &http.Server{
 			Addr:    fmt.Sprintf("localhost:%d", port),
-			Handler: handlers.Router,
+			Handler: handlers.ServeFrontendHandler(),
 			TLSConfig: &tls.Config{
 				NextProtos:   []string{"http/1.1"},
 				Certificates: []tls.Certificate{certAndKey},

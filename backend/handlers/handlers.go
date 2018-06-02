@@ -143,31 +143,42 @@ func NewHandlers(
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
-	// Serve static files for the UI.
-	router.Handle("/{rest:.*}",
-		ensureAPITokenValid(
-			ensureNoCacheForBundleJS(
-				http.FileServer(&assetfs.AssetFS{
-					Asset: func(name string) ([]byte, error) {
-						body, err := Asset(name)
-						if err != nil {
-							err = errp.WithStack(err)
-							return nil, err
-						}
-						if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {
-							body = handlers.interpolateConstants(body)
-
-						}
-						return body, nil
-					},
-					AssetDir:  AssetDir,
-					AssetInfo: AssetInfo,
-					Prefix:    "",
-				})), connData, log))
-
 	handlers.backendEvents = theBackend.Start()
 
 	return handlers
+}
+
+// ServeFrontendHandler returns static frontend assets (html, js, css, ...).
+func (handlers *Handlers) ServeFrontendHandler() http.Handler {
+	// Serve static files for the UI.
+	staticAssetsHandler := ensureAPITokenValid(
+		ensureNoCacheForBundleJS(
+			http.FileServer(&assetfs.AssetFS{
+				Asset: func(name string) ([]byte, error) {
+					body, err := Asset(name)
+					if err != nil {
+						err = errp.WithStack(err)
+						return nil, err
+					}
+					if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {
+						body = handlers.interpolateConstants(body)
+
+					}
+					return body, nil
+				},
+				AssetDir:  AssetDir,
+				AssetInfo: AssetInfo,
+				Prefix:    "",
+			})), handlers.apiData, handlers.log)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/qr" {
+			handlers.getQRCodeHandler(w, r)
+			return
+		}
+		staticAssetsHandler.ServeHTTP(w, r)
+	})
+
 }
 
 func (handlers *Handlers) interpolateConstants(body []byte) []byte {
