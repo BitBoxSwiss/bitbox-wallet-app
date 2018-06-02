@@ -238,14 +238,14 @@ export default class Send extends Component {
                                     <div class="flex flex-row flex-start has-gutter">
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
-                                            <p class={style.confirmationValue}>{proposedAmount || 'N/A'} {unit}</p>
+                                            <p class={style.confirmationValue}>{proposedAmount || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
                                             <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
                                         </div>
                                         <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'} {unit}</p>
+                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'}</p>
                                     </div>
                                 </div>
                             </WaitDialog>
