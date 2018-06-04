@@ -1,5 +1,6 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
+import A from '../anchor/anchor';
 import style from './transaction.css';
 import IN from './assets/icon-transfer-in.svg';
 import OUT from './assets/icon-transfer-out.svg';
@@ -117,7 +118,7 @@ export default class Transaction extends Component {
                             <div class={style.row}>
                                 <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
                                 <div class={style.address}>
-                                    <a href={ explorerURL + id } target="_blank">{id}</a>
+                                    <A href={ explorerURL + id }>{id}</A>
                                 </div>
                             </div>
                         </div>

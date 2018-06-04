@@ -1,6 +1,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import i18n from '../../i18n/i18n';
+import A from '../../components/anchor/anchor';
 import style from './guide.css';
 
 export function Guide({ guide, screen, children }) {
@@ -47,7 +48,7 @@ export class Entry extends Component {
                     {shown ? '–' : '+'} {title || (entry && entry.title)}
                 </h2>
                 {shown && entry && entry.text.map(p => <p>{p}</p>)}
-                {shown && entry && entry.link && <p><a href={entry.link.url} target="_blank" rel="noopener noreferrer">{entry.link.text}</a></p>}
+                {shown && entry && entry.link && <p><A href={entry.link.url}>{entry.link.text}</A></p>}
                 {shown && children}
             </div>
         );

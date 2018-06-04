@@ -16,6 +16,7 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/system"
 	"github.com/sirupsen/logrus"
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
@@ -94,6 +95,7 @@ func NewHandlers(
 	apiRouter.HandleFunc("/qr", handlers.getQRCodeHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/wallets", handlers.getWalletsHandler).Methods("GET")
@@ -210,6 +212,14 @@ func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	return nil, handlers.backend.SetConfig(appConfig)
+}
+
+func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {
+	var url string
+	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, system.Open(url)
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
