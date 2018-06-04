@@ -235,10 +235,12 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	go backend.listenHID()
-	err := backend.checkForUpdate()
-	if err != nil {
-		backend.log.WithField("error", err).Error("The update check failed.")
-	}
+	go func() {
+		err := backend.checkForUpdate()
+		if err != nil {
+			backend.log.WithField("error", err).Error("The update check failed.")
+		}
+	}()
 	return backend.events
 }
 
