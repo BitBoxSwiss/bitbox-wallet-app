@@ -23,13 +23,17 @@ export default class DeviveLock extends Component {
         });
     };
 
-    render({}, {
+    render({
+        disabled,
+    }, {
         isConfirming,
         activeDialog,
     }) {
         return (
             <div>
-                <Button danger onClick={() => this.setState({ activeDialog: true })}>Enable Full 2FA</Button>
+                <Button danger onClick={() => this.setState({ activeDialog: true })} disabled={disabled}>
+                  Enable Full 2FA
+                </Button>
                 {
                     activeDialog && (
                         <Dialog title="Enable Full 2FA">

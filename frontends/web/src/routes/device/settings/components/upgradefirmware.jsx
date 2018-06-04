@@ -39,6 +39,7 @@ export default class UpgradeFirmware extends Component {
 
     render({
         currentVersion,
+        disabled,
     }, {
         unlocked,
         newVersion,
@@ -49,7 +50,8 @@ export default class UpgradeFirmware extends Component {
             <div>
                 <Button
                     primary
-                    onClick={() => this.setState({ activeDialog: true })}>
+                    onClick={() => this.setState({ activeDialog: true })}
+                    disabled={disabled}>
                     Upgrade Firmware
                     {
                         newVersion !== currentVersion && (

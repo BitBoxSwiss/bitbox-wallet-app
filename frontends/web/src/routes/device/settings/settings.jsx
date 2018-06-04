@@ -19,13 +19,15 @@ export default class Settings extends Component {
         firmwareVersion: null,
         lock: true,
         name: null,
+        spinner: true,
     }
 
     componentDidMount() {
         apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
-                lock, name
+                lock, name,
+                spinner: false,
             });
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });
@@ -39,6 +41,7 @@ export default class Settings extends Component {
         firmwareVersion,
         lock,
         name,
+        spinner,
     }) {
         return (
             <div class="contentWithGuide">
@@ -58,7 +61,7 @@ export default class Settings extends Component {
                                 </div>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                                     <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
-                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} disabled={lock} />
                                     <HiddenWallet deviceID={deviceID} disabled={lock} />
                                     <Reset deviceID={deviceID} />
                                 </div>
@@ -69,7 +72,7 @@ export default class Settings extends Component {
                                 </div>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                                     <MobilePairing deviceID={deviceID} disabled={lock} />
-                                    <DeviceLock deviceID={deviceID} />
+                                    <DeviceLock deviceID={deviceID} disabled={lock} />
                                 </div>
                                 <div class="subHeaderContainer">
                                     <div class="subHeader">
@@ -85,7 +88,7 @@ export default class Settings extends Component {
                                 { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
                             </Footer>
                         </div>
-                        { lock && (<Spinner />)}
+                        { spinner && (<Spinner />)}
                     </div>
                 </div>
                 <Guide guide={guide}>
