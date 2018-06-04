@@ -85,7 +85,7 @@ export default class MobilePairing extends Component {
                                 }
                             </div>
                             <div class="flex flex-row flex-end">
-                                <Button danger onClick={() => this.setState({ active: false })}>
+                                <Button danger onClick={() => this.setState({ status: false })}>
                                     {t('button.back')}
                                 </Button>
                             </div>
