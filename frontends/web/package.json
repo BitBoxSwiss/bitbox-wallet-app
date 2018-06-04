@@ -17,12 +17,12 @@
   "devDependencies": {
     "babel-plugin-module-resolver": "3.1.1",
     "eslint": "4.19.1",
-    "eslint-config-synacor": "1.1.2",
+    "eslint-config-synacor": "3.0.1",
     "if-env": "1.0.4",
     "preact-cli": "2.2.1"
   },
   "dependencies": {
-    "i18next": "10.6.0",
+    "i18next": "11.3.2",
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
