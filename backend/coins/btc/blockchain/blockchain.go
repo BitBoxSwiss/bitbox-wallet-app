@@ -96,5 +96,6 @@ type Interface interface {
 	Headers(int, int, func([]*wire.BlockHeader, int) error, func())
 	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int) error, func())
 	Close()
+	ConnectionStatus() Status
 	RegisterOnConnectionStatusChangedEvent(func(Status))
 }

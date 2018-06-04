@@ -76,6 +76,9 @@ type RPCClient struct {
 	pendingRequests     map[int]*request
 	pendingRequestsLock locker.Locker
 
+	pingRequestsLock locker.Locker
+	pingRequests     map[int]bool
+
 	subscriptionRequests     []*request
 	subscriptionRequestsLock locker.Locker
 
@@ -103,6 +106,7 @@ func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 		msgID:    0,
 		onConnectionStatusChangesNotify: []func(rpc.Status){},
 		pendingRequests:                 map[int]*request{},
+		pingRequests:                    map[int]bool{},
 		subscriptionRequests:            []*request{},
 		notificationsCallbacks:          map[string][]func([]byte){},
 		log: log,
@@ -110,8 +114,18 @@ func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 	return client
 }
 
+// ConnectionStatus returns the current connection status of this client to the backend(s).
+func (client *RPCClient) ConnectionStatus() rpc.Status {
+	if _, err := client.conn(); err != nil {
+		return rpc.DISCONNECTED
+	}
+	return rpc.CONNECTED
+}
+
 // RegisterOnConnectionStatusChangedEvent registers an event that is fired if the connection status changes.
 // After registration it fires the event to notify the holder of the callback about the current status.
+// TODO: eventually return a de-register method that deletes the callback. Will be required once we
+// allow the user to manage their accounts fully.
 func (client *RPCClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChangedEvent func(rpc.Status)) {
 	defer client.onConnectionStatusChangesNotifyLock.Lock()()
 	client.onConnectionStatusChangesNotify = append(client.onConnectionStatusChangesNotify, onConnectionStatusChangedEvent)
@@ -128,20 +142,34 @@ func (client *RPCClient) requeueSubscriptions() {
 
 func (client *RPCClient) resendPendingRequests() {
 	defer client.pendingRequestsLock.RLock()()
-	for _, request := range client.pendingRequests {
-		err := client.send(request.jsonText)
-		if err != nil {
-			client.resendPendingRequestsAndSubscriptions(err.connection)
-			return
+	client.log.Debugf("Queueing %v pending requests to resend.", len(client.pendingRequests))
+	// This needs to be executed in a go-routine so that it doesn't block if the connection fails
+	// and a failover is initiated.
+	go func(requests map[int]*request) {
+		for _, request := range client.pendingRequests {
+			err := client.send(request.jsonText)
+			if err != nil {
+				wait := time.Minute / 4
+				client.log.Debugf("Resending failed. Waiting for %v", wait)
+				time.Sleep(wait)
+				// Resend again to collect all the subscriptions that were successfully registered
+				// on the now-failed connection.
+				client.resendPendingRequestsAndSubscriptions(err.connection)
+				// Stop sending the pending requests in this goroutine.
+				return
+			}
 		}
-	}
+	}(client.pendingRequests)
 }
 
 // resendPendingRequestsAndSubscriptions tries to re-subscribe to all subscriptions associated with the given
 // connection and tries to issue pending methods via another connection.
 func (client *RPCClient) resendPendingRequestsAndSubscriptions(failed *connection) {
-	defer client.retryLock.Lock()()
-	if client.connection != failed {
+	alreadyHandled := func() bool {
+		defer client.retryLock.Lock()()
+		return client.connection != failed
+	}
+	if alreadyHandled() {
 		return
 	}
 	client.connection = nil
@@ -152,12 +180,9 @@ func (client *RPCClient) resendPendingRequestsAndSubscriptions(failed *connectio
 		// when a timeout happens in the MethodSync function
 		client.log.Debugf("Last backend failed. Trying to re-subscribe and send pending requests via another connection")
 	}
-	_, err := client.conn()
-	if err != nil {
-		wait := time.Minute
-		client.log.Debugf("No connections currently available in retry mode. Waiting for %v", wait)
-		time.Sleep(wait)
-	}
+	unlock := client.pingRequestsLock.Lock()
+	client.pingRequests = map[int]bool{}
+	unlock()
 	client.requeueSubscriptions()
 	client.resendPendingRequests()
 }
@@ -333,16 +358,24 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 			} else if len(response.Result) == 0 {
 				responseError = &ResponseError{errp.New("unexpected reply")}
 			} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-				responseError = &ResponseError{err}
+				responseError = &ResponseError{errp.Cause(err)}
 			}
 			if responseError != nil {
 				panic(responseError)
 			}
 			defer client.cleanupFinishedRequest(conn, *response.ID)
 		} else {
-			client.log.WithField("request_id", response.ID).Info("Request not found in list of " +
-				"pending requests. It's likely that it finished before a failover and we therefore " +
-				"do not have to do anything.")
+			unlock := client.pingRequestsLock.Lock()
+			_, ok := client.pingRequests[*response.ID]
+			if ok {
+				client.log.Debug("Pong")
+				delete(client.pingRequests, *response.ID)
+			} else {
+				client.log.WithField("request_id", *response.ID).WithField("response", string(response.Result)).Info("Request not found in list of " +
+					"pending requests. It's likely that it finished before a failover and we therefore " +
+					"do not have to do anything.")
+			}
+			unlock()
 		}
 	}
 	// Handle notification.
@@ -367,9 +400,6 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 // OnConnect executed the given callback whenever a new connection is established
 func (client *RPCClient) OnConnect(callback func() error) {
 	client.onConnectCallback = callback
-	if _, err := client.conn(); err != nil {
-		client.log.WithField("error", err).Error("Failed to establish connection")
-	}
 }
 
 // RegisterHeartbeat registers the heartbeat method and parameters that are sent to the backend
@@ -388,15 +418,18 @@ func (client *RPCClient) ping() {
 		if client.heartBeat == nil {
 			continue
 		}
-		jsonText := client.prepare(
-			func([]byte) error {
-				return nil
-			},
-			func() func() { return func() {} },
+		msgID, jsonText := client.transform(
 			client.heartBeat.method, client.heartBeat.params...)
+		unlock := client.pingRequestsLock.Lock()
+		client.pingRequests[msgID] = true
+		unlock()
+		client.log.Debug("Ping")
 		err := client.send(jsonText)
 		if err != nil {
+			client.log.Debug("Resend triggered in ping")
 			client.resendPendingRequestsAndSubscriptions(err.connection)
+			// ping will be restarted when the connection is established.
+			return
 		}
 	}
 }
@@ -405,6 +438,24 @@ func (client *RPCClient) isSubscriptionRequest(method string) bool {
 	defer client.notificationsCallbacksLock.RLock()()
 	_, ok := client.notificationsCallbacks[method]
 	return ok
+}
+
+func (client *RPCClient) transform(
+	method string,
+	params ...interface{},
+) (int, []byte) {
+	client.msgIDLock.Lock()
+	msgID := client.msgID
+	client.msgID++
+	client.msgIDLock.Unlock()
+	if params == nil {
+		params = []interface{}{}
+	}
+	return msgID, append(jsonp.MustMarshal(map[string]interface{}{
+		"id":     msgID,
+		"method": method,
+		"params": params,
+	}), byte('\n'))
 }
 
 // prepare ...
@@ -420,20 +471,12 @@ func (client *RPCClient) prepare(
 		cleanup = setupAndTeardown()
 	}
 
-	client.msgIDLock.Lock()
-	msgID := client.msgID
-	client.msgID++
-	client.msgIDLock.Unlock()
-	if params == nil {
-		params = []interface{}{}
-	}
-	jsonText := append(jsonp.MustMarshal(map[string]interface{}{
-		"id":     msgID,
-		"method": method,
-		"params": params,
-	}), byte('\n'))
+	msgID, jsonText := client.transform(method, params...)
 
+	client.log.Debugf("Waiting for pending requests lock (prepare): %v", method)
+	defer client.log.Debugf("Releasing pending request lock (prepare).")
 	defer client.pendingRequestsLock.Lock()()
+	client.log.Debugf("Prepared: %v", string(jsonText))
 	client.pendingRequests[msgID] = &request{
 		callbacks{
 			success:          success,
@@ -459,7 +502,8 @@ func (client *RPCClient) Method(
 	jsonText := client.prepare(success, setupAndTeardown, method, params...)
 	err := client.send(jsonText)
 	if err != nil {
-		client.resendPendingRequestsAndSubscriptions(err.connection)
+		client.log.Debugf("Resend triggered in Method (%v)", method)
+		go client.resendPendingRequestsAndSubscriptions(err.connection)
 	}
 }
 

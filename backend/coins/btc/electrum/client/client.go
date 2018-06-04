@@ -75,7 +75,7 @@ func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient 
 	)
 
 	rpcClient.OnConnect(func() error {
-		// Ping sends the version and must be the first message, to establish which methods the server
+		// Sends the version and must be the first message, to establish which methods the server
 		// accepts.
 		version, err := electrumClient.ServerVersion()
 		if err != nil {
@@ -87,6 +87,17 @@ func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient 
 	rpcClient.RegisterHeartbeat("server.version", clientVersion, clientProtocolVersion)
 
 	return electrumClient
+}
+
+// ConnectionStatus returns the current connection status of the backend.
+func (client *ElectrumClient) ConnectionStatus() blockchain.Status {
+	switch client.rpc.ConnectionStatus() {
+	case rpc.CONNECTED:
+		return blockchain.CONNECTED
+	case rpc.DISCONNECTED:
+		return blockchain.DISCONNECTED
+	}
+	panic(errp.New("Connection status could not be determined"))
 }
 
 // RegisterOnConnectionStatusChangedEvent registers an event that forwards the connection status from

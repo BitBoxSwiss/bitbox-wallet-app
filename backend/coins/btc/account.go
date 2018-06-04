@@ -31,7 +31,8 @@ type Interface interface {
 	Code() string
 	Coin() *Coin
 	Init() error
-	Initialized() bool
+	InitialSyncDone() bool
+	Offline() bool
 	Close()
 	Transactions() []*transactions.TxInfo
 	Balance() *transactions.Balance
@@ -70,6 +71,7 @@ type Account struct {
 	feeTargets []*FeeTarget
 
 	initialSyncDone bool
+	offline         bool
 	onEvent         func(Event)
 	log             *logrus.Entry
 }
@@ -91,16 +93,17 @@ func (account *Account) MarshalJSON() ([]byte, error) {
 type Status string
 
 const (
-	// Initialized indicates that the account is synced.
-	Initialized Status = "initialized"
+	// AccountSynced indicates that the account is synced.
+	AccountSynced Status = "accountSynced"
 
-	// Connected indicates that the connection to the blockchain node is established, but the account
-	// is not yet fully synced.
-	Connected Status = "connected"
+	// AccountNotSynced indicates that the account is initialized, but not yet fully synced.
+	AccountNotSynced Status = "accountNotSynced"
 
-	// Disconnected indicates that the connection to the blockchain node could not be established or
-	// is lost.
-	Disconnected Status = "disconnected"
+	// AccountDisabled indicates that the account has not yet been initialized.
+	AccountDisabled Status = "accountDisabled"
+
+	// OfflineMode indicates that the connection to the blockchain network could not be established.
+	OfflineMode Status = "offlineMode"
 )
 
 // NewAccount creats a new Account.
@@ -134,6 +137,7 @@ func NewAccount(
 			{Blocks: 6, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
+		offline:         true,
 		initialSyncDone: false,
 		onEvent:         onEvent,
 		log:             log,
@@ -200,9 +204,13 @@ func (account *Account) Init() error {
 	onConnectionStatusChanged := func(status blockchain.Status) {
 		if status == blockchain.DISCONNECTED {
 			account.log.Warn("Connection to blockchain backend lost")
-			account.initialSyncDone = false
+			account.offline = true
 			account.onEvent(EventStatusChanged)
 		} else if status == blockchain.CONNECTED {
+			// when we have previously been offline, the initial sync status is set back
+			// as we need to synchronize with the new backend.
+			account.initialSyncDone = false
+			account.offline = false
 			account.onEvent(EventStatusChanged)
 
 			account.log.Debug("Connection to blockchain backend established")
@@ -212,6 +220,8 @@ func (account *Account) Init() error {
 		}
 	}
 	account.blockchain = account.coin.Blockchain()
+	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
+	account.onEvent(EventStatusChanged)
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders, err := account.coin.GetHeaders(account.dbFolder)
@@ -252,9 +262,14 @@ func (account *Account) onNewHeader(header *blockchain.Header) error {
 	return nil
 }
 
-// Initialized indicates whether the account has loaded and finished the initial sync of the
+// Offline returns true if the account is disconnected from the blockchain.
+func (account *Account) Offline() bool {
+	return account.offline
+}
+
+// InitialSyncDone indicates whether the account has loaded and finished the initial sync of the
 // addresses.
-func (account *Account) Initialized() bool {
+func (account *Account) InitialSyncDone() bool {
 	return account.initialSyncDone
 }
 
@@ -265,6 +280,8 @@ func (account *Account) Close() {
 			account.log.WithError(err).Error("couldn't close db")
 		}
 	}
+	// TODO: deregister from json RPC client. The client can be closed when no account uses
+	// the client any longer.
 	account.initialSyncDone = false
 	if account.transactions != nil {
 		account.transactions.Close()

@@ -17,6 +17,20 @@ func (_m *Interface) Close() {
 	_m.Called()
 }
 
+// ConnectionStatus provides a mock function with given fields:
+func (_m *Interface) ConnectionStatus() blockchain.Status {
+	ret := _m.Called()
+
+	var r0 blockchain.Status
+	if rf, ok := ret.Get(0).(func() blockchain.Status); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(blockchain.Status)
+	}
+
+	return r0
+}
+
 // EstimateFee provides a mock function with given fields: _a0, _a1, _a2
 func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount) error, _a2 func()) {
 	_m.Called(_a0, _a1, _a2)

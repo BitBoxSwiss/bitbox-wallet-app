@@ -25,6 +25,7 @@ type Client interface {
 	IsClosed() bool
 	RegisterHeartbeat(string, ...interface{})
 	OnConnect(func() error)
+	ConnectionStatus() Status
 	RegisterOnConnectionStatusChangedEvent(func(Status))
 }
 

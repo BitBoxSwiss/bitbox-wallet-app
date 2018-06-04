@@ -235,12 +235,19 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {
+	status := []btc.Status{}
 	if handlers.account == nil {
-		return btc.Disconnected, nil
-	} else if !handlers.account.Initialized() {
-		return btc.Connected, nil
+		status = append(status, btc.AccountDisabled)
+	} else {
+		if handlers.account.InitialSyncDone() {
+			status = append(status, btc.AccountSynced)
+		}
+
+		if handlers.account.Offline() {
+			status = append(status, btc.OfflineMode)
+		}
 	}
-	return btc.Initialized, nil
+	return status, nil
 }
 
 func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {

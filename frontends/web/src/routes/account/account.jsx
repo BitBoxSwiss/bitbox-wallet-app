@@ -100,30 +100,23 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        // console.log('Wallet ' + this.props.code + ' requesting status.');
         apiGet(`wallet/${this.props.code}/status`).then(status => {
             console.log("onStatusChanged: ", status)
-            if (status === 'initialized') {
-                this.setState({
-                    walletInitialized: true,
-                    walletConnected: true,
-                    isReceive: false,
-                    isSend: false,
-                });
-            } else if (status === 'connected') {
-                this.setState({
-                    walletInitialized: false,
-                    walletConnected: true,
-                });
-                apiPost("wallet/" + this.props.code + "/init");
-            } else {
-                this.setState({
-                    walletInitialized: false,
-                    walletConnected: false,
-                });
-                /*if (status === 'disconnected') {
-                }*/
+            let state = {
+                walletInitialized: false,
+                walletConnected: !status.includes('offlineMode'),
             }
+
+            if (status.includes('accountSynced')) {
+                state.walletInitialized = true;
+                state.isReceive = false;
+                state.isSend = false;
+            } else {
+                state.walletInitialized = false;
+                apiPost("wallet/" + this.props.code + "/init");
+            }
+
+            this.setState(state);
             this.onWalletChanged();
         });
     }
