@@ -24,9 +24,9 @@ export default class Transaction extends Component {
     parseTime = time => {
         let arr;
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dt = new Date(Date.parse(time));
-        return `${days[dt.getDay()]} ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()} - ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        return `${days[dt.getDay()]}, ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}, at ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
     }
 
     render({
@@ -69,7 +69,7 @@ export default class Transaction extends Component {
                                 <div class={style.address}>{addresses.join(', ')}</div>
                             </div>
                             <div class={[style.amount, style[type]].join(' ')}>
-                                {sign} {amount}
+                                {sign} {amount.amount} {amount.unit}
                             </div>
                         </div>
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
@@ -99,7 +99,7 @@ export default class Transaction extends Component {
                                     fee && (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.fee')}</div>
-                                            <div class={style.address} title={feeRatePerKb + '/Kb'}>{fee}</div>
+                                            <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
                                         </div>
                                     )
                                 }
@@ -107,7 +107,7 @@ export default class Transaction extends Component {
                                     fiat_historical && (
                                         <div style="align-self: flex-end; margin-left: auto; text-align: right;">
                                             <div class={style.transactionLabel} style="margin-right: 0;">
-                                              {t('transaction.fiatHistorical')}
+                                                {t('transaction.fiatHistorical')}
                                             </div>
                                             <div class={style.address}>{fiat_historical}</div>
                                         </div>

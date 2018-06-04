@@ -184,7 +184,7 @@ export default class Send extends Component {
                                     onChange={this.validateAndDisplayFee}
                                     disabled={sendAll}
                                     error={amountError}
-                                    value={sendAll ? proposedAmount : amount}
+                                    value={sendAll ? proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit : amount}
                                     placeholder={t('send.amount.placeholder') + ' [' + unit + ']'}>
                                     <Checkbox
                                         label={t('send.maximum')}
@@ -199,7 +199,7 @@ export default class Send extends Component {
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee : null}
+                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit : null}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                     />
@@ -238,14 +238,14 @@ export default class Send extends Component {
                                     <div class="flex flex-row flex-start has-gutter">
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
-                                            <p class={style.confirmationValue}>{proposedAmount || 'N/A'}</p>
+                                            <p class={style.confirmationValue}>{proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}</p>
                                         </div>
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
-                                            <p class={style.confirmationValue}>{proposedFee || 'N/A'}</p>
+                                            <p class={style.confirmationValue}>{proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}</p>
                                         </div>
                                         <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal || 'N/A'}</p>
+                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}</p>
                                     </div>
                                 </div>
                             </WaitDialog>

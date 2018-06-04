@@ -109,6 +109,14 @@ func (coin *Coin) FormatAmount(amount int64) string {
 	return strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f', -int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
 }
 
+// FormatAmountAsJSON implements coin.Coin.
+func (coin *Coin) FormatAmountAsJSON(amount int64) map[string]string {
+	return map[string]string{
+		"amount": strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f', -int(btcutil.AmountBTC+8), 64),
+		"unit":   coin.Unit(),
+	}
+}
+
 // ElectrumClient returns the electrum client for the coin.
 func (coin *Coin) ElectrumClient() (blockchain.Interface, error) {
 	defer coin.electrumClientsLock.Lock()()

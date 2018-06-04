@@ -15,8 +15,13 @@ type Coin interface {
 	// Unit is the unit code of the string for formatting amounts.
 	Unit() string
 
-	// FormatAmount the given amount as a number followed by the currency code in a suitable denomination.
+	// FormatAmount formats the given amount as a number followed by the currency code in a suitable
+	// denomination.
 	FormatAmount(int64) string
+
+	// FormatAmountAsJSON formats the given amount as a JSON object with the number as a string and
+	// the currency code in a suitable denomination.
+	FormatAmountAsJSON(int64) map[string]string
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

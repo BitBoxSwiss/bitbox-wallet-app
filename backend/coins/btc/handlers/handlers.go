@@ -54,18 +54,18 @@ func (handlers *Handlers) Uninit() {
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID               string   `json:"id"`
-	VSize            int64    `json:"vsize"`
-	Size             int64    `json:"size"`
-	Weight           int64    `json:"weight"`
-	NumConfirmations int      `json:"numConfirmations"`
-	Height           int      `json:"height"`
-	Type             string   `json:"type"`
-	Amount           string   `json:"amount"`
-	Fee              string   `json:"fee"`
-	FeeRatePerKb     string   `json:"feeRatePerKb"`
-	Time             *string  `json:"time"`
-	Addresses        []string `json:"addresses"`
+	ID               string            `json:"id"`
+	VSize            int64             `json:"vsize"`
+	Size             int64             `json:"size"`
+	Weight           int64             `json:"weight"`
+	NumConfirmations int               `json:"numConfirmations"`
+	Height           int               `json:"height"`
+	Type             string            `json:"type"`
+	Amount           map[string]string `json:"amount"`
+	Fee              map[string]string `json:"fee"`
+	FeeRatePerKb     map[string]string `json:"feeRatePerKb"`
+	Time             *string           `json:"time"`
+	Addresses        []string          `json:"addresses"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -81,10 +81,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString, feeRatePerKbString string
+		var feeString, feeRatePerKbString map[string]string
 		if txInfo.Fee != nil {
-			feeString = handlers.account.Coin().FormatAmount(int64(*txInfo.Fee))
-			feeRatePerKbString = handlers.account.Coin().FormatAmount(int64(*txInfo.FeeRatePerKb()))
+			feeString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.Fee))
+			feeRatePerKbString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -103,7 +103,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount:       handlers.account.Coin().FormatAmount(int64(txInfo.Amount)),
+			Amount:       handlers.account.Coin().FormatAmountAsJSON(int64(txInfo.Amount)),
 			Fee:          feeString,
 			FeeRatePerKb: feeRatePerKbString,
 			Time:         formattedTime,
@@ -205,9 +205,9 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  handlers.account.Coin().FormatAmount(int64(outputAmount)),
-		"fee":     handlers.account.Coin().FormatAmount(int64(fee)),
-		"total":   handlers.account.Coin().FormatAmount(int64(total)),
+		"amount":  handlers.account.Coin().FormatAmountAsJSON(int64(outputAmount)),
+		"fee":     handlers.account.Coin().FormatAmountAsJSON(int64(fee)),
+		"total":   handlers.account.Coin().FormatAmountAsJSON(int64(total)),
 	}, nil
 }
 
