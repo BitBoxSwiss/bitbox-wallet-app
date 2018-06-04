@@ -114,10 +114,13 @@ func NewHandlers(
 				apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", accountCode)).Subrouter(),
 			), log)
 		}
-		return accountHandlersMap[accountCode]
+		accHandlers := accountHandlersMap[accountCode]
+		log.WithField("account-handlers", accHandlers).Debug("Account handlers")
+		return accHandlers
 	}
 
 	theBackend.OnWalletInit(func(account *btc.Account) {
+		log.WithField("code", account.Code()).Debug("Initializing account")
 		getAccountHandlers(account.Code()).Init(account)
 	})
 	theBackend.OnWalletUninit(func(account *btc.Account) {
@@ -181,7 +184,7 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error)
 }
 
 func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Config(), nil
+	return config.Get().Config(), nil
 }
 
 func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
@@ -189,7 +192,7 @@ func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return nil, handlers.backend.SetConfig(appConfig)
+	return nil, config.Get().Set(appConfig)
 }
 
 func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {

@@ -8,7 +8,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
@@ -16,9 +16,9 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-var tx1 = &client.TxInfo{
+var tx1 = &blockchain.TxInfo{
 	Height: 10,
-	TXHash: client.TXHash(chainhash.HashH([]byte("tx1"))),
+	TXHash: blockchain.TXHash(chainhash.HashH([]byte("tx1"))),
 	Fee:    nil,
 }
 
@@ -58,7 +58,7 @@ func (s *addressChainTestSuite) TestGetUnused() {
 	for i := 0; i < 3; i++ {
 		require.Equal(s.T(), newAddresses[:s.gapLimit], s.addresses.GetUnused())
 	}
-	newAddresses[0].HistoryStatus = client.TxHistory{tx1}.Status()
+	newAddresses[0].HistoryStatus = blockchain.TxHistory{tx1}.Status()
 	// Need to call EnsureAddresses because the status of an address changed.
 	require.Panics(s.T(), func() { _ = s.addresses.GetUnused() })
 	_ = s.addresses.EnsureAddresses()
@@ -73,7 +73,7 @@ func (s *addressChainTestSuite) TestLookupByScriptHashHex() {
 			s.addresses.LookupByScriptHashHex(address.PubkeyScriptHashHex()))
 	}
 	// Produce addresses beyond  the gapLimit to ensure the gapLimit does not confuse Contains().
-	newAddresses[0].HistoryStatus = client.TxHistory{tx1}.Status()
+	newAddresses[0].HistoryStatus = blockchain.TxHistory{tx1}.Status()
 	newAddresses = s.addresses.EnsureAddresses()
 	require.Len(s.T(), newAddresses, 1)
 	require.Equal(s.T(),

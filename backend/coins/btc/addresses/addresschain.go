@@ -1,7 +1,7 @@
 package addresses
 
 import (
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/sirupsen/logrus"
 
@@ -88,7 +88,7 @@ func (addresses *AddressChain) unusedTailCount() int {
 
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
-func (addresses *AddressChain) LookupByScriptHashHex(hashHex client.ScriptHashHex) *AccountAddress {
+func (addresses *AddressChain) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
 	// todo: add map for constant time lookup
 	for _, address := range addresses.addresses {
 		if address.PubkeyScriptHashHex() == hashHex {

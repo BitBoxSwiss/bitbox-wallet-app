@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 )
 
@@ -46,7 +46,7 @@ func (transactions *Transactions) unverifiedTransactions() map[chainhash.Hash]in
 	return result
 }
 
-func hashMerkleRoot(merkle []client.TXHash, start chainhash.Hash, pos int) chainhash.Hash {
+func hashMerkleRoot(merkle []blockchain.TXHash, start chainhash.Hash, pos int) chainhash.Hash {
 	for i := 0; i < len(merkle); i++ {
 		if (uint32(pos)>>uint32(i))&1 == 0 {
 			start = chainhash.DoubleHashH(append(start[:], merkle[i][:]...))
@@ -79,9 +79,9 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 		return
 	}
 	done := transactions.synchronizer.IncRequestsCounter()
-	if err := transactions.blockchain.GetMerkle(
+	transactions.blockchain.GetMerkle(
 		txHash, height,
-		func(merkle []client.TXHash, pos int) error {
+		func(merkle []blockchain.TXHash, pos int) error {
 			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
 			if expectedMerkleRoot != header.MerkleRoot {
 				transactions.log.Warning(
@@ -102,8 +102,5 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 			}
 			return dbTx.Commit()
 		},
-		func(error) { done() },
-	); err != nil {
-		transactions.log.WithError(err).Panic("Failed to retrieve merkle")
-	}
+		func() { done() })
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/keystore"
@@ -19,7 +19,7 @@ import (
 type ProposedTransaction struct {
 	TXProposal      *maketx.TxProposal
 	PreviousOutputs map[wire.OutPoint]*transactions.TxOut
-	GetAddress      func(client.ScriptHashHex) *addresses.AccountAddress
+	GetAddress      func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	// Signatures collects the signatures (signatures[transactionInput][cosignerIndex]).
 	Signatures [][]*btcec.Signature
 	SigHashes  *txscript.TxSigHashes
@@ -31,7 +31,7 @@ func SignTransaction(
 	keystores keystore.Keystores,
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.TxOut,
-	getAddress func(client.ScriptHashHex) *addresses.AccountAddress,
+	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress,
 	log *logrus.Entry,
 ) error {
 	proposedTransaction := &ProposedTransaction{

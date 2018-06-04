@@ -10,12 +10,13 @@ import (
 	"io"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,18 +25,10 @@ const (
 	clientProtocolVersion = "1.2"
 )
 
-// RPCClient describes the methods needed to communicate with an RPC server.
-type RPCClient interface {
-	Method(func([]byte) error, func(error), string, ...interface{}) error
-	MethodSync(interface{}, string, ...interface{}) error
-	SubscribeNotifications(string, func([]byte))
-	Close()
-}
-
 // ElectrumClient is a high level API access to an ElectrumX server.
 // See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst.
 type ElectrumClient struct {
-	rpc RPCClient
+	rpc rpc.Client
 
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
@@ -45,7 +38,7 @@ type ElectrumClient struct {
 }
 
 // NewElectrumClient creates a new Electrum client.
-func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient, error) {
+func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient {
 	electrumClient := &ElectrumClient{
 		rpc: rpcClient,
 		scriptHashNotificationCallbacks: map[string]func(string) error{},
@@ -80,40 +73,33 @@ func NewElectrumClient(rpcClient RPCClient, log *logrus.Entry) (*ElectrumClient,
 			}
 		},
 	)
-	// Ping sends the version and must be the first message, to establish which methods the server
-	// accepts.
-	version, err := electrumClient.ServerVersion()
-	if err != nil {
-		return nil, err
-	}
-	log.WithField("server-version", version).Debug("electrumx server version")
 
-	go electrumClient.ping()
+	rpcClient.OnConnect(func() error {
+		// Ping sends the version and must be the first message, to establish which methods the server
+		// accepts.
+		version, err := electrumClient.ServerVersion()
+		if err != nil {
+			return err
+		}
+		log.WithField("server-version", version).Debug("electrumx server version")
+		return nil
+	})
+	rpcClient.RegisterHeartbeat("server.version", clientVersion, clientProtocolVersion)
 
-	return electrumClient, nil
+	return electrumClient
 }
 
-// ping periodically pings the server to keep the connection alive.
-func (client *ElectrumClient) ping() {
-	defer func() {
-		if r := recover(); r != nil {
-			client.log.WithField("error", r.(error)).Debug("Closing client after error in ping.")
-			client.Close()
+// RegisterOnConnectionStatusChangedEvent registers an event that forwards the connection status from
+// the underlying client to the given callback.
+func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged func(blockchain.Status)) {
+	client.rpc.RegisterOnConnectionStatusChangedEvent(func(status rpc.Status) {
+		switch status {
+		case rpc.CONNECTED:
+			onConnectionStatusChanged(blockchain.CONNECTED)
+		case rpc.DISCONNECTED:
+			onConnectionStatusChanged(blockchain.DISCONNECTED)
 		}
-	}()
-	for !client.close {
-		time.Sleep(time.Minute)
-		if client.close {
-			panic(errp.New("Connection closed"))
-		}
-		client.log.Debug("Pinging the electrum server")
-		_, err := client.ServerVersion()
-		if err != nil {
-			client.log.WithField("error", err).Error("Error while pinging the server")
-			// TODO
-			panic(err)
-		}
-	}
+	})
 }
 
 // ServerVersion is returned by ServerVersion().
@@ -172,8 +158,8 @@ type Balance struct {
 func (client *ElectrumClient) ScriptHashGetBalance(
 	scriptHashHex string,
 	success func(*Balance) error,
-	cleanup func(error)) error {
-	return client.rpc.Method(
+	cleanup func()) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			response := &Balance{}
 			if err := json.Unmarshal(responseBytes, response); err != nil {
@@ -182,55 +168,32 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 			}
 			return success(response)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.scripthash.get_balance",
 		scriptHashHex)
 }
 
-// TxInfo is returned by ScriptHashGetHistory.
-type TxInfo struct {
-	Height int    `json:"height"`
-	TXHash TXHash `json:"tx_hash"`
-	Fee    *int64 `json:"fee"`
-}
-
-// TxHistory is returned by ScriptHashGetHistory.
-type TxHistory []*TxInfo
-
-// Status encodes the status of the address history as a hash, according to the Electrum
-// specification.
-// https://github.com/kyuupichan/electrumx/blob/b01139bb93a7b0cfbd45b64e170223f4871a4a87/docs/PROTOCOL.rst#blockchainaddresssubscribe
-func (history TxHistory) Status() string {
-	if len(history) == 0 {
-		return ""
-	}
-	status := bytes.Buffer{}
-	for _, tx := range history {
-		status.WriteString(fmt.Sprintf("%s:%d:", tx.TXHash.Hash().String(), tx.Height))
-	}
-	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
-}
-
-// ScriptHashHex is the hash of a pkScript in reverse hex format.
-type ScriptHashHex string
-
 // ScriptHashGetHistory does the blockchain.scripthash.get_history() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
-	scriptHashHex ScriptHashHex,
-	success func(TxHistory) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(
+	scriptHashHex blockchain.ScriptHashHex,
+	success func(blockchain.TxHistory) error,
+	cleanup func(),
+) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
-			txs := TxHistory{}
+			txs := blockchain.TxHistory{}
 			if err := json.Unmarshal(responseBytes, &txs); err != nil {
 				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(txs)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.scripthash.get_history",
 		string(scriptHashHex))
 }
@@ -238,14 +201,14 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 // ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashsubscribe
 func (client *ElectrumClient) ScriptHashSubscribe(
-	scriptHashHex ScriptHashHex,
+	setupAndTeardown func() func(),
+	scriptHashHex blockchain.ScriptHashHex,
 	success func(string) error,
-	cleanup func(error),
-) error {
+) {
 	client.scriptHashNotificationCallbacksLock.Lock()
 	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = success
 	client.scriptHashNotificationCallbacksLock.Unlock()
-	return client.rpc.Method(
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			var response *string
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
@@ -257,7 +220,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 			}
 			return success(*response)
 		},
-		cleanup,
+		setupAndTeardown,
 		"blockchain.scripthash.subscribe",
 		string(scriptHashHex))
 }
@@ -279,9 +242,9 @@ func parseTX(rawTXHex string, log *logrus.Entry) (*wire.MsgTx, error) {
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(
+	cleanup func(),
+) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			var rawTXHex string
 			if err := json.Unmarshal(responseBytes, &rawTXHex); err != nil {
@@ -293,7 +256,9 @@ func (client *ElectrumClient) TransactionGet(
 			}
 			return success(tx)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.transaction.get",
 		txHash.String())
 }
@@ -306,11 +271,11 @@ type Header struct {
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
 func (client *ElectrumClient) HeadersSubscribe(
-	success func(*Header) error,
-	cleanup func(error),
-) error {
+	setupAndTeardown func() func(),
+	success func(*blockchain.Header) error,
+) {
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
-		response := []*Header{}
+		response := []*blockchain.Header{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
 			client.log.WithField("error", err).Error("could not handle header notification")
 			return
@@ -324,15 +289,15 @@ func (client *ElectrumClient) HeadersSubscribe(
 			return
 		}
 	})
-	return client.rpc.Method(
+	client.rpc.Method(
 		func(responseBytes []byte) error {
-			response := &Header{}
+			response := &blockchain.Header{}
 			if err := json.Unmarshal(responseBytes, response); err != nil {
 				return errp.WithStack(err)
 			}
 			return success(response)
 		},
-		cleanup,
+		setupAndTeardown,
 		"blockchain.headers.subscribe")
 }
 
@@ -404,9 +369,9 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
 func (client *ElectrumClient) RelayFee(
 	success func(btcutil.Amount) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(func(responseBytes []byte) error {
+	cleanup func(),
+) {
+	client.rpc.Method(func(responseBytes []byte) error {
 		var fee float64
 		if err := json.Unmarshal(responseBytes, &fee); err != nil {
 			return errp.Wrap(err, "Failed to unmarshal JSON")
@@ -416,7 +381,7 @@ func (client *ElectrumClient) RelayFee(
 			return errp.Wrap(err, "Failed to construct BTC amount")
 		}
 		return success(amount)
-	}, cleanup, "blockchain.relayfee")
+	}, func() func() { return cleanup }, "blockchain.relayfee")
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
@@ -426,9 +391,9 @@ func (client *ElectrumClient) RelayFee(
 func (client *ElectrumClient) EstimateFee(
 	number int,
 	success func(*btcutil.Amount) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(
+	cleanup func(),
+) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			var fee float64
 			if err := json.Unmarshal(responseBytes, &fee); err != nil {
@@ -443,7 +408,9 @@ func (client *ElectrumClient) EstimateFee(
 			}
 			return success(&amount)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.estimatefee",
 		number)
 }
@@ -469,9 +436,9 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 func (client *ElectrumClient) Headers(
 	startHeight int, count int,
 	success func(headers []*wire.BlockHeader, max int) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(
+	cleanup func(),
+) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			var response struct {
 				Hex   string `json:"hex"`
@@ -493,7 +460,9 @@ func (client *ElectrumClient) Headers(
 			}
 			return success(headers, response.Max)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.block.headers",
 		startHeight, count)
 }
@@ -502,15 +471,15 @@ func (client *ElectrumClient) Headers(
 // https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchaintransactionget_merkle
 func (client *ElectrumClient) GetMerkle(
 	txHash chainhash.Hash, height int,
-	success func(merkle []TXHash, pos int) error,
-	cleanup func(error),
-) error {
-	return client.rpc.Method(
+	success func(merkle []blockchain.TXHash, pos int) error,
+	cleanup func(),
+) {
+	client.rpc.Method(
 		func(responseBytes []byte) error {
 			var response struct {
-				Merkle      []TXHash `json:"merkle"`
-				Pos         int      `json:"pos"`
-				BlockHeight int      `json:"block_height"`
+				Merkle      []blockchain.TXHash `json:"merkle"`
+				Pos         int                 `json:"pos"`
+				BlockHeight int                 `json:"block_height"`
 			}
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
 				return errp.WithStack(err)
@@ -520,7 +489,9 @@ func (client *ElectrumClient) GetMerkle(
 			}
 			return success(response.Merkle, response.Pos)
 		},
-		cleanup,
+		func() func() {
+			return cleanup
+		},
 		"blockchain.transaction.get_merkle",
 		txHash.String(), height)
 }

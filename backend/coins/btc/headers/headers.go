@@ -7,7 +7,6 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/sirupsen/logrus"
@@ -28,7 +27,7 @@ const (
 // Interface represents the public API of this package.
 //go:generate mockery -name Interface
 type Interface interface {
-	Init() error
+	Init()
 	SubscribeEvent(f func(Event)) func()
 	HeaderByHeight(int) (*wire.BlockHeader, error)
 	TipHeight() int
@@ -54,9 +53,9 @@ type Headers struct {
 
 // Status represents the syncing status.
 type Status struct {
-	Tip          int           `json:"tip"`
-	TipHashHex   client.TXHash `json:"tipHashHex"`
-	TargetHeight int           `json:"targetHeight"`
+	Tip          int               `json:"tip"`
+	TipHashHex   blockchain.TXHash `json:"tipHashHex"`
+	TargetHeight int               `json:"targetHeight"`
 }
 
 // NewHeaders creates a new Headers instance.
@@ -84,6 +83,7 @@ func NewHeaders(
 
 // SubscribeEvent subscribes to header events. The provided callback will be notified of events. The
 // returned function unsubscribes.
+// FIXME: not thread-safe
 func (headers *Headers) SubscribeEvent(f func(event Event)) func() {
 	headers.eventCallbacks = append(headers.eventCallbacks, f)
 	index := len(headers.eventCallbacks) - 1
@@ -98,18 +98,15 @@ func (headers *Headers) TipHeight() int {
 }
 
 // Init starts the syncing process.
-func (headers *Headers) Init() error {
+func (headers *Headers) Init() {
 	go headers.download()
-	if err := headers.blockchain.HeadersSubscribe(
-		func(header *client.Header) error {
+	headers.blockchain.HeadersSubscribe(
+		nil,
+		func(header *blockchain.Header) error {
 			return headers.update(header.BlockHeight)
 		},
-		func(error) {},
-	); err != nil {
-		return err
-	}
+	)
 	headers.kickChan <- struct{}{}
-	return nil
 }
 
 type batchInfo struct {
@@ -137,16 +134,12 @@ func (headers *Headers) download() {
 					panic(err)
 				}
 				batchChan := make(chan batchInfo)
-				err = headers.blockchain.Headers(
+				headers.blockchain.Headers(
 					tip+1, headers.headersPerBatch,
 					func(blockHeaders []*wire.BlockHeader, max int) error {
 						batchChan <- batchInfo{blockHeaders, max}
 						return nil
-					}, func(error) {})
-				if err != nil {
-					// TODO
-					panic(err)
-				}
+					}, func() {})
 				batch := <-batchChan
 				if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
 					// TODO
@@ -287,6 +280,6 @@ func (headers *Headers) Status() (*Status, error) {
 	return &Status{
 		Tip:          tip,
 		TargetHeight: headers.targetHeight,
-		TipHashHex:   client.TXHash(header.BlockHash()),
+		TipHashHex:   blockchain.TXHash(header.BlockHash()),
 	}, nil
 }

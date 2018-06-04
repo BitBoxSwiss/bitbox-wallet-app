@@ -6,7 +6,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -44,6 +44,6 @@ func (s *addressTestSuite) TestPubkeyScript() {
 
 func (s *addressTestSuite) TestScriptHashHex() {
 	require.Equal(s.T(),
-		client.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
+		blockchain.ScriptHashHex("0466d0029406f583feadaccb91c7b5b855eb5d6782316cafa4f390b7c784436b"),
 		s.address.PubkeyScriptHashHex())
 }

@@ -100,8 +100,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 	// the port is unused in the Qt app, as we bridge directly without a server.
 	const port = -1
 	connectionData := backendHandlers.NewConnectionData(port, token)
-	productionArguments := backend.ProductionArguments()
-	theBackend := backend.NewBackend(productionArguments)
+	theBackend := backend.NewBackend()
 	events := theBackend.Events()
 	go func() {
 		for {

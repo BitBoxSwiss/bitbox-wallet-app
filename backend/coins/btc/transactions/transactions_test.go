@@ -9,8 +9,8 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	addressesTest "github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	headersMock "github.com/shiftdevices/godbb/backend/coins/btc/headers/mocks"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
@@ -62,7 +62,7 @@ func (blockchain *BlockchainMock) RegisterTxs(txs ...*wire.MsgTx) {
 func (blockchain *BlockchainMock) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
-	cleanup func(error)) error {
+	cleanup func()) {
 	tx, ok := blockchain.transactions[txHash]
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
@@ -73,12 +73,15 @@ func (blockchain *BlockchainMock) TransactionGet(
 	}
 	blockchain.transactionGetCallbacks[txHash] = append(callbacks,
 		func() {
-			defer cleanup(nil)
+			defer cleanup()
 			if err := success(tx); err != nil {
 				panic(err)
 			}
 		})
-	return nil
+}
+
+func (b *BlockchainMock) ConnectionStatus() blockchain.Status {
+	return blockchain.CONNECTED
 }
 
 type transactionsSuite struct {
@@ -123,7 +126,7 @@ func TestTransactionsSuite(t *testing.T) {
 }
 
 func (s *transactionsSuite) updateAddressHistory(
-	address *addresses.AccountAddress, txs []*client.TxInfo) {
+	address *addresses.AccountAddress, txs []*blockchain.TxInfo) {
 	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 }
@@ -167,9 +170,9 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 		syncFinished = true
 	}
 	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.log)
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 10},
 	})
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
@@ -192,8 +195,8 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	s.blockchainMock.RegisterTxs(tx1)
 	expectedHeight := 10
 	s.headersMock.On("HeaderByHeight", expectedHeight).Return(nil, nil).Once()
-	s.updateAddressHistory(address, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: expectedHeight},
+	s.updateAddressHistory(address, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: expectedAmount, Incoming: 0},
@@ -208,7 +211,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		},
 		s.transactions.SpendableOutputs(),
 	)
-	transactions := s.transactions.Transactions(func(client.ScriptHashHex) bool { return false })
+	transactions := s.transactions.Transactions(func(blockchain.ScriptHashHex) bool { return false })
 	require.Len(s.T(), transactions, 1)
 	require.Equal(s.T(), tx1, transactions[0].Tx)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
@@ -225,9 +228,9 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
 	tx2 := newTx(tx1.TxHash(), 0, address2, 123)
 	s.blockchainMock.RegisterTxs(tx1, tx2)
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 0},
 	})
 	// Process tx2 (the spend) before tx1 (the funding). This should result in a zero balance, as
 	// the received funds are spent.
@@ -256,14 +259,14 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	tx22 := newTx(chainhash.HashH(nil), 3, address2, 4000)
 	s.blockchainMock.RegisterTxs(tx11, tx12, tx21, tx22)
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx11.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx12.TxHash()), Height: 10},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx11.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx12.TxHash()), Height: 10},
 	})
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.updateAddressHistory(address2, []*client.TxInfo{
-		{TXHash: client.TXHash(tx21.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx22.TxHash()), Height: 10},
+	s.updateAddressHistory(address2, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx21.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx22.TxHash()), Height: 10},
 	})
 
 	spendableOutputs := s.transactions.SpendableOutputs()
@@ -275,10 +278,10 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	// output can't be spent anymore.
 	tx12_spend := newTx(tx12.TxHash(), 0, otherAddress, 1000)
 	s.blockchainMock.RegisterTxs(tx12_spend)
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx11.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx12.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx12_spend.TxHash()), Height: 0},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx11.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx12.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx12_spend.TxHash()), Height: 0},
 	})
 	spendableOutputs = s.transactions.SpendableOutputs()
 	require.Len(s.T(), spendableOutputs, 1)
@@ -288,10 +291,10 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 	// be spendable, as it is our own.
 	tx22_spend := newTx(tx22.TxHash(), 0, address2, 4000)
 	s.blockchainMock.RegisterTxs(tx22_spend)
-	s.updateAddressHistory(address2, []*client.TxInfo{
-		{TXHash: client.TXHash(tx21.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx22.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx22_spend.TxHash()), Height: 0},
+	s.updateAddressHistory(address2, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx21.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx22.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx22_spend.TxHash()), Height: 0},
 	})
 	spendableOutputs = s.transactions.SpendableOutputs()
 	require.Len(s.T(), spendableOutputs, 1)
@@ -314,47 +317,47 @@ func (s *transactionsSuite) TestBalance() {
 	tx2_spend := newTx(tx2.TxHash(), 0, address1, expectedAmount2)
 	s.blockchainMock.RegisterTxs(tx1, tx1_spend, tx2, tx2_spend)
 	// Incoming.
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 0},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 0, Incoming: expectedAmount},
 		s.transactions.Balance())
 	// Confirm it, plus another one incoming.
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: expectedAmount, Incoming: expectedAmount2},
 		s.transactions.Balance())
 	// Spend funds that came from tx1, first unconfirmed. Available balance decreases.
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 0},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx1_spend.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
 		s.transactions.Balance())
 	// Confirm it.
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 10},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx1_spend.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
 		s.transactions.Balance())
 	// Spend the unconfirmed incoming tx to an internal address, unconfirmed (can't confirm until
 	// the first one is). The funds are still available as we own the unconfirmed output.
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 0},
-		{TXHash: client.TXHash(tx1_spend.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx2_spend.TxHash()), Height: 0},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: blockchain.TXHash(tx1_spend.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx2_spend.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: expectedAmount2, Incoming: 0},
@@ -372,38 +375,38 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	tx3.TxOut = append(tx3.TxOut, wire.NewTxOut(10, address2.PubkeyScript()))
 	s.blockchainMock.RegisterTxs(tx1, tx2, tx3)
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Twice()
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx3.TxHash()), Height: 10},
 	})
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.updateAddressHistory(address2, []*client.TxInfo{
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
-		{TXHash: client.TXHash(tx3.TxHash()), Height: 10},
+	s.updateAddressHistory(address2, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 10},
+		{TXHash: blockchain.TXHash(tx3.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
 		s.transactions.Balance())
 	// Remove tx3 from the history of address1. It is still referenced by address2, so the index
 	// does not change.
-	s.updateAddressHistory(address1, []*client.TxInfo{
-		{TXHash: client.TXHash(tx1.TxHash()), Height: 10},
+	s.updateAddressHistory(address1, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx1.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
 		s.transactions.Balance())
 	require.Len(s.T(),
-		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }),
+		s.transactions.Transactions(func(blockchain.ScriptHashHex) bool { return false }),
 		3)
 	// Remove tx3 from the history of address2. Now it's not referenced anymore and disappears.
-	s.updateAddressHistory(address2, []*client.TxInfo{
-		{TXHash: client.TXHash(tx2.TxHash()), Height: 10},
+	s.updateAddressHistory(address2, []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx2.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 12 + 34, Incoming: 0},
 		s.transactions.Balance())
 	require.Len(s.T(),
-		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }),
+		s.transactions.Transactions(func(blockchain.ScriptHashHex) bool { return false }),
 		2)
 }
 
@@ -413,16 +416,16 @@ func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
 	address := s.addressChain.EnsureAddresses()[0]
 	tx := newTx(chainhash.HashH(nil), 0, address, 123)
 	s.blockchainMock.RegisterTxs(tx)
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{
-		{TXHash: client.TXHash(tx.TxHash()), Height: 0},
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchain.TxInfo{
+		{TXHash: blockchain.TXHash(tx.TxHash()), Height: 0},
 	})
 	// Callback for processing the tx is not called yet. We remove the tx.
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*client.TxInfo{})
+	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchain.TxInfo{})
 	// Process the tx now. It should not be indexed anymore.
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 	require.Equal(s.T(),
 		&transactions.Balance{Available: 0, Incoming: 0},
 		s.transactions.Balance())
 	require.Empty(s.T(),
-		s.transactions.Transactions(func(client.ScriptHashHex) bool { return false }))
+		s.transactions.Transactions(func(blockchain.ScriptHashHex) bool { return false }))
 }

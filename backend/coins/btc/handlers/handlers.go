@@ -10,7 +10,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -239,9 +239,8 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 		return btc.Disconnected, nil
 	} else if !handlers.account.Initialized() {
 		return btc.Connected, nil
-	} else {
-		return btc.Initialized, nil
 	}
+	return btc.Initialized, nil
 }
 
 func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, error) {
@@ -263,5 +262,5 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 	if err := json.NewDecoder(r.Body).Decode(&scriptHashHex); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return handlers.account.VerifyAddress(client.ScriptHashHex(scriptHashHex))
+	return handlers.account.VerifyAddress(blockchain.ScriptHashHex(scriptHashHex))
 }

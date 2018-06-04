@@ -12,7 +12,6 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
@@ -41,7 +40,7 @@ type Interface interface {
 	TxProposal(string, SendAmount, FeeTargetCode) (
 		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddresses() []*addresses.AccountAddress
-	VerifyAddress(client.ScriptHashHex) (bool, error)
+	VerifyAddress(blockchain.ScriptHashHex) (bool, error)
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 }
@@ -50,15 +49,15 @@ type Interface interface {
 type Account struct {
 	locker.Locker
 
-	coin             *Coin
-	dbFolder         string
-	code             string
-	name             string
-	db               transactions.DBInterface
-	getConfiguration func() (*signing.Configuration, error)
-	configuration    *signing.Configuration
-	keystores        keystore.Keystores
-	blockchain       blockchain.Interface
+	coin                    *Coin
+	dbFolder                string
+	code                    string
+	name                    string
+	db                      transactions.DBInterface
+	getSigningConfiguration func() (*signing.Configuration, error)
+	signingConfiguration    *signing.Configuration
+	keystores               keystore.Keystores
+	blockchain              blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
 	changeAddresses  *addresses.AddressChain
@@ -110,7 +109,7 @@ func NewAccount(
 	dbFolder string,
 	code string,
 	name string,
-	getConfiguration func() (*signing.Configuration, error),
+	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores keystore.Keystores,
 	onEvent func(Event),
 	log *logrus.Entry,
@@ -120,12 +119,13 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:             coin,
-		dbFolder:         dbFolder,
-		code:             code,
-		name:             name,
-		getConfiguration: getConfiguration,
-		keystores:        keystores,
+		coin:     coin,
+		dbFolder: dbFolder,
+		code:     code,
+		name:     name,
+		getSigningConfiguration: getSigningConfiguration,
+		signingConfiguration:    nil,
+		keystores:               keystores,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -171,24 +171,25 @@ func (account *Account) Coin() *Coin {
 func (account *Account) Init() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
-		if account.configuration != nil {
+		if account.signingConfiguration != nil {
 			// Already initialized.
 			return true, nil
 		}
-		configuration, err := account.getConfiguration()
+		signingConfiguration, err := account.getSigningConfiguration()
 		if err != nil {
 			return false, err
 		}
-		account.configuration = configuration
+		account.signingConfiguration = signingConfiguration
 		return false, nil
 	}()
 	if err != nil {
 		return err
 	}
 	if alreadyInitialized {
+		account.log.Debug("Account has already been initialized")
 		return nil
 	}
-	dbName := fmt.Sprintf("account-%s-%s.db", account.configuration.Hash(), account.code)
+	dbName := fmt.Sprintf("account-%s-%s.db", account.signingConfiguration.Hash(), account.code)
 	account.log.Debugf("Using the database '%s' to persist the transactions.", dbName)
 	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
 	if err != nil {
@@ -196,17 +197,26 @@ func (account *Account) Init() error {
 	}
 	account.db = db
 
-	account.log.Debug("getting electrum client")
-	electrumClient, err := account.coin.ElectrumClient()
-	if err != nil {
-		return err
-	}
-	account.blockchain = electrumClient
+	onConnectionStatusChanged := func(status blockchain.Status) {
+		if status == blockchain.DISCONNECTED {
+			account.log.Warn("Connection to blockchain backend lost")
+			account.initialSyncDone = false
+			account.onEvent(EventStatusChanged)
+		} else if status == blockchain.CONNECTED {
+			account.onEvent(EventStatusChanged)
 
-	account.log.Debug("getting headers")
+			account.log.Debug("Connection to blockchain backend established")
+
+		} else {
+			account.log.Panicf("Status %d is unknown.", status)
+		}
+	}
+	account.blockchain = account.coin.Blockchain()
+	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
+
 	theHeaders, err := account.coin.GetHeaders(account.dbFolder)
 	if err != nil {
-		return err
+		account.log.WithField("error", err).Panic("Could not fetch headers")
 	}
 	account.headers = theHeaders
 	account.headers.SubscribeEvent(func(event headers.Event) {
@@ -219,21 +229,23 @@ func (account *Account) Init() error {
 		account.blockchain, account.log)
 
 	account.receiveAddresses = addresses.NewAddressChain(
-		account.configuration, account.coin.Net(), gapLimit, 0, account.log)
+		account.signingConfiguration, account.coin.Net(), gapLimit, 0, account.log)
 
 	fixChangeGapLimit := changeGapLimit
-	if account.configuration.Singlesig() && account.configuration.ScriptType() == signing.ScriptTypeP2PKH {
+	if account.signingConfiguration.Singlesig() && account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
 		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
 		account.log.Warning("increased change gap limit to 20 for BWS compatibility")
 		fixChangeGapLimit = 20
 	}
+	account.log.Debug("creating change address chain structure")
 	account.changeAddresses = addresses.NewAddressChain(
-		account.configuration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
+		account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
 	account.ensureAddresses()
-	return account.blockchain.HeadersSubscribe(account.onNewHeader, func(error) {})
+	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
+	return nil
 }
 
-func (account *Account) onNewHeader(header *client.Header) error {
+func (account *Account) onNewHeader(header *blockchain.Header) error {
 	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
@@ -273,7 +285,7 @@ func (account *Account) updateFeeTargets() {
 				return nil
 			}
 
-			err := account.blockchain.EstimateFee(
+			account.blockchain.EstimateFee(
 				feeTarget.Blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
@@ -281,15 +293,13 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.Blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						return account.blockchain.RelayFee(setFee, func(error) {})
+						account.blockchain.RelayFee(setFee, func() {})
+						return nil
 					}
 					return setFee(*feeRatePerKb)
 				},
-				func(error) {},
+				func() {},
 			)
-			if err != nil {
-				account.log.WithField("error", err).Error("Failed to update fee targets")
-			}
 		}(feeTarget)
 	}
 }
@@ -340,30 +350,35 @@ func (account *Account) addresses(change bool) *addresses.AddressChain {
 // onAddressStatus is called when the status (tx history) of an address might have changed. It is
 // called when the address is initialized, and when the backend notifies us of changes to it. If
 // there was indeed change, the tx history is downloaded and processed.
-func (account *Account) onAddressStatus(address *addresses.AccountAddress, status string) error {
+func (account *Account) onAddressStatus(address *addresses.AccountAddress, status string) {
 	if status == address.HistoryStatus {
 		// Address didn't change.
-		return nil
+		return
 	}
 
 	account.log.Debug("Address status changed, fetching history.")
 
 	done := account.synchronizer.IncRequestsCounter()
-	return account.blockchain.ScriptHashGetHistory(
+	account.blockchain.ScriptHashGetHistory(
 		address.PubkeyScriptHashHex(),
-		func(history client.TxHistory) error {
+		func(history blockchain.TxHistory) error {
 			func() {
 				defer account.Lock()()
 				address.HistoryStatus = history.Status()
 				if address.HistoryStatus != status {
 					account.log.Warning("client status should match after sync")
 				}
-				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+				err := account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
+				if err != nil {
+					account.log.WithField("error", err).Error("Updating address history failed")
+					// connection errors are handled in the backend client ()
+					account.Close()
+				}
 			}()
 			account.ensureAddresses()
 			return nil
 		},
-		func(error) { done() },
+		func() { done() },
 	)
 }
 
@@ -416,18 +431,18 @@ func (account *Account) subscribeAddress(
 	}
 	address.HistoryStatus = addressHistory.Status()
 
-	done := account.synchronizer.IncRequestsCounter()
-	return account.blockchain.ScriptHashSubscribe(
+	account.blockchain.ScriptHashSubscribe(
+		account.synchronizer.IncRequestsCounter,
 		address.PubkeyScriptHashHex(),
-		func(status string) error { return account.onAddressStatus(address, status) },
-		func(error) { done() },
+		func(status string) error { account.onAddressStatus(address, status); return nil },
 	)
+	return nil
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
 func (account *Account) Transactions() []*transactions.TxInfo {
 	return account.transactions.Transactions(
-		func(scriptHashHex client.ScriptHashHex) bool {
+		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
 }
@@ -442,7 +457,7 @@ func (account *Account) GetUnusedReceiveAddresses() []*addresses.AccountAddress 
 
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
-func (account *Account) VerifyAddress(scriptHashHex client.ScriptHashHex) (bool, error) {
+func (account *Account) VerifyAddress(scriptHashHex blockchain.ScriptHashHex) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)

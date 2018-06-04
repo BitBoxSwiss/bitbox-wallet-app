@@ -20,6 +20,8 @@ dockerdev () {
            --interactive --tty \
            --name=$container_name -p 8080:8080 -p 8082:8082 \
            --add-host="dev.shiftcrypto.ch:176.9.28.202" \
+           --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
+           --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
            -v $repo_path:/opt/go/src/github.com/shiftdevices/godbb \
            godbb bash
 

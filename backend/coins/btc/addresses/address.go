@@ -9,7 +9,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/sirupsen/logrus"
 )
@@ -122,8 +122,8 @@ func (address *AccountAddress) PubkeyScript() []byte {
 
 // PubkeyScriptHashHex returns the hash of the pubkey script in hex format.
 // It is used to subscribe to notifications at the ElectrumX server.
-func (address *AccountAddress) PubkeyScriptHashHex() client.ScriptHashHex {
-	return client.ScriptHashHex(chainhash.HashH(address.PubkeyScript()).String())
+func (address *AccountAddress) PubkeyScriptHashHex() blockchain.ScriptHashHex {
+	return blockchain.ScriptHashHex(chainhash.HashH(address.PubkeyScript()).String())
 }
 
 // ScriptForHashToSign returns whether this address is a segwit output and the script used when

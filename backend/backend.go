@@ -4,6 +4,7 @@ import (
 	"golang.org/x/text/language"
 
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/config"
@@ -24,8 +25,6 @@ const (
 
 // Interface is the API of the backend.
 type Interface interface {
-	Config() config.AppConfig
-	SetConfig(config.AppConfig) error
 	WalletStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
@@ -63,9 +62,7 @@ type WalletEvent struct {
 
 // Backend ties everything together and is the main starting point to use the godbb library.
 type Backend struct {
-	arguments *Arguments
-
-	config *config.Config
+	arguments *arguments.Arguments
 
 	events chan interface{}
 
@@ -84,12 +81,10 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend with the given arguments.
-func NewBackend(arguments *Arguments) *Backend {
+func NewBackend() *Backend {
 	log := logging.Log.WithGroup("backend")
-	log.Infof("Arguments: %+v", arguments)
 	return &Backend{
-		arguments: arguments,
-		config:    config.NewConfig(arguments.configFilename),
+		arguments: arguments.Get(),
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
@@ -105,7 +100,7 @@ func (backend *Backend) addAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !backend.config.Config().Backend.AccountActive(code) {
+	if !config.Get().Config().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -119,14 +114,14 @@ func (backend *Backend) addAccount(
 	if err != nil {
 		panic(err)
 	}
-	getConfiguration := func() (*signing.Configuration, error) {
+	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
 	}
 	if backend.arguments.Multisig() {
 		name = name + " Multisig"
 	}
 	account := btc.NewAccount(coin, backend.arguments.CacheDirectoryPath(), code, name,
-		getConfiguration, backend.keystores, onEvent(code), backend.log)
+		getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
 	backend.accounts = append(backend.accounts, account)
 }
 
@@ -152,30 +147,7 @@ func (backend *Backend) initAccounts() {
 	}
 	for _, account := range backend.accounts {
 		backend.onWalletInit(account)
-		// go func(account *btc.Account) {
-		// 	if err := account.Init(); err != nil {
-		// 		if _, ok := errp.Cause(err).(usb.CommunicationErr); ok {
-		// 			// hack: if a device is unplugged, the keystore is deregistered and the account
-		// 			// uninitialized anyway, so no need to panic.
-		// 			backend.log.WithError(err).
-		// 				WithFields(logrus.Fields{"account": account.String()}).
-		// 				Error("failed to init account")
-		// 		} else {
-		// 			panic(err)
-		// 		}
-		// 	}
-		// }(account)
 	}
-}
-
-// Config returns the app config.
-func (backend *Backend) Config() config.AppConfig {
-	return backend.config.Config()
-}
-
-// SetConfig sets the app config.
-func (backend *Backend) SetConfig(appConfig config.AppConfig) error {
-	return backend.config.Set(appConfig)
 }
 
 // WalletStatus returns whether the wallets have been initialized.
@@ -249,66 +221,9 @@ func (backend *Backend) Events() <-chan interface{} {
 	return backend.events
 }
 
-// // handleConnectionError listens on an error channel for incoming connection errors and attempts
-// // to re-initialize the wallet.
-// func (backend *Backend) handleConnectionError(wallet *btc.Account) {
-// 	for {
-// 		select {
-// 		case err := <-wallet.errorChannel:
-// 			wallet.log.WithFields(logrus.Fields{"error": err, "wallet": wallet.Name}).
-// 				Warning("Connection failed. Retrying... ", wallet.Account)
-// 			if wallet.Account != nil {
-// 				func() {
-// 					defer backend.walletsLock.Lock()()
-// 					backend.onWalletUninit(wallet)
-// 					wallet.Account.Close()
-// 					wallet.Account = nil
-// 				}()
-// 			}
-// 			// Re-attempt until the connection is ok again. The errorChannel deliberately has
-// 			// a capacity of 1 so that the wallet is not re-initialized again if multiple errors
-// 			// arrive quickly.
-// 			for {
-// 				err := func() error {
-// 					defer backend.walletsLock.Lock()()
-// 					return backend.initWallet(wallet)
-// 				}()
-// 				if err != nil {
-// 					if connectionError, ok := err.(connectionError); ok {
-// 						backend.log.WithFields(logrus.Fields{"wallet": wallet, "error": connectionError}).
-// 							Debugf("Initializing wallet continued to fail. Trying again in %v",
-// 								reattemptPeriod)
-// 						time.Sleep(reattemptPeriod)
-// 					} else {
-// 						backend.log.WithField("error", err).Panic("Failed to initialize wallet")
-// 					}
-// 				} else {
-// 					break
-// 				}
-// 			}
-// 		}
-// 	}
-// }
-
 func (backend *Backend) initWallets() {
 	defer backend.accountsLock.Lock()()
 	backend.initAccounts()
-	// wg := sync.WaitGroup{}
-	// backend.walletsSyncStart = time.Now()
-	// for _, wallet := range backend.wallets {
-	// 	wg.Add(1)
-	// 	go func(wallet *Coin) {
-	// 		defer wg.Done()
-
-	// 		go backend.handleConnectionError(wallet)
-
-	// 		if err := backend.initWallet(wallet); err != nil {
-	// 			backend.log.WithField("error", err).Panic("Failed to initialize wallet")
-	// 		}
-	// 	}(wallet)
-	// }
-	// wg.Wait()
-	// backend.log.Info("wallets init finished")
 }
 
 // DevicesRegistered returns a slice of device IDs of registered devices.

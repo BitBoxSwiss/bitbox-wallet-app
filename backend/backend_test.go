@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
 	"github.com/shiftdevices/godbb/util/jsonp"
@@ -90,8 +91,8 @@ type backendTestSuite struct {
 
 func (s *backendTestSuite) SetupSuite() {
 	connectionData := handlers.NewConnectionData(8082, "")
-	arguments := backend.NewArguments(test.TstTempDir("godbb-functional-tests-"), true, true, false)
-	backend := backend.NewBackend(arguments)
+	arguments.InitTestEnv(test.TstTempDir("godbb-functional-tests-"), true, false)
+	backend := backend.NewBackend()
 	s.router = handlers.NewHandlers(backend, connectionData).Router
 	s.server = httptest.NewServer(s.router)
 

@@ -88,6 +88,7 @@ export default class Account extends Component {
         if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
         }
+        console.log("onWalletEvent: ", data)
         switch (data.data) {
         case 'statusChanged':
             this.onStatusChanged();
@@ -101,6 +102,7 @@ export default class Account extends Component {
     onStatusChanged = () => {
         // console.log('Wallet ' + this.props.code + ' requesting status.');
         apiGet(`wallet/${this.props.code}/status`).then(status => {
+            console.log("onStatusChanged: ", status)
             if (status === 'initialized') {
                 this.setState({
                     walletInitialized: true,
@@ -113,12 +115,14 @@ export default class Account extends Component {
                     walletInitialized: false,
                     walletConnected: true,
                 });
-                apiPost(`wallet/${this.props.code}/init`);
+                apiPost("wallet/" + this.props.code + "/init");
             } else {
                 this.setState({
                     walletInitialized: false,
                     walletConnected: false,
                 });
+                /*if (status === 'disconnected') {
+                }*/
             }
             this.onWalletChanged();
         });

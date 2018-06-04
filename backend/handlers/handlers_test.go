@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/test"
 )
@@ -14,8 +15,8 @@ import (
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
 	connectionData := handlers.NewConnectionData(8082, "")
-	arguments := backend.NewArguments(test.TstTempDir("godbb-listroutes-"), false, false, false)
-	backend := backend.NewBackend(arguments)
+	arguments.InitTestEnv(test.TstTempDir("godbb-listroutes-"), false, false)
+	backend := backend.NewBackend()
 	handlers := handlers.NewHandlers(backend, connectionData)
 	err := handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()

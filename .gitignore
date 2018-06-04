@@ -13,5 +13,10 @@
 /frontends/web/.eslintcache
 /vendor/
 **/*/output.log
+.vscode/
+frontends/qt/bitbox.db
+frontends/qt/config/
+frontends/web/yarn-error.log
+log/
 
 .DS_Store

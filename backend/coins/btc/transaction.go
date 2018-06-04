@@ -6,7 +6,7 @@ import (
 	"github.com/btcsuite/btcutil"
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -79,7 +79,7 @@ func (account *Account) newTx(
 	if amount.sendAll {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
-			account.configuration,
+			account.signingConfiguration,
 			wireUTXO,
 			pkScript,
 			*feeTarget.FeeRatePerKb,
@@ -91,7 +91,7 @@ func (account *Account) newTx(
 	} else {
 		txProposal, err = maketx.NewTx(
 			account.coin,
-			account.configuration,
+			account.signingConfiguration,
 			wireUTXO,
 			wire.NewTxOut(int64(amount.amount), pkScript),
 			*feeTarget.FeeRatePerKb,
@@ -122,7 +122,7 @@ func (account *Account) SendTx(
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create transaction")
 	}
-	getAddress := func(scriptHashHex client.ScriptHashHex) *addresses.AccountAddress {
+	getAddress := func(scriptHashHex blockchain.ScriptHashHex) *addresses.AccountAddress {
 		if address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex); address != nil {
 			return address
 		}

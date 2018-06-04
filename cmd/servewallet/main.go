@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/backend"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 )
 
@@ -19,7 +19,7 @@ const (
 
 func main() {
 	// Log to stderr during development.
-	logging.Log.Out = os.Stderr
+	//logging.Log.Out = os.Stderr
 	log := logging.Log.WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
 		// recover from all panics and log error before panicking again
@@ -31,7 +31,8 @@ func main() {
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
-	backend := backend.NewBackend(backend.ParseArguments())
+	arguments.InitDevEnv()
+	backend := backend.NewBackend()
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)

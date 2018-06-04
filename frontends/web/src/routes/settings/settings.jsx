@@ -20,7 +20,7 @@ export default class Settings extends Component {
 
     toggleAccountActive = event => {
         let config = this.state.config;
-        config.backend[event.target.id] = event.target.checked;
+        config.backend[event.target.id].active = event.target.checked;
         this.setState({ config });
     }
 
@@ -60,36 +60,36 @@ export default class Settings extends Component {
                                         </div>
                                         <div class="flex flex-row flex-start flex-wrap wrapped">
                                             <Checkbox
-                                                checked={config.backend.bitcoinP2PKHActive}
-                                                id="bitcoinP2PKHActive"
+                                                checked={config.backend.bitcoinP2PKH.active}
+                                                id="bitcoinP2PKH"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Legacy"
                                                 className="text-medium"
                                             />
                                             <Checkbox
-                                                checked={config.backend.bitcoinP2WPKHP2SHActive}
-                                                id="bitcoinP2WPKHP2SHActive"
+                                                checked={config.backend.bitcoinP2WPKHP2SH.active}
+                                                id="bitcoinP2WPKHP2SH"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Segwit"
                                                 className="text-medium"
                                             />
                                             <Checkbox
-                                                checked={config.backend.bitcoinP2WPKHActive}
-                                                id="bitcoinP2WPKHActive"
+                                                checked={config.backend.bitcoinP2WPKH.active}
+                                                id="bitcoinP2WPKH"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Native Segwit"
                                                 className="text-medium"
                                             />
                                             <Checkbox
-                                                checked={config.backend.litecoinP2WPKHP2SHActive}
-                                                id="litecoinP2WPKHP2SHActive"
+                                                checked={config.backend.litecoinP2WPKHP2SH.active}
+                                                id="litecoinP2WPKHP2SH"
                                                 onChange={this.toggleAccountActive}
                                                 label="Litecoin Segwit"
                                                 className="text-medium"
                                             />
                                             <Checkbox
-                                                checked={config.backend.litecoinP2WPKHActive}
-                                                id="litecoinP2WPKHActive"
+                                                checked={config.backend.litecoinP2WPKH.active}
+                                                id="litecoinP2WPKH"
                                                 onChange={this.toggleAccountActive}
                                                 label="Litecoin Native Segwit"
                                                 className="text-medium"

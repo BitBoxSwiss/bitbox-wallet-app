@@ -6,14 +6,49 @@ import (
 	"io"
 	"net"
 
+	"github.com/shiftdevices/godbb/backend/arguments"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonrpc"
+	"github.com/shiftdevices/godbb/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 
 // ConnectionError indicates an error when establishing a network connection.
 type ConnectionError error
+
+// Electrum holds information about the electrum backend
+type Electrum struct {
+	log        *logrus.Entry
+	serverInfo *config.ServerInfo
+}
+
+// ServerInfo returns the server info for this backend.
+func (electrum *Electrum) ServerInfo() *config.ServerInfo {
+	return electrum.serverInfo
+}
+
+// EstablishConnection connects to a backend and returns an rpc client
+// or an error if the connection could not be established.
+func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
+	var conn io.ReadWriteCloser
+	if electrum.serverInfo.TLS {
+		var err error
+		conn, err = newTLSConnection(electrum.serverInfo.Server)
+		if err != nil {
+			return nil, ConnectionError(err)
+		}
+	} else {
+		var err error
+		conn, err = newTCPConnection(electrum.serverInfo.Server)
+		if err != nil {
+			return nil, ConnectionError(err)
+		}
+	}
+	return conn, nil
+}
 
 func newTCPConnection(address string) (net.Conn, error) {
 	conn, err := net.Dial("tcp", address)
@@ -26,7 +61,13 @@ func newTCPConnection(address string) (net.Conn, error) {
 func newTLSConnection(address string) (*tls.Conn, error) {
 	caCertPool := x509.NewCertPool()
 	// Load CA cert
-	caCert, err := Asset("../../../config/certificates/electrumx/dev/ca.cert.pem")
+	var caCert []byte
+	var err error
+	if arguments.Get().DevMode() {
+		caCert, err = Asset("../../../../config/certificates/electrumx/dev/ca.cert.pem")
+	} else {
+		caCert, err = Asset("../../../../config/certificates/electrumx/prod/ca.cert.pem")
+	}
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -42,38 +83,23 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 	return conn, nil
 }
 
-func maybeConnectionError(err error) error {
-	if _, ok := errp.Cause(err).(jsonrpc.SocketError); ok {
-		return ConnectionError(err)
-	}
-	return err
-}
-
-// NewElectrumClient connects to an Electrum server and returns a ElectrumClient instance to
+// NewElectrumConnection connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumClient(server string, tls bool, failureCallback func(error), log *logrus.Entry) (*client.ElectrumClient, error) {
-	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "server": server, "tls": tls})
+func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry) blockchain.Interface {
+	var serverList string
+	for _, serverInfo := range servers {
+		if serverList != "" {
+			serverList += ", "
+		}
+		serverList += serverInfo.Server
+	}
+	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "servers": serverList})
 	log.Debug("Connecting to Electrum server")
-	var conn io.ReadWriteCloser
-	if tls {
-		var err error
-		conn, err = newTLSConnection(server)
-		if err != nil {
-			return nil, ConnectionError(err)
-		}
-	} else {
-		var err error
-		conn, err = newTCPConnection(server)
-		if err != nil {
-			return nil, ConnectionError(err)
-		}
+
+	backends := []rpc.Backend{}
+	for _, serverInfo := range servers {
+		backends = append(backends, &Electrum{log, serverInfo})
 	}
-	wrappedFailureCallback := func(err error) {
-		failureCallback(maybeConnectionError(err))
-	}
-	c, err := client.NewElectrumClient(jsonrpc.NewRPCClient(conn, wrappedFailureCallback, log), log)
-	if err != nil {
-		return nil, maybeConnectionError(err)
-	}
-	return c, nil
+	jsonrpcClient := jsonrpc.NewRPCClient(backends, log)
+	return client.NewElectrumClient(jsonrpcClient, log)
 }

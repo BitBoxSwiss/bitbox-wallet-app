@@ -9,7 +9,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	bbolt "github.com/coreos/bbolt"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
+	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/util/errp"
 )
@@ -178,14 +178,14 @@ func (tx *Tx) DeleteTx(txHash chainhash.Hash) {
 }
 
 // AddAddressToTx implements transactions.DBTxInterface.
-func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, scriptHashHex client.ScriptHashHex) error {
+func (tx *Tx) AddAddressToTx(txHash chainhash.Hash, scriptHashHex blockchain.ScriptHashHex) error {
 	return tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
 		walletTx.Addresses[string(scriptHashHex)] = true
 	})
 }
 
 // RemoveAddressFromTx implements transactions.DBTxInterface.
-func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, scriptHashHex client.ScriptHashHex) (bool, error) {
+func (tx *Tx) RemoveAddressFromTx(txHash chainhash.Hash, scriptHashHex blockchain.ScriptHashHex) (bool, error) {
 	var empty bool
 	err := tx.modifyTx(txHash[:], func(walletTx *walletTransaction) {
 		delete(walletTx.Addresses, string(scriptHashHex))
@@ -311,13 +311,13 @@ func (tx *Tx) DeleteOutput(outPoint wire.OutPoint) {
 }
 
 // PutAddressHistory implements transactions.DBTxInterface.
-func (tx *Tx) PutAddressHistory(scriptHashHex client.ScriptHashHex, history client.TxHistory) error {
+func (tx *Tx) PutAddressHistory(scriptHashHex blockchain.ScriptHashHex, history blockchain.TxHistory) error {
 	return writeJSON(tx.bucketAddressHistories, []byte(string(scriptHashHex)), history)
 }
 
 // AddressHistory implements transactions.DBTxInterface.
-func (tx *Tx) AddressHistory(scriptHashHex client.ScriptHashHex) (client.TxHistory, error) {
-	history := client.TxHistory{}
+func (tx *Tx) AddressHistory(scriptHashHex blockchain.ScriptHashHex) (blockchain.TxHistory, error) {
+	history := blockchain.TxHistory{}
 	_, err := readJSON(tx.bucketAddressHistories, []byte(string(scriptHashHex)), &history)
 	return history, err
 }

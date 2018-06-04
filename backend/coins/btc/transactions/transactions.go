@@ -12,10 +12,8 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/sirupsen/logrus"
 )
@@ -26,8 +24,8 @@ type TxOut struct {
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
-func (txOut *TxOut) ScriptHashHex() client.ScriptHashHex {
-	return client.ScriptHashHex(chainhash.HashH(txOut.PkScript).String())
+func (txOut *TxOut) ScriptHashHex() blockchain.ScriptHashHex {
+	return blockchain.ScriptHashHex(chainhash.HashH(txOut.PkScript).String())
 }
 
 // Transactions handles wallet transactions: keeping an index of the transactions, inputs, (unspent)
@@ -82,7 +80,7 @@ func (transactions *Transactions) Close() {
 }
 
 func (transactions *Transactions) txInHistory(
-	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash) bool {
+	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) bool {
 	history, err := dbTx.AddressHistory(scriptHashHex)
 	if err != nil {
 		// TODO
@@ -97,7 +95,7 @@ func (transactions *Transactions) txInHistory(
 }
 
 func (transactions *Transactions) processTxForAddress(
-	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
+	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
 	// Don't process the tx if it is not found in the address history. It could have been removed
 	// from the history before this function was called.
 	if !transactions.txInHistory(dbTx, scriptHashHex, txHash) {
@@ -106,13 +104,11 @@ func (transactions *Transactions) processTxForAddress(
 
 	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
 	}
 
 	if err := dbTx.PutTx(txHash, tx, height); err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to put tx")
 	}
 
 	// Newly confirmed tx. Try to verify it.
@@ -122,8 +118,7 @@ func (transactions *Transactions) processTxForAddress(
 	}
 
 	if err := dbTx.AddAddressToTx(txHash, scriptHashHex); err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to add address to tx")
 	}
 	transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx)
 }
@@ -131,7 +126,7 @@ func (transactions *Transactions) processTxForAddress(
 // Go through the tx and extract all inputs and outputs which touch the address.
 func (transactions *Transactions) processInputsAndOutputsForAddress(
 	dbTx DBTxInterface,
-	scriptHashHex client.ScriptHashHex,
+	scriptHashHex blockchain.ScriptHashHex,
 	txHash chainhash.Hash,
 	tx *wire.MsgTx) {
 	// Gather transaction inputs that spend outputs of the given address.
@@ -142,8 +137,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// since the output that it spends might be indexed later.
 		txInTxHash, err := dbTx.Input(txIn.PreviousOutPoint)
 		if err != nil {
-			// TODO
-			panic(err)
+			transactions.log.WithField("error", err).Panic("Failed to retrieve input from previous outpoint")
 		}
 		if txInTxHash != nil && *txInTxHash != txHash {
 			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
@@ -151,8 +145,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				Warning("Double spend detected")
 		}
 		if err := dbTx.PutInput(txIn.PreviousOutPoint, txHash); err != nil {
-			// TODO
-			panic(err)
+			transactions.log.WithField("error", err).Panic("Failed to store the transaction input")
 		}
 	}
 	// Gather transaction outputs that belong to us.
@@ -164,8 +157,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				txOut,
 			)
 			if err != nil {
-				// TODO
-				panic(err)
+				transactions.log.WithField("error", err).Panic("Failed to store the transaction output")
 			}
 		}
 	}
@@ -175,8 +167,7 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 	for _, txIn := range transaction.TxIn {
 		txOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
-			// TODO
-			panic(err)
+			transactions.log.WithField("error", err).Panic("Failed to retrieve output")
 		}
 		if txOut == nil {
 			return false
@@ -194,26 +185,23 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
 	}
 	defer dbTx.Rollback()
 
 	outputs, err := dbTx.Outputs()
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve outputs")
 	}
 	result := map[wire.OutPoint]*TxOut{}
 	for outPoint, txOut := range outputs {
 		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
-			// TODO
-			panic(err)
+			transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
 		}
 		confirmed := height > 0
 
-		spent := isInputSpent(dbTx, outPoint)
+		spent := transactions.isInputSpent(dbTx, outPoint)
 		if !spent && (confirmed || transactions.allInputsOurs(dbTx, tx)) {
 			result[outPoint] = &TxOut{TxOut: txOut}
 		}
@@ -221,22 +209,20 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 	return result
 }
 
-func isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
+func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
 	input, err := dbTx.Input(outPoint)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve input for outPoint")
 	}
 	return input != nil
 }
 
 func (transactions *Transactions) removeTxForAddress(
-	dbTx DBTxInterface, scriptHashHex client.ScriptHashHex, txHash chainhash.Hash) {
+	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) {
 	transactions.log.Debug("Remove transaction for address")
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
 	}
 	if tx == nil {
 		// Not yet indexed.
@@ -247,8 +233,7 @@ func (transactions *Transactions) removeTxForAddress(
 	transactions.log.Debug("Deleting transaction address")
 	empty, err := dbTx.RemoveAddressFromTx(txHash, scriptHashHex)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to remove address from tx")
 	}
 	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
@@ -273,28 +258,23 @@ func (transactions *Transactions) removeTxForAddress(
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
-func (transactions *Transactions) UpdateAddressHistory(scriptHashHex client.ScriptHashHex, txs []*client.TxInfo) {
+func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error {
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
-	if err != nil {
-		// TODO
-		panic(err)
-	}
 	defer dbTx.Rollback()
+	if err != nil {
+		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
+	}
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
 	}
 	if len(txsSet) != len(txs) {
-		err = errp.New("duplicate tx ids in address history returned by server")
-		transactions.log.WithField("error", err).Panic(err)
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("duplicate tx ids in address history returned by server")
 	}
 	previousHistory, err := dbTx.AddressHistory(scriptHashHex)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to get address history")
 	}
 	for _, entry := range previousHistory {
 		if _, txOK := txsSet[entry.TXHash.Hash()]; txOK {
@@ -306,9 +286,8 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex client.Scri
 		transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
 	}
 
-	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
-		// TODO
-		panic(err)
+	if err = dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
+		transactions.log.WithField("error", err).Panic("Failed to store address history")
 	}
 
 	for _, txInfo := range txs {
@@ -317,13 +296,17 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex client.Scri
 				transactions.processTxForAddress(innerDBTx, scriptHashHex, txHash, tx, height)
 			})
 		}(txInfo.TXHash.Hash(), txInfo.Height)
+		if err != nil {
+			return err
+		}
 	}
 	if err := dbTx.Commit(); err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to commit transaction")
 	}
+	return nil
 }
 
+// requires transactions lock
 func (transactions *Transactions) doForTransaction(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
@@ -331,8 +314,7 @@ func (transactions *Transactions) doForTransaction(
 ) {
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve transaction info")
 	}
 	if tx != nil {
 		callback(dbTx, tx)
@@ -342,18 +324,18 @@ func (transactions *Transactions) doForTransaction(
 		transactions.requestedTXs[txHash] = []func(DBTxInterface, *wire.MsgTx){}
 	}
 	alreadyDownloading := len(transactions.requestedTXs[txHash]) != 0
-	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
 	if alreadyDownloading {
 		return
 	}
+	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
 	done := transactions.synchronizer.IncRequestsCounter()
-	if err := transactions.blockchain.TransactionGet(
+	transactions.blockchain.TransactionGet(
 		txHash,
 		func(tx *wire.MsgTx) error {
 			defer transactions.Lock()()
 			dbTx, err := transactions.db.Begin()
 			if err != nil {
-				return err
+				transactions.log.WithField("error", err).Panic("Failed to begin transaction")
 			}
 			defer dbTx.Rollback()
 
@@ -363,12 +345,9 @@ func (transactions *Transactions) doForTransaction(
 			delete(transactions.requestedTXs, txHash)
 			return dbTx.Commit()
 		},
-		func(error) { done() },
-	); err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve transaction")
-		// TODO
-		panic(err)
-	}
+		func() { done() },
+	)
+	return
 }
 
 // Balance contains the available and incoming balance of the wallet.
@@ -386,25 +365,22 @@ func (transactions *Transactions) Balance() *Balance {
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
 	}
 	outputs, err := dbTx.Outputs()
 	if err != nil {
-		// TODO
-		panic(err)
+		transactions.log.WithField("error", err).Panic("Failed to retrieve outputs")
 	}
 	defer dbTx.Rollback()
 	var available, incoming int64
 	for outPoint, txOut := range outputs {
 		// What is spent can not be available nor incoming.
-		if spent := isInputSpent(dbTx, outPoint); spent {
+		if spent := transactions.isInputSpent(dbTx, outPoint); spent {
 			continue
 		}
 		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
-			// TODO
-			panic(err)
+			transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
 		}
 		confirmed := height > 0
 		if confirmed || transactions.allInputsOurs(dbTx, tx) {
@@ -488,7 +464,7 @@ func (transactions *Transactions) txInfo(
 	tx *wire.MsgTx,
 	height int,
 	timestamp *time.Time,
-	isChange func(client.ScriptHashHex) bool) *TxInfo {
+	isChange func(blockchain.ScriptHashHex) bool) *TxInfo {
 	defer transactions.RLock()()
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
@@ -585,7 +561,7 @@ func (transactions *Transactions) txInfo(
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChange func(client.ScriptHashHex) bool) []*TxInfo {
+	isChange func(blockchain.ScriptHashHex) bool) []*TxInfo {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()

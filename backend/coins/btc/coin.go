@@ -6,62 +6,37 @@ import (
 	"strconv"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
+	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	// dev server for now
-	electrumServerBitcoinMainnet = "dev.shiftcrypto.ch:50002"
-	electrumServerBitcoinTestnet = "dev.shiftcrypto.ch:51002"
-	electrumServerBitcoinRegtest = "127.0.0.1:52001"
-)
-
-const (
-	tlsYes = true
-	tlsNo  = false
-)
-
 // MainnetCoin stores the mainnet coin.
-var MainnetCoin = NewCoin("btc", "BTC", &chaincfg.MainNetParams, electrumServerBitcoinMainnet, tlsYes, "https://blockchain.info/tx/")
+var MainnetCoin = NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/")
 
 // TestnetCoin stores the testnet coin.
-var TestnetCoin = NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, electrumServerBitcoinTestnet, tlsYes, "https://testnet.blockchain.info/tx/")
+var TestnetCoin = NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/")
 
 // RegtestCoin stores the regtest coin.
-var RegtestCoin = NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, electrumServerBitcoinRegtest, tlsNo, "")
-
-// connectionError indicates an error when establishing a network connection.
-type connectionError error
-
-func maybeConnectionError(err error) error {
-	if _, ok := errp.Cause(err).(electrum.ConnectionError); ok {
-		return connectionError(err)
-	}
-	return err
-}
+var RegtestCoin = NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, "")
 
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	name                  string
 	unit                  string
 	net                   *chaincfg.Params
-	electrumServer        string
 	blockExplorerTxPrefix string
 
-	tls                 bool
-	electrumClients     map[wire.BitcoinNet]blockchain.Interface
-	electrumClientsLock locker.Locker
+	blockchain         blockchain.Interface
+	electrumClientLock locker.Locker
 
-	headers     map[wire.BitcoinNet]*headers.Headers
+	headers     *headers.Headers
 	headersLock locker.Locker
 
 	log *logrus.Entry
@@ -72,20 +47,14 @@ func NewCoin(
 	name string,
 	unit string,
 	net *chaincfg.Params,
-	electrumServer string,
-	tls bool,
 	blockExplorerTxPrefix string) *Coin {
 	return &Coin{
-		name:                  name,
-		unit:                  unit,
-		electrumServer:        electrumServer,
-		tls:                   tls,
-		net:                   net,
-		electrumClients:       map[wire.BitcoinNet]blockchain.Interface{},
+		name: name,
+		unit: unit,
+		net:  net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 
-		headers: map[wire.BitcoinNet]*headers.Headers{},
-		log:     logging.Log.WithGroup("coin").WithField("name", name),
+		log: logging.Log.WithGroup("coin").WithField("name", name),
 	}
 }
 
@@ -106,7 +75,8 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount int64) string {
-	return strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f', -int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
+	return strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f',
+		-int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
 }
 
 // FormatAmountAsJSON implements coin.Coin.
@@ -117,46 +87,22 @@ func (coin *Coin) FormatAmountAsJSON(amount int64) map[string]string {
 	}
 }
 
-// ElectrumClient returns the electrum client for the coin.
-func (coin *Coin) ElectrumClient() (blockchain.Interface, error) {
-	defer coin.electrumClientsLock.Lock()()
-	if _, ok := coin.electrumClients[coin.net.Net]; !ok {
-		var err error
-		coin.electrumClients[coin.net.Net], err = electrum.NewElectrumClient(
-			coin.electrumServer, coin.tls, func(err error) {
-				// err = maybeConnectionError(err)
-				// if _, ok := errp.Cause(err).(connectionError); !ok {
-				// 	coin.log.WithField("error", err).Panic(err.Error())
-				// }
-				// unlock := coin.electrumClientsLock.Lock()
-				// delete(coin.electrumClients, coin.net.Net)
-				// unlock()
-				// for _, wallet := range coin.wallets {
-				// 	if wallet.net.Net != coin.net.Net {
-				// 		continue
-				// 	}
-				// 	select {
-				// 	case wallet.errorChannel <- err:
-				// 	default:
-				// 		wallet.log.WithField("error", err).Error(err.Error())
-				// 	}
-				// }
-			}, coin.log.WithField("net", coin.name))
-		if err != nil {
-			return nil, maybeConnectionError(err)
-		}
+// Blockchain connects to a blockchain backend.
+func (coin *Coin) Blockchain() blockchain.Interface {
+	defer coin.electrumClientLock.Lock()()
+	if coin.blockchain != nil {
+		return coin.blockchain
 	}
-	return coin.electrumClients[coin.net.Net], nil
+	servers := config.Get().Config().Backend.GetServers(coin.name)
+	coin.blockchain = electrum.NewElectrumConnection(servers, coin.log)
+	return coin.blockchain
 }
 
-// GetHeaders returns the headers from the given folder.
+// GetHeaders returns the headers from the given folder. This method should only be called if
+// the connection to the backend has previously been established.
 func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
 	defer coin.headersLock.Lock()()
-	if _, ok := coin.headers[coin.net.Net]; !ok {
-		blockchain, err := coin.ElectrumClient()
-		if err != nil {
-			return nil, err
-		}
+	if coin.headers == nil {
 		log := coin.log.WithField("net", coin.name)
 
 		db, err := headersdb.NewDB(
@@ -165,16 +111,14 @@ func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
 			return nil, err
 		}
 
-		coin.headers[coin.net.Net] = headers.NewHeaders(
+		coin.headers = headers.NewHeaders(
 			coin.net,
 			db,
-			blockchain,
+			coin.Blockchain(),
 			log)
-		if err := coin.headers[coin.net.Net].Init(); err != nil {
-			return nil, err
-		}
+		coin.headers.Init()
 	}
-	return coin.headers[coin.net.Net], nil
+	return coin.headers, nil
 }
 
 func (coin *Coin) String() string {

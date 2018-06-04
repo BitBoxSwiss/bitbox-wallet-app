@@ -3,80 +3,284 @@ package jsonrpc
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
+	"math/rand"
 	"sync"
 	"time"
 
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/shiftdevices/godbb/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 
-const responseTimeout = 30 * time.Second
+const (
+	responseTimeout = 30 * time.Second
+)
 
 type callbacks struct {
+	// success is called when a successful response has been received.
 	success func([]byte) error
-	// cleanup will receive errors related to the response. SocketErrors are directed to
-	// the failure callback of the RPCClient instance.
-	cleanup func(error)
+	// setupAndTeardown will be called before the response has been received.
+	setupAndTeardown func() func()
+	// cleanup will be called after the response has been received.
+	cleanup func()
 }
 
 // SocketError indicates an error when reading from or writing to a network socket.
-type SocketError error
+type SocketError struct {
+	err        error
+	connection *connection
+}
+
+func (err *SocketError) Error() string {
+	return err.err.Error()
+}
 
 // ResponseError indicates an error when parsing the response from the server.
-type ResponseError error
+type ResponseError struct {
+	err error
+}
+
+func (err *ResponseError) Error() string {
+	return err.err.Error()
+}
+
+type connection struct {
+	conn    io.ReadWriteCloser
+	backend rpc.Backend
+}
+
+type request struct {
+	responseCallbacks callbacks
+	method            string
+	params            []interface{}
+	jsonText          []byte
+}
+
+type heartBeat struct {
+	method string
+	params []interface{}
+}
 
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
 // remote notifications.
 type RPCClient struct {
-	conn                  io.ReadWriteCloser
-	msgID                 int
-	msgIDLock             sync.Mutex
-	responseCallbacks     map[int]callbacks
-	responseCallbacksLock sync.RWMutex
-	close                 bool
+	connection   *connection
+	connLock     locker.Locker
+	backends     []rpc.Backend
+	backendsLock locker.Locker
+
+	pendingRequests     map[int]*request
+	pendingRequestsLock locker.Locker
+
+	subscriptionRequests     []*request
+	subscriptionRequestsLock locker.Locker
+
+	retryLock locker.Locker
+
+	onConnectionStatusChangesNotifyLock locker.Locker
+	onConnectionStatusChangesNotify     []func(rpc.Status)
+
+	onConnectCallback func() error
+	heartBeat         *heartBeat
+
+	msgID     int
+	msgIDLock sync.Mutex
+	close     bool
 
 	notificationsCallbacks     map[string][]func([]byte)
-	notificationsCallbacksLock sync.RWMutex
-	// failureCallback will receive SocketErrors and other errors not related to request responses.
-	failureCallback func(error)
-	log             *logrus.Entry
+	notificationsCallbacksLock locker.Locker
+	log                        *logrus.Entry
 }
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
-func NewRPCClient(conn io.ReadWriteCloser, failureCallback func(error), log *logrus.Entry) *RPCClient {
+func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
-		conn:                   conn,
-		msgID:                  0,
-		responseCallbacks:      map[int]callbacks{},
-		notificationsCallbacks: map[string][]func([]byte){},
-		failureCallback:        failureCallback,
-		log:                    log,
+		backends: backends,
+		msgID:    0,
+		onConnectionStatusChangesNotify: []func(rpc.Status){},
+		pendingRequests:                 map[int]*request{},
+		subscriptionRequests:            []*request{},
+		notificationsCallbacks:          map[string][]func([]byte){},
+		log: log,
 	}
-	go client.read(client.handleResponse, client.failureCallback)
 	return client
 }
 
-func (client *RPCClient) read(success func([]byte), failure func(error)) {
-	defer func() {
-		_ = client.conn.Close()
-		if r := recover(); r != nil {
-			failure(r.(error))
-		}
-	}()
-	reader := bufio.NewReader(client.conn)
-	for !client.close {
-		line, err := reader.ReadBytes(byte('\n'))
-		if err != nil {
-			panic(errp.Wrap(err, "Failed to read from socket"))
-		}
+// RegisterOnConnectionStatusChangedEvent registers an event that is fired if the connection status changes.
+// After registration it fires the event to notify the holder of the callback about the current status.
+func (client *RPCClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChangedEvent func(rpc.Status)) {
+	defer client.onConnectionStatusChangesNotifyLock.Lock()()
+	client.onConnectionStatusChangesNotify = append(client.onConnectionStatusChangesNotify, onConnectionStatusChangedEvent)
+}
 
-		success(line)
+func (client *RPCClient) requeueSubscriptions() {
+	defer client.subscriptionRequestsLock.Lock()()
+	client.log.Debugf("Got %v subscriptions that need to be resubscribed", len(client.subscriptionRequests))
+	for _, r := range client.subscriptionRequests {
+		client.prepare(r.responseCallbacks.success, r.responseCallbacks.setupAndTeardown, r.method, r.params...)
+	}
+	client.subscriptionRequests = []*request{}
+}
+
+func (client *RPCClient) resendPendingRequests() {
+	defer client.pendingRequestsLock.RLock()()
+	for _, request := range client.pendingRequests {
+		err := client.send(request.jsonText)
+		if err != nil {
+			client.resendPendingRequestsAndSubscriptions(err.connection)
+			return
+		}
 	}
 }
 
-func (client *RPCClient) handleResponse(responseBytes []byte) {
+// resendPendingRequestsAndSubscriptions tries to re-subscribe to all subscriptions associated with the given
+// connection and tries to issue pending methods via another connection.
+func (client *RPCClient) resendPendingRequestsAndSubscriptions(failed *connection) {
+	defer client.retryLock.Lock()()
+	if client.connection != failed {
+		return
+	}
+	client.connection = nil
+	if failed != nil {
+		client.log.Debugf("Backend %v failed. Trying to re-subscribe and send pending requests via another connection", failed.backend.ServerInfo().Server)
+	} else {
+		// in case socket error does not have any information about the connection, for example
+		// when a timeout happens in the MethodSync function
+		client.log.Debugf("Last backend failed. Trying to re-subscribe and send pending requests via another connection")
+	}
+	_, err := client.conn()
+	if err != nil {
+		wait := time.Minute
+		client.log.Debugf("No connections currently available in retry mode. Waiting for %v", wait)
+		time.Sleep(wait)
+	}
+	client.requeueSubscriptions()
+	client.resendPendingRequests()
+}
+
+// read reads incoming data from the given connection and executes the given success message.
+// Any panics are caught and handled by retring to subscribe on another connection and sending
+// out any pending methods via another connection.
+func (client *RPCClient) read(connection *connection, success func(*connection, []byte)) {
+	defer func() {
+		_ = connection.conn.Close()
+		if r := recover(); r != nil {
+			if sockErr, ok := r.(*SocketError); ok {
+				client.resendPendingRequestsAndSubscriptions(sockErr.connection)
+				return
+			}
+			if err, ok := r.(error); ok {
+				panic(errp.Wrap(err, "Unrecoverable error happened in read channel"))
+			} else {
+				panic(errp.Newf("Unrecoverable error happened in read channel: %v", r))
+			}
+		}
+	}()
+	reader := bufio.NewReader(connection.conn)
+	for !client.close {
+		line, err := reader.ReadBytes(byte('\n'))
+		if err != nil {
+			panic(&SocketError{errp.Wrap(err, "Failed to read from socket"), connection})
+		}
+		success(connection, line)
+	}
+}
+
+// establishConnection attempts to establish a connection to a given backend. On success, it returns
+// a connection, otherwise it returns an error. If successful, the read function is started in a
+// separate go routine to listen for incoming data.
+func (client *RPCClient) establishConnection(backend rpc.Backend) error {
+	conn, err := backend.EstablishConnection()
+	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
+	if err != nil {
+		return err
+	}
+	client.log.Debugf("Established connection to backend")
+	client.connection = &connection{conn, backend}
+	go client.read(client.connection, client.handleResponse)
+	if err := client.onConnectCallback(); err != nil {
+		client.log.WithField("error", err).Error("Error happened in connect callback")
+		return err
+	}
+	go client.ping()
+	return nil
+}
+
+func (client *RPCClient) notify(status rpc.Status) {
+	for _, callback := range client.onConnectionStatusChangesNotify {
+		callback(status)
+	}
+}
+
+// conn returns either the currently active connection or, if none was found, establishes a new connection
+// to any of the configured backends.
+// The selection process is randomized, to balance the load between multiple backends for multiple
+// desktop applications, but we store the active connection and ping it regularly to
+// keep it alive (see ping()).
+func (client *RPCClient) conn() (*connection, error) {
+	if client.connection == nil {
+		defer client.connLock.Lock()()
+		if client.connection == nil {
+			defer client.backendsLock.RLock()()
+			start := rand.Intn(len(client.backends))
+			for i := 0; i < len(client.backends); i++ {
+				client.log.Debugf("Trying to connect to backend %v", client.backends[start].ServerInfo().Server)
+				err := client.establishConnection(client.backends[start])
+				if err != nil {
+					client.log.WithField("error", err).Info("Failover: backend is down")
+					start = (start + 1) % len(client.backends)
+				} else {
+					client.log.Debug("Successfully connected to backend")
+					break
+				}
+			}
+			if client.connection == nil {
+				client.log = client.log.WithField("backend", "offline")
+				// tried all backends
+				go client.notify(rpc.DISCONNECTED)
+				return nil, errp.Newf("Disconnected from all backends")
+			}
+			go client.notify(rpc.CONNECTED)
+		}
+	}
+	return client.connection, nil
+}
+
+// cleanupFinishedRequest removes the finished request from the collection of pending requests
+// and collects the subscription requests. It blocks resendPendingRequests(), and if it is a
+// subscription request, resubscribe() and conn().
+// If resubscribe() is already running, the subscription request will remain a pending request and
+// be executed in the resendPendingRequest() function.
+// If resendPendingRequest() is already running, the pending requests are executed again but the
+// response is ignored because the request already finished with the previous connection.
+func (client *RPCClient) cleanupFinishedRequest(conn *connection, responseID int) {
+	defer client.pendingRequestsLock.Lock()()
+	finishedRequest := client.pendingRequests[responseID]
+	finishedRequest.responseCallbacks.cleanup()
+	if client.isSubscriptionRequest(finishedRequest.method) {
+		func() {
+			defer client.subscriptionRequestsLock.Lock()()
+			// if connection is still up and running we add it to the list of subscription requests and
+			// remove it from the collection of pending requests.
+			// Otherwise it remains in the collection of pending requests.
+			defer client.connLock.Lock()()
+			if client.connection == conn {
+				client.subscriptionRequests = append(client.subscriptionRequests, finishedRequest)
+				delete(client.pendingRequests, responseID)
+			}
+		}()
+	} else {
+		// All non-subscription requests that are not resend are handled and can be removed from the collection of
+		// pending requests.
+		delete(client.pendingRequests, responseID)
+	}
+}
+
+func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) {
 	// fmt.Println("got response ", string(responseBytes))
 
 	// Catch all response.
@@ -98,12 +302,12 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 		Params  json.RawMessage  `json:"params"`
 	}{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
-		client.failureCallback(ResponseError(errp.Wrap(err, "Failed to unmarshal response")))
-		return
+		// panic will be caught in read() and subscribed connections will be re-subscribed
+		panic(&ResponseError{errp.Wrap(err, "Failed to unmarshal response")})
 	}
 	if response.JSONRPC != "2.0" {
-		client.failureCallback(ResponseError(errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)))
-		return
+		// panic will be caught in read() and subscribed connections will be re-subscribed
+		panic(&ResponseError{errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)})
 	}
 
 	parseError := func(msg json.RawMessage) string {
@@ -118,56 +322,104 @@ func (client *RPCClient) handleResponse(responseBytes []byte) {
 
 	// Handle method response.
 	if response.ID != nil {
-		func() {
-			client.responseCallbacksLock.RLock()
-			responseCallbacks, ok := client.responseCallbacks[*response.ID]
-			client.responseCallbacksLock.RUnlock()
-			if ok {
-				var responseError error
-				if response.Error != nil {
-					responseError = errp.New(parseError(*response.Error))
-				} else if len(response.Result) == 0 {
-					responseError = errp.New("unexpected reply")
-				} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
-					responseError = err
-				}
-				responseCallbacks.cleanup(responseError)
-				client.responseCallbacksLock.Lock()
-				delete(client.responseCallbacks, *response.ID)
-				client.responseCallbacksLock.Unlock()
+		runlock := client.pendingRequestsLock.RLock()
+		pendingRequest, ok := client.pendingRequests[*response.ID]
+		runlock()
+		var responseError *ResponseError
+		if ok {
+			responseCallbacks := pendingRequest.responseCallbacks
+			if response.Error != nil {
+				responseError = &ResponseError{errp.New(parseError(*response.Error))}
+			} else if len(response.Result) == 0 {
+				responseError = &ResponseError{errp.New("unexpected reply")}
+			} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
+				responseError = &ResponseError{err}
 			}
-		}()
-	} else if response.Error != nil {
-		client.failureCallback(ResponseError(errp.New(parseError(*response.Error))))
-		return
+			if responseError != nil {
+				panic(responseError)
+			}
+			defer client.cleanupFinishedRequest(conn, *response.ID)
+		} else {
+			client.log.WithField("request_id", response.ID).Info("Request not found in list of " +
+				"pending requests. It's likely that it finished before a failover and we therefore " +
+				"do not have to do anything.")
+		}
 	}
-
 	// Handle notification.
 	if response.Method != nil {
+		client.log.Debug("Calling subscription callbacks")
 		if len(response.Params) == 0 {
-			client.failureCallback(ResponseError(errp.New("unexpected reply")))
 			return
 		}
 		func() {
-			client.notificationsCallbacksLock.RLock()
+			unlock := client.notificationsCallbacksLock.RLock()
 			responseCallbacks := client.notificationsCallbacks[*response.Method]
-			client.notificationsCallbacksLock.RUnlock()
+			unlock()
 			for _, responseCallback := range responseCallbacks {
 				responseCallback([]byte(response.Params))
 			}
 		}()
+	} else if response.Error != nil {
+		panic(&ResponseError{errp.Newf("Unexpected response: %v", response.Error)})
 	}
 }
 
-// Method sends invokes the remote method with the provided parameters. The success callback is
-// called with the response. cleanup is called afterwards, regardless of whether an error occurred
-// anywhere.
-func (client *RPCClient) Method(
-	success func([]byte) error,
-	cleanup func(err error),
+// OnConnect executed the given callback whenever a new connection is established
+func (client *RPCClient) OnConnect(callback func() error) {
+	client.onConnectCallback = callback
+	if _, err := client.conn(); err != nil {
+		client.log.WithField("error", err).Error("Failed to establish connection")
+	}
+}
+
+// RegisterHeartbeat registers the heartbeat method and parameters that are sent to the backend
+// to keep the connection alive
+func (client *RPCClient) RegisterHeartbeat(
 	method string,
 	params ...interface{},
-) error {
+) {
+	client.heartBeat = &heartBeat{method, params}
+}
+
+// ping periodically pings the server to keep the connection alive.
+func (client *RPCClient) ping() {
+	for !client.close {
+		time.Sleep(time.Minute)
+		if client.heartBeat == nil {
+			continue
+		}
+		jsonText := client.prepare(
+			func([]byte) error {
+				return nil
+			},
+			func() func() { return func() {} },
+			client.heartBeat.method, client.heartBeat.params...)
+		err := client.send(jsonText)
+		if err != nil {
+			client.resendPendingRequestsAndSubscriptions(err.connection)
+		}
+	}
+}
+
+func (client *RPCClient) isSubscriptionRequest(method string) bool {
+	defer client.notificationsCallbacksLock.RLock()()
+	_, ok := client.notificationsCallbacks[method]
+	return ok
+}
+
+// prepare ...
+func (client *RPCClient) prepare(
+	success func([]byte) error,
+	setupAndTeardown func() func(),
+	method string,
+	params ...interface{},
+) []byte {
+	// Ideally, we should have a worker thread that processes a "to be send" list.
+	cleanup := func() {}
+	if setupAndTeardown != nil {
+		cleanup = setupAndTeardown()
+	}
+
 	client.msgIDLock.Lock()
 	msgID := client.msgID
 	client.msgID++
@@ -181,14 +433,34 @@ func (client *RPCClient) Method(
 		"params": params,
 	}), byte('\n'))
 
-	client.responseCallbacksLock.Lock()
-	client.responseCallbacks[msgID] = callbacks{
-		success: success,
-		cleanup: cleanup,
+	defer client.pendingRequestsLock.Lock()()
+	client.pendingRequests[msgID] = &request{
+		callbacks{
+			success:          success,
+			setupAndTeardown: setupAndTeardown,
+			cleanup:          cleanup,
+		},
+		method,
+		params,
+		jsonText,
 	}
-	client.responseCallbacksLock.Unlock()
+	return jsonText
+}
 
-	return client.send(jsonText)
+// Method sends invokes the remote method with the provided parameters. Before the request is send,
+// the setupAndTeardown callback is executed and the return value is stored as cleanup callback with the pending request.
+// The success callback is called with the response. cleanup is called afterwards.
+func (client *RPCClient) Method(
+	success func([]byte) error,
+	setupAndTeardown func() func(),
+	method string,
+	params ...interface{},
+) {
+	jsonText := client.prepare(success, setupAndTeardown, method, params...)
+	err := client.send(jsonText)
+	if err != nil {
+		client.resendPendingRequestsAndSubscriptions(err.connection)
+	}
 }
 
 // MethodSync is the same as method, but blocks until the response is available. The result is
@@ -196,30 +468,25 @@ func (client *RPCClient) Method(
 func (client *RPCClient) MethodSync(response interface{}, method string, params ...interface{}) error {
 	responseChan := make(chan []byte)
 	errChan := make(chan error)
-	if err := client.Method(
+
+	client.Method(
 		func(responseBytes []byte) error {
 			responseChan <- responseBytes
 			return nil
 		},
-		func(err error) {
-			if err != nil {
-				errChan <- err
-			}
-		},
-		method, params...); err != nil {
-		return err
-	}
+		func() func() { return func() {} },
+		method, params...)
 	select {
 	case err := <-errChan:
 		return err
 	case responseBytes := <-responseChan:
 		if response != nil {
 			if err := json.Unmarshal(responseBytes, response); err != nil {
-				return ResponseError(errp.Wrap(err, "Failed to unmarshal response"))
+				return &ResponseError{errp.Wrap(err, fmt.Sprintf("Failed to unmarshal response: %v", string(responseBytes)))}
 			}
 		}
 	case <-time.After(responseTimeout):
-		return SocketError(errp.New("response timeout"))
+		return &SocketError{errp.New("response timeout"), nil}
 	}
 	return nil
 }
@@ -227,20 +494,21 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 // SubscribeNotifications installs a callback for a method which is called with notifications from
 // the server.
 func (client *RPCClient) SubscribeNotifications(method string, callback func([]byte)) {
-	client.notificationsCallbacksLock.Lock()
-	defer client.notificationsCallbacksLock.Unlock()
+	defer client.notificationsCallbacksLock.Lock()()
 	if _, ok := client.notificationsCallbacks[method]; !ok {
 		client.notificationsCallbacks[method] = []func([]byte){}
 	}
 	client.notificationsCallbacks[method] = append(client.notificationsCallbacks[method], callback)
 }
 
-func (client *RPCClient) send(msg []byte) error {
-	// fmt.Println("send: ", string(msg))
-	_, err := client.conn.Write(msg)
+func (client *RPCClient) send(msg []byte) *SocketError {
+	conn, err := client.conn()
 	if err != nil {
-		client.failureCallback(SocketError(errp.WithStack(err)))
-		return SocketError(errp.WithStack(err))
+		return &SocketError{errp.WithStack(err), conn}
+	}
+	_, err = conn.conn.Write(msg)
+	if err != nil {
+		return &SocketError{errp.WithStack(err), conn}
 	}
 	return nil
 }
@@ -248,4 +516,9 @@ func (client *RPCClient) send(msg []byte) error {
 // Close shuts down the connection.
 func (client *RPCClient) Close() {
 	client.close = true
+}
+
+// IsClosed returns true if the client is closed and false otherwise.
+func (client *RPCClient) IsClosed() bool {
+	return client.close
 }
