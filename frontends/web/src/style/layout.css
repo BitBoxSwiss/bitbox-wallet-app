@@ -198,6 +198,7 @@ div.guide h2 {
     margin: 0px;
     font-size: 1.1em;
     cursor: pointer;
+    line-height: 1.4em;
 }
 
 div.guide p {

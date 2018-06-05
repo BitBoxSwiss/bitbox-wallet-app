@@ -11,6 +11,7 @@ import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
 import Status from './components/status/status';
+import A from './components/anchor/anchor';
 
 @translate()
 export default class App extends Component {
@@ -121,7 +122,7 @@ export default class App extends Component {
                     {update && <Status dismissable keyName={`update-${update.version}`} type="info">
                         A new version of this app is available! We recommend that you upgrade
                         from {update.current} to {update.version}. {update.description}
-                        &nbsp;<a href="https://shiftcrypto.ch/start">Download</a>
+                        &nbsp;<A href="https://shiftcrypto.ch/start">Download</A>
                     </Status>}
                     <Router onChange={this.handleRoute}>
                         {/*

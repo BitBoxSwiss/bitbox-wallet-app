@@ -135,14 +135,7 @@ export default class Unlock extends Component {
                         )}
                     </div>
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="What do I do if I forgot the PIN?">
-                        <p>Reset device and restore from backup.</p>
-                        <Entry title="How do I reset the device?">
-                            <p>Enter a wrong PIN 15 times. The last few attempts require a long touch on the device.</p>
-                        </Entry>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="unlock" />
             </div>
         );
     }

@@ -120,11 +120,7 @@ export default class Initialize extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="What is the PIN used for?">
-                        <p>To authenticate access to the device and encrypt its communication.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="initialize" />
             </div>
         );
     }

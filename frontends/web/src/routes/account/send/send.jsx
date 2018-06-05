@@ -261,11 +261,7 @@ export default class Send extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="Why is there a fee?">
-                        <p>To deter spam and reward miners.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="send" />
             </div>
         );
     }

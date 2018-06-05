@@ -29,11 +29,7 @@ export default function ManageBackups({
                     </ButtonLink>
                 </Backups>
             </div>
-            <Guide guide={guide}>
-                <Entry title="What is a backup?">
-                    <p>Copy of the seed.</p>
-                </Entry>
-            </Guide>
+            <Guide guide={guide} screen="backups" />
         </div>
     );
 }

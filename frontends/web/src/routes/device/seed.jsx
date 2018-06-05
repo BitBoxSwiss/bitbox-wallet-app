@@ -156,11 +156,7 @@ export default class Seed extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="Why can't I change the recovery password later on?">
-                        <p>Because it's used for key derivation and not seed encryption.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="seed" />
             </div>
         );
     }

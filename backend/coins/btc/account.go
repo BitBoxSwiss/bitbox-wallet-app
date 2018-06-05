@@ -129,9 +129,9 @@ func NewAccount(
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
-			{Blocks: 25, Code: FeeTargetCodeEconomy},
-			{Blocks: 10, Code: FeeTargetCodeLow},
-			{Blocks: 5, Code: FeeTargetCodeNormal},
+			{Blocks: 24, Code: FeeTargetCodeEconomy},
+			{Blocks: 12, Code: FeeTargetCodeLow},
+			{Blocks: 6, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
 		initialSyncDone: false,

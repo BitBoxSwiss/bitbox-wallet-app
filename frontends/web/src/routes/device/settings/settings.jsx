@@ -91,11 +91,7 @@ export default class Settings extends Component {
                         { spinner && (<Spinner />)}
                     </div>
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="What is a hidden wallet?">
-                        <p>It's for plausible deniability.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="bitbox" />
             </div>
         );
     }

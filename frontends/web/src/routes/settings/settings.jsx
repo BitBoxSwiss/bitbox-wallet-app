@@ -112,11 +112,7 @@ export default class Settings extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="Can I have several accounts of the same coin?">
-                        <p>Not yet supported, unfortunately.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="settings" />
             </div>
         );
     }

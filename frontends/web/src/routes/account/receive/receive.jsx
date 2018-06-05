@@ -86,11 +86,7 @@ export default class ReceiveButton extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide guide={guide}>
-                    <Entry title="What do I do with an address?">
-                        <p>Give it to others to send you coins.</p>
-                    </Entry>
-                </Guide>
+                <Guide guide={guide} screen="receive" />
             </div>
         );
     }
