@@ -24,10 +24,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 QMAKE_CXXFLAGS += -std=c++11
 
 unix:!macx {
+    LIBS += -L../server -lserver
     QMAKE_LFLAGS_RPATH=
     QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
-    //LIBS += -L/home/marko/test/webkitlib/qtwebkit-5.212.0_alpha2-qt59-linux-x64/lib
-    #QMAKE_LFLAGS += '-Wl,-rpath,/home/marko/test/webkitlib/qtwebkit-5.212.0_alpha2-qt59-linux-x64/lib'
+
 }
 
 SOURCES += \
@@ -39,7 +39,6 @@ INCLUDEPATH += ../server/
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
 unix:!macx {
-    LIBS += ../server/server.a
 }
 
 unix:macx {
