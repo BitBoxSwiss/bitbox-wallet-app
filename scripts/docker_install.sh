@@ -17,8 +17,6 @@ apt-get install -y --no-install-recommends \
     net-tools \
     nodejs \
     g++ \
-    qt5-default \
-    libqt5webkit5-dev \
     dnsutils
 
 npm install -g yarn

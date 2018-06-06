@@ -34,6 +34,9 @@ weblint:
 qt:
 	make generate
 	make -C frontends/qt
+qt-linux: # run inside dockerdev
+	make generate
+	make -C frontends/qt linux
 ci:
 	./scripts/ci.sh
 ci-fast:
