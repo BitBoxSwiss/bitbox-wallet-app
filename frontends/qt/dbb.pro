@@ -23,11 +23,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 QMAKE_CXXFLAGS += -std=c++11
 
-unix:!macx {
-    LIBS += -L../server -lserver
-    QMAKE_LFLAGS_RPATH=
-    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
+LIBS += -L../server -lserver
 
+# https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
+unix:!macx {
+    QMAKE_LFLAGS_RPATH=
+    # so libserver.so will be found by linuxdeployqt, once copied into the same folder.
+    QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN\''
 }
 
 SOURCES += \
@@ -37,14 +39,9 @@ HEADERS += webclass.h
 
 INCLUDEPATH += ../server/
 
-# https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
-unix:!macx {
-}
-
 unix:macx {
     # Those frameworks are needed for Go's http/net packages.
     # Waiting for https://github.com/golang/go/issues/11258 to be able to automatically capture link flags.
     LIBS += -framework CoreFoundation -framework Security
-    LIBS += ../server/server.a
-    QMAKE_RPATHDIR = @executable_path/../Frameworks
+    # QMAKE_RPATHDIR = @executable_path/../Frameworks
 }
