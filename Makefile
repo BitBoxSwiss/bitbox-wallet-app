@@ -39,6 +39,6 @@ ci:
 ci-fast:
 	./scripts/ci.sh --fast
 dockerinit:
-	docker build --force-rm -t godbb .
+	docker build --pull --force-rm -t godbb .
 dockerdev:
 	./scripts/dockerdev.sh
