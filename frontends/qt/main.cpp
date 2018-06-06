@@ -7,7 +7,7 @@
 #include <QThread>
 #include <QByteArray>
 
-#include <server.h>
+#include <libserver.h>
 #include <iostream>
 #include <string>
 

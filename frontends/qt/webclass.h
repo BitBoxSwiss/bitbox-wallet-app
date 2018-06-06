@@ -1,6 +1,6 @@
 #include <QApplication>
 
-#include <server.h>
+#include <libserver.h>
 
 class WebClass : public QObject
 {
