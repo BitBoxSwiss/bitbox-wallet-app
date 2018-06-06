@@ -7,7 +7,7 @@ label {
 
 .label,
 label {
-    color: var(--color-rock);
+    color: var(--color-secondary);
     display: block;
     font-size: var(--size-small);
     font-weight: bold;
