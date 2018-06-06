@@ -7,12 +7,11 @@ label {
 
 .label,
 label {
-    color: var(--color-secondary);
+    color: var(--color-rock);
     display: block;
     font-size: var(--size-small);
     font-weight: bold;
-    margin-bottom: var(--spacing-half);
-    text-indent: 2px;
+    margin-bottom: calc(var(--spacing-half) / 2);
     text-transform: uppercase;
 }
 

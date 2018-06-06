@@ -218,11 +218,10 @@ export default class Send extends Component {
                                     />
                                 </div>
                             </div>
-                            <div class={[componentStyle.buttons, 'flex', 'flex-row', 'flex-between', 'flex-start'].join(' ')}>
+                            <div class={['row', 'buttons', 'flex', 'flex-row', 'flex-between', 'flex-start'].join(' ')}>
                                 <Button secondary onClick={this.props.onClose}>
                                     {t('button.back')}
                                 </Button>
-                                &nbsp;
                                 <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
                                     {t('button.send')}
                                 </Button>
@@ -233,9 +232,11 @@ export default class Send extends Component {
                         isConfirming && (
                             <WaitDialog title="Confirm Transaction" includeDefault>
                                 <div class={style.confirmationBox}>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>Address</p>
-                                    <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
-                                    <div class="flex flex-row flex-start has-gutter">
+                                    <div class="row">
+                                        <p class={['label', style.confirmationLabel, 'first'].join(' ')}>Address</p>
+                                        <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
+                                    </div>
+                                    <div class="flex flex-row flex-start spaced">
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
                                             <p class={style.confirmationValue}>{proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}</p>
@@ -244,9 +245,9 @@ export default class Send extends Component {
                                             <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
                                             <p class={style.confirmationValue}>{proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}</p>
                                         </div>
-                                        <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
-                                        <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}</p>
                                     </div>
+                                    <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
+                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}</p>
                                 </div>
                             </WaitDialog>
                         )

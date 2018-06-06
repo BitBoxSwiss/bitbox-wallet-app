@@ -13,7 +13,6 @@
 .flex-nowrap { flex-wrap: nowrap; }
 .flex-1 { flex: 1; }
 .flex-none { flex: none !important; }
-.has-gutter > div:not(:last-child) { margin-right: var(--spacing-default); }
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
@@ -32,7 +31,11 @@
     color: var(--color-softblack);
 }
 
-.spaced > div:not(:last-child) {
+.first {
+    margin-top: 0;
+}
+
+.spaced > *:not(:last-child) {
     margin-right: var(--spacing-default);
 }
 

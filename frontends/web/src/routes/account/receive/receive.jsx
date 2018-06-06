@@ -11,7 +11,7 @@ export default class ReceiveButton extends Component {
     state = {
         verifying: false,
         activeIndex: null,
-        receiveAddresses: null
+        receiveAddresses: null,
     }
 
     componentDidMount() {
@@ -48,20 +48,26 @@ export default class ReceiveButton extends Component {
                     className={style.addressField}
                     onFocus={focus}
                     value={receiveAddresses[activeIndex].address} />
-                <Button
-                    transparent
-                    disabled={verifying}
-                    onClick={this.previous}>Previous</Button>
-                {' '}
-                <Button
-                    primary
-                    disabled={verifying}
-                    onClick={this.verifyAddress}>Verify address securely</Button>
-                {' '}
-                <Button
-                    transparent
-                    disabled={verifying}
-                    onClick={this.next}>Next</Button>
+                <div class="buttons">
+                    <Button
+                        transparent
+                        disabled={verifying}
+                        onClick={this.previous}>
+                        Previous
+                    </Button>
+                    <Button
+                        primary
+                        disabled={verifying}
+                        onClick={this.verifyAddress}>
+                        Verify address securely
+                    </Button>
+                    <Button
+                        transparent
+                        disabled={verifying}
+                        onClick={this.next}>
+                        Next
+                    </Button>
+                </div>
             </div>
         ) : (
             t('loading')

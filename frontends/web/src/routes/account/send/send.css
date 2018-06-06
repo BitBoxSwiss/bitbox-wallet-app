@@ -1,83 +1,83 @@
 .input {
-  padding: var(--spacing-default);
-  border-radius: 2px;
-  border: solid 1px var(--color-brightgray);
-  font-size: var(--size-medium);
+    padding: var(--spacing-default);
+    border-radius: 2px;
+    border: solid 1px var(--color-brightgray);
+    font-size: var(--size-medium);
 }
 
 .input:focus {
-  outline: none;
+    outline: none;
 }
 
 .labelHalf {
-  width: 49%;
+    width: 49%;
 }
 
 .labelHalf:first-child {
-  margin-right: 2%;
+    margin-right: 2%;
 }
 
 .inputHalf {
-  width: 49%;
+    width: 49%;
 }
 
 .inputFull {
-  width: 100%;
+    width: 100%;
 }
 
 .notAllowed {
-  cursor: not-allowed;
+    cursor: not-allowed;
 }
 
 .confirmationInstructions {
-  margin-top: var(--spacing-default);
+    margin-top: var(--spacing-default);
 }
 
 .shortTouch {
-  width: 24px;
-  height: 24px;
-  background-color: var(--color-warn);
-  border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    background-color: var(--color-warn);
+    border-radius: 50%;
 }
 
 .longTouch {
-  width: 64px;
-  height: 64px;
-  background-color: var(--color-success);
-  border-radius: 50%;
+    width: 64px;
+    height: 64px;
+    background-color: var(--color-success);
+    border-radius: 50%;
 }
 
 .confirmationBox {
-  background-color: var(--color-lightgray);
-  border-radius: 2px;
-  padding: 0 var(--spacing-default) var(--spacing-default) var(--spacing-default);
-  margin-top: var(--spacing-half);
+    background-color: var(--color-lightgray);
+    border-radius: 2px;
+    padding: var(--spacing-large);
+    margin-top: var(--spacing-half);
 }
 
 .confirmationLabel {
-  margin-bottom: var(--spacing-half);
-  margin-top: var(--spacing-default);
-  line-height: var(--size-label);
+    margin-bottom: calc(var(--spacing-half) / 2);
+    margin-top: var(--spacing-default);
+    line-height: var(--size-label);
 }
 
 .confirmationValue {
-  font-weight: bold;
-  font-size: var(--size-medium);
-  margin: 0;
+    font-size: var(--size-medium);
+    margin: 0;
 }
 
 .confirmationValue.standOut {
-  font-size: var(--size-large);
-  line-height: var(--size-large);
+    font-size: 1.5rem;
+    font-weight: bold;
+    line-height: 1.5rem;
 }
 
 .maxAmount {
-  position: absolute;
-  top: -3px;
-  right: 0;
-  overflow: hidden;
+    position: absolute;
+    top: -3px;
+    right: 0;
+    overflow: hidden;
 }
 
 .maxAmount input {
-  height: auto !important;
+    height: auto !important;
 }
