@@ -116,6 +116,10 @@ devtool which serves the HTTP API.
 
 Run `dep ensure` to update dependencies.
 
+#### Update npm dependencies
+
+Check outdated dependencies `cd frontends/web && yarn outdated` and `yarn upgrade modulename@specificversion` or just upgrade everything by `yarn upgrade --latest`.
+
 ### Production build
 
 To build the standalone desktop app, run `make qt`.
