@@ -22,7 +22,9 @@ export default class Settings extends Component {
         name: null,
         serial: null,
         spinner: true,
-        sdcard: false
+        sdcard: false,
+        paired: false,
+        connected: false,
     }
 
     componentDidMount() {
@@ -52,6 +54,8 @@ export default class Settings extends Component {
         spinner,
         sdcard,
         serial,
+        paired,
+        connected,
     }) {
         return (
             <div class="contentWithGuide">
@@ -89,8 +93,16 @@ export default class Settings extends Component {
                                 </div>
                                 <dl>
                                     <div>
-                                        <dt>{t('deviceSettings.pairing.status.label')} </dt>
-                                        <dd>Not paired</dd>
+                                        <dt>{t('deviceSettings.pairing.status.label')}</dt>
+                                        <dd>
+                                          {t(`deviceSettings.pairing.status.${paired}`)}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('deviceSettings.pairing.mobile.label')}</dt>
+                                        <dd>
+                                          {t(`deviceSettings.pairing.mobile.${connected}`)}
+                                        </dd>
                                     </div>
                                 </dl>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
@@ -107,12 +119,12 @@ export default class Settings extends Component {
                                 </div>
                                 <dl>
                                     <div>
-                                        <dt>{t('deviceSettings.firmware.version.label')} </dt>
+                                        <dt>{t('deviceSettings.firmware.version.label')}</dt>
                                         <dd>{firmwareVersion ? firmwareVersion : t('loading')}</dd>
                                     </div>
                                     {firmwareVersion && (newVersion !== firmwareVersion) && (
                                         <div>
-                                            <dt>{t('deviceSettings.firmware.newVersion.label')} </dt>
+                                            <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
                                             <dd>{newVersion}</dd>
                                         </div>
                                     )}
@@ -131,11 +143,11 @@ export default class Settings extends Component {
                                 </div>
                                 <dl>
                                     <div>
-                                        <dt>{t('deviceSettings.hardware.sdcard.label')} </dt>
+                                        <dt>{t('deviceSettings.hardware.sdcard.label')}</dt>
                                         <dd>{t(`deviceSettings.hardware.sdcard.${sdcard}`)}</dd>
                                     </div>
                                     <div>
-                                        <dt>{t('deviceSettings.hardware.serial.label')} </dt>
+                                        <dt>{t('deviceSettings.hardware.serial.label')}</dt>
                                         <dd>{serial ? serial : t('loading')}</dd>
                                     </div>
                                 </dl>
@@ -148,7 +160,6 @@ export default class Settings extends Component {
                                 <hr />
 
                             </div>
-                            <Footer />
                         </div>
                         { spinner && (<Spinner />)}
                     </div>
