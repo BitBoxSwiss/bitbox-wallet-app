@@ -26,12 +26,15 @@ export class Entry extends Component {
         super(props);
         this.state = {
             shown: props.shown || props.highlighted || (props.entry && props.entry.shown),
-            highlighted: props.highlighted || (props.entry && props.entry.highlighted)
+            highlighted: props.highlighted || (props.entry && props.entry.highlighted),
         };
     }
 
     toggle = () => {
-        this.setState(state => ({ shown: !state.shown, highlighted: false }));
+        this.setState(state => ({
+            shown: !state.shown,
+            highlighted: false
+        }));
     }
 
     render({
@@ -45,12 +48,26 @@ export class Entry extends Component {
     }) {
         return (
             <div className={highlighted ? style.highlighted : style.entry}>
-                <h2 onClick={this.toggle}>
-                    {shown ? '–' : '+'} {title || (entry && entry.title)}
-                </h2>
-                {shown && entry && entry.text.map(p => <p>{p}</p>)}
-                {shown && entry && entry.link && <p><A href={entry.link.url}>{entry.link.text}</A></p>}
-                {shown && children}
+                <div class={style.entryTitle}>
+                    <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
+                    <div class={style.entryTitleText}>
+                        <h2 onClick={this.toggle}>
+                            {title || (entry && entry.title)}
+                        </h2>
+                    </div>
+                </div>
+                <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
+                    <div class={style.spacer}></div>
+                    {shown && (
+                        <div class="flex-1">
+                            {entry && entry.text.map(p => <p>{p}</p>)}
+                            {entry && entry.link && (
+                                <p><A href={entry.link.url}>{entry.link.text}</A></p>
+                            )}
+                            {children}
+                        </div>
+                    )}
+                </div>
             </div>
         );
     }

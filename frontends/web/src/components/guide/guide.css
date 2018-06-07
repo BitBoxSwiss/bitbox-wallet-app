@@ -4,8 +4,8 @@
 
 .toggler {
     position: fixed;
-    top: 1.7rem;
-    right: 1.7rem;
+    top: var(--spacing-default);
+    right: var(--spacing-default);
     z-index: 2000;
     padding: 8px 12px;
     border-radius: 19px;
@@ -14,18 +14,32 @@
     color: white;
     cursor: pointer;
     font-weight: bold;
-    text-align: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     background-color: var(--color-darkblue);
 }
 
 .guide {
     margin-right: -350px;
     height: 100vh;
-    padding: 2rem;
+    padding: var(--spacing-large);
     width: 350px;
     color: white;
     background-color: var(--color-brightblue);
     overflow-y: auto;
+}
+
+@media screen and (max-width: 1100px) {
+    .guide {
+        position: fixed;
+        margin-right: 0;
+        right: -350px;
+    }
+    .show {
+        right: 0;
+    }
 }
 
 .guide h1 {
@@ -50,11 +64,49 @@
 }
 
 .entry {
-    margin-top: 1.6em;
+    margin-top: var(--spacing-large);
 }
 
 .highlighted {
     margin: 1.1em -1em;
     padding: 0.5em 1em;
     background-color: var(--color-darkblue);
+}
+
+.entryTitle {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    cursor: pointer;
+}
+
+.entryTitle .entryToggle {
+    width: 16px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    font-weight: bold;
+}
+
+.entryTitle .entryTitleText {
+    flex: 1;
+}
+
+.entryContent {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.entryContent.expanded {
+    margin: 5px calc(var(--spacing-default) * -1);
+    padding: 0 var(--spacing-default);
+}
+
+.entryContent .spacer {
+    width: 17px;
+    height: 0;
 }
