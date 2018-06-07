@@ -37,6 +37,9 @@ qt:
 qt-linux: # run inside dockerdev
 	make generate
 	make -C frontends/qt linux
+qt-osx: # run on OSX.
+	make generate
+	make -C frontends/qt osx
 ci:
 	./scripts/ci.sh
 ci-fast:
