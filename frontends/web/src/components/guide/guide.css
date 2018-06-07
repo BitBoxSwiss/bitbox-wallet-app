@@ -99,14 +99,9 @@
     flex-direction: row;
     justify-content: flex-start;
     align-items: flex-start;
+    padding-left: 16px;
 }
 
-.entryContent.expanded {
-    margin: 5px calc(var(--spacing-default) * -1);
-    padding: 0 var(--spacing-default);
-}
-
-.entryContent .spacer {
-    width: 17px;
-    height: 0;
+.expanded {
+    flex-basis: 0;
 }

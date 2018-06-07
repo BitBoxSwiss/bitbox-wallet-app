@@ -33,7 +33,7 @@ export class Entry extends Component {
     toggle = () => {
         this.setState(state => ({
             shown: !state.shown,
-            highlighted: false
+            highlighted: false,
         }));
     }
 
@@ -57,7 +57,6 @@ export class Entry extends Component {
                     </div>
                 </div>
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
-                    <div class={style.spacer}></div>
                     {shown && (
                         <div class="flex-1">
                             {entry && entry.text.map(p => <p>{p}</p>)}
