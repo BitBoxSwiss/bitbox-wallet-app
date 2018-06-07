@@ -6,18 +6,16 @@ import style from './guide.css';
 
 export function Guide({ guide, screen, children }) {
     return (
-        <div className={style.wrapper}>
+        <div className={[style.wrapper, guide.shown && style.show].join(' ')}>
             <div className={style.toggler} onClick={guide.toggle}>{guide.shown ? '✕' : '?'}</div>
-            {guide.shown &&
-                <div className={'guide ' + style.guide}>
-                    <h1>{i18n.t('guide.title')}</h1>
-                    {screen && i18n.t('guide.' + screen).map(entry => <Entry entry={entry} />)}
-                    {children}
-                    <div className={style.entry}>
-                        <A href="mailto:support@shiftcrypto.ch?subject=Additional+Question">Another question? Contact us!</A>
-                    </div>
+            <div className={'guide ' + style.guide}>
+                <h1>{i18n.t('guide.title')}</h1>
+                {screen && i18n.t('guide.' + screen).map(entry => <Entry entry={entry} />)}
+                {children}
+                <div className={style.entry}>
+                    <A href="mailto:support@shiftcrypto.ch?subject=Additional+Question">Another question? Contact us!</A>
                 </div>
-            }
+            </div>
         </div>
     );
 }

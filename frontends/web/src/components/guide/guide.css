@@ -1,5 +1,10 @@
 .wrapper {
+    margin-right: -350px;
     position: relative;
+}
+
+.show {
+    margin-right: 0;
 }
 
 .toggler {
