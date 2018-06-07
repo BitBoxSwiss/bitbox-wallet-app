@@ -1,4 +1,5 @@
 import { apiGet } from '../utils/request';
+import { userLanguage } from '../utils/config';
 
 export default {
     type: 'languageDetector',
@@ -6,7 +7,7 @@ export default {
     detect: (cb) => {
         apiGet('config').then(({ frontend }) => {
             if (!frontend || !frontend.userLanguage) {
-                return cb(null);
+                return cb(userLanguage);
             }
             cb(frontend.userLanguage);
         });

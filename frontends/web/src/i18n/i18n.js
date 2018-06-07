@@ -9,7 +9,7 @@ i18n
     .use(languageFromConfig)
     .init({
         // lng: userLanguage,
-        fallbackLng: userLanguage || 'en',
+        fallbackLng: 'en',
 
         // have a common namespace used around the full app
         ns: ['app', 'wallet'],
