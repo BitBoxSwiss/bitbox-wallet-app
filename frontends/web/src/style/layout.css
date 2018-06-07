@@ -7,6 +7,7 @@
 .flex-between { justify-content: space-between; }
 .flex-end { justify-content: flex-end; }
 .flex-items-center { align-items: center; }
+.flex-items-baseline { align-items: baseline; }
 .flex-items-start { align-items: flex-start; }
 .flex-items-end { align-items: flex-end; }
 .flex-wrap { flex-wrap: wrap; }

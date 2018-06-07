@@ -6,7 +6,8 @@ label {
 }
 
 .label,
-label {
+label,
+dt {
     color: var(--color-secondary);
     display: block;
     font-size: var(--size-small);

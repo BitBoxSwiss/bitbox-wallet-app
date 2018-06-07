@@ -16,8 +16,40 @@
         }
     },
     "device": {
-        "waiting": "Please insert your device…",
-        "manageBackups": "Manage Backups"
+        "waiting": "Please insert your device…"
+    },
+    "deviceSettings": {
+        "seed": {
+            "title": "Seed",
+            "manageBackups": "Manage Backups"
+        },
+        "pairing": {
+            "title": "Pairing",
+            "status": {
+                "label": "Status"
+
+            }
+        },
+        "firmware": {
+            "title": "Firmware",
+            "version": {
+                "label": "Version"
+            },
+            "newVersion": {
+                "label": "Available Version"
+            }
+        },
+        "hardware": {
+            "title": "Hardware",
+            "sdcard": {
+                "label": "SD Card",
+                "true": "inserted",
+                "false": "Not inserted"
+            },
+            "serial": {
+                "label": "Serial Number"
+            }
+        }
     },
     "reset": {
         "button": "Reset Device",

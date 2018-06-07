@@ -17,19 +17,26 @@ import Footer from '../../../components/footer/footer';
 export default class Settings extends Component {
     state = {
         firmwareVersion: null,
+        newVersion: null,
         lock: true,
         name: null,
+        serial: null,
         spinner: true,
+        sdcard: false
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name }) => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name, serial }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
-                lock, name,
+                lock, name, serial, sdcard,
                 spinner: false,
             });
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
+        });
+
+        apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(version => {
+            this.setState({ newVersion: version.replace('v', '') });
         });
     }
 
@@ -39,9 +46,12 @@ export default class Settings extends Component {
         guide,
     }, {
         firmwareVersion,
+        newVersion,
         lock,
         name,
         spinner,
+        sdcard,
+        serial,
     }) {
         return (
             <div class="contentWithGuide">
@@ -54,39 +64,91 @@ export default class Settings extends Component {
                     <div class="innerContainer scrollableContainer">
                         <div class="content">
                             <div class="flex-1">
+
+                                <br />
+
                                 <div class="subHeaderContainer first">
                                     <div class="subHeader">
-                                        <h3>Device</h3>
+                                        <h3>{t('deviceSettings.seed.title')}</h3>
                                     </div>
                                 </div>
-                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                    <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>{t('device.manageBackups')}</ButtonLink>
-                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} disabled={lock} />
+                                <div class="buttons wrapped flex flex-row flex-start flex-items-baseline flex-wrap">
+                                    <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>
+                                        {t('deviceSettings.seed.manageBackups')}
+                                    </ButtonLink>
                                     <HiddenWallet deviceID={deviceID} disabled={lock} />
                                     <Reset deviceID={deviceID} />
                                 </div>
+
+                                <hr />
+
                                 <div class="subHeaderContainer">
                                     <div class="subHeader">
-                                        <h3>Pairing</h3>
+                                        <h3>{t('deviceSettings.pairing.title')}</h3>
                                     </div>
                                 </div>
+                                <dl>
+                                    <div>
+                                        <dt>{t('deviceSettings.pairing.status.label')} </dt>
+                                        <dd>Not paired</dd>
+                                    </div>
+                                </dl>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
                                     <MobilePairing deviceID={deviceID} disabled={lock} />
                                     <DeviceLock deviceID={deviceID} disabled={lock} />
                                 </div>
+
+                                <hr />
+
                                 <div class="subHeaderContainer">
                                     <div class="subHeader">
-                                        <h3>Miscellaneous</h3>
+                                        <h3>{t('deviceSettings.firmware.title')}</h3>
                                     </div>
                                 </div>
-                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                    <Blink deviceID={deviceID} />
-                                    <RandomNumber deviceID={deviceID} />
+                                <dl>
+                                    <div>
+                                        <dt>{t('deviceSettings.firmware.version.label')} </dt>
+                                        <dd>{firmwareVersion ? firmwareVersion : t('loading')}</dd>
+                                    </div>
+                                    {firmwareVersion && (newVersion !== firmwareVersion) && (
+                                        <div>
+                                            <dt>{t('deviceSettings.firmware.newVersion.label')} </dt>
+                                            <dd>{newVersion}</dd>
+                                        </div>
+                                    )}
+                                </dl>
+
+                                <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
+                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} disabled={lock} />
                                 </div>
+
+                                <hr />
+
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>{t('deviceSettings.hardware.title')}</h3>
+                                    </div>
+                                </div>
+                                <dl>
+                                    <div>
+                                        <dt>{t('deviceSettings.hardware.sdcard.label')} </dt>
+                                        <dd>{t(`deviceSettings.hardware.sdcard.${sdcard}`)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('deviceSettings.hardware.serial.label')} </dt>
+                                        <dd>{serial ? serial : t('loading')}</dd>
+                                    </div>
+                                </dl>
+
+                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                    <RandomNumber deviceID={deviceID} />
+                                    <Blink deviceID={deviceID} />
+                                </div>
+
+                                <hr />
+
                             </div>
-                            <Footer>
-                                { firmwareVersion && <p>Firmware Version: {firmwareVersion}</p>}
-                            </Footer>
+                            <Footer />
                         </div>
                         { spinner && (<Spinner />)}
                     </div>
