@@ -2,9 +2,9 @@ FROM ubuntu:14.04 as qt5base
 
 ENV DEBIAN_FRONTEND noninteractive
 
-# Update
 Run apt-get update
 
+# qt5 build deps and convenience tools.
 RUN apt-get -y install --no-install-recommends \
     sudo \
     bash-completion \
@@ -12,9 +12,7 @@ RUN apt-get -y install --no-install-recommends \
     wget \
     build-essential \
     ccache \
-    python
-
-RUN apt-get -y install --no-install-recommends \
+    python \
     libfontconfig1-dev \
     libfreetype6-dev \
     libx11-dev \
@@ -95,3 +93,8 @@ RUN cd /tmp/qt5 && make install
 FROM ubuntu:14.04
 
 COPY --from=qt5base /opt/qt5 /opt/qt5
+
+Run apt-get update
+
+# This is needed for compiling apps depending on the qt5 libs.
+RUN apt-get -y install --no-install-recommends libxcb-xinerama0 libxcb-xkb-dev libxcb-render-util0 libxcb-image0 libxcb-keysyms1 libxcb-icccm4 libcups2 libgl1-mesa-dev libegl1-mesa-dev libfontconfig1-dev libfreetype6-dev libxi-dev libxcursor-dev libxrender-dev libxss-dev libxcomposite-dev libasound2-dev libxtst-dev libxslt-dev libnss3-dev libicu-dev
