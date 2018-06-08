@@ -102,13 +102,13 @@ type DeviceInfo struct {
 	Version   string `json:"version"`
 	Serial    string `json:"serial"`
 	ID        string `json:"id"`
-	TFA       string `json:"TFA"`
+	TFA       string `json:"-"`
 	Bootlock  bool   `json:"bootlock"`
 	Name      string `json:"name"`
 	SDCard    bool   `json:"sdcard"`
 	Lock      bool   `json:"lock"`
-	U2F       bool   `json:"U2F"`
-	U2FHijack bool   `json:"U2F_hijack"`
+	U2F       bool   `json:"-"`
+	U2FHijack bool   `json:"-"`
 	Seeded    bool   `json:"seeded"`
 }
 
