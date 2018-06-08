@@ -10,6 +10,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   width: var(--sidebar-width);
+  z-index: 4001;
 }
 
 .sideBarItem {
