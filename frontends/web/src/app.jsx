@@ -2,7 +2,7 @@ import { Component } from 'preact';
 import { Router, route } from 'preact-router';
 import { translate } from 'react-i18next';
 
-import { apiGet } from './utils/request';
+import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
@@ -20,7 +20,7 @@ export default class App extends Component {
         walletInitialized: false,
         deviceIDs: [],
         update: null,
-        guideShown: true,
+        guideShown: false,
     }
 
     /**
@@ -69,6 +69,13 @@ export default class App extends Component {
                 break;
             }
         });
+
+        apiGet('config').then(({ frontend }) => {
+            if (!frontend || frontend.guideShown == null) {
+                return this.setState({ guideShown: true });
+            }
+            this.setState({ guideShown: frontend.guideShown });
+        });
     }
 
     componentWillUnmount() {
@@ -94,8 +101,12 @@ export default class App extends Component {
         });
     }
 
-    toggleGuide = () => {
-        this.setState(state => ({ guideShown: !state.guideShown }));
+    toggleGuide = (show) => {
+        this.setState(state => {
+            const guideShown = (typeof show === 'boolean') ? show : !state.guideShown;
+            setFrontendConfig({ guideShown });
+            return { guideShown };
+        });
     }
 
     showGuide = () => {
@@ -148,4 +159,15 @@ export default class App extends Component {
             </div>
         );
     }
+}
+
+function setFrontendConfig(obj) {
+    console.log('setFrontendConfig', obj);
+    apiGet('config').then((config) => {
+        const newConf = Object.assign(config, {
+            frontend: Object.assign({}, config.frontend, obj)
+        });
+        console.log('newConf', newConf);
+        apiPost('config', newConf);
+    });
 }

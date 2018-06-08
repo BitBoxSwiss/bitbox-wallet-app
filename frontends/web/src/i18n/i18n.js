@@ -2,7 +2,6 @@ import i18n from 'i18next';
 import appTranslationsDE from './de';
 import appTranslationsEN from './en';
 import { apiGet, apiPost } from '../utils/request';
-import { userLanguage } from '../utils/config';
 import languageFromConfig from './config';
 
 i18n
