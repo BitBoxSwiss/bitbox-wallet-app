@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
+import Dialog from '../dialog/dialog';
 import style from './language.css';
 
 @translate()
@@ -48,27 +49,22 @@ export default class LanguageSwitcher extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <div class={['overlay', activeDialog ? 'active' : ''].join(' ')}>
-                            <div class={['modal', 'small', activeDialog ? 'active' : ''].join(' ')}>
-                                <h3 class="modalHeader text-center">{t('language.title')}</h3>
-                                <div class="modalContent rows">
-                                    {
-                                        this.languages.map((language, i) => {
-                                            const selected = selectedIndex === i;
-                                            return (
-                                                <button
-                                                    class={[style.language, selected ? style.selected : ''].join(' ')}
-                                                    onClick={this.changeLanguage}
-                                                    data-index={i}
-                                                    data-code={language.code}>
-                                                    {language.display}
-                                                </button>
-                                            );
-                                        })
-                                    }
-                                </div>
-                            </div>
-                        </div>
+                        <Dialog small title={t('language.title')}>
+                            {
+                                this.languages.map((language, i) => {
+                                    const selected = selectedIndex === i;
+                                    return (
+                                        <button
+                                            class={[style.language, selected ? style.selected : ''].join(' ')}
+                                            onClick={this.changeLanguage}
+                                            data-index={i}
+                                            data-code={language.code}>
+                                            {language.display}
+                                        </button>
+                                    );
+                                })
+                            }
+                        </Dialog>
                     )
                 }
             </div>

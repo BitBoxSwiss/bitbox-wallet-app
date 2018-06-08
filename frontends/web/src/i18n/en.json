@@ -126,7 +126,7 @@
             "receive": "In",
             "send_to_self": "Self"
         },
-        "confirmation": "Number of confirmations",
+        "confirmation": "Confirmations",
         "vsize": "virtual size",
         "size": "size",
         "weight": "weight",

@@ -25,13 +25,14 @@ export default class Dialog extends Component {
         onDanger,
         onSecondary,
         onPrimary,
+        small,
     },{
         active,
     }) {
         const activeClass = active ? style.active : '';
         return (
             <div class={[style.overlay, activeClass].join(' ')}>
-                <div class={[style.modal, activeClass].join(' ')}>
+                <div class={[style.modal, activeClass, small ? style.small : ''].join(' ')}>
                     <h3 class={style.modalHeader}>{title}</h3>
                     <div class={style.modalContent}>
                         {children}

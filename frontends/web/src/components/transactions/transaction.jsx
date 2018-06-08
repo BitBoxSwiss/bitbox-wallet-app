@@ -55,7 +55,7 @@ export default class Transaction extends Component {
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
-                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.transaction].join(' ')}>
+                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-center', style.transaction].join(' ')}>
                     {/*
                     <div>
                         <img src={transferIconMap[type]} height="22" style="margin-right: var(--spacing-default)" />
@@ -66,20 +66,22 @@ export default class Transaction extends Component {
                             <div class="flex flex-row flex-start flex-items-center">
                                 <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
                                     {badge}
+                                    <div class={style.toggle}></div>
                                 </div>
-                                <div class={style.address}>{addresses.join(', ')}</div>
+                                <div>
+                                    <div class={style.date}>{date}</div>
+                                    <div class={style.address}>{addresses.join(', ')}</div>
+                                </div>
                             </div>
                             <div class={[style.amount, style[type]].join(' ')}>
                                 {sign} {amount.amount} {amount.unit}
                             </div>
                         </div>
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
-                            <div class={style.date}>{date}</div>
                             <div class={[style.amount, style.converted].join(' ')}>{fiat}</div>
                         </div>
-
-                        <div hidden={collapsed ? 'hidden' : null} class={style.collapsedContent}>
-                            <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row].join(' ')}>
+                        <div class={[style.collapsedContent, !collapsed ? style.active : ''].join(' ')}>
+                            <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row, 'spaced'].join(' ')}>
                                 <div>
                                     <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
                                     <div class={style.address}>{numConfirmations}</div>

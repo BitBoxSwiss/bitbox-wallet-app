@@ -42,7 +42,7 @@
 .transaction {
     margin: 0 auto;
     max-width: 800px;
-    padding: var(--spacing-default) 0;
+    padding: var(--spacing-half) 0;
 }
 
 .date {
@@ -82,16 +82,27 @@
     background-color: var(--color-brightgray);
     color: var(--color-white);
     border-radius: 2px;
-    height: 16px;
     width: 44px;
-    line-height: 18px;
+    line-height: 16px;
     text-align: center;
-    margin-right: var(--spacing-default);
     margin-bottom: 3px;
 }
 
 .transactionLabel.flat {
+    position: relative;
+    margin-right: var(--spacing-default);
     margin-bottom: 0;
+    padding: 8px 0;
+    cursor: pointer;
+}
+
+.toggle {
+    position: absolute;
+    left: 1px;
+    top: -8px;
+    border-right: 21px solid transparent;
+    border-bottom: 8px solid inherit;
+    border-left: 21px solid transparent;
 }
 
 .transactionLabel.receive {
@@ -110,13 +121,20 @@
 }
 
 .address {
-    font-weight: bold;
+    /* font-weight: bold; */
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 20px;
 }
 
 .collapsedContent {
     margin-top: var(--spacing-half);
+    overflow: hidden;
+    max-height: 0;
+}
+
+.collapsedContent.active {
+    max-height: 500px;
 }
 
 .collapsedContent .transactionLabel {

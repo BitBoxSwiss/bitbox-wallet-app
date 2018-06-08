@@ -31,6 +31,10 @@
     overflow: auto;
 }
 
+.small {
+    width: 280px;
+}
+
 .modal.active {
     bottom: 50%;
 }
