@@ -73,7 +73,7 @@
         },
         "timeout": {
             "title": "Timeout",
-            "text": "too slow"
+            "text": "The pairing timed out. Please restart pairing the mobile app."
         },
         "aborted": {
             "title": "Aborted",
@@ -81,7 +81,7 @@
         },
         "error": {
             "title": "Error",
-            "text": "The was an error"
+            "text": "There was an error"
         },
         "success": {
             "title": "Success",
