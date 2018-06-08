@@ -64,9 +64,13 @@ export default class Transaction extends Component {
                     <div class="flex-1">
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
                             <div class="flex flex-row flex-start flex-items-center">
-                                <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
-                                    {badge}
-                                    <div class={style.toggle}></div>
+                                <div class={style.labelContainer} onClick={this.onUncollapse}>
+                                    <div class={style.toggleContainer}>
+                                        <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
+                                    </div>
+                                    <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
+                                        {badge}
+                                    </div>
                                 </div>
                                 <div>
                                     <div class={style.date}>{date}</div>
@@ -125,9 +129,6 @@ export default class Transaction extends Component {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class={style.toggleButton} onClick={this.onUncollapse}>
-                    {collapsed ? "Expand" : "Collapse"}
                 </div>
             </div>
         );

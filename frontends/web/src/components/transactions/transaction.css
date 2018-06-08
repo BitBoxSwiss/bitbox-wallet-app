@@ -13,30 +13,9 @@
     background-color: var(--color-white);
 }
 
-.toggleButton {
-    position: absolute;
-    bottom: -100%;
-    left: 0;
-    width: 100%;
-    height: var(--spacing-default);
-    font-size: var(--size-small);
-    font-weight: bold;
-    line-height: var(--spacing-default);
-    color: var(--color-white);
-    text-align: center;
-    text-transform: uppercase;
-    background-color: var(--color-rock);
-    padding: 0 var(--spacing-default);
-    cursor: pointer;
-}
-
-.transactionContainer:hover .toggleButton,
-.transactionContainer.expanded .toggleButton {
-    bottom: 0;
-}
-
-.toggleButton:hover {
-    background-color: var(--color-secondary);
+.transactionContainer:hover .toggle,
+.transactionContainer.expanded .toggle {
+    left: -25px;
 }
 
 .transaction {
@@ -74,6 +53,10 @@
     color: lightgrey;
 }
 
+.labelContainer {
+    position: relative;
+}
+
 .transactionLabel {
     display: inline-block;
     font-size: var(--size-label);
@@ -98,11 +81,28 @@
 
 .toggle {
     position: absolute;
-    left: 1px;
-    top: -8px;
-    border-right: 21px solid transparent;
-    border-bottom: 8px solid inherit;
-    border-left: 21px solid transparent;
+    left: 0;
+    top: 25%;
+    width: 10px;
+    height: 10px;
+    border: solid;
+    border-width: 3px 3px 0 0;
+    border-color: var(--color-brightgray);
+    transform: rotate(-45deg) translateY(-50%);
+    margin: 10px 0 0 8px;
+}
+
+.toggle.collapsed {
+    border-width: 0 0 3px 3px;
+    margin: 4px 0 0 8px;
+}
+
+.toggle.receive {
+    border-color: var(--color-rock);
+}
+
+.toggle.send {
+    border-color: var(--color-softred);
 }
 
 .transactionLabel.receive {
