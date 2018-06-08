@@ -1,4 +1,4 @@
-FROM ubuntu:14.04
+FROM shiftcrypto/qt5
 
 ADD scripts/docker_install.sh /tmp/
 RUN /tmp/docker_install.sh
@@ -9,8 +9,6 @@ ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 
 ADD Makefile /tmp/
 RUN make -C /tmp/ envinit
-
-COPY --from=shiftcrypto/qt5 /opt/qt5 /opt/qt5
 
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
 RUN apt-get -y install --no-install-recommends fuse && cd /opt && wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage && chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
