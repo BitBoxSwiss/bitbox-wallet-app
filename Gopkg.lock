@@ -147,12 +147,6 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/vektra/mockery"
-  packages = ["."]
-  revision = "b6f6c13c25c3f0a17724553fa01580f328158d7a"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/crypto"
   packages = [
     "pbkdf2",
@@ -190,6 +184,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7d62d8dc843c9b32c68f086820eeae579b05a69afdf3cdcbbfdfe1c918976c00"
+  inputs-digest = "cda6137b02b19ca57aa253333bd562d7d865d3aeeceacea8253130301e0f8ee6"
   solver-name = "gps-cdcl"
   solver-version = 1
