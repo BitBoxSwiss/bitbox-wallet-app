@@ -7,14 +7,14 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/logging"
-
 	"github.com/karalabe/hid"
+	"github.com/sirupsen/logrus"
+
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -136,9 +136,10 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 // ListenHID listens for inserted/removed devices forever. Run this in a goroutine.
 func (manager *Manager) ListenHID() {
 	for {
-		for deviceID := range manager.devices {
+		for deviceID, device := range manager.devices {
 			// Check if device was removed.
 			if manager.checkIfRemoved(deviceID) {
+				device.Close()
 				delete(manager.devices, deviceID)
 				manager.onUnregister(deviceID)
 				manager.log.WithField("device-id", deviceID).Info("Unregistered device")

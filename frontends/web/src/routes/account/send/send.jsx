@@ -2,12 +2,11 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiPost } from '../../../utils/request';
 import { Button, Checkbox, Input } from '../../../components/forms';
-import { Guide, Entry } from '../../../components/guide/guide';
+import { Guide } from '../../../components/guide/guide';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
-import componentStyle from '../../../components/style.css';
 import style from './send.css';
 
 @translate()

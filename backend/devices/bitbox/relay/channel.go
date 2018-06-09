@@ -14,6 +14,11 @@ import (
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
+const (
+	// configFileName stores the name of the config file that contains the pairing information.
+	configFileName = "channel.json"
+)
+
 // Channel implements an encrypted communication channel between the desktop and the paired mobile.
 type Channel struct {
 	// ChannelID is the identifier which uniquely identifies the channel between the parties.
@@ -67,6 +72,11 @@ func (channel *Channel) StoreToConfigFile() error {
 	configuration := newConfiguration(channel)
 	configFile := config.NewFile(configFileName)
 	return configFile.WriteJSON(configuration)
+}
+
+// RemoveConfigFile removes the config file.
+func (channel *Channel) RemoveConfigFile() error {
+	return config.NewFile(configFileName).Remove()
 }
 
 // relayServer returns the configured relay server.

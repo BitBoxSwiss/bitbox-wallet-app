@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import i18n from '../../../i18n/i18n';
 import { ButtonLink } from '../../../components/forms';
-import { Guide, Entry } from '../../../components/guide/guide';
+import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
 
 export default function ManageBackups({

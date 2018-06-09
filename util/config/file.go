@@ -41,6 +41,11 @@ func (file *File) Exists() bool {
 	return err == nil && !info.IsDir()
 }
 
+// Remove removes the file.
+func (file *File) Remove() error {
+	return os.Remove(file.path())
+}
+
 // read reads the config file and returns its data (or an error if the config file does not exist).
 func (file *File) read() ([]byte, error) {
 	return ioutil.ReadFile(file.path())

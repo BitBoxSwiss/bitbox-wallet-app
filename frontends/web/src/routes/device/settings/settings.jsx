@@ -2,7 +2,8 @@ import { Component } from 'preact';
 import { ButtonLink } from '../../../components/forms';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
-import { Guide, Entry } from '../../../components/guide/guide';
+import { apiWebsocket } from '../../../utils/websocket';
+import { Guide } from '../../../components/guide/guide';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import RandomNumber from './components/randomnumber';
@@ -11,7 +12,6 @@ import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
-import Footer from '../../../components/footer/footer';
 
 @translate()
 export default class Settings extends Component {
@@ -37,8 +37,22 @@ export default class Settings extends Component {
             // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });
 
+        apiGet('devices/' + this.props.deviceID + '/paired').then((paired) => {
+            this.setState({ paired });
+        });
+
         apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(version => {
             this.setState({ newVersion: version.replace('v', '') });
+        });
+
+        apiWebsocket(({ type, data }) => {
+            if (type === 'device') {
+                if (data === 'mobileDisconnected') {
+                    this.setState({ connected: false });
+                } else if (data === 'mobileConnected') {
+                    this.setState({ connected: true });
+                }
+            }
         });
     }
 
@@ -95,13 +109,13 @@ export default class Settings extends Component {
                                     <div>
                                         <dt>{t('deviceSettings.pairing.status.label')}</dt>
                                         <dd>
-                                          {t(`deviceSettings.pairing.status.${paired}`)}
+                                            {t(`deviceSettings.pairing.status.${paired}`)}
                                         </dd>
                                     </div>
                                     <div>
                                         <dt>{t('deviceSettings.pairing.mobile.label')}</dt>
                                         <dd>
-                                          {t(`deviceSettings.pairing.mobile.${connected}`)}
+                                            {t(`deviceSettings.pairing.mobile.${connected}`)}
                                         </dd>
                                     </div>
                                 </dl>

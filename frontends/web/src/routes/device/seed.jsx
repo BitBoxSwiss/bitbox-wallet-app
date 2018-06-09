@@ -6,7 +6,7 @@ import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
-import { Guide, Entry } from '../../components/guide/guide';
+import { Guide } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';

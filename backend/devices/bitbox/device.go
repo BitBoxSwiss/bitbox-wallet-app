@@ -94,6 +94,7 @@ type Interface interface {
 	ECDHPK(string) (interface{}, error)
 	ECDHchallenge() error
 	StartPairing() (*relay.Channel, error)
+	Paired() bool
 	Lock() (bool, error)
 }
 
@@ -140,7 +141,8 @@ type Device struct {
 	channel *relay.Channel
 
 	closed bool
-	log    *logrus.Entry
+
+	log *logrus.Entry
 }
 
 // NewDevice creates a new instance of Device.
@@ -176,6 +178,10 @@ func NewDevice(
 
 		closed: false,
 		log:    log,
+	}
+
+	if device.channel != nil {
+		device.ListenForMobile()
 	}
 
 	if !bootloader {
@@ -1103,12 +1109,47 @@ func (dbb *Device) ECDHchallenge() error {
 
 // StartPairing creates, stores and returns a new channel and finishes the pairing asynchronously.
 func (dbb *Device) StartPairing() (*relay.Channel, error) {
-	dbb.channel = relay.NewChannelWithRandomKey()
-	if err := dbb.channel.StoreToConfigFile(); err != nil {
-		return nil, errp.WithStack(err)
+	if dbb.channel != nil {
+		if err := dbb.channel.RemoveConfigFile(); err != nil {
+			return nil, errp.WithStack(err)
+		}
+		dbb.channel = nil
 	}
-	go finishPairing(dbb)
-	return dbb.channel, nil
+	channel := relay.NewChannelWithRandomKey()
+	go dbb.finishPairing(channel)
+	return channel, nil
+}
+
+// Paired returns whether a channel to a mobile exists.
+func (dbb *Device) Paired() bool {
+	return dbb.channel != nil
+}
+
+// PingMobile pings the mobile if a channel exists. Only returns no error if the pong was received.
+func (dbb *Device) PingMobile() error {
+	if dbb.channel != nil {
+		if err := dbb.channel.SendPing(); err != nil {
+			return err
+		}
+		if err := dbb.channel.WaitForPong(time.Second); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ListenForMobile listens for the mobile until the BitBox is closed or the channel is removed.
+func (dbb *Device) ListenForMobile() {
+	go func() {
+		for !dbb.closed && dbb.channel != nil {
+			if dbb.PingMobile() != nil {
+				dbb.fireEvent("mobileDisconnected")
+			} else {
+				dbb.fireEvent("mobileConnected")
+				time.Sleep(10 * time.Second)
+			}
+		}
+	}()
 }
 
 // ProductName implements device.Interface.

@@ -5,7 +5,7 @@ import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
-import { Guide, Entry } from '../../components/guide/guide';
+import { Guide } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import style from './device.css';
 

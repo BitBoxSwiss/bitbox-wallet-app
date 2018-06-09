@@ -78,9 +78,9 @@ export default class MobilePairing extends Component {
                             <div class="flex flex-column flex-center flex-items-center">
                                 {
                                     channel ? (
-                                        <p>{t('loading')}</p>
-                                    ) : (
                                         content
+                                    ) : (
+                                        <p>{t('loading')}</p>
                                     )
                                 }
                             </div>

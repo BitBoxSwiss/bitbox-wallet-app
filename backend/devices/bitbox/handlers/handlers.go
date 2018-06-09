@@ -27,6 +27,7 @@ func NewHandlers(
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
 	handleFunc("/bootloader-status", handlers.getBootloaderStatusHandler).Methods("GET")
 	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
+	handleFunc("/paired", handlers.getPairedHandler).Methods("GET")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/set-hidden-password", handlers.postSetHiddenPasswordHandler).Methods("POST")
@@ -113,6 +114,10 @@ func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface
 
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.DeviceInfo()
+}
+
+func (handlers *Handlers) getPairedHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.Paired(), nil
 }
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {

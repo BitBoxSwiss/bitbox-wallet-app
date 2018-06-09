@@ -47,5 +47,8 @@ type Interface interface {
 	// SetOnEvent installs a callback which is called for various events.
 	SetOnEvent(func(Event))
 
+	// Close tells the device to close all connections.
+	Close()
+
 	// observable.Interface
 }

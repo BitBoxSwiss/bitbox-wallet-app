@@ -1,10 +1,5 @@
 package relay
 
-const (
-	// configFileName stores the name of the config file that contains the pairing information.
-	configFileName = "channel.json"
-)
-
 type configuration struct {
 	Version           int    `json:"version"`
 	ChannelID         string `json:"channel"`

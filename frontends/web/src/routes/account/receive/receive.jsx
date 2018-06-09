@@ -2,7 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Input } from '../../../components/forms';
-import { Guide, Entry } from '../../../components/guide/guide';
+import { Guide } from '../../../components/guide/guide';
 import QRCode from './qrcode';
 import style from './receive.css';
 

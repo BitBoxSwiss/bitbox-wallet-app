@@ -3,6 +3,7 @@ package bitbox
 import (
 	"time"
 
+	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 )
 
@@ -25,14 +26,14 @@ const (
 )
 
 // finishPairing finishes the pairing after the channel has been displayed as a QR code.
-func finishPairing(device *Device) {
-	if err := device.channel.WaitForScanningSuccess(time.Minute); err != nil {
+func (device *Device) finishPairing(channel *relay.Channel) {
+	if err := channel.WaitForScanningSuccess(time.Minute); err != nil {
 		device.log.WithField("error", err).Warning("Failed to wait for the scanning success.")
 		device.fireEvent(EventPairingTimedout)
 		return
 	}
 	device.fireEvent(EventPairingStarted)
-	mobileECDHPKhash, err := device.channel.WaitForMobilePublicKeyHash(2 * time.Minute)
+	mobileECDHPKhash, err := channel.WaitForMobilePublicKeyHash(2 * time.Minute)
 	if err != nil {
 		device.log.WithField("error", err).Warning("Failed to wait for the mobile's public key hash.")
 		device.fireEvent(EventPairingTimedout)
@@ -45,13 +46,13 @@ func finishPairing(device *Device) {
 		device.fireEvent(EventPairingAborted)
 		return
 	}
-	if device.channel.SendHashPubKey(bitboxECDHPKhash) != nil {
+	if channel.SendHashPubKey(bitboxECDHPKhash) != nil {
 		device.log.WithField("error", err).Error("Failed to send the hash of the ECDH public key " +
 			"to the server.")
 		device.fireEvent(EventPairingError)
 		return
 	}
-	mobileECDHPK, err := device.channel.WaitForMobilePublicKey(2 * time.Minute)
+	mobileECDHPK, err := channel.WaitForMobilePublicKey(2 * time.Minute)
 	if err != nil {
 		device.log.WithField("error", err).Error("Failed to wait for the mobile's public key.")
 		device.fireEvent(EventPairingTimedout)
@@ -64,14 +65,14 @@ func finishPairing(device *Device) {
 		device.fireEvent(EventPairingError)
 		return
 	}
-	if device.channel.SendPubKey(bitboxECDHPK) != nil {
+	if channel.SendPubKey(bitboxECDHPK) != nil {
 		device.log.WithField("error", err).Error("Failed to send the ECDH public key" +
 			"to the server.")
 		device.fireEvent(EventPairingError)
 		return
 	}
 	device.log.Debug("Waiting for challenge command")
-	challenge, err := device.channel.WaitForCommand(2 * time.Minute)
+	challenge, err := channel.WaitForCommand(2 * time.Minute)
 	for err == nil && challenge == "challenge" {
 		device.log.Debug("Forwarded challenge cmd to device")
 		errDevice := device.ECDHchallenge()
@@ -81,7 +82,7 @@ func finishPairing(device *Device) {
 			return
 		}
 		device.log.Debug("Waiting for challenge command")
-		challenge, err = device.channel.WaitForCommand(2 * time.Minute)
+		challenge, err = channel.WaitForCommand(2 * time.Minute)
 	}
 	if err != nil {
 		device.log.WithField("error", err).Error("Failed to get challenge request from mobile.")
@@ -90,6 +91,13 @@ func finishPairing(device *Device) {
 	}
 	device.log.Debug("Finished pairing")
 	if challenge == "finish" {
+		if err := channel.StoreToConfigFile(); err != nil {
+			device.log.WithField("error", err).Error("Failed to store the channel config file.")
+			device.fireEvent(EventPairingError)
+			return
+		}
+		device.channel = channel
+		device.ListenForMobile()
 		device.fireEvent(EventPairingSuccess)
 	} else {
 		device.fireEvent(EventPairingAborted)
