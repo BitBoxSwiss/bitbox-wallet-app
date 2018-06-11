@@ -1,4 +1,6 @@
 {
+    "appName": "Shift Wallet",
+    "appNameWithDefiniteArticle": "the Shift Wallet",
     "sidebar": {
         "settings": "Settings",
         "leave": "Leave"
