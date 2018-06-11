@@ -29,6 +29,8 @@
     color: white;
     background-color: var(--color-brightblue);
     overflow-y: auto;
+    transition: margin-right 0.2s ease, right 0.2s ease;
+    will-change: margin-right, right;
 }
 
 @media screen and (max-width: 1100px) {

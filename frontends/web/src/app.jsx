@@ -162,12 +162,10 @@ export default class App extends Component {
 }
 
 function setFrontendConfig(obj) {
-    console.log('setFrontendConfig', obj);
     apiGet('config').then((config) => {
         const newConf = Object.assign(config, {
             frontend: Object.assign({}, config.frontend, obj)
         });
-        console.log('newConf', newConf);
         apiPost('config', newConf);
     });
 }

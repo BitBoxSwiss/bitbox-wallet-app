@@ -22,6 +22,8 @@
     text-decoration: none;
     text-transform: uppercase;
     -webkit-appearance: none;
+    transition: background-color .2s ease-out;
+    will-change: background-color;
 }
 
 .primary {

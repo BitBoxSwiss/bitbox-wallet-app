@@ -34,8 +34,8 @@ button:focus,
 input:focus,
 select:focus,
 input[type="checkbox"]:focus + label::before {
-  outline-color: var(--color-focus);
-  outline-offset: -2px;
-  outline-style: auto;
-  outline-width: 4px;
+    outline-color: var(--color-focus);
+    outline-offset: -2px;
+    outline-style: auto;
+    outline-width: 4px;
 }

@@ -202,11 +202,13 @@ export default class Send extends Component {
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                     />
+                                    {/*
                                     <Input
                                         label={t('send.customFee.label')}
                                         placeholder={t('send.customFee.placeholder')}
                                         disabled
                                     />
+                                    */}
                                     <FeeTargets
                                         label={t('send.feeTarget.label')}
                                         placeholder={t('send.feeTarget.placeholder')}

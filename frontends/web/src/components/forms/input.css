@@ -21,6 +21,8 @@
     height: 2.75em;
     padding: var(--spacing-half) var(--spacing-default);
     width: 100%;
+    transition: outline-color .2s ease-out, border-color .2s ease-out;
+    will-change: outline-color, border-color;
 }
 
 .input input[disabled] {

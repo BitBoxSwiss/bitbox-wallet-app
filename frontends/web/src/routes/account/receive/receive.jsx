@@ -41,7 +41,21 @@ export default class ReceiveButton extends Component {
     render({ t, guide }, { verifying, activeIndex, receiveAddresses }) {
         const content = receiveAddresses ? (
             <div>
-                <p class="label">{t('receive.label')} ({activeIndex+1}/{receiveAddresses.length})</p>
+                <p class="label">
+                    <Button
+                        transparent
+                        disabled={verifying}
+                        onClick={this.previous}>
+                        Previous
+                    </Button>
+                    {t('receive.label')} ({activeIndex+1}/{receiveAddresses.length})
+                    <Button
+                        transparent
+                        disabled={verifying}
+                        onClick={this.next}>
+                        Next
+                    </Button>
+                </p>
                 <QRCode data={receiveAddresses[activeIndex].address} />
                 <Input
                     readOnly
@@ -50,22 +64,10 @@ export default class ReceiveButton extends Component {
                     value={receiveAddresses[activeIndex].address} />
                 <div class="buttons">
                     <Button
-                        transparent
-                        disabled={verifying}
-                        onClick={this.previous}>
-                        Previous
-                    </Button>
-                    <Button
                         primary
                         disabled={verifying}
                         onClick={this.verifyAddress}>
                         Verify address securely
-                    </Button>
-                    <Button
-                        transparent
-                        disabled={verifying}
-                        onClick={this.next}>
-                        Next
                     </Button>
                 </div>
             </div>
@@ -87,7 +89,7 @@ export default class ReceiveButton extends Component {
                                 {content}
                             </div>
                         </div>
-                        <div class="flex flex-row flex-end">
+                        <div class="flex flex-row flex-start" style="margin: 0 0 2rem 2rem;">
                             <Button secondary onClick={this.props.onClose}>{t('cancel')}</Button>
                         </div>
                     </div>

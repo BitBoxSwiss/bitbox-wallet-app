@@ -26,22 +26,25 @@
   display: block;
   padding: var(--spacing-half) var(--spacing-default);
   position: relative;
+  transition: border-right-width 0.2s ease;
+  will-change: border-right-width;
 }
 
 a.sidebar-active {
   border-right-width: 5px;
   text-decoration: none;
   transition: filter 0.1s ease-out;
+  will-change: filter;
 }
 
 .sidebar a:not(.sidebar-active) {
-  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
   filter: grayscale(100%);
 }
 
 .sidebar img {
   max-width: 40px;
   transition: transform .1s ease-out;
+  will-change: transform;
 }
 
 .sidebar a:not(.sidebar-active) img {
