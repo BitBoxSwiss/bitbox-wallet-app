@@ -223,7 +223,8 @@
     },
     "warning": {
         "sdcard": "Keep the SD card stored securely!",
-        "pairing": "Please pair the device to enable secure address verification. Go to the device settings."
+        "sendPairing": "Please pair the device to securely verify transaction details. Go to the device settings.",
+        "receivePairing": "Please pair the device to enable secure address verification. Go to the device settings."
     },
     "button": {
         "send": "Send",

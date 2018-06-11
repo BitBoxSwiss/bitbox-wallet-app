@@ -163,7 +163,7 @@ export default class Send extends Component {
                             </Balance>
                         </div>
                         <Status type="info">
-                            {paired === false && t('warning.pairing')}
+                            {paired === false && t('warning.sendPairing')}
                         </Status>
                     </div>
                     <div class="innerContainer">

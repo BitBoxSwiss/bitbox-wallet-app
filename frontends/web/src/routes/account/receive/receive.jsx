@@ -101,7 +101,7 @@ export default class Receive extends Component {
                             <h2>{t('receive.title')}</h2>
                         </div>
                         <Status type="info">
-                            {paired === false && t('warning.pairing')}
+                            {paired === false && t('warning.receivePairing')}
                         </Status>
                     </div>
                     <div class="innerContainer">
