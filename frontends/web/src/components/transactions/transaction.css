@@ -99,7 +99,7 @@
 }
 
 .toggle.receive {
-    border-color: var(--color-rock);
+    border-color: var(--color-softgreen);
 }
 
 .toggle.send {
@@ -107,7 +107,7 @@
 }
 
 .transactionLabel.receive {
-    background-color: var(--color-rock);
+    background-color: var(--color-softgreen);
 }
 
 .transactionLabel.send {
