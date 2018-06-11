@@ -26,9 +26,11 @@ export default class Send extends Component {
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
-            this.setState({ paired });
-        });
+        if (this.props.deviceIDs.length > 0) {
+            apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+                this.setState({ paired });
+            });
+        }
     }
 
     send = () => {
@@ -162,7 +164,7 @@ export default class Send extends Component {
                                 }
                             </Balance>
                         </div>
-                        <Status type="info">
+                        <Status type="warning">
                             {paired === false && t('warning.sendPairing')}
                         </Status>
                     </div>

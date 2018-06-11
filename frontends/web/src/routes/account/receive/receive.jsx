@@ -20,9 +20,11 @@ export default class Receive extends Component {
         apiGet('wallet/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
-        apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
-            this.setState({ paired });
-        });
+        if (this.props.deviceIDs.length > 0) {
+            apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+                this.setState({ paired });
+            });
+        }
     }
 
     verifyAddress = () => {
@@ -100,7 +102,7 @@ export default class Receive extends Component {
                         <div class="header">
                             <h2>{t('receive.title')}</h2>
                         </div>
-                        <Status type="info">
+                        <Status type="warning">
                             {paired === false && t('warning.receivePairing')}
                         </Status>
                     </div>
