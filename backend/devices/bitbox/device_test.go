@@ -206,7 +206,7 @@ func (s *dbbTestSuite) TestSignSingle() {
 }
 
 func (s *dbbTestSuite) mockDeviceInfo() {
-	deviceInfoMap := map[string]interface{}{}
+	deviceInfoMap := map[string]interface{}{"TFA": "", "U2F": false}
 	_ = json.Unmarshal(jsonp.MustMarshal(&bitbox.DeviceInfo{}), &deviceInfoMap)
 	s.mockCommunication.On(
 		"SendEncrypt",
