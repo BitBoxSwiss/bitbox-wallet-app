@@ -30,7 +30,7 @@ func main() {
 	}(log)
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
-	connectionData := backendHandlers.NewConnectionData(port, "")
+	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend := backend.NewBackend(backend.ParseArguments())
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")

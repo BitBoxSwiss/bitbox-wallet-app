@@ -1,6 +1,7 @@
 base:
 	make -C server/
 	mkdir -p build
+	./genassets.sh
 	qmake -o build/Makefile
 	make -C build
 	@echo "Base binary: `pwd`/build/dbb"

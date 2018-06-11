@@ -24,9 +24,10 @@ servewallet-regtest:
 servewallet-multisig:
 	go install ./cmd/servewallet/... && servewallet -multisig
 generate:
+	rm -rf ${WEBROOT}/build
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
-	WEBASSETS="${WEBROOT}/build" go generate ./...
+	go generate ./...
 webdev:
 	make -C frontends/web dev
 weblint:

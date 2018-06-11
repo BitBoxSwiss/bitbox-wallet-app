@@ -5,6 +5,7 @@
 #include <QWebChannel>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QThread>
+#include <QResource>
 #include <QByteArray>
 
 #include <libserver.h>
@@ -46,6 +47,8 @@ int main(int argc, char *argv[])
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
 
+    QResource::registerResource(QCoreApplication::applicationDirPath() + "/assets.rcc");
+
     QThread workerThread;
     webClass = new WebClass();
     // Run client queries in a sepearate to not block the UI.
@@ -64,8 +67,7 @@ int main(int argc, char *argv[])
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);
     view->show();
-
-    view->load(QUrl((std::string("http://localhost:") + std::to_string(serveData.port)).c_str()));
+    view->load(QUrl("qrc:/index.html"));
 
     return a.exec();
 }

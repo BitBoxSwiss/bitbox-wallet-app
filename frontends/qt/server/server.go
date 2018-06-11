@@ -12,7 +12,6 @@ static void pushNotify(pushNotificationsCallback f, const char* msg) {
 }
 
 typedef struct ConnectionData {
-    int port;
     char* token;
 } ConnectionData;
 #endif
@@ -20,7 +19,6 @@ typedef struct ConnectionData {
 import "C"
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -34,9 +32,7 @@ import (
 
 	"github.com/shiftdevices/godbb/backend"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
-	"github.com/shiftdevices/godbb/util/freeport"
 	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/sirupsen/logrus"
 )
 
 var theBackend *backend.Backend
@@ -98,16 +94,11 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 	if err != nil {
 		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
-	port, err := freeport.FreePort(log)
-	if err != nil {
-		log.WithField("error", err).Fatal("Failed to find free port")
-	}
 	cWrappedConnectionData := C.struct_ConnectionData{
 		token: C.CString(token),
-		port:  C.int(port),
 	}
-	log.WithField("port", port).Debug("Serve backend")
-
+	// the port is unused in the Qt app, as we bridge directly without a server.
+	const port = -1
 	connectionData := backendHandlers.NewConnectionData(port, token)
 	productionArguments := backend.ProductionArguments()
 	theBackend := backend.NewBackend(productionArguments)
@@ -118,24 +109,6 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_Conne
 		}
 	}()
 	handlers = backendHandlers.NewHandlers(theBackend, connectionData)
-
-	go func() {
-		server := &http.Server{
-			Addr:    fmt.Sprintf("localhost:%d", port),
-			Handler: handlers.ServeFrontendHandler(),
-		}
-		listener, err := net.Listen("tcp", server.Addr)
-		if err != nil {
-			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to listen on address")
-		}
-		log.WithField("address", server.Addr).Debug("Listening")
-		keepAliveListener := tcpKeepAliveListener{listener.(*net.TCPListener)}
-		//tlsListener := tls.NewListener(keepAliveListener, server.TLSConfig)
-		err = server.Serve(keepAliveListener)
-		if err != nil {
-			log.WithFields(logrus.Fields{"error": err, "address": server.Addr}).Fatal("Failed to establish TLS endpoint")
-		}
-	}()
 	return cWrappedConnectionData
 }
 

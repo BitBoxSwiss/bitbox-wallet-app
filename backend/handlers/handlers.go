@@ -1,11 +1,5 @@
 package handlers
 
-// The following go:generate command compiles the static web assets into a Go package, so that they
-// are built into the binary. The WEBASSETS env var must be set and point to the folder containing
-// the web assets.
-
-//go:generate go-bindata -pkg $GOPACKAGE -o assets.go -prefix $WEBASSETS $WEBASSETS
-
 import (
 	"bytes"
 	"encoding/json"
@@ -19,7 +13,6 @@ import (
 	"github.com/shiftdevices/godbb/util/system"
 	"github.com/sirupsen/logrus"
 
-	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/shiftdevices/godbb/backend"
@@ -55,13 +48,17 @@ type ConnectionData struct {
 }
 
 // NewConnectionData creates a connection data struct which holds the port and token for the API.
-// If the token is empty, we assume dev-mode.
+// If the port is -1 or the token is empty, we assume dev-mode.
 func NewConnectionData(port int, token string) *ConnectionData {
 	return &ConnectionData{
 		port:    port,
 		token:   token,
 		devMode: len(token) == 0,
 	}
+}
+
+func (connectionData *ConnectionData) isDev() bool {
+	return connectionData.port == -1 || connectionData.token == ""
 }
 
 // NewHandlers creates a new Handlers instance.
@@ -86,7 +83,7 @@ func NewHandlers(
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
-			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(connData.token == "", f),
+			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(connData.isDev(), f),
 				connData, log))
 		}
 	}
@@ -148,39 +145,6 @@ func NewHandlers(
 	handlers.backendEvents = theBackend.Start()
 
 	return handlers
-}
-
-// ServeFrontendHandler returns static frontend assets (html, js, css, ...).
-func (handlers *Handlers) ServeFrontendHandler() http.Handler {
-	// Serve static files for the UI.
-	staticAssetsHandler := ensureAPITokenValid(
-		ensureNoCacheForBundleJS(
-			http.FileServer(&assetfs.AssetFS{
-				Asset: func(name string) ([]byte, error) {
-					body, err := Asset(name)
-					if err != nil {
-						err = errp.WithStack(err)
-						return nil, err
-					}
-					if regexp.MustCompile(`^bundle.*\.js$`).MatchString(name) {
-						body = handlers.interpolateConstants(body)
-
-					}
-					return body, nil
-				},
-				AssetDir:  AssetDir,
-				AssetInfo: AssetInfo,
-				Prefix:    "",
-			})), handlers.apiData, handlers.log)
-
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/api/qr" {
-			handlers.getQRCodeHandler(w, r)
-			return
-		}
-		staticAssetsHandler.ServeHTTP(w, r)
-	})
-
 }
 
 func (handlers *Handlers) interpolateConstants(body []byte) []byte {
