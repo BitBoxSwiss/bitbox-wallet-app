@@ -136,7 +136,8 @@
     },
     "receive": {
         "title": "Get Coins",
-        "label": "Your address"
+        "label": "Your address",
+        "verify": "Verify address securely"
     },
     "send": {
         "title": "Send Coins",
@@ -220,12 +221,18 @@
     "footer": {
         "appVersion": "App Version:"
     },
+    "warning": {
+        "sdcard": "Keep the SD card stored securely!",
+        "pairing": "Please pair the device to enable secure address verification. Go to the device settings."
+    },
     "button": {
         "send": "Send",
         "receive": "Receive",
         "cancel": "Cancel",
         "back": "Back",
         "save": "Save",
+        "previous": "Previous",
+        "next": "Next",
         "restore": "Restore",
         "create": "Create",
         "abort": "Abort",

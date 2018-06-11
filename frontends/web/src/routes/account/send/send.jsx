@@ -1,8 +1,9 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiPost } from '../../../utils/request';
+import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
@@ -21,6 +22,13 @@ export default class Send extends Component {
         amountError: null,
         sendAll: false,
         isSent: false,
+        paired: null,
+    }
+
+    componentDidMount() {
+        apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+            this.setState({ paired });
+        });
     }
 
     send = () => {
@@ -134,6 +142,7 @@ export default class Send extends Component {
         isSent,
         addressError,
         amountError,
+        paired,
     }) {
         return (
             <div class="contentWithGuide">
@@ -153,6 +162,9 @@ export default class Send extends Component {
                                 }
                             </Balance>
                         </div>
+                        <Status type="info">
+                            {paired === false && t('warning.pairing')}
+                        </Status>
                     </div>
                     <div class="innerContainer">
                         <div class="content">

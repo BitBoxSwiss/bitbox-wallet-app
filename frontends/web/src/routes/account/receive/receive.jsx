@@ -3,20 +3,25 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import Status from '../../../components/status/status';
 import QRCode from './qrcode';
 import style from './receive.css';
 
 @translate()
-export default class ReceiveButton extends Component {
+export default class Receive extends Component {
     state = {
         verifying: false,
         activeIndex: null,
         receiveAddresses: null,
+        paired: null,
     }
 
     componentDidMount() {
         apiGet('wallet/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
+        });
+        apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+            this.setState({ paired });
         });
     }
 
@@ -31,14 +36,26 @@ export default class ReceiveButton extends Component {
     }
 
     previous = () => {
-        this.setState({ activeIndex: (this.state.activeIndex + this.state.receiveAddresses.length - 1) % this.state.receiveAddresses.length});
+        this.setState(({ activeIndex, receiveAddresses }) => ({
+            activeIndex: (activeIndex + receiveAddresses.length - 1) % receiveAddresses.length
+        }));
     };
 
     next = () => {
-        this.setState({ activeIndex: (this.state.activeIndex + 1) % this.state.receiveAddresses.length});
+        this.setState(({ activeIndex, receiveAddresses }) => ({
+            activeIndex: (activeIndex + 1) % receiveAddresses.length
+        }));
     };
 
-    render({ t, guide }, { verifying, activeIndex, receiveAddresses }) {
+    render({
+        t,
+        guide,
+    }, {
+        verifying,
+        activeIndex,
+        receiveAddresses,
+        paired,
+    }) {
         const content = receiveAddresses ? (
             <div>
                 <p class="label">
@@ -46,14 +63,15 @@ export default class ReceiveButton extends Component {
                         transparent
                         disabled={verifying}
                         onClick={this.previous}>
-                        Previous
+                        {t('button.previous')}
                     </Button>
-                    {t('receive.label')} ({activeIndex+1}/{receiveAddresses.length})
+                    {t('receive.label')}
+                    ({activeIndex + 1}/{receiveAddresses.length})
                     <Button
                         transparent
                         disabled={verifying}
                         onClick={this.next}>
-                        Next
+                        {t('button.next')}
                     </Button>
                 </p>
                 <QRCode data={receiveAddresses[activeIndex].address} />
@@ -67,7 +85,7 @@ export default class ReceiveButton extends Component {
                         primary
                         disabled={verifying}
                         onClick={this.verifyAddress}>
-                        Verify address securely
+                        {t('receive.verify')}
                     </Button>
                 </div>
             </div>
@@ -82,6 +100,9 @@ export default class ReceiveButton extends Component {
                         <div class="header">
                             <h2>{t('receive.title')}</h2>
                         </div>
+                        <Status type="info">
+                            {paired === false && t('warning.pairing')}
+                        </Status>
                     </div>
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">
@@ -90,7 +111,9 @@ export default class ReceiveButton extends Component {
                             </div>
                         </div>
                         <div class="flex flex-row flex-start" style="margin: 0 0 2rem 2rem;">
-                            <Button secondary onClick={this.props.onClose}>{t('cancel')}</Button>
+                            <Button secondary onClick={this.props.onClose}>
+                                {t('button.back')}
+                            </Button>
                         </div>
                     </div>
                 </div>

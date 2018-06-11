@@ -34,7 +34,6 @@ export default class Settings extends Component {
                 lock, name, serial, sdcard,
                 spinner: false,
             });
-            // if (sdcard) alert('Keep the SD card stored securely unless you want to manage backups.');
         });
 
         apiGet('devices/' + this.props.deviceID + '/paired').then((paired) => {

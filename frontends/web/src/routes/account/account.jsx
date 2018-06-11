@@ -22,6 +22,7 @@ export default class Account extends Component {
         transactions: [],
         walletConnected: false,
         balance: null,
+        hasCard: false,
         isReceive: false,
         isSend: false,
         isConfirming: false,
@@ -49,14 +50,27 @@ export default class Account extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.code !== prevProps.code) {
-            console.log('componentDidUpdate(' + this.props.code + ')');
+            // console.log('componentDidUpdate(' + this.props.code + ')');
             this.onStatusChanged();
+            this.checkSDCards();
+        }
+        if (this.props.deviceIDs.length !== prevProps.deviceIDs.length) {
+            this.checkSDCards();
         }
         if (!this.props.code) {
             if (this.state.accounts.length) {
                 route(`/account/${this.state.accounts[0].code}`, true);
             }
         }
+    }
+
+    checkSDCards() {
+        Promise.all(this.props.deviceIDs.map(deviceID => {
+            return apiGet(`devices/${deviceID}/info`)
+                .then(({ sdcard }) => sdcard);
+        }))
+            .then(sdcards => sdcards.some(sdcard => sdcard))
+            .then(hasCard => this.setState({ hasCard }));
     }
 
     handleKeyDown = e => {
@@ -85,8 +99,8 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
-        console.log('Wallet ' + this.props.code + ' requesting status.');
-        apiGet('wallet/' + this.props.code + '/status').then(status => {
+        // console.log('Wallet ' + this.props.code + ' requesting status.');
+        apiGet(`wallet/${this.props.code}/status`).then(status => {
             if (status === 'initialized') {
                 this.setState({
                     walletInitialized: true,
@@ -99,7 +113,7 @@ export default class Account extends Component {
                     walletInitialized: false,
                     walletConnected: true,
                 });
-                apiPost("wallet/" + this.props.code + "/init");
+                apiPost(`wallet/${this.props.code}/init`);
             } else {
                 this.setState({
                     walletInitialized: false,
@@ -112,21 +126,22 @@ export default class Account extends Component {
 
     onWalletChanged = () => {
         if (this.state.walletInitialized && this.state.walletConnected) {
-            console.log('Wallet ' + this.props.code + ' initialized.');
-            apiGet('wallet/' + this.props.code + '/transactions').then(transactions => {
+            // console.log('Wallet ' + this.props.code + ' initialized.');
+            apiGet(`wallet/${this.props.code}/transactions`).then(transactions => {
                 this.setState({ transactions });
             });
-            apiGet('wallet/' + this.props.code + '/balance').then(balance => {
+            apiGet(`wallet/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
             });
         } else {
-            console.log('Wallet ' + this.props.code + ' disconnected. Should rerender');
+            // console.log('Wallet ' + this.props.code + ' disconnected. Should rerender');
             this.setState({ balance: null });
         }
     }
 
     render({
         t,
+        deviceIDs,
         guide,
     }, {
         accounts,
@@ -134,6 +149,7 @@ export default class Account extends Component {
         transactions,
         walletConnected,
         balance,
+        hasCard,
         isReceive,
         isSend,
         isConfirming,
@@ -169,6 +185,9 @@ export default class Account extends Component {
                                     </Button>
                                 </div>
                             </div>
+                            <Status type="warning">
+                                {hasCard && t('warning.sdcard')}
+                            </Status>
                             <Status dismissable keyName={`info-${this.props.code}`} type="info">
                                 {t(`account.info.${this.props.code}`)}
                             </Status>
@@ -230,6 +249,7 @@ export default class Account extends Component {
         } else if (isReceive) {
             return (
                 <Receive
+                    deviceIDs={deviceIDs}
                     code={this.props.code}
                     onClose={() => this.setState({ isReceive: false })}
                     guide={guide}
@@ -238,6 +258,7 @@ export default class Account extends Component {
         } else if (isSend) {
             return (
                 <Send
+                    deviceIDs={deviceIDs}
                     isConfirming={isConfirming}
                     setConfirmation={state => this.setState(state)}
                     wallet={wallet}
