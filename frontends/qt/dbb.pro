@@ -7,7 +7,7 @@
 QT       += core gui
 QT       += webenginewidgets webchannel
 
-TARGET = dbb
+TARGET = BitBox
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
