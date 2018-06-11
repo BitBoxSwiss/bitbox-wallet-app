@@ -1,15 +1,34 @@
-import { h } from 'preact';
+import { h, Component } from 'preact';
 import { apiGet } from '../../../utils/request';
 import style from './qrcode.css';
 
-export default function QRCode({ data }) {
-    apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.img.setAttribute('src', src))
-        .catch(() => this.img.setAttribute('hidden', true));
-    return (
-        <img
-            ref={ref => this.img = ref}
-            width={256}
-            className={style.qrcode}
-        />
-    );
+export default class QRCode extends Component {
+    state = {
+        src: ''
+    }
+
+    componentDidMount() {
+        this.update(this.props.data);
+    }
+
+    componentWillReceiveProps({ data }) {
+        if (this.props.data != data) {
+            this.update(data);
+        }
+    }
+
+    update = (data) => {
+        apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.setState({ src }));
+    }
+
+    render({}, { src }) {
+        return (
+            <img
+              ref={ref => this.img = ref}
+              width={256}
+              className={style.qrcode}
+              src={src}
+              />
+        );
+    }
 }
