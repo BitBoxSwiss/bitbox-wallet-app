@@ -289,7 +289,7 @@
         },
         "accountTransactionLabel": {
             "title": "What is the character sequence displayed for each transaction?",
-            "text": "It is the address which the coins have been sent to. An address encodes how (and thus by whom) the coins can be spent."
+            "text": "It is the address which the coins have been sent to or received on. An address encodes how (and thus by whom) the coins can be spent."
         },
         "accountTransactionTime": {
             "title": "How is the time determined?",
@@ -304,9 +304,9 @@
             "text": [
                 "The number of confirmations shows the number of blocks that have been added to the block that contains the transaction. We recommend that you wait for at least three confirmations before you consider a payment as settled.",
                 "The transaction ID is the hash of the whole transaction. It is useful to look up a transaction in an external block explorer in order to verify its authenticity (in case you don't trust us, which you shouldn't).",
-                "The virtual size of a transaction is used to determine its fee. It is the weight devided by four (rounded up).",
+                "The virtual size of a transaction is used to determine its fee. You have successfully saved on fees if it is smaller than the size of the transaction.",
                 "The size of a transaction describes its actual size in bytes when serialized according to the Bitcoin protocol.",
-                "The weight of a transaction has been introduced with the SegWit soft fork. Each segregated witness byte counts as one, everything else as four weights. Instead of one megabyte in actual size, the block size limit is four million weights since then.",
+                "The weight of a transaction has been introduced with Segwit, and is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
                 "The fee is the amount that has been paid to the miner that included the transaction in a block. Click on the send button to read more about why there is a fee at all."
             ]
         },
@@ -321,7 +321,7 @@
         "receive": [
             {
                 "title": "What do I do with an address?",
-                "text": [ "Give it to others to send you some coins.", "(If available, you should use an authenticated channel because an attacker can send an address which does not belong to you to the payer otherwise.)" ]
+                "text": [ "Give it to others to send you some coins.", "(Try to independently verify the address, for example with a phone call, as an attacker could send an address which does not belong to you to the payer otherwise.)" ]
             },
             {
                 "title": "Why are there so many addresses?",
@@ -329,7 +329,7 @@
             },
             {
                 "title": "Why are there at most 20 addresses?",
-                "text": [ "All addresses are derived from a single seed, which you backed up when setting up the device. The backup, however, is only useful if all your addresses and thus your funds can be recovered. Since you can derive a virtually unlimited number of addresses, the search has to stop somewhere. The convention as defined in BIP44 is to stop the search after 20 unused addresses in a row." ]
+                "text": [ "All addresses are derived from a single seed, which you backed up when setting up the device. The backup, however, is only useful if all your addresses and thus your funds can be recovered. Since you can derive a virtually unlimited number of addresses, the search has to stop somewhere. The convention is to stop the search after 20 unused addresses in a row." ]
             },
             {
                 "title": "What do I do with the pixelated black and white image?",
@@ -338,13 +338,12 @@
             {
                 "title": "Why should I verify the address securely?",
                 "text": [
-                    "The whole reason for buying a hardware wallet like the BitBox is because you don't trust your computer due to its big attack surface. Consequently, you should also not trust your computer to generate and display authentic addresses. The button to verify the address securely makes the BitBox send the address to a paired mobile phone, from which you can also scan and verify the QR code.",
-                    "And yes, reading this on your computer means an attacker can not just change the address but also this guide (and all other instructions). It's unfortunate but we figured that you wouldn't read a separate manual anyway."
+                    "The whole reason for buying a hardware wallet like the BitBox is because you don't trust your computer due to its big attack surface. Consequently, you should also not trust your computer to generate and display authentic addresses. The button to verify the address securely makes the BitBox send the address to a paired mobile phone, from which you can also scan and verify the QR code."
                 ]
             },
             {
                 "title": "How can I verify an address securely?",
-                "text": [ "Click on the device in the sidebar on the left and there on pairing. After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Afterwards, a secret key shared between the mobile phone and the BitBox is generated. Just follow the instructions in the mobile app." ]
+                "text": [ "Click on the BitBox icon in the sidebar on the left and see the Pairing section. Continue reading the guide over there." ]
             },
             {
                 "title": "Why and when do the addresses change?",
@@ -374,25 +373,25 @@
                 "title": "How is the fee determined?",
                 "text": [
                     "Depending on the network priority that you choose, we calculate the fee based on the size (respectively weight) of the transaction. We have the following fee targets, whose values are determined by Bitcoin Core and which are only shown if they have a different value from the target below.",
-                    "Economy: 24 blocks (around 4 hours)",
-                    "Low: 12 blocks (around 2 hours)",
-                    "Normal: 6 blocks (around 1 hour)",
-                    "High: 2 blocks (around 20 minutes)",
-                    "(In Bitcoin, a block takes on average ten minutes to mine and the network load may vary considerably in the above periods.)"
+                    "Economy: 24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)",
+                    "Low: 12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
+                    "Normal: 6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)",
+                    "High: 2 blocks (around 20 minutes for Bitcoin, 5 mnutes for Litecoin)",
+                    "(A block takes on average ten minutes for Bitcoin (2.5 minutes in Litecoin) to mine and the network load may vary considerably in the above periods.)"
                 ]
             },
             {
                 "title": "Can I revert a transaction?",
                 "text": [
-                    "Once a transaction is signed and sent (i.e. broadcasted to the network), it can no longer reverted. Verify the transactions (including the fee) properly before signing!",
+                    "Once a transaction is signed and sent (i.e. broadcasted to the network), it can no longer be reverted. Verify the transactions (including the fee) properly before signing!",
                     "If you know the recipient and he or she is willing to send the same amount (minus the transaction fees) back to you, you can send them a new receiving address."
                 ]
             }
         ],
         "settings": [
             {
-                "title": "Can I have several accounts of the same coin?",
-                "text": [ "Unfortunately, this is not yet supported." ]
+                "title": "Can I have more accounts than shown to the left?",
+                "text": [ "Unfortunately, this is not yet supported. Stay tuned." ]
             },
             {
                 "title": "What is Bitcoin Legacy?",
@@ -416,6 +415,10 @@
             }
         ],
         "bitbox": [
+            {
+                "title": "How to securely pair with your phone",
+                "text": [ "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Afterwards, a secret key shared between the mobile phone and the BitBox is generated. Just follow the instructions in the mobile app." ]
+            },
             {
                 "title": "What is a hidden wallet?",
                 "text": [ "It is a second wallet on the same device protected by a different PIN which you can use for plausible deniability." ]
@@ -458,11 +461,11 @@
         "seed": [
             {
                 "title": "What shall I do with the SD card?",
-                "text": [ "Store it somewhere safe and do not insert it to your computer! You bought the BitBox hardware wallet because your computer is too vulnerable to handle private keys for cryptocurrencies. Since you entered the recovery password on the computer, an attacker can recover and spend your funds if you also expose the seed." ]
+                "text": [ "Store it somewhere safe and do not insert it to your computer! You bought the BitBox hardware wallet because your computer is too vulnerable to handle private keys for cryptocurrencies." ]
             },
             {
                 "title": "Can I print the backup on the SD card?",
-                "text": [ "You can as the seed is stored in a PDF on the SD card. However, you should either insert the SD card directly into a printer or use a different computer, which is and ideally remains offline. Alternatively, you can back up the seed on several SD cards instead." ]
+                "text": [ "You can as the seed is stored in a PDF on the SD card. However, you should either insert the SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several SD cards instead." ]
             },
             {
                 "title": "Why can't I change the recovery password later on?",
