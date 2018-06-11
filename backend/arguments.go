@@ -113,5 +113,8 @@ func ProductionArguments() *Arguments {
 	}
 	appFolder = path.Join(appFolder, "bitbox")
 	logging.Log.WithGroup("arguments").Info("appFolder: ", appFolder)
-	return NewArguments(appFolder, false, false, false)
+	testnet := flag.Bool("testnet", false, "switch to testnet instead of mainnet coins")
+	multisig := flag.Bool("multisig", false, "use the app in experimental multisig mode")
+	flag.Parse()
+	return NewArguments(appFolder, *testnet, false, *multisig)
 }
