@@ -98,6 +98,7 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 		}
 		device.channel = channel
 		device.ListenForMobile()
+		device.fireEvent("pairingTrue")
 		device.fireEvent(EventPairingSuccess)
 	} else {
 		device.fireEvent(EventPairingAborted)
