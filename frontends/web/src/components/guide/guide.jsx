@@ -13,7 +13,7 @@ export function Guide({ guide, screen, children }) {
                 {screen && i18n.t('guide.' + screen).map(entry => <Entry entry={entry} />)}
                 {children}
                 <div className={style.entry}>
-                    <A href="mailto:support@shiftcrypto.ch?subject=Additional+Question">Another question? Contact us!</A>
+                    Another question? Contact us at <A href="mailto:support@shiftcrypto.ch?subject=Additional+Question">support@shiftcrypto.ch</A>!
                 </div>
             </div>
         </div>

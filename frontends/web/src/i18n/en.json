@@ -428,6 +428,10 @@
         ],
         "unlock": [
             {
+                "title": "I have a password, but not a PIN. What do I need to do?",
+                "text": [ "If you set up your BitBox previously with a password, you can use it to unlock the device. Just enter it in the PIN input field." ]
+            },
+            {
                 "title": "What do I do if I forgot the PIN?",
                 "text": [ "You have to reset the device and restore the wallet from a backup." ]
             },
