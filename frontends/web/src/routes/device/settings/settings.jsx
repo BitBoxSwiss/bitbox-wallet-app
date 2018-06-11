@@ -45,15 +45,28 @@ export default class Settings extends Component {
             this.setState({ newVersion: version.replace('v', '') });
         });
 
-        apiWebsocket(({ type, data }) => {
+        this.unsubscribe = apiWebsocket(({ type, data }) => {
             if (type === 'device') {
-                if (data === 'mobileDisconnected') {
+                switch (data) {
+                case 'mobileDisconnected':
                     this.setState({ connected: false });
-                } else if (data === 'mobileConnected') {
+                    break;
+                case 'mobileConnected':
                     this.setState({ connected: true });
+                    break;
+                case 'pairingTrue':
+                    this.setState({ paired: true });
+                    break;
+                case 'pairingFalse':
+                    this.setState({ paired: false });
+                    break;
                 }
             }
         });
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
     }
 
     render({
@@ -116,6 +129,12 @@ export default class Settings extends Component {
                                         <dt>{t('deviceSettings.pairing.mobile.label')}</dt>
                                         <dd>
                                             {t(`deviceSettings.pairing.mobile.${connected}`)}
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt>{t('deviceSettings.pairing.lock.label')}</dt>
+                                        <dd>
+                                            {t(`deviceSettings.pairing.lock.${lock}`)}
                                         </dd>
                                     </div>
                                 </dl>
