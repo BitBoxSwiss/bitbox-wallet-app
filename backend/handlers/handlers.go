@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -89,7 +90,7 @@ func NewHandlers(
 	}
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
-	apiRouter.HandleFunc("/qr", handlers.getQRCodeHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
@@ -166,6 +167,19 @@ func writeJSON(w http.ResponseWriter, value interface{}) {
 	}
 }
 
+func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error) {
+	data := r.URL.Query().Get("data")
+	qr, err := qrcode.New(data, qrcode.Medium)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	bytes, err := qr.PNG(256)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes), nil
+}
+
 func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.Config(), nil
 }
@@ -200,19 +214,6 @@ func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error
 
 func (handlers *Handlers) getWalletStatusHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.WalletStatus(), nil
-}
-
-func (handlers *Handlers) getQRCodeHandler(w http.ResponseWriter, r *http.Request) {
-	if isAPITokenValid(w, r, handlers.apiData, handlers.log) {
-		data := r.URL.Query().Get("data")
-		qr, err := qrcode.New(data, qrcode.Medium)
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("Content-Type", "image/png")
-		_ = qr.Write(256, w)
-	}
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
