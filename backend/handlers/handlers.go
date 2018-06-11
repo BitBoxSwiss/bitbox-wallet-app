@@ -86,7 +86,7 @@ func NewHandlers(
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
-			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(f),
+			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(connData.token == "", f),
 				connData, log))
 		}
 	}
@@ -340,12 +340,14 @@ func ensureAPITokenValid(h http.Handler, apiData *ConnectionData, log *logrus.En
 	})
 }
 
-func apiMiddleware(h func(*http.Request) (interface{}, error)) http.Handler {
+func apiMiddleware(devMode bool, h func(*http.Request) (interface{}, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/json")
-		// This enables us to run a server on a different port serving just the UI, while still
-		// allowing it to access the API.
-		w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		if devMode {
+			// This enables us to run a server on a different port serving just the UI, while still
+			// allowing it to access the API.
+			w.Header().Set("Access-Control-Allow-Origin", "http://localhost:8080")
+		}
 		value, err := h(r)
 		if err != nil {
 			writeJSON(w, map[string]string{"error": err.Error()})
