@@ -2,9 +2,11 @@ import { h, Component } from 'preact';
 import { apiGet } from '../../../utils/request';
 import style from './qrcode.css';
 
+const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
+
 export default class QRCode extends Component {
     state = {
-        src: ''
+        src: emptyImage
     }
 
     componentDidMount() {
@@ -18,6 +20,7 @@ export default class QRCode extends Component {
     }
 
     update = (data) => {
+        this.setState({ src: emptyImage });
         apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.setState({ src }));
     }
 
@@ -25,7 +28,7 @@ export default class QRCode extends Component {
         return (
             <img
               ref={ref => this.img = ref}
-              width={256}
+              width={256} height={256}
               className={style.qrcode}
               src={src}
               />
