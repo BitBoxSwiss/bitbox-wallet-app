@@ -48,10 +48,10 @@ export class Entry extends Component {
     }) {
         return (
             <div className={highlighted ? style.highlighted : style.entry}>
-                <div class={style.entryTitle}>
+                <div class={style.entryTitle} onClick={this.toggle}>
                     <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
                     <div class={style.entryTitleText}>
-                        <h2 onClick={this.toggle}>
+                        <h2>
                             {title || (entry && entry.title)}
                         </h2>
                     </div>
