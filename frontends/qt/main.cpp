@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     view = new QWebEngineView;
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
     view->setMinimumSize(850, 675);
+    view->showMaximized();
     view->setContextMenuPolicy(Qt::NoContextMenu);
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
