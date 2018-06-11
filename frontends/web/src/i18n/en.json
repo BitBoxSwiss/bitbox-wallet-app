@@ -172,7 +172,12 @@
         "password": {
             "label": "Backup password"
         },
-        "description": "A backup is stored on your SD card. The backup password can NOT be changed later, and is required to restore the backup.",
+        "description": "I understand that:",
+        "agreements": {
+            "password_change": "I can NOT change the password later",
+            "password_required": "the password is required to restore a backup",
+            "funds_access": "I will NOT be able to access my funds if I forget my password"
+        },
         "create": "Create Wallet",
         "backup": "or restore a Backup…"
     },

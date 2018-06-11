@@ -3,7 +3,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import Backups from '../../components/backups/backups';
 import { PasswordRepeatInput } from '../../components/password';
-import { Button, Input } from '../../components/forms';
+import { Button, Input, Checkbox } from '../../components/forms';
 import Message from '../../components/message/message';
 import { BitBox } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
@@ -25,10 +25,15 @@ export default class Seed extends Component {
         backupPassword: '',
         error: '',
         fromBackup: false,
+        agreements: {
+            password_change: false,
+            password_required: false,
+            funds_access: false,
+        },
     }
 
     validate = () => {
-        if (!this.walletNameInput || !this.walletNameInput.validity.valid) {
+        if (!this.walletNameInput || !this.walletNameInput.validity.valid || !this.validAgreements()) {
             return false;
         }
         return this.state.backupPassword && this.state.walletName !== '';
@@ -72,6 +77,18 @@ export default class Seed extends Component {
         this.setState({ backupPassword });
     }
 
+    validAgreements = () => {
+        const { agreements }= this.state;
+        const invalid = Object.keys(agreements).map(agr => agreements[agr]).includes(false);
+        return !invalid;
+    }
+
+    handleAgreementChange = ({ target }) => {
+        let { agreements } = this.state;
+        agreements[target.id] = target.checked;
+        this.setState({ agreements });
+    }
+
     render({
         t,
         deviceID,
@@ -81,6 +98,7 @@ export default class Seed extends Component {
         walletName,
         error,
         fromBackup,
+        agreements,
     }) {
         const errorMessage = (
             <Message type={status === 'error' && 'error'}>
@@ -122,7 +140,27 @@ export default class Seed extends Component {
                         onValidPassword={this.setValidBackupPassword}
                     />
                 </div>
-                <p>{t('seed.description')}</p>
+                <div class={style.agreements}>
+                    <p>{t('seed.description')}</p>
+                    <Checkbox
+                        id="password_change"
+                        label={t('seed.agreements.password_change')}
+                        checked={agreements.password_change}
+                        onChange={this.handleAgreementChange}
+                    />
+                    <Checkbox
+                        id="password_required"
+                        label={t('seed.agreements.password_required')}
+                        checked={agreements.password_required}
+                        onChange={this.handleAgreementChange}
+                    />
+                    <Checkbox
+                        id="funds_access"
+                        label={t('seed.agreements.funds_access')}
+                        checked={agreements.funds_access}
+                        onChange={this.handleAgreementChange}
+                    />
+                </div>
                 <div>
                     <Button
                         type="submit"
@@ -142,7 +180,7 @@ export default class Seed extends Component {
 
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
+                <div className={[style.container, style.scrollable].join(' ')}>
                     <BitBox />
                     <div className={style.content}>
                         {errorMessage}

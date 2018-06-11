@@ -14,6 +14,15 @@
     padding: 4rem;
 }
 
+.scrollable {
+    /*overflow: auto;*/
+    padding-bottom: var(--spacing-default);
+}
+
+.agreements {
+    margin-bottom: var(--spacing-default);
+}
+
 .content {
     display: flex;
     flex-basis: auto;
@@ -21,6 +30,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     width: 440px;
+    overflow: auto;
 }
 
 .content form {
