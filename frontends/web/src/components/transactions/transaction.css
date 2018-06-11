@@ -129,13 +129,13 @@
 }
 
 .collapsedContent {
-    margin-top: var(--spacing-half);
     overflow: hidden;
     max-height: 0;
     transition: all 0.2s ease;
 }
 
 .collapsedContent.active {
+    margin-top: var(--spacing-half);
     max-height: 500px;
 }
 

@@ -81,9 +81,6 @@ export default class Transaction extends Component {
                                 {sign} {amount.amount} {amount.unit}
                             </div>
                         </div>
-                        <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
-                            <div class={[style.amount, style.converted].join(' ')}>{fiat}</div>
-                        </div>
                         <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex', 'flex-row', 'flex-start'].join(' ')}>
                             <div class={style.spacer}></div>
                             <div>
