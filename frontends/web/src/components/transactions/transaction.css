@@ -90,6 +90,7 @@
     border-color: var(--color-brightgray);
     transform: rotate(-45deg) translateY(-50%);
     margin: 10px 0 0 8px;
+    transition: all 0.1s ease;
 }
 
 .toggle.collapsed {
@@ -131,10 +132,16 @@
     margin-top: var(--spacing-half);
     overflow: hidden;
     max-height: 0;
+    transition: all 0.2s ease;
 }
 
 .collapsedContent.active {
     max-height: 500px;
+}
+
+.collapsedContent .spacer {
+    width: 44px;
+    margin-right: var(--spacing-default);
 }
 
 .collapsedContent .transactionLabel {

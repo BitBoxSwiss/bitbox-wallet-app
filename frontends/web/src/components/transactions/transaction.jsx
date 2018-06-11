@@ -84,47 +84,50 @@ export default class Transaction extends Component {
                         <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
                             <div class={[style.amount, style.converted].join(' ')}>{fiat}</div>
                         </div>
-                        <div class={[style.collapsedContent, !collapsed ? style.active : ''].join(' ')}>
-                            <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row, 'spaced'].join(' ')}>
-                                <div>
-                                    <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
-                                    <div class={style.address}>{numConfirmations}</div>
-                                </div>
-                                <div>
-                                    <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
-                                    <div class={style.address}>{vsize} bytes</div>
-                                </div>
-                                <div>
-                                    <div class={style.transactionLabel}>{t('transaction.size')}</div>
-                                    <div class={style.address}>{size} bytes</div>
-                                </div>
-                                <div>
-                                    <div class={style.transactionLabel}>{t('transaction.weight')}</div>
-                                    <div class={style.address}>{weight}</div>
-                                </div>
-                                {
-                                    fee && (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.fee')}</div>
-                                            <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
-                                        </div>
-                                    )
-                                }
-                                {
-                                    fiat_historical && (
-                                        <div style="align-self: flex-end; margin-left: auto; text-align: right;">
-                                            <div class={style.transactionLabel} style="margin-right: 0;">
-                                                {t('transaction.fiatHistorical')}
+                        <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex', 'flex-row', 'flex-start'].join(' ')}>
+                            <div class={style.spacer}></div>
+                            <div>
+                                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row, 'spaced'].join(' ')}>
+                                    <div>
+                                        <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
+                                        <div class={style.address}>{numConfirmations}</div>
+                                    </div>
+                                    <div>
+                                        <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
+                                        <div class={style.address}>{vsize} bytes</div>
+                                    </div>
+                                    <div>
+                                        <div class={style.transactionLabel}>{t('transaction.size')}</div>
+                                        <div class={style.address}>{size} bytes</div>
+                                    </div>
+                                    <div>
+                                        <div class={style.transactionLabel}>{t('transaction.weight')}</div>
+                                        <div class={style.address}>{weight}</div>
+                                    </div>
+                                    {
+                                        fee && (
+                                            <div>
+                                                <div class={style.transactionLabel}>{t('transaction.fee')}</div>
+                                                <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
                                             </div>
-                                            <div class={style.address}>{fiat_historical}</div>
-                                        </div>
-                                    )
-                                }
-                            </div>
-                            <div class={style.row}>
-                                <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
-                                <div class={style.address}>
-                                    <A href={ explorerURL + id }>{id}</A>
+                                        )
+                                    }
+                                    {
+                                        fiat_historical && (
+                                            <div style="align-self: flex-end; margin-left: auto; text-align: right;">
+                                                <div class={style.transactionLabel} style="margin-right: 0;">
+                                                    {t('transaction.fiatHistorical')}
+                                                </div>
+                                                <div class={style.address}>{fiat_historical}</div>
+                                            </div>
+                                        )
+                                    }
+                                </div>
+                                <div class={style.row}>
+                                    <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
+                                    <div class={style.address}>
+                                        <A href={ explorerURL + id }>{id}</A>
+                                    </div>
                                 </div>
                             </div>
                         </div>
