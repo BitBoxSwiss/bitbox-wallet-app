@@ -1,13 +1,14 @@
 base:
 	make -C server/
-	mkdir -p build
+	rm -rf build/
+	mkdir build
 	./genassets.sh
 	qmake -o build/Makefile
 	make -C build
 	@echo "Base binary: `pwd`/build/dbb"
 linux:
 	make base
-	mkdir -p build/linux
+	mkdir build/linux
 	mv build/dbb build/linux
 	cp build/assets.rcc build/linux/
 	cp server/libserver.so build/linux
@@ -17,7 +18,7 @@ linux:
 	rm build/linux/libserver.so
 osx:
 	make base
-	mkdir -p build/osx
+	mkdir build/osx
 	mv build/dbb.app build/osx/dbb.app
 	macdeployqt build/osx/dbb.app/
 	cp server/libserver.so build/osx/dbb.app/Contents/Frameworks
