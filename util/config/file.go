@@ -12,11 +12,11 @@ import (
 func directoryPath() string {
 	switch goos := runtime.GOOS; goos {
 	case "darwin":
-		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "DBB")
+		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "bitbox")
 	case "windows":
-		return filepath.Join(os.Getenv("APPDATA"), "DBB")
+		return filepath.Join(os.Getenv("APPDATA"), "bitbox")
 	default:
-		return filepath.Join(os.Getenv("HOME"), ".dbb")
+		return filepath.Join(os.Getenv("HOME"), ".config", "bitbox")
 	}
 }
 

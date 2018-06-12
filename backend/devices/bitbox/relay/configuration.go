@@ -1,7 +1,6 @@
 package relay
 
 type configuration struct {
-	Version           int    `json:"version"`
 	ChannelID         string `json:"channel"`
 	EncryptionKey     []byte `json:"encryption"`
 	AuthenticationKey []byte `json:"authentication"`
@@ -9,7 +8,6 @@ type configuration struct {
 
 func newConfiguration(channel *Channel) *configuration {
 	return &configuration{
-		Version:           1,
 		ChannelID:         channel.ChannelID,
 		EncryptionKey:     channel.EncryptionKey,
 		AuthenticationKey: channel.AuthenticationKey,
