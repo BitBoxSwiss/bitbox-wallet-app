@@ -8,7 +8,7 @@ envinit:
 	gometalinter.v1 --install
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/stretchr/testify # needed for mockery
-	go get -u github.com/vektra/mockery
+	go get -u github.com/vektra/mockery/cmd/mockery
 	go get golang.org/x/tools/cmd/goimports
 	go get -u github.com/jteeuwen/go-bindata/...
 init:
