@@ -23,12 +23,13 @@ export default class Toast extends Component {
     render({
         theme,
         message,
+        withGuide,
     }, {
         active,
     }) {
         return (
             <div
-                class={[style.toast, style[theme], active ? style.active : ''].join(' ')}
+                class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}
                 ref={toast => this.toast = toast}>
                 {message}
             </div>

@@ -210,6 +210,14 @@ export default class Send extends Component {
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <FeeTargets
+                                        label={t('send.feeTarget.label')}
+                                        placeholder={t('send.feeTarget.placeholder')}
+                                        walletCode={walletCode}
+                                        disabled={!amount && !sendAll}
+                                        walletInitialized={walletInitialized}
+                                        onFeeTargetChange={this.feeTargetChange}
+                                    />
                                     <Input
                                         label={t('send.fee.label')}
                                         value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit : null}
@@ -223,14 +231,6 @@ export default class Send extends Component {
                                         disabled
                                     />
                                     */}
-                                    <FeeTargets
-                                        label={t('send.feeTarget.label')}
-                                        placeholder={t('send.feeTarget.placeholder')}
-                                        walletCode={walletCode}
-                                        disabled={!amount && !sendAll}
-                                        walletInitialized={walletInitialized}
-                                        onFeeTargetChange={this.feeTargetChange}
-                                    />
                                 </div>
                             </div>
                             <div class={['row', 'buttons', 'flex', 'flex-row', 'flex-between', 'flex-start'].join(' ')}>
@@ -272,6 +272,7 @@ export default class Send extends Component {
                             <Toast
                                 theme="success"
                                 message="Your transaction was successful."
+                                withGuide={guide.shown}
                                 onHide={() => this.setState({ isSent: false })}
                             />
                         )
