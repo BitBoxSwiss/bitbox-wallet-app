@@ -17,15 +17,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// MainnetCoin stores the mainnet coin.
-var MainnetCoin = NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/")
-
-// TestnetCoin stores the testnet coin.
-var TestnetCoin = NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/")
-
-// RegtestCoin stores the regtest coin.
-var RegtestCoin = NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, "")
-
 // Coin models a Bitcoin-related coin.
 type Coin struct {
 	name                  string

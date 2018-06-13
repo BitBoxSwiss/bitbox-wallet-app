@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"testing"
 
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -20,6 +21,8 @@ import (
 )
 
 var noDust = btcutil.Amount(0)
+
+var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/")
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226
@@ -76,7 +79,7 @@ func (s *newTxSuite) newTx(
 	feePerKb btcutil.Amount,
 	utxo map[wire.OutPoint]*wire.TxOut) (*maketx.TxProposal, error) {
 	return maketx.NewTx(
-		btc.TestnetCoin,
+		tbtc,
 		s.inputConfiguration,
 		utxo,
 		s.output(amount),
@@ -119,7 +122,7 @@ func (s *newTxSuite) check(
 	tx := txProposal.Transaction
 
 	// Check invariants independent of the particular coin selection algorithm.
-	require.Equal(s.T(), btc.TestnetCoin, txProposal.Coin)
+	require.Equal(s.T(), tbtc, txProposal.Coin)
 	require.Equal(s.T(), s.inputConfiguration, txProposal.AccountConfiguration)
 	var output *wire.TxOut
 	if expectedChange == 0 {
