@@ -13,9 +13,9 @@
     background-color: var(--color-white);
 }
 
-.transactionContainer:hover .toggle,
-.transactionContainer.expanded .toggle {
-    left: -25px;
+.transactionContainer:hover .toggleContainer,
+.transactionContainer.expanded .toggleContainer {
+    left: -32px;
 }
 
 .transaction {
@@ -79,18 +79,28 @@
     cursor: pointer;
 }
 
-.toggle {
+.toggleContainer {
     position: absolute;
     left: 0;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.toggle {
+    position: relative;
+    left: 25%;
     top: 25%;
     width: 10px;
     height: 10px;
     border: solid;
     border-width: 3px 3px 0 0;
     border-color: var(--color-brightgray);
-    transform: rotate(-45deg) translateY(-50%);
+    transform: rotate(-45deg) translate(0%, -50%);
     margin: 10px 0 0 8px;
-    transition: all 0.1s ease;
+    /*transition: all 0.1s ease;*/
 }
 
 .toggle.collapsed {
