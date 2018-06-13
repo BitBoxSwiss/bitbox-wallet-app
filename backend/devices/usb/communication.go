@@ -44,7 +44,7 @@ func NewCommunication(device io.ReadWriteCloser) *Communication {
 	return &Communication{
 		device: device,
 		mutex:  sync.Mutex{},
-		log:    logging.Log.WithGroup("usb"),
+		log:    logging.Get().WithGroup("usb"),
 	}
 }
 
@@ -180,7 +180,7 @@ func hideValues(cmd map[string]interface{}) {
 }
 
 func logCensoredCmd(log *logrus.Entry, msg string, receiving bool) error {
-	if logging.Log.Level >= logrus.DebugLevel {
+	if logging.Get().Level >= logrus.DebugLevel {
 		cmd := map[string]interface{}{}
 		if err := json.Unmarshal([]byte(msg), &cmd); err != nil {
 			return errp.New("Failed to unmarshal message")

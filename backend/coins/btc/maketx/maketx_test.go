@@ -52,7 +52,7 @@ type newTxSuite struct {
 }
 
 func (s *newTxSuite) SetupTest() {
-	s.log = logging.Log.WithGroup("newTxTest")
+	s.log = logging.Get().WithGroup("newTxTest")
 	s.inputConfiguration, s.addressChain = addressesTest.NewAddressChain()
 	someAddresses := s.addressChain.EnsureAddresses()
 	s.outputPkScript = someAddresses[1].PubkeyScript()

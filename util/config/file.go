@@ -8,8 +8,8 @@ import (
 	"runtime"
 )
 
-// directoryPath returns the absolute path to the application's directory.
-func directoryPath() string {
+// DirectoryPath returns the absolute path to the application's directory.
+func DirectoryPath() string {
 	switch goos := runtime.GOOS; goos {
 	case "darwin":
 		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "bitbox")
@@ -30,25 +30,25 @@ func NewFile(name string) *File {
 	return &File{name}
 }
 
-// path returns the absolute path to the config file.
-func (file *File) path() string {
-	return filepath.Join(directoryPath(), file.name)
+// Path returns the absolute path to the config file.
+func (file *File) Path() string {
+	return filepath.Join(DirectoryPath(), file.name)
 }
 
 // Exists checks whether the file exists with suitable permissions as a file and not as a directory.
 func (file *File) Exists() bool {
-	info, err := os.Stat(file.path())
+	info, err := os.Stat(file.Path())
 	return err == nil && !info.IsDir()
 }
 
 // Remove removes the file.
 func (file *File) Remove() error {
-	return os.Remove(file.path())
+	return os.Remove(file.Path())
 }
 
 // read reads the config file and returns its data (or an error if the config file does not exist).
 func (file *File) read() ([]byte, error) {
-	return ioutil.ReadFile(file.path())
+	return ioutil.ReadFile(file.Path())
 }
 
 // ReadJSON reads the config file as JSON to the given object. Make sure the config file exists!
@@ -62,10 +62,10 @@ func (file *File) ReadJSON(object interface{}) error {
 
 // write writes the given data to the config file (and creates parent directories if necessary).
 func (file *File) write(data []byte) error {
-	if err := os.MkdirAll(directoryPath(), os.ModePerm); err != nil {
+	if err := os.MkdirAll(DirectoryPath(), os.ModePerm); err != nil {
 		return err
 	}
-	return ioutil.WriteFile(file.path(), data, 0600)
+	return ioutil.WriteFile(file.Path(), data, 0600)
 }
 
 // WriteJSON writes the given object as JSON to the config file.

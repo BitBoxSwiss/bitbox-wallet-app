@@ -162,7 +162,7 @@ func NewDevice(
 			return nil, errp.Newf("The firmware version '%s' is not supported.", version)
 		}
 	}
-	log := logging.Log.WithGroup("device").WithField("deviceID", deviceID)
+	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
 
 	var bootloaderStatus *BootloaderStatus

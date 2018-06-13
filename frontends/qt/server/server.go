@@ -87,7 +87,7 @@ func backendCall(s *C.char) *C.char {
 
 //export serve
 func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_ConnectionData {
-	log := logging.Log.WithGroup("server")
+	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	var err error
 	token, err = random.HexString(16)

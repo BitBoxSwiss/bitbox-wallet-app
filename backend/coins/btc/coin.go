@@ -54,7 +54,7 @@ func NewCoin(
 		net:  net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 
-		log: logging.Log.WithGroup("coin").WithField("name", name),
+		log: logging.Get().WithGroup("coin").WithField("name", name),
 	}
 }
 

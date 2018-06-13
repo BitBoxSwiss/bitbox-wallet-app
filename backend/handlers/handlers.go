@@ -67,7 +67,7 @@ func NewHandlers(
 	theBackend backend.Interface,
 	connData *ConnectionData,
 ) *Handlers {
-	log := logging.Log.WithGroup("handlers")
+	log := logging.Get().WithGroup("handlers")
 	router := mux.NewRouter()
 
 	handlers := &Handlers{
@@ -79,7 +79,7 @@ func NewHandlers(
 			WriteBufferSize: 1024,
 			CheckOrigin:     func(r *http.Request) bool { return true },
 		},
-		log: logging.Log.WithGroup("handlers"),
+		log: logging.Get().WithGroup("handlers"),
 	}
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {

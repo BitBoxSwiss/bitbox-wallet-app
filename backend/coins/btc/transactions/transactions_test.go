@@ -99,7 +99,7 @@ type transactionsSuite struct {
 
 func (s *transactionsSuite) SetupTest() {
 	s.net = &chaincfg.TestNet3Params
-	s.log = logging.Log.WithGroup("transactions_test")
+	s.log = logging.Get().WithGroup("transactions_test")
 
 	_, s.addressChain = addressesTest.NewAddressChain()
 	s.synchronizer = synchronizer.NewSynchronizer(func() {}, func() {}, s.log)

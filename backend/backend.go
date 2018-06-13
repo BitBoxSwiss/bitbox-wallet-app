@@ -82,7 +82,7 @@ type Backend struct {
 
 // NewBackend creates a new backend with the given arguments.
 func NewBackend() *Backend {
-	log := logging.Log.WithGroup("backend")
+	log := logging.Get().WithGroup("backend")
 	return &Backend{
 		arguments: arguments.Get(),
 		events:    make(chan interface{}, 1000),

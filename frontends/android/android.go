@@ -11,7 +11,7 @@ import (
 
 // Serve serves the godbb API for use in a mobile client.
 func Serve() {
-	log := logging.Log.WithGroup("android")
+	log := logging.Get().WithGroup("android")
 	token, err := random.HexString(16)
 	if err != nil {
 		log.WithField("error", err).Fatal("Failed to generate random string")

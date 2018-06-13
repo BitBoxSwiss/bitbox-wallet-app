@@ -32,7 +32,7 @@ type addressChainTestSuite struct {
 }
 
 func (s *addressChainTestSuite) SetupTest() {
-	s.log = logging.Log.WithGroup("addresses_test")
+	s.log = logging.Get().WithGroup("addresses_test")
 	const xpubSerialized = "tpubDEXZPZzoVxHQdZg6ndWKoDXwsPtfTKpYsF6SDCm2dHxydcNvoKM" +
 		"58RmA7FDj3hXqy8BrxfwoTNaV5SzWgCzurTaQmDNywHVvv5tPSj6Evgr"
 	xpub, err := hdkeychain.NewKeyFromString(xpubSerialized)

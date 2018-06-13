@@ -18,7 +18,7 @@ var (
 
 // NewAddressChain returns an AddressChain for convenience in testing.
 func NewAddressChain() (*signing.Configuration, *addresses.AddressChain) {
-	log := logging.Log.WithGroup("addresses_test")
+	log := logging.Get().WithGroup("addresses_test")
 	xprv, err := hdkeychain.NewMaster(make([]byte, hdkeychain.RecommendedSeedLen), net)
 	if err != nil {
 		panic(err)
@@ -46,7 +46,7 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 	return addresses.NewAccountAddress(
 		configuration,
 		net,
-		logging.Log.WithGroup("addresses_test"),
+		logging.Get().WithGroup("addresses_test"),
 	)
 }
 
@@ -72,6 +72,6 @@ func GetMultisigAddress(signingThreshold, numberOfSigners int) *addresses.Accoun
 	return addresses.NewAccountAddress(
 		configuration,
 		net,
-		logging.Log.WithGroup("addresses_test"),
+		logging.Get().WithGroup("addresses_test"),
 	)
 }

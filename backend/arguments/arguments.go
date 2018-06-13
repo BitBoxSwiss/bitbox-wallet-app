@@ -55,7 +55,7 @@ func newArguments(
 		panic("Cannot create the cache directory.")
 	}
 
-	log := logging.Log.WithGroup("arguments")
+	log := logging.Get().WithGroup("arguments")
 	arguments := &Arguments{
 		mainDirectoryPath:  mainDirectoryPath,
 		cacheDirectoryPath: cacheDirectoryPath,
@@ -149,7 +149,7 @@ func getAppFolder() string {
 		}
 	}
 	appFolder = path.Join(appFolder, "bitbox")
-	logging.Log.WithGroup("arguments").Info("appFolder: ", appFolder)
+	logging.Get().WithGroup("arguments").Info("appFolder: ", appFolder)
 	return appFolder
 }
 

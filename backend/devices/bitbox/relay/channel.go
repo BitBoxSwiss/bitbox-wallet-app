@@ -39,7 +39,7 @@ func NewChannel(channelID string, encryptionKey []byte, authenticationKey []byte
 		ChannelID:         channelID,
 		EncryptionKey:     encryptionKey,
 		AuthenticationKey: authenticationKey,
-		log:               logging.Log.WithGroup("channel"),
+		log:               logging.Get().WithGroup("channel"),
 	}
 }
 

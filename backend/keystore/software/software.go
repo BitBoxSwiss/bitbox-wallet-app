@@ -39,7 +39,7 @@ func NewKeystore(
 		cosignerIndex: cosignerIndex,
 		master:        master,
 		identifier:    hex.EncodeToString(hash[:]),
-		log:           logging.Log.WithGroup("software"),
+		log:           logging.Get().WithGroup("software"),
 	}
 }
 

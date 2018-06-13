@@ -59,7 +59,7 @@ func NewManager(
 		devices:      map[string]device.Interface{},
 		onRegister:   onRegister,
 		onUnregister: onUnregister,
-		log:          logging.Log.WithGroup("manager"),
+		log:          logging.Get().WithGroup("manager"),
 	}
 }
 

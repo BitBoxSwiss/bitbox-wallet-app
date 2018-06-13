@@ -18,9 +18,8 @@ const (
 )
 
 func main() {
-	// Log to stderr during development.
-	//logging.Log.Out = os.Stderr
-	log := logging.Log.WithGroup("servewallet")
+	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
+	log := logging.Get().WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
 		// recover from all panics and log error before panicking again
 		if r := recover(); r != nil {

@@ -22,7 +22,7 @@ type certTestSuite struct {
 
 func TestCertTestSuite(t *testing.T) {
 	suite.Run(t, &certTestSuite{
-		log: logging.Log.WithGroup("main"),
+		log: logging.Get().WithGroup("main"),
 	})
 }
 

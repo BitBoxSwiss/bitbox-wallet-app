@@ -98,7 +98,7 @@ func derToPem(pemType string, pemBytes []byte) *pem.Block {
 // SaveNewSelfSignedPEM is sample code of how to create and store a new random self signed
 // certificate and create a resulting tls.Config to secure http connections.
 func SaveNewSelfSignedPEM(filename string) (*tls.Config, error) {
-	log := logging.Log.WithGroup("selfsigned")
+	log := logging.Get().WithGroup("selfsigned")
 	privateKey, err := generateRSAPrivateKey()
 	if err != nil {
 		return nil, err
