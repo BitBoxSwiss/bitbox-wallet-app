@@ -4,16 +4,53 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
+
+	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox"
+	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
+	"github.com/shiftdevices/godbb/backend/devices/device"
+	"github.com/shiftdevices/godbb/util/errp"
 )
 
-// Handlers provides a web api to the dbbdevice.
+// Bitbox models the API of a Bitbox.
+type Bitbox interface {
+	device.Interface
+	Status() bitbox.Status
+	BootloaderStatus() (*bitbox.BootloaderStatus, error)
+	DeviceInfo() (*bitbox.DeviceInfo, error)
+	SetPassword(string) error
+	SetHiddenPassword(string, string) (bool, error)
+	CreateWallet(string, string) error
+	Login(string) (bool, string, error)
+	Blink() error
+	Random(string) (string, error)
+	Reset() (bool, error)
+	XPub(path string) (*hdkeychain.ExtendedKey, error)
+	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+	UnlockBootloader() (bool, error)
+	LockBootloader() error
+	EraseBackup(string) error
+	RestoreBackup(string, string) (bool, error)
+	CreateBackup(string, string) error
+	BackupList() ([]string, error)
+	BootloaderUpgradeFirmware([]byte) error
+	DisplayAddress(keyPath string, typ string) error
+	ECDHPKhash(string) (interface{}, error)
+	ECDHPK(string) (interface{}, error)
+	ECDHchallenge() error
+	StartPairing() (*relay.Channel, error)
+	Paired() bool
+	Lock() (bool, error)
+}
+
+// Handlers provides a web API to the Bitbox.
 type Handlers struct {
-	device bitbox.Interface
+	bitbox Bitbox
 	log    *logrus.Entry
 }
 
@@ -51,15 +88,15 @@ func NewHandlers(
 
 // Init installs a dbbdevice as a base for the web api. This needs to be called before any requests
 // are made.
-func (handlers *Handlers) Init(device bitbox.Interface) {
+func (handlers *Handlers) Init(bitbox Bitbox) {
 	handlers.log.Debug("Init")
-	handlers.device = device
+	handlers.bitbox = bitbox
 }
 
-// Uninit removes the device. After this, not requests should be made.
+// Uninit removes the bitbox. After this, not requests should be made.
 func (handlers *Handlers) Uninit() {
 	handlers.log.Debug("Uninit")
-	handlers.device = nil
+	handlers.bitbox = nil
 }
 
 func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, error) {
@@ -68,7 +105,7 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 		return nil, errp.WithStack(err)
 	}
 	password := jsonBody["password"]
-	if err := handlers.device.SetPassword(password); err != nil {
+	if err := handlers.bitbox.SetPassword(password); err != nil {
 		return maybeDBBErr(err, handlers.log), nil
 	}
 	handlers.log.Debug("Set password on device")
@@ -83,7 +120,7 @@ func (handlers *Handlers) postSetHiddenPasswordHandler(r *http.Request) (interfa
 	spew.Dump(jsonBody)
 	pin := jsonBody["pin"]
 	backupPassword := jsonBody["backupPassword"]
-	success, err := handlers.device.SetHiddenPassword(pin, backupPassword)
+	success, err := handlers.bitbox.SetHiddenPassword(pin, backupPassword)
 	if err != nil {
 		return maybeDBBErr(err, handlers.log), nil
 	}
@@ -91,7 +128,7 @@ func (handlers *Handlers) postSetHiddenPasswordHandler(r *http.Request) (interfa
 }
 
 func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, error) {
-	backupList, err := handlers.device.BackupList()
+	backupList, err := handlers.bitbox.BackupList()
 	sdCardInserted := !bitbox.IsErrorSDCard(err)
 	if sdCardInserted && err != nil {
 		return nil, err
@@ -105,19 +142,19 @@ func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) getDeviceStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Status(), nil
+	return handlers.bitbox.Status(), nil
 }
 
 func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.BootloaderStatus()
+	return handlers.bitbox.BootloaderStatus()
 }
 
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.DeviceInfo()
+	return handlers.bitbox.DeviceInfo()
 }
 
 func (handlers *Handlers) getPairedHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Paired(), nil
+	return handlers.bitbox.Paired(), nil
 }
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
@@ -140,7 +177,7 @@ func (handlers *Handlers) postLoginHandler(r *http.Request) (interface{}, error)
 	}
 	password := jsonBody["password"]
 	handlers.log.Debug("Login")
-	needsLongTouch, remainingAttempts, err := handlers.device.Login(password)
+	needsLongTouch, remainingAttempts, err := handlers.bitbox.Login(password)
 	if err != nil {
 		result := maybeDBBErr(err, handlers.log)
 		result["remainingAttempts"] = remainingAttempts
@@ -159,7 +196,7 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 	backupPassword := jsonBody["backupPassword"]
 
 	handlers.log.WithField("walletName", walletName).Debug("Create wallet")
-	if err := handlers.device.CreateWallet(walletName, backupPassword); err != nil {
+	if err := handlers.bitbox.CreateWallet(walletName, backupPassword); err != nil {
 		handlers.log.WithFields(logrus.Fields{"walletName": walletName, "error": err}).
 			Error("Failed to create wallet")
 		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
@@ -168,11 +205,11 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 }
 
 func (handlers *Handlers) postLockBootloaderHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.LockBootloader()
+	return nil, handlers.bitbox.LockBootloader()
 }
 
 func (handlers *Handlers) postUnlockBootloaderHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.UnlockBootloader()
+	return handlers.bitbox.UnlockBootloader()
 }
 
 func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{}, error) {
@@ -182,7 +219,7 @@ func (handlers *Handlers) postBackupsEraseHandler(r *http.Request) (interface{},
 	}
 	filename := jsonBody["filename"]
 	handlers.log.WithField("filename", filename).Debug("Erase backup")
-	return nil, handlers.device.EraseBackup(filename)
+	return nil, handlers.bitbox.EraseBackup(filename)
 }
 
 func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{}, error) {
@@ -192,7 +229,7 @@ func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{
 	}
 	filename := jsonBody["filename"]
 	handlers.log.WithField("filename", filename).Debug("Restore backup")
-	didRestore, err := handlers.device.RestoreBackup(jsonBody["password"], filename)
+	didRestore, err := handlers.bitbox.RestoreBackup(jsonBody["password"], filename)
 	if err != nil {
 		handlers.log.WithFields(logrus.Fields{"walletName": filename, "error": err}).
 			Error("Failed to restore wallet")
@@ -209,26 +246,26 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	backupName := jsonBody["backupName"]
 	recoveryPassword := jsonBody["recoveryPassword"]
 	handlers.log.WithField("backupName", backupName).Debug("Create backup")
-	return nil, handlers.device.CreateBackup(backupName, recoveryPassword)
+	return nil, handlers.bitbox.CreateBackup(backupName, recoveryPassword)
 }
 
 func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {
-	return handlers.device.StartPairing()
+	return handlers.bitbox.StartPairing()
 }
 
 func (handlers *Handlers) postBlinkDeviceHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Blink")
-	return nil, handlers.device.Blink()
+	return nil, handlers.bitbox.Blink()
 }
 
 func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Random Number")
-	return handlers.device.Random("true")
+	return handlers.bitbox.Random("true")
 }
 
 func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Reset")
-	didReset, err := handlers.device.Reset()
+	didReset, err := handlers.bitbox.Reset()
 	if err != nil {
 		return nil, err
 	}
@@ -236,9 +273,9 @@ func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
-	return nil, handlers.device.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
+	return nil, handlers.bitbox.BootloaderUpgradeFirmware(bitbox.BundledFirmware())
 }
 
 func (handlers *Handlers) postLockHandler(_ *http.Request) (interface{}, error) {
-	return handlers.device.Lock()
+	return handlers.bitbox.Lock()
 }

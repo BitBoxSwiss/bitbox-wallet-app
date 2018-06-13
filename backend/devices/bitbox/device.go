@@ -13,6 +13,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/pbkdf2"
+
 	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
 	"github.com/shiftdevices/godbb/backend/devices/device"
@@ -22,12 +28,6 @@ import (
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/semver"
-
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/pbkdf2"
 )
 
 var (
@@ -65,37 +65,6 @@ type CommunicationInterface interface {
 	SendEncrypt(string, string) (map[string]interface{}, error)
 	SendBootloader([]byte) ([]byte, error)
 	Close()
-}
-
-// Interface is the API of a Device
-type Interface interface {
-	device.Interface
-	Status() Status
-	BootloaderStatus() (*BootloaderStatus, error)
-	DeviceInfo() (*DeviceInfo, error)
-	SetPassword(string) error
-	SetHiddenPassword(string, string) (bool, error)
-	CreateWallet(string, string) error
-	Login(string) (bool, string, error)
-	Blink() error
-	Random(string) (string, error)
-	Reset() (bool, error)
-	XPub(path string) (*hdkeychain.ExtendedKey, error)
-	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
-	UnlockBootloader() (bool, error)
-	LockBootloader() error
-	EraseBackup(string) error
-	RestoreBackup(string, string) (bool, error)
-	CreateBackup(string, string) error
-	BackupList() ([]string, error)
-	BootloaderUpgradeFirmware([]byte) error
-	DisplayAddress(keyPath string, typ string) error
-	ECDHPKhash(string) (interface{}, error)
-	ECDHPK(string) (interface{}, error)
-	ECDHchallenge() error
-	StartPairing() (*relay.Channel, error)
-	Paired() bool
-	Lock() (bool, error)
 }
 
 // DeviceInfo is the data returned from the device info api call.
