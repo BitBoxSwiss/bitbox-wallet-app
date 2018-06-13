@@ -5,6 +5,8 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/sirupsen/logrus"
+
 	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
@@ -15,33 +17,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/sirupsen/logrus"
 )
-
-const (
-// reattemptPeriod is the time until re-establishing of the connection
-// to a coin backend is attempted.
-// reattemptPeriod = 30 * time.Second
-)
-
-// Interface is the API of the backend.
-type Interface interface {
-	WalletStatus() string
-	Testing() bool
-	Accounts() []*btc.Account
-	UserLanguage() language.Tag
-	OnWalletInit(f func(*btc.Account))
-	OnWalletUninit(f func(*btc.Account))
-	OnDeviceInit(f func(device.Interface))
-	OnDeviceUninit(f func(deviceID string))
-	DevicesRegistered() []string
-	Start() <-chan interface{}
-	Keystores() keystore.Keystores
-	RegisterKeystore(keystore.Keystore)
-	DeregisterKeystore()
-	Register(device device.Interface) error
-	Deregister(deviceID string)
-}
 
 type backendEvent struct {
 	Type string `json:"type"`
