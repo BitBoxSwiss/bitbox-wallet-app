@@ -92,10 +92,8 @@ export default class Settings extends Component {
                         </div>
                     </div>
                     <div class="innerContainer scrollableContainer">
-                        <div class="content">
+                        <div class="content padded">
                             <div class="flex-1">
-
-                                <br />
 
                                 <div class="subHeaderContainer first">
                                     <div class="subHeader">

@@ -49,11 +49,11 @@ export default class Settings extends Component {
                         </div>
                     </div>
                     <div class="innerContainer scrollableContainer">
-                        <div class="content flex flex-column flex-start">
+                        <div class="content padded">
                             {
                                 config && (
                                     <div class="flex-1">
-                                        <div class="subHeaderContainer first">
+                                        <div class="subHeaderContainer">
                                             <div class="subHeader">
                                                 <h3>Active accounts</h3>
                                             </div>
@@ -95,7 +95,9 @@ export default class Settings extends Component {
                                                 className="text-medium"
                                             />
                                         </div>
-                                        <Button primary onClick={this.save}>{t('button.save')}</Button>
+                                        <div class="row">
+                                            <Button primary onClick={this.save}>{t('button.save')}</Button>
+                                        </div>
                                     </div>
                                 )
                             }
