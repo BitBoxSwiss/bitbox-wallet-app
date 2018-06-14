@@ -2,15 +2,6 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import A from '../anchor/anchor';
 import style from './transaction.css';
-import IN from './assets/icon-transfer-in.svg';
-import OUT from './assets/icon-transfer-out.svg';
-// TODO: import SELF from './assets/icon-transfer-self.svg';
-
-const transferIconMap = {
-    receive: IN,
-    send_to_self: IN,
-    send: OUT
-};
 
 @translate()
 export default class Transaction extends Component {
@@ -55,76 +46,69 @@ export default class Transaction extends Component {
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
-                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-center', style.transaction].join(' ')}>
-                    {/*
-                    <div>
-                        <img src={transferIconMap[type]} height="22" style="margin-right: var(--spacing-default)" />
-                    </div>
-                    */}
-                    <div class="flex-1">
-                        <div class={['flex', 'flex-row', 'flex-between', 'flex-items-start', style.row].join(' ')}>
-                            <div class="flex flex-row flex-start flex-items-center">
-                                <div class={style.labelContainer} onClick={this.onUncollapse}>
-                                    <div class={style.toggleContainer}>
-                                        <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
-                                    </div>
-                                    <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
-                                        {badge}
-                                    </div>
+                <div class={['flex flex-column flex-start', style.transaction].join(' ')}>
+                    <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
+                        <div class="flex flex-row flex-start flex-items-center">
+                            <div class={style.labelContainer} onClick={this.onUncollapse}>
+                                <div class={style.toggleContainer}>
+                                    <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
                                 </div>
-                                <div>
-                                    <div class={style.date}>{date}</div>
-                                    <div class={style.address}>{addresses.join(', ')}</div>
+                                <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
+                                    {badge}
                                 </div>
                             </div>
-                            <div class={[style.amount, style[type]].join(' ')}>
-                                {sign} {amount.amount} {amount.unit}
+                            <div>
+                                <div class={style.date}>{date}</div>
+                                <div class={style.address}>{addresses.join(', ')}</div>
                             </div>
                         </div>
-                        <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex', 'flex-row', 'flex-start'].join(' ')}>
-                            <div class={style.spacer}></div>
-                            <div>
-                                <div class={['flex', 'flex-row', 'flex-start', 'flex-items-start', style.row, 'spaced'].join(' ')}>
-                                    <div>
-                                        <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
-                                        <div class={style.address}>{numConfirmations}</div>
-                                    </div>
-                                    <div>
-                                        <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
-                                        <div class={style.address}>{vsize} bytes</div>
-                                    </div>
-                                    <div>
-                                        <div class={style.transactionLabel}>{t('transaction.size')}</div>
-                                        <div class={style.address}>{size} bytes</div>
-                                    </div>
-                                    <div>
-                                        <div class={style.transactionLabel}>{t('transaction.weight')}</div>
-                                        <div class={style.address}>{weight}</div>
-                                    </div>
-                                    {
-                                        fee && (
-                                            <div>
-                                                <div class={style.transactionLabel}>{t('transaction.fee')}</div>
-                                                <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
-                                            </div>
-                                        )
-                                    }
-                                    {
-                                        fiat_historical && (
-                                            <div style="align-self: flex-end; margin-left: auto; text-align: right;">
-                                                <div class={style.transactionLabel} style="margin-right: 0;">
-                                                    {t('transaction.fiatHistorical')}
-                                                </div>
-                                                <div class={style.address}>{fiat_historical}</div>
-                                            </div>
-                                        )
-                                    }
+                        <div class={[style.amount, style[type]].join(' ')}>
+                            {sign} {amount.amount} {amount.unit}
+                        </div>
+                    </div>
+                    <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
+                        <div class={style.spacer}></div>
+                        <div>
+                            <div class={['flex flex-row flex-start flex-items-start spaced', style.row].join(' ')}>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
+                                    <div class={style.address}>{numConfirmations}</div>
                                 </div>
-                                <div class={style.row}>
-                                    <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
-                                    <div class={style.address}>
-                                        <A href={ explorerURL + id }>{id}</A>
-                                    </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
+                                    <div class={style.address}>{vsize} bytes</div>
+                                </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.size')}</div>
+                                    <div class={style.address}>{size} bytes</div>
+                                </div>
+                                <div>
+                                    <div class={style.transactionLabel}>{t('transaction.weight')}</div>
+                                    <div class={style.address}>{weight}</div>
+                                </div>
+                                {
+                                    fee && (
+                                        <div>
+                                            <div class={style.transactionLabel}>{t('transaction.fee')}</div>
+                                            <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
+                                        </div>
+                                    )
+                                }
+                                {
+                                    fiat_historical && (
+                                        <div style="align-self: flex-end; margin-left: auto; text-align: right;">
+                                            <div class={style.transactionLabel} style="margin-right: 0;">
+                                                {t('transaction.fiatHistorical')}
+                                            </div>
+                                            <div class={style.address}>{fiat_historical}</div>
+                                        </div>
+                                    )
+                                }
+                            </div>
+                            <div class={style.row}>
+                                <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
+                                <div class={style.address}>
+                                    <A href={ explorerURL + id }>{id}</A>
                                 </div>
                             </div>
                         </div>
