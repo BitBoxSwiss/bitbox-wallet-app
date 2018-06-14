@@ -191,7 +191,7 @@ export default class Settings extends Component {
 
                             </div>
                         </div>
-                        { spinner && (<Spinner />)}
+                        { spinner && (<Spinner />) }
                     </div>
                 </div>
                 <Guide guide={guide} screen="bitbox" />

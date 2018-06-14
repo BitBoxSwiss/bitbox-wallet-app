@@ -76,12 +76,6 @@
     max-width: none;
 }
 
-.staticWidth {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
 .innerContainer.withFixedContent {
     padding-top: var(--header-height);
 }
@@ -166,6 +160,11 @@
 
 .row:not(:first-child).extra {
     margin-top: var(--spacing-large);
+}
+
+.bottom {
+    padding: var(--spacing-default) 0;
+    margin-bottom: 0 !important;
 }
 
 .isVerticallyCentered {

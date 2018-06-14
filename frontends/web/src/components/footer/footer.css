@@ -1,4 +1,5 @@
 .footer {
+    padding: var(--spacing-half) 0;
 }
 
 .footer p {

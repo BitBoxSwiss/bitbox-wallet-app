@@ -93,7 +93,7 @@ export default class ManageBackups extends Component {
                             })
                         }
                     </div>
-                    <div class="buttons flex flex-row flex-start staticWidth">
+                    <div class="buttons bottom">
                         {
                             showCreate && (
                                 <Create onCreate={this.refresh} deviceID={deviceID} />
