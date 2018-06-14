@@ -152,6 +152,10 @@
     overflow: auto;
 }
 
+.content.padded {
+    padding-top: var(--spacing-half);
+}
+
 .withFixedContent .content {
     margin-top: 0;
 }
@@ -176,8 +180,12 @@
     padding: 0 !important;
 }
 
+.wrapped {
+    margin-top: calc(var(--spacing-half) * -1);
+}
+
 .wrapped > * {
-    margin-bottom: var(--spacing-half);
+    margin-top: var(--spacing-half);
 }
 
 .buttons {
