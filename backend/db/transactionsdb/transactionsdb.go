@@ -72,7 +72,7 @@ func (db *DB) Begin() (transactions.DBTxInterface, error) {
 	}, nil
 }
 
-// Close implements transactions.Begin.
+// Close implements transactions.Close.
 func (db *DB) Close() error {
 	return errp.WithStack(db.db.Close())
 }
