@@ -1,6 +1,5 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
 import { Select } from '../../../components/forms';
 
 export default class FeeTargets extends Component {
@@ -41,10 +40,10 @@ export default class FeeTargets extends Component {
     render({
         disabled,
         label,
-        placeholder
+        placeholder,
     }, {
         feeTargets,
-        feeTarget
+        feeTarget,
     }) {
         if (!feeTargets) {
             return (

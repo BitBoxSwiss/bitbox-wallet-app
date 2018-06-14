@@ -94,7 +94,36 @@
             "title": "Success",
             "text": "The device is successfully paired"
         }
-
+    },
+    "deviceLock": {
+        "button": "Enable Full 2FA",
+        "title": "Enable Full 2FA",
+        "condition1": "Do you have a backup?",
+        "condition2": "Is mobile app verification working?",
+        "condition3": "2FA mode DISABLES backups and mobile app pairing. The device must be ERASED to exit 2FA mode!",
+        "confirm": "Enable Full 2FA"
+    },
+    "hiddenWallet": {
+        "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
+        "info1HTML": "A hidden wallet is created based on the <strong>hidden backup password</strong>.",
+        "info2HTML": "The <strong>hidden PIN</strong> defines the PIN to unlock the hidden wallet. Use your original PIN to unlock your original wallet.",
+        "info3HTML": "Your backup of the current wallet can be used to recover your hidden wallet using the hidden wallet password.",
+        "pinLabel": "Hidden PIN",
+        "pinRepeatLabel": "Repeat hidden PIN",
+        "pinRepeatPlaceholder": "Please confirm hidden PIN",
+        "passwordLabel": "Hidden backup password",
+        "passwordPlaceholder": "Please confirm hidden backup password"
+    },
+    "random": {
+        "button": "Generate Random Number",
+        "description": "Your BitBox generated the following 128 bit random number:"
+    },
+    "upgradeFirmware": {
+        "button": "Upgrade Firmware",
+        "title": "Upgrade Firmware",
+        "description": "Do you want to Upgrade the Firmware from version {{currentVersion}} to {{newVersion}}?",
+        "unlocked": "The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.",
+        "locked": "To upgrade from {{currentVersion}} to {{newVersion}}, please do a long touch."
     },
     "settings": {
         "title": "Settings"
@@ -139,7 +168,10 @@
     "receive": {
         "title": "Get Coins",
         "label": "Your address",
-        "verify": "Verify address securely"
+        "verify": "Verify address securely",
+        "warning": {
+            "secureOutput": "Please pair the device to enable secure address verification. Go to the device settings."
+        }
     },
     "send": {
         "title": "Send Coins",
@@ -164,7 +196,12 @@
         "customFee": {
             "label": "Converted Fee",
             "placeholder": "Converted Fee"
-        }
+        },
+        "confirm": {
+            "title": "Confirm Transaction",
+            "total": "Total"
+        },
+        "success": "Your transaction was successful."
     },
     "seed": {
         "creating": "Creating wallet…",
@@ -216,9 +253,11 @@
         }
     },
     "confirm": {
-        "title": "Approve with the BitBox",
-        "reject": "Touch only briefly",
-        "approve": "Hold 3+ seconds"
+        "info": "On your device",
+        "abortInfo": "Tap to ",
+        "abortInfoRedText": "abort",
+        "approveInfo": "Hold 3+ secs to ",
+        "approveInfoGreenText": "confirm"
     },
     "footer": {
         "appVersion": "App Version:"
@@ -234,11 +273,13 @@
         "cancel": "Cancel",
         "back": "Back",
         "save": "Save",
+        "ok": "OK",
         "previous": "Previous",
         "next": "Next",
         "restore": "Restore",
         "create": "Create",
         "abort": "Abort",
+        "upgrade": "Upgrade",
         "hiddenwallet": "Create Hidden Wallet"
     },
     "password": {
@@ -247,6 +288,11 @@
     "loading": "loading…",
     "guide": {
         "title": "Guide",
+        "apendix": {
+            "text": "Another question? Contact us at",
+            "href": "https://shiftcrypto.ch/contact",
+            "link": "shiftcrypto.ch/contact"
+        },
         "waiting": [
             {
                 "title": "Welcome to $t(appNameWithDefiniteArticle)!",

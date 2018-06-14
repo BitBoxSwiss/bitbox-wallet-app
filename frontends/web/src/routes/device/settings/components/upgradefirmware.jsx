@@ -1,11 +1,12 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
 import componentStyle from '../../../../components/style.css';
 
-
+@translate()
 export default class UpgradeFirmware extends Component {
     state = {
         unlocked: false,
@@ -38,6 +39,7 @@ export default class UpgradeFirmware extends Component {
     }
 
     render({
+        t,
         currentVersion,
         disabled,
     }, {
@@ -52,32 +54,40 @@ export default class UpgradeFirmware extends Component {
                     primary
                     onClick={() => this.setState({ activeDialog: true })}
                     disabled={disabled}>
-                    Upgrade Firmware
+                    {t('upgradeFirmware.button')}
                     {
                         newVersion !== currentVersion && (
-                            <div class={componentStyle.badge}></div>
+                            <div class={componentStyle.badge}>1</div>
                         )
                     }
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title="Upgrade Firmware">
-                            <p>Do you want to Upgrade the Firmware from version {currentVersion} to {newVersion}?</p>
+                        <Dialog title={t('upgradeFirmware.title')}>
+                            <p>{t('upgradeFirmware.description', {
+                                currentVersion, newVersion
+                            })}</p>
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button danger onClick={() => this.setState({ activeDialog: false })}>Abort</Button>
-                                <Button primary onClick={this.upgradeFirmware}>Upgrade</Button>
+                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>
+                                    {t('button.back')}
+                                </Button>
+                                <Button primary onClick={this.upgradeFirmware}>
+                                    {t('button.upgrade')}
+                                </Button>
                             </div>
                         </Dialog>
                     )
                 }
                 {
                     isConfirming && (
-                        <WaitDialog title="Upgrade Firmware" includeDefault>
+                        <WaitDialog title={t('upgradeFirmware.title')} includeDefault>
                             {
                                 unlocked ? (
-                                    <p>The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.</p>
+                                    <p>{t('upgradeFirmware.unlocked')}</p>
                                 ) : (
-                                    <p>To upgrade from {currentVersion} to {newVersion}, please do a long touch.</p>
+                                    <p>{t('upgradeFirmware.locked', {
+                                        currentVersion, newVersion
+                                    })}</p>
                                 )
                             }
                         </WaitDialog>

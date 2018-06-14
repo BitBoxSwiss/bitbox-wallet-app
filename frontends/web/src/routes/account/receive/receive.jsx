@@ -4,7 +4,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { Button, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
-import QRCode from './qrcode';
+import QRCode from '../../../components/qrcode/qrcode';
 import style from './receive.css';
 
 @translate()
@@ -32,7 +32,8 @@ export default class Receive extends Component {
         apiPost('wallet/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
             this.setState({ verifying: false });
             if (!hasSecureOutput) {
-                alert('Please pair the device to enable secure address verification. Go to the device settings.\n');
+                /* eslint no-alert: 0 */
+                alert(this.props.t('receive.warning.secureOutput'));
             }
         });
     }

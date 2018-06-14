@@ -1,6 +1,5 @@
 import { Component } from 'preact';
 import i18n from '../i18n/i18n';
-
 import { Input, Checkbox, Field } from './forms';
 import style from './password.css';
 
@@ -45,7 +44,10 @@ export class PasswordRepeatInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert('to paste text, enable \"SHOW PIN\"');
+            /* eslint no-alert: 0 */
+            alert(i18n.t('password.warning.paste', {
+                label: this.props.label
+            }));
         }
     }
 
@@ -74,7 +76,7 @@ export class PasswordRepeatInput extends Component {
         if (event.target.type === 'checkbox') {
             value = event.target.checked;
         }
-        var stateKey = event.target.id.slice(this.idPrefix().length);
+        const stateKey = event.target.id.slice(this.idPrefix().length);
         this.setState({ [stateKey]: value });
         this.validate();
     }
@@ -101,7 +103,7 @@ export class PasswordRepeatInput extends Component {
     }) {
         const warning = (capsLock && !seePlaintext) && (
             <span className={style.capsWarning}
-                title="WARNING: caps lock (⇪) are enabled">⇪</span>
+                title={i18n.t('password.warning.caps')}>⇪</span>
         );
         return (
             <div>
@@ -121,7 +123,7 @@ export class PasswordRepeatInput extends Component {
                     getRef={ref => this.password = ref}
                     value={password}>
                     {warning}
-                  </Input>
+                </Input>
                 <MatchesPattern
                     regex={this.regex}
                     text={title}

@@ -13,7 +13,11 @@ export function Guide({ guide, screen, children }) {
                 {screen && i18n.t('guide.' + screen).map(entry => <Entry entry={entry} />)}
                 {children}
                 <div className={style.entry}>
-                    Another question? Contact us at <A href="mailto:support@shiftcrypto.ch">support@shiftcrypto.ch</A>!
+                    {i18n.t('guide.apendix.text')}
+                    <br />
+                    <A href={i18n.t('guide.apendix.href')}>
+                        {i18n.t('guide.apendix.link')}
+                    </A>
                 </div>
             </div>
         </div>

@@ -1,50 +1,30 @@
 .overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	height: 100%;
-	width: 100%;
-	background-color: rgba(0, 0, 0, 0.2);
-	display: none;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  z-index: 2001;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    z-index: 2001;
 }
 
 .active {
-	display: flex;
+    display: flex;
 }
 
 .alert {
-  background-color: white;
-	max-width: 480px;
-	width: 50%;
-	border-radius: 2px;
-	padding: var(--spacing-large);
-	box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
-}
-
-.alert p {
-
+    background-color: white;
+    max-width: 480px;
+    width: 50%;
+    border-radius: 2px;
+    padding: var(--spacing-large);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
 }
 
 .alert p:first-child {
-  margin-top: 0;
-}
-
-.alertButton {
-  border: none;
-  border-radius: 2px;
-  padding: 0;
-  height: 36px;
-  min-width: 120px;
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 36px;
-  text-transform: uppercase;
-  background-color: var(--color-softblack);
-  color: var(--color-white);
-  cursor: pointer;
-  margin-top: var(--spacing-default);
+    margin-top: 0;
 }

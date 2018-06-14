@@ -15,4 +15,18 @@
 	margin-right: var(--spacing-half);
 }
 
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -8px;
+		width: 18px;
+    height: 18px;
+		background-color: var(--color-danger);
+		border-radius: 50%;
+		line-height: 17px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 11px;
+}
+
 /* BUTTONS END */

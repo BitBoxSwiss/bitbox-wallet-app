@@ -44,8 +44,12 @@ export default class Reset extends Component {
                         <Dialog title={t('reset.title')}>
                             <p>{t('reset.description')}</p>
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>{t('button.back')}</Button>
-                                <Button danger onClick={this.resetDevice}>{t('reset.button')}</Button>
+                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>
+                                    {t('button.back')}
+                                </Button>
+                                <Button danger onClick={this.resetDevice}>
+                                    {t('reset.button')}
+                                </Button>
                             </div>
                         </Dialog>
                     )
@@ -54,7 +58,7 @@ export default class Reset extends Component {
                     isConfirming && (
                         <WaitDialog
                             active={isConfirming}
-                            title="Reset Device"
+                            title={t('reset.title')}
                         />
                     )
                 }

@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import QRCode from '../../../../routes/account/receive/qrcode';
+import QRCode from '../../../../components/qrcode/qrcode';
 import { apiPost } from '../../../../utils/request';
 import Dialog from '../../../../components/dialog/dialog';
 import { apiWebsocket } from '../../../../utils/websocket';
@@ -84,8 +84,8 @@ export default class MobilePairing extends Component {
                                     )
                                 }
                             </div>
-                            <div class="flex flex-row flex-end">
-                                <Button danger onClick={() => this.setState({ status: false })}>
+                            <div class="flex flex-row flex-center">
+                                <Button secondary onClick={() => this.setState({ status: false })}>
                                     {t('button.back')}
                                 </Button>
                             </div>

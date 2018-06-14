@@ -1,50 +1,56 @@
 import { Component } from 'preact';
+import i18n from '../../i18n/i18n';
+import { Button } from '../forms';
 import style from './Alert.css';
 
 export default class Alert extends Component {
-  state = {
-    context: '',
-    active: false,
-  }
+    state = {
+        context: '',
+        active: false,
+    }
 
-  componentDidMount() {
-    window.alert = this.overrideAlert;
-    document.addEventListener('keydown', this.handleKeyDown);
-  }
+    componentDidMount() {
+        window.alert = this.overrideAlert;
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
 
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown);
-  }
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
 
-  handleKeyDown = e => {
-    if (e.keyCode === 13 && this.state.active) this.setState({ active: false });
-  }
+    handleClose = e => {
+        this.setState({ active: false });
+    }
 
-  overrideAlert = str => {
-    this.setState({
-      context: str,
-      active: true,
-    });
-  }
+    handleKeyDown = e => {
+        if (e.keyCode === 13 && this.state.active) this.setState({ active: false });
+    }
 
-  render({}, {
-    context,
-    active,
-  }) {
-    const classes = active ? [style.overlay, style.active].join(' ') : style.overlay;
-    return (
-      <div class={classes}>
-        <div class={style.alert}>
-          <p>{context}</p>
-          <div style="display: flex; flex-direction: row; justify-content: flex-end;">
-            <button
-              class={style.alertButton}
-              onClick={() => this.setState({ active: false })}>
-              OK
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    overrideAlert = str => {
+        this.setState({
+            context: str,
+            active: true,
+        });
+    }
+
+    render({}, {
+        context,
+        active,
+    }) {
+        const classes = active ? [style.overlay, style.active].join(' ') : style.overlay;
+        return (
+            <div class={classes}>
+                <div class={style.alert}>
+                    <p>{context}</p>
+                    <div style="display: flex; flex-direction: row; justify-content: flex-end;">
+                        <Button
+                            primary
+                            onClick={this.handleClose}>
+                            {i18n.t('button.ok')}
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 }

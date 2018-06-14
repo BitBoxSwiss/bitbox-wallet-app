@@ -93,6 +93,7 @@ export default class Send extends Component {
                     this.setState({ amountError: error });
                     break;
                 default:
+                    /* eslint no-alert: 0 */
                     alert(error);
                 }
             }
@@ -245,23 +246,32 @@ export default class Send extends Component {
                     </div>
                     {
                         isConfirming && (
-                            <WaitDialog title="Confirm Transaction" includeDefault>
+                            <WaitDialog title={t('send.confirm.title')} includeDefault>
                                 <div class={style.confirmationBox}>
                                     <div class="row">
-                                        <p class={['label', style.confirmationLabel, 'first'].join(' ')}>Address</p>
+                                        <p class={['label', style.confirmationLabel, 'first'].join(' ')}>
+                                            {t('send.address.label')}
+                                        </p>
                                         <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
                                     </div>
                                     <div class="flex flex-row flex-start spaced">
                                         <div>
-                                            <p class={['label', style.confirmationLabel].join(' ')}>Amount</p>
+                                            <p class={['label', style.confirmationLabel].join(' ')}>
+                                                {t('send.amount.label')}
+                                            </p>
                                             <p class={style.confirmationValue}>{proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}</p>
                                         </div>
                                         <div>
-                                            <p class={['label', style.confirmationLabel].join(' ')}>Network Fee ({feeTarget})</p>
+                                            <p class={['label', style.confirmationLabel].join(' ')}>
+                                                {t('send.fee.label')}
+                                                ({feeTarget})
+                                            </p>
                                             <p class={style.confirmationValue}>{proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}</p>
                                         </div>
                                     </div>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>Total</p>
+                                    <p class={['label', style.confirmationLabel].join(' ')}>
+                                        {t('send.total.label')}
+                                    </p>
                                     <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}</p>
                                 </div>
                             </WaitDialog>
@@ -271,7 +281,7 @@ export default class Send extends Component {
                         isSent && (
                             <Toast
                                 theme="success"
-                                message="Your transaction was successful."
+                                message={t('send.success')}
                                 withGuide={guide.shown}
                                 onHide={() => this.setState({ isSent: false })}
                             />

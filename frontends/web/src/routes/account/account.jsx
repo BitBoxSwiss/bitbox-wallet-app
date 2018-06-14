@@ -51,7 +51,6 @@ export default class Account extends Component {
 
     componentDidUpdate(prevProps, prevState) {
         if (this.props.code !== prevProps.code) {
-            // console.log('componentDidUpdate(' + this.props.code + ')');
             this.onStatusChanged();
             this.checkSDCards();
         }
@@ -89,7 +88,6 @@ export default class Account extends Component {
         if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
         }
-        console.log('onWalletEvent: ', data)
         switch (data.data) {
         case 'statusChanged':
             this.onStatusChanged();
@@ -102,7 +100,6 @@ export default class Account extends Component {
 
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
-            console.log('onStatusChanged: ', status);
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),
@@ -114,7 +111,7 @@ export default class Account extends Component {
                 state.isSend = false;
             } else {
                 state.walletInitialized = false;
-                apiPost('wallet/' + this.props.code + '/init');
+                apiPost(`wallet/${this.props.code}/init`);
             }
 
             this.setState(state);
@@ -124,7 +121,6 @@ export default class Account extends Component {
 
     onWalletChanged = () => {
         if (this.state.walletInitialized && this.state.walletConnected) {
-            // console.log('Wallet ' + this.props.code + ' initialized.');
             apiGet(`wallet/${this.props.code}/transactions`).then(transactions => {
                 this.setState({ transactions });
             });
@@ -132,7 +128,6 @@ export default class Account extends Component {
                 this.setState({ balance });
             });
         } else {
-            // console.log('Wallet ' + this.props.code + ' disconnected. Should rerender');
             this.setState({ balance: null });
         }
     }

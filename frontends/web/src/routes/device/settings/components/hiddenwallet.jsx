@@ -1,11 +1,12 @@
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
-import Spinner from '../../../../components/spinner/Spinner';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
+import InnerHTMLHelper from '../../../../utils/innerHTML';
+
 
 @translate()
 export default class HiddenWallet extends Component {
@@ -68,7 +69,8 @@ export default class HiddenWallet extends Component {
             this.abort();
             if (success) {
                 if (didCreate) {
-                    alert("Hidden wallet created successfully. Replug your BitBox to unlock it.");
+                    /* eslint no-alert: 0 */
+                    alert(this.props.t('hiddenWallet.success'));
                 }
             } else {
                 alert(errorMessage);
@@ -103,24 +105,25 @@ export default class HiddenWallet extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('button.hiddenwallet')}>
-                            <p>A hidden wallet is created based on the <strong>hidden backup password</strong>.</p>
-                            <p>The <strong>hidden PIN</strong> defines the PIN to unlock the hidden wallet. Use your original PIN to unlock your original wallet.</p>
-                            <p>Your backup of the current wallet can be used to recover your hidden wallet using the hidden wallet password.</p>
+                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info1HTML')} />
+                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info2HTML')} />
+                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info3HTML')} />
+
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
                                     idPrefix="pin"
                                     pattern="^[0-9]+$"
                                     title={t('initialize.invalid')}
-                                    label="Hidden PIN"
-                                    repeatLabel="Repeat hidden PIN"
-                                    repeatPlaceholder="Please confirm hidden PIN"
+                                    label={t('hiddenWallet.pinLabel')}
+                                    repeatLabel={t('hiddenWallet.pinRepeatLabel')}
+                                    repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
                                     ref={ref => this.pinInput = ref}
                                     onValidPassword={this.setValidPIN} />
                                 <PasswordRepeatInput
                                     idPrefix="password"
                                     ref={ref => this.passwordInput = ref}
-                                    label="Hidden backup password"
-                                    repeatPlaceholder="Please confirm hidden backup password"
+                                    label={t('hiddenWallet.passwordLabel')}
+                                    repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
                                     onValidPassword={this.setValidPassword}
                                 />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>

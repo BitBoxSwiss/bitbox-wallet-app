@@ -28,6 +28,7 @@
     --color-warn: var(--color-coolgold);
     --color-warning: var(--color-warn);
     --color-error: var(--color-swissred);
+    --color-danger: var(--color-error);
     --color-disabled: var(--color-brightgray);
     --color-focus: rgb(59, 153, 252);
 

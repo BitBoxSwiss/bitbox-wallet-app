@@ -1,9 +1,11 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 import style from '../dialog/dialog.css';
 import approve from '../../assets/device/approve.png';
 import reject from '../../assets/device/reject.png';
 
-export default class WaitDialog extends Component {
+@translate()
+export default class Confirm extends Component {
     state = {
         active: false,
     }
@@ -17,6 +19,7 @@ export default class WaitDialog extends Component {
     }
 
     render({
+        t,
         includeDefault,
         title,
         children,
@@ -26,15 +29,23 @@ export default class WaitDialog extends Component {
         const isActive = active ? style.active : '';
         const defaultContent = (
             <div class="flex flex-column flex-start">
-                <p class={['label', style.confirmationLabel].join(' ')}>On your device</p>
+                <p class={['label', style.confirmationLabel].join(' ')}>
+                    {t('confirm.info')}
+                </p>
                 <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
                     <div class="flex flex-column flex-center flex-items-center">
                         <img src={reject} alt="Reject" />
-                        <p class="text-bold">Tap to <span class="text-red">abort</span></p>
+                        <p class="text-bold">
+                            {t('confirm.abortInfo')}
+                            <span class="text-red">{t('confirm.abortInfoRedText')}</span>
+                        </p>
                     </div>
                     <div class="flex flex-column flex-center flex-items-center">
                         <img src={approve} alt="Approve" />
-                        <p class="text-bold">Hold 3+ secs to <span class="text-green">confirm</span></p>
+                        <p class="text-bold">
+                            {t('confirm.approveInfo')}
+                            <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
+                        </p>
                     </div>
                 </div>
             </div>

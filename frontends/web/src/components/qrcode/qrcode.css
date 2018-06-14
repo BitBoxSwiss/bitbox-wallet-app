@@ -1,0 +1,7 @@
+.qrcode {
+    border-radius: 2px;
+    margin-bottom: var(--spacing-default);
+    outline-color: var(--color-brightgray);
+    outline-style: solid;
+    outline-width: 1px;
+}

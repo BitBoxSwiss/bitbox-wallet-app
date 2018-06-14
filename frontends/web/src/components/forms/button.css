@@ -14,7 +14,6 @@
     line-height: 32px;
     min-width: 120px;
     height: 36px;
-    overflow: hidden;
     padding: 0 var(--spacing-default);
     position: relative;
     outline: none;

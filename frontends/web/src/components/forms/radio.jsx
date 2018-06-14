@@ -7,7 +7,7 @@ export default function Radio({
     id,
     children,
     sizeMedium,
-    ...props,
+    ...props
 }) {
     return (
         <span className={[style.radio, sizeMedium ? style.textMedium : ''].join(' ')}>

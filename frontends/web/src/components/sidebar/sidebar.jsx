@@ -7,7 +7,6 @@ import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
 import deviceSettings from '../../assets/icons/wallet-dark.svg';
-import backups from '../../assets/icons/backups.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
 @translate()

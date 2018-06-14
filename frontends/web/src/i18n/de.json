@@ -99,7 +99,7 @@
         "password": {
             "label": "Backup Passwort"
         },
-        "description": "Backups werden auf deiner SD Karte gespeichert. Das Passwort für dein Backup kann später NICHT mehr geändert werden und wird zum wiederherstellen deines Wallets unbedingt benötigt. Stelle sicher, dass du es nicht vergisst!",
+        "description": "Ich verstehe:",
         "create": "Wallet erstellen",
         "backup": "oder von Backup wiederherstellen..."
     },
@@ -154,7 +154,11 @@
         "hiddenwallet": "Verstecktes Wallet erstellen"
     },
     "password": {
-        "show": "In Klartext anzeigen"
+        "show": "In Klartext anzeigen",
+        "warning": {
+            "caps": "WARNING: caps lock (⇪) are enabled",
+            "paste": "to paste text, enable \"SHOW {{label}}\""
+        }
     },
     "loading": "laden…",
     "guide": {
