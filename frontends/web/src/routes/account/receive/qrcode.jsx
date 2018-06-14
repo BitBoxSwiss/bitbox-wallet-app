@@ -14,7 +14,7 @@ export default class QRCode extends Component {
     }
 
     componentWillReceiveProps({ data }) {
-        if (this.props.data != data) {
+        if (this.props.data !== data) {
             this.update(data);
         }
     }
@@ -27,11 +27,11 @@ export default class QRCode extends Component {
     render({}, { src }) {
         return (
             <img
-              ref={ref => this.img = ref}
-              width={256} height={256}
-              className={style.qrcode}
-              src={src}
-              />
+                ref={ref => this.img = ref}
+                width={256} height={256}
+                className={style.qrcode}
+                src={src}
+            />
         );
     }
 }

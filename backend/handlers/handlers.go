@@ -17,6 +17,7 @@ import (
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	accountHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
+	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
@@ -47,6 +48,7 @@ type Backend interface {
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
+	Rates() coin.Rates
 }
 
 // Handlers provides a web api to the backend.
@@ -121,6 +123,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/wallet-status", handlers.getWalletStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/coins/btc/rates", handlers.getBtcRatesHandler).Methods("GET")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -259,6 +262,10 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.DeregisterKeystore()
 	return true, nil
+}
+
+func (handlers *Handlers) getBtcRatesHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Rates(), nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';
 import { Guide, Entry } from '../../components/guide/guide';
 import Balance from '../../components/balance/balance';
+import Rates from '../../components/rates/rates';
 import Status from '../../components/status/status';
 import Send from './send/send';
 import Receive from './receive/receive';
@@ -88,7 +89,7 @@ export default class Account extends Component {
         if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
         }
-        console.log("onWalletEvent: ", data)
+        console.log('onWalletEvent: ', data)
         switch (data.data) {
         case 'statusChanged':
             this.onStatusChanged();
@@ -101,11 +102,11 @@ export default class Account extends Component {
 
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
-            console.log("onStatusChanged: ", status)
+            console.log('onStatusChanged: ', status);
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),
-            }
+            };
 
             if (status.includes('accountSynced')) {
                 state.walletInitialized = true;
@@ -113,7 +114,7 @@ export default class Account extends Component {
                 state.isSend = false;
             } else {
                 state.walletInitialized = false;
-                apiPost("wallet/" + this.props.code + "/init");
+                apiPost('wallet/' + this.props.code + '/init');
             }
 
             this.setState(state);
@@ -173,6 +174,7 @@ export default class Account extends Component {
                                         )
                                     }
                                 </Balance>
+                                { balance && <Rates currency="usd" amount={balance.available} /> }
                                 <div class={componentStyle.buttons} style="align-self: flex-end;">
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
                                         {t('button.receive')}

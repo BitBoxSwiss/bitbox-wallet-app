@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import A from '../anchor/anchor';
+import Rates from '../rates/rates';
 import style from './transaction.css';
 
 @translate()
@@ -28,7 +29,7 @@ export default class Transaction extends Component {
         id,
         amount,
         fiat = '',
-        fiat_historical = '',
+        fiatHistorical = '',
         fee,
         feeRatePerKb,
         vsize,
@@ -63,7 +64,8 @@ export default class Transaction extends Component {
                             </div>
                         </div>
                         <div class={[style.amount, style[type]].join(' ')}>
-                            {sign} {amount.amount} {amount.unit}
+                            <div>{sign} {amount.amount} {amount.unit}</div>
+                            <div><Rates currency="usd" amount={amount.amount}>{sign}</Rates></div>
                         </div>
                     </div>
                     <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
@@ -95,12 +97,12 @@ export default class Transaction extends Component {
                                     )
                                 }
                                 {
-                                    fiat_historical && (
+                                    fiatHistorical && (
                                         <div style="align-self: flex-end; margin-left: auto; text-align: right;">
                                             <div class={style.transactionLabel} style="margin-right: 0;">
                                                 {t('transaction.fiatHistorical')}
                                             </div>
-                                            <div class={style.address}>{fiat_historical}</div>
+                                            <div class={style.address}>{fiatHistorical}</div>
                                         </div>
                                     )
                                 }

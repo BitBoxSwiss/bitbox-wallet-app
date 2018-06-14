@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"golang.org/x/text/language"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -17,6 +18,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/observable"
 )
 
 type backendEvent struct {
@@ -54,6 +56,9 @@ type Backend struct {
 	accountsLock locker.Locker
 	// accountsSyncStart time.Time
 
+	// Stored and exposed temporarily through the backend.
+	ratesUpdater coin.RatesUpdater
+
 	log *logrus.Entry
 }
 
@@ -64,9 +69,10 @@ func NewBackend() *Backend {
 		arguments: arguments.Get(),
 		events:    make(chan interface{}, 1000),
 
-		devices:   map[string]device.Interface{},
-		keystores: keystore.NewKeystores(),
-		log:       log,
+		devices:      map[string]device.Interface{},
+		keystores:    keystore.NewKeystores(),
+		ratesUpdater: btc.NewRatesUpdater(),
+		log:          log,
 	}
 }
 
@@ -103,29 +109,34 @@ func (backend *Backend) addAccount(
 }
 
 func (backend *Backend) initAccounts() {
+	eventForwarder := func(event *observable.Event) {
+		backend.events <- event
+	}
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
-			RBTC := btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, "")
+			RBTC := btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, "", nil)
 			backend.addAccount(RBTC, "rbtc", "Bitcoin Regtest", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 			backend.addAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 		} else {
-			TBTC := btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/")
+			TBTC := btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
+			TBTC.RegisterEventListener(&eventForwarder)
 			backend.addAccount(TBTC, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
 
-			TLTC := btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, "http://explorer.litecointools.com/tx/")
+			TLTC := btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, "http://explorer.litecointools.com/tx/", nil)
 			backend.addAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
 		}
 	} else {
-		BTC := btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/")
+		BTC := btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/", backend.ratesUpdater)
+		BTC.RegisterEventListener(&eventForwarder)
 		backend.addAccount(BTC, "btc", "Bitcoin", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
 		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
 		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
 
-		LTC := btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, "https://insight.litecore.io/tx/")
+		LTC := btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, "https://insight.litecore.io/tx/", nil)
 		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin Segwit", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH)
 		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin Native Segwit", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
 	}
@@ -312,4 +323,9 @@ func (backend *Backend) Deregister(deviceID string) {
 
 func (backend *Backend) listenHID() {
 	usb.NewManager(backend.Register, backend.Deregister).ListenHID()
+}
+
+// Rates return the latest rates for BTC.
+func (backend *Backend) Rates() coin.Rates {
+	return backend.ratesUpdater.Last()
 }

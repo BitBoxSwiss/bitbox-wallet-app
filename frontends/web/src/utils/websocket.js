@@ -29,7 +29,7 @@ export function apiWebsocket(msgCallback) {
         };
 
         socket.onclose = function(event) {
-            currentListeners.forEach(listener => listener({ type: "frontend", data: "closed"}));
+            currentListeners.forEach(listener => listener({ type: 'frontend', data: 'closed' }));
         };
     }
     return () => {

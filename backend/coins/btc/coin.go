@@ -5,8 +5,12 @@ import (
 	"path"
 	"strconv"
 
+	"github.com/shiftdevices/godbb/backend/coins/coin"
+
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
+	"github.com/sirupsen/logrus"
+
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
@@ -14,7 +18,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/sirupsen/logrus"
+	"github.com/shiftdevices/godbb/util/observable"
 )
 
 // Coin models a Bitcoin-related coin.
@@ -24,8 +28,11 @@ type Coin struct {
 	net                   *chaincfg.Params
 	blockExplorerTxPrefix string
 
-	blockchain         blockchain.Interface
-	electrumClientLock locker.Locker
+	ratesUpdater coin.RatesUpdater
+	observable.Implementation
+
+	blockchain     blockchain.Interface
+	blockchainLock locker.Locker
 
 	headers     *headers.Headers
 	headersLock locker.Locker
@@ -38,15 +45,25 @@ func NewCoin(
 	name string,
 	unit string,
 	net *chaincfg.Params,
-	blockExplorerTxPrefix string) *Coin {
-	return &Coin{
+	blockExplorerTxPrefix string,
+	ratesUpdater coin.RatesUpdater,
+) *Coin {
+	coin := &Coin{
 		name: name,
 		unit: unit,
 		net:  net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		ratesUpdater:          ratesUpdater,
 
 		log: logging.Get().WithGroup("coin").WithField("name", name),
 	}
+	if ratesUpdater != nil {
+		eventForwarder := func(event *observable.Event) {
+			coin.NotifyListeners(event)
+		}
+		ratesUpdater.RegisterEventListener(&eventForwarder)
+	}
+	return coin
 }
 
 // Name returns the coin's name.
@@ -78,9 +95,14 @@ func (coin *Coin) FormatAmountAsJSON(amount int64) map[string]string {
 	}
 }
 
+// RatesUpdater returns current exchange rates.
+func (coin *Coin) RatesUpdater() coin.RatesUpdater {
+	return coin.ratesUpdater
+}
+
 // Blockchain connects to a blockchain backend.
 func (coin *Coin) Blockchain() blockchain.Interface {
-	defer coin.electrumClientLock.Lock()()
+	defer coin.blockchainLock.Lock()()
 	if coin.blockchain != nil {
 		return coin.blockchain
 	}
