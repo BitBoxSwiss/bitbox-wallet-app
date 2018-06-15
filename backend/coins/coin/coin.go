@@ -1,5 +1,20 @@
 package coin
 
+// Conversions to fiat currencies.
+type Conversions struct {
+	USD string `json:"usd"`
+	EUR string `json:"eur"`
+	CHF string `json:"chf"`
+	GBP string `json:"gbp"`
+}
+
+// FormattedAmount with unit and conversions.
+type FormattedAmount struct {
+	Amount      string      `json:"amount"`
+	Unit        string      `json:"unit"`
+	Conversions Conversions `json:"conversions"`
+}
+
 // Coin models the currency of a blockchain.
 type Coin interface {
 	// Code returns the acronym of the currency in lowercase.
@@ -21,7 +36,7 @@ type Coin interface {
 
 	// FormatAmountAsJSON formats the given amount as a JSON object with the number as a string and
 	// the currency code in a suitable denomination.
-	FormatAmountAsJSON(int64) map[string]string
+	FormatAmountAsJSON(int64) FormattedAmount
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

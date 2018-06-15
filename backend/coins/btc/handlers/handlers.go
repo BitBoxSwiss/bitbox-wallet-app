@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shiftdevices/godbb/backend/coins/coin"
+
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
@@ -54,18 +56,18 @@ func (handlers *Handlers) Uninit() {
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID               string            `json:"id"`
-	VSize            int64             `json:"vsize"`
-	Size             int64             `json:"size"`
-	Weight           int64             `json:"weight"`
-	NumConfirmations int               `json:"numConfirmations"`
-	Height           int               `json:"height"`
-	Type             string            `json:"type"`
-	Amount           map[string]string `json:"amount"`
-	Fee              map[string]string `json:"fee"`
-	FeeRatePerKb     map[string]string `json:"feeRatePerKb"`
-	Time             *string           `json:"time"`
-	Addresses        []string          `json:"addresses"`
+	ID               string               `json:"id"`
+	VSize            int64                `json:"vsize"`
+	Size             int64                `json:"size"`
+	Weight           int64                `json:"weight"`
+	NumConfirmations int                  `json:"numConfirmations"`
+	Height           int                  `json:"height"`
+	Type             string               `json:"type"`
+	Amount           coin.FormattedAmount `json:"amount"`
+	Fee              coin.FormattedAmount `json:"fee"`
+	FeeRatePerKb     coin.FormattedAmount `json:"feeRatePerKb"`
+	Time             *string              `json:"time"`
+	Addresses        []string             `json:"addresses"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -81,7 +83,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString, feeRatePerKbString map[string]string
+		var feeString, feeRatePerKbString coin.FormattedAmount
 		if txInfo.Fee != nil {
 			feeString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.Fee))
 			feeRatePerKbString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))

@@ -16,6 +16,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	walletHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
+	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/util/jsonp"
 	"github.com/shiftdevices/godbb/util/test"
 
@@ -244,8 +245,8 @@ func (s *backendTestSuite) TestBackend() {
 				NumConfirmations: 1,
 				Height:           102,
 				Type:             "receive",
-				Amount:           map[string]string{"amount": "10", "unit": "RBTC"},
-				Fee:              nil,
+				Amount:           coin.FormattedAmount{Amount: "10", Unit: "RBTC"},
+				Fee:              coin.FormattedAmount{},
 				Time:             &txTime,
 				Addresses:        []string{receiveAddresses[0]["address"]},
 			}},

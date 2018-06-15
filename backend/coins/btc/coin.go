@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"path"
 	"strconv"
-
-	"github.com/shiftdevices/godbb/backend/coins/coin"
+	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
@@ -14,6 +13,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
+	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/util/locker"
@@ -28,7 +28,7 @@ type Coin struct {
 	net                   *chaincfg.Params
 	blockExplorerTxPrefix string
 
-	ratesUpdater coin.RatesUpdater
+	ratesUpdater coinpkg.RatesUpdater
 	observable.Implementation
 
 	blockchain     blockchain.Interface
@@ -46,7 +46,7 @@ func NewCoin(
 	unit string,
 	net *chaincfg.Params,
 	blockExplorerTxPrefix string,
-	ratesUpdater coin.RatesUpdater,
+	ratesUpdater coinpkg.RatesUpdater,
 ) *Coin {
 	coin := &Coin{
 		name: name,
@@ -84,16 +84,38 @@ func (coin *Coin) FormatAmount(amount int64) string {
 		-int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
 }
 
+func formatAsCurrency(amount float64) string {
+	formatted := strconv.FormatFloat(amount, 'f', 2, 64)
+	position := strings.Index(formatted, ".") - 3
+	for position > 0 {
+		formatted = formatted[:position] + "'" + formatted[position:]
+		position = position - 3
+	}
+	return formatted
+}
+
 // FormatAmountAsJSON implements coin.Coin.
-func (coin *Coin) FormatAmountAsJSON(amount int64) map[string]string {
-	return map[string]string{
-		"amount": strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f', -int(btcutil.AmountBTC+8), 64),
-		"unit":   coin.Unit(),
+func (coin *Coin) FormatAmountAsJSON(amount int64) coinpkg.FormattedAmount {
+	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
+	conversions := coinpkg.Conversions{}
+	if coin.ratesUpdater != nil {
+		rates := coin.ratesUpdater.Last()
+		conversions = coinpkg.Conversions{
+			USD: formatAsCurrency(float * rates.USD),
+			EUR: formatAsCurrency(float * rates.EUR),
+			CHF: formatAsCurrency(float * rates.CHF),
+			GBP: formatAsCurrency(float * rates.GBP),
+		}
+	}
+	return coinpkg.FormattedAmount{
+		Amount:      strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64),
+		Unit:        coin.Unit(),
+		Conversions: conversions,
 	}
 }
 
 // RatesUpdater returns current exchange rates.
-func (coin *Coin) RatesUpdater() coin.RatesUpdater {
+func (coin *Coin) RatesUpdater() coinpkg.RatesUpdater {
 	return coin.ratesUpdater
 }
 
