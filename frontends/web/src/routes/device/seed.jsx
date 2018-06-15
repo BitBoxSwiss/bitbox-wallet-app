@@ -116,7 +116,7 @@ export default class Seed extends Component {
                     type="button"
                     transparent
                     onClick={() => this.setState({ fromBackup: false })}>
-                    Or go back to create a new wallet…
+                    {t('seed.backToCreate')}
                 </Button>
             </Backups>
         ) : (

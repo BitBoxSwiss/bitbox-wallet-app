@@ -58,11 +58,14 @@ export default class Initialize extends Component {
         this.setState({ password });
     }
 
-    render({ t, guide }, {
+    render({
+        t,
+        guide,
+    }, {
         password,
         status,
         errorCode,
-        errorMessage
+        errorMessage,
     }) {
 
         let formSubmissionState = null;
@@ -93,10 +96,10 @@ export default class Initialize extends Component {
                         <form onSubmit={this.handleSubmit}>
                             <PasswordRepeatInput
                                 pattern="^[0-9]+$"
-                                title={t('initialize.invalid')}
-                                label="PIN"
-                                repeatLabel="Repeat PIN"
-                                repeatPlaceholder="Please confirm PIN"
+                                title={t('initialize.input.invalid')}
+                                label={t('initialize.input.label')}
+                                repeatLabel={t('initialize.input.labelRepeat')}
+                                repeatPlaceholder={t('initialize.input.placeholderRepeat')}
                                 ref={ref => this.passwordInput = ref}
                                 disabled={status === stateEnum.WAITING}
                                 onValidPassword={this.setValidPassword} />

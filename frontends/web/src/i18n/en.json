@@ -225,12 +225,18 @@
             "funds_access": "I will NOT be able to access my funds if I forget my password"
         },
         "create": "Create Wallet",
-        "backup": "or restore a Backup…"
+        "backup": "Or restore a Backup…",
+        "backToCreate": "Or create a new wallet…"
     },
     "initialize": {
         "creating": "Setting PIN…",
         "description": "Please set a PIN to interact with your device",
-        "invalid": "Only digits are allowed",
+        "input": {
+            "label": "PIN",
+            "labelRepeat": "Repeat PIN",
+            "placeholderRepeat": "Please confirm PIN",
+            "invalid": "Only digits are allowed"
+        },
         "create": "Set PIN",
         "error" : {
             "102": "The PIN must consist of at least 4 digits."
@@ -289,7 +295,11 @@
         "hiddenwallet": "Create Hidden Wallet"
     },
     "password": {
-        "show": "Show in clear text"
+        "show": "Show {{label}}",
+        "warning": {
+            "caps": "WARNING: caps lock (⇪) are enabled",
+            "paste": "to paste text, enable \"SHOW {{label}}\""
+        }
     },
     "loading": "loading…",
     "guide": {

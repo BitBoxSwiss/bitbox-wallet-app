@@ -4,7 +4,6 @@ import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { BitBox } from '../../components/icon/logo';
 import { Button } from '../../components/forms';
-import Dialog from '../../components/dialog/dialog';
 import style from './device.css';
 
 @translate()

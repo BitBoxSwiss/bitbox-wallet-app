@@ -99,14 +99,20 @@
         "password": {
             "label": "Backup Passwort"
         },
-        "description": "Ich verstehe:",
+        "description": "Ich bestätige:",
         "create": "Wallet erstellen",
-        "backup": "oder von Backup wiederherstellen..."
+        "backup": "oder Backup laden…",
+        "backToCreate": "Wallet erstellen…"
     },
     "initialize": {
         "creating": "PIN wird gespeichert…",
         "description": "Bitte lege einen PIN für dein Gerät fest.",
-        "invalid": "Nur Zahlen sind erlaubt.",
+        "input": {
+            "label": "PIN",
+            "labelRepeat": "PIN wiederholen",
+            "placeholderRepeat": "Bitte PIN bestätigen",
+            "invalid": "Nur Zahlen sind erlaubt."
+        },
         "create": "PIN speichern",
         "error": {
             "102": "Der PIN muss aus mindestens 4 Zahlen bestehen."
@@ -154,7 +160,7 @@
         "hiddenwallet": "Verstecktes Wallet erstellen"
     },
     "password": {
-        "show": "In Klartext anzeigen",
+        "show": "Zeige {{label}}",
         "warning": {
             "caps": "WARNING: caps lock (⇪) are enabled",
             "paste": "to paste text, enable \"SHOW {{label}}\""
