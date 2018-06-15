@@ -7,8 +7,8 @@ import (
 // Rates store the exchange rate into various fiat currencies.
 type Rates struct {
 	USD float64 `json:"usd"`
-	CHF float64 `json:"chf"`
 	EUR float64 `json:"eur"`
+	CHF float64 `json:"chf"`
 	GBP float64 `json:"gbp"`
 }
 

@@ -94,6 +94,6 @@ func (updater *RatesUpdater) update() {
 func (updater *RatesUpdater) start() {
 	for {
 		updater.update()
-		time.Sleep(15 * time.Second)
+		time.Sleep(time.Minute)
 	}
 }

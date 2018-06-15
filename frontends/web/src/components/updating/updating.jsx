@@ -26,6 +26,11 @@ export default class UpdatingComponent extends Component {
                     case 'remove':
                         this.setState(state => ({ [entry.key]: state[entry.key].filter(item => !equal(item, object)) }));
                         break;
+                    case 'reload':
+                        apiGet(entry.url).then(object => {
+                            this.setState({ [entry.key]: object });
+                        });
+                        break;
                     }
                 }
             }

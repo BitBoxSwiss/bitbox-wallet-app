@@ -15,4 +15,7 @@ const (
 
 	// Remove removes the object from the list of values of the subject.
 	Remove Action = "remove"
+
+	// Reload tells the listener to reload the state of the subject.
+	Reload Action = "reload"
 )
