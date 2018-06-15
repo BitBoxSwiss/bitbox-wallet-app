@@ -131,8 +131,10 @@ export default class App extends Component {
                 {walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
                 <div class="flex-column flex-1">
                     {update && <Status dismissable keyName={`update-${update.version}`} type="info">
-                        A new version of this app is available! We recommend that you upgrade
-                        from {update.current} to {update.version}. {update.description}
+                        {t('app.upgrade', {
+                            current: update.current,
+                            version: update.version
+                        })} {update.description}
                         &nbsp;<A href="https://shiftcrypto.ch/start">Download</A>
                     </Status>}
                     <Router onChange={this.handleRoute}>

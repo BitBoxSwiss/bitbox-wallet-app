@@ -1,6 +1,9 @@
 {
     "appName": "Shift Wallet",
     "appNameWithDefiniteArticle": "the Shift Wallet",
+    "app": {
+        "upgrade": "A new version of this app is available! We recommend that you upgrade from {{current}} to {{version}}."
+    },
     "sidebar": {
         "settings": "Settings",
         "leave": "Leave"
@@ -132,7 +135,9 @@
         "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
     },
     "settings": {
-        "title": "Settings"
+        "title": "Settings",
+        "accounts": "Active accounts",
+        "success": "Settings saved. Please restart the application for the changes to take effect."
     },
     "language": {
         "title": "Select language"

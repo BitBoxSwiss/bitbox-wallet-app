@@ -55,7 +55,7 @@ export default class Settings extends Component {
                                     <div class="flex-1">
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
-                                                <h3>Active accounts</h3>
+                                                <h3>{t('settings.accounts')}</h3>
                                             </div>
                                         </div>
                                         <div class="flex flex-row flex-start flex-wrap wrapped">
@@ -108,7 +108,7 @@ export default class Settings extends Component {
                         toast && (
                             <Toast
                                 theme="success"
-                                message="Settings saved. Please restart the application for the changes to take effect."
+                                message={t('settings.success')}
                                 onHide={() => this.setState({ toast: false })}
                             />
                         )
