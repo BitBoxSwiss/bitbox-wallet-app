@@ -108,9 +108,14 @@ export default class Transaction extends Component {
                                 }
                             </div>
                             <div class={style.row}>
-                                <div class={style.transactionLabel}>{t('transaction.explorer')}</div>
+                                <div class={style.transactionLabel}>
+                                    {t('transaction.explorer')}
+                                </div>
                                 <div class={style.address}>
-                                    <A href={ explorerURL + id }>{id}</A>
+                                    {id}
+                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
+                                      <span class={style.external}></span>
+                                    </A>
                                 </div>
                             </div>
                         </div>

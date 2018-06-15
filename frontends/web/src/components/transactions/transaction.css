@@ -178,3 +178,32 @@
 .collapsedContent a:hover {
     color: var(--color-brightblue);
 }
+
+.external {
+    outline: 1px solid;
+    color: var(--color-brightblue);
+    display: inline-block;
+    line-height: 1;
+    margin-left: var(--spacing-half);
+    margin-right: 6px;
+}
+
+.external::before {
+    background: var(--color-white);
+    content: "↗";
+    width: 15px;
+    height: 14px;
+    display: inline-block;
+    top: -3px;
+    right: -5px;
+    position: relative;
+}
+
+.external:hover {
+  outline-width: 2px;
+}
+
+.external:hover::before  {
+    top: -4px;
+    right: -6px;
+}

@@ -174,7 +174,8 @@
         "weight": "weight",
         "fee": "Fee",
         "fiatHistorical": "Historical",
-        "explorer": "Transaction ID (Open in external block Explorer)"
+        "explorer": "Transaction ID",
+        "explorerTitle": "Open in external block Explorer"
     },
     "receive": {
         "title": "Get Coins",
