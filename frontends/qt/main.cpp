@@ -52,15 +52,21 @@ int main(int argc, char *argv[])
 
     QThread workerThread;
     webClass = new WebClass();
-    // Run client queries in a sepearate to not block the UI.
+    // Run client queries in a separate to not block the UI.
     webClass->moveToThread(&workerThread);
     workerThread.start();
     QObject::connect(&a, &QApplication::aboutToQuit, &workerThread, &QThread::quit);
 
-    ConnectionData serveData = serve([](const char* msg) {
-        if (!pageLoaded) return;
-        webClass->pushNotify(QString(msg));
-    });
+    ConnectionData serveData = serve(
+                                     [](const char* msg) {
+                                         if (!pageLoaded) return;
+                                         webClass->pushNotify(QString(msg));
+                                     },
+                                     [](int queryID, const char* msg) {
+                                         if (!pageLoaded) return;
+                                         webClass->gotResponse(queryID, QString(msg));
+                                     }
+                                     );
 
     RequestInterceptor interceptor(serveData.token);
     view->page()->profile()->setRequestInterceptor(&interceptor);

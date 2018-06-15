@@ -11,6 +11,11 @@ static void pushNotify(pushNotificationsCallback f, const char* msg) {
     f(msg);
 }
 
+typedef void (*responseCallback) (int, const char*);
+static void respond(responseCallback f, int queryID, const char* msg) {
+    f(queryID, msg);
+}
+
 typedef struct ConnectionData {
     char* token;
 } ConnectionData;
@@ -37,6 +42,7 @@ import (
 
 var theBackend *backend.Backend
 var handlers *backendHandlers.Handlers
+var responseCallback C.responseCallback
 var token string
 
 // Copied and adapted from package http server.go.
@@ -61,32 +67,35 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 }
 
 //export backendCall
-func backendCall(s *C.char) *C.char {
+func backendCall(queryID C.int, s *C.char) {
 	if handlers == nil {
-		return C.CString("null")
+		return
 	}
 	query := map[string]string{}
 	jsonp.MustUnmarshal([]byte(C.GoString(s)), &query)
 	if query["method"] != "POST" && query["method"] != "GET" {
 		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
 	}
-	rec := httptest.NewRecorder()
-	request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
-	if err != nil {
-		panic(errp.WithStack(err))
-	}
-	request.Header.Set("Authorization", "Basic "+token)
-	handlers.Router.ServeHTTP(rec, request)
-	response := rec.Result()
-	responseBytes, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		panic(errp.WithStack(err))
-	}
-	return C.CString(string(responseBytes))
+	go func() {
+		rec := httptest.NewRecorder()
+		request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		request.Header.Set("Authorization", "Basic "+token)
+		handlers.Router.ServeHTTP(rec, request)
+		response := rec.Result()
+		responseBytes, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		C.respond(responseCallback, queryID, C.CString(string(responseBytes)))
+	}()
 }
 
 //export serve
-func serve(pushNotificationsCallback C.pushNotificationsCallback) C.struct_ConnectionData {
+func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) C.struct_ConnectionData {
+	responseCallback = theResponseCallback
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	var err error
