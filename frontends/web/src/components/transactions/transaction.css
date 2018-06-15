@@ -28,6 +28,7 @@
     color: var(--color-secondary);
     font-size: var(--size-small);
     font-weight: bolder;
+    margin-bottom: 3px;
 }
 
 .amount {
@@ -51,6 +52,15 @@
 
 .amount.converted {
     color: lightgrey;
+}
+
+.fiat {
+    font-weight: bold;
+    font-size: var(--size-small);
+}
+
+.unit {
+    color: var(--color-secondary);
 }
 
 .labelContainer {
@@ -128,7 +138,7 @@
 }
 
 .row:not(:first-child) {
-    margin-top: var(--spacing-half);
+    margin-top: var(--spacing-default);
 }
 
 .address {
@@ -145,8 +155,8 @@
 }
 
 .collapsedContent.active {
-    margin-top: var(--spacing-half);
-    max-height: 90px;
+    margin-top: var(--spacing-default);
+    max-height: 104px;
 }
 
 .collapsedContent .spacer {

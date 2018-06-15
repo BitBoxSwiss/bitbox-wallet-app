@@ -37,7 +37,7 @@
 }
 
 .spaced > *:not(:last-child) {
-    margin-right: var(--spacing-default);
+    margin-right: var(--spacing-large);
 }
 
 .app {
