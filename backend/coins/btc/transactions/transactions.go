@@ -324,10 +324,10 @@ func (transactions *Transactions) doForTransaction(
 		transactions.requestedTXs[txHash] = []func(DBTxInterface, *wire.MsgTx){}
 	}
 	alreadyDownloading := len(transactions.requestedTXs[txHash]) != 0
+	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
 	if alreadyDownloading {
 		return
 	}
-	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
 	done := transactions.synchronizer.IncRequestsCounter()
 	transactions.blockchain.TransactionGet(
 		txHash,
