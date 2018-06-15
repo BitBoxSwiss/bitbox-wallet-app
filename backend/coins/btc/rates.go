@@ -84,7 +84,7 @@ func (updater *RatesUpdater) update() {
 
 	updater.log.WithField("rates", rates).Debug("Exchange rates for BTC changed.")
 
-	updater.NotifyListeners(&observable.Event{
+	updater.Notify(observable.Event{
 		Subject: "coins/btc/rates",
 		Action:  action.Replace,
 		Object:  rates,

@@ -109,9 +109,6 @@ func (backend *Backend) addAccount(
 }
 
 func (backend *Backend) initAccounts() {
-	eventForwarder := func(event *observable.Event) {
-		backend.events <- event
-	}
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
@@ -120,7 +117,7 @@ func (backend *Backend) initAccounts() {
 			backend.addAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 		} else {
 			TBTC := btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
-			TBTC.RegisterEventListener(&eventForwarder)
+			TBTC.Observe(func(event observable.Event) { backend.events <- event })
 			backend.addAccount(TBTC, "tbtc", "Bitcoin Testnet", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
@@ -131,7 +128,7 @@ func (backend *Backend) initAccounts() {
 		}
 	} else {
 		BTC := btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/", backend.ratesUpdater)
-		BTC.RegisterEventListener(&eventForwarder)
+		BTC.Observe(func(event observable.Event) { backend.events <- event })
 		backend.addAccount(BTC, "btc", "Bitcoin", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
 		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin Segwit", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
 		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)

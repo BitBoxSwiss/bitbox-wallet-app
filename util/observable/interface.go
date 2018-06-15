@@ -1,12 +1,7 @@
 package observable
 
-// Interface can be embedded in interfaces that should be observable.
+// Interface can be embedded in interfaces that are observable.
 type Interface interface {
-	// RegisterEventListener registers the given event listener.
-	// It returns true if the given listener has not already been registered and false otherwise.
-	RegisterEventListener(Listener) bool
-
-	// DeregisterEventListener deregisters the given event listener.
-	// It returns true if the given listener has been registered and false otherwise.
-	DeregisterEventListener(Listener) bool
+	// Observe registers the given callback and returns a function to unobserve again.
+	Observe(func(Event)) func()
 }

@@ -58,10 +58,7 @@ func NewCoin(
 		log: logging.Get().WithGroup("coin").WithField("name", name),
 	}
 	if ratesUpdater != nil {
-		eventForwarder := func(event *observable.Event) {
-			coin.NotifyListeners(event)
-		}
-		ratesUpdater.RegisterEventListener(&eventForwarder)
+		ratesUpdater.Observe(coin.Notify)
 	}
 	return coin
 }
