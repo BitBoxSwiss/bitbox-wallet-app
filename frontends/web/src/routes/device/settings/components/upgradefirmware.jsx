@@ -80,7 +80,7 @@ export default class UpgradeFirmware extends Component {
                 }
                 {
                     isConfirming && (
-                        <WaitDialog title={t('upgradeFirmware.title')} includeDefault>
+                        <WaitDialog title={t('upgradeFirmware.title')} includeDefault={!unlocked}>
                             {
                                 unlocked ? (
                                     <p>{t('upgradeFirmware.unlocked')}</p>
