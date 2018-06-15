@@ -125,6 +125,12 @@
         "unlocked": "The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.",
         "locked": "To upgrade from {{currentVersion}} to {{newVersion}}, please do a long touch."
     },
+    "bootloader": {
+        "button": "Upgrade Firmware now",
+        "message": "Hello Bootloader.",
+        "progress": "Upgrading: {{progress}}%",
+        "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
+    },
     "settings": {
         "title": "Settings"
     },

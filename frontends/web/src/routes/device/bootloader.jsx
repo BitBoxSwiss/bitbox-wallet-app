@@ -1,9 +1,13 @@
 import { Component } from 'preact';
+import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
+import { BitBox } from '../../components/icon/logo';
 import { Button } from '../../components/forms';
 import Dialog from '../../components/dialog/dialog';
+import style from './device.css';
 
+@translate()
 export default class Bootloader extends Component {
     constructor(props) {
         super(props);
@@ -36,43 +40,64 @@ export default class Bootloader extends Component {
     }
 
     onStatusChanged = () => {
-        apiGet('devices/' + this.props.deviceID + '/bootloader-status').then(status => {
-            this.setState({
-                upgrading: status.upgrading,
-                progress: status.progress,
-                upgradeSuccessful: status.upgradeSuccessful,
-                errMsg: status.errMsg
+        apiGet('devices/' + this.props.deviceID + '/bootloader-status')
+            .then(({ upgrading, progress, upgradeSuccessful, errMsg }) => {
+                this.setState({
+                    upgrading,
+                    progress,
+                    upgradeSuccessful,
+                    errMsg,
+                });
             });
-        });
     }
 
     upgradeFirmware = () => {
         apiPost('devices/' + this.props.deviceID + '/bootloader/upgrade-firmware');
     }
 
-    render({}, { upgrading, progress, upgradeSuccessful, errMsg }) {
-        let UpgradeOrStatus = () => {
-            if (upgrading) {
-                if (upgradeSuccessful) {
-                    return (
-                        <p>Upgrade successful! Please replug the device. This time, do not touch the button.</p>
-                    );
-                }
-                return <p>Upgrading: {Math.round(progress * 100)}%</p>;
+    render({
+        t
+    }, {
+        upgrading,
+        progress,
+        upgradeSuccessful,
+        errMsg,
+    }) {
+        let UpgradeOrStatus;
+
+        if (upgrading) {
+            if (upgradeSuccessful) {
+                UpgradeOrStatus = <p>{t('bootloader.success')}</p>;
+            } else {
+                const value = Math.round(progress * 100);
+                UpgradeOrStatus = (
+                    <div>
+                        <progress value={value} max="100">{value}%</progress>
+                        <p>{t('bootloader.progress', {
+                            progress: value
+                        })}</p>
+                    </div>
+                );
             }
-            return (
+        } else {
+            UpgradeOrStatus = (
                 <Button
-                    secondary={true}
-                    onClick={this.upgradeFirmware}
-                >Upgrade Firmware now</Button>
+                    primary
+                    onClick={this.upgradeFirmware}>
+                    {t('bootloader.button')}
+                </Button>
             );
-        };
+        }
         return (
-            <Dialog>
-                <p>Hello Bootloader.</p>
-                <UpgradeOrStatus />
-                <p>{ errMsg }</p>
-            </Dialog>
+            <div class="content">
+                <div className={[style.container, style.scrollable].join(' ')}>
+                    <BitBox />
+                    <div style="margin: 1rem; min-height: 5rem;">
+                        {UpgradeOrStatus}
+                        <p>{ errMsg }</p>
+                    </div>
+                </div>
+            </div>
         );
     }
 }
