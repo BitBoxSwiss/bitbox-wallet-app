@@ -95,6 +95,7 @@ export class PasswordRepeatInput extends Component {
         title,
         repeatLabel,
         repeatPlaceholder,
+        showLabel,
     }, {
         password,
         passwordRepeat,
@@ -154,7 +155,7 @@ export class PasswordRepeatInput extends Component {
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
                         label={i18n.t('password.show', {
-                            label
+                            label: showLabel || label
                         })} />
                 </Field>
             </div>

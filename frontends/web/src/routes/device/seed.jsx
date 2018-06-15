@@ -131,14 +131,13 @@ export default class Seed extends Component {
                         disabled={status === stateEnum.WAITING}
                         onInput={this.handleFormChange}
                         getRef={ref => this.walletNameInput = ref}
-                        value={walletName}
-                    />
+                        value={walletName} />
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
+                        showLabel="Password"
                         ref={ref => this.backupPasswordInput = ref}
                         disabled={status === stateEnum.WAITING}
-                        onValidPassword={this.setValidBackupPassword}
-                    />
+                        onValidPassword={this.setValidBackupPassword} />
                 </div>
                 <div class={style.agreements}>
                     <p>{t('seed.description')}</p>

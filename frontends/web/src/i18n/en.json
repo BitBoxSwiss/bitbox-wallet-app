@@ -250,6 +250,8 @@
     },
     "backup": {
         "title": "Manage Backups",
+        "insert": "Please insert SD card to manage backups.",
+        "insertButton": "I have inserted the SD card",
         "create": {
             "title": "Create Backup",
             "name": {
@@ -266,7 +268,8 @@
             "confirmTitle": "Restore Backup",
             "password": {
                 "label": "Backup password or hidden backup password",
-                "placeholder": "Password when backup or hidden wallet was created"
+                "placeholder": "Password when backup or hidden wallet was created",
+                "showLabel": "Password"
             }
         }
     },

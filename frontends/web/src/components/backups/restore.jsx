@@ -113,8 +113,8 @@ export default class Restore extends Component {
                                     ref={ref => this.passwordInput = ref}
                                     label={t('backup.restore.password.label')}
                                     placeholder={t('backup.restore.password.placeholder')}
-                                    onValidPassword={this.setValidPassword}
-                                />
+                                    showLabel={t('backup.restore.password.showLabel')}
+                                    onValidPassword={this.setValidPassword} />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>
                                         {t('button.abort')}
