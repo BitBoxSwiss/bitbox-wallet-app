@@ -148,9 +148,9 @@
         "incoming": "Incoming",
         "initializing": "Initializing…",
         "info": {
-            "btc": "Bitcoin Legacy - migrate to Bitcoin Segwit!",
-            "btc-p2wpkh-p2sh": "Bitcoin Segwit - recommended to use for lower fees",
-            "btc-p2wpkh": "Bitcoin Native Segwit - recommended to use for lowest fees, but the address format is not widely supported yet",
+            "btc": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs less network fees.",
+            "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
+            "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
             "ltc-p2wpkh-p2sh": "",
             "tbtc": "$t(account.info.btc)",
             "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
@@ -476,23 +476,17 @@
             },
             {
                 "title": "What is Bitcoin Legacy?",
-                "text": [ "." ]
+                "text": [ "This uses an old transaction format, which has been superseded by the Segwit accounts." ]
             },
             {
                 "title": "What is Bitcoin Segwit?",
-                "text": [ "." ]
+                "text": [ "This uses a new transaction format which incurs less network fees. It is a transitional account, as it uses the same address format, and as such can be used with all existing Bitcoin wallets/exchanges/services." ],
+                "link": { "text": "Segregated Witness Benefits", "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/" }
             },
             {
                 "title": "What is Bitcoin Native Segwit?",
-                "text": [ "." ]
-            },
-            {
-                "title": "What is Litecoin Segwit?",
-                "text": [ "." ]
-            },
-            {
-                "title": "What is Litecoin Native Segwit?",
-                "text": [ "." ]
+                "text": [ "To reap the full benefits, Native Segwit should be used. It uses a new address format called Bech32, but this format is not accepted everywhere yet." ],
+                "link": { "text": "Bech32 adoption", "url": "https://en.bitcoin.it/wiki/Bech32_adoption" }
             }
         ],
         "bitbox": [

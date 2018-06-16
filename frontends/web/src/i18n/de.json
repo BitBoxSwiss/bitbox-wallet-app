@@ -36,14 +36,6 @@
         "incoming": "Eingehend",
         "initializing": "Wird initialisiert…",
         "info": {
-            "btc": "Bitcoin Legacy - wechsel zu Bitcoin Segwit!",
-            "btc-p2wpkh-p2sh": "Bitcoin Segwit - empfohlen, um geringere Gebühren zahlen zu müssen.",
-            "btc-p2wpkh": "Bitcoin Native Segwit - empfohlen um die geringsten Gebühren zahlen zu können, allerdings ist das neue Adressenformat noch nicht weit verbreitet.",
-            "ltc-p2wpkh-p2sh": "",
-            "tbtc": "$t(account.info.btc)",
-            "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
-            "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-            "tltc-p2wpkh-p2sh": ""
         }
     },
     "transactions": {
