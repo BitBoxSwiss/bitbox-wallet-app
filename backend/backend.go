@@ -154,8 +154,10 @@ func defaultDevServers(code string) []*rpc.ServerInfo {
 	case "tbtc":
 		port = 51003
 	case "ltc":
+		hosts = []string{"dev.shiftcrypto.ch"}
 		port = 50004
 	case "tltc":
+		hosts = []string{"dev.shiftcrypto.ch"}
 		port = 51004
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
