@@ -14,11 +14,11 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
+	"github.com/shiftdevices/godbb/util/rpc"
 )
 
 // Coin models a Bitcoin-related coin.
@@ -26,6 +26,7 @@ type Coin struct {
 	name                  string
 	unit                  string
 	net                   *chaincfg.Params
+	servers               []*rpc.ServerInfo
 	blockExplorerTxPrefix string
 
 	ratesUpdater coinpkg.RatesUpdater
@@ -45,13 +46,15 @@ func NewCoin(
 	name string,
 	unit string,
 	net *chaincfg.Params,
+	servers []*rpc.ServerInfo,
 	blockExplorerTxPrefix string,
 	ratesUpdater coinpkg.RatesUpdater,
 ) *Coin {
 	coin := &Coin{
-		name: name,
-		unit: unit,
-		net:  net,
+		name:                  name,
+		unit:                  unit,
+		net:                   net,
+		servers:               servers,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		ratesUpdater:          ratesUpdater,
 
@@ -125,8 +128,7 @@ func (coin *Coin) Blockchain() blockchain.Interface {
 	if coin.blockchain != nil {
 		return coin.blockchain
 	}
-	servers := config.Get().Config().Backend.GetServers(coin.name)
-	coin.blockchain = electrum.NewElectrumConnection(servers, coin.log)
+	coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
 	return coin.blockchain
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -18,6 +19,12 @@ const (
 )
 
 func main() {
+	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
+	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
+	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
+	devmode := flag.Bool("devmode", true, "switch to dev mode")
+	flag.Parse()
+
 	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
 	log := logging.Get().WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
@@ -30,8 +37,8 @@ func main() {
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
-	arguments.InitDevEnv()
-	backend := backend.NewBackend()
+	backend := backend.NewBackend(
+		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode))
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)

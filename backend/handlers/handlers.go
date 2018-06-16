@@ -33,6 +33,7 @@ import (
 
 // Backend models the API of the backend.
 type Backend interface {
+	Config() *config.Config
 	WalletStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
@@ -208,7 +209,7 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error)
 }
 
 func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
-	return config.Get().Config(), nil
+	return handlers.backend.Config().Config(), nil
 }
 
 func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
@@ -216,7 +217,7 @@ func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return nil, config.Get().Set(appConfig)
+	return nil, handlers.backend.Config().Set(appConfig)
 }
 
 func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {

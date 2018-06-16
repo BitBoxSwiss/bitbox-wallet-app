@@ -1,10 +1,6 @@
 package rpc
 
-import (
-	"io"
-
-	"github.com/shiftdevices/godbb/backend/config"
-)
+import "io"
 
 // Status is the connection status to the blockchain node
 type Status int
@@ -29,8 +25,18 @@ type Client interface {
 	RegisterOnConnectionStatusChangedEvent(func(Status))
 }
 
+// ServerInfo holds information about the backend server(s).
+type ServerInfo struct {
+	Server string
+	TLS    bool
+	// Currently, we hardcode two ca certs, one for Shift dev servers, and one for Shift prod
+	// servers. This defines which one to take. In the future, we will allow self signed certs from
+	// third party backends.
+	DevCaCert bool
+}
+
 // Backend describes the methods provided to connect to an RPC backend
 type Backend interface {
 	EstablishConnection() (io.ReadWriteCloser, error)
-	ServerInfo() *config.ServerInfo
+	ServerInfo() *ServerInfo
 }

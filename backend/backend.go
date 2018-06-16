@@ -1,7 +1,10 @@
 package backend
 
 import (
+	"fmt"
+
 	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
+	"github.com/shiftdevices/godbb/backend/config"
 	"golang.org/x/text/language"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -11,7 +14,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
-	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
 	"github.com/shiftdevices/godbb/backend/keystore"
@@ -20,6 +22,7 @@ import (
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
+	"github.com/shiftdevices/godbb/util/rpc"
 )
 
 type backendEvent struct {
@@ -44,6 +47,8 @@ type WalletEvent struct {
 type Backend struct {
 	arguments *arguments.Arguments
 
+	config *config.Config
+
 	events chan interface{}
 
 	devices        map[string]device.Interface
@@ -67,10 +72,11 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend with the given arguments.
-func NewBackend() *Backend {
+func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
 	return &Backend{
-		arguments: arguments.Get(),
+		arguments: arguments,
+		config:    config.NewConfig(arguments.ConfigFilename()),
 		events:    make(chan interface{}, 1000),
 
 		devices:      map[string]device.Interface{},
@@ -88,7 +94,7 @@ func (backend *Backend) addAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !config.Get().Config().Backend.AccountActive(code) {
+	if !backend.config.Config().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -113,6 +119,67 @@ func (backend *Backend) addAccount(
 	backend.accounts = append(backend.accounts, account)
 }
 
+// Config returns the backend config.
+func (backend *Backend) Config() *config.Config {
+	return backend.config
+}
+
+func defaultProdServers(code string) []*rpc.ServerInfo {
+	hostsBtc := []string{"btc.shiftcrypto.ch", "merkle.shiftcrypto.ch"}
+	hostsLtc := []string{"ltc.shiftcrypto.ch", "ltc.shamir.shiftcrypto.ch"}
+	switch code {
+	case "btc":
+		port := 443
+		return combine(hostsBtc, port, false)
+	case "tbtc":
+		port := 51002
+		return combine(hostsBtc, port, false)
+	case "ltc":
+		port := 443
+		return combine(hostsLtc, port, false)
+	case "tltc":
+		port := 51004
+		return combine(hostsLtc, port, false)
+	default:
+		panic(errp.Newf("The given code %s is unknown.", code))
+	}
+}
+
+func defaultDevServers(code string) []*rpc.ServerInfo {
+	hosts := []string{"s1.dev.shiftcrypto.ch", "s2.dev.shiftcrypto.ch"}
+	port := 0
+	switch code {
+	case "btc":
+		port = 50002
+	case "tbtc":
+		port = 51003
+	case "ltc":
+		port = 50004
+	case "tltc":
+		port = 51004
+	default:
+		panic(errp.Newf("The given code %s is unknown.", code))
+	}
+	return combine(hosts, port, true)
+}
+
+// combine is a utility function that combines the server/tls information with a given port.
+func combine(hosts []string, port int, devmode bool) []*rpc.ServerInfo {
+	serverInfos := []*rpc.ServerInfo{}
+	for _, host := range hosts {
+		server := fmt.Sprintf("%s:%d", host, port)
+		serverInfos = append(serverInfos, &rpc.ServerInfo{server, true, devmode})
+	}
+	return serverInfos
+}
+
+func defaultServers(code string, devmode bool) []*rpc.ServerInfo {
+	if devmode {
+		return defaultDevServers(code)
+	}
+	return defaultProdServers(code)
+}
+
 // Coin returns a Coin instance for a coin type.
 func (backend *Backend) Coin(code string) *btc.Coin {
 	defer backend.coinsLock.Lock()()
@@ -120,19 +187,21 @@ func (backend *Backend) Coin(code string) *btc.Coin {
 	if ok {
 		return coin
 	}
+	servers := defaultServers(code, backend.arguments.DevMode())
 	switch code {
 	case "rbtc":
-		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, "", nil)
+		servers = []*rpc.ServerInfo{{"127.0.0.1:52001", false, false}}
+		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, servers, "", nil)
 	case "tbtc":
-		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
+		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, servers, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
 		coin.Observe(func(event observable.Event) { backend.events <- event })
 	case "btc":
-		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, "https://blockchain.info/tx/", backend.ratesUpdater)
+		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, servers, "https://blockchain.info/tx/", backend.ratesUpdater)
 		coin.Observe(func(event observable.Event) { backend.events <- event })
 	case "tltc":
-		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, "http://explorer.litecointools.com/tx/", nil)
+		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, servers, "http://explorer.litecointools.com/tx/", nil)
 	case "ltc":
-		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, "https://insight.litecore.io/tx/", nil)
+		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, servers, "https://insight.litecore.io/tx/", nil)
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}

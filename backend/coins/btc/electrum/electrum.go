@@ -6,10 +6,8 @@ import (
 	"io"
 	"net"
 
-	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
-	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/jsonrpc"
 	"github.com/shiftdevices/godbb/util/rpc"
@@ -22,11 +20,11 @@ type ConnectionError error
 // Electrum holds information about the electrum backend
 type Electrum struct {
 	log        *logrus.Entry
-	serverInfo *config.ServerInfo
+	serverInfo *rpc.ServerInfo
 }
 
 // ServerInfo returns the server info for this backend.
-func (electrum *Electrum) ServerInfo() *config.ServerInfo {
+func (electrum *Electrum) ServerInfo() *rpc.ServerInfo {
 	return electrum.serverInfo
 }
 
@@ -35,8 +33,17 @@ func (electrum *Electrum) ServerInfo() *config.ServerInfo {
 func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	var conn io.ReadWriteCloser
 	if electrum.serverInfo.TLS {
+		var caCert []byte
 		var err error
-		conn, err = newTLSConnection(electrum.serverInfo.Server)
+		if electrum.serverInfo.DevCaCert {
+			caCert, err = Asset("../../../../config/certificates/electrumx/dev/ca.cert.pem")
+		} else {
+			caCert, err = Asset("../../../../config/certificates/electrumx/prod/ca.cert.pem")
+		}
+		if err != nil {
+			panic(err)
+		}
+		conn, err = newTLSConnection(electrum.serverInfo.Server, caCert)
 		if err != nil {
 			return nil, ConnectionError(err)
 		}
@@ -58,19 +65,8 @@ func newTCPConnection(address string) (net.Conn, error) {
 	return conn, nil
 }
 
-func newTLSConnection(address string) (*tls.Conn, error) {
+func newTLSConnection(address string, caCert []byte) (*tls.Conn, error) {
 	caCertPool := x509.NewCertPool()
-	// Load CA cert
-	var caCert []byte
-	var err error
-	if arguments.Get().DevMode() {
-		caCert, err = Asset("../../../../config/certificates/electrumx/dev/ca.cert.pem")
-	} else {
-		caCert, err = Asset("../../../../config/certificates/electrumx/prod/ca.cert.pem")
-	}
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
 	if ok := caCertPool.AppendCertsFromPEM(caCert); !ok {
 		return nil, errp.WithStack(errp.New("Failed to append CA cert as trusted cert"))
 	}
@@ -85,7 +81,7 @@ func newTLSConnection(address string) (*tls.Conn, error) {
 
 // NewElectrumConnection connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry) blockchain.Interface {
+func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry) blockchain.Interface {
 	var serverList string
 	for _, serverInfo := range servers {
 		if serverList != "" {

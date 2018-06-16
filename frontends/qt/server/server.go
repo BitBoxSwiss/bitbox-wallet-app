@@ -24,10 +24,15 @@ typedef struct ConnectionData {
 import "C"
 
 import (
+	"flag"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -36,6 +41,7 @@ import (
 	"github.com/shiftdevices/godbb/util/random"
 
 	"github.com/shiftdevices/godbb/backend"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/logging"
 )
@@ -93,9 +99,34 @@ func backendCall(queryID C.int, s *C.char) {
 	}()
 }
 
+// getAppFolder returns the production application folder.
+func getAppFolder() string {
+	var appFolder string
+	switch runtime.GOOS {
+	case "windows":
+		appFolder = os.Getenv("APPDATA")
+	case "darwin":
+		// Usually /home/<User>/Library/Application Support
+		appFolder = os.Getenv("HOME") + "/Library/Application Support"
+	case "linux":
+		if os.Getenv("XDG_CONFIG_HOME") != "" {
+			// Usually /home/<User>/.config/
+			appFolder = os.Getenv("XDG_CONFIG_HOME")
+		} else {
+			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
+		}
+	}
+	appFolder = path.Join(appFolder, "bitbox")
+	logging.Get().WithGroup("arguments").Info("appFolder: ", appFolder)
+	return appFolder
+}
+
 //export serve
 func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) C.struct_ConnectionData {
 	responseCallback = theResponseCallback
+
+	testnet := flag.Bool("testnet", false, "activate testnets")
+	flag.Parse()
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	var err error
@@ -109,7 +140,8 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	// the port is unused in the Qt app, as we bridge directly without a server.
 	const port = -1
 	connectionData := backendHandlers.NewConnectionData(port, token)
-	theBackend := backend.NewBackend()
+	theBackend := backend.NewBackend(arguments.NewArguments(
+		getAppFolder(), *testnet, false, false, false))
 	events := theBackend.Events()
 	go func() {
 		for {
