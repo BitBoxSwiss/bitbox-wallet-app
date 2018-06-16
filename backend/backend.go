@@ -317,6 +317,8 @@ func (backend *Backend) Events() <-chan interface{} {
 }
 
 func (backend *Backend) initWallets() {
+	// Since initAccounts replaces all previous accounts, we need to properly close them first.
+	backend.uninitWallets()
 	defer backend.accountsLock.Lock()()
 	backend.initAccounts()
 }
@@ -337,6 +339,7 @@ func (backend *Backend) uninitWallets() {
 		backend.onWalletUninit(account)
 		account.Close()
 	}
+	backend.accounts = nil
 }
 
 // Keystores returns the keystores registered at this backend.

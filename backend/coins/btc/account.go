@@ -196,12 +196,13 @@ func (account *Account) Init() error {
 		return nil
 	}
 	dbName := fmt.Sprintf("account-%s-%s.db", account.signingConfiguration.Hash(), account.code)
-	account.log.Debugf("Using the database '%s' to persist the transactions.", dbName)
+	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
 	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
 	if err != nil {
 		return err
 	}
 	account.db = db
+	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	onConnectionStatusChanged := func(status blockchain.Status) {
 		if status == blockchain.DISCONNECTED {
@@ -274,10 +275,12 @@ func (account *Account) InitialSyncDone() bool {
 
 // Close stops the account.
 func (account *Account) Close() {
+	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
 			account.log.WithError(err).Error("couldn't close db")
 		}
+		account.log.Info("Closed DB")
 	}
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
