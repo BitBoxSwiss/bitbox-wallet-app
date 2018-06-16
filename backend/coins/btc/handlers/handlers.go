@@ -233,6 +233,9 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 }
 
 func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
+	if handlers.account == nil {
+		return nil, errp.New("/init called even though account was not added yet")
+	}
 	return nil, handlers.account.Init()
 }
 
