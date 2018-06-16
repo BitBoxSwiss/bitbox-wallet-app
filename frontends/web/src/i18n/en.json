@@ -284,7 +284,7 @@
         "appVersion": "App Version:"
     },
     "warning": {
-        "sdcard": "Keep the SD card stored securely!",
+        "sdcard": "Keep the SD card stored securely, unless you want to manage backups!",
         "sendPairing": "Please pair the device to securely verify transaction details. Go to the device settings.",
         "receivePairing": "Please pair the device to enable secure address verification. Go to the device settings."
     },
