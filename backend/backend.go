@@ -190,23 +190,25 @@ func (backend *Backend) Coin(code string) *btc.Coin {
 		return coin
 	}
 	servers := defaultServers(code, backend.arguments.DevMode())
+	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
 	case "rbtc":
 		servers = []*rpc.ServerInfo{{"127.0.0.1:52001", false, false}}
-		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, servers, "", nil)
+		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", nil)
 	case "tbtc":
-		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, servers, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
+		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
 		coin.Observe(func(event observable.Event) { backend.events <- event })
 	case "btc":
-		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, servers, "https://blockchain.info/tx/", backend.ratesUpdater)
+		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, dbFolder, servers, "https://blockchain.info/tx/", backend.ratesUpdater)
 		coin.Observe(func(event observable.Event) { backend.events <- event })
 	case "tltc":
-		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, servers, "http://explorer.litecointools.com/tx/", nil)
+		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, dbFolder, servers, "http://explorer.litecointools.com/tx/", nil)
 	case "ltc":
-		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, servers, "https://insight.litecore.io/tx/", nil)
+		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, dbFolder, servers, "https://insight.litecore.io/tx/", nil)
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
+	coin.Init()
 	backend.coins[code] = coin
 	return coin
 }

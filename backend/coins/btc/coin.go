@@ -15,7 +15,6 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
 	"github.com/shiftdevices/godbb/util/rpc"
@@ -26,17 +25,15 @@ type Coin struct {
 	name                  string
 	unit                  string
 	net                   *chaincfg.Params
+	dbFolder              string
 	servers               []*rpc.ServerInfo
 	blockExplorerTxPrefix string
 
 	ratesUpdater coinpkg.RatesUpdater
 	observable.Implementation
 
-	blockchain     blockchain.Interface
-	blockchainLock locker.Locker
-
-	headers     *headers.Headers
-	headersLock locker.Locker
+	blockchain blockchain.Interface
+	headers    *headers.Headers
 
 	log *logrus.Entry
 }
@@ -46,6 +43,7 @@ func NewCoin(
 	name string,
 	unit string,
 	net *chaincfg.Params,
+	dbFolder string,
 	servers []*rpc.ServerInfo,
 	blockExplorerTxPrefix string,
 	ratesUpdater coinpkg.RatesUpdater,
@@ -54,6 +52,7 @@ func NewCoin(
 		name:                  name,
 		unit:                  unit,
 		net:                   net,
+		dbFolder:              dbFolder,
 		servers:               servers,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		ratesUpdater:          ratesUpdater,
@@ -64,6 +63,25 @@ func NewCoin(
 		ratesUpdater.Observe(coin.Notify)
 	}
 	return coin
+}
+
+// Init initializes the coin - blockchain and headers.
+func (coin *Coin) Init() {
+	// Init blockchain
+	coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
+
+	// Init Headers
+	db, err := headersdb.NewDB(
+		path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.name)))
+	if err != nil {
+		coin.log.WithError(err).Panic("Could not open headers DB")
+	}
+	coin.headers = headers.NewHeaders(
+		coin.net,
+		db,
+		coin.blockchain,
+		coin.log)
+	coin.headers.Init()
 }
 
 // Name returns the coin's name.
@@ -124,35 +142,12 @@ func (coin *Coin) RatesUpdater() coinpkg.RatesUpdater {
 
 // Blockchain connects to a blockchain backend.
 func (coin *Coin) Blockchain() blockchain.Interface {
-	defer coin.blockchainLock.Lock()()
-	if coin.blockchain != nil {
-		return coin.blockchain
-	}
-	coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
 	return coin.blockchain
 }
 
-// GetHeaders returns the headers from the given folder. This method should only be called if
-// the connection to the backend has previously been established.
-func (coin *Coin) GetHeaders(dbFolder string) (*headers.Headers, error) {
-	defer coin.headersLock.Lock()()
-	if coin.headers == nil {
-		log := coin.log.WithField("net", coin.name)
-
-		db, err := headersdb.NewDB(
-			path.Join(dbFolder, fmt.Sprintf("headers-%s.db", coin.name)))
-		if err != nil {
-			return nil, err
-		}
-
-		coin.headers = headers.NewHeaders(
-			coin.net,
-			db,
-			coin.Blockchain(),
-			log)
-		coin.headers.Init()
-	}
-	return coin.headers, nil
+// initHeaders returns the coin headers.
+func (coin *Coin) Headers() *headers.Headers {
+	return coin.headers
 }
 
 func (coin *Coin) String() string {

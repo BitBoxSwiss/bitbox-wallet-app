@@ -224,10 +224,7 @@ func (account *Account) Init() error {
 	account.onEvent(EventStatusChanged)
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
-	theHeaders, err := account.coin.GetHeaders(account.dbFolder)
-	if err != nil {
-		account.log.WithField("error", err).Panic("Could not fetch headers")
-	}
+	theHeaders := account.coin.Headers()
 	account.headers = theHeaders
 	account.headers.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
