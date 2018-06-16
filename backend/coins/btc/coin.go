@@ -145,7 +145,7 @@ func (coin *Coin) Blockchain() blockchain.Interface {
 	return coin.blockchain
 }
 
-// initHeaders returns the coin headers.
+// Headers returns the coin headers.
 func (coin *Coin) Headers() *headers.Headers {
 	return coin.headers
 }

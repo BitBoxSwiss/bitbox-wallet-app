@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/shiftdevices/godbb/backend"
+	"github.com/shiftdevices/godbb/backend/arguments"
 	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/random"
@@ -17,7 +18,7 @@ func Serve() {
 		log.WithField("error", err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
-	backend := backend.NewBackend()
+	backend := backend.NewBackend(arguments.NewArguments(".", false, false, false, false))
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	err = http.ListenAndServe("localhost:8082", handlers.Router)
 	if err != nil {

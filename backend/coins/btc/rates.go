@@ -27,6 +27,7 @@ func NewRatesUpdater() *RatesUpdater {
 	return updater
 }
 
+// Last returns the last rates.
 func (updater *RatesUpdater) Last() coin.Rates {
 	return updater.last
 }
