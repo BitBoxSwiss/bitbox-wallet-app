@@ -18,6 +18,9 @@ const reorgLimit = 100
 type Event string
 
 const (
+	// EventSyncing is fired when the headers are syncing (a batch was downloaded but more are
+	// coming). At the end, EventSynced is fired.
+	EventSyncing Event = "syncing"
 	// EventSynced is fired when the headers finished syncing.
 	EventSynced Event = "synced"
 	// EventNewTip is fired when a new tip is known.
@@ -45,7 +48,10 @@ type Headers struct {
 	lock            locker.Locker
 	// targetHeight is the potential tip height we are syncing up to.
 	targetHeight int
-	kickChan     chan struct{}
+	// tipAtInitTime is the tip at init time, i.e. the last tip known, loaded from the DB. It is
+	// used to show the sync progress since the last time (catch up).
+	tipAtInitTime int
+	kickChan      chan struct{}
 
 	eventCallbacks []func(Event)
 	events         chan Event
@@ -53,9 +59,10 @@ type Headers struct {
 
 // Status represents the syncing status.
 type Status struct {
-	Tip          int               `json:"tip"`
-	TipHashHex   blockchain.TXHash `json:"tipHashHex"`
-	TargetHeight int               `json:"targetHeight"`
+	TipAtInitTime int               `json:"tipAtInitTime"`
+	Tip           int               `json:"tip"`
+	TipHashHex    blockchain.TXHash `json:"tipHashHex"`
+	TargetHeight  int               `json:"targetHeight"`
 }
 
 // NewHeaders creates a new Headers instance.
@@ -74,6 +81,7 @@ func NewHeaders(
 		// response.
 		headersPerBatch: 10,
 		targetHeight:    0,
+		tipAtInitTime:   0,
 		kickChan:        make(chan struct{}, 1),
 
 		eventCallbacks: []func(Event){},
@@ -99,6 +107,8 @@ func (headers *Headers) TipHeight() int {
 
 // Init starts the syncing process.
 func (headers *Headers) Init() {
+	headers.tipAtInitTime = headers.tip()
+	headers.log.Infof("last tip loaded: %d", headers.tipAtInitTime)
 	go headers.download()
 	headers.blockchain.HeadersSubscribe(
 		nil,
@@ -225,6 +235,7 @@ func (headers *Headers) processBatch(
 		// Received max number of headers per batch, so there might be more.
 		headers.kick()
 		headers.log.Debugf("Syncing headers; tip: %d", tip)
+		headers.notifyEvent(EventSyncing)
 	} else if len(blockHeaders) != 0 {
 		headers.log.Debugf("Synced headers; tip: %d", tip)
 		headers.notifyEvent(EventSynced)
@@ -261,6 +272,20 @@ func (headers *Headers) update(blockHeight int) error {
 	return nil
 }
 
+func (headers *Headers) tip() int {
+	defer headers.lock.RLock()()
+	dbTx, err := headers.db.Begin()
+	if err != nil {
+		panic(err)
+	}
+	defer dbTx.Rollback()
+	tip, err := dbTx.Tip()
+	if err != nil {
+		panic(err)
+	}
+	return tip
+}
+
 // Status returns the current sync status.
 func (headers *Headers) Status() (*Status, error) {
 	defer headers.lock.RLock()()
@@ -278,8 +303,9 @@ func (headers *Headers) Status() (*Status, error) {
 		return nil, err
 	}
 	return &Status{
-		Tip:          tip,
-		TargetHeight: headers.targetHeight,
-		TipHashHex:   blockchain.TXHash(header.BlockHash()),
+		TipAtInitTime: headers.tipAtInitTime,
+		Tip:           tip,
+		TargetHeight:  headers.targetHeight,
+		TipHashHex:    blockchain.TXHash(header.BlockHash()),
 	}, nil
 }

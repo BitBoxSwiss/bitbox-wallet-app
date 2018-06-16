@@ -17,6 +17,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/db/headersdb"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
+	"github.com/shiftdevices/godbb/util/observable/action"
 	"github.com/shiftdevices/godbb/util/rpc"
 )
 
@@ -59,9 +60,6 @@ func NewCoin(
 
 		log: logging.Get().WithGroup("coin").WithField("name", name),
 	}
-	if ratesUpdater != nil {
-		ratesUpdater.Observe(coin.Notify)
-	}
 	return coin
 }
 
@@ -82,6 +80,23 @@ func (coin *Coin) Init() {
 		coin.blockchain,
 		coin.log)
 	coin.headers.Init()
+	coin.headers.SubscribeEvent(func(event headers.Event) {
+		if event == headers.EventSyncing || event == headers.EventSynced {
+			status, err := coin.headers.Status()
+			if err != nil {
+				coin.log.Error("Could not get headers status")
+			}
+			coin.Notify(observable.Event{
+				Subject: fmt.Sprintf("coins/%s/headers/status", coin.name),
+				Action:  action.Replace,
+				Object:  status,
+			})
+		}
+	})
+
+	if coin.ratesUpdater != nil {
+		coin.ratesUpdater.Observe(coin.Notify)
+	}
 }
 
 // Name returns the coin's name.

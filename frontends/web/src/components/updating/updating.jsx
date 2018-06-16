@@ -5,11 +5,7 @@ import { equal } from '../../utils/equal';
 
 export default class UpdatingComponent extends Component {
     componentDidMount() {
-        for (const entry of this.map) {
-            apiGet(entry.url).then(object => {
-                this.setState({ [entry.key]: object });
-            });
-        }
+        this.update(this.map);
         this.unsubscribe = apiWebsocket(({ subject, action, object }) => {
             for (const entry of this.map) {
                 if (subject === entry.url) {
@@ -35,6 +31,14 @@ export default class UpdatingComponent extends Component {
                 }
             }
         });
+    }
+
+    update = (mapInfo) => {
+        for (const entry of mapInfo) {
+            apiGet(entry.url).then(object => {
+                this.setState({ [entry.key]: object });
+            });
+        }
     }
 
     componentWillUnmount() {

@@ -29,9 +29,7 @@ func (implementation *Implementation) Observe(observer func(Event)) func() {
 // This method should only be called from the implementation itself.
 func (implementation *Implementation) Notify(event Event) {
 	defer implementation.observersLock.RLock()()
-	if implementation.observers != nil {
-		for _, observer := range implementation.observers {
-			observer(event)
-		}
+	for _, observer := range implementation.observers {
+		go observer(event)
 	}
 }

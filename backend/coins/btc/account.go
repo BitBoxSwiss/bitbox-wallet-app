@@ -79,12 +79,14 @@ type Account struct {
 // MarshalJSON implements json.Marshaler.
 func (account *Account) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
+		CoinCode              string `json:"coinCode"`
 		Code                  string `json:"code"`
 		Name                  string `json:"name"`
 		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
 	}{
-		Code: account.code,
-		Name: account.name,
+		CoinCode: account.coin.Name(),
+		Code:     account.code,
+		Name:     account.name,
 		BlockExplorerTxPrefix: account.coin.blockExplorerTxPrefix,
 	})
 }

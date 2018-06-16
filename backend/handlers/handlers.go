@@ -34,6 +34,7 @@ import (
 // Backend models the API of the backend.
 type Backend interface {
 	Config() *config.Config
+	Coin(string) *btc.Coin
 	WalletStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
@@ -125,6 +126,10 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/coins/btc/rates", handlers.getBtcRatesHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -267,6 +272,12 @@ func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interf
 
 func (handlers *Handlers) getBtcRatesHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.Rates(), nil
+}
+
+func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
+	return func(_ *http.Request) (interface{}, error) {
+		return handlers.backend.Coin(coinCode).Headers().Status()
+	}
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {

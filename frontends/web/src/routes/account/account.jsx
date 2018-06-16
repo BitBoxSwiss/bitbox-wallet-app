@@ -7,6 +7,7 @@ import { Button } from '../../components/forms';
 import { Guide, Entry } from '../../components/guide/guide';
 import Balance from '../../components/balance/balance';
 import Rates from '../../components/rates/rates';
+import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Send from './send/send';
 import Receive from './receive/receive';
@@ -187,6 +188,7 @@ export default class Account extends Component {
                             <Status dismissable keyName={`info-${this.props.code}`} type="info">
                                 {t(`account.info.${this.props.code}`)}
                             </Status>
+                            <HeadersSync coinCode={wallet.coinCode}/>
                             <div>
                                 {
                                     !walletConnected && (
