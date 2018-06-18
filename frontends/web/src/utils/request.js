@@ -17,13 +17,13 @@ function handleError(endpoint) {
         return new Promise((resolve, reject) => {
             if (json && json.error) {
                 /* eslint no-alert: "warn" */
-                if (json.error.indexOf("hidapi: unknown failure") != -1) {
+                if (json.error.indexOf('hidapi: unknown failure') != -1) {
                     // Ignore device communication errors. Usually
                     // happens when unplugged during an operation, in
                     // which case the result does not matter.
                     return;
                 }
-                console.log("error from endpoint", endpoint, json);
+                console.log('error from endpoint', endpoint, json);
                 alert(json.error + ' (todo: nice error msgs)');
                 reject(json.error);
                 return;
@@ -36,8 +36,8 @@ function handleError(endpoint) {
 export function apiGet(endpoint) {
     if (typeof qt !== 'undefined') {
         return call(JSON.stringify({
-            "method": "GET",
-            "endpoint": endpoint
+            method: 'GET',
+            endpoint,
         }));
     }
     return fetch(apiURL(endpoint), {
@@ -48,8 +48,8 @@ export function apiGet(endpoint) {
 export function apiPost(endpoint, body) {
     if (typeof qt !== 'undefined') {
         return call(JSON.stringify({
-            "method": "POST",
-            "endpoint": endpoint,
+            method: 'POST',
+            endpoint,
             body: JSON.stringify(body)
         }));
     }
