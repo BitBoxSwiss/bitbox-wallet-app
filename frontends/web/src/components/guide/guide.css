@@ -25,7 +25,7 @@
     margin-right: -350px;
     height: 100vh;
     padding: var(--spacing-large);
-    width: 350px;
+    width: var(--guide-width);
     color: white;
     background-color: var(--color-brightblue);
     overflow-y: auto;

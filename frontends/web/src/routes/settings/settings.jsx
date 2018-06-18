@@ -109,6 +109,7 @@ export default class Settings extends Component {
                             <Toast
                                 theme="success"
                                 message={t('settings.success')}
+                                withGuide={guide.shown}
                                 onHide={() => this.setState({ toast: false })}
                             />
                         )

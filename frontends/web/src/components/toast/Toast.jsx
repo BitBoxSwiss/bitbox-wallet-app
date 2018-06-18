@@ -29,8 +29,7 @@ export default class Toast extends Component {
     }) {
         return (
             <div
-                class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}
-                ref={toast => this.toast = toast}>
+                class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
                 {message}
             </div>
         );

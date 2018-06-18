@@ -3,6 +3,7 @@
     display: block;
     top: var(--spacing-half);
     right: -100%;
+    max-width: calc(100% - (var(--guide-width) + var(--sidebar-width) + var(--spacing-large)));
     min-width: 180px;
     min-height: 20px;
     border-radius: 2px;

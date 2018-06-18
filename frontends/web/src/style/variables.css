@@ -63,4 +63,7 @@
 
     /* content */
     --content-width: calc((2 * var(--spacing-large)) + 800px);
+
+    /* guide */
+    --guide-width: 350px;
 }
