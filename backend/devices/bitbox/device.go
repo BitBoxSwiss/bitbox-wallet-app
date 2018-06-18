@@ -56,6 +56,9 @@ const (
 
 	// ProductName is the name of the bitbox.
 	ProductName = "bitbox"
+
+	// backupDateFormat is the date format used in the backup name.
+	backupDateFormat = "2006-01-02-15-04-05"
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
@@ -486,7 +489,7 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 }
 
 func backupFilename(backupName string) string {
-	return fmt.Sprintf("%s-%s.pdf", backupName, time.Now().Format("2006-01-02-15-04-05"))
+	return fmt.Sprintf("%s-%s.pdf", backupName, time.Now().Format(backupDateFormat))
 }
 
 // SetName sets the device name. Retrieve the device name using DeviceInfo().
@@ -732,7 +735,7 @@ func (dbb *Device) Random(typ string) (string, error) {
 }
 
 // BackupList returns a list of backup filenames.
-func (dbb *Device) BackupList() ([]string, error) {
+func (dbb *Device) BackupList() ([]map[string]string, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
@@ -745,17 +748,32 @@ func (dbb *Device) BackupList() ([]string, error) {
 		dbb.log.Error("Unexpected reply: field 'backup' is missing")
 		return nil, errp.New("unexpected reply")
 	}
-	filenameStrings := []string{}
+	filenamesAndDate := []map[string]string{}
 	for _, filename := range filenames {
+		filenameAndDate := map[string]string{}
 		filenameString, ok := filename.(string)
 		if !ok {
 			dbb.log.Error("Unexpected reply: field 'backup' is not a string")
 			return nil, errp.New("unexpected reply")
 		}
-		filenameStrings = append(filenameStrings, filenameString)
+		filenameAndDate["id"] = filenameString
+		matched, err := regexp.Match(".*-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}.pdf", []byte(filenameString))
+		if err != nil {
+			dbb.log.WithField("error", err).Panic("Failed to match with configured regex.", errp.WithStack(err))
+		}
+		if matched {
+			lengthName := len(filenameString) - len(backupDateFormat) - len(".pdf") - 1
+			filenameAndDate["name"] = filenameString[:lengthName]
+			backupDate, err := time.Parse(backupDateFormat, filenameString[lengthName+1:len(filenameString)-len(".pdf")])
+			if err != nil {
+				return nil, errp.WithMessage(err, "Failed to extract the backup date from the wallet name")
+			}
+			filenameAndDate["date"] = backupDate.Format(time.RFC3339)
+		}
+		filenamesAndDate = append(filenamesAndDate, filenameAndDate)
 	}
-	dbb.log.WithField("backup-list", filenameStrings).Debug("Retrieved backup list")
-	return filenameStrings, nil
+	dbb.log.WithField("backup-list", filenamesAndDate).Debug("Retrieved backup list")
+	return filenamesAndDate, nil
 }
 
 // EraseBackup deletes a backup.

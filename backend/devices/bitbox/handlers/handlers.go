@@ -37,7 +37,7 @@ type Bitbox interface {
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
 	CreateBackup(string, string) error
-	BackupList() ([]string, error)
+	BackupList() ([]map[string]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	DisplayAddress(keyPath string, typ string) error
 	ECDHPKhash(string) (interface{}, error)
