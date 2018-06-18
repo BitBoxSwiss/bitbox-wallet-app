@@ -1,18 +1,10 @@
 package coin
 
-// Conversions to fiat currencies.
-type Conversions struct {
-	USD string `json:"USD"`
-	EUR string `json:"EUR"`
-	CHF string `json:"CHF"`
-	GBP string `json:"GBP"`
-}
-
 // FormattedAmount with unit and conversions.
 type FormattedAmount struct {
-	Amount      string      `json:"amount"`
-	Unit        string      `json:"unit"`
-	Conversions Conversions `json:"conversions"`
+	Amount      string            `json:"amount"`
+	Unit        string            `json:"unit"`
+	Conversions map[string]string `json:"conversions"`
 }
 
 // Coin models the currency of a blockchain.

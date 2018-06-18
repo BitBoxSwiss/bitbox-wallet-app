@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/shiftdevices/godbb/backend/coins/coin"
@@ -117,15 +116,11 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
-	unit := handlers.account.Coin().Unit()
-	strip := func(s string) string {
-		return strings.TrimSpace(strings.TrimSuffix(s, btcutil.AmountBTC.String()))
-	}
+	coin := handlers.account.Coin()
 	return map[string]interface{}{
-		"available":   strip(balance.Available.Format(btcutil.AmountBTC)),
-		"incoming":    strip(balance.Incoming.Format(btcutil.AmountBTC)),
+		"available":   coin.FormatAmountAsJSON(int64(balance.Available)),
+		"incoming":    coin.FormatAmountAsJSON(int64(balance.Incoming)),
 		"hasIncoming": balance.Incoming != 0,
-		"unit":        unit,
 	}, nil
 }
 

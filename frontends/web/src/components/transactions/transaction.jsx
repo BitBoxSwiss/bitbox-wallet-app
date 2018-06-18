@@ -64,7 +64,7 @@ export default class Transaction extends Component {
                         </div>
                         <div class={[style.amount, style[type]].join(' ')}>
                             <div>{sign}{amount.amount} <span class={style.unit}>{amount.unit}</span></div>
-                            <div class={style.fiat}><Rates coin={amount.unit} currency="USD" amount={amount.amount}>{sign}</Rates></div>
+                            <div class={style.fiat}><Rates amount={amount}>{sign}</Rates></div>
                         </div>
                     </div>
                     <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>

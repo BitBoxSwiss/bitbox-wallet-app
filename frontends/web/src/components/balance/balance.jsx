@@ -11,9 +11,9 @@ export default function Balance({ name, balance, children }) {
         <header className={style.balance}>
             <span className={['label', style.label].join(' ')}>{name}</span>
             <span className={style.amount}>
-                {balance.available}
+                {balance.available.amount}
                 {' '}
-                <span className={style.unit}>{balance.unit}</span>
+                <span className={style.unit}>{balance.available.unit}</span>
             </span>
             {children}
         </header>

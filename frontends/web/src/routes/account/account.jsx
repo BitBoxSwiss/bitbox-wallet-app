@@ -160,8 +160,8 @@ export default class Account extends Component {
                                     {
                                         balance && balance.hasIncoming && (
                                             <h5 class={style.pendingBalance}>
-                                                {balance.incoming}
-                                                <span style="color: var(--color-light);"> {balance.unit}</span>
+                                                {balance.incoming.amount}
+                                                <span style="color: var(--color-light);"> {balance.incoming.unit}</span>
                                                 {' '}
                                                 {t('account.incoming')}
                                             </h5>
@@ -169,7 +169,7 @@ export default class Account extends Component {
                                     }
                                 </Balance>
                                 <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                    { balance && <Rates coin={balance.unit} currency="USD" amount={balance.available} /> }
+                                    { balance && <Rates amount={balance.available} /> }
                                 </div>
                                 <div class={componentStyle.buttons} style="align-self: flex-end;">
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>

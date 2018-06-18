@@ -3,7 +3,6 @@ package backend
 import (
 	"fmt"
 
-	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/config"
 	"golang.org/x/text/language"
 
@@ -13,6 +12,7 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
+	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/devices/device"
 	"github.com/shiftdevices/godbb/backend/devices/usb"
@@ -66,7 +66,7 @@ type Backend struct {
 	// accountsSyncStart time.Time
 
 	// Stored and exposed temporarily through the backend.
-	ratesUpdater *btc.RatesUpdater
+	ratesUpdater coin.RatesUpdater
 
 	log *logrus.Entry
 }
@@ -429,6 +429,6 @@ func (backend *Backend) listenHID() {
 }
 
 // Rates return the latest rates.
-func (backend *Backend) Rates() map[string]coinpkg.Rates {
-	return backend.ratesUpdater.All()
+func (backend *Backend) Rates() map[string]map[string]float64 {
+	return backend.ratesUpdater.Last()
 }

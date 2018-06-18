@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -17,7 +18,6 @@ import (
 	"github.com/shiftdevices/godbb/backend"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	accountHandlers "github.com/shiftdevices/godbb/backend/coins/btc/handlers"
-	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/config"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	bitboxHandlers "github.com/shiftdevices/godbb/backend/devices/bitbox/handlers"
@@ -50,7 +50,7 @@ type Backend interface {
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
-	Rates() map[string]coin.Rates
+	Rates() map[string]map[string]float64
 }
 
 // Handlers provides a web api to the backend.
@@ -125,7 +125,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/wallet-status", handlers.getWalletStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/coins/rates", handlers.getBtcRatesHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/rates", handlers.getRatesHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convert", handlers.getConvertHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
@@ -270,8 +271,24 @@ func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interf
 	return true, nil
 }
 
-func (handlers *Handlers) getBtcRatesHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.Rates(), nil
+}
+
+func (handlers *Handlers) getConvertHandler(r *http.Request) (interface{}, error) {
+	from := r.URL.Query().Get("from")
+	to := r.URL.Query().Get("to")
+	string := r.URL.Query().Get("amount")
+	amount, err := strconv.ParseFloat(string, 64)
+	if err != nil {
+		return nil, err
+	}
+	rate := handlers.backend.Rates()[to][from]
+	result := 0.0
+	if rate != 0.0 {
+		result = amount / rate
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
