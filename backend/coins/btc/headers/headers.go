@@ -59,10 +59,11 @@ type Headers struct {
 
 // Status represents the syncing status.
 type Status struct {
-	TipAtInitTime int               `json:"tipAtInitTime"`
-	Tip           int               `json:"tip"`
-	TipHashHex    blockchain.TXHash `json:"tipHashHex"`
-	TargetHeight  int               `json:"targetHeight"`
+	TipAtInitTime int `json:"tipAtInitTime"`
+	Tip           int `json:"tip"`
+	// Only well defined if Tip >= 0
+	TipHashHex   blockchain.TXHash `json:"tipHashHex"`
+	TargetHeight int               `json:"targetHeight"`
 }
 
 // NewHeaders creates a new Headers instance.
@@ -302,10 +303,14 @@ func (headers *Headers) Status() (*Status, error) {
 	if err != nil {
 		return nil, err
 	}
+	var tipHashHex blockchain.TXHash
+	if header != nil {
+		tipHashHex = blockchain.TXHash(header.BlockHash())
+	}
 	return &Status{
 		TipAtInitTime: headers.tipAtInitTime,
 		Tip:           tip,
 		TargetHeight:  headers.targetHeight,
-		TipHashHex:    blockchain.TXHash(header.BlockHash()),
+		TipHashHex:    tipHashHex,
 	}, nil
 }
