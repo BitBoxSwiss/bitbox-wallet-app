@@ -213,12 +213,12 @@ export default class Account extends Component {
                     </div>
                     <Guide guide={guide} screen="account">
                         {noTransactions && balance && <Entry title={t('guide.accountEmpty.title')}>
-                            <p>{t('guide.accountEmpty.text', { unit: balance.unit })}</p>
+                            <p>{t('guide.accountEmpty.text', { unit: balance.available.unit })}</p>
                         </Entry>}
-                        {balance && <Entry title={t('guide.accountReceive.title', { unit: balance.unit })}>
+                        {balance && <Entry title={t('guide.accountReceive.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountReceive.text')}</p>
                         </Entry>}
-                        {balance && balance.available === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.unit })}>
+                        {balance && balance.available === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountSendDisabled.text')}</p>
                         </Entry>}
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
@@ -261,7 +261,7 @@ export default class Account extends Component {
                     walletCode={wallet.code}
                     walletInitialized={walletInitialized}
                     balance={balance}
-                    unit={balance.unit}
+                    unit={balance.available.unit}
                     onClose={() => this.setState({ isSend: false })}
                     guide={guide}
                 />

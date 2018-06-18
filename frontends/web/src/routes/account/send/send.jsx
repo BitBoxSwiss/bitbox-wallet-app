@@ -157,7 +157,7 @@ export default class Send extends Component {
                                     balance && balance.hasIncoming && (
                                         <h5 class={style.pendingBalance}>
                                             {balance.incoming}
-                                            <span style="color: var(--color-light);">{balance.unit}</span>
+                                            <span style="color: var(--color-light);">{balance.incoming.unit}</span>
                                             {' '}
                                             {t('account.incoming')}
                                         </h5>

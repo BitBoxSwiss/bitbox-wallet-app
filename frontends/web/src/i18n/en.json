@@ -196,7 +196,7 @@
             "label": "Amount",
             "placeholder": "Enter amount"
         },
-        "maximum": "Maximum Amount",
+        "maximum": "Send all",
         "fee": {
             "label": "Network Fee",
             "placeholder": "Not available",
@@ -398,7 +398,7 @@
         },
         "accountTransactionConfirmation": {
             "title": "Why must transactions be confirmed by the network?",
-            "text": "In order to ensure that a coin (respectively transaction output) cannot be spent more than once, so-called miners continously vote on the history of transactions by mining (and thus adding) blocks. If the chain of blocks diverges, honest participants converge on the longest branch containing only valid transactions. Since blocks are computationally difficult to find, each block confirms all preceding blocks on its branch. The more confirmations there are, the harder it is for an attacker to mine a distinct branch on which the coins are spent differently."
+            "text": "In order to ensure that a coin (respectively transaction output) cannot be spent more than once, so-called miners continuously vote on the history of transactions by mining (and thus adding) blocks. If the chain of blocks diverges, honest participants converge on the longest branch containing only valid transactions. Since blocks are computationally difficult to find, each block confirms all preceding blocks on its branch. The more confirmations there are, the harder it is for an attacker to mine a distinct branch on which the coins are spent differently."
         },
         "receive": [
             {
