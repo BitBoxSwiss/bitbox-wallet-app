@@ -32,6 +32,7 @@ type Interface interface {
 	Coin() *Coin
 	Init() error
 	InitialSyncDone() bool
+	KeystoreAvailable() bool
 	Offline() bool
 	Close()
 	Transactions() []*transactions.TxInfo
@@ -70,10 +71,11 @@ type Account struct {
 
 	feeTargets []*FeeTarget
 
-	initialSyncDone bool
-	offline         bool
-	onEvent         func(Event)
-	log             *logrus.Entry
+	initialSyncDone   bool
+	offline           bool
+	keystoreAvailable bool
+	onEvent           func(Event)
+	log               *logrus.Entry
 }
 
 // MarshalJSON implements json.Marshaler.
@@ -103,6 +105,9 @@ const (
 
 	// AccountDisabled indicates that the account has not yet been initialized.
 	AccountDisabled Status = "accountDisabled"
+
+	// KeystoreAvailable indicates that whether the hardware wallet is plugged in.
+	KeystoreAvailable Status = "keystoreAvailable"
 
 	// OfflineMode indicates that the connection to the blockchain network could not be established.
 	OfflineMode Status = "offlineMode"
@@ -139,10 +144,11 @@ func NewAccount(
 			{Blocks: 6, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
-		offline:         true,
-		initialSyncDone: false,
-		onEvent:         onEvent,
-		log:             log,
+		offline:           true,
+		keystoreAvailable: true,
+		initialSyncDone:   false,
+		onEvent:           onEvent,
+		log:               log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
@@ -267,6 +273,11 @@ func (account *Account) Offline() bool {
 	return account.offline
 }
 
+// KeystoreAvailable returns true if the keystore is available (e.g. BitBox is plugged in)
+func (account *Account) KeystoreAvailable() bool {
+	return account.keystoreAvailable
+}
+
 // InitialSyncDone indicates whether the account has loaded and finished the initial sync of the
 // addresses.
 func (account *Account) InitialSyncDone() bool {
@@ -285,6 +296,7 @@ func (account *Account) Close() {
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
 	account.initialSyncDone = false
+	account.keystoreAvailable = false
 	if account.transactions != nil {
 		account.transactions.Close()
 	}

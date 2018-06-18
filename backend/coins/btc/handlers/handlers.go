@@ -247,6 +247,9 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 		if handlers.account.InitialSyncDone() {
 			status = append(status, btc.AccountSynced)
 		}
+		if handlers.account.KeystoreAvailable() {
+			status = append(status, btc.KeystoreAvailable)
+		}
 
 		if handlers.account.Offline() {
 			status = append(status, btc.OfflineMode)
