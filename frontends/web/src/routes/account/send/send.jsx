@@ -23,6 +23,7 @@ export default class Send extends Component {
         sendAll: false,
         isSent: false,
         paired: null,
+        amountFiat: null,
     }
 
     componentDidMount() {
@@ -114,6 +115,20 @@ export default class Send extends Component {
         });
     }
 
+    handleFiatInput = event => {
+        this.convertFromFiat(event.target.value);
+    }
+
+    convertToFiat = value => {
+        apiGet(`coins/convert?from=${this.props.unit}&to=${this.props.unitFiat}&amount=${value}`)
+            .then(amountFiat => this.setState({ amountFiat, amount: value }));
+    }
+
+    convertFromFiat = value => {
+        apiGet(`coins/convert?from=${this.props.unitFiat}&to=${this.props.unit}&amount=${value}`)
+            .then(amount => this.setState({ amount, amountFiat: value }));
+    }
+
     sendAll = event => {
         this.handleFormChange(event);
         this.validateAndDisplayFee();
@@ -130,6 +145,7 @@ export default class Send extends Component {
         walletCode,
         walletInitialized,
         unit,
+        unitFiat,
         isConfirming,
         balance,
         guide,
@@ -140,6 +156,7 @@ export default class Send extends Component {
         proposedAmount,
         valid,
         amount,
+        amountFiat,
         sendAll,
         feeTarget,
         isSent,
@@ -191,23 +208,31 @@ export default class Send extends Component {
                                 />
                             </div>
                             <div class="row">
-                                <Input
-                                    label={t('send.amount.label')}
-                                    id="amount"
-                                    onInput={this.handleFormChange}
-                                    onChange={this.validateAndDisplayFee}
-                                    disabled={sendAll}
-                                    error={amountError}
-                                    value={sendAll ? proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit : amount}
-                                    placeholder={t('send.amount.placeholder') + ' [' + unit + ']'}>
-                                    <Checkbox
-                                        label={t('send.maximum')}
-                                        id="sendAll"
-                                        onChange={this.sendAll}
-                                        checked={sendAll}
-                                        className={style.maxAmount}
-                                    />
-                                </Input>
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Input
+                                        label={t('send.amount.label')}
+                                        id="amount"
+                                        onInput={this.handleFormChange}
+                                        onChange={this.validateAndDisplayFee}
+                                        disabled={sendAll}
+                                        error={amountError}
+                                        value={sendAll ? proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit : amount}
+                                        placeholder={`${t('send.amount.placeholder')} (${unit})`} />
+                                    <Input
+                                        label={unitFiat.toUpperCase()}
+                                        id="amountFiat"
+                                        onInput={this.handleFiatInput}
+                                        disabled={sendAll}
+                                        error={amountError}
+                                        value={amountFiat}
+                                        placeholder="" />
+                                </div>
+                                <Checkbox
+                                    label={t('send.maximum')}
+                                    id="sendAll"
+                                    onChange={this.sendAll}
+                                    checked={sendAll}
+                                    className={style.maxAmount} />
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">

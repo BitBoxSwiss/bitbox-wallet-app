@@ -72,6 +72,12 @@
 }
 
 .maxAmount {
+    position: relative;
+    top: -.5rem;
+}
+
+/*
+.maxAmount {
     position: absolute;
     top: -3px;
     right: 0;
@@ -81,3 +87,4 @@
 .maxAmount input {
     height: auto !important;
 }
+*/

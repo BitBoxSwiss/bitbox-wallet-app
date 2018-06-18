@@ -11,22 +11,20 @@ export default function Input({
     style,
     children,
     getRef,
-    ...props,
+    ...props
 }) {
     return (
         <div className={[input, className].join(' ')} style={style}>
             {
                 label && (
-                    <div class="flex flex-row flex-between flex-items-start">
-                        <label for={id} class={error ? errorText : ''}>
-                            {label}
-                            {
-                                error && (
-                                    <span>:<span>{error}</span></span>
-                                )
-                            }
-                        </label>
-                    </div>
+                    <label for={id} class={error ? errorText : ''}>
+                        {label}
+                        {
+                            error && (
+                                <span>:<span>{error}</span></span>
+                            )
+                        }
+                    </label>
                 )
             }
             <input

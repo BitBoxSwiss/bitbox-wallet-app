@@ -15,7 +15,7 @@ export default class FeeTargets extends Component {
     }
 
     componentWillReceiveProps({ walletInitialized, walletCode }) {
-        if (walletInitialized && !this.props.walletInitialized || this.props.walletCode != walletCode) {
+        if (walletInitialized && !this.props.walletInitialized || this.props.walletCode !== walletCode) {
             this.updateFeeTargets(walletCode);
         }
     }
