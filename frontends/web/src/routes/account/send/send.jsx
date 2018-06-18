@@ -12,18 +12,29 @@ import style from './send.css';
 
 @translate()
 export default class Send extends Component {
-    state = {
-        feeTarget: null,
-        proposedFee: null,
-        proposedAmount: null,
-        proposedTotal: null,
-        valid: false,
-        addressError: null,
-        amountError: null,
-        sendAll: false,
-        isSent: false,
-        paired: null,
-        amountFiat: null,
+
+    constructor(props) {
+        super(props);
+
+        let coin = props.wallet.coinCode.toUpperCase();
+        if (coin.length === 4 && coin.startsWith('T')) {
+            coin = coin.substring(1);
+        }
+
+        this.state = {
+            feeTarget: null,
+            proposedFee: null,
+            proposedAmount: null,
+            proposedTotal: null,
+            valid: false,
+            addressError: null,
+            amountError: null,
+            sendAll: false,
+            isSent: false,
+            paired: null,
+            amountFiat: null,
+            coin,
+        };
     }
 
     componentDidMount() {
@@ -107,6 +118,8 @@ export default class Send extends Component {
         let value = event.target.value;
         if (event.target.id === 'sendAll') {
             value = event.target.checked;
+        } else if (event.target.id.startsWith('amount')) {
+            this.convertToFiat(value);
         }
         this.setState({
             [event.target.id]: value,
@@ -116,17 +129,21 @@ export default class Send extends Component {
     }
 
     handleFiatInput = event => {
-        this.convertFromFiat(event.target.value);
+        const value = event.target.value;
+        this.setState({ amountFiat: value });
+        this.convertFromFiat(value);
     }
 
     convertToFiat = value => {
-        apiGet(`coins/convert?from=${this.props.unit}&to=${this.props.unitFiat}&amount=${value}`)
-            .then(amountFiat => this.setState({ amountFiat, amount: value }));
+        const fiat = this.props.unitFiat.toUpperCase();
+        apiGet(`coins/convert?from=${this.state.coin}&to=${fiat}&amount=${value}`)
+            .then(amountFiat => this.setState({ amountFiat }));
     }
 
     convertFromFiat = value => {
-        apiGet(`coins/convert?from=${this.props.unitFiat}&to=${this.props.unit}&amount=${value}`)
-            .then(amount => this.setState({ amount, amountFiat: value }));
+        const fiat = this.props.unitFiat.toUpperCase();
+        apiGet(`coins/convert?from=${fiat}&to=${this.state.coin}&amount=${value}`)
+            .then(amount => this.setState({ amount }));
     }
 
     sendAll = event => {
@@ -216,7 +233,7 @@ export default class Send extends Component {
                                         onChange={this.validateAndDisplayFee}
                                         disabled={sendAll}
                                         error={amountError}
-                                        value={sendAll ? proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit : amount}
+                                        value={sendAll ? proposedAmount && proposedAmount.amount : amount}
                                         placeholder={`${t('send.amount.placeholder')} (${unit})`} />
                                     <Input
                                         label={unitFiat.toUpperCase()}
