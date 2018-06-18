@@ -1,16 +1,22 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { Button } from '../../../../components/forms';
+import { Button, Checkbox } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
+import style from '../../device.css';
 
 @translate()
 export default class Reset extends Component {
     state = {
         isConfirming: false,
         activeDialog: false,
+        understand: false,
+    }
+
+    handleUnderstandChange = (e) => {
+        this.setState({ understand: e.target.checked });
     }
 
     resetDevice = () => {
@@ -33,6 +39,7 @@ export default class Reset extends Component {
     }, {
         isConfirming,
         activeDialog,
+        understand,
     }) {
         return (
             <div>
@@ -42,12 +49,20 @@ export default class Reset extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('reset.title')}>
-                            <p>{t('reset.description')}</p>
-                            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
+                            <p>
+                                {t('reset.description')}
+                            </p>
+                            <div className={style.agreements}>
+                                <Checkbox
+                                    id="funds_access"
+                                    label={t('reset.understand')}
+                                    onChange={this.handleUnderstandChange} />
+                            </div>
+                            <div className={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
                                 <Button secondary onClick={() => this.setState({ activeDialog: false })}>
                                     {t('button.back')}
                                 </Button>
-                                <Button danger onClick={this.resetDevice}>
+                                <Button danger disabled={!understand} onClick={this.resetDevice}>
                                     {t('reset.button')}
                                 </Button>
                             </div>

@@ -15,7 +15,6 @@ export default class Transaction extends Component {
     }
 
     parseTime = time => {
-        let arr;
         const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const dt = new Date(Date.parse(time));
@@ -114,7 +113,7 @@ export default class Transaction extends Component {
                                 <div class={style.address}>
                                     {id}
                                     <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
-                                      <span class={style.external}></span>
+                                        <span class={style.external}></span>
                                     </A>
                                 </div>
                             </div>

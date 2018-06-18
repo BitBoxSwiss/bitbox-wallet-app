@@ -70,7 +70,8 @@
     "reset": {
         "button": "Reset Device",
         "title": "Reset Device",
-        "description": "Resetting the device means"
+        "description": "All data on the device will be deleted. That includes your Private Key!",
+        "understand": "Only do this if you know what you’re doing"
     },
     "pairing": {
         "button": "Connect Mobile App",
