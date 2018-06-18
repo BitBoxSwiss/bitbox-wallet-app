@@ -171,7 +171,7 @@ export default class Account extends Component {
                                     }
                                 </Balance>
                                 <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                    { balance && <Rates currency="usd" amount={balance.available} /> }
+                                    { balance && <Rates coin={balance.unit} currency="USD" amount={balance.available} /> }
                                 </div>
                                 <div class={componentStyle.buttons} style="align-self: flex-end;">
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>

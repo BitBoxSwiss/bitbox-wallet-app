@@ -50,7 +50,7 @@ type Backend interface {
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
-	Rates() coin.Rates
+	Rates() map[string]coin.Rates
 }
 
 // Handlers provides a web api to the backend.
@@ -125,7 +125,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/wallet-status", handlers.getWalletStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/coins/btc/rates", handlers.getBtcRatesHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/rates", handlers.getBtcRatesHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")

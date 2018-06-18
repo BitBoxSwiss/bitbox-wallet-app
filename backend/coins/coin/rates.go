@@ -6,14 +6,14 @@ import (
 
 // Rates store the exchange rate into various fiat currencies.
 type Rates struct {
-	USD float64 `json:"usd"`
-	EUR float64 `json:"eur"`
-	CHF float64 `json:"chf"`
-	GBP float64 `json:"gbp"`
+	USD float64 `json:"USD"`
+	EUR float64 `json:"EUR"`
+	CHF float64 `json:"CHF"`
+	GBP float64 `json:"GBP"`
 }
 
 // RatesUpdater updates the exchange rates continuously.
 type RatesUpdater interface {
 	observable.Interface
-	Last() Rates
+	Last(coin string) Rates
 }

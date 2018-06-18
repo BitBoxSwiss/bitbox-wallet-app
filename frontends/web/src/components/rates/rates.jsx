@@ -1,7 +1,7 @@
 import UpdatingComponent from '../updating/updating';
 import style from './rates.css';
 
-const currencies = [ 'usd', 'eur', 'chf', 'gbp' ];
+const currencies = [ 'USD', 'EUR', 'CHF', 'GBP' ];
 
 export default class Rates extends UpdatingComponent {
     constructor(props) {
@@ -9,7 +9,7 @@ export default class Rates extends UpdatingComponent {
         this.state = { currency: props.currency };
     }
 
-    map = [ { url: 'coins/btc/rates', key: 'rates' } ]
+    map = [ { url: 'coins/rates', key: 'rates' } ];
 
     handleChangeCurrency = e => {
         this.setState(state => {
@@ -18,11 +18,14 @@ export default class Rates extends UpdatingComponent {
         });
     }
 
-    render({ amount, children }, { currency, rates }) {
+    render({ coin, amount, children }, { currency, rates }) {
         if (!rates) {
             return null;
         }
-        const value = rates[currency] * Number(amount);
+        if (coin.length === 4 && coin.startsWith('T')) {
+            coin = coin.substring(1);
+        }
+        const value = rates[coin][currency] * Number(amount);
         return (
             <span className={style.rates} onClick={this.handleChangeCurrency}>
                 {children}

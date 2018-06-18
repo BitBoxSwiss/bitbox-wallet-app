@@ -66,7 +66,7 @@ type Backend struct {
 	// accountsSyncStart time.Time
 
 	// Stored and exposed temporarily through the backend.
-	ratesUpdater coinpkg.RatesUpdater
+	ratesUpdater *btc.RatesUpdater
 
 	log *logrus.Entry
 }
@@ -201,9 +201,9 @@ func (backend *Backend) Coin(code string) *btc.Coin {
 	case "btc":
 		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, dbFolder, servers, "https://blockchain.info/tx/", backend.ratesUpdater)
 	case "tltc":
-		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, dbFolder, servers, "http://explorer.litecointools.com/tx/", nil)
+		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, dbFolder, servers, "http://explorer.litecointools.com/tx/", backend.ratesUpdater)
 	case "ltc":
-		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, dbFolder, servers, "https://insight.litecore.io/tx/", nil)
+		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, dbFolder, servers, "https://insight.litecore.io/tx/", backend.ratesUpdater)
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
@@ -428,7 +428,7 @@ func (backend *Backend) listenHID() {
 	usb.NewManager(backend.Register, backend.Deregister).ListenHID()
 }
 
-// Rates return the latest rates for BTC.
-func (backend *Backend) Rates() coinpkg.Rates {
-	return backend.ratesUpdater.Last()
+// Rates return the latest rates.
+func (backend *Backend) Rates() map[string]coinpkg.Rates {
+	return backend.ratesUpdater.All()
 }

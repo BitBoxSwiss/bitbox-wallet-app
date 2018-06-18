@@ -2,99 +2,105 @@ package btc
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/observable/action"
+	"github.com/davecgh/go-spew/spew"
+	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/coin"
+	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
-	"github.com/sirupsen/logrus"
+	"github.com/shiftdevices/godbb/util/observable/action"
 )
+
+var coins = []string{"BTC", "LTC"}
+var currencies = []string{"USD", "EUR", "CHF", "GBP"}
+
+const interval = time.Minute
+const url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
 // RatesUpdater implements coin.RatesUpdater.
 type RatesUpdater struct {
 	observable.Implementation
-	last coin.Rates
+	last map[string]coinpkg.Rates
 	log  *logrus.Entry
 }
 
 // NewRatesUpdater returns a new rates updater.
 func NewRatesUpdater() *RatesUpdater {
-	updater := &RatesUpdater{log: logging.Get().WithGroup("coin").WithField("name", "btc")}
+	updater := &RatesUpdater{
+		last: map[string]coinpkg.Rates{},
+		log:  logging.Get().WithGroup("rates"),
+	}
 	go updater.start()
 	return updater
 }
 
-// Last returns the last rates.
-func (updater *RatesUpdater) Last() coin.Rates {
+// All returns the last rates for all coins.
+func (updater *RatesUpdater) All() map[string]coinpkg.Rates {
 	return updater.last
 }
 
+// Last returns the last rates for the given coin.
+func (updater *RatesUpdater) Last(coin string) coinpkg.Rates {
+	if len(coin) == 4 && strings.HasPrefix(coin, "T") {
+		coin = coin[1:]
+	}
+	return updater.last[coin]
+}
+
 func (updater *RatesUpdater) update() {
-	response, err := http.Get("https://blockchain.info/ticker")
+	response, err := http.Get(fmt.Sprintf(url,
+		strings.Join(coins, ","),
+		strings.Join(currencies, ","),
+	))
 	if err != nil {
 		return
 	}
 	defer response.Body.Close()
 
-	var data interface{}
+	var data map[string]map[string]float64
 	err = json.NewDecoder(response.Body).Decode(&data)
 	if err != nil {
 		return
 	}
 
-	currencies, ok := data.(map[string]interface{})
-	if !ok {
-		return
-	}
+	changed := false
 
-	extractor := func(acronym string) float64 {
-		currency, found := currencies[acronym]
+	for _, coin := range coins {
+		rates, found := data[coin]
 		if !found {
-			return 0
+			updater.last[coin] = coinpkg.Rates{}
+			continue
 		}
-		values, ok := currency.(map[string]interface{})
-		if !ok {
-			return 0
+		newRates := coinpkg.Rates{
+			USD: rates["USD"],
+			CHF: rates["CHF"],
+			EUR: rates["EUR"],
+			GBP: rates["GBP"],
 		}
-		value, found := values["last"]
-		if !found {
-			return 0
+		if newRates != updater.last[coin] {
+			updater.last[coin] = newRates
+			changed = true
 		}
-		number, ok := value.(float64)
-		if !ok {
-			return 0
-		}
-		return number
 	}
 
-	rates := coin.Rates{
-		USD: extractor("USD"),
-		CHF: extractor("CHF"),
-		EUR: extractor("EUR"),
-		GBP: extractor("GBP"),
+	if changed {
+		updater.log.WithField("data", spew.Sprintf("%v", data)).Debug("Exchange rates changed.")
+		updater.Notify(observable.Event{
+			Subject: "coins/rates",
+			Action:  action.Replace,
+			Object:  updater.last,
+		})
 	}
-
-	if rates == updater.last {
-		return
-	}
-
-	updater.last = rates
-
-	updater.log.WithField("rates", rates).Debug("Exchange rates for BTC changed.")
-
-	updater.Notify(observable.Event{
-		Subject: "coins/btc/rates",
-		Action:  action.Replace,
-		Object:  rates,
-	})
 }
 
 func (updater *RatesUpdater) start() {
 	for {
 		updater.update()
-		time.Sleep(time.Minute)
+		time.Sleep(interval)
 	}
 }

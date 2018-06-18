@@ -135,7 +135,7 @@ func (coin *Coin) FormatAmountAsJSON(amount int64) coinpkg.FormattedAmount {
 	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
 	conversions := coinpkg.Conversions{}
 	if coin.ratesUpdater != nil {
-		rates := coin.ratesUpdater.Last()
+		rates := coin.ratesUpdater.Last(coin.unit)
 		conversions = coinpkg.Conversions{
 			USD: formatAsCurrency(float * rates.USD),
 			EUR: formatAsCurrency(float * rates.EUR),

@@ -2,10 +2,10 @@ package coin
 
 // Conversions to fiat currencies.
 type Conversions struct {
-	USD string `json:"usd"`
-	EUR string `json:"eur"`
-	CHF string `json:"chf"`
-	GBP string `json:"gbp"`
+	USD string `json:"USD"`
+	EUR string `json:"EUR"`
+	CHF string `json:"CHF"`
+	GBP string `json:"GBP"`
 }
 
 // FormattedAmount with unit and conversions.
