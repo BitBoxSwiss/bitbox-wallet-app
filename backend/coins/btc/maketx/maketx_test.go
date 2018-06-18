@@ -15,6 +15,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/shiftdevices/godbb/util/rpc"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -22,7 +23,7 @@ import (
 
 var noDust = btcutil.Amount(0)
 
-var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, "https://testnet.blockchain.info/tx/", nil)
+var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, ".", []*rpc.ServerInfo{}, "https://testnet.blockchain.info/tx/", nil)
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226
