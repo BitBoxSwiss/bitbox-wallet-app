@@ -772,6 +772,7 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 			return nil, errp.New("unexpected reply")
 		}
 		filenameAndDate["id"] = filenameString
+<<<<<<< HEAD
 		matched, err := regexp.Match(".*-\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}.pdf", []byte(filenameString))
 		if err != nil {
 			dbb.log.WithField("error", err).Panic("Failed to match with configured regex.", errp.WithStack(err))
@@ -780,6 +781,13 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 			lengthName := len(filenameString) - len(backupDateFormat) - len(".pdf") - 1
 			filenameAndDate["name"] = filenameString[:lengthName]
 			backupDate, err := time.Parse(backupDateFormat, filenameString[lengthName+1:len(filenameString)-len(".pdf")])
+=======
+		pattern := regexp.MustCompile("(.*)-(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}).pdf")
+		if pattern.Match([]byte(filenameString)) {
+			groups := pattern.FindStringSubmatch(filenameString)
+			filenameAndDate["name"] = groups[1]
+			backupDate, err := time.Parse(backupDateFormat, groups[2])
+>>>>>>> bitbox: Parse date from backup name and propagate to frontend
 			if err != nil {
 				return nil, errp.WithMessage(err, "Failed to extract the backup date from the wallet name")
 			}
