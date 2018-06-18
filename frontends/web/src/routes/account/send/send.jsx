@@ -78,7 +78,6 @@ export default class Send extends Component {
 
     validateAndDisplayFee = () => {
         this.setState({
-            proposedFee: null,
             proposedTotal: null,
             addressError: null,
             amountError: null,
@@ -105,6 +104,7 @@ export default class Send extends Component {
                     this.setState({ amountError: error });
                     break;
                 default:
+                    this.setState({ proposedFee: null });
                     /* eslint no-alert: 0 */
                     alert(error);
                 }
@@ -121,11 +121,8 @@ export default class Send extends Component {
         } else if (event.target.id.startsWith('amount')) {
             this.convertToFiat(value);
         }
-        this.setState({
-            [event.target.id]: value,
-            proposedFee: null,
-            proposedTotal: null,
-        });
+        this.setState({ [event.target.id]: value });
+        this.validateAndDisplayFee();
     }
 
     handleFiatInput = event => {
@@ -135,20 +132,30 @@ export default class Send extends Component {
     }
 
     convertToFiat = value => {
-        const fiat = this.props.unitFiat.toUpperCase();
-        apiGet(`coins/convert?from=${this.state.coin}&to=${fiat}&amount=${value}`)
-            .then(amountFiat => this.setState({ amountFiat }));
+        if (value) {
+            const fiat = this.props.unitFiat.toUpperCase();
+            apiGet(`coins/convertToFiat?from=${this.state.coin}&to=${fiat}&amount=${value}`)
+                .then(amountFiat => this.setState({ amountFiat }));
+        } else {
+            this.setState({ amountFiat: null });
+        }
     }
 
     convertFromFiat = value => {
-        const fiat = this.props.unitFiat.toUpperCase();
-        apiGet(`coins/convert?from=${fiat}&to=${this.state.coin}&amount=${value}`)
-            .then(amount => this.setState({ amount }));
+        if (value) {
+            const fiat = this.props.unitFiat.toUpperCase();
+            apiGet(`coins/convertFromFiat?from=${fiat}&to=${this.state.coin}&amount=${value}`)
+                .then(amount => {
+                    this.setState({ amount });
+                    this.validateAndDisplayFee();
+                });
+        } else {
+            this.setState({ amount: null });
+        }
     }
 
     sendAll = event => {
         this.handleFormChange(event);
-        this.validateAndDisplayFee();
     }
 
     feeTargetChange = feeTarget => {

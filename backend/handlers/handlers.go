@@ -126,7 +126,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/coins/rates", handlers.getRatesHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/convert", handlers.getConvertHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
@@ -275,20 +276,32 @@ func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) 
 	return handlers.backend.Rates(), nil
 }
 
-func (handlers *Handlers) getConvertHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{}, error) {
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
-	string := r.URL.Query().Get("amount")
-	amount, err := strconv.ParseFloat(string, 64)
+	amount := r.URL.Query().Get("amount")
+	amountAsFloat, err := strconv.ParseFloat(amount, 64)
+	if err != nil {
+		return nil, err
+	}
+	rate := handlers.backend.Rates()[from][to]
+	return strconv.FormatFloat(amountAsFloat*rate, 'f', -1, 64), nil
+}
+
+func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{}, error) {
+	from := r.URL.Query().Get("from")
+	to := r.URL.Query().Get("to")
+	amount := r.URL.Query().Get("amount")
+	amountAsFloat, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
 		return nil, err
 	}
 	rate := handlers.backend.Rates()[to][from]
 	result := 0.0
 	if rate != 0.0 {
-		result = amount / rate
+		result = amountAsFloat / rate
 	}
-	return result, nil
+	return strconv.FormatFloat(result, 'f', -1, 64), nil
 }
 
 func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
