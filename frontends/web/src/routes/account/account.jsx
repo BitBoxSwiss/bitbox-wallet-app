@@ -262,7 +262,7 @@ export default class Account extends Component {
                     walletInitialized={walletInitialized}
                     balance={balance}
                     unit={balance.available.unit}
-                    unitFiat="usd"
+                    unitFiat="USD"
                     onClose={() => this.setState({ isSend: false })}
                     guide={guide}
                 />
