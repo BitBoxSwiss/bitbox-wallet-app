@@ -88,7 +88,7 @@ export default class Transaction extends Component {
                                     <div class={style.address}>{weight}</div>
                                 </div>
                                 {
-                                    fee && (
+                                    fee && fee.amount && (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.fee')}</div>
                                             <div class={style.address} title={feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb'}>{fee.amount} {fee.unit}</div>
