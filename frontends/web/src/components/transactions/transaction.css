@@ -4,10 +4,6 @@
     position: relative;
     overflow: hidden;
 }
-/*
-.transactionContainer:nth-child(odd) {
-    background-color: var(--color-lightgray);
-}*/
 
 .transactionContainer.expanded {
     background-color: var(--color-white);

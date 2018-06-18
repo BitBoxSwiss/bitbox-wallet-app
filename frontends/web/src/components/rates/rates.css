@@ -1,3 +1,7 @@
 .rates {
     cursor: pointer;
 }
+
+.unit {
+    color: var(--color-secondary);
+}

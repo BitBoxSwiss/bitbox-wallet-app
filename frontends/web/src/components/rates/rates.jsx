@@ -9,7 +9,14 @@ export default class Rates extends UpdatingComponent {
         this.state = { currency: props.currency };
     }
 
-    map = [ { url: 'coins/btc/rates', key: 'rates' } ];
+    map = [ { url: 'coins/btc/rates', key: 'rates' } ]
+
+    handleChangeCurrency = e => {
+        this.setState(state => {
+            const position = (currencies.indexOf(state.currency) + 1) % currencies.length;
+            return { currency: currencies[position] };
+        });
+    }
 
     render({ amount, children }, { currency, rates }) {
         if (!rates) {
@@ -17,14 +24,11 @@ export default class Rates extends UpdatingComponent {
         }
         const value = rates[currency] * Number(amount);
         return (
-            <span className={style.rates} onClick={() => {
-                const position = (currencies.indexOf(currency) + 1) % currencies.length;
-                this.setState({ currency: currencies[position] });
-            }}>
+            <span className={style.rates} onClick={this.handleChangeCurrency}>
                 {children}
                 {value.toFixed(2)}
                 {' '}
-                <span>{currency.toUpperCase()}</span>
+                <span className={style.unit}>{currency.toUpperCase()}</span>
             </span>
         );
     }
