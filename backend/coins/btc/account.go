@@ -144,7 +144,8 @@ func NewAccount(
 			{Blocks: 6, Code: FeeTargetCodeNormal},
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
-		offline:           true,
+		// initializing to false, to prevent flashing of offline notification in the frontend
+		offline:           false,
 		keystoreAvailable: true,
 		initialSyncDone:   false,
 		onEvent:           onEvent,
