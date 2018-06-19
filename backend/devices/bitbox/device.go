@@ -356,9 +356,21 @@ func (dbb *Device) SetPassword(pin string) error {
 		return err
 	}
 
-	reply, err := dbb.sendPlain("password", pin)
-	if err != nil {
-		return errp.WithMessage(err, "Failed to set pin")
+	var reply map[string]interface{}
+	if dbb.Status() == StatusUninitialized {
+		var err error
+		reply, err = dbb.sendPlain("password", pin)
+		if err != nil {
+			return errp.WithMessage(err, "Failed to set new pin")
+		}
+	} else if dbb.pin != "" {
+		var err error
+		reply, err = dbb.sendKV("password", pin, dbb.pin)
+		if err != nil {
+			return errp.WithMessage(err, "Failed to replace pin")
+		}
+	} else {
+		return errp.New("can only set PIN on an uninitialized device or when logged in")
 	}
 	if reply["password"] != "success" {
 		return errp.New("Unexpected reply")

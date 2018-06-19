@@ -11,8 +11,8 @@ import InnerHTMLHelper from '../../../../utils/innerHTML';
 @translate()
 export default class HiddenWallet extends Component {
     state = {
-        password: null,
         pin: null,
+        errorCode: null,
         isConfirming: false,
         activeDialog: false,
     }
@@ -42,8 +42,8 @@ export default class HiddenWallet extends Component {
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.passwordInput) {
-            this.passwordInput.clear();
+        if (this.pinInput) {
+            this.pinInput.clear();
         }
     }
 
@@ -52,7 +52,7 @@ export default class HiddenWallet extends Component {
     }
 
     validate = () => {
-        return this.state.password && this.state.pin;
+        return this.state.pin;
     }
 
     createHiddenWallet = event => {
@@ -62,24 +62,25 @@ export default class HiddenWallet extends Component {
             activeDialog: false,
             isConfirming: true,
         });
-        apiPost('devices/' + this.props.deviceID + '/set-hidden-password', {
-            pin: this.state.pin,
-            backupPassword: this.state.password,
-        }).catch(() => {}).then(({ success, didCreate, errorMessage }) => {
+        apiPost('devices/' + this.props.deviceID + '/set-password', {
+            password: this.state.pin,
+        }).catch(() => {}).then(data => {
             this.abort();
-            if (success) {
-                if (didCreate) {
-                    /* eslint no-alert: 0 */
-                    alert(this.props.t('hiddenWallet.success'));
+
+            if (!data.success) {
+                if (data.code) {
+                    this.setState({ errorCode: data.code });
                 }
-            } else {
-                alert(errorMessage);
+                alert(data.errorMessage);
+                // {t(`initialize.error.${errorCode}`, {
+                //         defaultValue: errorMessage
+                //     })}
+                // this.setState({
+                //     status: stateEnum.ERROR,
+                //     errorMessage: data.errorMessage
+                // });
             }
         });
-    }
-
-    setValidPassword = password => {
-        this.setState({ password });
     }
 
     setValidPIN = pin => {
@@ -90,7 +91,6 @@ export default class HiddenWallet extends Component {
         t,
         disabled,
     }, {
-        password,
         isConfirming,
         activeDialog,
     }) {
@@ -100,38 +100,27 @@ export default class HiddenWallet extends Component {
                     primary
                     disabled={disabled}
                     onclick={() => this.setState({ activeDialog: true })}>
-                    {t('button.hiddenwallet')}
+                    {t('button.changepin')}
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('button.hiddenwallet')}>
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info1HTML')} />
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info2HTML')} />
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info3HTML')} />
-
+                        <Dialog title={t('button.changepin')}>
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
                                     idPrefix="pin"
                                     pattern="^[0-9]+$"
                                     title={t('initialize.input.invalid')}
-                                    label={t('hiddenWallet.pinLabel')}
-                                    repeatLabel={t('hiddenWallet.pinRepeatLabel')}
-                                    repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
+                                    label={t('initialize.input.label')}
+                                    repeatLabel={t('initialize.input.labelRepeat')}
+                                    repeatPlaceholder={t('initialize.input.placeholderRepeat')}
                                     ref={ref => this.pinInput = ref}
                                     onValidPassword={this.setValidPIN} />
-                                <PasswordRepeatInput
-                                    idPrefix="password"
-                                    ref={ref => this.passwordInput = ref}
-                                    label={t('hiddenWallet.passwordLabel')}
-                                    repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
-                                    onValidPassword={this.setValidPassword}
-                                />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>
                                         {t('button.abort')}
                                     </Button>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
-                                        {t('button.hiddenwallet')}
+                                        {t('button.changepin')}
                                     </Button>
                                 </div>
                             </form>
@@ -140,7 +129,7 @@ export default class HiddenWallet extends Component {
                 }
                 {
                     isConfirming && (
-                        <WaitDialog title={t('button.hiddenwallet')} />
+                        <WaitDialog title={t('button.changepin')} />
                     )
                 }
             </span>

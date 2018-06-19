@@ -24,8 +24,8 @@
         "waiting": "Please insert your device…"
     },
     "deviceSettings": {
-        "seed": {
-            "title": "Seed",
+        "secrets": {
+            "title": "Secrets",
             "manageBackups": "Manage Backups"
         },
         "pairing": {
@@ -303,7 +303,8 @@
         "create": "Create",
         "abort": "Abort",
         "upgrade": "Upgrade",
-        "hiddenwallet": "Create Hidden Wallet"
+        "hiddenwallet": "Create Hidden Wallet",
+        "changepin": "Change PIN"
     },
     "password": {
         "show": "Show {{label}}",

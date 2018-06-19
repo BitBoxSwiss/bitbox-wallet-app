@@ -8,6 +8,7 @@ import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
+import ChangePIN from './components/changepin';
 import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
@@ -97,13 +98,14 @@ export default class Settings extends Component {
 
                                 <div class="subHeaderContainer first">
                                     <div class="subHeader">
-                                        <h3>{t('deviceSettings.seed.title')}</h3>
+                                        <h3>{t('deviceSettings.secrets.title')}</h3>
                                     </div>
                                 </div>
                                 <div class="buttons wrapped flex flex-row flex-start flex-items-baseline flex-wrap">
                                     <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>
-                                        {t('deviceSettings.seed.manageBackups')}
+                                        {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
+                                    <ChangePIN deviceID={deviceID} />
                                     <HiddenWallet deviceID={deviceID} disabled={lock} />
                                     <Reset deviceID={deviceID} />
                                 </div>
