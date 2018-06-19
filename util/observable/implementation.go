@@ -30,6 +30,6 @@ func (implementation *Implementation) Observe(observer func(Event)) func() {
 func (implementation *Implementation) Notify(event Event) {
 	defer implementation.observersLock.RLock()()
 	for _, observer := range implementation.observers {
-		go observer(event)
+		observer(event)
 	}
 }
