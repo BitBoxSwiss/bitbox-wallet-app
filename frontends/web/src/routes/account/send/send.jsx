@@ -1,11 +1,13 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
+import { debug } from '../../../utils/env';
 import { Button, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
+import Rates from '../../../components/rates/rates';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
 import style from './send.css';
@@ -16,9 +18,9 @@ export default class Send extends Component {
     constructor(props) {
         super(props);
 
-        let coin = props.wallet.coinCode.toUpperCase();
-        if (coin.length === 4 && coin.startsWith('T')) {
-            coin = coin.substring(1);
+        let coinUnitForConversion = props.wallet.coinCode.toUpperCase();
+        if (coinUnitForConversion.length === 4 && coinUnitForConversion.startsWith('T')) {
+            coinUnitForConversion = coinUnitForConversion.substring(1);
         }
 
         this.state = {
@@ -32,8 +34,9 @@ export default class Send extends Component {
             sendAll: false,
             isSent: false,
             paired: null,
-            amountFiat: null,
-            coin,
+            fiatAmount: null,
+            fiatUnit: 'USD',
+            coinUnitForConversion,
         };
     }
 
@@ -127,24 +130,22 @@ export default class Send extends Component {
 
     handleFiatInput = event => {
         const value = event.target.value;
-        this.setState({ amountFiat: value });
+        this.setState({ fiatAmount: value });
         this.convertFromFiat(value);
     }
 
     convertToFiat = value => {
         if (value) {
-            const fiat = this.props.unitFiat.toUpperCase();
-            apiGet(`coins/convertToFiat?from=${this.state.coin}&to=${fiat}&amount=${value}`)
-                .then(amountFiat => this.setState({ amountFiat }));
+            apiGet(`coins/convertToFiat?from=${this.state.coinUnitForConversion}&to=${this.state.fiatUnit}&amount=${value}`)
+                .then(fiatAmount => this.setState({ fiatAmount }));
         } else {
-            this.setState({ amountFiat: null });
+            this.setState({ fiatAmount: null });
         }
     }
 
     convertFromFiat = value => {
         if (value) {
-            const fiat = this.props.unitFiat.toUpperCase();
-            apiGet(`coins/convertFromFiat?from=${fiat}&to=${this.state.coin}&amount=${value}`)
+            apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${this.state.coinUnitForConversion}&amount=${value}`)
                 .then(amount => {
                     this.setState({ amount });
                     this.validateAndDisplayFee();
@@ -158,6 +159,12 @@ export default class Send extends Component {
         this.handleFormChange(event);
     }
 
+    sendToSelf = event => {
+        apiGet('wallet/' + this.props.walletCode + '/receive-addresses').then(receiveAddresses => {
+            this.setState({ recipientAddress: receiveAddresses[0].address });
+        });
+    }
+
     feeTargetChange = feeTarget => {
         this.setState({ feeTarget });
         this.validateAndDisplayFee();
@@ -169,7 +176,6 @@ export default class Send extends Component {
         walletCode,
         walletInitialized,
         unit,
-        unitFiat,
         isConfirming,
         balance,
         guide,
@@ -180,7 +186,8 @@ export default class Send extends Component {
         proposedAmount,
         valid,
         amount,
-        amountFiat,
+        fiatAmount,
+        fiatUnit,
         sendAll,
         feeTarget,
         isSent,
@@ -205,6 +212,9 @@ export default class Send extends Component {
                                     )
                                 }
                             </Balance>
+                            <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
+                                { balance && <Rates amount={balance.available} /> }
+                            </div>
                         </div>
                         <Status type="warning">
                             {paired === false && t('warning.sendPairing')}
@@ -230,6 +240,7 @@ export default class Send extends Component {
                                     value={recipientAddress}
                                     autofocus
                                 />
+                                { debug && <span className={style.action} onClick={this.sendToSelf}>{t('send.toSelf')}</span> }
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
@@ -243,13 +254,13 @@ export default class Send extends Component {
                                         value={sendAll ? proposedAmount && proposedAmount.amount : amount}
                                         placeholder={`${t('send.amount.placeholder')} (${unit})`} />
                                     <Input
-                                        label={unitFiat.toUpperCase()}
-                                        id="amountFiat"
+                                        label={fiatUnit}
+                                        id="fiatAmount"
                                         onInput={this.handleFiatInput}
                                         disabled={sendAll}
                                         error={amountError}
-                                        value={amountFiat}
-                                        placeholder="" />
+                                        value={fiatAmount}
+                                        placeholder={`${t('send.amount.placeholder')} (${fiatUnit})`} />
                                 </div>
                                 <Checkbox
                                     label={t('send.maximum')}
@@ -270,7 +281,7 @@ export default class Send extends Component {
                                     />
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit : null}
+                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : null}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                     />

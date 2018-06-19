@@ -101,7 +101,7 @@ export default class Account extends Component {
 
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
-            console.log("Status changed: " + status)
+            console.log('Status changed: ' + status);
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),
@@ -263,7 +263,6 @@ export default class Account extends Component {
                     walletInitialized={walletInitialized}
                     balance={balance}
                     unit={balance.available.unit}
-                    unitFiat="USD"
                     onClose={() => this.setState({ isSend: false })}
                     guide={guide}
                 />

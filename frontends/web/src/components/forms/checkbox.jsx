@@ -7,7 +7,7 @@ export default function Checkbox({
     id,
     className,
     children,
-    ...props,
+    ...props
 }) {
     return (
         <span className={[style.checkbox, className].join(' ')}>
