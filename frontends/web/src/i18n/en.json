@@ -201,6 +201,9 @@
             "label": "Amount",
             "placeholder": "Enter amount"
         },
+        "fiatAmount": {
+            "placeholder": "Enter amount"
+        },
         "maximum": "Send all",
         "toSelf": "Send to self",
         "fee": {

@@ -231,7 +231,7 @@ export default class Send extends Component {
                         </Status>
                     </div>
                     <div class="innerContainer">
-                        <div class="content">
+                        <div class="content padded">
                             <div class="row">
                                 <div class="subHeaderContainer first">
                                     <div class="subHeader">
