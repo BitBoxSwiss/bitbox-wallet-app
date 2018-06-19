@@ -32,7 +32,7 @@ import (
 
 var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 2)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
 
 	pinPolicyProd              = NewPasswordPolicy(6, "[0-9]")
 	pinPolicyTest              = NewPasswordPolicy(4, "[0-9]")
@@ -94,6 +94,9 @@ type Device struct {
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
 
+	// firmware or bootloader version.
+	version *semver.SemVer
+
 	// If set, the device is configured with a PIN.
 	initialized bool
 
@@ -129,10 +132,6 @@ func NewDevice(
 		if !version.Between(lowestSupportedBootloaderVersion, lowestNonSupportedBootloaderVersion) {
 			return nil, errp.Newf("The bootloader version '%s' is not supported.", version)
 		}
-	} else {
-		if !version.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
-			return nil, errp.Newf("The firmware version '%s' is not supported.", version)
-		}
 	}
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
@@ -144,6 +143,7 @@ func NewDevice(
 	device := &Device{
 		deviceID:         deviceID,
 		bootloaderStatus: bootloaderStatus,
+		version:          version,
 		communication:    communication,
 		onEvent:          nil,
 		channel:          relay.NewChannelFromConfigFile(),
@@ -229,6 +229,9 @@ func (dbb *Device) Status() Status {
 	}
 	defer dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID, "seeded": dbb.seeded,
 		"pin-set": (dbb.pin != ""), "initialized": dbb.initialized}).Debug("Device status")
+	if (dbb.seeded || dbb.pin != "") && !dbb.version.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
+		return StatusRequireUpgrade
+	}
 	if dbb.seeded {
 		return StatusSeeded
 	}

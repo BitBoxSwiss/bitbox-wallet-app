@@ -56,7 +56,7 @@ export default class UpgradeFirmware extends Component {
                     disabled={disabled}>
                     {t('upgradeFirmware.button')}
                     {
-                        newVersion !== currentVersion && (
+                        currentVersion !== null && newVersion !== currentVersion && (
                             <div class={componentStyle.badge}>1</div>
                         )
                     }

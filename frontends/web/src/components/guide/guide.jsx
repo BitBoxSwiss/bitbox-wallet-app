@@ -10,7 +10,7 @@ export function Guide({ guide, screen, children }) {
             <div className={style.toggler} onClick={guide.toggle}>{guide.shown ? '✕' : '?'}</div>
             <div className={[style.guide, guide.shown && style.show].join(' ')}>
                 <h1>{i18n.t('guide.title')}</h1>
-                {screen && i18n.t('guide.' + screen).map(entry => <Entry entry={entry} />)}
+                {screen && i18n.t('guide.' + screen, { defaultValue: [] }).map(entry => <Entry entry={entry} />)}
                 {children}
                 <div className={style.entry}>
                     {i18n.t('guide.apendix.text')}

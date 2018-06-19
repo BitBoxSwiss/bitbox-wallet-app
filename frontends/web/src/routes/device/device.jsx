@@ -8,6 +8,7 @@ import Bootloader from './bootloader';
 import Unlock from './unlock';
 import Seed from './seed';
 import Initialize from './initialize';
+import RequireUpgrade from './require_upgrade';
 import Settings from './settings/settings';
 
 const DeviceStatus = Object.freeze({
@@ -15,11 +16,13 @@ const DeviceStatus = Object.freeze({
     INITIALIZED: 'initialized',
     UNINITIALIZED: 'uninitialized',
     LOGGED_IN: 'logged_in',
-    SEEDED: 'seeded'
+    SEEDED: 'seeded',
+    REQUIRE_UPGRADE: 'require_upgrade'
 });
 
 export default class Device extends Component {
     state = {
+        firmwareVersion: null,
         deviceRegistered: false,
         deviceStatus: null,
         walletInitialized: null,
@@ -115,10 +118,11 @@ export default class Device extends Component {
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
         }
-
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
             return <Bootloader deviceID={deviceID} guide={guide} />;
+        case DeviceStatus.REQUIRE_UPGRADE:
+            return <RequireUpgrade deviceID={deviceID} guide={guide} />;
         case DeviceStatus.INITIALIZED:
             return <Unlock deviceID={deviceID} guide={guide} />;
         case DeviceStatus.UNINITIALIZED:

@@ -23,4 +23,8 @@ const (
 	// StatusSeeded means we are authenticated, and the device is seeded. We are ready to use
 	// XPub(), Sign() etc.
 	StatusSeeded Status = "seeded"
+
+	// StatusRequireUpgrade means that the a firmware upgrade is required before being able to
+	// proceed to StatusLoggedIn or StatusSeeded.
+	StatusRequireUpgrade = "require_upgrade"
 )
