@@ -200,18 +200,7 @@ export default class Send extends Component {
                 <div class="container">
                     <div class="headerContainer">
                         <div class="header">
-                            <Balance name={wallet.name} balance={balance}>
-                                {
-                                    balance && balance.hasIncoming && (
-                                        <h5 class={style.pendingBalance}>
-                                            {balance.incoming}
-                                            <span style="color: var(--color-light);">{balance.incoming.unit}</span>
-                                            {' '}
-                                            {t('account.incoming')}
-                                        </h5>
-                                    )
-                                }
-                            </Balance>
+                            <Balance t={t} name={wallet.name} balance={balance} />
                             <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
                                 { balance && <Rates amount={balance.available} /> }
                             </div>

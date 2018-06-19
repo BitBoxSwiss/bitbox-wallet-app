@@ -16,3 +16,8 @@
     color: var(--color-secondary);
     font-size: var(--size-large);
 }
+
+.pendingBalance {
+    margin: 0;
+    color: var(--color-secondary);
+}

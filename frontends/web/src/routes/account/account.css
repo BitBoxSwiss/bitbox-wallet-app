@@ -19,8 +19,3 @@
     padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
     width: 800px;
 }
-
-.pendingBalance {
-    margin: 0;
-    color: var(--color-secondary);
-}
