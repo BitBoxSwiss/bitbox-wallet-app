@@ -79,7 +79,7 @@ export default class Send extends Component {
         return !txInput.address || !txInput.feeTarget || (txInput.sendAll === 'no' && !txInput.amount);
     }
 
-    validateAndDisplayFee = () => {
+    validateAndDisplayFee = updateFiat => {
         this.setState({
             proposedTotal: null,
             addressError: null,
@@ -97,6 +97,9 @@ export default class Send extends Component {
                     proposedAmount: result.amount,
                     proposedTotal: result.total,
                 });
+                if (updateFiat) {
+                    this.convertToFiat(result.amount.amount);
+                }
             } else {
                 const error = result.errMsg;
                 switch (error) {
@@ -121,11 +124,14 @@ export default class Send extends Component {
         let value = event.target.value;
         if (event.target.id === 'sendAll') {
             value = event.target.checked;
-        } else if (event.target.id.startsWith('amount')) {
+            if (!value) {
+                this.convertToFiat(this.state.amount);
+            }
+        } else if (event.target.id === 'amount') {
             this.convertToFiat(value);
         }
         this.setState({ [event.target.id]: value });
-        this.validateAndDisplayFee();
+        this.validateAndDisplayFee(true);
     }
 
     handleFiatInput = event => {
@@ -148,7 +154,7 @@ export default class Send extends Component {
             apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${this.state.coinUnitForConversion}&amount=${value}`)
                 .then(amount => {
                     this.setState({ amount });
-                    this.validateAndDisplayFee();
+                    this.validateAndDisplayFee(false);
                 });
         } else {
             this.setState({ amount: null });
@@ -167,7 +173,7 @@ export default class Send extends Component {
 
     feeTargetChange = feeTarget => {
         this.setState({ feeTarget });
-        this.validateAndDisplayFee();
+        this.validateAndDisplayFee(this.state.sendAll);
     }
 
     render({
@@ -225,7 +231,6 @@ export default class Send extends Component {
                                     id="recipientAddress"
                                     error={addressError}
                                     onInput={this.handleFormChange}
-                                    onChange={this.validateAndDisplayFee}
                                     value={recipientAddress}
                                     autofocus
                                 />
@@ -237,7 +242,6 @@ export default class Send extends Component {
                                         label={t('send.amount.label')}
                                         id="amount"
                                         onInput={this.handleFormChange}
-                                        onChange={this.validateAndDisplayFee}
                                         disabled={sendAll}
                                         error={amountError}
                                         value={sendAll ? proposedAmount && proposedAmount.amount : amount}
