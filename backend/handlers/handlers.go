@@ -282,10 +282,16 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 	amount := r.URL.Query().Get("amount")
 	amountAsFloat, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
-		return nil, err
+		return map[string]interface{}{
+			"success": false,
+			"errMsg":  "invalid amount",
+		}, nil
 	}
 	rate := handlers.backend.Rates()[from][to]
-	return strconv.FormatFloat(amountAsFloat*rate, 'f', -1, 64), nil
+	return map[string]interface{}{
+		"success":    true,
+		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', -1, 64),
+	}, nil
 }
 
 func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{}, error) {
@@ -294,14 +300,20 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	amount := r.URL.Query().Get("amount")
 	amountAsFloat, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
-		return nil, err
+		return map[string]interface{}{
+			"success": false,
+			"errMsg":  "invalid amount",
+		}, nil
 	}
 	rate := handlers.backend.Rates()[to][from]
 	result := 0.0
 	if rate != 0.0 {
 		result = amountAsFloat / rate
 	}
-	return strconv.FormatFloat(result, 'f', -1, 64), nil
+	return map[string]interface{}{
+		"success": true,
+		"amount":  strconv.FormatFloat(result, 'f', -1, 64),
+	}, nil
 }
 
 func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {

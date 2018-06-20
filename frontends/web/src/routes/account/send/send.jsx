@@ -107,6 +107,7 @@ export default class Send extends Component {
                     this.setState({ addressError: error });
                     break;
                 case 'invalid amount':
+                case 'insufficient funds':
                     this.setState({ amountError: error });
                     break;
                 default:
@@ -143,7 +144,13 @@ export default class Send extends Component {
     convertToFiat = value => {
         if (value) {
             apiGet(`coins/convertToFiat?from=${this.state.coinUnitForConversion}&to=${this.state.fiatUnit}&amount=${value}`)
-                .then(fiatAmount => this.setState({ fiatAmount }));
+                .then(data => {
+                    if (data.success) {
+                        this.setState({ fiatAmount: data.fiatAmount });
+                    } else {
+                        this.setState({ amountError: "invalid amount" });
+                    }
+                });
         } else {
             this.setState({ fiatAmount: null });
         }
@@ -152,9 +159,13 @@ export default class Send extends Component {
     convertFromFiat = value => {
         if (value) {
             apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${this.state.coinUnitForConversion}&amount=${value}`)
-                .then(amount => {
-                    this.setState({ amount });
-                    this.validateAndDisplayFee(false);
+                .then(data => {
+                    if (data.success) {
+                        this.setState({ amount: data.amount });
+                        this.validateAndDisplayFee(false);
+                    } else {
+                        this.setState({ amountError: "invalid amount" });
+                    }
                 });
         } else {
             this.setState({ amount: null });

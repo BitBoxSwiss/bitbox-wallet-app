@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
+	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -178,6 +179,12 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 }
 
 func txProposalError(err error) (interface{}, error) {
+	if errp.Cause(err) == maketx.ErrInsufficientFunds {
+		return map[string]interface{}{
+			"success": false,
+			"errMsg":  "insufficient funds",
+		}, nil
+	}
 	if validationErr, ok := errp.Cause(err).(btc.TxValidationError); ok {
 		return map[string]interface{}{
 			"success": false,
