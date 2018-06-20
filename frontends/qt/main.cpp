@@ -8,10 +8,10 @@
 #include <QResource>
 #include <QByteArray>
 
-#include <libserver.h>
 #include <iostream>
 #include <string>
 
+#include "libserver.h"
 #include "webclass.h"
 
 static QWebEngineView* view;

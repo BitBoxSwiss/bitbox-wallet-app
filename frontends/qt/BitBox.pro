@@ -16,12 +16,12 @@ TEMPLATE = app
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-QMAKE_CXXFLAGS += -std=c++11
 
 win32 {
-    LIBS += -L../server/ -llibserver
+    LIBS += -L$$PWD/server/ -llibserver
 } else {
-    LIBS += -L../server -lserver
+    QMAKE_CXXFLAGS += -std=c++11
+    LIBS += -L$$PWD/server -lserver
 }
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
@@ -34,9 +34,7 @@ unix:!macx {
 SOURCES += \
         main.cpp
 
-HEADERS += webclass.h
-
-INCLUDEPATH += ../server/
+HEADERS += libserver.h webclass.h
 
 unix:macx {
     # Those frameworks are needed for Go's http/net packages.
