@@ -19,7 +19,7 @@ linux:
 osx:
 	make base
 	mkdir build/osx
-	mv build/BitBox.app build/osx/BitBox.app
+	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
 	cp resources/MacOS/icon.icns build/osx/BitBox.app/Contents/Resources/
 	macdeployqt build/osx/BitBox.app/
