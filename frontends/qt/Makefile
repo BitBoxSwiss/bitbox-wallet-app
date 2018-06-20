@@ -26,3 +26,4 @@ osx:
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	macdeployqt build/osx/BitBox.app/ -dmg
+	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
