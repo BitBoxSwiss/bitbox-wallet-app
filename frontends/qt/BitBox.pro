@@ -5,7 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
-QT       += webenginewidgets webchannel
+QT       += webenginewidgets
 
 TARGET = BitBox
 TEMPLATE = app

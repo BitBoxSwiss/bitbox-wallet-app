@@ -5,7 +5,6 @@ base:
 	./genassets.sh
 	qmake -o build/Makefile
 	make -C build
-	@echo "Base binary: `pwd`/build/BitBox"
 linux:
 	make base
 	mkdir build/linux
