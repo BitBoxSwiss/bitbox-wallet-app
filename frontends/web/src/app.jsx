@@ -4,6 +4,7 @@ import { translate } from 'react-i18next';
 
 import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
+import { equal } from './utils/equal';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
@@ -21,6 +22,8 @@ export default class App extends Component {
         deviceIDs: [],
         update: null,
         guideShown: false,
+        fiatCode: 'USD',
+        fiatList: ['USD', 'EUR', 'CHF'],
     }
 
     /**
@@ -71,10 +74,17 @@ export default class App extends Component {
         });
 
         apiGet('config').then(({ frontend }) => {
-            if (!frontend || frontend.guideShown == null) {
-                return this.setState({ guideShown: true });
+            if (frontend && frontend.guideShown) {
+                this.setState({ guideShown: frontend.guideShown });
+            } else {
+                this.setState({ guideShown: true });
             }
-            this.setState({ guideShown: frontend.guideShown });
+            if (frontend && frontend.fiatCode) {
+                this.setState({ fiatCode: frontend.fiatCode });
+            }
+            if (frontend && frontend.fiatList) {
+                this.setState({ fiatList: frontend.fiatList });
+            }
         });
     }
 
@@ -95,7 +105,6 @@ export default class App extends Component {
                 walletInitialized
             });
             if (!walletInitialized) {
-                // console.log('uninitialized! route to /')
                 route('/', true);
             }
         });
@@ -117,7 +126,37 @@ export default class App extends Component {
         this.setState({ guideShown: false });
     }
 
-    render({ t }, { backendConnected, deviceIDs, walletInitialized, update, guideShown }) {
+    setFiatCode = (fiatCode) => {
+        this.setState({ fiatCode });
+        setFrontendConfig({ fiatCode });
+    }
+
+    nextFiatCode = () => {
+        this.setState(state => {
+            const index = state.fiatList.indexOf(state.fiatCode);
+            const fiatCode = state.fiatList[(index + 1) % state.fiatList.length];
+            setFrontendConfig({ fiatCode });
+            return { fiatCode };
+        });
+    }
+
+    addToFiatList = (fiatCode) => {
+        this.setState(state => {
+            const fiatList = [...state.fiatList, fiatCode];
+            setFrontendConfig({ fiatList });
+            return { fiatList };
+        });
+    }
+
+    removeFromFiatList = (fiatCode) => {
+        this.setState(state => {
+            const fiatList = state.fiatList.filter(item => !equal(item, fiatCode));
+            setFrontendConfig({ fiatList });
+            return { fiatList };
+        });
+    }
+
+    render({ t }, { backendConnected, deviceIDs, walletInitialized, update, guideShown, fiatCode, fiatList }) {
         if (!backendConnected) {
             return (
                 <div className="app" style="padding: 40px">
@@ -126,6 +165,7 @@ export default class App extends Component {
             );
         }
         const guide = { shown: guideShown, toggle: this.toggleGuide, show: this.showGuide, hide: this.hideGuide };
+        const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
                 {walletInitialized && (<Sidebar deviceIDs={deviceIDs} />)}
@@ -141,8 +181,8 @@ export default class App extends Component {
                         {/*
                         <Redirect path="/" to={`/account/${wallets[0].code}`} />
                         */}
-                        <Account path="/account/:code?" deviceIDs={deviceIDs} guide={guide} />
-                        <Settings path="/settings" deviceIDs={deviceIDs} guide={guide} />
+                        <Account path="/account/:code?" deviceIDs={deviceIDs} guide={guide} fiat={fiat} />
+                        <Settings path="/settings" deviceIDs={deviceIDs} guide={guide} fiat={fiat} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
@@ -163,11 +203,11 @@ export default class App extends Component {
     }
 }
 
-function setFrontendConfig(obj) {
+function setFrontendConfig(object) {
     apiGet('config').then((config) => {
-        const newConf = Object.assign(config, {
-            frontend: Object.assign({}, config.frontend, obj)
+        const newConfig = Object.assign(config, {
+            frontend: Object.assign({}, config.frontend, object)
         });
-        apiPost('config', newConf);
+        apiPost('config', newConfig);
     });
 }

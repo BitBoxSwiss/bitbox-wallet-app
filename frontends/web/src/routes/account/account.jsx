@@ -136,6 +136,7 @@ export default class Account extends Component {
         t,
         deviceIDs,
         guide,
+        fiat,
     }, {
         accounts,
         walletInitialized,
@@ -159,7 +160,7 @@ export default class Account extends Component {
                             <div class="header">
                                 <Balance t={t} name={wallet.name} balance={balance} />
                                 <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                    { balance && <Rates amount={balance.available} /> }
+                                    { balance && <Rates amount={balance.available} fiat={fiat} /> }
                                 </div>
                                 <div class={componentStyle.buttons} style="align-self: flex-end;">
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
@@ -196,6 +197,7 @@ export default class Account extends Component {
                                         explorerURL={wallet.blockExplorerTxPrefix}
                                         transactions={transactions}
                                         className={noTransactions ? 'isVerticallyCentered' : ''}
+                                        fiat={fiat}
                                     />
                                 )
                             }
@@ -254,6 +256,7 @@ export default class Account extends Component {
                     unit={balance.available.unit}
                     onClose={() => this.setState({ isSend: false })}
                     guide={guide}
+                    fiat={fiat}
                 />
             );
         }

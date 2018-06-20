@@ -1,0 +1,23 @@
+.button, .action {
+    color: var(--color-secondary);
+    font-size: var(--size-small);
+    font-weight: bold;
+    text-transform: uppercase;
+    top: -.5rem;
+    position: relative;
+    margin-bottom: calc(var(--spacing-half) / 2);
+    cursor: pointer;
+    user-select: none;
+}
+
+.entry {
+    margin: 4px 0;
+}
+
+.box {
+    min-width: 100px;
+}
+
+.action {
+    margin-top: 4px;
+}

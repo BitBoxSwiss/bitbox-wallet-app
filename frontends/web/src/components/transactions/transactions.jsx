@@ -6,13 +6,13 @@ export default function Transactions({
     explorerURL,
     transactions,
     className,
+    fiat,
 }) {
-    // console.table(transactions);
     return (
         <div className={className}>
             {
                 transactions.length > 0 ? transactions.map(props => (
-                    <Transaction key={props.id} explorerURL={explorerURL} {...props} />
+                    <Transaction key={props.id} explorerURL={explorerURL} fiat={fiat} {...props} />
                 )) : (
                     <div class="flex flex-row flex-center">
                         <p class="text-bold text-gray">

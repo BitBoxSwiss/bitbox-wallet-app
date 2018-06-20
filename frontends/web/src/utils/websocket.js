@@ -1,5 +1,4 @@
 import { apiPort, apiToken, isTLS } from './request';
-import { debug } from './env';
 import { qtSubscribePushNotifications } from './qttransport';
 
 let socket = null;

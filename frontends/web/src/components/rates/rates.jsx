@@ -9,31 +9,33 @@ export default class Rates extends UpdatingComponent {
         if (coin.length === 4 && coin.startsWith('T')) {
             coin = coin.substring(1);
         }
-        this.state = { coin, currency: 'USD' };
+        this.state = { coin };
     }
 
     map = [ { url: 'coins/rates', key: 'rates' } ];
 
-    handleChangeCurrency = e => {
-        this.setState(state => {
-            const currencies = Object.keys(state.rates[state.coin]);
-            const position = (currencies.indexOf(state.currency) + 1) % currencies.length;
-            return { currency: currencies[position] };
-        });
-    }
-
-    render({ amount, children }, { coin, currency, rates }) {
+    render({ amount, children, fiat }, { coin, rates }) {
         if (!rates || !rates[coin]) {
             return null;
         }
-        const value = rates[coin][currency] * Number(amount.amount);
+        const value = rates[coin][fiat.code] * Number(amount.amount);
         return (
-            <span className={style.rates} onClick={this.handleChangeCurrency}>
+            <span className={style.rates} onClick={fiat.next}>
                 {children}
-                {value.toFixed(2)}
+                {formatAsCurrency(value)}
                 {' '}
-                <span className={style.unit}>{currency}</span>
+                <span className={style.unit}>{fiat.code}</span>
             </span>
         );
     }
+}
+
+function formatAsCurrency(amount) {
+    let formatted = amount.toFixed(2);
+    let position = formatted.indexOf('.') - 3;
+    while (position > 0) {
+        formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+        position = position - 3;
+    }
+    return formatted;
 }

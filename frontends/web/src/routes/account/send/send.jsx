@@ -10,6 +10,7 @@ import Balance from '../../../components/balance/balance';
 import Rates from '../../../components/rates/rates';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
+import FiatSwitcher from '../../../components/fiat/fiat';
 import style from './send.css';
 
 @translate()
@@ -35,7 +36,7 @@ export default class Send extends Component {
             isSent: false,
             paired: null,
             fiatAmount: null,
-            fiatUnit: 'USD',
+            fiatUnit: props.fiat.code,
             coinUnitForConversion,
         };
     }
@@ -198,6 +199,7 @@ export default class Send extends Component {
         isConfirming,
         balance,
         guide,
+        fiat,
     }, {
         proposedFee,
         proposedTotal,
@@ -221,7 +223,7 @@ export default class Send extends Component {
                         <div class="header">
                             <Balance t={t} name={wallet.name} balance={balance} />
                             <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                { balance && <Rates amount={balance.available} /> }
+                                { balance && <Rates amount={balance.available} fiat={fiat} /> }
                             </div>
                         </div>
                         <Status type="warning">
@@ -268,12 +270,15 @@ export default class Send extends Component {
                                         value={fiatAmount}
                                         placeholder={`${t('send.amount.placeholder')} (${fiatUnit})`} />
                                 </div>
-                                <Checkbox
-                                    label={t('send.maximum')}
-                                    id="sendAll"
-                                    onChange={this.sendAll}
-                                    checked={sendAll}
-                                    className={style.maxAmount} />
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Checkbox
+                                        label={t('send.maximum')}
+                                        id="sendAll"
+                                        onChange={this.sendAll}
+                                        checked={sendAll}
+                                        className={style.maxAmount} />
+                                    <FiatSwitcher fiat={fiat} />
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">

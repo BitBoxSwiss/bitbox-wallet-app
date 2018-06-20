@@ -143,6 +143,11 @@
     "language": {
         "title": "Select language"
     },
+    "fiat": {
+        "title": "Select currencies",
+        "action": "Change Currency",
+        "default": "Make default"
+    },
     "account": {
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",

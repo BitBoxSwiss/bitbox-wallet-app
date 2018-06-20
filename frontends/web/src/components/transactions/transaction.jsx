@@ -27,7 +27,7 @@ export default class Transaction extends Component {
         type,
         id,
         amount,
-        fiat = '',
+        fiat,
         fiatHistorical = '',
         fee,
         feeRatePerKb,
@@ -42,7 +42,6 @@ export default class Transaction extends Component {
     }) {
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
-        // TODO: check if 'Time not yet available' is needed
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
@@ -64,7 +63,7 @@ export default class Transaction extends Component {
                         </div>
                         <div class={[style.amount, style[type]].join(' ')}>
                             <div>{sign}{amount.amount} <span class={style.unit}>{amount.unit}</span></div>
-                            <div class={style.fiat}><Rates amount={amount}>{sign}</Rates></div>
+                            <div class={style.fiat}><Rates amount={amount} fiat={fiat}>{sign}</Rates></div>
                         </div>
                     </div>
                     <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
