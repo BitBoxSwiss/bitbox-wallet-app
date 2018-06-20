@@ -16,9 +16,9 @@ TEMPLATE = app
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
 
-
 win32 {
     LIBS += -L$$PWD/server/ -llibserver
+    DESTDIR = $$PWD/build/windows
 } else {
     QMAKE_CXXFLAGS += -std=c++11
     LIBS += -L$$PWD/server -lserver
