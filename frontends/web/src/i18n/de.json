@@ -75,7 +75,13 @@
         },
         "feeTarget": {
             "label": "Netzwerk Priorität",
-            "placeholder": "Geschätzte Gebühr wird errechnet."
+            "placeholder": "Geschätzte Gebühr wird errechnet.",
+            "description": {
+                "economy": "24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)",
+                "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
+                "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)",
+                "high": "2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)"
+            }
         },
         "customFee": {
             "label": "Umgerechnete Gebühr",

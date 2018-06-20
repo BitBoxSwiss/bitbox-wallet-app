@@ -304,6 +304,7 @@ export default class Send extends Component {
                                     />
                                     */}
                                 </div>
+                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
                             </div>
                             <div class={['row', 'buttons', 'flex', 'flex-row', 'flex-between', 'flex-start'].join(' ')}>
                                 <Button secondary onClick={this.props.onClose}>

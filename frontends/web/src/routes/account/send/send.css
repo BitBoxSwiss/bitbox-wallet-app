@@ -100,3 +100,9 @@
     cursor: pointer;
     user-select: none;
 }
+
+.feeDescription {
+    margin-top: calc(var(--spacing-default) * -1);
+    font-size: var(--size-small);
+    color: var(--color-secondary);
+}
