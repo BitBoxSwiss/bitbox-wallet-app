@@ -24,11 +24,10 @@ typedef struct ConnectionData {
 import "C"
 
 import (
+	"bytes"
 	"flag"
-	"io/ioutil"
 	"net"
 	"net/http"
-	"net/http/httptest"
 	"os"
 	"path"
 	"path/filepath"
@@ -72,6 +71,24 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	return tc, nil
 }
 
+type response struct {
+	Body bytes.Buffer
+}
+
+func (r *response) Header() http.Header {
+	// Not needed.
+	return http.Header{}
+}
+
+func (r *response) Write(buf []byte) (int, error) {
+	r.Body.Write(buf)
+	return len(buf), nil
+}
+
+func (r *response) WriteHeader(int) {
+	// Not needed.
+}
+
 //export backendCall
 func backendCall(queryID C.int, s *C.char) {
 	if handlers == nil {
@@ -83,18 +100,14 @@ func backendCall(queryID C.int, s *C.char) {
 		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
 	}
 	go func() {
-		rec := httptest.NewRecorder()
+		resp := &response{}
 		request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
 		if err != nil {
 			panic(errp.WithStack(err))
 		}
 		request.Header.Set("Authorization", "Basic "+token)
-		handlers.Router.ServeHTTP(rec, request)
-		response := rec.Result()
-		responseBytes, err := ioutil.ReadAll(response.Body)
-		if err != nil {
-			panic(errp.WithStack(err))
-		}
+		handlers.Router.ServeHTTP(resp, request)
+		responseBytes := resp.Body.Bytes()
 		C.respond(responseCallback, queryID, C.CString(string(responseBytes)))
 	}()
 }
