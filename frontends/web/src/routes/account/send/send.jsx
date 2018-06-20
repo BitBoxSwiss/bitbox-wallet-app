@@ -112,8 +112,10 @@ export default class Send extends Component {
                     break;
                 default:
                     this.setState({ proposedFee: null });
-                    /* eslint no-alert: 0 */
-                    alert(error);
+                    if (error) {
+                        /* eslint no-alert: 0 */
+                        alert(error);
+                    }
                 }
             }
         }).catch(() => {
