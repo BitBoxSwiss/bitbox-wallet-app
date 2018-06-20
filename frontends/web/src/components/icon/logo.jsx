@@ -24,6 +24,6 @@ const logoMap = {
 
 export default function Logo({ code, ...props }) {
     return (
-        <img src={logoMap[code]} {...props} />
+        <img draggable="false" src={logoMap[code]} {...props} />
     );
 }

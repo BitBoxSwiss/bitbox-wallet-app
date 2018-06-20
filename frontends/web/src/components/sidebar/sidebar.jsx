@@ -37,7 +37,7 @@ class Sidebar extends Component {
                     {
                         (debug && deviceIDs.length == 0) && (
                             <a href="#" onClick={eject}>
-                                <img className="sidebar_settings" src={ejectIcon} />
+                                <img draggable="false" className="sidebar_settings" src={ejectIcon} />
                                 <span className="sidebar_label">{t('sidebar.leave')}</span>
                             </a>
                         )
@@ -46,7 +46,7 @@ class Sidebar extends Component {
                         deviceIDs.map(deviceID => (
                             <div>
                                 <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
-                                    <img className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.settings') } />
+                                    <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.settings') } />
                                     {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                                 </Link>
                             </div>
@@ -54,7 +54,7 @@ class Sidebar extends Component {
                     }
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
-                            <img className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                            <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                             {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                         </Link>
                     </div>
