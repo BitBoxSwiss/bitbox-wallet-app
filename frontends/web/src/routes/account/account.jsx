@@ -14,7 +14,6 @@ import Receive from './receive/receive';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
 import componentStyle from '../../components/style.css';
-import style from './account.css';
 
 @translate()
 export default class Account extends Component {
@@ -101,7 +100,7 @@ export default class Account extends Component {
 
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
-            console.log('Status changed: ' + status);
+            console.log('Status changed: ' + status); // eslint-disable-line no-console
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),
@@ -121,14 +120,15 @@ export default class Account extends Component {
 
     onWalletChanged = () => {
         if (this.state.walletInitialized && this.state.walletConnected) {
-            apiGet(`wallet/${this.props.code}/transactions`).then(transactions => {
-                this.setState({ transactions });
-            });
             apiGet(`wallet/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
             });
+            apiGet(`wallet/${this.props.code}/transactions`).then(transactions => {
+                this.setState({ transactions });
+            });
         } else {
             this.setState({ balance: null });
+            this.setState({ transactions: [] });
         }
     }
 
@@ -176,7 +176,7 @@ export default class Account extends Component {
                             <Status dismissable keyName={`info-${this.props.code}`} type="info">
                                 {t(`account.info.${this.props.code}`)}
                             </Status>
-                            <HeadersSync coinCode={wallet.coinCode}/>
+                            <HeadersSync coinCode={wallet.coinCode} />
                             <div>
                                 {
                                     !walletConnected && (
@@ -189,7 +189,7 @@ export default class Account extends Component {
                         </div>
                         <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
                             {
-                                !walletInitialized ? (
+                                !walletInitialized || !walletConnected ? (
                                     <Spinner />
                                 ) : (
                                     <Transactions

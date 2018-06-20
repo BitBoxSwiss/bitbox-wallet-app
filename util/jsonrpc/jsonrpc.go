@@ -68,24 +68,26 @@ type heartBeat struct {
 // RPCClient is a generic json rpc client, which is able to invoke remote methods and subscribe to
 // remote notifications.
 type RPCClient struct {
-	connection   *connection
-	connLock     locker.Locker
+	connection *connection
+	connLock   locker.Locker
+
 	backends     []rpc.Backend
 	backendsLock locker.Locker
 
 	pendingRequests     map[int]*request
 	pendingRequestsLock locker.Locker
 
-	pingRequestsLock locker.Locker
 	pingRequests     map[int]bool
+	pingRequestsLock locker.Locker
 
 	subscriptionRequests     []*request
 	subscriptionRequestsLock locker.Locker
 
 	retryLock locker.Locker
 
-	onConnectionStatusChangesNotifyLock locker.Locker
+	status                              rpc.Status
 	onConnectionStatusChangesNotify     []func(rpc.Status)
+	onConnectionStatusChangesNotifyLock locker.Locker
 
 	onConnectCallback func() error
 	heartBeat         *heartBeat
@@ -96,7 +98,8 @@ type RPCClient struct {
 
 	notificationsCallbacks     map[string][]func([]byte)
 	notificationsCallbacksLock locker.Locker
-	log                        *logrus.Entry
+
+	log *logrus.Entry
 }
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
@@ -104,6 +107,7 @@ func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
 		backends: backends,
 		msgID:    0,
+		status:   rpc.CONNECTED,
 		onConnectionStatusChangesNotify: []func(rpc.Status){},
 		pendingRequests:                 map[int]*request{},
 		pingRequests:                    map[int]bool{},
@@ -241,6 +245,13 @@ func (client *RPCClient) notify(status rpc.Status) {
 	}
 }
 
+func (client *RPCClient) setStatus(status rpc.Status) {
+	if status != client.status {
+		client.status = status
+		go client.notify(status)
+	}
+}
+
 // conn returns either the currently active connection or, if none was found, establishes a new connection
 // to any of the configured backends.
 // The selection process is randomized, to balance the load between multiple backends for multiple
@@ -266,10 +277,10 @@ func (client *RPCClient) conn() (*connection, error) {
 			if client.connection == nil {
 				client.log = client.log.WithField("backend", "offline")
 				// tried all backends
-				go client.notify(rpc.DISCONNECTED)
+				client.setStatus(rpc.DISCONNECTED)
 				return nil, errp.Newf("Disconnected from all backends")
 			}
-			go client.notify(rpc.CONNECTED)
+			go client.setStatus(rpc.CONNECTED)
 		}
 	}
 	return client.connection, nil

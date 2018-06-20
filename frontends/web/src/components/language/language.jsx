@@ -24,7 +24,7 @@ export default class LanguageSwitcher extends Component {
 
     changeLanguage = ({ target }) => {
         const langCode = target.dataset.code;
-        const index = parseInt(target.dataset.index);
+        const index = parseInt(target.dataset.index, 10);
         this.setState({
             selectedIndex: index,
             activeDialog: false,
@@ -34,7 +34,6 @@ export default class LanguageSwitcher extends Component {
 
     render({
         t,
-        i18n,
     }, {
         selectedIndex,
         activeDialog,

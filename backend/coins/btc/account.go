@@ -222,9 +222,7 @@ func (account *Account) Init() error {
 			account.initialSyncDone = false
 			account.offline = false
 			account.onEvent(EventStatusChanged)
-
 			account.log.Debug("Connection to blockchain backend established")
-
 		} else {
 			account.log.Panicf("Status %d is unknown.", status)
 		}

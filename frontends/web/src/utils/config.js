@@ -1,6 +1,6 @@
 import './polyfill';
 
-// extConfig is a way to set config values which which are inserted
+// extConfig is a way to set config values which are inserted
 // externally by templating engines (code generation). A default value
 // is provided in case the file wasn't generated but used directly,
 // for convenience when developing. Both key and defaultValue must be

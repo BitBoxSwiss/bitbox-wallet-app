@@ -23,7 +23,7 @@ export default class Rates extends UpdatingComponent {
     }
 
     render({ amount, children }, { coin, currency, rates }) {
-        if (!rates) {
+        if (!rates || !rates[coin]) {
             return null;
         }
         const value = rates[coin][currency] * Number(amount.amount);

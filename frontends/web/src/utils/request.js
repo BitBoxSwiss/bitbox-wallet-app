@@ -16,15 +16,14 @@ function handleError(endpoint) {
     return function(json) {
         return new Promise((resolve, reject) => {
             if (json && json.error) {
-                /* eslint no-alert: "warn" */
-                if (json.error.indexOf('hidapi: unknown failure') != -1) {
+                if (json.error.indexOf('hidapi: unknown failure') !== -1) {
                     // Ignore device communication errors. Usually
                     // happens when unplugged during an operation, in
                     // which case the result does not matter.
                     return;
                 }
-                console.log('error from endpoint', endpoint, json);
-                alert(json.error + ' (todo: nice error msgs)');
+                console.log('error from endpoint', endpoint, json); // eslint-disable-line no-console
+                alert(json.error + ' (todo: nice error msgs)'); // eslint-disable-line no-alert
                 reject(json.error);
                 return;
             }
