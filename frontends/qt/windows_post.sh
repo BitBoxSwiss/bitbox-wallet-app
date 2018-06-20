@@ -1,4 +1,4 @@
-sh ./genassets.sh
+./genassets.sh
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
 windeployqt build/windows/BitBox.exe

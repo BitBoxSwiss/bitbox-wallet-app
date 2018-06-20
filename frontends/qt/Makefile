@@ -30,4 +30,4 @@ osx:
 windows:
 	@echo "Open the .pro file in QT Creator in Windows, switch to Release mode on the left, then do \"Build/run qmake\" and then \"Build/Build All\", then run \"make windows_post\"".
 windows_post:
-	./windows_post.sh
+	sh ./windows_post.sh
