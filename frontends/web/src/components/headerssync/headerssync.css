@@ -1,0 +1,65 @@
+.syncContainer {
+	position: absolute;
+	width: 100%;
+	top: 0;
+}
+
+.progressBar {
+	width: 100%;
+	height: 2px;
+	background-color: var(--color-lightgray);
+}
+
+.progressValue {
+	height: 100%;
+	background-color: var(--color-brightblue);
+	transition: width 1s ease;
+	will-change: width;
+}
+
+.syncMessage {
+	height: 16px;
+	width: 100%;
+	max-width: var(--content-width);
+	font-size: var(--size-small);
+	color: var(--color-secondary);
+	text-align: right;
+	margin: 2px auto 0 auto;
+	padding: 0 var(--spacing-large);
+}
+
+.syncText {
+	display: inline-block;
+	height: 100%;
+}
+
+.spinnerContainer {
+	position: relative;
+	display: inline-block;
+}
+
+.spinner {
+	color: var(--color-brightblue);
+}
+
+.spinner:after {
+	position: relative;
+	top: 2px;
+	animation: changeContent .8s linear infinite;
+	display: block;
+	content: "⠋";
+	font-size: 14px;
+	margin-right: 3px;
+}
+
+@keyframes changeContent {
+	10% { content: "⠙"; }
+	20% { content: "⠹"; }
+	30% { content: "⠸"; }
+	40% { content: "⠼"; }
+	50% { content: "⠴"; }
+	60% { content: "⠦"; }
+	70% { content: "⠧"; }
+	80% { content: "⠇"; }
+	90% { content: "⠏"; }
+}

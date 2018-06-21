@@ -1,4 +1,5 @@
 import UpdatingComponent from '../updating/updating';
+import style from './headerssync.css';
 
 export default class HeadersSync extends UpdatingComponent {
     constructor(props) {
@@ -30,23 +31,34 @@ export default class HeadersSync extends UpdatingComponent {
         }
     }
 
-    render({}, { status, show }) {
+    render({
+
+    }, {
+        status,
+        show,
+    }) {
         if (!status || !show) {
             return null;
         }
         const total = status.targetHeight - status.tipAtInitTime;
-        const finished = (<span>Finished: {status.tip} blocks synced</span>);
-        if (total == 0) {
-            return finished;
-        }
         const value = 100 * (status.tip - status.tipAtInitTime) / total;
-        if (value == 100) {
-            return finished;
-        }
+        const loading = total == 0 || value == 100;
         return (
-            <span>
-                {status.tip} blocks synced <progress value={value} max="100">{value}%</progress>
-            </span>
+            <div class={style.syncContainer}>
+                <div class={style.progressBar}>
+                    <div class={style.progressValue} style={{width: `${value}%`}}></div>
+                </div>
+                <div class={style.syncMessage}>
+                    {
+                        loading ? 'Done: ' : (
+                            <div class={style.spinnerContainer}>
+                                <div class={style.spinner}></div>
+                            </div>
+                        )
+                    }
+                    <div class={style.syncText}>{status.tip} blocks synced {!loading && `(${Math.ceil(value)}%)`}</div>
+                </div>
+            </div>
         );
     }
 }

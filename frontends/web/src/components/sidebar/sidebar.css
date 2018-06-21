@@ -46,6 +46,8 @@ a.sidebar-active {
   max-width: 40px;
   transition: transform .1s ease-out;
   will-change: transform;
+  -webkit-transform-style: preserve-3d;
+  -webkit-backface-visibility: hidden;
 }
 
 .sidebar a:not(.sidebar-active) img {

@@ -157,6 +157,7 @@ export default class Account extends Component {
                 <div class="contentWithGuide">
                     <div class="container">
                         <div class="headerContainer">
+                            <HeadersSync coinCode={wallet.coinCode}/>
                             <div class="header">
                                 <Balance t={t} name={wallet.name} balance={balance} />
                                 <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
@@ -177,7 +178,6 @@ export default class Account extends Component {
                             <Status dismissable keyName={`info-${this.props.code}`} type="info">
                                 {t(`account.info.${this.props.code}`)}
                             </Status>
-                            <HeadersSync coinCode={wallet.coinCode} />
                             <div>
                                 {
                                     !walletConnected && (
