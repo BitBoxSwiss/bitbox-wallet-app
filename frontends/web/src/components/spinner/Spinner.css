@@ -10,6 +10,8 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
 }
 
 .shifted {

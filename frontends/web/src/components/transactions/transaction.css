@@ -75,6 +75,7 @@
     line-height: 16px;
     text-align: center;
     margin-bottom: 3px;
+    user-select: none;
 }
 
 .transactionLabel.flat {
