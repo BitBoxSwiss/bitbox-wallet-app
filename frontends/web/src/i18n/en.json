@@ -5,6 +5,7 @@
         "upgrade": "A new version of this app is available! We recommend that you upgrade from {{current}} to {{version}}."
     },
     "sidebar": {
+        "device": "Manage Device",
         "settings": "Settings",
         "leave": "Leave"
     },

@@ -44,8 +44,8 @@ class Sidebar extends Component {
                     {
                         deviceIDs.map(deviceID => (
                             <div>
-                                <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.settings') }>
-                                    <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.settings') } />
+                                <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.device') }>
+                                    <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
                                     {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                                 </Link>
                             </div>

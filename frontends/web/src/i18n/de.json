@@ -17,6 +17,7 @@
         }
     },
     "sidebar": {
+        "device": "Manage Device",
         "settings": "Einstellungen",
         "leave": "Verlassen"
     },
