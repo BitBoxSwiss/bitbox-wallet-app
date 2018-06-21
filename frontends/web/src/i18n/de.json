@@ -8,7 +8,7 @@
         "unlocking": "Wird entsperrt…",
         "input": {
             "label": "PIN",
-            "placeholder": "Gib deinen PIN ein, um dein Gerät zu entsperren."
+            "placeholder": "Gib deinen PIN ein, um zu entsperren."
         },
         "error": {
             "113": "Aufgrund zu vieler Login Versuche musst du beim nächsten Login den Touch-button für 3 Sekunden gedrückt halten.",
@@ -33,7 +33,7 @@
     },
     "account": {
         "connect": "Verbindung hergestellt",
-        "disconnect": "Verbindung verloren. Warte auf Verbindung....",
+        "disconnect": "Verbindung verloren. Warte auf Verbindung...",
         "incoming": "Eingehend",
         "initializing": "Wird initialisiert…",
         "info": {
@@ -191,7 +191,7 @@
             },
             {
                 "title": "Mit welchen Servern spricht diese Applikation?",
-                "text": [ "Diese Applikation kommuniziert mit Servern der Shift Cryptosecurity, um nach Updates zu fragen, Transaktionen zu laden und Informationen an gepaarte Mobiltelefone zu senden.." ]
+                "text": [ "Diese Applikation kommuniziert mit Servern der Shift Cryptosecurity, um nach Updates zu fragen, Transaktionen zu laden und Informationen an gepaarte Mobiltelefone zu senden." ]
             },
             {
                 "title": "Kann ich diese Applikation ohne euren Servern verwenden?",
