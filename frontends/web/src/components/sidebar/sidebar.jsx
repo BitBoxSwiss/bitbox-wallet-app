@@ -37,8 +37,7 @@ class Sidebar extends Component {
                     {
                         (debug && deviceIDs.length == 0) && (
                             <a href="#" onClick={eject}>
-                                <img draggable="false" className="sidebar_settings" src={ejectIcon} />
-                                <span className="sidebar_label">{t('sidebar.leave')}</span>
+                                <img draggable="false" className="sidebar_settings" src={ejectIcon} alt={t('sidebar.leave')} />
                             </a>
                         )
                     }
