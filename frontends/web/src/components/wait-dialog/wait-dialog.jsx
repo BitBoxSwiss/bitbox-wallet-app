@@ -14,6 +14,19 @@ export default class Confirm extends Component {
         setTimeout(this.activate, 10);
     }
 
+    componentWillMount() {
+        document.body.addEventListener('focus', this.handleFocus, true);
+    }
+
+    componentWillUnmount() {
+        document.body.removeEventListener('focus', this.handleFocus, true);
+    }
+
+    handleFocus = (e) => {
+        e.preventDefault();
+        document.activeElement.blur();
+    }
+
     activate = () => {
         this.setState({ active: true });
     }
@@ -51,7 +64,7 @@ export default class Confirm extends Component {
             </div>
         );
         return (
-            <div class={[style.overlay, isActive].join(' ')}>
+            <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001;">
                 <div class={[style.modal, isActive].join(' ')}>
                     <h3 class={style.modalHeader}>{title}</h3>
                     {
