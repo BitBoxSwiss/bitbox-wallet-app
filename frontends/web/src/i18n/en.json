@@ -189,7 +189,7 @@
         "label": "Your address",
         "verify": "Verify address securely",
         "warning": {
-            "secureOutput": "Please pair the device to enable secure address verification. Go to the device settings."
+            "secureOutput": "Please pair the device to enable secure address verification. Go to the Manage Device."
         }
     },
     "send": {
@@ -302,8 +302,8 @@
     },
     "warning": {
         "sdcard": "Keep the SD card stored securely, unless you want to manage backups!",
-        "sendPairing": "Please pair the device to securely verify transaction details. Go to the device settings.",
-        "receivePairing": "Please pair the device to enable secure address verification. Go to the device settings."
+        "sendPairing": "Please pair the device to securely verify transaction details. Go to the Manage Device.",
+        "receivePairing": "Please pair the device to enable secure address verification. Go to the Manage Device."
     },
     "button": {
         "send": "Send",
