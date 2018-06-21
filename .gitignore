@@ -16,6 +16,7 @@
 .vscode/
 frontends/qt/bitbox.db
 frontends/qt/config/
+frontends/qt/server/libserver.so
 frontends/web/yarn-error.log
 log/
 
