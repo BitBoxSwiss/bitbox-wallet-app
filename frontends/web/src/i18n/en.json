@@ -520,11 +520,15 @@
         "backups": [
             {
                 "title": "What is a backup?",
-                "text": [ "It is a copy of the seed on an SD card." ]
+                "text": [ "It is a copy of the seed on an SD card. The seed together with your recovery password generates your wallet." ]
             },
             {
                 "title": "Can I encrypt the backup?",
                 "text": [ "No but your recovery password is required to derive the wallet from the stored seed." ]
+            },
+            {
+                "title": "How often do I have to make a backup?",
+                "text": [ "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your SD card is lost or damaged, or if you want to use multiple SD cards as backups. You do not need to create new backups after any transaction activity. All your transaction data can be recreated by your single backup seed that was automatically generated for you and the blockchain." ]
             }
         ],
         "unlock": [
