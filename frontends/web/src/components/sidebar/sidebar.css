@@ -7,59 +7,75 @@
   flex-shrink: 0;
   height: 100vh;
   padding: var(--spacing-large) 0;
-  overflow-x: hidden;
-  overflow-y: auto;
   width: var(--sidebar-width);
   z-index: 4001;
+  overflow-y: auto;
 }
 
 .sideBarItem {
   position: relative;
   display: block;
-  text-align: left;
-  white-space: nowrap;
 }
 
 .sidebar a {
+  position: relative;
   border-right: 0 solid var(--color-gray);
   color: white;
   display: block;
-  padding: var(--spacing-half) var(--spacing-default);
-  position: relative;
-  transition: border-right-width 0.2s ease;
-  will-change: border-right-width;
+  padding: var(--spacing-half) 2px;
+  text-align: center;
+  overflow: hidden;
 }
 
 a.sidebar-active {
-  border-right-width: 5px;
+  border-right-width: 2px;
   text-decoration: none;
-  transition: filter 0.1s ease-out;
-  will-change: filter;
+  padding-right: 0;
 }
 
-.sidebar a:not(.sidebar-active) {
-  -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
-  filter: grayscale(100%);
+a.sidebar-active .sidebar_label {
+    font-weight: bold;
+    color: var(--color-softblack);
+}
+
+a.sidebar-active .stacked img:first-child,
+.sidebar a:hover .stacked img:first-child {
+    opacity: 0;
+}
+
+a.sidebar-active .stacked img:last-child,
+.sidebar a:hover .stacked img:last-child {
+    opacity: 1;
+}
+
+.stacked {
+    position: relative;
+}
+
+.stacked img {
+    /*transition: opacity 0.2s ease;*/
+}
+
+.stacked img:last-child {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .sidebar img {
-  max-width: 40px;
-  transition: transform .1s ease-out;
-  will-change: transform;
+  width: 34px;
   -webkit-transform-style: preserve-3d;
   -webkit-backface-visibility: hidden;
 }
 
-.sidebar a:not(.sidebar-active) img {
-  transform: scale(.9, .9);
-}
-
 .sidebar_label {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: text-bottom;
-  width: 0;
-  text-indent: 16px;
+  display: block;
+  color: var(--color-secondary);
+  font-size: var(--size-small);
+  line-height: var(--size-small);
+  letter-spacing: -1px;
 }
 
 .sidebar_drawer {
@@ -70,12 +86,4 @@ a.sidebar-active {
 .sidebar_bottom {
   padding: 0;
   text-align: center;
-}
-
-.sidebar_settings {
-  width: 40px;
-}
-
-.sidebar .settings:not(.sidebar-active) {
-  filter: invert(100%);
 }

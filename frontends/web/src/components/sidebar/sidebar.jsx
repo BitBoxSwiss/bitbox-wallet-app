@@ -6,8 +6,24 @@ import { apiPost, apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
+import settings_GREY from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-dark.svg';
+import deviceSettings_GREY from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+
+const labelMap = {
+    btc: 'BTC',
+    tbtc: 'TBTC',
+    'btc-p2wpkh-p2sh': 'BTC',
+    'btc-p2wpkh': 'BTC',
+    'tbtc-p2wpkh-p2sh': 'TBTC SW',
+    'tbtc-p2wpkh': 'TBTC NSW',
+    ltc: 'LTC',
+    'ltc-p2wpkh-p2sh': 'LTC',
+    'ltc-p2wpkh': 'LTC',
+    'tltc-p2wpkh-p2sh': 'TLTC',
+    'tltc-p2wpkh': 'TLTC NSW',
+};
 
 @translate()
 class Sidebar extends Component {
@@ -45,7 +61,10 @@ class Sidebar extends Component {
                         deviceIDs.map(deviceID => (
                             <div>
                                 <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.device') }>
-                                    <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
+                                    <div class="stacked">
+                                        <img draggable="false" className="sidebar_settings" src={deviceSettings_GREY} alt={ t('sidebar.device') } />
+                                        <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
+                                    </div>
                                     {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                                 </Link>
                             </div>
@@ -53,7 +72,10 @@ class Sidebar extends Component {
                     }
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
-                            <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                            <div class="stacked">
+                                <img draggable="false" className="sidebar_settings" src={settings_GREY} alt={ t('sidebar.settings') } />
+                                <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                            </div>
                             {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
                         </Link>
                     </div>
@@ -68,7 +90,7 @@ function getWalletLink({ code, name }) {
         <div class="sideBarItem">
             <Link key={code} activeClassName="sidebar-active" href={`/account/${code}`} title={name}>
                 <Logo code={code} className="sidebar_icon" alt={name} />
-                <span className="sidebar_label">{name}</span>
+                <span className="sidebar_label">{labelMap[code]}</span>
             </Link>
         </div>
     );
