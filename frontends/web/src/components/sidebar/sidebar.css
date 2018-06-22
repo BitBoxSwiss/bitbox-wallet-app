@@ -24,6 +24,7 @@
   display: block;
   padding: var(--spacing-half) 2px;
   text-align: center;
+  text-decoration: none;
   overflow: hidden;
 }
 
@@ -76,6 +77,7 @@ a.sidebar-active .stacked img:last-child,
   font-size: var(--size-small);
   line-height: var(--size-small);
   letter-spacing: -1px;
+  padding-top: 2px;
 }
 
 .sidebar_drawer {
