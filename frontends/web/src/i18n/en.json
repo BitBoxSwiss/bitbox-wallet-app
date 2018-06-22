@@ -72,7 +72,7 @@
         "button": "Reset Device",
         "title": "Reset Device",
         "description": "All data on the device will be deleted. That includes your Private Key!",
-        "understand": "Only do this if you know what you’re doing"
+        "understand": "I have a backup and know my backup password"
     },
     "pairing": {
         "button": "Connect Mobile App",
