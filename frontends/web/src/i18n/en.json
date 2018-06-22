@@ -110,9 +110,9 @@
     },
     "hiddenWallet": {
         "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
-        "info1HTML": "A hidden wallet is created based on the <strong>hidden backup password</strong>.",
-        "info2HTML": "The <strong>hidden PIN</strong> defines the PIN to unlock the hidden wallet. Use your original PIN to unlock your original wallet.",
-        "info3HTML": "Your backup of the current wallet can be used to recover your hidden wallet using the hidden wallet password.",
+        "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> PIN + password combination.",
+        "info2HTML": "Define the PIN and password you want to associate with your hidden wallet below. The PIN and password must be <strong>different</strong> from the ones you defined for your primary wallet.",
+        "info3HTML": "<!-- TODO -->",
         "pinLabel": "Hidden PIN",
         "pinRepeatLabel": "Repeat hidden PIN",
         "pinRepeatPlaceholder": "Please confirm hidden PIN",
