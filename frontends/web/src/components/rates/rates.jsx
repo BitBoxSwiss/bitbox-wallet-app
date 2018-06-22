@@ -2,19 +2,14 @@ import UpdatingComponent from '../updating/updating';
 import style from './rates.css';
 
 export default class Rates extends UpdatingComponent {
-    constructor(props) {
-        super(props);
-
-        let coin = props.amount.unit;
-        if (coin.length === 4 && coin.startsWith('T')) {
-            coin = coin.substring(1);
-        }
-        this.state = { coin };
-    }
 
     map = [ { url: 'coins/rates', key: 'rates' } ];
 
-    render({ amount, children, fiat }, { coin, rates }) {
+    render({ amount, children, fiat }, { rates }) {
+        let coin = amount.unit;
+        if (coin.length === 4 && coin.startsWith('T')) {
+            coin = coin.substring(1);
+        }
         if (!rates || !rates[coin]) {
             return null;
         }

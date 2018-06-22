@@ -17,7 +17,7 @@ export default function Checkbox({
                 disabled={disabled}
                 {...props}
             />
-            <label for={id}>{label}</label>
+            <label for={id}>{label} {children}</label>
         </span>
     );
 }

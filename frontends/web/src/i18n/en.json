@@ -145,9 +145,10 @@
         "title": "Select language"
     },
     "fiat": {
-        "title": "Select currencies",
+        "title": "Currencies",
         "action": "Change Currency",
-        "default": "Make default"
+        "default": "(default)",
+        "setDefault": "(Set {{code}} as default)"
     },
     "account": {
         "connect": "Connection established",
@@ -318,6 +319,7 @@
         "create": "Create",
         "abort": "Abort",
         "upgrade": "Upgrade",
+        "download": "Download",
         "hiddenwallet": "Create Hidden Wallet",
         "changepin": "Change PIN"
     },

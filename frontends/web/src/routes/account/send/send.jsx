@@ -10,7 +10,6 @@ import Balance from '../../../components/balance/balance';
 import Rates from '../../../components/rates/rates';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
-import FiatSwitcher from '../../../components/fiat/fiat';
 import style from './send.css';
 
 @translate()
@@ -277,7 +276,6 @@ export default class Send extends Component {
                                         onChange={this.sendAll}
                                         checked={sendAll}
                                         className={style.maxAmount} />
-                                    <FiatSwitcher fiat={fiat} />
                                 </div>
                             </div>
                             <div class="row">

@@ -143,7 +143,7 @@ export default class App extends Component {
 
     addToFiatList = (fiatCode) => {
         this.setState(state => {
-            const fiatList = [...state.fiatList, fiatCode];
+            const fiatList = state.fiatList ? [...state.fiatList, fiatCode] : [fiatCode];
             setFrontendConfig({ fiatList });
             return { fiatList };
         });
@@ -176,7 +176,10 @@ export default class App extends Component {
                             current: update.current,
                             version: update.version
                         })} {update.description}
-                        &nbsp;<A href="https://shiftcrypto.ch/start">Download</A>
+                        {' '}
+                        <A href="https://shiftcrypto.ch/start">
+                            {t('button.download')}
+                        </A>
                     </Status>}
                     <Router onChange={this.handleRoute}>
                         {/*

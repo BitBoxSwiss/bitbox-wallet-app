@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { Button, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
+import Fiat from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
 import Toast from '../../components/toast/Toast';
 
@@ -36,6 +37,7 @@ export default class Settings extends Component {
     render({
         t,
         guide,
+        fiat,
     }, {
         config,
         toast,
@@ -64,44 +66,43 @@ export default class Settings extends Component {
                                                 id="bitcoinP2PKHActive"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Legacy"
-                                                className="text-medium"
-                                            />
+                                                className="text-medium" />
                                             <Checkbox
                                                 checked={config.backend.bitcoinP2WPKHP2SHActive}
                                                 id="bitcoinP2WPKHP2SHActive"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Segwit"
-                                                className="text-medium"
-                                            />
+                                                className="text-medium" />
                                             <Checkbox
                                                 checked={config.backend.bitcoinP2WPKHActive}
                                                 id="bitcoinP2WPKHActive"
                                                 onChange={this.toggleAccountActive}
                                                 label="Bitcoin Native Segwit"
-                                                className="text-medium"
-                                            />
+                                                className="text-medium" />
                                             <Checkbox
                                                 checked={config.backend.litecoinP2WPKHP2SHActive}
                                                 id="litecoinP2WPKHP2SHActive"
                                                 onChange={this.toggleAccountActive}
                                                 label="Litecoin Segwit"
-                                                className="text-medium"
-                                            />
+                                                className="text-medium" />
                                             <Checkbox
                                                 checked={config.backend.litecoinP2WPKHActive}
                                                 id="litecoinP2WPKHActive"
                                                 onChange={this.toggleAccountActive}
                                                 label="Litecoin Native Segwit"
-                                                className="text-medium"
-                                            />
+                                                className="text-medium" />
                                         </div>
                                         <div class="row">
-                                            <Button primary onClick={this.save}>{t('button.save')}</Button>
+                                            <Button primary onClick={this.save}>
+                                                {t('button.save')}
+                                            </Button>
                                         </div>
+                                        <hr />
+                                        <Fiat fiat={fiat} />
                                     </div>
                                 )
                             }
-                            <Footer></Footer>
+                            <Footer />
                         </div>
                     </div>
                     {

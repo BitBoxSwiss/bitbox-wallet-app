@@ -1,4 +1,4 @@
-.button, .action {
+.button {
     color: var(--color-secondary);
     font-size: var(--size-small);
     font-weight: bold;
@@ -10,14 +10,25 @@
     user-select: none;
 }
 
-.entry {
-    margin: 4px 0;
+.fiatList label {
+    min-width: 250px;
 }
 
-.box {
-    min-width: 100px;
+.fiatList label span {
+    color: var(--color-white);
+    display: inline-block;
+    font-size: var(--size-small);
+    margin-left: var(--spacing-half);
 }
 
-.action {
-    margin-top: 4px;
+.fiatList label:focus span,
+.fiatList label:hover span,
+.fiatList label span:focus,
+.fiatList label span:hover {
+    color: var(--color-primary);
+    outline: none;
+}
+
+.fiatList label span.show {
+    color: var(--color-primary);
 }
