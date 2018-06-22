@@ -61,6 +61,12 @@ export default class Receive extends Component {
     }) {
         const content = receiveAddresses ? (
             <div>
+                <QRCode data={receiveAddresses[activeIndex].address} />
+                <Input
+                    readOnly
+                    className={style.addressField}
+                    onFocus={focus}
+                    value={receiveAddresses[activeIndex].address} />
                 <p class="label">
                     <Button
                         transparent
@@ -73,16 +79,11 @@ export default class Receive extends Component {
                     <Button
                         transparent
                         disabled={verifying}
-                        onClick={this.next}>
+                        onClick={this.next}
+                        className={style.button}>
                         {t('button.next')}
                     </Button>
                 </p>
-                <QRCode data={receiveAddresses[activeIndex].address} />
-                <Input
-                    readOnly
-                    className={style.addressField}
-                    onFocus={focus}
-                    value={receiveAddresses[activeIndex].address} />
                 <div class="buttons">
                     <Button
                         primary

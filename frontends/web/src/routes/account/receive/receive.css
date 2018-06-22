@@ -5,12 +5,21 @@
 }
 
 .addressField {
-    text-align: center;
     display: block;
+    margin-top: -2rem;
+    text-align: center;
 }
 
 .addressField input {
-    text-align: center;
+    border: none;
     display: inline;
-    width: 400px;
+    font-size: var(--size-subheader);
+    padding: 0;
+    text-align: center;
+    width: 600px;
+}
+
+.button {
+    min-width: 70px;
+    margin: 0 1em;
 }
