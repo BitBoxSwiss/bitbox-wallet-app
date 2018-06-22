@@ -354,12 +354,20 @@
                 "link": { "text": "Order a BitBox", "url": "https://shiftcrypto.ch/shop" }
             },
             {
+                "title": "I lost my device. Now what?",
+                "text": [ "If you still have the backup on the SD card and remember the recovery password, you can recover your accounts on a new BitBox or with our backup center. Otherwise, your funds are lost forever, unfortunately." ],
+                "link": { "text": "Backup Center", "url": "https://shiftcrypto.ch/backup" }
+            },
+            {
                 "title": "Does this app require an Internet connection?",
-                "text": [ "Yes, an Internet connection is required to synchronize the wallet with the blockchain and send transactions." ]
+                "text": [ "Yes, an Internet connection is required to synchronize the wallet with the blockchain, send transactions and retrieve the latest exchange rates." ]
             },
             {
                 "title": "Which servers does this app talk to?",
-                "text": [ "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps." ]
+                "text": [
+                    "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps.",
+                    "Additionally, it retrieves the latest exchange rates from CryptoCompare. (Don't worry, the conversions are calculated locally and no amounts of yours are transmitted.)"
+                ]
             },
             {
                 "title": "Can I use the app without your servers?",
@@ -385,6 +393,19 @@
         "accountSendDisabled": {
             "title": "Why can't I send any {{unit}}?",
             "text": "Your balance may not be zero, otherwise you cannot even cover the transaction fee."
+        },
+        "accountFiat": {
+            "title": "Can I only convert to {{fiat}}?",
+            "text": "No, you can click on any conversion to rotate through several fiat currencies. Moreover, you can change the list of currencies in the settings."
+        },
+        "accountRates": {
+            "title": "Which rates are used?",
+            "text": "The exchange rates are updated every minute from CryptoCompare.",
+            "link": { "text": "www.cryptocompare.com", "url": "https://www.cryptocompare.com" }
+        },
+        "accountReload": {
+            "title": "How can I reload the transaction history?",
+            "text": "You can reload the transactions by switching between accounts or to settings and back. However, there is no reason to do so because all information is updated automatically."
         },
         "accountTransactionLabel": {
             "title": "What is the character sequence displayed for each transaction?",
@@ -509,6 +530,14 @@
         ],
         "bitbox": [
             {
+                "title": "How can I eject the BitBox?",
+                "text": [ "You can unplug the BitBox at any time without having to eject it first." ]
+            },
+            {
+                "title": "How can I eject the SD card?",
+                "text": [ "You can remove the SD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup." ]
+            },
+            {
                 "title": "How to securely pair with your phone",
                 "text": [ "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Afterwards, a secret key shared between the mobile phone and the BitBox is generated. Just follow the instructions in the mobile app." ]
             },
@@ -556,6 +585,10 @@
             }
         ],
         "seed": [
+            {
+                "title": "How do I back up the seed?",
+                "text": [ "When you create a new wallet, a backup is automatically stored on the SD card inserted in the BitBox." ]
+            },
             {
                 "title": "What shall I do with the SD card?",
                 "text": [ "Store it somewhere safe and do not insert it to your computer! You bought the BitBox hardware wallet because your computer is too vulnerable to handle private keys for cryptocurrencies." ]

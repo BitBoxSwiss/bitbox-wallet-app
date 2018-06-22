@@ -13,6 +13,7 @@ import Send from './send/send';
 import Receive from './receive/receive';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
+import A from '../../components/anchor/anchor';
 import componentStyle from '../../components/style.css';
 
 @translate()
@@ -213,6 +214,16 @@ export default class Account extends Component {
                         {balance && balance.available === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountSendDisabled.text')}</p>
                         </Entry>}
+                        <Entry title={t('guide.accountFiat.title', { fiat: fiat.code })}>
+                            <p>{t('guide.accountFiat.text')}</p>
+                        </Entry>
+                        <Entry title={t('guide.accountRates.title')}>
+                            <p>{t('guide.accountRates.text')}</p>
+                            <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
+                        </Entry>
+                        <Entry title={t('guide.accountReload.title')}>
+                            <p>{t('guide.accountReload.text')}</p>
+                        </Entry>
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
                             <p>{t('guide.accountTransactionLabel.text')}</p>
                         </Entry>}
