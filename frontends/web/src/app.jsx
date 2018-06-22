@@ -74,7 +74,8 @@ export default class App extends Component {
         });
 
         apiGet('config').then(({ frontend }) => {
-            if (frontend && frontend.guideShown) {
+            /* eslint eqeqeq: 0 */
+            if (frontend && frontend.guideShown != null) {
                 this.setState({ guideShown: frontend.guideShown });
             } else {
                 this.setState({ guideShown: true });
