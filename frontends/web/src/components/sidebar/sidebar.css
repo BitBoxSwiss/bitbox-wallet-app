@@ -54,7 +54,7 @@ a.sidebar-active .stacked img:last-child,
 }
 
 .stacked img {
-    /*transition: opacity 0.2s ease;*/
+    transition: opacity 0.2s ease;
 }
 
 .stacked img:last-child {
@@ -75,8 +75,8 @@ a.sidebar-active .stacked img:last-child,
   display: block;
   color: var(--color-secondary);
   font-size: var(--size-small);
+  font-weight: bold;
   line-height: var(--size-small);
-  letter-spacing: -1px;
   padding-top: 2px;
 }
 

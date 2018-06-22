@@ -87,10 +87,13 @@ class Sidebar extends Component {
 
 function getWalletLink({ code, name }) {
     return (
-        <div class="sideBarItem">
-            <Link key={code} activeClassName="sidebar-active" href={`/account/${code}`} title={name}>
+        <div key={code} className="sideBarItem">
+            <Link
+                activeClassName="sidebar-active"
+                href={`/account/${code}`}
+                title={name}>
                 <Logo code={code} className="sidebar_icon" alt={name} />
-                <span className="sidebar_label">{labelMap[code]}</span>
+                <span className="sidebar_label">{ name || labelMap[code] }</span>
             </Link>
         </div>
     );
