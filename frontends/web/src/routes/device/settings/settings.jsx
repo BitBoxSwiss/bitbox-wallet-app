@@ -163,7 +163,7 @@ export default class Settings extends Component {
                                 </dl>
 
                                 <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
-                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} disabled={lock} />
+                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                                 </div>
 
                                 <hr />
