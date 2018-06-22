@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import style from '../sidebar/sidebar.css';
+import style from './logo.css';
 import BTC from '../../assets/icons/bitcoin.svg';
 import BTC_GREY from '../../assets/icons/bitcoin_disabled.svg';
 import LTC from '../../assets/icons/litecoin.svg';
