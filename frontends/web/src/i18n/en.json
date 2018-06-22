@@ -331,10 +331,10 @@
     "loading": "loading…",
     "guide": {
         "title": "Guide",
-        "apendix": {
-            "text": "Another question? Contact us at",
+        "appendix": {
+            "text": "Another question?",
             "href": "https://shiftcrypto.ch/contact",
-            "link": "shiftcrypto.ch/contact"
+            "link": "Contact us!"
         },
         "waiting": [
             {

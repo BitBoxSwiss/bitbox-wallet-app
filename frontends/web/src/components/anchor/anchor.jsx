@@ -4,7 +4,7 @@ import style from './anchor.css';
 
 export default function A({ href, children, ...props }) {
     return (
-        <span className={style.link} onClick={() => apiPost('open', href)} {...props}>
+        <span className={style.link} onClick={() => apiPost('open', href)} title={href} {...props}>
             {children}
         </span>
     );

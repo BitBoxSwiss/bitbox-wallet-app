@@ -13,11 +13,7 @@ export function Guide({ guide, screen, children }) {
                 {screen && i18n.t('guide.' + screen, { defaultValue: [] }).map(entry => <Entry entry={entry} />)}
                 {children}
                 <div className={style.entry}>
-                    {i18n.t('guide.apendix.text')}
-                    <br />
-                    <A href={i18n.t('guide.apendix.href')}>
-                        {i18n.t('guide.apendix.link')}
-                    </A>
+                    {i18n.t('guide.appendix.text')} <A href={i18n.t('guide.appendix.href')}>{i18n.t('guide.appendix.link')}</A>
                 </div>
             </div>
         </div>
