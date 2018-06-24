@@ -2,8 +2,9 @@ package relay
 
 import (
 	"encoding/json"
-	"reflect"
 	"time"
+
+	"github.com/shiftdevices/godbb/util/locker"
 
 	"github.com/btcsuite/btcutil/base58"
 	"github.com/shiftdevices/godbb/util/logging"
@@ -29,6 +30,12 @@ type Channel struct {
 
 	// AuthenticationKey is used to authenticate messages between the desktop and the mobile.
 	AuthenticationKey []byte `json:"mac"`
+
+	// messageBuffer buffers the messages that were not expected by the caller of waitForValue.
+	messageBuffer [][]byte
+
+	// messageBufferLock guards the message buffer.
+	messageBufferLock locker.Locker
 
 	log *logrus.Entry
 }
@@ -85,31 +92,16 @@ func relayServer() Server {
 	return DefaultServer
 }
 
-// waitForMessage waits for the given duration for the expected message from the paired mobile.
-// Returns nil if the expected message was retrieved from the relay server and an error otherwise.
-func (channel *Channel) waitForMessage(
-	duration time.Duration,
-	expectedMessage map[string]string,
-) error {
-	deadline := time.Now().Add(duration)
-	for {
-		message, err := PullOldestMessage(relayServer(), channel)
-		if err != nil {
-			return err
-		}
-		if message == nil {
-			if time.Now().Before(deadline) {
-				continue
-			}
-			return errp.New("Did not receive a response from the mobile in the given duration.")
-		}
-		var receivedMessage map[string]string
-		err = json.Unmarshal(message, &receivedMessage)
-		if err != nil || !reflect.DeepEqual(expectedMessage, receivedMessage) {
-			return errp.New("Received a different message from the paired mobile than expected.")
-		}
-		return nil
+// getValueFromMessage returns the value of the field in the message and true, if found, or
+// an empty string and false, if not found.
+func (channel *Channel) getValueFromMessage(message []byte, name string) (string, bool) {
+	var object map[string]string
+	err := json.Unmarshal(message, &object)
+	var value, present = object[name]
+	if err != nil || !present {
+		return "", false
 	}
+	return value, true
 }
 
 // waitForValue waits for the given duration for the value with the given name from the mobile.
@@ -117,22 +109,47 @@ func (channel *Channel) waitForMessage(
 func (channel *Channel) waitForValue(duration time.Duration, name string) (string, error) {
 	deadline := time.Now().Add(duration)
 	for {
-		message, err := PullOldestMessage(relayServer(), channel)
-		channel.log.Debugf("oldest message: %s", string(message))
-		if err != nil {
-			return "", err
+		unlock := channel.messageBufferLock.Lock()
+		var message []byte
+		var value string
+		var found bool
+		indexIntoBuffer := -1
+		for i, bufferedMsg := range channel.messageBuffer {
+			value, found = channel.getValueFromMessage(bufferedMsg, name)
+			indexIntoBuffer = i
+			if found {
+				channel.log.Debugf("Processed buffered message %s and found value: %s", string(message), value)
+				break
+			}
 		}
-		if message == nil {
-			if time.Now().Before(deadline) {
+		if found {
+			if indexIntoBuffer < len(channel.messageBuffer) {
+				channel.messageBuffer = append(channel.messageBuffer[:indexIntoBuffer], channel.messageBuffer[indexIntoBuffer+1:]...)
+			} else {
+				channel.messageBuffer = channel.messageBuffer[:indexIntoBuffer]
+			}
+			channel.log.Debugf("Removing message %s from buffer: %v", string(message), len(channel.messageBuffer))
+			unlock()
+		} else {
+			unlock()
+			message, err := PullOldestMessage(relayServer(), channel)
+			if err != nil {
+				return "", err
+			}
+			if message == nil {
+				if time.Now().Before(deadline) {
+					continue
+				}
+				return "", errp.New("Did not receive a response from the mobile in the given duration.")
+			}
+			value, found = channel.getValueFromMessage(message, name)
+			if !found {
+				unlock := channel.messageBufferLock.Lock()
+				channel.messageBuffer = append(channel.messageBuffer, message)
+				channel.log.Debugf("Added message %s to buffer: %v", string(message), len(channel.messageBuffer))
+				unlock()
 				continue
 			}
-			return "", errp.New("Did not receive a response from the mobile in the given duration.")
-		}
-		var object map[string]string
-		err = json.Unmarshal(message, &object)
-		var value, present = object[name]
-		if err != nil || !present {
-			return "", errp.Newf("Did not receive the value '%s' from the paired mobile.", name)
 		}
 		return value, nil
 	}
@@ -141,7 +158,13 @@ func (channel *Channel) waitForValue(duration time.Duration, name string) (strin
 // WaitForScanningSuccess waits for the given duration for the scanning success from the mobile.
 // Returns nil if the scanning success was retrieved from the relay server and an error otherwise.
 func (channel *Channel) WaitForScanningSuccess(duration time.Duration) error {
-	return channel.waitForMessage(duration, map[string]string{"id": "success"})
+	value, err := channel.waitForValue(duration, "id")
+	if err != nil {
+		return err
+	} else if value != "success" {
+		return errp.New("Scanning unsuccessful")
+	}
+	return nil
 }
 
 // WaitForMobilePublicKeyHash waits for the given duration for the public key hash from the mobile.
@@ -197,7 +220,13 @@ func (channel *Channel) SendPing() error {
 // WaitForPong waits for the given duration for the 'pong' from the mobile after sending 'ping'.
 // Returns nil if the pong was retrieved from the relay server and an error otherwise.
 func (channel *Channel) WaitForPong(duration time.Duration) error {
-	return channel.waitForMessage(duration, map[string]string{"action": "pong"})
+	value, err := channel.waitForValue(duration, "action")
+	if err != nil {
+		return err
+	} else if value != "pong" {
+		return errp.New("Unexpected response for ping")
+	}
+	return nil
 }
 
 // SendClear clears the screen of the paired mobile.
@@ -245,5 +274,11 @@ func (channel *Channel) SendRandomNumberEcho(randomNumberEcho string) error {
 // WaitForRandomNumberClear waits for the given duration for a random number clear from the mobile.
 // Returns nil if a random number clear was retrieved from the relay server and an error otherwise.
 func (channel *Channel) WaitForRandomNumberClear(duration time.Duration) error {
-	return channel.waitForMessage(duration, map[string]string{"random": "clear"})
+	value, err := channel.waitForValue(duration, "random")
+	if err != nil {
+		return err
+	} else if value != "clear" {
+		return errp.New("Unexpected response for random")
+	}
+	return nil
 }
