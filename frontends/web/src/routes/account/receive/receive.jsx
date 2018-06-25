@@ -101,12 +101,12 @@ export default class Receive extends Component {
             <div class="contentWithGuide">
                 <div class="container">
                     <div class="headerContainer">
-                        <div class="header">
-                            <h2>{t('receive.title')}</h2>
-                        </div>
                         <Status type="warning">
                             {paired === false && t('warning.receivePairing')}
                         </Status>
+                        <div class="header">
+                            <h2>{t('receive.title')}</h2>
+                        </div>
                     </div>
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">

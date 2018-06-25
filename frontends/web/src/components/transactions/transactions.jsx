@@ -9,7 +9,7 @@ export default function Transactions({
     fiat,
 }) {
     return (
-        <div className={className}>
+        <div className={className} style="flex-grow: 1;">
             {
                 transactions.length > 0 ? transactions.map(props => (
                     <Transaction key={props.id} explorerURL={explorerURL} fiat={fiat} {...props} />

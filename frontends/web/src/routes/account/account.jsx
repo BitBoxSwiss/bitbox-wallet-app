@@ -156,7 +156,9 @@ export default class Account extends Component {
                 <div class="contentWithGuide">
                     <div class="container">
                         <div class="headerContainer">
-                            <HeadersSync coinCode={wallet.coinCode}/>
+                            <Status type="warning">
+                                {hasCard && t('warning.sdcard')}
+                            </Status>
                             <div class="header">
                                 <Balance t={t} name={wallet.name} balance={balance} />
                                 <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
@@ -171,12 +173,6 @@ export default class Account extends Component {
                                     </Button>
                                 </div>
                             </div>
-                            <Status type="warning">
-                                {hasCard && t('warning.sdcard')}
-                            </Status>
-                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                                {t(`account.info.${this.props.code}`)}
-                            </Status>
                             <div>
                                 {
                                     !walletConnected && (
@@ -187,7 +183,9 @@ export default class Account extends Component {
                                 }
                             </div>
                         </div>
-                        <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
+                        <div class={['innerContainer', ''].join(' ')}
+                            style>
+                            <HeadersSync coinCode={wallet.coinCode} />
                             {
                                 !walletInitialized || !walletConnected ? (
                                     <Spinner text={
@@ -198,11 +196,14 @@ export default class Account extends Component {
                                     <Transactions
                                         explorerURL={wallet.blockExplorerTxPrefix}
                                         transactions={transactions}
-                                        className={noTransactions ? 'isVerticallyCentered' : ''}
+                                        className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
                                         fiat={fiat}
                                     />
                                 )
                             }
+                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                                {t(`account.info.${this.props.code}`)}
+                            </Status>
                         </div>
                     </div>
                     <Guide guide={guide} screen="account">

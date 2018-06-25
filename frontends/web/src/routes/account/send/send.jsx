@@ -219,15 +219,15 @@ export default class Send extends Component {
             <div class="contentWithGuide">
                 <div class="container">
                     <div class="headerContainer">
+                        <Status type="warning">
+                            {paired === false && t('warning.sendPairing')}
+                        </Status>
                         <div class="header">
                             <Balance t={t} name={wallet.name} balance={balance} />
                             <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
                                 { balance && <Rates amount={balance.available} fiat={fiat} /> }
                             </div>
                         </div>
-                        <Status type="warning">
-                            {paired === false && t('warning.sendPairing')}
-                        </Status>
                     </div>
                     <div class="innerContainer">
                         <div class="content padded">

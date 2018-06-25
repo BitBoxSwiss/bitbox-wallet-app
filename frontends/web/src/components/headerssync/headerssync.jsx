@@ -49,14 +49,17 @@ export default class HeadersSync extends UpdatingComponent {
                     <div class={style.progressValue} style={{width: `${value}%`}}></div>
                 </div>
                 <div class={style.syncMessage}>
+                    { loading && 'Done: ' }
+                    <div class={style.syncText}>
+                        {status.tip} blocks synced {!loading && `(${Math.ceil(value)}%)`}
+                    </div>
                     {
-                        loading ? 'Done: ' : (
+                        !loading && (
                             <div class={style.spinnerContainer}>
                                 <div class={style.spinner}></div>
                             </div>
                         )
                     }
-                    <div class={style.syncText}>{status.tip} blocks synced {!loading && `(${Math.ceil(value)}%)`}</div>
                 </div>
             </div>
         );

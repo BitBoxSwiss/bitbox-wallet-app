@@ -27,6 +27,7 @@
     --color-info: var(--color-brightblue);
     --color-warn: var(--color-coolgold);
     --color-warning: var(--color-warn);
+    --color-warning-experimental: #e19c00;
     --color-error: var(--color-swissred);
     --color-danger: var(--color-error);
     --color-disabled: var(--color-brightgray);
