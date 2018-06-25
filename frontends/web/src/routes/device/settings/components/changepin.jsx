@@ -96,10 +96,9 @@ export default class HiddenWallet extends Component {
                     activeDialog && (
                         <Dialog title={t('button.changepin')}>
                           <form onSubmit={this.createHiddenWallet}>
-                              <h4>Old PIN</h4>
+                              <h4>Old PIN or password</h4>
                               <PasswordRepeatInput
                                     idPrefix="oldPIN"
-                                    pattern="^[0-9]+$"
                                     title={t('initialize.input.invalid')}
                                     label={t('initialize.input.label')}
                                     repeatLabel={t('initialize.input.labelRepeat')}
