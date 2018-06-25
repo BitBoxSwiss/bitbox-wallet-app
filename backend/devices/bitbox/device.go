@@ -34,10 +34,10 @@ var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 2)
 	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
 
-	pinPolicyProd              = NewPasswordPolicy(6, "[0-9]")
-	pinPolicyTest              = NewPasswordPolicy(4, "[0-9]")
-	recoveryPasswordPolicyProd = NewPasswordPolicy(8, "[[:graph:]]")
-	recoveryPasswordPolicyTest = NewPasswordPolicy(4, "[[:graph:]]")
+	pinPolicyProd              = NewPasswordPolicy(`^[0-9]{6,}$`)
+	pinPolicyTest              = NewPasswordPolicy(`^[0-9]{4,}$`)
+	recoveryPasswordPolicyProd = NewPasswordPolicy("^[[:print:]]{8,}$")
+	recoveryPasswordPolicyTest = NewPasswordPolicy("^[[:print:]]{4,}$")
 )
 
 var errNoBootloader = errors.New("invalid command in bootloader")
