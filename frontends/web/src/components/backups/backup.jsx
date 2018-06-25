@@ -1,4 +1,4 @@
-import { h } from 'preact';
+import i18n from '../../i18n/i18n';
 import { Radio } from '../forms';
 
 export default function BackupsListItem({
@@ -7,16 +7,16 @@ export default function BackupsListItem({
     handleChange,
     onFocus,
 }) {
-    let date = ''
-    if (backup.date != '') {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    let date = '';
+    if (backup.date !== '') {
+        const months = i18n.t('months');
+        const days = i18n.t('days');
         const dt = new Date(backup.date);
-        date = `${days[dt.getDay()]}, ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}, at ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        date = `${days[dt.getDay()]}, ${dt.getDate()}${i18n.t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${i18n.t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
     } else {
-        date = 'unknown'
+        date = 'unknown';
     }
-    let name = backup.name != '' ? backup.name : backup.id
+    let name = backup.name !== '' ? backup.name : backup.id;
     return (
         <Radio
             checked={selectedBackup === backup.id}

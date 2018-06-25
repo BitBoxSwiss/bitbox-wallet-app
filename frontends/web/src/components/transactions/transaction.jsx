@@ -15,10 +15,10 @@ export default class Transaction extends Component {
     }
 
     parseTime = time => {
-        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = this.props.t('months');
+        const days = this.props.t('days');
         const dt = new Date(Date.parse(time));
-        return `${days[dt.getDay()]}, ${dt.getDate()} ${months[dt.getMonth()]} ${dt.getFullYear()}, at ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        return `${days[dt.getDay()]}, ${dt.getDate()}${this.props.t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${this.props.t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
     }
 
     render({
