@@ -71,7 +71,7 @@ export default class Settings extends Component {
                                                 checked={config.backend.bitcoinP2WPKHActive}
                                                 id="bitcoinP2WPKHActive"
                                                 onChange={this.toggleAccountActive}
-                                                label="Bitcoin Native Segwit"
+                                                label="Bitcoin: bech32"
                                                 className="text-medium" />
                                             <Checkbox
                                                 checked={config.backend.bitcoinP2PKHActive}
@@ -89,7 +89,7 @@ export default class Settings extends Component {
                                                 checked={config.backend.litecoinP2WPKHActive}
                                                 id="litecoinP2WPKHActive"
                                                 onChange={this.toggleAccountActive}
-                                                label="Litecoin Native Segwit"
+                                                label="Litecoin: bech32"
                                                 className="text-medium" />
                                         </div>
                                         <div class="row">

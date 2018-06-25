@@ -223,22 +223,22 @@ func (backend *Backend) initAccounts() {
 		} else {
 			TBTC := backend.Coin("tbtc")
 			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
-			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
+			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
 			backend.addAccount(TBTC, "tbtc", "Bitcoin Testnet Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 
 			TLTC := backend.Coin("tltc")
 			backend.addAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
-			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet Native Segwit", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
+			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
 		}
 	} else {
 		BTC := backend.Coin("btc")
 		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin Native Segwit", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
+		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
 		backend.addAccount(BTC, "btc", "Bitcoin Legacy", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
 
 		LTC := backend.Coin("ltc")
 		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin Native Segwit", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
+		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
 	}
 	for _, account := range backend.accounts {
 		backend.onWalletInit(account)
