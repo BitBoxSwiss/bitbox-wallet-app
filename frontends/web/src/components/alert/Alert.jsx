@@ -45,6 +45,7 @@ export default class Alert extends Component {
                     <div style="display: flex; flex-direction: row; justify-content: flex-end;">
                         <Button
                             primary
+                            autofocus
                             onClick={this.handleClose}>
                             {i18n.t('button.ok')}
                         </Button>
