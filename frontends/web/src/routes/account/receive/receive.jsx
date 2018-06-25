@@ -84,14 +84,6 @@ export default class Receive extends Component {
                         {t('button.next')}
                     </Button>
                 </p>
-                <div class="buttons">
-                    <Button
-                        primary
-                        disabled={verifying}
-                        onClick={this.verifyAddress}>
-                        {t('receive.verify')}
-                    </Button>
-                </div>
             </div>
         ) : (
             t('loading')
@@ -114,9 +106,15 @@ export default class Receive extends Component {
                                 {content}
                             </div>
                         </div>
-                        <div class="flex flex-row flex-start" style="margin: 0 0 2rem 2rem;">
+                        <div class="flex flex-row flex-between" style="margin: 0 2rem 2rem 2rem;">
                             <Button secondary onClick={this.props.onClose}>
                                 {t('button.back')}
+                            </Button>
+                            <Button
+                                primary
+                                disabled={verifying}
+                                onClick={this.verifyAddress}>
+                                {t('receive.verify')}
                             </Button>
                         </div>
                     </div>
