@@ -1,6 +1,7 @@
 {
     "appName": "Shift Wallet",
     "appNameWithDefiniteArticle": "the Shift Wallet",
+    "genericError": "An error occurred. If you notice any issues, please restart the application.",
     "app": {
         "upgrade": "A new version of this app is available! We recommend that you upgrade from {{current}} to {{version}}."
     },

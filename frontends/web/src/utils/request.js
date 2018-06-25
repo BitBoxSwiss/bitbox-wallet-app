@@ -1,3 +1,4 @@
+import i18n from '../i18n/i18n';
 import { extConfig } from './config';
 import { call } from './qttransport';
 
@@ -23,7 +24,7 @@ function handleError(endpoint) {
                     return;
                 }
                 console.log('error from endpoint', endpoint, json); // eslint-disable-line no-console
-                alert(json.error + ' (todo: nice error msgs)'); // eslint-disable-line no-alert
+                alert(i18n.t('genericError')); // eslint-disable-line no-alert
                 reject(json.error);
                 return;
             }
