@@ -27,13 +27,8 @@ export default class HiddenWallet extends Component {
     }
 
     handleKeyDown = e => {
-        const {
-            isConfirming,
-        } = this.state;
-        if (e.keyCode === 27 && !isConfirming) {
+        if (e.keyCode === 27 && !this.state.isConfirming) {
             this.abort();
-        } else {
-            return;
         }
     }
 

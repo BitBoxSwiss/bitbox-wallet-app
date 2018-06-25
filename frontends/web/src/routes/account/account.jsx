@@ -80,8 +80,6 @@ export default class Account extends Component {
                 isReceive: false,
                 isSend: false,
             });
-        } else {
-            return;
         }
     }
 
