@@ -22,7 +22,7 @@ export default class App extends Component {
         deviceIDs: [],
         update: null,
         guideShown: false,
-        fiatCode: 'USD',
+        fiatCode: 'CHF',
         fiatList: ['USD', 'EUR', 'CHF'],
     }
 
