@@ -39,7 +39,7 @@ func NewRatesUpdater() *RatesUpdater {
 	return updater
 }
 
-// Last returns the last rates for a given coin and fiat.
+// Last returns the last rates for a given coin and fiat or nil if not available.
 func (updater *RatesUpdater) Last() map[string]map[string]float64 {
 	return updater.last
 }
@@ -50,6 +50,7 @@ func (updater *RatesUpdater) update() {
 		strings.Join(fiats, ","),
 	))
 	if err != nil {
+		updater.last = nil
 		return
 	}
 	defer response.Body.Close()
@@ -57,6 +58,7 @@ func (updater *RatesUpdater) update() {
 	var rates map[string]map[string]float64
 	err = json.NewDecoder(response.Body).Decode(&rates)
 	if err != nil {
+		updater.last = nil
 		return
 	}
 

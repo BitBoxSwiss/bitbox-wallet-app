@@ -133,15 +133,18 @@ func formatAsCurrency(amount float64) string {
 // FormatAmountAsJSON implements coin.Coin.
 func (coin *Coin) FormatAmountAsJSON(amount int64) coinpkg.FormattedAmount {
 	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
-	conversions := map[string]string{}
+	var conversions map[string]string
 	if coin.ratesUpdater != nil {
 		rates := coin.ratesUpdater.Last()
-		unit := coin.unit
-		if len(unit) == 4 && strings.HasPrefix(unit, "T") {
-			unit = unit[1:]
-		}
-		for key, value := range rates[unit] {
-			conversions[key] = formatAsCurrency(float * value)
+		if rates != nil {
+			unit := coin.unit
+			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
+				unit = unit[1:]
+			}
+			conversions = map[string]string{}
+			for key, value := range rates[unit] {
+				conversions[key] = formatAsCurrency(float * value)
+			}
 		}
 	}
 	return coinpkg.FormattedAmount{

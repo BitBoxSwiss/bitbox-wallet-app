@@ -290,7 +290,7 @@ export default class Send extends Component {
                                     />
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : null}
+                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                     />
