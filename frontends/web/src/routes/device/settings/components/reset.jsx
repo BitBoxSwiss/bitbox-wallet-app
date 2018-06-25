@@ -17,6 +17,25 @@ export default class Reset extends Component {
         understand: false,
     }
 
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown = e => {
+        const {
+            isConfirming,
+        } = this.state;
+        if (e.keyCode === 27 && !isConfirming) {
+            this.abort();
+        } else {
+            return;
+        }
+    }
+
     handleUnderstandChange = (e) => {
         this.setState({ understand: e.target.checked });
     }
