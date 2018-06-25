@@ -30,6 +30,8 @@ export default class Alert extends Component {
         this.setState({
             context: str,
             active: true,
+        }, () => {
+            this.button.base.focus();
         });
     }
 
@@ -40,12 +42,12 @@ export default class Alert extends Component {
         const classes = active ? [style.overlay, style.active].join(' ') : style.overlay;
         return (
             <div class={classes}>
-                <div class={style.alert}>
+                <div class={style.alert} tabIndex="0">
                     <p>{context}</p>
                     <div style="display: flex; flex-direction: row; justify-content: flex-end;">
                         <Button
                             primary
-                            autofocus
+                            ref={ref => this.button = ref}
                             onClick={this.handleClose}>
                             {i18n.t('button.ok')}
                         </Button>
