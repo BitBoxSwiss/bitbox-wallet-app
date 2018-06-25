@@ -193,7 +193,7 @@ export default class Settings extends Component {
 
                             </div>
                         </div>
-                        { spinner && (<Spinner />) }
+                        { spinner && <Spinner text={t('deviceSettings.loading')} /> }
                     </div>
                 </div>
                 <Guide guide={guide} screen="bitbox" />

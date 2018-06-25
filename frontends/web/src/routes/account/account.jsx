@@ -192,7 +192,7 @@ export default class Account extends Component {
                         <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
                             {
                                 !walletInitialized || !walletConnected ? (
-                                    <Spinner />
+                                    <Spinner text={t('account.initializing')} />
                                 ) : (
                                     <Transactions
                                         explorerURL={wallet.blockExplorerTxPrefix}

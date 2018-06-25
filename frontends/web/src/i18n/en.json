@@ -25,6 +25,7 @@
         "waiting": "Please insert your device…"
     },
     "deviceSettings": {
+        "loading": "Retrieving device info…",
         "secrets": {
             "title": "Secrets",
             "manageBackups": "Manage Backups"
@@ -284,6 +285,7 @@
         "restore": {
             "title": "Restore",
             "confirmTitle": "Restore Backup",
+            "restoring": "Restoring backup…",
             "password": {
                 "label": "Backup password or hidden backup password",
                 "placeholder": "Password when backup or hidden wallet was created",
