@@ -13,6 +13,7 @@ export default class Spinner extends Component {
 
 	handleKeyDown = e => {
 		e.preventDefault();
+		document.activeElement.blur();
 	}
 
 	render({

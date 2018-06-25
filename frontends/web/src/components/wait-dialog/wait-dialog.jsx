@@ -24,6 +24,7 @@ export default class Confirm extends Component {
 
     handleKeyDown = e => {
         e.preventDefault();
+        document.activeElement.blur();
     }
 
     activate = () => {
