@@ -100,9 +100,9 @@ export default class Seed extends Component {
         fromBackup,
         agreements,
     }) {
-        const errorMessage = (
+        const message = (
             <Message type={status === 'error' && 'error'}>
-                {status === stateEnum.ERROR ? error : null}
+                {status === stateEnum.ERROR ? error : (!fromBackup && t('seed.createDescription'))}
             </Message>
         );
 
@@ -134,6 +134,7 @@ export default class Seed extends Component {
                         value={walletName} />
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
+                        repeatPlaceholder={t('seed.password.repeatPlaceholder')}
                         showLabel="Password"
                         ref={ref => this.backupPasswordInput = ref}
                         disabled={status === stateEnum.WAITING}
@@ -182,7 +183,7 @@ export default class Seed extends Component {
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <BitBox />
                     <div className={style.content}>
-                        {errorMessage}
+                        {message}
                         {content}
                         <hr />
                         <Footer />

@@ -245,12 +245,14 @@
     },
     "seed": {
         "creating": "Creating wallet…",
+        "createDescription": "Initialize the wallet and automatically create a backup on the SD card.",
         "walletName": {
             "label": "Wallet Name",
             "placeholder": ""
         },
         "password": {
-            "label": "Backup password"
+            "label": "Backup password",
+            "repeatPlaceholder": "Repeat password"
         },
         "description": "I understand that:",
         "agreements": {
