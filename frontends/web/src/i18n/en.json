@@ -156,6 +156,7 @@
         "disconnect": "Connection lost. Retrying…",
         "incoming": "Incoming",
         "initializing": "Initializing…",
+        "reconnecting": "Cannot reach the server. Trying to reconnect…",
         "info": {
             "btc": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs less network fees.",
             "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
