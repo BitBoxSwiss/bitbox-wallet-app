@@ -15,11 +15,11 @@ export default class Rates extends UpdatingComponent {
         }
         const value = rates[coin][fiat.code] * Number(amount.amount);
         return (
-            <span className={style.rates} onClick={fiat.next}>
+            <span className={style.rates}>
                 {children}
                 {formatAsCurrency(value)}
                 {' '}
-                <span className={style.unit}>{fiat.code}</span>
+                <span className={style.unit} onClick={fiat.next}>{fiat.code}</span>
             </span>
         );
     }
