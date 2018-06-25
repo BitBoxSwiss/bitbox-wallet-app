@@ -55,6 +55,8 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
+                                        <Fiat fiat={fiat} />
+                                        <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
                                                 <h3>{t('settings.accounts')}</h3>
@@ -97,8 +99,6 @@ export default class Settings extends Component {
                                                 {t('button.save')}
                                             </Button>
                                         </div>
-                                        <hr />
-                                        <Fiat fiat={fiat} />
                                     </div>
                                 )
                             }
