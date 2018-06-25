@@ -19,5 +19,15 @@
 
 .pendingBalance {
     margin: 0;
+    padding-top: 1px;
     color: var(--color-secondary);
+}
+
+.balanceConversion {
+    padding-left: var(--spacing-large);
+    font-size: 24px;
+}
+
+.incomingConversion {
+    padding-left: var(--spacing-default);
 }

@@ -1,7 +1,7 @@
-import { h } from 'preact';
+import Rates from '../../components/rates/rates';
 import style from './balance.css';
 
-export default function Balance({ t, name, balance }) {
+export default function Balance({ t, name, balance, fiat }) {
     if (!balance) {
         return (
             <header className={style.balance}></header>
@@ -14,14 +14,17 @@ export default function Balance({ t, name, balance }) {
                 {balance.available.amount}
                 {' '}
                 <span className={style.unit}>{balance.available.unit}</span>
+                <span className={style.balanceConversion}><Rates amount={balance.available} fiat={fiat} /></span>
             </span>
             {
                 balance && balance.hasIncoming && (
                     <h5 class={style.pendingBalance}>
                         {balance.incoming.amount}
-                        <span style="color: var(--color-light);"> {balance.incoming.unit}</span>
+                        {' '}
+                        {balance.incoming.unit}
                         {' '}
                         {t('account.incoming')}
+                        <span className={style.incomingConversion}><Rates amount={balance.incoming} fiat={fiat} /></span>
                     </h5>
                 )
             }

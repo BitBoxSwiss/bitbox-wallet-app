@@ -6,7 +6,6 @@ import { apiWebsocket } from '../../utils/websocket';
 import { Button } from '../../components/forms';
 import { Guide, Entry } from '../../components/guide/guide';
 import Balance from '../../components/balance/balance';
-import Rates from '../../components/rates/rates';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Send from './send/send';
@@ -160,10 +159,7 @@ export default class Account extends Component {
                                 {hasCard && t('warning.sdcard')}
                             </Status>
                             <div class="header">
-                                <Balance t={t} name={wallet.name} balance={balance} />
-                                <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                    { balance && <Rates amount={balance.available} fiat={fiat} /> }
-                                </div>
+                                <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
                                 <div class={componentStyle.buttons} style="align-self: flex-end;">
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
                                         {t('button.receive')}

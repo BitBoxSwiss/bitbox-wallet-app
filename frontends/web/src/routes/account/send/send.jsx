@@ -7,7 +7,6 @@ import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
-import Rates from '../../../components/rates/rates';
 import FeeTargets from './feetargets';
 import Toast from '../../../components/toast/Toast';
 import style from './send.css';
@@ -223,10 +222,7 @@ export default class Send extends Component {
                             {paired === false && t('warning.sendPairing')}
                         </Status>
                         <div class="header">
-                            <Balance t={t} name={wallet.name} balance={balance} />
-                            <div style="align-self: flex-end;flex-grow: 1; padding-left: var(--spacing-large); color: var(--color-secondary); font-weight: bold;">
-                                { balance && <Rates amount={balance.available} fiat={fiat} /> }
-                            </div>
+                            <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
                         </div>
                     </div>
                     <div class="innerContainer">
