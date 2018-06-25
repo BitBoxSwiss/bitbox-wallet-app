@@ -158,11 +158,11 @@
         "initializing": "Initializing…",
         "reconnecting": "Cannot reach the server. Trying to reconnect…",
         "info": {
-            "btc": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs less network fees.",
+            "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs less network fees.",
             "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
             "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
             "ltc-p2wpkh-p2sh": "",
-            "tbtc": "$t(account.info.btc)",
+            "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
             "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
             "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
             "tltc-p2wpkh-p2sh": ""

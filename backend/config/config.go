@@ -21,7 +21,7 @@ type Backend struct {
 // AccountActive returns the Active setting for a coin by code.
 func (backend Backend) AccountActive(code string) bool {
 	switch code {
-	case "tbtc", "btc", "rbtc":
+	case "tbtc-p2pkh", "btc-p2pkh", "rbtc-p2pkh":
 		return backend.BitcoinP2PKHActive
 	case "tbtc-p2wpkh-p2sh", "btc-p2wpkh-p2sh", "rbtc-p2wpkh-p2sh":
 		return backend.BitcoinP2WPKHP2SHActive

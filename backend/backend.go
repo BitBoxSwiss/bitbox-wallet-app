@@ -218,13 +218,13 @@ func (backend *Backend) initAccounts() {
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			RBTC := backend.Coin("rbtc")
-			backend.addAccount(RBTC, "rbtc", "Bitcoin Regtest Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
+			backend.addAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 			backend.addAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 		} else {
 			TBTC := backend.Coin("tbtc")
 			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
 			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
-			backend.addAccount(TBTC, "tbtc", "Bitcoin Testnet Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
+			backend.addAccount(TBTC, "tbtc-p2pkh", "Bitcoin Testnet Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
 
 			TLTC := backend.Coin("tltc")
 			backend.addAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
@@ -234,7 +234,7 @@ func (backend *Backend) initAccounts() {
 		BTC := backend.Coin("btc")
 		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
 		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
-		backend.addAccount(BTC, "btc", "Bitcoin Legacy", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
+		backend.addAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
 
 		LTC := backend.Coin("ltc")
 		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH)

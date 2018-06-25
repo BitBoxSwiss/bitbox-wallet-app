@@ -12,13 +12,12 @@ import deviceSettings_GREY from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
 const labelMap = {
-    btc: 'BTC',
-    tbtc: 'TBTC',
+    'btc-p2pkh': 'BTC',
+    'tbtc-p2pkh': 'TBTC',
     'btc-p2wpkh-p2sh': 'BTC',
     'btc-p2wpkh': 'BTC',
     'tbtc-p2wpkh-p2sh': 'TBTC SW',
     'tbtc-p2wpkh': 'TBTC NSW',
-    ltc: 'LTC',
     'ltc-p2wpkh-p2sh': 'LTC',
     'ltc-p2wpkh': 'LTC',
     'tltc-p2wpkh-p2sh': 'TLTC',
