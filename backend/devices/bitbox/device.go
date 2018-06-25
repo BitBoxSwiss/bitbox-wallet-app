@@ -359,27 +359,47 @@ func (dbb *Device) SetPassword(pin string) error {
 		return err
 	}
 
-	var reply map[string]interface{}
-	if dbb.Status() == StatusUninitialized {
-		var err error
-		reply, err = dbb.sendPlain("password", pin)
-		if err != nil {
-			return errp.WithMessage(err, "Failed to set new pin")
-		}
-	} else if dbb.pin != "" {
-		var err error
-		reply, err = dbb.sendKV("password", pin, dbb.pin)
-		if err != nil {
-			return errp.WithMessage(err, "Failed to replace pin")
-		}
-	} else {
-		return errp.New("can only set PIN on an uninitialized device or when logged in")
+	if dbb.Status() != StatusUninitialized {
+		return errp.New("device has to be uninitialized")
+	}
+	reply, err := dbb.sendPlain("password", pin)
+	if err != nil {
+		return errp.WithMessage(err, "Failed to set new pin")
 	}
 	if reply["password"] != "success" {
 		return errp.New("Unexpected reply")
 	}
 	dbb.log.Debug("Pin set")
 	dbb.pin = pin
+	dbb.onStatusChanged()
+	return nil
+}
+
+// ChangePassword repalces the PIN for the device. This only works when logged in, so the oldPIN can
+// be checked.
+func (dbb *Device) ChangePassword(oldPIN string, newPIN string) error {
+	if dbb.bootloaderStatus != nil {
+		return errp.WithStack(errNoBootloader)
+	}
+	if ok, err := dbb.pinPolicy.ValidatePassword(newPIN); !ok {
+		return err
+	}
+
+	if dbb.Status() == StatusUninitialized || dbb.pin == "" {
+		return errp.New("device has to be initialized")
+	}
+	if dbb.pin != oldPIN {
+		return errp.New("Old PIN incorrect")
+	}
+	reply, err := dbb.sendKV("password", newPIN, oldPIN)
+	if err != nil {
+		return errp.WithMessage(err, "Failed to replace pin")
+	}
+	if reply["password"] != "success" {
+		return errp.New("Unexpected reply")
+	}
+	dbb.log.Debug("Pin replaced")
+	dbb.pin = newPIN
 	dbb.onStatusChanged()
 	return nil
 }
@@ -657,12 +677,19 @@ func (dbb *Device) Blink() error {
 	return errp.WithMessage(err, "Failed to blink")
 }
 
-// Reset resets the device. Returns true if erased and false if aborted by the user.
-func (dbb *Device) Reset() (bool, error) {
+// Reset resets the device. Returns true if erased and false if aborted by the user. Only callable
+// when logged in, so the PIN can be checked.
+func (dbb *Device) Reset(pin string) (bool, error) {
 	if dbb.bootloaderStatus != nil {
 		return false, errp.WithStack(errNoBootloader)
 	}
 	dbb.log.Info("Reset")
+	if dbb.Status() == StatusUninitialized || dbb.pin == "" {
+		return false, errp.New("device has to be initialized")
+	}
+	if dbb.pin != pin {
+		return false, errp.New("PIN incorrect")
+	}
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	if IsErrorAbort(err) {
 		return false, nil

@@ -11,7 +11,8 @@ import InnerHTMLHelper from '../../../../utils/innerHTML';
 @translate()
 export default class HiddenWallet extends Component {
     state = {
-        pin: null,
+        oldPIN: null,
+        newPIN: null,
         errorCode: null,
         isConfirming: false,
         activeDialog: false,
@@ -42,17 +43,16 @@ export default class HiddenWallet extends Component {
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.pinInput) {
-            this.pinInput.clear();
+        if (this.oldPINInput) {
+            this.oldPINInput.clear();
+        }
+        if (this.newPINInput) {
+            this.newPINInput.clear();
         }
     }
 
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
-    }
-
     validate = () => {
-        return this.state.pin;
+        return this.state.newPIN && this.state.oldPIN;
     }
 
     createHiddenWallet = event => {
@@ -62,29 +62,24 @@ export default class HiddenWallet extends Component {
             activeDialog: false,
             isConfirming: true,
         });
-        apiPost('devices/' + this.props.deviceID + '/set-password', {
-            password: this.state.pin,
+        apiPost('devices/' + this.props.deviceID + '/change-password', {
+            oldPIN: this.state.oldPIN,
+            newPIN: this.state.newPIN,
         }).catch(() => {}).then(data => {
             this.abort();
 
             if (!data.success) {
-                if (data.code) {
-                    this.setState({ errorCode: data.code });
-                }
                 alert(data.errorMessage);
-                // {t(`initialize.error.${errorCode}`, {
-                //         defaultValue: errorMessage
-                //     })}
-                // this.setState({
-                //     status: stateEnum.ERROR,
-                //     errorMessage: data.errorMessage
-                // });
             }
         });
     }
 
-    setValidPIN = pin => {
-        this.setState({ pin });
+    setValidOldPIN = oldPIN => {
+        this.setState({ oldPIN });
+    }
+
+    setValidNewPIN = newPIN => {
+        this.setState({ newPIN });
     }
 
     render({
@@ -105,16 +100,27 @@ export default class HiddenWallet extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('button.changepin')}>
-                            <form onSubmit={this.createHiddenWallet}>
-                                <PasswordRepeatInput
-                                    idPrefix="pin"
+                          <form onSubmit={this.createHiddenWallet}>
+                              <h4>Old PIN</h4>
+                              <PasswordRepeatInput
+                                    idPrefix="oldPIN"
                                     pattern="^[0-9]+$"
                                     title={t('initialize.input.invalid')}
                                     label={t('initialize.input.label')}
                                     repeatLabel={t('initialize.input.labelRepeat')}
                                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                                    ref={ref => this.pinInput = ref}
-                                    onValidPassword={this.setValidPIN} />
+                                    ref={ref => this.oldPINInput = ref}
+                                    onValidPassword={this.setValidOldPIN} />
+                                <h4>New PIN</h4>
+                                <PasswordRepeatInput
+                                    idPrefix="newPIN"
+                                    pattern="^[0-9]+$"
+                                    title={t('initialize.input.invalid')}
+                                    label={t('initialize.input.label')}
+                                    repeatLabel={t('initialize.input.labelRepeat')}
+                                    repeatPlaceholder={t('initialize.input.placeholderRepeat')}
+                                    ref={ref => this.newPINInput = ref}
+                                    onValidPassword={this.setValidNewPIN} />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>
                                         {t('button.abort')}

@@ -24,12 +24,13 @@ type Bitbox interface {
 	BootloaderStatus() (*bitbox.BootloaderStatus, error)
 	DeviceInfo() (*bitbox.DeviceInfo, error)
 	SetPassword(string) error
+	ChangePassword(string, string) error
 	SetHiddenPassword(string, string) (bool, error)
 	CreateWallet(string, string) error
 	Login(string) (bool, string, error)
 	Blink() error
 	Random(string) (string, error)
-	Reset() (bool, error)
+	Reset(string) (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
 	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
 	UnlockBootloader() (bool, error)
@@ -67,6 +68,7 @@ func NewHandlers(
 	handleFunc("/paired", handlers.getPairedHandler).Methods("GET")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
+	handleFunc("/change-password", handlers.postChangePasswordHandler).Methods("POST")
 	handleFunc("/set-hidden-password", handlers.postSetHiddenPasswordHandler).Methods("POST")
 	handleFunc("/create-wallet", handlers.postCreateWalletHandler).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupListHandler).Methods("GET")
@@ -109,6 +111,21 @@ func (handlers *Handlers) postSetPasswordHandler(r *http.Request) (interface{}, 
 		return maybeDBBErr(err, handlers.log), nil
 	}
 	handlers.log.Debug("Set password on device")
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postChangePasswordHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	newPIN := jsonBody["newPIN"]
+	oldPIN := jsonBody["oldPIN"]
+	spew.Dump("LOL", oldPIN, newPIN)
+	if err := handlers.bitbox.ChangePassword(oldPIN, newPIN); err != nil {
+		return maybeDBBErr(err, handlers.log), nil
+	}
+	handlers.log.Debug("Change password on device")
 	return map[string]interface{}{"success": true}, nil
 }
 
@@ -263,11 +280,15 @@ func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface
 	return handlers.bitbox.Random("true")
 }
 
-func (handlers *Handlers) postResetDeviceHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postResetDeviceHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Reset")
-	didReset, err := handlers.bitbox.Reset()
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	didReset, err := handlers.bitbox.Reset(jsonBody["pin"])
 	if err != nil {
-		return nil, err
+		return maybeDBBErr(err, handlers.log), nil
 	}
 	return map[string]interface{}{"didReset": didReset}, nil
 }
