@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"math/big"
 	"regexp"
+	"sort"
 	"strings"
 	"time"
 
@@ -812,6 +813,24 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 		filenamesAndDate = append(filenamesAndDate, filenameAndDate)
 	}
 	dbb.log.WithField("backup-list", filenamesAndDate).Debug("Retrieved backup list")
+	sort.Slice(filenamesAndDate, func(i, j int) bool {
+		first, ok1 := filenamesAndDate[i]["date"]
+		second, ok2 := filenamesAndDate[j]["date"]
+		if ok1 && ok2 {
+			firstDate, err := time.Parse(time.RFC3339, first)
+			if err != nil {
+				panic("Failed to parse date")
+			}
+			secondDate, err := time.Parse(time.RFC3339, second)
+			if err != nil {
+				panic("Failed to parse date")
+			}
+			return firstDate.After(secondDate)
+		} else if ok1 {
+			return true
+		}
+		return false
+	})
 	return filenamesAndDate, nil
 }
 
