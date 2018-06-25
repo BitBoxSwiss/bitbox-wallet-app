@@ -15,16 +15,15 @@ export default class Confirm extends Component {
     }
 
     componentWillMount() {
-        document.body.addEventListener('focus', this.handleFocus, true);
+        document.addEventListener('keydown', this.handleKeyDown);
     }
 
     componentWillUnmount() {
-        document.body.removeEventListener('focus', this.handleFocus, true);
+        document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleFocus = (e) => {
+    handleKeyDown = e => {
         e.preventDefault();
-        document.activeElement.blur();
     }
 
     activate = () => {
