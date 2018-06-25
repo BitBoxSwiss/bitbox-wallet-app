@@ -42,7 +42,7 @@ export default class Alert extends Component {
         const classes = active ? [style.overlay, style.active].join(' ') : style.overlay;
         return (
             <div class={classes}>
-                <div class={style.alert} tabIndex="0">
+                <div class={style.alert}>
                     <p>{context}</p>
                     <div style="display: flex; flex-direction: row; justify-content: flex-end;">
                         <Button
