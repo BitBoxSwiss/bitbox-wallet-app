@@ -133,6 +133,7 @@
         "restore": {
             "title": "Wiederherstellen",
             "confirmTitle": "Backup wiederherstellen",
+            "restoring": "Restoring backup…",
             "password": {
                 "label": "Passwort des Backups oder des verborgenen Backups eingeben.",
                 "placeholder": "Gib das Passwort ein, das du verwendet hast, als du das Backup oder das verbrogene Backup erstellt hast."
