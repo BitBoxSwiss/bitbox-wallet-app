@@ -291,6 +291,7 @@
             "password": {
                 "label": "Backup password or hidden backup password",
                 "placeholder": "Password when backup or hidden wallet was created",
+                "repeatPlaceholder": "Repeat Password",
                 "showLabel": "Password"
             }
         }
