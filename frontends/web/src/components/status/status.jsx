@@ -56,8 +56,8 @@ export default class Status extends Component {
             return null;
         }
         return (
-            <div class={style.container}>
-                <div class={[style.status, style[type]].join(' ')}>
+            <div className={[style.container, style[type]].join(' ')}>
+                <div className={style.status}>
                     {children}
                 </div>
                 {dismissable && (

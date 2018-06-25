@@ -4,7 +4,9 @@
 
 .status {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding: var(--spacing-half) calc(var(--spacing-large) * 2);
+    margin: 0 auto;
+    max-width: var(--content-width);
+    padding: var(--spacing-half) var(--spacing-large);
     text-align: center;
 }
 
@@ -21,13 +23,6 @@
 .info {
     background-color: var(--color-info);
     color: var(--color-white);
-}
-
-.status p {
-    margin: 0;
-    font-size: var(--size-small);
-    text-transform: uppercase;
-    font-weight: bold;
 }
 
 .close {
