@@ -220,6 +220,9 @@
             "placeholder": "Not available",
             "customPlaceholder": "Enter amount"
         },
+        "total": {
+            "label": "Total"
+        },
         "feeTarget": {
             "label": "Network Priority",
             "placeholder": "Calculating fee estimation",

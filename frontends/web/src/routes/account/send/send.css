@@ -90,7 +90,7 @@
 */
 
 .action {
-    color: var(--color-secondary);
+    color: var(--color-primary);
     font-size: var(--size-small);
     font-weight: bold;
     text-transform: uppercase;
