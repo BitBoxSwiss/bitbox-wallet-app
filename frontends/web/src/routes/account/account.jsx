@@ -203,36 +203,20 @@ export default class Account extends Component {
                         </div>
                     </div>
                     <Guide guide={guide} screen="account">
-                        {noTransactions && balance && <Entry title={t('guide.accountEmpty.title')}>
-                            <p>{t('guide.accountEmpty.text', { unit: balance.available.unit })}</p>
-                        </Entry>}
-                        {balance && <Entry title={t('guide.accountReceive.title', { unit: balance.available.unit })}>
-                            <p>{t('guide.accountReceive.text')}</p>
-                        </Entry>}
+                        <Entry title={t('guide.accountDescription.title')}>
+                            <p>{t('guide.accountDescription.text')}</p>
+                        </Entry>
                         {balance && balance.available === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountSendDisabled.text')}</p>
                         </Entry>}
-                        <Entry title={t('guide.accountFiat.title', { fiat: fiat.code })}>
-                            <p>{t('guide.accountFiat.text')}</p>
-                        </Entry>
-                        <Entry title={t('guide.accountRates.title')}>
-                            <p>{t('guide.accountRates.text')}</p>
-                            <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
-                        </Entry>
-                        <Entry title={t('guide.accountReload.title')}>
-                            <p>{t('guide.accountReload.text')}</p>
-                        </Entry>
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
                             <p>{t('guide.accountTransactionLabel.text')}</p>
                         </Entry>}
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionTime.title')}>
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>}
-                        {transactions.length > 0 && <Entry title={t('guide.accountTransactionDetails.title')}>
-                            <p>{t('guide.accountTransactionDetails.text')}</p>
-                        </Entry>}
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionAttributes.title')}>
-                            {t('guide.accountTransactionAttributes.text').map(p => <p>{p}</p>)}
+                            {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
                         </Entry>}
                         {balance && balance.hasIncoming && <Entry title={t('guide.accountIncomingBalance.title')}>
                             <p>{t('guide.accountIncomingBalance.text')}</p>
@@ -240,6 +224,14 @@ export default class Account extends Component {
                         <Entry title={t('guide.accountTransactionConfirmation.title')}>
                             <p>{t('guide.accountTransactionConfirmation.text')}</p>
                         </Entry>
+                        <Entry title={t('guide.accountFiat.title', { fiat: fiat.code })}>
+                            <p>{t('guide.accountFiat.text')}</p>
+                        </Entry>
+                        <Entry title={t('guide.accountRates.title')}>
+                            <p>{t('guide.accountRates.text')}</p>
+                            <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
+                        </Entry>
+
                     </Guide>
                 </div>
             );

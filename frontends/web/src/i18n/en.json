@@ -7,7 +7,7 @@
     "dayPeriod": "",
     "atTime": "at",
     "app": {
-        "upgrade": "A new version of this app is available! We recommend that you upgrade from {{current}} to {{version}}."
+        "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
     },
     "sidebar": {
         "device": "Manage Device",
@@ -22,7 +22,7 @@
         },
         "error": {
             "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
-            "109_normal": "Wrong password. {{remainingAttempts}} attempts remain before the device is reset.",
+            "109_normal": "Wrong recovery key. {{remainingAttempts}} attempts remain before the device is reset.",
             "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
         }
     },
@@ -78,7 +78,7 @@
         "button": "Reset Device",
         "title": "Reset Device",
         "description": "All data on the device will be deleted. That includes your Private Key!",
-        "understand": "I have a backup and know my backup password"
+        "understand": "I have a backup and know my recovery key"
     },
     "pairing": {
         "button": "Connect Mobile App",
@@ -116,14 +116,14 @@
     },
     "hiddenWallet": {
         "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
-        "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> PIN + password combination.",
-        "info2HTML": "Define the PIN and password you want to associate with your hidden wallet below. The PIN and password must be <strong>different</strong> from the ones you defined for your primary wallet.",
+        "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> PIN + recovery key combination.",
+        "info2HTML": "Define the PIN and recovery key you want to associate with your hidden wallet below. The PIN and recovery key must be <strong>different</strong> from the ones you defined for your primary wallet.",
         "info3HTML": "<!-- TODO -->",
         "pinLabel": "Hidden PIN",
         "pinRepeatLabel": "Repeat hidden PIN",
         "pinRepeatPlaceholder": "Please confirm hidden PIN",
-        "passwordLabel": "Hidden backup password",
-        "passwordPlaceholder": "Please confirm hidden backup password"
+        "passwordLabel": "Hidden recovery key",
+        "passwordPlaceholder": "Please confirm hidden recovery key"
     },
     "random": {
         "button": "Generate Random Number",
@@ -160,11 +160,11 @@
         "connect": "Connection established",
         "disconnect": "Connection lost. Retrying…",
         "incoming": "Incoming",
-        "initializing": "Initializing…",
-        "reconnecting": "Cannot reach the server. Trying to reconnect…",
+        "initializing": "Getting information from the blockchain…",
+        "reconnecting": "Cannot reach the destination. Trying to reconnect…",
         "info": {
             "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs less network fees.",
-            "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
+            "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
             "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
             "ltc-p2wpkh-p2sh": "",
             "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
@@ -203,7 +203,7 @@
     "send": {
         "title": "Send Coins",
         "address": {
-            "label": "Address",
+            "label": "Receiver Address",
             "placeholder": "Enter address"
         },
         "amount": {
@@ -251,14 +251,14 @@
             "placeholder": ""
         },
         "password": {
-            "label": "Backup password",
-            "repeatPlaceholder": "Repeat password"
+            "label": "Recovery key",
+            "repeatPlaceholder": "Repeat recovery key"
         },
         "description": "I understand that:",
         "agreements": {
-            "password_change": "I can NOT change the password later",
-            "password_required": "the password is required to restore a backup",
-            "funds_access": "I will NOT be able to access my funds if I forget my password"
+            "password_change": "I can NOT change the recovery key later",
+            "password_required": "The recovery key is required to restore a wallet from a backup",
+            "funds_access": "I will NOT be able to access my funds if I forget my recovery key"
         },
         "create": "Create Wallet",
         "backup": "Or restore a Backup…",
@@ -289,8 +289,8 @@
                 "placeholder": "Please name the backup"
             },
             "password": {
-                "label": "Password",
-                "placeholder": "Please enter your password"
+                "label": "Recovery Key",
+                "placeholder": "Please enter your recovery key"
             }
         },
         "restore": {
@@ -298,10 +298,10 @@
             "confirmTitle": "Restore Backup",
             "restoring": "Restoring backup…",
             "password": {
-                "label": "Backup password or hidden backup password",
-                "placeholder": "Password when backup or hidden wallet was created",
-                "repeatPlaceholder": "Repeat Password",
-                "showLabel": "Password"
+                "label": "Recovery Key or hidden recovery key",
+                "placeholder": "recovery key",
+                "repeatPlaceholder": "Repeat recovery key",
+                "showLabel": "Recovery Key"
             }
         }
     },
@@ -316,7 +316,7 @@
         "appVersion": "App Version:"
     },
     "warning": {
-        "sdcard": "Keep the SD card stored securely, unless you want to manage backups!",
+        "sdcard": "Keep the SD card stored separate from the BitBox, unless you want to manage backups.",
         "sendPairing": "Please pair the device to securely verify transaction details. Go to the Manage Device.",
         "receivePairing": "Please pair the device to enable secure address verification. Go to the Manage Device."
     },
@@ -340,7 +340,7 @@
     "password": {
         "show": "Show {{label}}",
         "warning": {
-            "caps": "WARNING: caps lock (⇪) are enabled",
+            "caps": "WARNING: caps lock (⇪) is enabled",
             "paste": "to paste text, enable \"SHOW {{label}}\""
         }
     },
@@ -355,14 +355,8 @@
         "waiting": [
             {
                 "title": "Welcome to $t(appNameWithDefiniteArticle)!",
-                "text": [ "Thanks for trusting the open-source $t(appName)! But always remember:" ],
-                "link": { "text": "Don't trust, verify!", "url": "https://github.com/digitalbitbox/" },
-                "shown": true
-            },
-            {
-                "title": "How do I use this guide?",
-                "text": [ "You can toggle this guide with the button in the upper right corner. If you are new to cryptocurrencies, though, we recommend that you leave the guide open for now. :-)" ],
-                "shown": true
+                "text": ["Thanks for using our app. Find all our code on:"],
+                "link": { "text": "github","url": "https://github.com/digitalbitbox"}
             },
             {
                 "title": "How can I get a device?",
@@ -371,23 +365,12 @@
             },
             {
                 "title": "I lost my device. Now what?",
-                "text": [ "If you still have the backup on the SD card and remember the recovery password, you can recover your accounts on a new BitBox or with our backup center. Otherwise, your funds are lost forever, unfortunately." ],
+                "text": [ "You can recover your accounts on a new BitBox or with our backup center. " ],
                 "link": { "text": "Backup Center", "url": "https://shiftcrypto.ch/backup" }
             },
             {
                 "title": "Does this app require an Internet connection?",
-                "text": [ "Yes, an Internet connection is required to synchronize the wallet with the blockchain, send transactions and retrieve the latest exchange rates." ]
-            },
-            {
-                "title": "Which servers does this app talk to?",
-                "text": [
-                    "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps.",
-                    "Additionally, it retrieves the latest exchange rates from CryptoCompare. (Don't worry, the conversions are calculated locally and no amounts of yours are transmitted.)"
-                ]
-            },
-            {
-                "title": "Can I use the app without your servers?",
-                "text": [ "Not at the moment but we are working on letting you configure servers of your own!" ]
+                "text": [ "Yes, an Internet connection is required to synchronize the wallet, send transactions and retrieve latest exchange rates." ]
             }
         ],
         "waitingWithoutDevice": {
@@ -398,52 +381,31 @@
             ]
         },
         "account": [],
-        "accountEmpty": {
-            "title": "Why is my account empty?",
-            "text": "Your account is still empty because you have not yet received any {{unit}}. Buy some from an exchange or from a friend first."
-        },
-        "accountReceive": {
-            "title": "How can I get more {{unit}}?",
-            "text": "Click the receive button in the upper right corner and send the displayed address to an exchange or to a friend."
-        },
+        "accountDescription": {
+             "title": "What is displayed here?",
+             "text": "This is your account overview. It shows incoming and outgoing transactions. The balance is displayed for each account separately. Consult the guide in settings to learn more about the different account types."
+         },
         "accountSendDisabled": {
             "title": "Why can't I send any {{unit}}?",
-            "text": "Your balance may not be zero, otherwise you cannot even cover the transaction fee."
-        },
-        "accountFiat": {
-            "title": "Can I only convert to {{fiat}}?",
-            "text": "No, you can click on any conversion to rotate through several fiat currencies. Moreover, you can change the list of currencies in the settings."
-        },
-        "accountRates": {
-            "title": "Which rates are used?",
-            "text": "The exchange rates are updated every minute from CryptoCompare.",
-            "link": { "text": "www.cryptocompare.com", "url": "https://www.cryptocompare.com" }
-        },
-        "accountReload": {
-            "title": "How can I reload the transaction history?",
-            "text": "You can reload the transactions by switching between accounts or to settings and back. However, there is no reason to do so because all information is updated automatically."
+            "text": "Your balance may not be zero, otherwise you cannot cover the network fee."
         },
         "accountTransactionLabel": {
-            "title": "What is the character sequence displayed for each transaction?",
-            "text": "It is the address which the coins have been sent to or received on. An address encodes how (and thus by whom) the coins can be spent."
+            "title": "Which address is displayed for each transaction?",
+            "text": "It is the address where you received the coins or sent the coins to. An address encodes how (and thus by whom) the coins can be spent."
         },
         "accountTransactionTime": {
-            "title": "How is the time determined?",
-            "text": "It is the timestamp of the block with which the transaction has been added to the blockchain."
-        },
-        "accountTransactionDetails": {
-            "title": "How can I see more details for a transaction?",
-            "text": "Move the mouse over the transaction and click on the expand area."
+            "title": "What time is displayed?",
+            "text": "The time the transaction has been confirmed on the blockchain."
         },
         "accountTransactionAttributes": {
             "title": "What is the info shown in the transaction details?",
             "text": [
-                "The number of confirmations shows the number of blocks that have been added to the block that contains the transaction. We recommend that you wait for at least three confirmations before you consider a payment as settled.",
-                "The transaction ID is the hash of the whole transaction. It is useful to look up a transaction in an external block explorer in order to verify its authenticity (in case you don't trust us, which you shouldn't).",
-                "The virtual size of a transaction is used to determine its fee. You have successfully saved on fees if it is smaller than the size of the transaction.",
-                "The size of a transaction describes its actual size in bytes when serialized according to the Bitcoin protocol.",
-                "The weight of a transaction has been introduced with Segwit, and is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
-                "The fee is the amount that has been paid to the miner that included the transaction in a block. Click on the send button to read more about why there is a fee at all."
+                "Confirmations: Number of blocks that have been added to the block that contains the transaction. We recommend to wait for at least three confirmations before you consider a payment as settled.",
+                "Transaction ID: Used to look up a transaction in an external block explorer.",
+                "Virtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.",
+                "Size: Actual transaction size in bytes when serialized according to the Bitcoin protocol.",
+                "Weight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
+                "Fee: Amount the miner received that included the transaction in a block. To learn more, click on the send button."
             ]
         },
         "accountIncomingBalance": {
@@ -451,30 +413,31 @@
             "text": "Incoming sums up the amounts that are being transferred to you but have not yet been confirmed by the network."
         },
         "accountTransactionConfirmation": {
-            "title": "Why must transactions be confirmed by the network?",
-            "text": "In order to ensure that a coin (respectively transaction output) cannot be spent more than once, so-called miners continuously vote on the history of transactions by mining (and thus adding) blocks. If the chain of blocks diverges, honest participants converge on the longest branch containing only valid transactions. Since blocks are computationally difficult to find, each block confirms all preceding blocks on its branch. The more confirmations there are, the harder it is for an attacker to mine a distinct branch on which the coins are spent differently."
+            "title": "What is a pending transaction?",
+            "text": "This is a transaction that has been broadcasted to the network and is waiting to be confirmed."
+        },
+        "accountFiat": {
+            "title": "Can I display other conversion rates?",
+            "text": "Yes, you can click on any ticker to rotate through several fiat currencies. Moreover, you can change the list of currencies in the settings."
+        },
+        "accountRates": {
+            "title": "Which rates are used?",
+            "text": "The exchange rates are updated every minute from CryptoCompare.",
+            "link": { "text": "www.cryptocompare.com", "url": "https://www.cryptocompare.com" }
         },
         "receive": [
             {
                 "title": "What do I do with an address?",
-                "text": [ "Give it to others to send you some coins.", "(Try to independently verify the address, for example with a phone call, as an attacker could send an address which does not belong to you to the payer otherwise.)" ]
+                "text": [ "Give it to others to send you some coins.", "(Try to independently verify the address, for example with a phone call.)" ]
             },
             {
-                "title": "Why are there so many addresses?",
-                "text": [ "For privacy and security reasons, you should never hand out the same address twice. Click on 'Next' to get a new address for a different purpose. (Think of addresses like invoice numbers.)" ]
-            },
-            {
-                "title": "Why are there at most 20 addresses?",
-                "text": [ "All addresses are derived from a single seed, which you backed up when setting up the device. The backup, however, is only useful if all your addresses and thus your funds can be recovered. Since you can derive a virtually unlimited number of addresses, the search has to stop somewhere. The convention is to stop the search after 20 unused addresses in a row." ]
-            },
-            {
-                "title": "What do I do with the pixelated black and white image?",
-                "text": [ "It is a so-called QR code, which can easily be scanned by mobile phones and which encodes the address as written below it. If the person who wants to send you coins is present, showing the QR code is easier than sending the address manually." ]
+                "title": "Why are there many addresses?",
+                "text": [ "For privacy and security reasons, you should never hand out the same address twice. Click on 'Next' to get a new address for a different purpose. You can generate up to 20 addresses at a time. All addresses are derived from your single backup seed. (Think of addresses like invoice numbers.)" ]
             },
             {
                 "title": "Why should I verify the address securely?",
                 "text": [
-                    "The whole reason for buying a hardware wallet like the BitBox is because you don't trust your computer due to its big attack surface. Consequently, you should also not trust your computer to generate and display authentic addresses. The button to verify the address securely makes the BitBox send the address to a paired mobile phone, from which you can also scan and verify the QR code."
+                    "One of the reasons for buying a hardware wallet like the BitBox is that you should not trust your computer due to its big attack surface. Consequently, you should not trust your computer to generate and display authentic addresses. The button to verify the address securely makes the BitBox send the address to a paired mobile phone, from which you can also scan and verify the QR code."
                 ]
             },
             {
@@ -482,33 +445,26 @@
                 "text": [ "Click on the BitBox icon in the sidebar on the left and see the Pairing section. Continue reading the guide over there." ]
             },
             {
-                "title": "Why and when do the addresses change?",
-                "text": [ "As soon as one of the addresses is used in a transaction, new addresses are added to the list so that you have again 20 unused addresses available." ]
+                "title": "When do the addresses change?",
+                "text": [ "As soon as one of the addresses is used in a transaction, new addresses are added to the list such that 20 unused addresses are available again." ]
             }
         ],
         "send": [
             {
-                "title": "Which address do I enter?",
-                "text": [
-                    "Ask the person or organization you would like to send some coins to for a receiving address. For privacy and security reasons, you should use that address only once.",
-                    "Also never send coins to an address from which you received them! Besides reusing an already used address, you don't know whether the recipient (still) controls the corresponding private key and the recipient may not know that the transfer came from you."
-                ]
-            },
-            {
                 "title": "Why is there a network fee?",
                 "text": [
-                    "Since blockchains are open and decentralized, anyone can send transactions. In order to prevent the network from being flooded with spam transactions, there is a continuous auction for being included by a miner into the next block. The more transactions are pending for confirmation, the higher the transaction fee.",
+                    "Bitcoin transactions are competing to be confirmed by a miner. Miners choose transactions to be included in the blockchain based on their fee.",
                     "Miners vote on the history of transactions. Since there is no trusted third party to enforce one vote per person (which is the whole point of blockchains), miners vote on transactions by sacrificing a costly resource like computing power. As a reward for their work, they can claim newly created coins and the fee of all the transactions they included."
                 ]
             },
             {
                 "title": "What is the network priority?",
-                "text": [ "Since the space in each block is limited, miners are economically incentivized to include the transactions which have the highest fee per byte (and not per amount like traditional payment services). The higher fee you are willing to pay, the faster your transaction is typically confirmed by the network." ]
+                "text": [ "The higher fee you are willing to pay, the faster your transaction is typically confirmed by the network." ]
             },
             {
                 "title": "How is the fee determined?",
                 "text": [
-                    "Depending on the network priority that you choose, we calculate the fee based on the size (respectively weight) of the transaction. We have the following fee targets, whose values are determined by Bitcoin Core and which are only shown if they have a different value from the target below.",
+                    "The fee is based on the transaction data size and not its amount. The fee targets are calculated by a bitcoin client for each network priority you chose. They are shown if they have a different value from the target below.",
                     "Economy: 24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)",
                     "Low: 12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
                     "Normal: 6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)",
@@ -526,21 +482,21 @@
         ],
         "settings": [
             {
-                "title": "Can I have more accounts than shown to the left?",
-                "text": [ "Unfortunately, this is not yet supported. Stay tuned." ]
+                "title": "Why are there multiple accounts for the same coin?",
+                "text": [ "Some cryptocurrencies have multiple address and transaction formats. These addresses are separated into extra accounts." ]
             },
             {
                 "title": "What is Bitcoin Legacy?",
-                "text": [ "This uses an old transaction format, which has been superseded by the Segwit accounts." ]
+                "text": [ "This uses an old transaction format, which has been superseded by the Segwit address and transaction formats. If you used the BitBox with the old desktop app before, this is the account containing your coins currently. To save fees in the future transfer them to the Bitcoin account with a transaction to an address in the Bitcoin or Bitcoin bech32 account." ]
             },
             {
-                "title": "What is Bitcoin Segwit?",
-                "text": [ "This uses a new transaction format which incurs less network fees. It is a transitional account, as it uses the same address format, and as such can be used with all existing Bitcoin wallets/exchanges/services." ],
+                "title": "What is the Bitcoin account?",
+                "text": [ "This is a backwards-compatible segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services." ],
                 "link": { "text": "Segregated Witness Benefits", "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/" }
             },
             {
-                "title": "What is Bitcoin Native Segwit?",
-                "text": [ "To reap the full benefits, Native Segwit should be used. It uses a new address format called Bech32, but this format is not accepted everywhere yet." ],
+                "title": "What is Bitcoin bech32?",
+                "text": [ "To reap the full benefits of segwit's cheaper network fees, Bitcoin bech32 should be used. It uses a new address format called bech32, but this format is not accepted everywhere yet." ],
                 "link": { "text": "Bech32 adoption", "url": "https://en.bitcoin.it/wiki/Bech32_adoption" }
             }
         ],
@@ -559,17 +515,25 @@
             },
             {
                 "title": "What is a hidden wallet?",
-                "text": [ "It is a second wallet on the same device protected by a different PIN which you can use for plausible deniability." ]
+                "text": [ "It is a second wallet on the same device protected by a different PIN and recovery key, which you can use for plausible deniability." ]
+            },
+            {
+                "title": "Which servers does this app talk to?",
+                "text": [
+                    "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps.",
+                    "Additionally, it retrieves the latest exchange rates from CryptoCompare. (The conversions are calculated locally, no amounts of yours are transmitted.)"
+                ]
             }
+
         ],
         "backups": [
             {
                 "title": "What is a backup?",
-                "text": [ "It is a copy of the seed on an SD card. The seed together with your recovery password generates your wallet." ]
+                "text": [ "It is a copy of the seed on an SD card. The seed together with your recovery key generates your wallet." ]
             },
             {
                 "title": "Can I encrypt the backup?",
-                "text": [ "No but your recovery password is required to derive the wallet from the stored seed." ]
+                "text": [ "No but your recovery key is required to derive the wallet from the stored seed." ]
             },
             {
                 "title": "How often do I have to make a backup?",
@@ -578,7 +542,7 @@
         ],
         "unlock": [
             {
-                "title": "I have a password, but not a PIN. What do I need to do?",
+                "title": "I already have a device with a password, how do I unlock?",
                 "text": [ "If you set up your BitBox previously with a password, you can use it to unlock the device. Just enter it in the PIN input field." ]
             },
             {
@@ -602,20 +566,20 @@
         ],
         "seed": [
             {
-                "title": "How do I back up the seed?",
-                "text": [ "When you create a new wallet, a backup is automatically stored on the SD card inserted in the BitBox." ]
+                "title": "Recovery key tips",
+                "text": [ "The recovery key is your last line of defence. Creating a strong recovery key that is easy to remember and difficult for a computer to guess is hard. We recommend using a short list of words, that you can remember with a simple story, like correcthorsebatterystaple (use your favorite search engine to lookup the comic behind it). We also recommend that you write it down and store it an a safe place." ]
             },
             {
-                "title": "What shall I do with the SD card?",
-                "text": [ "Store it somewhere safe and do not insert it to your computer! You bought the BitBox hardware wallet because your computer is too vulnerable to handle private keys for cryptocurrencies." ]
+                "title": "Tips for SD card storage",
+                "text": [ "Store it somewhere safe. One of the reasons for using the BitBox is that your computer is too vulnerable to handle private keys for cryptocurrencies. Remove it from the BitBox and do not insert it into your computer." ]
             },
             {
                 "title": "Can I print the backup on the SD card?",
-                "text": [ "You can as the seed is stored in a PDF on the SD card. However, you should either insert the SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several SD cards instead." ]
+                "text": [ "You can print it, since the seed is stored in a PDF on the SD card. However, you should either insert the SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several SD cards instead." ]
             },
             {
-                "title": "Why can't I change the recovery password later on?",
-                "text": [ "The recovery password is used for key derivation and not seed encryption. If you enter a different password, a different wallet is derived." ]
+                "title": "Why can't I change the recovery key later on?",
+                "text": [ "If you enter a different recovery key, a different wallet is derived. The same recovery key will produce the same wallet." ]
             }
         ]
     }
