@@ -263,7 +263,10 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	backupName := jsonBody["backupName"]
 	recoveryPassword := jsonBody["recoveryPassword"]
 	handlers.log.WithField("backupName", backupName).Debug("Create backup")
-	return nil, handlers.bitbox.CreateBackup(backupName, recoveryPassword)
+	if err := handlers.bitbox.CreateBackup(backupName, recoveryPassword); err != nil {
+		return maybeDBBErr(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }
 
 func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {

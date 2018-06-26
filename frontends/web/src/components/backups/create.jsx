@@ -52,8 +52,13 @@ export default class Create extends Component {
         apiPost('devices/' + this.props.deviceID + '/backups/create', {
             backupName: this.state.backupName,
             recoveryPassword: this.state.recoveryPassword,
-        }).then(() => this.props.onCreate()).catch(() => {}).then(() => {
+        }).then(data => {
             this.abort();
+            if (!data.success) {
+                alert(data.errorMessage);
+            } else {
+                this.props.onCreate();
+            }
         });
     }
 
