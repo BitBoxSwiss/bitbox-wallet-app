@@ -61,6 +61,20 @@
     font-size: 0.9em;
 }
 
+.guide ul {
+    list-style: none;
+    margin-left: -51px;
+}
+
+.guide li {
+    border-left: 3px solid rgba(255, 255, 255, .2);
+    padding-left: 8px;
+}
+
+.guide li + li {
+    margin-top: var(--spacing-default);
+}
+
 .show {
     margin-right: 0;
 }

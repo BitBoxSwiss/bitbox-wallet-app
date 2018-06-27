@@ -216,7 +216,9 @@ export default class Account extends Component {
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>}
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionAttributes.title')}>
-                            {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
+                            <ul>
+                                {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
+                            </ul>
                         </Entry>}
                         {balance && balance.hasIncoming && <Entry title={t('guide.accountIncomingBalance.title')}>
                             <p>{t('guide.accountIncomingBalance.text')}</p>
