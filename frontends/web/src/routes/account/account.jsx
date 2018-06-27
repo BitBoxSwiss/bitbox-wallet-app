@@ -164,7 +164,7 @@ export default class Account extends Component {
                                     <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
                                         {t('button.receive')}
                                     </Button>
-                                    <Button primary disabled={!walletInitialized || balance && balance.available === '0'} onClick={() => this.setState({ isSend: true })}>
+                                    <Button primary disabled={!walletInitialized || balance && balance.available.amount === '0'} onClick={() => this.setState({ isSend: true })}>
                                         {t('button.send')}
                                     </Button>
                                 </div>
@@ -206,7 +206,7 @@ export default class Account extends Component {
                         <Entry title={t('guide.accountDescription.title')}>
                             <p>{t('guide.accountDescription.text')}</p>
                         </Entry>
-                        {balance && balance.available === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
+                        {balance && balance.available.amount === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountSendDisabled.text')}</p>
                         </Entry>}
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
@@ -226,7 +226,7 @@ export default class Account extends Component {
                         <Entry title={t('guide.accountTransactionConfirmation.title')}>
                             <p>{t('guide.accountTransactionConfirmation.text')}</p>
                         </Entry>
-                        <Entry title={t('guide.accountFiat.title', { fiat: fiat.code })}>
+                        <Entry title={t('guide.accountFiat.title')}>
                             <p>{t('guide.accountFiat.text')}</p>
                         </Entry>
                         <Entry title={t('guide.accountRates.title')}>
