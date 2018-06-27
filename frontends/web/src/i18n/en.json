@@ -321,6 +321,7 @@
         "receivePairing": "Please pair the device to enable secure address verification. Go to the Manage Device."
     },
     "button": {
+        "unlock": "Unlock",
         "send": "Send",
         "receive": "Receive",
         "cancel": "Cancel",

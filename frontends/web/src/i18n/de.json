@@ -8,7 +8,6 @@
     "atTime": "um",
     "Password": "Passwort",
     "Please enter your PIN to log in": "Bitte geben Sie Ihr PIN ein",
-    "Login": "Einloggen",
     "unlock": {
         "unlocking": "Wird entsperrt…",
         "input": {
@@ -154,6 +153,7 @@
         "appVersion": "App Version:"
     },
     "button": {
+        "unlock": "Entsperren",
         "send": "Senden",
         "receive": "Empfangen",
         "cancel": "Abbrechen",

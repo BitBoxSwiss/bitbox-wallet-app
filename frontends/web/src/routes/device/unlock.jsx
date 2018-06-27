@@ -124,7 +124,7 @@ export default class Unlock extends Component {
                                         primary
                                         type="submit"
                                         disabled={!this.validate() || status === stateEnum.WAITING}>
-                                        {t('Login')}
+                                        {t('button.unlock')}
                                     </Button>
                                 </div>
                                 <hr />
