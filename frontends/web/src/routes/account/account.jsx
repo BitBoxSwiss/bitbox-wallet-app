@@ -209,6 +209,9 @@ export default class Account extends Component {
                         {balance && balance.available.amount === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
                             <p>{t('guide.accountSendDisabled.text')}</p>
                         </Entry>}
+                        <Entry title={t('guide.accountReload.title')}>
+                            <p>{t('guide.accountReload.text')}</p>
+                        </Entry>
                         {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
                             <p>{t('guide.accountTransactionLabel.text')}</p>
                         </Entry>}
