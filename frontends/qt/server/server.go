@@ -32,6 +32,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -100,6 +101,13 @@ func backendCall(queryID C.int, s *C.char) {
 		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
 	}
 	go func() {
+		defer func() {
+			// recover from all panics and log error before panicking again
+			if r := recover(); r != nil {
+				logging.Get().WithGroup("server").WithField("panic", true).Error("%v\n%s", r, string(debug.Stack()))
+			}
+		}()
+
 		resp := &response{}
 		request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
 		if err != nil {

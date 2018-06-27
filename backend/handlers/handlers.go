@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 
 	"github.com/gorilla/mux"
@@ -109,7 +110,7 @@ func NewHandlers(
 
 	getAPIRouter := func(subrouter *mux.Router) func(string, func(*http.Request) (interface{}, error)) *mux.Route {
 		return func(path string, f func(*http.Request) (interface{}, error)) *mux.Route {
-			return subrouter.Handle(path, ensureAPITokenValid(apiMiddleware(connData.isDev(), f),
+			return subrouter.Handle(path, ensureAPITokenValid(handlers.apiMiddleware(connData.isDev(), f),
 				connData, log))
 		}
 	}
@@ -390,8 +391,16 @@ func ensureAPITokenValid(h http.Handler, apiData *ConnectionData, log *logrus.En
 	})
 }
 
-func apiMiddleware(devMode bool, h func(*http.Request) (interface{}, error)) http.Handler {
+func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (interface{}, error)) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			// recover from all panics and log error before panicking again
+			if r := recover(); r != nil {
+				handlers.log.WithField("panic", true).Error("%v\n%s", r, string(debug.Stack()))
+				writeJSON(w, map[string]string{"error": fmt.Sprintf("%v", r)})
+			}
+		}()
+
 		w.Header().Set("Content-Type", "text/json")
 		if devMode {
 			// This enables us to run a server on a different port serving just the UI, while still
@@ -400,6 +409,7 @@ func apiMiddleware(devMode bool, h func(*http.Request) (interface{}, error)) htt
 		}
 		value, err := h(r)
 		if err != nil {
+			handlers.log.WithError(err).Error("endpoint failed")
 			writeJSON(w, map[string]string{"error": err.Error()})
 			return
 		}
