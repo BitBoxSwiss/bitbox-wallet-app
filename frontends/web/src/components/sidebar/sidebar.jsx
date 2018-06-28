@@ -8,7 +8,6 @@ import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
 import settings_GREY from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-dark.svg';
-import deviceSettings_GREY from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
 const labelMap = {
@@ -50,7 +49,7 @@ class Sidebar extends Component {
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {
-                        (debug && deviceIDs.length == 0) && (
+                        (debug && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
                                 <img draggable="false" className="sidebar_settings" src={ejectIcon} alt={t('sidebar.leave')} />
                             </a>

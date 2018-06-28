@@ -76,6 +76,7 @@ a.sidebar-active .stacked img:last-child,
     transition: opacity 0.2s ease;
 }
 
+a.sidebar-active .single img,
 .sidebar a:hover .single img {
     opacity: 1;
 }

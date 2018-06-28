@@ -213,15 +213,12 @@
         "fiatAmount": {
             "placeholder": "Enter amount"
         },
-        "maximum": "Send all",
+        "maximum": "Send all. Be careful!",
         "toSelf": "Send to self",
         "fee": {
             "label": "Network Fee",
             "placeholder": "Not available",
             "customPlaceholder": "Enter amount"
-        },
-        "total": {
-            "label": "Total"
         },
         "feeTarget": {
             "label": "Network Priority",
@@ -237,11 +234,12 @@
             "label": "Converted Fee",
             "placeholder": "Converted Fee"
         },
+        "button": "Sign and Send",
         "confirm": {
             "title": "Confirm Transaction",
             "total": "Total"
         },
-        "success": "Your transaction was successful."
+        "success": "Your transaction was successfully signed and sent."
     },
     "seed": {
         "creating": "Creating wallet…",
@@ -324,8 +322,8 @@
     },
     "warning": {
         "sdcard": "Keep the SD card stored separate from the BitBox, unless you want to manage backups.",
-        "sendPairing": "Please pair the device to securely verify transaction details. Go to the Manage Device.",
-        "receivePairing": "Please pair the device to enable secure address verification. Go to the Manage Device."
+        "sendPairing": "Please pair the device to securely verify transaction details. Go to 'Manage Device' in the sidebar.",
+        "receivePairing": "Please pair the device to enable secure address verification. Go to 'Manage Device' in the sidebar."
     },
     "button": {
         "unlock": "Unlock",

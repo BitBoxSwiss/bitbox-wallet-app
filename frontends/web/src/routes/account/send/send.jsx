@@ -336,7 +336,7 @@ export default class Send extends Component {
                                     {t('button.back')}
                                 </Button>
                                 <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
-                                    {t('button.send')}
+                                    {t('send.button')}
                                 </Button>
                             </div>
                         </div>
@@ -377,7 +377,7 @@ export default class Send extends Component {
                                         </div>
                                     </div>
                                     <p class={['label', style.confirmationLabel].join(' ')}>
-                                        {t('send.total.label')}
+                                        {t('send.confirm.total')}
                                     </p>
                                     <p class={[style.confirmationValue, style.standOut].join(' ')}>
                                         {proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}

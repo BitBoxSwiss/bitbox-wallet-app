@@ -94,7 +94,13 @@
         "customFee": {
             "label": "Umgerechnete Gebühr",
             "placeholder": "Umgerechnete Gebühr"
-        }
+        },
+        "button": "Signieren und Senden",
+        "confirm": {
+            "title": "Bestätigen Sie die Transaktion",
+            "total": "Total"
+        },
+        "success": "Ihre Transaktion wurde erfolgreich signiert und gesendet."
     },
     "seed": {
         "creating": "Wallet wird erstellt…",
