@@ -22,7 +22,7 @@
         },
         "error": {
             "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
-            "109_normal": "Wrong recovery key. {{remainingAttempts}} attempts remain before the device is reset.",
+            "109_normal": "Wrong PIN. {{remainingAttempts}} attempts remain before the device is reset.",
             "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
         }
     },
