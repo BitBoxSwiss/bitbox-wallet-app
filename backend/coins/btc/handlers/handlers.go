@@ -83,10 +83,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString, feeRatePerKbString coin.FormattedAmount
+		var feeString, feeRatePerKb coin.FormattedAmount
 		if txInfo.Fee != nil {
 			feeString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.Fee))
-			feeRatePerKbString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
+			feeRatePerKb = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -107,7 +107,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			}[txInfo.Type],
 			Amount:       handlers.account.Coin().FormatAmountAsJSON(int64(txInfo.Amount)),
 			Fee:          feeString,
-			FeeRatePerKb: feeRatePerKbString,
+			FeeRatePerKb: feeRatePerKb,
 			Time:         formattedTime,
 			Addresses:    txInfo.Addresses,
 		})
@@ -223,9 +223,14 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
+		var feeRatePerKb coin.FormattedAmount
+		if feeTarget.FeeRatePerKb != nil {
+			feeRatePerKb = handlers.account.Coin().FormatAmountAsJSON(int64(*feeTarget.FeeRatePerKb))
+		}
 		result = append(result,
 			map[string]interface{}{
-				"code": feeTarget.Code,
+				"code":         feeTarget.Code,
+				"feeRatePerKb": feeRatePerKb,
 			})
 	}
 	return map[string]interface{}{
