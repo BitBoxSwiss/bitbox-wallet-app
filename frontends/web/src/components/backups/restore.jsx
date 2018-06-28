@@ -1,12 +1,13 @@
 import { Component } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { Button } from '../forms';
+import { Button, Checkbox } from '../forms';
 import Dialog from '../dialog/dialog';
 import WaitDialog from '../wait-dialog/wait-dialog';
 import Spinner from '../spinner/Spinner';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
+import style from './backups.css';
 
 @translate()
 export default class Restore extends Component {
@@ -15,6 +16,7 @@ export default class Restore extends Component {
         isConfirming: false,
         activeDialog: false,
         isLoading: false,
+        understand: false,
     }
 
     componentWillMount() {
@@ -42,6 +44,7 @@ export default class Restore extends Component {
             password: null,
             isConfirming: false,
             activeDialog: false,
+            understand: false,
         });
         if (this.passwordInput) {
             this.passwordInput.clear();
@@ -83,6 +86,10 @@ export default class Restore extends Component {
         });
     }
 
+    handleUnderstandChange = (e) => {
+        this.setState({ understand: e.target.checked });
+    }
+
     setValidPassword = password => {
         this.setState({ password });
     }
@@ -96,13 +103,14 @@ export default class Restore extends Component {
         isConfirming,
         activeDialog,
         isLoading,
+        understand,
     }) {
         return (
             <span>
                 <Button
                     danger
                     disabled={selectedBackup === null}
-                    onclick={() => this.setState({ activeDialog: true })}>
+                    onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.restore')}
                 </Button>
                 {
@@ -116,11 +124,18 @@ export default class Restore extends Component {
                                     repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}
                                     showLabel={t('backup.restore.password.showLabel')}
                                     onValidPassword={this.setValidPassword} />
+                                <div className={style.agreements}>
+                                    <Checkbox
+                                        id="funds_access"
+                                        label={t('backup.restore.understand')}
+                                        checked={understand}
+                                        onChange={this.handleUnderstandChange} />
+                                </div>
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>
                                         {t('button.abort')}
                                     </Button>
-                                    <Button type="submit" danger disabled={!this.validate() || isConfirming}>
+                                    <Button type="submit" danger disabled={!understand || !this.validate() || isConfirming}>
                                         {t('button.restore')}
                                     </Button>
                                 </div>
