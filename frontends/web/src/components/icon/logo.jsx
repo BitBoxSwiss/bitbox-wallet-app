@@ -11,6 +11,7 @@ export const BitBox = props => <img {...props} src={BitBoxLogo} alt="BitBox" cla
 export const Shift = props => <img {...props} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
 
 const logoMap = {
+    'tbtc': [BTC, BTC_GREY],
     'btc-p2pkh': [BTC, BTC_GREY],
     'tbtc-p2pkh': [BTC, BTC_GREY],
     'btc-p2wpkh-p2sh': [BTC, BTC_GREY],
