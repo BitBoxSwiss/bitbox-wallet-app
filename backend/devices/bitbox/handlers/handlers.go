@@ -121,7 +121,6 @@ func (handlers *Handlers) postChangePasswordHandler(r *http.Request) (interface{
 	}
 	newPIN := jsonBody["newPIN"]
 	oldPIN := jsonBody["oldPIN"]
-	spew.Dump("LOL", oldPIN, newPIN)
 	if err := handlers.bitbox.ChangePassword(oldPIN, newPIN); err != nil {
 		return maybeDBBErr(err, handlers.log), nil
 	}
