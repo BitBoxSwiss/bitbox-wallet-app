@@ -71,6 +71,15 @@ a.sidebar-active .stacked img:last-child,
   -webkit-backface-visibility: hidden;
 }
 
+.single img {
+    opacity: .6;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar a:hover .single img {
+    opacity: 1;
+}
+
 .sidebar_label {
   display: block;
   color: var(--color-secondary);
