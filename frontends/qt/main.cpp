@@ -31,12 +31,13 @@ private:
 
 int main(int argc, char *argv[])
 {
+    // note: doesn't work as expected. Users with hidpi enabled should set the environment flag themselves
     // turn on the DPI support**
-#if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
-    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#else
-    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
-#endif // QT_VERSION
+// #if QT_VERSION >= QT_VERSION_CHECK(5,6,0)
+//     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+// #else
+//     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
+// #endif // QT_VERSION
 
     QApplication a(argc, argv);
     a.setApplicationName(QString("BitBox Wallet"));
