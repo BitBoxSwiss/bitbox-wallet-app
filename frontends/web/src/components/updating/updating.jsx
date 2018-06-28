@@ -7,6 +7,10 @@ export default class UpdatingComponent extends Component {
     componentDidMount() {
         this.update(this.map);
         this.unsubscribe = apiWebsocket(({ subject, action, object }) => {
+            /* eslint eqeqeq: 0 */
+            if (subject == null && action == null) {
+                return;
+            }
             for (const entry of this.map) {
                 if (subject === entry.url) {
                     switch (action) {

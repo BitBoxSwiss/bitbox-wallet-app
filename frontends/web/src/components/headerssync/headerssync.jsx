@@ -13,7 +13,7 @@ export default class HeadersSync extends UpdatingComponent {
     }
 
     componentWillReceiveProps({ coinCode }) {
-        if (coinCode != this.props.coinCode) {
+        if (coinCode !== this.props.coinCode) {
             this.setMap(coinCode);
             this.setState({ status: null });
             this.update(this.map);
@@ -21,11 +21,11 @@ export default class HeadersSync extends UpdatingComponent {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        var status = this.state.status;
+        const status = this.state.status;
         if (!status) return;
-        if (prevState.status && status.tip != prevState.status.tip) {
+        if (prevState.status && status.tip !== prevState.status.tip) {
             this.setState({ show: true });
-            if (status.tip == status.targetHeight) {
+            if (status.tip === status.targetHeight) {
                 setTimeout(() => { this.setState({ show: false }); }, 5000);
             }
         }
@@ -42,12 +42,9 @@ export default class HeadersSync extends UpdatingComponent {
         }
         const total = status.targetHeight - status.tipAtInitTime;
         const value = 100 * (status.tip - status.tipAtInitTime) / total;
-        const loading = total == 0 || value == 100;
+        const loading = !total || value >= 100;
         return (
             <div class={style.syncContainer}>
-                <div class={style.progressBar}>
-                    <div class={style.progressValue} style={{width: `${value}%`}}></div>
-                </div>
                 <div class={style.syncMessage}>
                     { loading && 'Done: ' }
                     <div class={style.syncText}>
@@ -60,6 +57,9 @@ export default class HeadersSync extends UpdatingComponent {
                             </div>
                         )
                     }
+                </div>
+                <div class={style.progressBar}>
+                    <div class={style.progressValue} style={{ width: `${value}%` }}></div>
                 </div>
             </div>
         );
