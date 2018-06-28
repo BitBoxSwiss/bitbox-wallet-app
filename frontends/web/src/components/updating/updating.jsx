@@ -1,51 +1,55 @@
-import { h, Component } from 'preact';
 import { apiWebsocket } from '../../utils/websocket';
 import { apiGet } from '../../utils/request';
 import { equal } from '../../utils/equal';
+import LoadingComponent from '../loading/loading';
 
-export default class UpdatingComponent extends Component {
-    componentDidMount() {
-        this.update(this.map);
+// Loads API endpoints into the state and updates them on events.
+export default class UpdatingComponent extends LoadingComponent {
+    // Subclasses should implement the following function:
+    // getStateMap() {
+    //     return { key: 'url/' + this.props.value };
+    // }
+
+    mapState(stateMap) {
+        super.mapState(stateMap);
+        if (this.unsubscribe) {
+            this.unsubscribe();
+            delete this.unsubscribe;
+        }
         this.unsubscribe = apiWebsocket(({ subject, action, object }) => {
-            /* eslint eqeqeq: 0 */
-            if (subject == null && action == null) {
+            if (!subject || !action) {
                 return;
             }
-            for (const entry of this.map) {
-                if (subject === entry.url) {
-                    switch (action) {
-                    case 'replace':
-                        this.setState({ [entry.key]: object });
-                        break;
-                    case 'prepend':
-                        this.setState(state => ({ [entry.key]: [object, ...state[entry.key]] }));
-                        break;
-                    case 'append':
-                        this.setState(state => ({ [entry.key]: [...state[entry.key], object] }));
-                        break;
-                    case 'remove':
-                        this.setState(state => ({ [entry.key]: state[entry.key].filter(item => !equal(item, object)) }));
-                        break;
-                    case 'reload':
-                        apiGet(entry.url).then(object => {
-                            this.setState({ [entry.key]: object });
-                        });
-                        break;
+            Object.entries(stateMap).forEach(
+                ([key, url]) => {
+                    if (subject === url) {
+                        switch (action) {
+                        case 'replace':
+                            this.setState({ [key]: object });
+                            break;
+                        case 'prepend':
+                            this.setState(state => ({ [key]: [object, ...state[key]] }));
+                            break;
+                        case 'append':
+                            this.setState(state => ({ [key]: [...state[key], object] }));
+                            break;
+                        case 'remove':
+                            this.setState(state => ({ [key]: state[key].filter(item => !equal(item, object)) }));
+                            break;
+                        case 'reload':
+                            apiGet(url).then(object => this.setState({ [key]: object }));
+                            break;
+                        }
                     }
                 }
-            }
+            );
         });
     }
 
-    update = (mapInfo) => {
-        for (const entry of mapInfo) {
-            apiGet(entry.url).then(object => {
-                this.setState({ [entry.key]: object });
-            });
-        }
-    }
-
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+            delete this.unsubscribe;
+        }
     }
 }

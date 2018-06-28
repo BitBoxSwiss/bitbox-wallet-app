@@ -43,6 +43,9 @@
         "info": {
         }
     },
+    "headerssync": {
+        "blocksSynced": "Blöcke synchronisiert"
+    },
     "transactions": {
         "placeholder": "Noch keine Transaktionen."
     },

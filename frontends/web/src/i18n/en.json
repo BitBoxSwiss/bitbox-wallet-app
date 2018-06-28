@@ -170,6 +170,9 @@
             "tltc-p2wpkh-p2sh": ""
         }
     },
+    "headerssync": {
+        "blocksSynced": "blocks synced"
+    },
     "transactions": {
         "placeholder": "No transactions yet."
     },

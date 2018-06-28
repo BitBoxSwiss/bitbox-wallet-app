@@ -2,8 +2,9 @@ import UpdatingComponent from '../updating/updating';
 import style from './rates.css';
 
 export default class Rates extends UpdatingComponent {
-
-    map = [ { url: 'coins/rates', key: 'rates' } ];
+    getStateMap() {
+        return { rates: 'coins/rates' };
+    }
 
     render({ amount, children, fiat }, { rates }) {
         let coin = amount.unit;

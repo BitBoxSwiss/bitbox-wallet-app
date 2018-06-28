@@ -1,38 +1,31 @@
+import { translate } from 'react-i18next';
 import UpdatingComponent from '../updating/updating';
 import style from './headerssync.css';
 
+@translate()
 export default class HeadersSync extends UpdatingComponent {
     constructor(props) {
         super(props);
-        this.state = { show: false };
-        this.setMap(props.coinCode);
+        this.state = { show: 0 };
     }
 
-    setMap = coinCode => {
-        this.map = [ { url: 'coins/' + coinCode + '/headers/status', key: 'status' } ];
-    }
-
-    componentWillReceiveProps({ coinCode }) {
-        if (coinCode !== this.props.coinCode) {
-            this.setMap(coinCode);
-            this.setState({ status: null });
-            this.update(this.map);
-        }
+    getStateMap() {
+        return { status: 'coins/' + this.props.coinCode + '/headers/status' };
     }
 
     componentDidUpdate(prevProps, prevState) {
+        super.componentDidUpdate(prevProps);
         const status = this.state.status;
-        if (!status) return;
-        if (prevState.status && status.tip !== prevState.status.tip) {
-            this.setState({ show: true });
+        if (status && prevState.status && status.tip !== prevState.status.tip) {
+            this.setState({ show: status.tip }); // eslint-disable-line
             if (status.tip === status.targetHeight) {
-                setTimeout(() => { this.setState({ show: false }); }, 5000);
+                setTimeout(() => this.setState(state => state.show === status.tip && { show: 0 }), 5000);
             }
         }
     }
 
     render({
-
+        t
     }, {
         status,
         show,
@@ -40,18 +33,26 @@ export default class HeadersSync extends UpdatingComponent {
         if (!status || !show) {
             return null;
         }
+
         const total = status.targetHeight - status.tipAtInitTime;
         const value = 100 * (status.tip - status.tipAtInitTime) / total;
-        const loading = !total || value >= 100;
+        const loaded = !total || value >= 100;
+
+        let formatted = status.tip.toString();
+        let position = formatted.length - 3;
+        while (position > 0) {
+            formatted = formatted.slice(0, position) + "'" + formatted.slice(position);
+            position = position - 3;
+        }
+
         return (
             <div class={style.syncContainer}>
                 <div class={style.syncMessage}>
-                    { loading && 'Done: ' }
                     <div class={style.syncText}>
-                        {status.tip} blocks synced {!loading && `(${Math.ceil(value)}%)`}
+                        {formatted} {t('headerssync.blocksSynced')} { !loaded && `(${Math.ceil(value)}%)` }
                     </div>
                     {
-                        !loading && (
+                        !loaded && (
                             <div class={style.spinnerContainer}>
                                 <div class={style.spinner}></div>
                             </div>

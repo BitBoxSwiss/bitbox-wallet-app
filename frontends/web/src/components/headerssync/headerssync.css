@@ -24,7 +24,8 @@
     font-size: var(--size-small);
     color: var(--color-secondary);
     text-align: right;
-    margin: 2px auto;
+    margin: 0 auto;
+    margin-bottom: 4px;
     padding: 0 var(--spacing-large);
 }
 

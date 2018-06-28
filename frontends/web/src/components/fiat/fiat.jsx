@@ -5,8 +5,9 @@ import style from './fiat.css';
 
 @translate()
 export default class FiatSwitcher extends UpdatingComponent {
-
-    map = [ { url: 'coins/rates', key: 'rates' } ];
+    getStateMap() {
+        return { rates: 'coins/rates' };
+    }
 
     change = event => {
         if (event.target.checked) {
