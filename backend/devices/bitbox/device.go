@@ -90,7 +90,7 @@ type DeviceInfo struct {
 type Device struct {
 	deviceID      string
 	communication CommunicationInterface
-	onEvent       func(device.Event)
+	onEvent       func(device.Event, interface{})
 
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
@@ -203,23 +203,23 @@ func (dbb *Device) setPasswordPolicy(testing bool) {
 }
 
 // SetOnEvent installs a callback which is called for various events.
-func (dbb *Device) SetOnEvent(onEvent func(device.Event)) {
+func (dbb *Device) SetOnEvent(onEvent func(device.Event, interface{})) {
 	dbb.onEvent = onEvent
 }
 
-func (dbb *Device) fireEvent(event device.Event) {
+func (dbb *Device) fireEvent(event device.Event, data interface{}) {
 	if dbb.onEvent != nil {
-		dbb.onEvent(event)
+		dbb.onEvent(event, data)
 	}
 }
 
 func (dbb *Device) onStatusChanged() {
-	dbb.fireEvent(EventStatusChanged)
+	dbb.fireEvent(EventStatusChanged, nil)
 	switch dbb.Status() {
 	case StatusSeeded:
-		dbb.fireEvent(device.EventKeystoreAvailable)
+		dbb.fireEvent(device.EventKeystoreAvailable, nil)
 	case StatusUninitialized:
-		dbb.fireEvent(device.EventKeystoreGone)
+		dbb.fireEvent(device.EventKeystoreGone, nil)
 	}
 }
 
@@ -1028,10 +1028,23 @@ func (dbb *Device) Sign(
 	}
 
 	signatures := []btcec.Signature{}
+	steps := len(signatureHashes) / signatureBatchSize
+	if len(signatureHashes)%signatureBatchSize != 0 {
+		steps++
+	}
 	for i := 0; i < len(signatureHashes); i = i + signatureBatchSize {
 		upper := i + signatureBatchSize
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)
+		}
+		if steps > 1 {
+			dbb.fireEvent(EventSignProgress, struct {
+				Step  int `json:"step"`
+				Steps int `json:"steps"`
+			}{
+				Step:  i / signatureBatchSize,
+				Steps: steps,
+			})
 		}
 		reply, err := dbb.signBatch(
 			txProposal,
@@ -1159,7 +1172,7 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 			return nil, errp.WithStack(err)
 		}
 		dbb.channel = nil
-		dbb.fireEvent("pairingFalse")
+		dbb.fireEvent("pairingFalse", nil)
 	}
 	channel := relay.NewChannelWithRandomKey()
 	go dbb.finishPairing(channel)
@@ -1189,9 +1202,9 @@ func (dbb *Device) ListenForMobile() {
 	go func() {
 		for !dbb.closed && dbb.channel != nil {
 			if dbb.PingMobile() != nil {
-				dbb.fireEvent("mobileDisconnected")
+				dbb.fireEvent("mobileDisconnected", nil)
 			} else {
-				dbb.fireEvent("mobileConnected")
+				dbb.fireEvent("mobileConnected", nil)
 				time.Sleep(10 * time.Second)
 			}
 		}

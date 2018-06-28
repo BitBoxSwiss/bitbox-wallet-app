@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
+import { apiWebsocket } from '../../../utils/websocket';
 import { debug } from '../../../utils/env';
 import { Button, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
@@ -36,6 +37,7 @@ export default class Send extends Component {
             fiatAmount: null,
             fiatUnit: props.fiat.code,
             coinUnitForConversion,
+            signProgress: null,
         };
     }
 
@@ -45,9 +47,26 @@ export default class Send extends Component {
                 this.setState({ paired });
             });
         }
+
+        this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
+            switch (type) {
+            case 'device':
+                switch (data) {
+                case 'signProgress':
+                    this.setState({ signProgress: meta });
+                    break;
+                }
+                break;
+            }
+        });
+    }
+
+    componentWillUnmount() {
+        this.unsubscribe();
     }
 
     send = () => {
+        this.setState({ signProgress: null });
         this.props.setConfirmation({ isConfirming: true });
         apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(res => {
             if (res.success) {
@@ -58,6 +77,7 @@ export default class Send extends Component {
                     proposedFee: null,
                     proposedTotal: null,
                     amount: null,
+                    signProgress: null,
                 });
             }
             this.props.setConfirmation({ isConfirming: false });
@@ -213,7 +233,18 @@ export default class Send extends Component {
         addressError,
         amountError,
         paired,
+        signProgress,
     }) {
+        let confirmPrequel = () => {
+            if (signProgress) {
+                return (
+                    <span>
+                      This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times. <br/>
+                      Progress: {signProgress.step}/{signProgress.steps}
+                    </span>
+                );
+            }
+        };
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -312,7 +343,7 @@ export default class Send extends Component {
                     </div>
                     {
                         isConfirming && (
-                            <WaitDialog title={t('send.confirm.title')} includeDefault>
+                            <WaitDialog title={t('send.confirm.title')} includeDefault prequel={confirmPrequel()}>
                                 <div class={style.confirmationBox}>
                                     <div class="row">
                                         <p class={['label', style.confirmationLabel, 'first'].join(' ')}>

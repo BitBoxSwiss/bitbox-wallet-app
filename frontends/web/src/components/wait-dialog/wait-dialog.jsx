@@ -34,6 +34,7 @@ export default class Confirm extends Component {
     render({
         t,
         includeDefault,
+        prequel,
         title,
         children,
     }, {
@@ -42,6 +43,7 @@ export default class Confirm extends Component {
         const isActive = active ? style.active : '';
         const defaultContent = (
             <div class="flex flex-column flex-start">
+                { prequel && (<p>{prequel}</p> ) }
                 <p class={['label', style.confirmationLabel].join(' ')}>
                     {t('confirm.info')}
                 </p>

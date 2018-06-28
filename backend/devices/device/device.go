@@ -45,7 +45,7 @@ type Interface interface {
 	// Lock() error
 
 	// SetOnEvent installs a callback which is called for various events.
-	SetOnEvent(func(Event))
+	SetOnEvent(func(Event, interface{}))
 
 	// Close tells the device to close all connections.
 	Close()

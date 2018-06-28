@@ -34,6 +34,8 @@ type deviceEvent struct {
 	DeviceID string `json:"deviceID"`
 	Type     string `json:"type"`
 	Data     string `json:"data"`
+	// TODO: rename Data to Event, Meta to Data.
+	Meta interface{} `json:"meta"`
 }
 
 // WalletEvent models an event triggered by a wallet.
@@ -375,7 +377,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	theDevice.Init(backend.Testing())
 
 	mainKeystore := len(backend.devices) == 1
-	theDevice.SetOnEvent(func(event device.Event) {
+	theDevice.SetOnEvent(func(event device.Event, data interface{}) {
 		switch event {
 		case device.EventKeystoreGone:
 			backend.DeregisterKeystore()
@@ -402,6 +404,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			DeviceID: theDevice.Identifier(),
 			Type:     "device",
 			Data:     string(event),
+			Meta:     data,
 		}
 	})
 	select {
