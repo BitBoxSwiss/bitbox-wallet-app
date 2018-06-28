@@ -258,7 +258,7 @@ func (transactions *Transactions) removeTxForAddress(
 // UpdateAddressHistory should be called when initializing a wallet address, or when the history of
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
-func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) error {
+func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
 	defer dbTx.Rollback()
@@ -286,7 +286,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		transactions.removeTxForAddress(dbTx, scriptHashHex, entry.TXHash.Hash())
 	}
 
-	if err = dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
+	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
 		transactions.log.WithField("error", err).Panic("Failed to store address history")
 	}
 
@@ -296,14 +296,10 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 				transactions.processTxForAddress(innerDBTx, scriptHashHex, txHash, tx, height)
 			})
 		}(txInfo.TXHash.Hash(), txInfo.Height)
-		if err != nil {
-			return err
-		}
 	}
 	if err := dbTx.Commit(); err != nil {
 		transactions.log.WithField("error", err).Panic("Failed to commit transaction")
 	}
-	return nil
 }
 
 // requires transactions lock

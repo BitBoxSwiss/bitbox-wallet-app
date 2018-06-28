@@ -398,12 +398,7 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				if address.HistoryStatus != status {
 					account.log.Warning("client status should match after sync")
 				}
-				err := account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
-				if err != nil {
-					account.log.WithField("error", err).Error("Updating address history failed")
-					// connection errors are handled in the backend client ()
-					account.Close()
-				}
+				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 			}()
 			account.ensureAddresses()
 			return nil

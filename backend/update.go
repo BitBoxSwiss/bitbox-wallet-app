@@ -38,7 +38,9 @@ func (backend *Backend) checkForUpdate() error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	var update updateFile
 	err = json.NewDecoder(response.Body).Decode(&update)

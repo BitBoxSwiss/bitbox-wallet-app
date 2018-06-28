@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"bytes"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 	"runtime/debug"
 	"strconv"
 
@@ -184,19 +182,6 @@ func NewHandlers(
 	return handlers
 }
 
-func (handlers *Handlers) interpolateConstants(body []byte) []byte {
-	for _, info := range []struct {
-		key, value string
-	}{
-		{"API_PORT", fmt.Sprintf("%d", handlers.apiData.port)},
-		{"API_TOKEN", fmt.Sprintf("%s", handlers.apiData.token)},
-		{"LANG", handlers.backend.UserLanguage().String()},
-	} {
-		body = bytes.Replace(body, []byte(fmt.Sprintf("{{ %s }}", info.key)), []byte(info.value), -1)
-	}
-	return body
-}
-
 func writeJSON(w http.ResponseWriter, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)
@@ -368,18 +353,6 @@ func isAPITokenValid(w http.ResponseWriter, r *http.Request, apiData *Connection
 		return false
 	}
 	return true
-}
-
-// ensureNoCacheForBundleJS adds the cache-control header to the HTTP response to
-// prevent that the bundle.js is cached in the client and therefore not reloaded from
-// the server, which is required to receive the current authorization token.
-func ensureNoCacheForBundleJS(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if regexp.MustCompile(`^\/bundle.*\.js$`).MatchString(r.URL.Path) {
-			w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		}
-		h.ServeHTTP(w, r)
-	})
 }
 
 // ensureAPITokenValid wraps the given handler with another handler function that calls isAPITokenValid().

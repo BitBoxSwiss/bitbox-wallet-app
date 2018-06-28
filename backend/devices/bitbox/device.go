@@ -376,7 +376,7 @@ func (dbb *Device) SetPassword(pin string) error {
 	return nil
 }
 
-// ChangePassword repalces the PIN for the device. This only works when logged in, so the oldPIN can
+// ChangePassword replaces the PIN for the device. This only works when logged in, so the oldPIN can
 // be checked.
 func (dbb *Device) ChangePassword(oldPIN string, newPIN string) error {
 	if dbb.bootloaderStatus != nil {

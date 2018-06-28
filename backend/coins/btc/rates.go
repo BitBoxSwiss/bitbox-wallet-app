@@ -53,7 +53,9 @@ func (updater *RatesUpdater) update() {
 		updater.last = nil
 		return
 	}
-	defer response.Body.Close()
+	defer func() {
+		_ = response.Body.Close()
+	}()
 
 	var rates map[string]map[string]float64
 	err = json.NewDecoder(response.Body).Decode(&rates)
