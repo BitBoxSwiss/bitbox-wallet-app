@@ -4,7 +4,7 @@ import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
-import { PasswordRepeatInput } from '../../../../components/password';
+import { PasswordInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 import style from '../../device.css';
 
@@ -52,8 +52,8 @@ export default class Reset extends Component {
         });
     };
 
-    setValidPIN = pin => {
-        this.setState({ pin });
+    setValidPIN = e => {
+        this.setState({ pin: e.target.value });
     }
 
     abort = () => {
@@ -63,12 +63,6 @@ export default class Reset extends Component {
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.oldPINInput) {
-            this.oldPINInput.clear();
-        }
-        if (this.newPINInput) {
-            this.newPINInput.clear();
-        }
     }
 
     render({
@@ -90,15 +84,12 @@ export default class Reset extends Component {
                             <p>
                                 {t('reset.description')}
                             </p>
-                            <PasswordRepeatInput
-                                    idPrefix="pin"
-                                    pattern="^[0-9]+$"
-                                    title={t('initialize.input.invalid')}
-                                    label={t('initialize.input.label')}
-                                    repeatLabel={t('initialize.input.labelRepeat')}
-                                    repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                                    ref={ref => this.pinInput = ref}
-                                    onValidPassword={this.setValidPIN} />
+                            <PasswordInput
+                                idPrefix="pin"
+                                title={t('initialize.input.invalid')}
+                                label={t('initialize.input.label')}
+                                value={pin}
+                                onInput={this.setValidPIN} />
                             <div className={style.agreements}>
                                 <Checkbox
                                     id="funds_access"
@@ -107,7 +98,7 @@ export default class Reset extends Component {
                                     onChange={this.handleUnderstandChange} />
                             </div>
                             <div className={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                              <Button secondary onClick={this.abort} disabled={isConfirming}>
+                                <Button secondary onClick={this.abort} disabled={isConfirming}>
                                     {t('button.back')}
                                 </Button>
                                 <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>

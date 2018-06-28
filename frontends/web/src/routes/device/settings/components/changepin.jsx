@@ -115,7 +115,7 @@ export default class HiddenWallet extends Component {
                                     onValidPassword={this.setValidNewPIN} />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                        {t('button.abort')}
+                                        {t('button.back')}
                                     </Button>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.changepin')}
