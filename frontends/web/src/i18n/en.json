@@ -275,6 +275,12 @@
             "102": "The PIN must consist of at least 4 digits."
         }
     },
+    "changePin": {
+        "oldTitle": "",
+        "oldLabel": "Current PIN or password",
+        "oldPlaceholder": "",
+        "newTitle": "New PIN"
+    },
     "backup": {
         "title": "Manage Backups",
         "insert": "Please insert SD card to manage backups.",

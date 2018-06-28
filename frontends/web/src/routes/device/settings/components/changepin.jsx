@@ -3,9 +3,8 @@ import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
-import { PasswordRepeatInput } from '../../../../components/password';
+import { PasswordInput, PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
-import InnerHTMLHelper from '../../../../utils/innerHTML';
 
 
 @translate()
@@ -34,13 +33,11 @@ export default class HiddenWallet extends Component {
 
     abort = () => {
         this.setState({
-            password: null,
+            oldPIN: null,
+            newPIN: null,
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.oldPINInput) {
-            this.oldPINInput.clear();
-        }
         if (this.newPINInput) {
             this.newPINInput.clear();
         }
@@ -50,7 +47,7 @@ export default class HiddenWallet extends Component {
         return this.state.newPIN && this.state.oldPIN;
     }
 
-    createHiddenWallet = event => {
+    changePin = event => {
         event.preventDefault();
         if (!this.validate()) return;
         this.setState({
@@ -64,13 +61,14 @@ export default class HiddenWallet extends Component {
             this.abort();
 
             if (!data.success) {
+                /* eslint no-alert: 0 */
                 alert(data.errorMessage);
             }
         });
     }
 
-    setValidOldPIN = oldPIN => {
-        this.setState({ oldPIN });
+    setValidOldPIN = e => {
+        this.setState({ oldPIN: e.target.value });
     }
 
     setValidNewPIN = newPIN => {
@@ -81,6 +79,7 @@ export default class HiddenWallet extends Component {
         t,
         disabled,
     }, {
+        oldPIN,
         isConfirming,
         activeDialog,
     }) {
@@ -95,17 +94,16 @@ export default class HiddenWallet extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('button.changepin')}>
-                          <form onSubmit={this.createHiddenWallet}>
-                              <h4>Old PIN or password</h4>
-                              <PasswordRepeatInput
+                            <form onSubmit={this.changePin}>
+                                {t('changePin.oldTitle') && <h4>{t('changePin.oldTitle')}</h4>}
+                                <PasswordInput
                                     idPrefix="oldPIN"
+                                    label={t('changePin.oldLabel')}
                                     title={t('initialize.input.invalid')}
-                                    label={t('initialize.input.label')}
-                                    repeatLabel={t('initialize.input.labelRepeat')}
-                                    repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                                    ref={ref => this.oldPINInput = ref}
-                                    onValidPassword={this.setValidOldPIN} />
-                                <h4>New PIN</h4>
+                                    placeholder={t('changePin.oldPlaceholder')}
+                                    value={oldPIN}
+                                    onChange={this.setValidOldPIN} />
+                                {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
                                 <PasswordRepeatInput
                                     idPrefix="newPIN"
                                     pattern="^[0-9]+$"
