@@ -68,9 +68,6 @@
                 "label": "SD Card",
                 "true": "Inserted",
                 "false": "Not inserted"
-            },
-            "serial": {
-                "label": "Serial Number"
             }
         }
     },

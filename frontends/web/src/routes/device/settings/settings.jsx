@@ -21,7 +21,6 @@ export default class Settings extends Component {
         newVersion: null,
         lock: true,
         name: null,
-        serial: null,
         spinner: true,
         sdcard: false,
         paired: false,
@@ -29,10 +28,10 @@ export default class Settings extends Component {
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name, serial }) => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
-                lock, name, serial, sdcard,
+                lock, name, sdcard,
                 spinner: false,
             });
         });
@@ -80,7 +79,6 @@ export default class Settings extends Component {
         name,
         spinner,
         sdcard,
-        serial,
         paired,
         connected,
     }) {
@@ -177,10 +175,6 @@ export default class Settings extends Component {
                                     <div>
                                         <dt>{t('deviceSettings.hardware.sdcard.label')}</dt>
                                         <dd>{t(`deviceSettings.hardware.sdcard.${sdcard}`)}</dd>
-                                    </div>
-                                    <div>
-                                        <dt>{t('deviceSettings.hardware.serial.label')}</dt>
-                                        <dd>{serial ? serial : t('loading')}</dd>
                                     </div>
                                 </dl>
 
