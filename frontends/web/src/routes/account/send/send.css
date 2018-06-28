@@ -63,6 +63,7 @@
 .confirmationValue {
     font-size: var(--size-medium);
     margin: 0;
+    padding: 2px 0;
 }
 
 .confirmationValue.standOut {

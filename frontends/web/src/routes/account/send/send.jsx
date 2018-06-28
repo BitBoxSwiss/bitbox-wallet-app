@@ -169,7 +169,7 @@ export default class Send extends Component {
                     if (data.success) {
                         this.setState({ fiatAmount: data.fiatAmount });
                     } else {
-                        this.setState({ amountError: "invalid amount" });
+                        this.setState({ amountError: 'invalid amount' });
                     }
                 });
         } else {
@@ -185,7 +185,7 @@ export default class Send extends Component {
                         this.setState({ amount: data.amount });
                         this.validateAndDisplayFee(false);
                     } else {
-                        this.setState({ amountError: "invalid amount" });
+                        this.setState({ amountError: 'invalid amount' });
                     }
                 });
         } else {
@@ -356,20 +356,35 @@ export default class Send extends Component {
                                             <p class={['label', style.confirmationLabel].join(' ')}>
                                                 {t('send.amount.label')}
                                             </p>
-                                            <p class={style.confirmationValue}>{proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}</p>
+                                            <p class={style.confirmationValue}>
+                                                {proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}
+                                            </p>
+                                            { proposedAmount && proposedAmount.conversions && <p class={style.confirmationValue}>
+                                                { proposedAmount.conversions[fiatUnit] + ' ' + fiatUnit }
+                                            </p> }
                                         </div>
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
                                                 {t('send.fee.label')}
                                                 ({feeTarget})
                                             </p>
-                                            <p class={style.confirmationValue}>{proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}</p>
+                                            <p class={style.confirmationValue}>
+                                                {proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}
+                                            </p>
+                                            { proposedFee && proposedFee.conversions && <p class={style.confirmationValue}>
+                                                { proposedFee.conversions[fiatUnit] + ' ' + fiatUnit }
+                                            </p> }
                                         </div>
                                     </div>
                                     <p class={['label', style.confirmationLabel].join(' ')}>
                                         {t('send.total.label')}
                                     </p>
-                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>{proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}</p>
+                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>
+                                        {proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}
+                                    </p>
+                                    { proposedTotal && proposedTotal.conversions && <p class={[style.confirmationValue, style.standOut].join(' ')}>
+                                        { proposedTotal.conversions[fiatUnit] + ' ' + fiatUnit }
+                                    </p> }
                                 </div>
                             </WaitDialog>
                         )
