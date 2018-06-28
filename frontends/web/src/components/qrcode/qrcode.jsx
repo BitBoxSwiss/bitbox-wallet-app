@@ -1,6 +1,5 @@
 import { h, Component } from 'preact';
 import { apiGet } from '../../utils/request';
-import style from './qrcode.css';
 
 const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
@@ -29,7 +28,6 @@ export default class QRCode extends Component {
             <img
                 width={256}
                 height={256}
-                className={style.qrcode}
                 src={src} />
         );
     }

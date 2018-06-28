@@ -78,29 +78,29 @@
         "understand": "I have a backup and know my recovery key"
     },
     "pairing": {
-        "button": "Connect Mobile App",
+        "button": "Pair Mobile App",
         "start": {
-            "title": "Scan with a Mobile Device"
+            "title": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
         },
         "started": {
             "title": "Great",
-            "text": "Now please follow the instructions in the app"
+            "text": "Now please follow the instructions in the mobile app."
         },
         "timeout": {
             "title": "Timeout",
-            "text": "The pairing timed out. Please restart pairing the mobile app."
+            "text": "The pairing timed out after two minutes. Start anew if you still want to pair the mobile app."
         },
         "aborted": {
             "title": "Aborted",
-            "text": "The pairing was aborted"
+            "text": "The pairing has been aborted from the mobile app."
         },
         "error": {
             "title": "Error",
-            "text": "There was an error"
+            "text": "Something went wrong. Please start anew."
         },
         "success": {
             "title": "Success",
-            "text": "The device is successfully paired"
+            "text": "Congratulations, you successfully paired your BitBox with the mobile app!"
         }
     },
     "deviceLock": {

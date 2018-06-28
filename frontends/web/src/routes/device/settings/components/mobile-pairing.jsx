@@ -84,7 +84,7 @@ export default class MobilePairing extends Component {
                                     )
                                 }
                             </div>
-                            <div class="flex flex-row flex-center">
+                            <div class="flex flex-row flex-center" style="margin-top: var(--spacing-default)">
                                 <Button secondary onClick={() => this.setState({ status: false })}>
                                     {t('button.back')}
                                 </Button>
