@@ -118,7 +118,7 @@
     },
     "initialize": {
         "creating": "PIN wird gespeichert…",
-        "description": "Bitte lege einen PIN für dein Gerät fest.",
+        "description": "Bitte lege einen PIN für dein Gerät fest (mind. 8 Ziffern).",
         "input": {
             "label": "PIN",
             "labelRepeat": "PIN wiederholen",

@@ -264,7 +264,7 @@
     },
     "initialize": {
         "creating": "Setting PIN…",
-        "description": "Please set a PIN to interact with your device",
+        "description": "Please set a PIN to interact with your device (min. 8 digits)",
         "input": {
             "label": "PIN",
             "labelRepeat": "Repeat PIN",
