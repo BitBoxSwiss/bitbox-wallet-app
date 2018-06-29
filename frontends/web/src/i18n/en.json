@@ -260,7 +260,10 @@
         },
         "create": "Create Wallet",
         "backup": "Or restore a Backup…",
-        "backToCreate": "Or create a new wallet…"
+        "backToCreate": "Or create a new wallet…",
+        "error" : {
+            "102": "The password must consist of at least 8 characters."
+        }
     },
     "initialize": {
         "creating": "Setting PIN…",
@@ -273,7 +276,7 @@
         },
         "create": "Set PIN",
         "error" : {
-            "102": "The PIN must consist of at least 4 digits."
+            "102": "The PIN must consist of at least 8 digits."
         }
     },
     "changePin": {

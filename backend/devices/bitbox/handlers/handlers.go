@@ -179,6 +179,12 @@ func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (int
 
 func maybeDBBErr(err error, log *logrus.Entry) map[string]interface{} {
 	result := map[string]interface{}{"success": false, "errorMessage": err.Error()}
+	if _, ok := errp.Cause(err).(bitbox.PasswordValidationError); ok {
+		const errWrongPW = 102
+		result["code"] = errWrongPW
+		return result
+	}
+
 	if dbbErr, ok := errp.Cause(err).(*bitbox.Error); ok {
 		result["code"] = dbbErr.Code
 		log.WithField("bitbox-error", dbbErr.Code).Warning("Received an error from Bitbox")
@@ -215,7 +221,7 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 	if err := handlers.bitbox.CreateWallet(walletName, backupPassword); err != nil {
 		handlers.log.WithFields(logrus.Fields{"walletName": walletName, "error": err}).
 			Error("Failed to create wallet")
-		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
+		return maybeDBBErr(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }

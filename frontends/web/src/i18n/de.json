@@ -127,7 +127,7 @@
         },
         "create": "PIN speichern",
         "error": {
-            "102": "Der PIN muss aus mindestens 4 Zahlen bestehen."
+            "102": "Der PIN muss aus mindestens 8 Ziffern bestehen."
         }
     },
     "backup": {

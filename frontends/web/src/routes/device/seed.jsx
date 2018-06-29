@@ -57,7 +57,11 @@ export default class Seed extends Component {
             backupPassword: this.state.backupPassword
         }).then(data => {
             if (!data.success) {
-                this.displayError(data.errorMessage);
+                this.displayError(
+                    this.props.t(`seed.error.${data.code}`, {
+                        defaultValue: data.errorMessage
+                    })
+                );
             }
             if (this.backupPasswordInput) {
                 this.backupPasswordInput.clear();
