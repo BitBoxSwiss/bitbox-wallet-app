@@ -8,7 +8,7 @@ export default function BackupsListItem({
     onFocus,
 }) {
     let date = '';
-    if (backup.date !== '') {
+    if (backup.date && backup.date !== '') {
         const months = i18n.t('months');
         const days = i18n.t('days');
         const dt = new Date(backup.date);
@@ -16,7 +16,7 @@ export default function BackupsListItem({
     } else {
         date = 'unknown';
     }
-    let name = backup.name !== '' ? backup.name : backup.id;
+    let name = backup.name && backup.name !== '' ? backup.name : backup.id;
     return (
         <Radio
             checked={selectedBackup === backup.id}
