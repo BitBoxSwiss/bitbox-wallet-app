@@ -303,7 +303,7 @@
         "restore": {
             "title": "Restore",
             "confirmTitle": "Restore Backup",
-            "understand": "I understand that an incorrect recovery key will create a differnt wallet",
+            "understand": "I understand that an incorrect recovery password will create a differnt wallet",
             "restoring": "Restoring backup…",
             "password": {
                 "label": "Recovery password or hidden recovery password",
