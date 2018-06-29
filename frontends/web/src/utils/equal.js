@@ -11,7 +11,7 @@ export function equal(a, b) {
         if (arrA && arrB) {
             length = a.length;
             if (length !== b.length) return false;
-            for (i = length; i !== 0; i--) {
+            for (i = 0; i < length; i++) {
                 if (!equal(a[i], b[i])) return false;
             }
             return true;
@@ -24,15 +24,15 @@ export function equal(a, b) {
 
         if (length !== keyList(b).length) return false;
 
-        for (i = length; i !== 0; i--) {
+        for (i = 0; i < length; i++) {
             if (!hasProp.call(b, keys[i])) return false;
         }
 
-        for (i = length; i !== 0; i--) {
+        for (i = 0; i < length; i++) {
             key = keys[i];
             if (!equal(a[key], b[key])) return false;
         }
-          
+
         return true;
     }
 

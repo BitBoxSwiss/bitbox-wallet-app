@@ -98,7 +98,6 @@ export default class Account extends Component {
 
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
-            console.log('Status changed: ' + status); // eslint-disable-line no-console
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),

@@ -11,14 +11,19 @@ export default class LoadingComponent extends Component {
 
     // Maps the entries of the given state map as returned by getStateMap() into the state.
     mapState(stateMap) {
+        if (equal(this.prevStateMap, stateMap)) return;
         Object.entries(stateMap).forEach(
             ([key, url]) => apiGet(url).then(object => this.setState({ [key]: object }))
         );
+        this.prevStateMap = stateMap;
     }
 
-    componentDidUpdate(prevProps) {
-        if (this.getStateMap && !equal(this.props, prevProps)) {
-            this.mapState(this.getStateMap());
-        }
+    componentDidMount() {
+        if (this.getStateMap) this.mapState(this.getStateMap());
     }
+
+    componentDidUpdate() {
+        if (this.getStateMap) this.mapState(this.getStateMap());
+    }
+
 }
