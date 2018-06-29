@@ -5,17 +5,22 @@ import LoadingComponent from '../loading/loading';
 
 // Loads API endpoints into the state and updates them on events.
 export default class UpdatingComponent extends LoadingComponent {
-    // Subclasses should implement the following function:
+    // Subclasses should implement the following method:
     // getStateMap() {
-    //     return { key: 'url/' + this.props.value };
+    //     return { key: 'endpoint/' + this.props.value };
     // }
 
-    mapState(stateMap) {
-        super.mapState(stateMap);
+    unsubscribeIfSubscribed() {
         if (this.unsubscribe) {
             this.unsubscribe();
             delete this.unsubscribe;
         }
+    }
+
+    // Overwrites mapState in LoadingComponent.
+    mapState(stateMap) {
+        super.mapState(stateMap);
+        this.unsubscribeIfSubscribed();
         this.unsubscribe = apiWebsocket(({ subject, action, object }) => {
             if (!subject || !action) {
                 return;
@@ -47,9 +52,6 @@ export default class UpdatingComponent extends LoadingComponent {
     }
 
     componentWillUnmount() {
-        if (this.unsubscribe) {
-            this.unsubscribe();
-            delete this.unsubscribe;
-        }
+        this.unsubscribeIfSubscribed();
     }
 }
