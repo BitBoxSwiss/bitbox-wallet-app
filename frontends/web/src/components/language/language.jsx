@@ -38,6 +38,7 @@ export default class LanguageSwitcher extends Component {
         selectedIndex,
         activeDialog,
     }) {
+        return; // TODO: remove when we have more languages.
         return (
             <div class={style.languageSelect}>
                 <Button

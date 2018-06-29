@@ -28,7 +28,7 @@ i18n
 
 
 i18n.addResourceBundle('en', 'app', appTranslationsEN);
-i18n.addResourceBundle('de', 'app', appTranslationsDE);
+//i18n.addResourceBundle('de', 'app', appTranslationsDE);
 
 i18n.on('languageChanged', (lng) => {
     apiGet('config').then((config) => {
