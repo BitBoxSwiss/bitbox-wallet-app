@@ -380,6 +380,10 @@
             {
                 "title": "Does this app require an internet connection?",
                 "text": [ "Yes, an internet connection is required to synchronize the wallet, send transactions and retrieve the latest exchange rates." ]
+            },
+            {
+                "title": "My device is not recognized",
+                "text": [ "The device should blink once when inserted. Make sure that it is inserted the right way around. If you are having trouble, please contact us through the link below." ]
             }
         ],
         "waitingWithoutDevice": {
@@ -518,6 +522,10 @@
                     "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps.",
                     "Additionally, it retrieves the latest exchange rates from CryptoCompare. (The conversions are calculated locally, no amounts of yours are transmitted.)"
                 ]
+            },
+            {
+                "title": "Can you add more coins?",
+                "text": [ "We will be integrating more altcoins besides Litecoin in the next few releases. If you are looking for a specific coin, leave us a suggestion at the contact below." ]
             }
         ],
         "bitbox": [
@@ -536,6 +544,10 @@
             {
                 "title": "What is a hidden wallet?",
                 "text": [ "It is a second wallet on the same device protected by a different PIN and recovery password, which you can use for plausible deniability." ]
+            },
+            {
+                "title": "How can I reset full 2FA?",
+                "text": [ "To reset full 2FA you need to reset your wallet and restore it into its original state. Make sure that you still have the original SD card. Then press 'Reset Device'. Set a new pin and choose 'Or Restore a Backup'. Select the backup you have made from the original wallet, click 'Restore' and input your original recovery password." ]
             }
         ],
         "backups": [
