@@ -6,9 +6,9 @@ import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
 import Toast from '../../components/toast/Toast';
+import style from './settings.css';
 
 @translate()
-
 export default class Settings extends Component {
     state = {
         toast: false,
@@ -63,36 +63,40 @@ export default class Settings extends Component {
                                             </div>
                                         </div>
                                         <div class="flex flex-row flex-start flex-wrap wrapped">
-                                            <Checkbox
-                                                checked={config.backend.bitcoinP2WPKHP2SHActive}
-                                                id="bitcoinP2WPKHP2SHActive"
-                                                onChange={this.toggleAccountActive}
-                                                label="Bitcoin"
-                                                className="text-medium" />
-                                            <Checkbox
-                                                checked={config.backend.bitcoinP2WPKHActive}
-                                                id="bitcoinP2WPKHActive"
-                                                onChange={this.toggleAccountActive}
-                                                label="Bitcoin: bech32"
-                                                className="text-medium" />
-                                            <Checkbox
-                                                checked={config.backend.bitcoinP2PKHActive}
-                                                id="bitcoinP2PKHActive"
-                                                onChange={this.toggleAccountActive}
-                                                label="Bitcoin Legacy"
-                                                className="text-medium" />
-                                            <Checkbox
-                                                checked={config.backend.litecoinP2WPKHP2SHActive}
-                                                id="litecoinP2WPKHP2SHActive"
-                                                onChange={this.toggleAccountActive}
-                                                label="Litecoin"
-                                                className="text-medium" />
-                                            <Checkbox
-                                                checked={config.backend.litecoinP2WPKHActive}
-                                                id="litecoinP2WPKHActive"
-                                                onChange={this.toggleAccountActive}
-                                                label="Litecoin: bech32"
-                                                className="text-medium" />
+                                            <div class={style.column}>
+                                                <Checkbox
+                                                    checked={config.backend.bitcoinP2WPKHP2SHActive}
+                                                    id="bitcoinP2WPKHP2SHActive"
+                                                    onChange={this.toggleAccountActive}
+                                                    label="Bitcoin"
+                                                    className="text-medium" />
+                                                <Checkbox
+                                                    checked={config.backend.bitcoinP2WPKHActive}
+                                                    id="bitcoinP2WPKHActive"
+                                                    onChange={this.toggleAccountActive}
+                                                    label="Bitcoin: bech32"
+                                                    className="text-medium" />
+                                                <Checkbox
+                                                    checked={config.backend.bitcoinP2PKHActive}
+                                                    id="bitcoinP2PKHActive"
+                                                    onChange={this.toggleAccountActive}
+                                                    label="Bitcoin Legacy"
+                                                    className="text-medium" />
+                                            </div>
+                                            <div class={style.column}>
+                                                <Checkbox
+                                                    checked={config.backend.litecoinP2WPKHP2SHActive}
+                                                    id="litecoinP2WPKHP2SHActive"
+                                                    onChange={this.toggleAccountActive}
+                                                    label="Litecoin"
+                                                    className="text-medium" />
+                                                <Checkbox
+                                                    checked={config.backend.litecoinP2WPKHActive}
+                                                    id="litecoinP2WPKHActive"
+                                                    onChange={this.toggleAccountActive}
+                                                    label="Litecoin: bech32"
+                                                    className="text-medium" />
+                                            </div>
                                         </div>
                                         <div class="row">
                                             <Button primary onClick={this.save}>

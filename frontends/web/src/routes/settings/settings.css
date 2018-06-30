@@ -1,0 +1,7 @@
+.column {
+}
+
+.column input + label {
+    display: block;
+    width: 250px;
+}
