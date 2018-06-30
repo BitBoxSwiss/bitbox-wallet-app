@@ -1,13 +1,18 @@
 package bitbox
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
 // PasswordValidationError indicates an error when the given password does not comply with the policy.
-type PasswordValidationError error
+type PasswordValidationError string
+
+func (p PasswordValidationError) Error() string {
+	return string(p)
+}
 
 // PasswordPolicy represents the password policy.
 type PasswordPolicy struct {
@@ -29,9 +34,9 @@ func NewPasswordPolicy(mustMatchPattern string) *PasswordPolicy {
 
 // ValidatePassword evaluates a given password against the password policy. If valid, returns true
 // if invalid, returns false and the PasswordValidationError that explains what went wrong.
-func (passwordMatcher *PasswordPolicy) ValidatePassword(password string) (bool, PasswordValidationError) {
+func (passwordMatcher *PasswordPolicy) ValidatePassword(password string) (bool, error) {
 	if !passwordMatcher.mustMatchPattern.MatchString(password) {
-		return false, PasswordValidationError(errp.Newf("Password contains characters that are not "+
+		return false, PasswordValidationError(fmt.Sprintf("Password contains characters that are not "+
 			"allowed: %v", passwordMatcher.mustMatchPattern))
 	}
 	return true, nil
