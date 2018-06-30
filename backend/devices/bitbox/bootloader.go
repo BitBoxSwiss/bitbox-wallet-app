@@ -46,7 +46,7 @@ func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) error {
 	if err != nil {
 		return err
 	}
-	if reply[0] != byte(cmd) || rune(reply[1]) != '0' {
+	if reply[0] != byte(cmd) || (len(reply) > 1 && rune(reply[1]) != '0') {
 		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{
 			"reply": reply,
 		})
