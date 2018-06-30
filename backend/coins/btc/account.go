@@ -8,6 +8,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/signing"
 
 	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/sirupsen/logrus"
 
 	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
