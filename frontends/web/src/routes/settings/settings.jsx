@@ -59,7 +59,7 @@ export default class Settings extends Component {
                                         <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
-                                                <h3>{t('settings.accounts')}</h3>
+                                                <h3>{t('settings.accounts.title')}</h3>
                                             </div>
                                         </div>
                                         <div class="flex flex-row flex-start flex-wrap wrapped">
@@ -68,19 +68,19 @@ export default class Settings extends Component {
                                                     checked={config.backend.bitcoinP2WPKHP2SHActive}
                                                     id="bitcoinP2WPKHP2SHActive"
                                                     onChange={this.toggleAccountActive}
-                                                    label="Bitcoin"
+                                                    label={t('settings.accounts.bitcoinP2WPKHP2SH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2WPKHActive}
                                                     id="bitcoinP2WPKHActive"
                                                     onChange={this.toggleAccountActive}
-                                                    label="Bitcoin: bech32"
+                                                    label={t('settings.accounts.bitcoinP2WPKH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2PKHActive}
                                                     id="bitcoinP2PKHActive"
                                                     onChange={this.toggleAccountActive}
-                                                    label="Bitcoin Legacy"
+                                                    label={t('settings.accounts.bitcoinP2PKH')}
                                                     className="text-medium" />
                                             </div>
                                             <div class={style.column}>
@@ -88,13 +88,13 @@ export default class Settings extends Component {
                                                     checked={config.backend.litecoinP2WPKHP2SHActive}
                                                     id="litecoinP2WPKHP2SHActive"
                                                     onChange={this.toggleAccountActive}
-                                                    label="Litecoin"
+                                                    label={t('settings.accounts.litecoinP2WPKHP2SH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.litecoinP2WPKHActive}
                                                     id="litecoinP2WPKHActive"
                                                     onChange={this.toggleAccountActive}
-                                                    label="Litecoin: bech32"
+                                                    label={t('settings.accounts.litecoinP2WPKH')}
                                                     className="text-medium" />
                                             </div>
                                         </div>

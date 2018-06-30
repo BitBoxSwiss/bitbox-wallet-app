@@ -141,7 +141,14 @@
     },
     "settings": {
         "title": "Settings",
-        "accounts": "Active accounts",
+        "accounts": {
+            "title": "Active accounts",
+            "bitcoinP2WPKHP2SH": "Bitcoin",
+            "bitcoinP2WPKH": "Bitcoin: bech32",
+            "bitcoinP2PKH": "Bitcoin Legacy",
+            "litecoinP2WPKHP2SH": "Litecoin",
+            "litecoinP2WPKH": "Litecoin: bech32"
+        },
         "success": "Settings saved. Please restart the application for the changes to take effect."
     },
     "language": {
