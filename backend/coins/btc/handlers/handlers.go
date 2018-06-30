@@ -40,6 +40,7 @@ func NewHandlers(
 	handleFunc("/headers/status", handlers.ensureAccountInitialized(handlers.getHeadersStatus)).Methods("GET")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
 }
 
@@ -284,4 +285,16 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	return handlers.account.VerifyAddress(blockchain.ScriptHashHex(scriptHashHex))
+}
+
+func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {
+	var scriptHashHex string
+	if err := json.NewDecoder(r.Body).Decode(&scriptHashHex); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	address, err := handlers.account.ConvertToLegacyAddress(blockchain.ScriptHashHex(scriptHashHex))
+	if err != nil {
+		return nil, err
+	}
+	return address.EncodeAddress(), nil
 }

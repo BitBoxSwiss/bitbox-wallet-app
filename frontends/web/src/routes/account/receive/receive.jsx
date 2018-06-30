@@ -50,8 +50,18 @@ export default class Receive extends Component {
         }));
     };
 
+    ltcConvertToLegacy = () => {
+        apiPost('wallet/' + this.props.code + '/convert-to-legacy-address',
+               this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).
+            then(legacyAddress => {
+                let address = this.state.receiveAddresses[this.state.activeIndex].address;
+                alert('Legacy format of ' + address + ':\n' + legacyAddress);
+            });
+    }
+
     render({
         t,
+        code,
         guide,
     }, {
         verifying,
@@ -84,6 +94,16 @@ export default class Receive extends Component {
                         {t('button.next')}
                     </Button>
                 </p>
+                { code == 'ltc-p2wpkh-p2sh' && (
+                    <p>Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.<br/>
+                      <Button
+                        primary
+                        onClick={this.ltcConvertToLegacy}
+                        className={style.button}>
+                        Convert to the legacy address format
+                    </Button>
+                    </p>
+                ) }
             </div>
         ) : (
             t('loading')

@@ -15,6 +15,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
 	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/util/errp"
@@ -43,6 +44,7 @@ type Interface interface {
 		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddresses() []*addresses.AccountAddress
 	VerifyAddress(blockchain.ScriptHashHex) (bool, error)
+	ConvertToLegacyAddress(blockchain.ScriptHashHex) (btcutil.Address, error)
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 }
@@ -493,6 +495,22 @@ func (account *Account) VerifyAddress(scriptHashHex blockchain.ScriptHashHex) (b
 		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
+}
+
+// ConvertToLegacyAddress converts a ltc p2sh address to the legacy format (starting with
+// '3'). Returns an error for non litecoin p2sh accounts.
+func (account *Account) ConvertToLegacyAddress(scriptHashHex blockchain.ScriptHashHex) (btcutil.Address, error) {
+	account.synchronizer.WaitSynchronized()
+	defer account.RLock()()
+	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
+	if address == nil {
+		return nil, errp.New("unknown address not found")
+	}
+	if account.Coin().Net() != &ltc.MainNetParams || address.Configuration.ScriptType() != signing.ScriptTypeP2WPKHP2SH {
+		return nil, errp.New("must be an ltc p2sh address")
+	}
+	hash := address.Address.(*btcutil.AddressScriptHash).Hash160()
+	return btcutil.NewAddressScriptHashFromHash(hash[:], &chaincfg.MainNetParams)
 }
 
 // Keystores returns the keystores of the account.
