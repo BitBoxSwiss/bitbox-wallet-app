@@ -86,7 +86,7 @@
 
 .headerContainer {
     background-color: var(--color-white);
-    border-bottom: 2px solid #eee;
+    border-bottom: 2px solid var(--fat-border-color);
     width: 100%;
 }
 

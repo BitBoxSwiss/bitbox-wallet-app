@@ -38,6 +38,7 @@
     --background-hover: var(--background);
     --background-active: var(--color-white);
     --background-sidebar: var(--color-lightgray);
+    --fat-border-color: #eee;
 
     /* font sizes */
     --size-extra-large: 2.2rem;
