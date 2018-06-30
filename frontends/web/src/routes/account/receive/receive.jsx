@@ -94,15 +94,16 @@ export default class Receive extends Component {
                         {t('button.next')}
                     </Button>
                 </p>
-                { code == 'ltc-p2wpkh-p2sh' && (
-                    <p>Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.<br/>
-                      <Button
-                        primary
-                        onClick={this.ltcConvertToLegacy}
-                        className={style.button}>
-                        Convert to the legacy address format
-                    </Button>
-                    </p>
+                { code === 'ltc-p2wpkh-p2sh' && (
+                    <div>
+                        <p>{t('receive.ltcLegacy.info')}</p>
+                        <Button
+                            primary
+                            onClick={this.ltcConvertToLegacy}
+                            className={style.button}>
+                            {t('receive.ltcLegacy.button')}
+                        </Button>
+                    </div>
                 ) }
             </div>
         ) : (
