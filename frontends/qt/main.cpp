@@ -5,6 +5,7 @@
 #include <QWebChannel>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QThread>
+#include <QMutex>
 #include <QResource>
 #include <QByteArray>
 
@@ -17,6 +18,7 @@
 static QWebEngineView* view;
 static bool pageLoaded = false;
 static WebClass* webClass;
+static QMutex webClassMutex;
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
@@ -56,16 +58,23 @@ int main(int argc, char *argv[])
     // Run client queries in a separate to not block the UI.
     webClass->moveToThread(&workerThread);
     workerThread.start();
-    QObject::connect(&a, &QApplication::aboutToQuit, &workerThread, &QThread::quit);
 
     ConnectionData serveData = serve(
                                      [](const char* msg) {
                                          if (!pageLoaded) return;
-                                         webClass->pushNotify(QString(msg));
+                                         webClassMutex.lock();
+                                         if (webClass != nullptr) {
+                                             webClass->pushNotify(QString(msg));
+                                         }
+                                         webClassMutex.unlock();
                                      },
                                      [](int queryID, const char* msg) {
                                          if (!pageLoaded) return;
-                                         webClass->gotResponse(queryID, QString(msg));
+                                         webClassMutex.lock();
+                                         if (webClass != nullptr) {
+                                             webClass->gotResponse(queryID, QString(msg));
+                                         }
+                                         webClassMutex.unlock();
                                      }
                                      );
 
@@ -76,6 +85,15 @@ int main(int argc, char *argv[])
     view->page()->setWebChannel(&channel);
     view->show();
     view->load(QUrl("qrc:/index.html"));
+
+    QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
+            webClassMutex.lock();
+            channel.deregisterObject(webClass);
+            delete webClass;
+            webClass = nullptr;
+            webClassMutex.unlock();
+            workerThread.quit();
+        });
 
     return a.exec();
 }
