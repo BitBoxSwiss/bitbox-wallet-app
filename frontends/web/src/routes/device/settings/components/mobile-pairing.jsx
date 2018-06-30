@@ -28,7 +28,7 @@ export default class MobilePairing extends Component {
                 this.setState({ status: 'started' });
                 break;
             case 'pairingTimedout':
-                // this.setState({ status: 'timeout' });
+                if (this.state.status) this.setState({ status: 'timeout' });
                 break;
             case 'pairingAborted':
                 this.setState({ status: 'aborted' });
