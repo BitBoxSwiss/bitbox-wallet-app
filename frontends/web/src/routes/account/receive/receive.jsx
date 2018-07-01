@@ -71,7 +71,7 @@ export default class Receive extends Component {
     }) {
         const content = receiveAddresses ? (
             <div>
-                <QRCode data={receiveAddresses[activeIndex].address} />
+                <QRCode data={'bitcoin:' + receiveAddresses[activeIndex].address} />
                 <Input
                     readOnly
                     className={style.addressField}
