@@ -118,10 +118,9 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
-	coin := handlers.account.Coin()
 	return map[string]interface{}{
-		"available":   coin.FormatAmountAsJSON(int64(balance.Available)),
-		"incoming":    coin.FormatAmountAsJSON(int64(balance.Incoming)),
+		"available":   handlers.account.Coin().FormatAmountAsJSON(int64(balance.Available)),
+		"incoming":    handlers.account.Coin().FormatAmountAsJSON(int64(balance.Incoming)),
 		"hasIncoming": balance.Incoming != 0,
 	}, nil
 }
