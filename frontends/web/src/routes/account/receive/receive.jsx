@@ -61,6 +61,7 @@ export default class Receive extends Component {
 
     render({
         t,
+        coinCode,
         code,
         guide,
     }, {
@@ -69,9 +70,13 @@ export default class Receive extends Component {
         receiveAddresses,
         paired,
     }) {
+        let uriPrefix = 'bitcoin:';
+        if (coinCode == 'ltc' || coinCode == 'tltc') {
+            uriPrefix = 'litecoin:';
+        }
         const content = receiveAddresses ? (
             <div>
-                <QRCode data={'bitcoin:' + receiveAddresses[activeIndex].address} />
+                <QRCode data={uriPrefix + receiveAddresses[activeIndex].address} />
                 <Input
                     readOnly
                     className={style.addressField}

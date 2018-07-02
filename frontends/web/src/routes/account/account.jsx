@@ -243,6 +243,7 @@ export default class Account extends Component {
             return (
                 <Receive
                     deviceIDs={deviceIDs}
+                    coinCode={wallet.coinCode}
                     code={this.props.code}
                     onClose={() => this.setState({ isReceive: false })}
                     guide={guide}
