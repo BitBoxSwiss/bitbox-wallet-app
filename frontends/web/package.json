@@ -2,7 +2,6 @@
   "private": true,
   "name": "preact2",
   "version": "0.0.0",
-  "license": "MIT",
   "scripts": {
     "build": "preact build --no-prerender --service-worker=false",
     "dev": "preact watch",
