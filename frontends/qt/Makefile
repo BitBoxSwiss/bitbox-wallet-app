@@ -7,14 +7,18 @@ base:
 	make -C build
 linux:
 	make base
-	mkdir build/linux
-	mv build/BitBox build/linux
-	cp build/assets.rcc build/linux/
-	cp server/libserver.so build/linux
-	cd build/linux && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox
-	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux/lib
-	cd build/linux && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage
-	rm build/linux/libserver.so
+	mkdir build/linux-tmp build/linux
+	mv build/BitBox build/linux-tmp
+	cp build/assets.rcc build/linux-tmp/
+	cp server/libserver.so build/linux-tmp
+	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox
+	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
+	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage
+	rm build/linux-tmp/libserver.so
+	mv build/linux-tmp/Application-x86_64.AppImage build/linux/BitBox-x86_64.AppImage
+	cp -aR resources/linux build/tmp-deb/
+	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
+	# fpm -s dir -t deb -n bitbox -v 0.0.1 -C build/tmp-deb/ && mv bitbox_0.0.1_amd64.deb build/linux/
 osx:
 	make base
 	mkdir build/osx
