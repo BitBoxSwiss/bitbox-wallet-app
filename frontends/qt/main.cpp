@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     a.setOrganizationName("Shift Cryptosecurity");
     view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
-    //view->setMinimumSize(850, 675);
+    view->setMinimumSize(650, 375);
 
     QSettings settings;
     if (settings.contains("mainWindowGeometry")) {
