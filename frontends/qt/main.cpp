@@ -8,7 +8,7 @@
 #include <QMutex>
 #include <QResource>
 #include <QByteArray>
-
+#include <QSettings>
 #include <iostream>
 #include <string>
 
@@ -31,6 +31,19 @@ private:
     std::string token;
 };
 
+class WebEngineView : public QWebEngineView {
+public:
+    void closeEvent(QCloseEvent*) override {
+        QSettings settings;
+        settings.setValue("mainWindowGeometry", saveGeometry());
+    }
+
+    QSize sizeHint() const override {
+        // Default initial window size.
+        return QSize(1150, 675);
+    }
+};
+
 int main(int argc, char *argv[])
 {
     // note: doesn't work as expected. Users with hidpi enabled should set the environment flag themselves
@@ -43,11 +56,22 @@ int main(int argc, char *argv[])
 
     QApplication a(argc, argv);
     a.setApplicationName(QString("BitBox Wallet"));
-    view = new QWebEngineView;
+    a.setOrganizationDomain("shiftcrypto.ch");
+    a.setOrganizationName("Shift Cryptosecurity");
+    view = new WebEngineView();
     view->setGeometry(0, 0, a.devicePixelRatio() * view->width(), a.devicePixelRatio() * view->height());
-    view->setMinimumSize(850, 675);
-    view->showMaximized();
+    //view->setMinimumSize(850, 675);
+
+    QSettings settings;
+    if (settings.contains("mainWindowGeometry")) {
+        // std::cout << settings.fileName().toStdString() << std::endl;
+        view->restoreGeometry(settings.value("mainWindowGeometry").toByteArray());
+    } else {
+        view->adjustSize();
+    }
+
     view->setContextMenuPolicy(Qt::NoContextMenu);
+
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
 
