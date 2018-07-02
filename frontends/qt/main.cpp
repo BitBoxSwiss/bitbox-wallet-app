@@ -40,7 +40,7 @@ public:
 
     QSize sizeHint() const override {
         // Default initial window size.
-        return QSize(1150, 675);
+        return QSize(1160, 675);
     }
 };
 
