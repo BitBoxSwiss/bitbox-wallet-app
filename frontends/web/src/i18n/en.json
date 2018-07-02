@@ -168,7 +168,7 @@
         "reconnecting": "Lost connection, trying to reconnect…",
         "info": {
             "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
-            "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you are a previous user, you can find your funds in the legacy account. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
+            "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the legacy account. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
             "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
             "ltc-p2wpkh-p2sh": "",
             "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
@@ -204,7 +204,7 @@
         "label": "Your address",
         "verify": "Verify address securely",
         "warning": {
-            "secureOutput": "Please pair the device to enable secure address verification. Go to the Manage Device."
+            "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to the Manage Device."
         },
         "ltcLegacy": {
             "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
