@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { input, errorText } from './input.css';
+import { input, errorText, isTransparent } from './input.css';
 
 export default function Input({
     type = 'text',
@@ -11,10 +11,11 @@ export default function Input({
     style,
     children,
     getRef,
+    transparent,
     ...props
 }) {
     return (
-        <div className={[input, className].join(' ')} style={style}>
+        <div className={[input, className, transparent ? isTransparent : ''].join(' ')} style={style}>
             {
                 label && (
                     <label for={id} class={error ? errorText : ''}>

@@ -32,6 +32,12 @@
     cursor: not-allowed;
 }
 
+.isTransparent input[disabled] {
+    border: none;
+    color: var(--color-default) !important;
+    cursor: default;
+}
+
 .errorText {
     color: var(--color-softred);
 }

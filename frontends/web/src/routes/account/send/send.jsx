@@ -320,6 +320,7 @@ export default class Send extends Component {
                                         value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
+                                        transparent
                                     />
                                     {/*
                                     <Input
@@ -331,7 +332,7 @@ export default class Send extends Component {
                                 </div>
                                 <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
                             </div>
-                            <div class={['row', 'buttons', 'flex', 'flex-row', 'flex-between', 'flex-start'].join(' ')}>
+                            <div class="row buttons flex flex-row flex-between flex-start">
                                 <Button secondary onClick={this.props.onClose}>
                                     {t('button.back')}
                                 </Button>
