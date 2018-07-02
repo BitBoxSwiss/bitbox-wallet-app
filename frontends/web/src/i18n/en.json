@@ -204,7 +204,7 @@
         "label": "Your address",
         "verify": "Verify address securely",
         "warning": {
-            "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to the Manage Device."
+            "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage Device' in the sidebar."
         },
         "ltcLegacy": {
             "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
@@ -337,8 +337,8 @@
     },
     "warning": {
         "sdcard": "Keep the SD card stored separate from the BitBox, unless you want to manage backups.",
-        "sendPairing": "Please pair the device to securely verify transaction details. Go to 'Manage Device' in the sidebar.",
-        "receivePairing": "Please pair the device to enable secure address verification. Go to 'Manage Device' in the sidebar."
+        "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage Device' in the sidebar.",
+        "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage Device' in the sidebar."
     },
     "button": {
         "unlock": "Unlock",

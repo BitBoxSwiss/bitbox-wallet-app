@@ -19,7 +19,7 @@ export default class HeadersSync extends UpdatingComponent {
         if (status && prevState.status && status.tip !== prevState.status.tip) {
             this.setState({ show: status.tip }); // eslint-disable-line
             if (status.tip === status.targetHeight) {
-                setTimeout(() => this.setState(state => state.show === status.tip && { show: 0 }), 5000);
+                setTimeout(() => this.setState(state => state.show === status.tip && { show: 0 }), 4000);
             }
         }
     }
