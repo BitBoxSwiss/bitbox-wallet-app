@@ -149,7 +149,7 @@
             "litecoinP2WPKHP2SH": "Litecoin",
             "litecoinP2WPKH": "Litecoin: bech32"
         },
-        "success": "Settings saved. Please restart the application for the changes to take effect."
+        "success": "Please unplug and replug the BitBox for the changes to take effect."
     },
     "language": {
         "title": "Select language"
@@ -158,8 +158,7 @@
         "title": "Currencies",
         "action": "Change Currency",
         "default": "default",
-        "setDefault": "Set {{code}} as default",
-        "success": "Successfully updated currency settings."
+        "setDefault": "Set {{code}} as default"
     },
     "account": {
         "connect": "Connection established",

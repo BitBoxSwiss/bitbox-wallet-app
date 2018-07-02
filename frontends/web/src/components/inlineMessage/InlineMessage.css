@@ -1,6 +1,6 @@
 .inlineMessage {
 	position: relative;
-	padding: var(--spacing-half) var(--spacing-large) var(--spacing-half) var(--spacing-default);
+	padding: var(--spacing-default) 42px var(--spacing-default) var(--spacing-default);
 	border-radius: 3px;
 }
 
@@ -15,7 +15,8 @@
 
 .close {
 	position: absolute;
-	top: var(--spacing-half);
-	right: var(--spacing-half);
+	top: var(--spacing-default);
+	right: var(--spacing-default);
+	line-height: 1;
 	cursor: pointer;
 }

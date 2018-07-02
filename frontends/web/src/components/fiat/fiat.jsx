@@ -15,7 +15,6 @@ export default class FiatSwitcher extends UpdatingComponent {
         } else {
             this.props.fiat.remove(event.target.value);
         }
-        this.props.onChange();
     }
 
     set = event => {
@@ -25,7 +24,6 @@ export default class FiatSwitcher extends UpdatingComponent {
             this.props.fiat.add(code);
         }
         event.preventDefault();
-        this.props.onChange();
     }
 
     render({
@@ -61,7 +59,7 @@ export default class FiatSwitcher extends UpdatingComponent {
                                     className="text-medium">
                                     <span
                                         tabIndex="0"
-                                        className={[style.action, active && style.show].join(' ')}
+                                        className={[style.action, active ? style.show : ''].join(' ')}
                                         onClick={this.set}
                                         data-code={currency}>
                                         {t(active ? 'fiat.default' : 'fiat.setDefault', {

@@ -11,7 +11,6 @@ import style from './settings.css';
 @translate()
 export default class Settings extends Component {
     state = {
-        fiatSuccess: false,
         accountSuccess: false,
         config: null,
     }
@@ -47,7 +46,6 @@ export default class Settings extends Component {
         fiat,
     }, {
         config,
-        fiatSuccess,
         accountSuccess,
     }) {
         return (
@@ -63,22 +61,7 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
-                                        <Fiat
-                                            fiat={fiat}
-                                            onChange={() => this.setState({ fiatSuccess: true })}
-                                        />
-                                        {
-                                            fiatSuccess && (
-                                                <div class="row">
-                                                    <InlineMessage
-                                                        type="success"
-                                                        align="left"
-                                                        message={t('fiat.success')}
-                                                        onEnd={() => this.setState({ fiatSuccess: false })}
-                                                    />
-                                                </div>
-                                            )
-                                        }
+                                        <Fiat fiat={fiat} />
                                         <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">

@@ -23,6 +23,7 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
+    transition: background-color .2s ease-out;
     border-radius: 2px;
     line-height: 16px;
     cursor: pointer;
