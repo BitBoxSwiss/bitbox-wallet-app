@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
             webClass = nullptr;
             webClassMutex.unlock();
             workerThread.quit();
+            workerThread.wait();
         });
 
     return a.exec();
