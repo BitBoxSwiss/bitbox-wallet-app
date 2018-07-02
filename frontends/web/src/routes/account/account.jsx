@@ -38,6 +38,7 @@ export default class Account extends Component {
             this.setState({ accounts });
         });
         this.unsubscribe = apiWebsocket(this.onWalletEvent);
+        this.checkSDCards();
         if (!this.props.code) {
             return;
         }
