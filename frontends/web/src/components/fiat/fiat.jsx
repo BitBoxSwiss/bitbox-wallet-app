@@ -15,6 +15,7 @@ export default class FiatSwitcher extends UpdatingComponent {
         } else {
             this.props.fiat.remove(event.target.value);
         }
+        this.props.onChange();
     }
 
     set = event => {
@@ -24,6 +25,7 @@ export default class FiatSwitcher extends UpdatingComponent {
             this.props.fiat.add(code);
         }
         event.preventDefault();
+        this.props.onChange();
     }
 
     render({

@@ -157,8 +157,9 @@
     "fiat": {
         "title": "Currencies",
         "action": "Change Currency",
-        "default": "(default)",
-        "setDefault": "(Set {{code}} as default)"
+        "default": "default",
+        "setDefault": "Set {{code}} as default",
+        "success": "Successfully updated currency settings."
     },
     "account": {
         "connect": "Connection established",

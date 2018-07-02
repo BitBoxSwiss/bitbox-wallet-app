@@ -5,13 +5,14 @@ import { Button, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
-import Toast from '../../components/toast/Toast';
+import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import style from './settings.css';
 
 @translate()
 export default class Settings extends Component {
     state = {
-        toast: false,
+        fiatSuccess: false,
+        accountSuccess: false,
         config: null,
     }
 
@@ -21,8 +22,14 @@ export default class Settings extends Component {
 
     toggleAccountActive = event => {
         let config = this.state.config;
+        if (!config) return;
         config.backend[event.target.id] = event.target.checked;
-        this.setState({ config });
+        apiPost('config', config).then(() => {
+            this.setState({
+                config,
+                accountSuccess: true,
+            });
+        });
     }
 
     save = event => {
@@ -40,7 +47,8 @@ export default class Settings extends Component {
         fiat,
     }, {
         config,
-        toast,
+        fiatSuccess,
+        accountSuccess,
     }) {
         return (
             <div class="contentWithGuide">
@@ -55,7 +63,22 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
-                                        <Fiat fiat={fiat} />
+                                        <Fiat
+                                            fiat={fiat}
+                                            onChange={() => this.setState({ fiatSuccess: true })}
+                                        />
+                                        {
+                                            fiatSuccess && (
+                                                <div class="row">
+                                                    <InlineMessage
+                                                        type="success"
+                                                        align="left"
+                                                        message={t('fiat.success')}
+                                                        onEnd={() => this.setState({ fiatSuccess: false })}
+                                                    />
+                                                </div>
+                                            )
+                                        }
                                         <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
@@ -98,27 +121,24 @@ export default class Settings extends Component {
                                                     className="text-medium" />
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <Button primary onClick={this.save}>
-                                                {t('button.save')}
-                                            </Button>
-                                        </div>
+                                        {
+                                            accountSuccess && (
+                                                <div class="row">
+                                                    <InlineMessage
+                                                        type="success"
+                                                        align="left"
+                                                        message={t('settings.success')}
+                                                        onEnd={() => this.setState({ accountSuccess: false })}
+                                                    />
+                                                </div>
+                                            )
+                                        }
                                     </div>
                                 )
                             }
                             <Footer />
                         </div>
                     </div>
-                    {
-                        toast && (
-                            <Toast
-                                theme="success"
-                                message={t('settings.success')}
-                                withGuide={guide.shown}
-                                onHide={() => this.setState({ toast: false })}
-                            />
-                        )
-                    }
                 </div>
                 <Guide guide={guide} screen="settings" />
             </div>

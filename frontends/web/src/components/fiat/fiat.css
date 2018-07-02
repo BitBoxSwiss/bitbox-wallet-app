@@ -19,6 +19,13 @@
     display: inline-block;
     font-size: var(--size-small);
     margin-left: var(--spacing-half);
+    padding: 1px var(--spacing-half);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 2px;
+    line-height: 16px;
+    cursor: pointer;
 }
 
 .fiatList label:focus span,
@@ -27,8 +34,11 @@
 .fiatList label span:hover {
     color: var(--color-primary);
     outline: none;
+    background-color: var(--color-focus);
+    color: var(--color-white);
 }
 
 .fiatList label span.show {
-    color: var(--color-primary);
+    background-color: var(--color-info);
+    cursor: default;
 }

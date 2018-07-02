@@ -3,6 +3,10 @@
     text-align: center;
 }
 
+.message.textLeft {
+    text-align: left;
+}
+
 .success {
     composes: message;
     color: var(--color-success);
