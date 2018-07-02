@@ -35,6 +35,7 @@
 .isTransparent input[disabled] {
     border: none;
     color: var(--color-default) !important;
+    padding: var(--spacing-half) 0;
     cursor: default;
 }
 

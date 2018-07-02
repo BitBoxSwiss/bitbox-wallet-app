@@ -200,6 +200,7 @@ export default class Send extends Component {
     sendToSelf = event => {
         apiGet('wallet/' + this.props.walletCode + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
+            this.handleFormChange(event);
         });
     }
 
@@ -275,7 +276,7 @@ export default class Send extends Component {
                                     value={recipientAddress}
                                     autofocus
                                 />
-                                { debug && <span className={style.action} onClick={this.sendToSelf}>{t('send.toSelf')}</span> }
+                                { debug && <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>{t('send.toSelf')}</span> }
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
