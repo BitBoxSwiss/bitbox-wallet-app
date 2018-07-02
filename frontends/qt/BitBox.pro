@@ -19,6 +19,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 win32 {
     LIBS += -L$$PWD/server/ -llibserver
     DESTDIR = $$PWD/build/windows
+    RC_ICONS += $$PWD/resources/win/icon.ico
 } else {
     QMAKE_CXXFLAGS += -std=c++11
     LIBS += -L$$PWD/server -lserver
