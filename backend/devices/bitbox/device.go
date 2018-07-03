@@ -32,8 +32,8 @@ import (
 )
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 2, 2)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(3, 0, 2)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
 
 	pinPolicyProd              = NewPasswordPolicy(`^[0-9]{8,}$`)
 	pinPolicyTest              = NewPasswordPolicy(`^[0-9]{4,}$`)
