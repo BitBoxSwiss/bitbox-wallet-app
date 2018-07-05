@@ -34,11 +34,7 @@ export default class Seed extends Component {
     }
 
     componentDidMount () {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
-            this.setState(
-                Object.assign({ sdcard }, sdcard === false && { status: 'error' } )
-            );
-        });
+        this.checkSDcard();
     }
 
     validate = () => {
@@ -102,6 +98,14 @@ export default class Seed extends Component {
         this.setState({ agreements });
     }
 
+    checkSDcard() {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
+            this.setState(
+                Object.assign({ sdcard }, sdcard === false && { status: 'error' } )
+            );
+        });
+    }
+
     render({
         t,
         deviceID,
@@ -117,9 +121,13 @@ export default class Seed extends Component {
         const message = (
             <Message type={status === 'error' && 'error'}>
                 {
-                    !sdcard ?
-                        t('seed.error.200') :
-                        status === stateEnum.ERROR ? error : (!fromBackup && t('seed.createDescription'))
+                    /* eslint eqeqeq: 0 */
+                    sdcard == null ? '' : (
+                        !sdcard && !fromBackup ?
+                            t('seed.error.200') :
+                            status === stateEnum.ERROR ?
+                                error : (!fromBackup && t('seed.createDescription'))
+                    )
                 }
             </Message>
         );
@@ -133,7 +141,10 @@ export default class Seed extends Component {
                 <Button
                     type="button"
                     transparent
-                    onClick={() => this.setState({ fromBackup: false })}>
+                    onClick={() => {
+                        this.checkSDcard();
+                        this.setState({ fromBackup: false, error: '', status: 'default' });
+                    }}>
                     {t('seed.backToCreate')}
                 </Button>
             </Backups>
@@ -164,20 +175,17 @@ export default class Seed extends Component {
                         id="password_change"
                         label={t('seed.agreements.password_change')}
                         checked={agreements.password_change}
-                        onChange={this.handleAgreementChange}
-                    />
+                        onChange={this.handleAgreementChange} />
                     <Checkbox
                         id="password_required"
                         label={t('seed.agreements.password_required')}
                         checked={agreements.password_required}
-                        onChange={this.handleAgreementChange}
-                    />
+                        onChange={this.handleAgreementChange} />
                     <Checkbox
                         id="funds_access"
                         label={t('seed.agreements.funds_access')}
                         checked={agreements.funds_access}
-                        onChange={this.handleAgreementChange}
-                    />
+                        onChange={this.handleAgreementChange} />
                 </div>
                 <div>
                     <Button
@@ -189,7 +197,10 @@ export default class Seed extends Component {
                     <Button
                         type="button"
                         transparent
-                        onClick={() => this.setState({ fromBackup: true, error: '' })}>
+                        onClick={() => {
+                            this.checkSDcard();
+                            this.setState({ fromBackup: true, error: '', status: 'default' });
+                        }}>
                         {t('seed.backup')}
                     </Button>
                 </div>

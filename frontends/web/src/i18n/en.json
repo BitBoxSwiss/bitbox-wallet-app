@@ -276,7 +276,7 @@
         "backToCreate": "Or create a new wallet…",
         "error" : {
             "102": "The password must consist of at least 8 characters.",
-            "200": "Wallet creation requires an SD card for automatic encrypted backup of the seed."
+            "200": "Wallet creation requires an SD card for automatic backup."
         }
     },
     "initialize": {

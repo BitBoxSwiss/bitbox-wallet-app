@@ -69,6 +69,7 @@ export default class ManageBackups extends Component {
                         <Button secondary onClick={this.refresh}>
                             {t('backup.insertButton')}
                         </Button>
+                        {children}
                     </div>
                 </div>
             );
