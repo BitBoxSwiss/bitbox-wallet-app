@@ -150,6 +150,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	flag.Parse()
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
+	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).Info("environment")
 	var err error
 	token, err = random.HexString(16)
 	if err != nil {
