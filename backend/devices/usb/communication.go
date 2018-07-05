@@ -149,7 +149,6 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		panic("message too long")
 	}
 	var buf bytes.Buffer
-	buf.WriteByte(0)
 	buf.Write(msg)
 	buf.Write(bytes.Repeat([]byte{0}, maxSendLen-len(msg)))
 	_, err := communication.device.Write(buf.Bytes())
