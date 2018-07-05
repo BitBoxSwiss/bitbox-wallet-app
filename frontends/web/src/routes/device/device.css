@@ -1,6 +1,5 @@
 .container {
     align-items: center;
-    /* background-image: url("../../assets/mountains/alps-1.guetzli.jpg"); */
     background-position: center bottom;
     background-size: cover;
     display: flex;
