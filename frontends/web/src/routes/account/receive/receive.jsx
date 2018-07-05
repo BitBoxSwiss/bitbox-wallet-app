@@ -90,6 +90,7 @@ export default class Receive extends Component {
                         {t('button.previous')}
                     </Button>
                     {t('receive.label')}
+                    {' '}
                     ({activeIndex + 1}/{receiveAddresses.length})
                     <Button
                         transparent
