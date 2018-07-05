@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiPost } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import Backups from '../../components/backups/backups';
 import { PasswordRepeatInput } from '../../components/password';
 import { Button, Input, Checkbox } from '../../components/forms';
@@ -25,11 +25,20 @@ export default class Seed extends Component {
         backupPassword: '',
         error: '',
         fromBackup: false,
+        sdcard: null,
         agreements: {
             password_change: false,
             password_required: false,
             funds_access: false,
         },
+    }
+
+    componentDidMount () {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
+            this.setState(
+                Object.assign({ sdcard }, sdcard === false && { status: 'error' } )
+            );
+        });
     }
 
     validate = () => {
@@ -39,8 +48,8 @@ export default class Seed extends Component {
         return this.state.backupPassword && this.state.walletName !== '';
     }
 
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
+    handleFormChange = ({ target }) => {
+        this.setState({ [target.id]: target.value });
     }
 
     handleSubmit = event => {
@@ -82,7 +91,7 @@ export default class Seed extends Component {
     }
 
     validAgreements = () => {
-        const { agreements }= this.state;
+        const { agreements } = this.state;
         const invalid = Object.keys(agreements).map(agr => agreements[agr]).includes(false);
         return !invalid;
     }
@@ -102,11 +111,16 @@ export default class Seed extends Component {
         walletName,
         error,
         fromBackup,
+        sdcard,
         agreements,
     }) {
         const message = (
             <Message type={status === 'error' && 'error'}>
-                {status === stateEnum.ERROR ? error : (!fromBackup && t('seed.createDescription'))}
+                {
+                    !sdcard ?
+                        t('seed.error.200') :
+                        status === stateEnum.ERROR ? error : (!fromBackup && t('seed.createDescription'))
+                }
             </Message>
         );
 
