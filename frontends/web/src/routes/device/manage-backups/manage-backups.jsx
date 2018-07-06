@@ -6,7 +6,6 @@ import Backups from '../../../components/backups/backups';
 
 export default function ManageBackups({
     deviceID,
-    displayError,
     guide,
 }) {
     return (
@@ -19,8 +18,7 @@ export default function ManageBackups({
                 </div>
                 <Backups
                     deviceID={deviceID}
-                    showCreate={true}
-                    displayError={displayError}>
+                    showCreate={true}>
                     <ButtonLink
                         secondary
                         href={`/device/${deviceID}`}

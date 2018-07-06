@@ -9,7 +9,7 @@ import BackupsListItem from './backup';
 import style from './backups.css';
 
 @translate()
-export default class ManageBackups extends Component {
+export default class Backups extends Component {
     state = {
         backupList: [],
         selectedBackup: null,
@@ -32,10 +32,6 @@ export default class ManageBackups extends Component {
 
     handleBackuplistChange = event => {
         this.setState({ selectedBackup: event.target.value });
-    }
-
-    displayError = errorMessage => {
-        this.props.displayError(errorMessage);
     }
 
     scrollIntoView = ({ target }) => {
@@ -102,7 +98,6 @@ export default class ManageBackups extends Component {
                         }
                         <Restore
                             selectedBackup={selectedBackup}
-                            displayError={this.displayError}
                             deviceID={deviceID}
                             requireConfirmation={requireConfirmation}
                         />

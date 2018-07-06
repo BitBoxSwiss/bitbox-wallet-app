@@ -80,8 +80,8 @@ export default class Restore extends Component {
             this.abort();
             if (didRestore) {
                 route('/', true);
-            } else {
-                this.props.displayError(errorMessage);
+            } else if (errorMessage) {
+                alert(errorMessage); // eslint-disable-line no-alert
             }
         });
     }

@@ -190,7 +190,6 @@ export default class App extends Component {
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
-                            displayError={(msg) => { if (msg) alert('TODO' + msg); }}
                             deviceIDs={deviceIDs}
                             guide={guide} />
                         <Device path="/device/:deviceID" deviceIDs={deviceIDs} guide={guide} />

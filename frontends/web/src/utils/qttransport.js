@@ -11,7 +11,7 @@ function initTransport() {
         if (webChannel) {
             resolve(webChannel);
         } else if (cache) {
-            var check = function() {
+            const check = function() { // eslint-disable-line func-style
                 if (webChannel) {
                     resolve(webChannel);
                 } else {
@@ -20,7 +20,7 @@ function initTransport() {
             };
             check();
         } else if (typeof qt !== 'undefined') { // qt defined if running in qtwebengine.
-            var initWebChannel = function(channel){
+            const initWebChannel = function(channel){ // eslint-disable-line func-style
                 webChannel = channel;
                 webChannel.objects.backend.gotResponse.connect(function(queryID, response) {
                     queryPromises[queryID].resolve(JSON.parse(response));
@@ -32,7 +32,7 @@ function initTransport() {
                 });
                 resolve(webChannel);
             };
-            cache = new QWebChannel(qt.webChannelTransport, initWebChannel);
+            cache = new QWebChannel(qt.webChannelTransport, initWebChannel); // eslint-disable-line no-undef
         } else {
             reject();
         }
@@ -43,7 +43,7 @@ export function call(query) {
     return new Promise((resolve, reject) => {
         initTransport().then(channel => {
             queryID++;
-            queryPromises[queryID] = { resolve: resolve, reject: reject };
+            queryPromises[queryID] = { resolve, reject };
             channel.objects.backend.call(queryID, query);
         });
     });

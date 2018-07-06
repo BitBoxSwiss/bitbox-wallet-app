@@ -2,7 +2,7 @@ import { apiPort, apiToken, isTLS } from './request';
 import { qtSubscribePushNotifications } from './qttransport';
 
 let socket = null;
-let currentListeners = [];
+const currentListeners = [];
 
 export function apiWebsocket(msgCallback) {
     if (typeof qt !== 'undefined') {
@@ -17,8 +17,7 @@ export function apiWebsocket(msgCallback) {
         };
 
         socket.onerror = function(event) {
-            console.log('websocket error');
-            console.log(event);
+            console.error('websocket error', event);
         };
 
         // Listen for messages
