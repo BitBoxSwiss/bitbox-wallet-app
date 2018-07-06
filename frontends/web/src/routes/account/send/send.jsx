@@ -9,7 +9,8 @@ import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
-import Toast from '../../../components/toast/Toast';
+import approve from '../../../assets/device/approve.png';
+import reject from '../../../assets/device/reject.png';
 import style from './send.css';
 
 @translate()
@@ -33,6 +34,7 @@ export default class Send extends Component {
             amountError: null,
             sendAll: false,
             isSent: false,
+            isAborted: false,
             paired: null,
             fiatAmount: null,
             fiatUnit: props.fiat.code,
@@ -68,8 +70,8 @@ export default class Send extends Component {
     send = () => {
         this.setState({ signProgress: null });
         this.props.setConfirmation({ isConfirming: true });
-        apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(res => {
-            if (res.success) {
+        apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(result => {
+            if (result.success) {
                 this.setState({
                     isSent: true,
                     recipientAddress: null,
@@ -79,7 +81,14 @@ export default class Send extends Component {
                     amount: null,
                     signProgress: null,
                 });
+                setTimeout(() => this.setState({ isSent: false }), 5000);
+            } else {
+                this.setState({
+                    isAborted: true,
+                });
+                setTimeout(() => this.setState({ isAborted: false }), 5000);
             }
+            // The following method allows pressing escape again.
             this.props.setConfirmation({ isConfirming: false });
         }).catch(() => {
             this.props.setConfirmation({ isConfirming: false });
@@ -231,6 +240,7 @@ export default class Send extends Component {
         sendAll,
         feeTarget,
         isSent,
+        isAborted,
         addressError,
         amountError,
         paired,
@@ -240,8 +250,8 @@ export default class Send extends Component {
             if (signProgress) {
                 return (
                     <span>
-                      This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times. <br/>
-                      Progress: {signProgress.step}/{signProgress.steps}
+                        This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times.<br />
+                        Progress: {signProgress.step}/{signProgress.steps}
                     </span>
                 );
             }
@@ -393,12 +403,20 @@ export default class Send extends Component {
                     }
                     {
                         isSent && (
-                            <Toast
-                                theme="success"
-                                message={t('send.success')}
-                                withGuide={guide.shown}
-                                onHide={() => this.setState({ isSent: false })}
-                            />
+                            <WaitDialog title={t('send.success')}>
+                                <div style="margin-top: 20px;">
+                                    <img src={approve} alt="Success" />
+                                </div>
+                            </WaitDialog>
+                        )
+                    }
+                    {
+                        isAborted && (
+                            <WaitDialog title={t('send.abort')}>
+                                <div style="margin-top: 20px;">
+                                    <img src={reject} alt="Abort" />
+                                </div>
+                            </WaitDialog>
                         )
                     }
                 </div>
