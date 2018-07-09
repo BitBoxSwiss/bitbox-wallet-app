@@ -22,7 +22,7 @@ export default function Balance({
                     <td className={style.availableAmount}>{balance.available.amount}</td>
                     <td className={style.availableUnit}>{balance.available.unit}</td>
                 </tr>
-                <Rates tableCell amount={balance.available} fiat={fiat} />
+                <Rates tableRow amount={balance.available} fiat={fiat} />
             </table>
             {
                 balance && balance.hasIncoming && (

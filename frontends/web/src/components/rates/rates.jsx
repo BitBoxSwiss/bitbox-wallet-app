@@ -10,7 +10,7 @@ export default class Rates extends UpdatingComponent {
         amount,
         children,
         fiat,
-        tableCell,
+        tableRow,
     }, {
         rates,
     }) {
@@ -22,7 +22,7 @@ export default class Rates extends UpdatingComponent {
             return null;
         }
         const value = rates[coin][fiat.code] * Number(amount.amount);
-        if (tableCell) {
+        if (tableRow) {
             return (
                 <tr className={style.fiatRow}>
                     <td className={style.availableFiatAmount}>{formatAsCurrency(value)}</td>
