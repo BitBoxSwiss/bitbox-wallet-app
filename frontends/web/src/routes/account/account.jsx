@@ -100,16 +100,13 @@ export default class Account extends Component {
     onStatusChanged = () => {
         apiGet(`wallet/${this.props.code}/status`).then(status => {
             let state = {
-                walletInitialized: false,
+                walletInitialized: status.includes('accountSynced'),
                 walletConnected: !status.includes('offlineMode'),
+                isReceive: false,
+                isSend: false
             };
 
-            if (status.includes('accountSynced')) {
-                state.walletInitialized = true;
-                state.isReceive = false;
-                state.isSend = false;
-            } else {
-                state.walletInitialized = false;
+            if (!status.walletInitialized && !status.includes('accountDisabled')) {
                 apiPost(`wallet/${this.props.code}/init`);
             }
 
