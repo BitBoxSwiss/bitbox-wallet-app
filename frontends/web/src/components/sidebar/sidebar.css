@@ -1,12 +1,13 @@
 .sidebar {
   align-content: stretch;
-  background: var(--background-sidebar);
-  border-right: 1px solid rgba(0, 0, 0, .04);
+  /*background: var(--background-sidebar);*/
+  /*border-right: 1px solid rgba(0, 0, 0, .04);*/
+  background-color: var(--color-dark);
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   height: 100vh;
-  padding: var(--spacing-large) 0;
+  padding: var(--size-extra-large) 0;
   width: var(--sidebar-width);
   z-index: 4001;
   overflow-y: auto;
@@ -22,21 +23,40 @@
   border-right: 0 solid var(--color-gray);
   color: white;
   display: block;
-  padding: var(--spacing-half) 2px;
+  padding: var(--spacing-half) 0;
   text-align: center;
   text-decoration: none;
   overflow: hidden;
 }
 
 a.sidebar-active {
-  border-right-width: 2px;
+  /*border-right-width: 2px;*/
   text-decoration: none;
   padding-right: 0;
 }
 
+.sidebar a::after {
+  content: '';
+  position: absolute;
+  display: block;
+  border-right: 6px solid var(--color-white);
+  border-top: var(--spacing-half) solid transparent;
+  border-bottom: var(--spacing-half) solid transparent;
+  height: calc(100% - var(--spacing-default));
+  width: 0;
+  top: 50%;
+  right: -6px;
+  transform: translateY(-50%);
+  /*transition: all 0.5s ease;*/
+}
+
+.sidebar a.sidebar-active::after {
+  right: 0;
+}
+
 a.sidebar-active .sidebar_label {
     font-weight: bold;
-    color: var(--color-softblack);
+    color: var(--color-white);
 }
 
 a.sidebar-active .stacked img:first-child,
