@@ -27,7 +27,8 @@ export default function (config, env, helpers) {
                 mangle: true,
                 ecma: 7,
                 output: {
-                    ecma: 7
+                    ecma: 7,
+                    beautify: false
                 },
                 compress: {
                     passes: 3,
