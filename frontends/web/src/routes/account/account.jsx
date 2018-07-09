@@ -102,12 +102,14 @@ export default class Account extends Component {
             let state = {
                 walletInitialized: false,
                 walletConnected: !status.includes('offlineMode'),
-                isReceive: false,
-                isSend: false
             };
+
             if (status.includes('accountSynced')) {
                 state.walletInitialized = true;
-            } else if (status.includes('keystoreAvailable')) {
+                state.isReceive = false;
+                state.isSend = false;
+            } else {
+                state.walletInitialized = false;
                 apiPost(`wallet/${this.props.code}/init`);
             }
 

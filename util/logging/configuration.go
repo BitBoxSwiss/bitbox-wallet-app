@@ -11,7 +11,7 @@ import (
 // Configuration serializes and deserializes the logging parameters.
 type Configuration struct {
 	// Output location of the logger.
-	// Can be either a relative path to the log file, STDOUT or STDERR.
+	// Can be either a path relative to the configuration directory, STDOUT or STDERR.
 	Output string `json:"output"`
 
 	// Level from which on the entries are logged.
