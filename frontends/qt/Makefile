@@ -16,7 +16,8 @@ linux:
 	cd build/linux-tmp && /opt/linuxdeployqt-continuous-x86_64.AppImage BitBox -appimage
 	rm build/linux-tmp/libserver.so
 	mv build/linux-tmp/Application-x86_64.AppImage build/linux/BitBox-x86_64.AppImage
-	cp -aR resources/linux build/tmp-deb/
+	cp -aR resources/linux build/tmp-deb
+	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
 	# fpm -s dir -t deb -n bitbox -v 0.0.1 -C build/tmp-deb/ && mv bitbox_0.0.1_amd64.deb build/linux/
 osx:
