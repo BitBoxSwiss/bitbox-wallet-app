@@ -558,11 +558,11 @@
             },
             {
                 "title": "How to securely pair with your phone",
-                "text": [ "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Afterwards, a secret key shared between the mobile phone and the BitBox is generated. Just follow the instructions in the mobile app." ]
+                "text": [ "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app." ]
             },
             {
                 "title": "What is a hidden wallet?",
-                "text": [ "It is a second wallet on the same device protected by a different PIN and recovery password, which you can use for plausible deniability." ]
+                "text": [ "It is a second wallet on the same device protected by a different PIN and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
             },
             {
                 "title": "How can I reset full 2FA?",
