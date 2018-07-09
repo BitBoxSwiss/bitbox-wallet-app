@@ -6,7 +6,14 @@ export default class Rates extends UpdatingComponent {
         return { rates: 'coins/rates' };
     }
 
-    render({ amount, children, fiat }, { rates }) {
+    render({
+        amount,
+        children,
+        fiat,
+        tableCell,
+    }, {
+        rates,
+    }) {
         let coin = amount.unit;
         if (coin.length === 4 && coin.startsWith('T')) {
             coin = coin.substring(1);
@@ -15,14 +22,23 @@ export default class Rates extends UpdatingComponent {
             return null;
         }
         const value = rates[coin][fiat.code] * Number(amount.amount);
-        return (
-            <span className={style.rates}>
-                {children}
-                {formatAsCurrency(value)}
-                {' '}
-                <span className={style.unit} onClick={fiat.next}>{fiat.code}</span>
-            </span>
-        );
+        if (tableCell) {
+            return (
+                <tr className={style.fiatRow}>
+                    <td className={style.availableFiatAmount}>{formatAsCurrency(value)}</td>
+                    <td className={style.availableFiatUnit} onClick={fiat.next}>{fiat.code}</td>
+                </tr>
+            );
+        } else {
+            return (
+                <span className={style.rates}>
+                    {children}
+                    {formatAsCurrency(value)}
+                    {' '}
+                    <span className={style.unit} onClick={fiat.next}>{fiat.code}</span>
+                </span>
+            );
+        }
     }
 }
 

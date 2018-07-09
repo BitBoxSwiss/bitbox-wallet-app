@@ -7,6 +7,7 @@
 }
 
 .amount {
+    position: relative;
     font-size: var(--size-extra-large);
     line-height: 1;
     margin: 0;
@@ -21,13 +22,86 @@
     margin: 0;
     padding-top: 1px;
     color: var(--color-secondary);
+    font-size: 14px;
+    line-height: 1;
 }
 
 .balanceConversion {
-    padding-left: var(--spacing-large);
+    padding-left: var(--spacing-default);
     font-size: 24px;
 }
 
 .incomingConversion {
-    padding-left: var(--spacing-default);
+
+}
+
+.balanceTable {
+    border-spacing: 0;
+    position: relative;
+}
+
+.balanceTable tr:not(:first-child) {
+    display: inline-block;
+    vertical-align: bottom;
+}
+
+.balanceTable th {
+    text-transform: uppercase;
+    text-align: left;
+    padding-bottom: 0;
+}
+
+.balanceTable td {
+    font-size: 24px;
+    vertical-align: bottom;
+}
+
+.balanceTable .availableAmount {
+    font-size: var(--size-extra-large);
+    padding-right: var(--spacing-half);
+    text-align: right;
+}
+
+.balanceTable .availableUnit {
+    font-size: var(--size-large);
+    color: var(--color-secondary);
+    padding-right: var(--spacing-default);
+}
+
+.balanceTable .incomingRow {
+    display: block;
+}
+
+.balanceTable .incomingRow td {
+    font-size: var(--size-small);
+}
+
+@media (max-width: 880px) {
+    .pendingBalance {
+        font-size: var(--size-small);
+    }
+
+    .balanceConversion {
+        display: block;
+        position: absolute;
+        top: 38px;
+        padding-left: 0;
+        white-space: nowrap;
+        font-size: var(--size-medium);
+    }
+
+    .balanceTable tr {
+        display: table-row !important;
+    }
+
+    .balanceTable th {
+        padding-bottom: 5px;
+    }
+
+    .balanceTable .availableAmount,
+    .balanceTable .availableUnit {
+        font-size: 24px;
+        line-height:24px;
+        line-height: 1;
+    }
 }
