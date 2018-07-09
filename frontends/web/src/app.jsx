@@ -8,6 +8,8 @@ import { equal } from './utils/equal';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
+import Send from './routes/account/send/send';
+import Receive from './routes/account/receive/receive';
 import Settings from './routes/settings/settings';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
@@ -17,6 +19,7 @@ import A from './components/anchor/anchor';
 @translate()
 export default class App extends Component {
     state = {
+        accounts: [],
         backendConnected: true,
         walletInitialized: false,
         deviceIDs: [],
@@ -34,6 +37,7 @@ export default class App extends Component {
     handleRoute = event => {}
 
     componentDidMount() {
+        apiGet('wallets').then(accounts => this.setState({ accounts }));
         this.onDevicesRegisteredChanged();
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
@@ -157,7 +161,16 @@ export default class App extends Component {
         });
     }
 
-    render({ t }, { backendConnected, deviceIDs, walletInitialized, update, guideShown, fiatCode, fiatList }) {
+    render({ t }, {
+        accounts,
+        backendConnected,
+        deviceIDs,
+        walletInitialized,
+        update,
+        guideShown,
+        fiatCode,
+        fiatList
+    }) {
         if (!backendConnected) {
             return (
                 <div className="app" style="padding: 40px">
@@ -182,17 +195,38 @@ export default class App extends Component {
                         </A>
                     </Status>}
                     <Router onChange={this.handleRoute}>
-                        {/*
-                        <Redirect path="/" to={`/account/${wallets[0].code}`} />
-                        */}
-                        <Account path="/account/:code?" deviceIDs={deviceIDs} guide={guide} fiat={fiat} />
-                        <Settings path="/settings" deviceIDs={deviceIDs} guide={guide} fiat={fiat} />
+                        <Send
+                            path="/account/:code/send"
+                            deviceIDs={deviceIDs}
+                            accounts={accounts}
+                            guide={guide}
+                            fiat={fiat} />
+                        <Receive
+                            path="/account/:code/receive"
+                            deviceIDs={deviceIDs}
+                            accounts={accounts}
+                            guide={guide}
+                            fiat={fiat} />
+                        <Account
+                            path="/account/:code?"
+                            deviceIDs={deviceIDs}
+                            accounts={accounts}
+                            guide={guide}
+                            fiat={fiat} />
+                        <Settings
+                            path="/settings"
+                            deviceIDs={deviceIDs}
+                            guide={guide}
+                            fiat={fiat} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
                             deviceIDs={deviceIDs}
                             guide={guide} />
-                        <Device path="/device/:deviceID" deviceIDs={deviceIDs} guide={guide} />
+                        <Device
+                            path="/device/:deviceID"
+                            deviceIDs={deviceIDs}
+                            guide={guide} />
                         <Device
                             default
                             deviceID={deviceIDs[0]}

@@ -31,7 +31,10 @@ i18n.addResourceBundle('en', 'app', appTranslationsEN);
 //i18n.addResourceBundle('de', 'app', appTranslationsDE);
 
 i18n.on('languageChanged', (lng) => {
-    apiGet('config').then((config) => {
+    apiGet('config').then((config = {}) => {
+        if (config.frontend && config.frontend.userLanguage === lng) {
+            return;
+        }
         const newConf = Object.assign(config, {
             frontend: Object.assign({}, config.frontend, {
                 userLanguage: lng

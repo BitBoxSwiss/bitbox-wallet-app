@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
-import { Button, Input } from '../../../components/forms';
+import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
@@ -71,7 +71,7 @@ export default class Receive extends Component {
         paired,
     }) {
         let uriPrefix = 'bitcoin:';
-        if (coinCode == 'ltc' || coinCode == 'tltc') {
+        if (coinCode === 'ltc' || coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
         }
         const content = receiveAddresses ? (
@@ -136,9 +136,11 @@ export default class Receive extends Component {
                             </div>
                         </div>
                         <div class="flex flex-row flex-between" style="margin: 0 2rem 2rem 2rem;">
-                            <Button secondary onClick={this.props.onClose}>
+                            <ButtonLink
+                                secondary
+                                href={`/account/${code}`}>
                                 {t('button.back')}
-                            </Button>
+                            </ButtonLink>
                             <Button
                                 primary
                                 disabled={verifying}

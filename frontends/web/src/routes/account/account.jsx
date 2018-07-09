@@ -3,13 +3,11 @@ import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
-import { Button } from '../../components/forms';
+import { ButtonLink } from '../../components/forms';
 import { Guide, Entry } from '../../components/guide/guide';
 import Balance from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
-import Send from './send/send';
-import Receive from './receive/receive';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
 import A from '../../components/anchor/anchor';
@@ -18,15 +16,11 @@ import componentStyle from '../../components/style.css';
 @translate()
 export default class Account extends Component {
     state = {
-        accounts: [],
         walletInitialized: false,
         transactions: [],
         walletConnected: false,
         balance: null,
         hasCard: false,
-        isReceive: false,
-        isSend: false,
-        isConfirming: false,
     }
 
     componentWillMount() {
@@ -34,9 +28,6 @@ export default class Account extends Component {
     }
 
     componentDidMount() {
-        apiGet('wallets').then(accounts => {
-            this.setState({ accounts });
-        });
         this.unsubscribe = apiWebsocket(this.onWalletEvent);
         this.checkSDCards();
         if (!this.props.code) {
@@ -59,8 +50,8 @@ export default class Account extends Component {
             this.checkSDCards();
         }
         if (!this.props.code) {
-            if (this.state.accounts.length) {
-                route(`/account/${this.state.accounts[0].code}`, true);
+            if (this.props.accounts && this.props.accounts.length) {
+                route(`/account/${this.props.accounts[0].code}`, true);
             }
         }
     }
@@ -78,7 +69,6 @@ export default class Account extends Component {
         if (e.keyCode === 27 && !this.state.isConfirming) {
             this.setState({
                 isReceive: false,
-                isSend: false,
             });
         }
     }
@@ -98,12 +88,12 @@ export default class Account extends Component {
     }
 
     onStatusChanged = () => {
+        if (!this.props.code) return;
+
         apiGet(`wallet/${this.props.code}/status`).then(status => {
             let state = {
                 walletInitialized: status.includes('accountSynced'),
                 walletConnected: !status.includes('offlineMode'),
-                isReceive: false,
-                isSend: false
             };
 
             if (!status.walletInitialized && !status.includes('accountDisabled')) {
@@ -131,140 +121,115 @@ export default class Account extends Component {
 
     render({
         t,
+        accounts,
         deviceIDs,
         guide,
         fiat,
     }, {
-        accounts,
-        walletInitialized,
         transactions,
+        walletInitialized,
         walletConnected,
         balance,
         hasCard,
-        isReceive,
-        isSend,
-        isConfirming,
     }) {
+        if (!accounts) return null;
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
 
-        if (!isReceive && !isSend) {
-            const noTransactions = (walletInitialized && transactions.length <= 0);
-            return (
-                <div class="contentWithGuide">
-                    <div class="container">
-                        <div class="headerContainer">
-                            <Status type="warning">
-                                {hasCard && t('warning.sdcard')}
-                            </Status>
-                            <div class="header">
-                                <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
-                                <div class={componentStyle.buttons} style="align-self: flex-end;">
-                                    <Button primary disabled={!walletInitialized} onClick={() => this.setState({ isReceive: true })}>
-                                        {t('button.receive')}
-                                    </Button>
-                                    <Button primary disabled={!walletInitialized || balance && balance.available.amount === '0'} onClick={() => this.setState({ isSend: true })}>
-                                        {t('button.send')}
-                                    </Button>
-                                </div>
-                            </div>
-                            <div>
-                                {
-                                    !walletConnected && (
-                                        <Status>
-                                            <p>{t('account.disconnect')}</p>
-                                        </Status>
-                                    )
-                                }
+        const noTransactions = (walletInitialized && transactions.length <= 0);
+        return (
+            <div class="contentWithGuide">
+                <div class="container">
+                    <div class="headerContainer">
+                        <Status type="warning">
+                            {hasCard && t('warning.sdcard')}
+                        </Status>
+                        <div class="header">
+                            <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
+                            <div class={componentStyle.buttons} style="align-self: flex-end;">
+                                <ButtonLink
+                                    primary
+                                    href={`/account/${this.props.code}/receive`}
+                                    disabled={!walletInitialized}>
+                                    {t('button.receive')}
+                                </ButtonLink>
+                                <ButtonLink
+                                    primary
+                                    href={`/account/${this.props.code}/send`}
+                                    disabled={!walletInitialized || balance && balance.available.amount === '0'}>
+                                    {t('button.send')}
+                                </ButtonLink>
                             </div>
                         </div>
-                        <div class={['innerContainer', ''].join(' ')}
-                            style>
-                            <HeadersSync coinCode={wallet.coinCode} />
+                        <div>
                             {
-                                !walletInitialized || !walletConnected ? (
-                                    <Spinner text={
-                                        !walletInitialized && t('account.initializing') ||
-                                        !walletConnected && t('account.reconnecting')
-                                    } />
-                                ) : (
-                                    <Transactions
-                                        explorerURL={wallet.blockExplorerTxPrefix}
-                                        transactions={transactions}
-                                        className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
-                                        fiat={fiat}
-                                    />
+                                !walletConnected && (
+                                    <Status>
+                                        <p>{t('account.disconnect')}</p>
+                                    </Status>
                                 )
                             }
-                            <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                                {t(`account.info.${this.props.code}`)}
-                            </Status>
                         </div>
                     </div>
-                    <Guide guide={guide} screen="account">
-                        <Entry title={t('guide.accountDescription.title')}>
-                            <p>{t('guide.accountDescription.text')}</p>
-                        </Entry>
-                        {balance && balance.available.amount === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
-                            <p>{t('guide.accountSendDisabled.text')}</p>
-                        </Entry>}
-                        <Entry title={t('guide.accountReload.title')}>
-                            <p>{t('guide.accountReload.text')}</p>
-                        </Entry>
-                        {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
-                            <p>{t('guide.accountTransactionLabel.text')}</p>
-                        </Entry>}
-                        {transactions.length > 0 && <Entry title={t('guide.accountTransactionTime.title')}>
-                            <p>{t('guide.accountTransactionTime.text')}</p>
-                        </Entry>}
-                        {transactions.length > 0 && <Entry title={t('guide.accountTransactionAttributes.title')}>
-                            <ul>
-                                {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
-                            </ul>
-                        </Entry>}
-                        {balance && balance.hasIncoming && <Entry title={t('guide.accountIncomingBalance.title')}>
-                            <p>{t('guide.accountIncomingBalance.text')}</p>
-                        </Entry>}
-                        <Entry title={t('guide.accountTransactionConfirmation.title')}>
-                            <p>{t('guide.accountTransactionConfirmation.text')}</p>
-                        </Entry>
-                        <Entry title={t('guide.accountFiat.title')}>
-                            <p>{t('guide.accountFiat.text')}</p>
-                        </Entry>
-                        <Entry title={t('guide.accountRates.title')}>
-                            <p>{t('guide.accountRates.text')}</p>
-                            <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
-                        </Entry>
-
-                    </Guide>
+                    <div class={['innerContainer', ''].join(' ')}>
+                        <HeadersSync coinCode={wallet.coinCode} />
+                        {
+                            !walletInitialized || !walletConnected ? (
+                                <Spinner text={
+                                    !walletInitialized && t('account.initializing') ||
+                                    !walletConnected && t('account.reconnecting')
+                                } />
+                            ) : (
+                                <Transactions
+                                    explorerURL={wallet.blockExplorerTxPrefix}
+                                    transactions={transactions}
+                                    className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
+                                    fiat={fiat}
+                                />
+                            )
+                        }
+                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
+                            {t(`account.info.${this.props.code}`)}
+                        </Status>
+                    </div>
                 </div>
-            );
-        } else if (isReceive) {
-            return (
-                <Receive
-                    deviceIDs={deviceIDs}
-                    coinCode={wallet.coinCode}
-                    code={this.props.code}
-                    onClose={() => this.setState({ isReceive: false })}
-                    guide={guide}
-                />
-            );
-        } else if (isSend) {
-            return (
-                <Send
-                    deviceIDs={deviceIDs}
-                    isConfirming={isConfirming}
-                    setConfirmation={state => this.setState(state)}
-                    wallet={wallet}
-                    walletCode={wallet.code}
-                    walletInitialized={walletInitialized}
-                    balance={balance}
-                    unit={balance.available.unit}
-                    onClose={() => this.setState({ isSend: false })}
-                    guide={guide}
-                    fiat={fiat}
-                />
-            );
-        }
+                <Guide guide={guide} screen="account">
+                    <Entry title={t('guide.accountDescription.title')}>
+                        <p>{t('guide.accountDescription.text')}</p>
+                    </Entry>
+                    {balance && balance.available.amount === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
+                        <p>{t('guide.accountSendDisabled.text')}</p>
+                    </Entry>}
+                    <Entry title={t('guide.accountReload.title')}>
+                        <p>{t('guide.accountReload.text')}</p>
+                    </Entry>
+                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
+                        <p>{t('guide.accountTransactionLabel.text')}</p>
+                    </Entry>}
+                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionTime.title')}>
+                        <p>{t('guide.accountTransactionTime.text')}</p>
+                    </Entry>}
+                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionAttributes.title')}>
+                        <ul>
+                            {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
+                        </ul>
+                    </Entry>}
+                    {balance && balance.hasIncoming && <Entry title={t('guide.accountIncomingBalance.title')}>
+                        <p>{t('guide.accountIncomingBalance.text')}</p>
+                    </Entry>}
+                    <Entry title={t('guide.accountTransactionConfirmation.title')}>
+                        <p>{t('guide.accountTransactionConfirmation.text')}</p>
+                    </Entry>
+                    <Entry title={t('guide.accountFiat.title')}>
+                        <p>{t('guide.accountFiat.text')}</p>
+                    </Entry>
+                    <Entry title={t('guide.accountRates.title')}>
+                        <p>{t('guide.accountRates.text')}</p>
+                        <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
+                    </Entry>
+
+                </Guide>
+            </div>
+        );
     }
 }
