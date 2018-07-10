@@ -110,6 +110,7 @@ export default class App extends Component {
                 walletInitialized
             });
             if (!walletInitialized) {
+                console.log('app.jsx route /')
                 route('/', true);
             }
         });

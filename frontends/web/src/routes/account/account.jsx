@@ -42,17 +42,19 @@ export default class Account extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
+        if (!this.props.code) {
+            if (this.props.accounts && this.props.accounts.length) {
+                console.log('route', `/account/${this.props.accounts[0].code}`);
+                return route(`/account/${this.props.accounts[0].code}`, true);
+            }
+            return;
+        }
         if (this.props.code !== prevProps.code) {
             this.onStatusChanged();
             this.checkSDCards();
         }
         if (this.props.deviceIDs.length !== prevProps.deviceIDs.length) {
             this.checkSDCards();
-        }
-        if (!this.props.code) {
-            if (this.props.accounts && this.props.accounts.length) {
-                route(`/account/${this.props.accounts[0].code}`, true);
-            }
         }
     }
 
@@ -74,6 +76,7 @@ export default class Account extends Component {
     }
 
     onWalletEvent = data => {
+        if (!this.props.code) return;
         if (data.type !== 'wallet' || data.code !== this.props.code) {
             return;
         }
@@ -87,17 +90,16 @@ export default class Account extends Component {
         }
     }
 
-    onStatusChanged = () => {
-        if (!this.props.code) return;
-
-        apiGet(`wallet/${this.props.code}/status`).then(status => {
+    onStatusChanged() {
+        const code = this.props.code;
+        if (!code) return;
+        apiGet(`wallet/${code}/status`).then(status => {
             let state = {
                 walletInitialized: status.includes('accountSynced'),
                 walletConnected: !status.includes('offlineMode'),
             };
-
             if (!status.walletInitialized && !status.includes('accountDisabled')) {
-                apiPost(`wallet/${this.props.code}/init`);
+                apiPost(`wallet/${code}/init`);
             }
 
             this.setState(state);
@@ -106,6 +108,7 @@ export default class Account extends Component {
     }
 
     onWalletChanged = () => {
+        if (!this.props.code) return;
         if (this.state.walletInitialized && this.state.walletConnected) {
             apiGet(`wallet/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
