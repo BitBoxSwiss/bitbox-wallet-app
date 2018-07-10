@@ -59,6 +59,7 @@
 
     /* sidebar */
     --sidebar-width: 72px;
+    --sidebar-width-large: 180px;
 
     /* header */
     --header-height: 91px;

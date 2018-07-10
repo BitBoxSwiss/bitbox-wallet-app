@@ -60,7 +60,7 @@ class Sidebar extends Component {
                                     <div class="single">
                                         <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
                                     </div>
-                                    {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
+                                    { <span className="sidebar_label">{ t('sidebar.device') }</span> }
                                 </Link>
                             </div>
                         ))
@@ -71,7 +71,7 @@ class Sidebar extends Component {
                                 <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={ t('sidebar.settings') } />
                                 <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                             </div>
-                            {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
+                            { <span className="sidebar_label">{ t('sidebar.settings') }</span> }
                         </Link>
                     </div>
                 </div>

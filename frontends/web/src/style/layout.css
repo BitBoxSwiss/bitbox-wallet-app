@@ -116,6 +116,7 @@
     font-size: var(--size-large);
     line-height: 36px;
     user-select: none;
+    align-self: center;
 }
 
 .subHeaderContainer {
