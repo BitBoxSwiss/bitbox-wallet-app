@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	firmwareVersion = semver.NewSemVer(2, 2, 3)
+	firmwareVersion = semver.NewSemVer(3, 0, 2)
 )
 
 const (
