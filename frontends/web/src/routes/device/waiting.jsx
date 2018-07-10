@@ -57,7 +57,7 @@ class SkipForTestingButton extends Component {
                     type="password"
                     autoFocus
                     id="testPIN"
-                    label="Test PIN"
+                    label="Test Password"
                     onInput={this.handleFormChange}
                     value={testPIN} />
                 <Button type="submit" secondary>

@@ -107,7 +107,7 @@ export default class HiddenWallet extends Component {
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
                                     idPrefix="pin"
-                                    pattern="^[0-9]+$"
+                                    pattern="^.{4,}$"
                                     title={t('initialize.input.invalid')}
                                     label={t('hiddenWallet.pinLabel')}
                                     repeatLabel={t('hiddenWallet.pinRepeatLabel')}

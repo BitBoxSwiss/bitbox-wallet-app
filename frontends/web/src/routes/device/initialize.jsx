@@ -95,7 +95,7 @@ export default class Initialize extends Component {
                         {formSubmissionState}
                         <form onSubmit={this.handleSubmit}>
                             <PasswordRepeatInput
-                                pattern="^[0-9]+$"
+                                pattern="^.{4,}$"
                                 title={t('initialize.input.invalid')}
                                 label={t('initialize.input.label')}
                                 repeatLabel={t('initialize.input.labelRepeat')}

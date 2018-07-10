@@ -17,12 +17,12 @@
     "unlock": {
         "unlocking": "Unlocking…",
         "input": {
-            "label": "PIN",
-            "placeholder": "Enter your PIN to unlock the device"
+            "label": "Device password",
+            "placeholder": "Enter your device password to unlock the device"
         },
         "error": {
             "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
-            "109_normal": "Wrong PIN. {{remainingAttempts}} attempts remain before the device is reset.",
+            "109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
             "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
         }
     },
@@ -113,12 +113,12 @@
     },
     "hiddenWallet": {
         "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
-        "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> PIN + recovery password combination.",
-        "info2HTML": "Define the PIN and recovery password you want to associate with your hidden wallet below. The PIN and recovery password must be <strong>different</strong> from the ones you defined for your primary wallet.",
+        "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> device password + recovery password combination.",
+        "info2HTML": "Define the device password and recovery password you want to associate with your hidden wallet below. The device password and recovery password must be <strong>different</strong> from the ones you defined for your primary wallet.",
         "info3HTML": "<!-- TODO -->",
-        "pinLabel": "Hidden PIN",
-        "pinRepeatLabel": "Repeat hidden PIN",
-        "pinRepeatPlaceholder": "Please confirm hidden PIN",
+        "pinLabel": "Hidden device password",
+        "pinRepeatLabel": "Repeat hidden device password",
+        "pinRepeatPlaceholder": "Please confirm hidden device password",
         "passwordLabel": "Hidden recovery password",
         "passwordPlaceholder": "Please confirm hidden recovery password"
     },
@@ -286,24 +286,24 @@
         }
     },
     "initialize": {
-        "creating": "Setting PIN…",
-        "description": "Please set a PIN to interact with your device (min. 8 digits)",
+        "creating": "Setting device password…",
+        "description": "Please set a device password to interact with your device",
         "input": {
-            "label": "PIN",
-            "labelRepeat": "Repeat PIN",
-            "placeholderRepeat": "Please confirm PIN",
-            "invalid": "Only digits are allowed"
+            "label": "Device password",
+            "labelRepeat": "Repeat device password",
+            "placeholderRepeat": "Please confirm device password",
+            "invalid": ""
         },
-        "create": "Set PIN",
+        "create": "Set device password",
         "error" : {
-            "102": "The PIN must consist of at least 8 digits."
+            "102": "The device password must consist of at least 4 characters."
         }
     },
     "changePin": {
         "oldTitle": "",
-        "oldLabel": "Current PIN or password",
+        "oldLabel": "Current device password",
         "oldPlaceholder": "",
-        "newTitle": "New PIN"
+        "newTitle": "New device password"
     },
     "backup": {
         "title": "Manage Backups",
@@ -327,7 +327,7 @@
             "restoring": "Restoring backup…",
             "password": {
                 "label": "Recovery password or hidden recovery password",
-                "placeholder": "recovery password",
+                "placeholder": "Recovery password",
                 "repeatPlaceholder": "Repeat recovery password",
                 "showLabel": "Recovery password"
             }
@@ -364,7 +364,7 @@
         "upgrade": "Upgrade",
         "download": "Download",
         "hiddenwallet": "Create Hidden Wallet",
-        "changepin": "Change PIN"
+        "changepin": "Change device password"
     },
     "password": {
         "show": "Show {{label}}",
@@ -410,7 +410,7 @@
             "title": "Can I use the app without a device?",
             "text": [
                 "Unfortunately, this is not yet possible at the moment.",
-                "Luckily, you are currently in developer mode and can simply enter a PIN, from which a seed is derived deterministically (i.e. without additional randomness)."
+                "Luckily, you are currently in developer mode and can simply enter a device password, from which a seed is derived deterministically (i.e. without additional randomness)."
             ]
         },
         "account": [],
@@ -563,7 +563,7 @@
             },
             {
                 "title": "What is a hidden wallet?",
-                "text": [ "It is a second wallet on the same device protected by a different PIN and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
+                "text": [ "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
             },
             {
                 "title": "How can I reset full 2FA?",
@@ -586,26 +586,22 @@
         ],
         "unlock": [
             {
-                "title": "I already have a device with a password, how do I unlock?",
-                "text": [ "If you set up your BitBox previously with a password, you can use it to unlock the device. Just enter it in the PIN input field." ]
-            },
-            {
-                "title": "What do I do if I forgot the PIN?",
-                "text": [ "You have to reset the device and restore the wallet from a backup." ]
+                "title": "What do I do if I forgot the device password?",
+                "text": [ "You have to reset the device and restore the wallet from a backup, using the recovery password." ]
             },
             {
                 "title": "How do I reset the device?",
-                "text": [ "Enter a wrong PIN 15 times. The last few attempts require a long touch on the device." ]
+                "text": [ "Enter a wrong device password 15 times. The last few attempts require a long touch on the device." ]
             }
         ],
         "initialize": [
             {
-                "title": "What is the PIN used for?",
-                "text": [ "The PIN is used to authenticate access to the device and to encrypt the communication." ]
+                "title": "What is the device password used for?",
+                "text": [ "The device password is used to authenticate access to the device and to encrypt the communication." ]
             },
             {
-                "title": "What happens if I forget the PIN?",
-                "text": [ "If you forget the PIN, you have to reset the device and restore the wallet from a backup." ]
+                "title": "What happens if I forget the device password?",
+                "text": [ "If you forget the device password, you have to reset the device and restore the wallet from a backup." ]
             }
         ],
         "seed": [

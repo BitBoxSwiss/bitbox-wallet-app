@@ -106,7 +106,7 @@ export default class HiddenWallet extends Component {
                                 {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
                                 <PasswordRepeatInput
                                     idPrefix="newPIN"
-                                    pattern="^[0-9]+$"
+                                    pattern="^.{4,}$"
                                     title={t('initialize.input.invalid')}
                                     label={t('initialize.input.label')}
                                     repeatLabel={t('initialize.input.labelRepeat')}
