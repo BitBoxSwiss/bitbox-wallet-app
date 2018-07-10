@@ -16,6 +16,10 @@ export default class Settings extends Component {
     }
 
     componentDidMount() {
+        this.load();
+    }
+
+    load = () => {
         apiGet('config').then(config => this.setState({ config }));
     }
 
@@ -31,13 +35,11 @@ export default class Settings extends Component {
         });
     }
 
-    save = event => {
-        if (!this.state.config) {
-            return;
-        }
-        apiPost('config', this.state.config).then(() => {
-            this.setState({ toast: true });
+    setFrontendConfig = object => {
+        const newConfig = Object.assign(this.state.config, {
+            frontend: Object.assign({}, this.state.config.frontend, object)
         });
+        apiPost('config', newConfig);
     }
 
     render({
@@ -101,6 +103,22 @@ export default class Settings extends Component {
                                                     id="litecoinP2WPKHActive"
                                                     onChange={this.toggleAccountActive}
                                                     label={t('settings.accounts.litecoinP2WPKH')}
+                                                    className="text-medium" />
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('settings.expert.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-row flex-start flex-wrap wrapped">
+                                            <div class={style.column}>
+                                                <Checkbox
+                                                    checked={config.frontend.coinControl}
+                                                    id="coinControl"
+                                                    onChange={ev => { this.setFrontendConfig({ coinControl: ev.target.checked }); }}
+                                                    label={t('settings.expert.coinControl')}
                                                     className="text-medium" />
                                             </div>
                                         </div>

@@ -40,10 +40,15 @@ func NewSendAmountAll() SendAmount {
 
 // newTx creates a new tx to the given recipient address. It also returns a set of used account
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
-// transaction.
+// transaction. selectedUTXOs restricts the available coins; if empty, no restriction is applied and
+// all unspent coins can be used.
 func (account *Account) newTx(
-	recipientAddress string, amount SendAmount, feeTargetCode FeeTargetCode) (
-	map[wire.OutPoint]*transactions.TxOut, *maketx.TxProposal, error) {
+	recipientAddress string,
+	amount SendAmount,
+	feeTargetCode FeeTargetCode,
+	selectedUTXOs map[wire.OutPoint]struct{},
+) (
+	map[wire.OutPoint]*transactions.SpendableOutput, *maketx.TxProposal, error) {
 
 	account.log.Debug("Prepare new transaction")
 
@@ -73,6 +78,12 @@ func (account *Account) newTx(
 	utxo := account.transactions.SpendableOutputs()
 	wireUTXO := make(map[wire.OutPoint]*wire.TxOut, len(utxo))
 	for outPoint, txOut := range utxo {
+		// Apply coin control.
+		if len(selectedUTXOs) != 0 {
+			if _, ok := selectedUTXOs[outPoint]; !ok {
+				continue
+			}
+		}
 		wireUTXO[outPoint] = txOut.TxOut
 	}
 	var txProposal *maketx.TxProposal
@@ -112,12 +123,15 @@ func (account *Account) newTx(
 func (account *Account) SendTx(
 	recipientAddress string,
 	amount SendAmount,
-	feeTargetCode FeeTargetCode) error {
+	feeTargetCode FeeTargetCode,
+	selectedUTXOs map[wire.OutPoint]struct{},
+) error {
 	account.log.Info("Sending transaction")
 	utxo, txProposal, err := account.newTx(
 		recipientAddress,
 		amount,
 		feeTargetCode,
+		selectedUTXOs,
 	)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create transaction")
@@ -141,7 +155,11 @@ func (account *Account) SendTx(
 // TxProposal creates a tx from the relevant input and returns information about it for display in
 // the UI (the output amount and the fee). At the same time, it validates the input.
 func (account *Account) TxProposal(
-	recipientAddress string, amount SendAmount, feeTargetCode FeeTargetCode) (
+	recipientAddress string,
+	amount SendAmount,
+	feeTargetCode FeeTargetCode,
+	selectedUTXOs map[wire.OutPoint]struct{},
+) (
 	btcutil.Amount, btcutil.Amount, btcutil.Amount, error) {
 
 	account.log.Debug("Proposing transaction")
@@ -149,6 +167,7 @@ func (account *Account) TxProposal(
 		recipientAddress,
 		amount,
 		feeTargetCode,
+		selectedUTXOs,
 	)
 	if err != nil {
 		return 0, 0, 0, err

@@ -6,12 +6,98 @@ import { debug } from '../../../utils/env';
 import { Button, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
+import Rates from '../../../components/rates/rates';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import approve from '../../../assets/device/approve.png';
 import reject from '../../../assets/device/reject.png';
 import style from './send.css';
+
+class UTXOs extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            show: false,
+            utxos: [],
+            selectedUTXOs: {}
+        };
+    }
+
+    componentDidMount() {
+        apiGet(`wallet/${this.props.walletCode}/utxos`).then(utxos => {
+            this.setState({ utxos });
+        });
+    }
+
+    clear = () => {
+        this.setState({ show: false, selectedUTXOs: []} );
+        this.props.onChange(this.state.selectedUTXOs);
+    }
+
+    handleUTXOChange = event => {
+        let selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
+        let outPoint = event.target.dataset.outpoint;
+        if (event.target.checked) {
+            selectedUTXOs[outPoint] = true;
+        } else {
+            delete selectedUTXOs[outPoint];
+        }
+        this.setState({ selectedUTXOs });
+        this.props.onChange(this.state.selectedUTXOs);
+    }
+
+    hide = () =>  {
+        this.setState({
+            show: false,
+            selectedUTXOs: []
+        });
+        this.props.onChange(this.state.selectedUTXOs);
+    }
+
+    render({ fiat }, { show, utxos, selectedUTXOs }) {
+        if (!show) {
+            return (
+                <span>
+                  <Button transparent onClick={() => this.setState({ show: true })}>
+                    Show coin control
+                  </Button>
+                </span>
+            );
+        }
+        return (
+            <span>
+              <Button transparent onClick={this.hide}>
+                Hide coin control
+              </Button><br/>
+              <table>
+                <tr><th></th><th>Output</th><th>Amount</th></tr>
+                { utxos.map(utxo => (
+                    <tr>
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={!!selectedUTXOs[utxo.outPoint]}
+                          id={'utxo-' + utxo.outPoint}
+                          data-outpoint={utxo.outPoint}
+                          onChange={this.handleUTXOChange}
+                          />
+                      </td>
+                      <td>
+                        <label for={'utxo-' + utxo.outPoint}>Outpoint: {utxo.outPoint}</label>
+                        <label for={'utxo-' + utxo.outPoint}>Address: {utxo.address}</label>
+                      </td>
+                      <td>{utxo.amount.amount} {utxo.amount.unit}</td>
+                      <td><Rates amount={utxo.amount} fiat={fiat} /></td>
+                    </tr>
+                ))
+                }
+            </table>
+                </span>
+        );
+    }
+}
 
 @translate()
 export default class Send extends Component {
@@ -40,7 +126,9 @@ export default class Send extends Component {
             fiatUnit: props.fiat.code,
             coinUnitForConversion,
             signProgress: null,
+            coinControl: false
         };
+        this.selectedUTXOs = [];
     }
 
     componentDidMount() {
@@ -49,7 +137,7 @@ export default class Send extends Component {
                 this.setState({ paired });
             });
         }
-
+        apiGet('config').then(config => this.setState({ coinControl: !!(config.frontend || {}).coinControl }));
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'device':
@@ -73,6 +161,7 @@ export default class Send extends Component {
         apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
+                    sendAll: false,
                     isSent: true,
                     recipientAddress: null,
                     proposedAmount: null,
@@ -81,6 +170,9 @@ export default class Send extends Component {
                     amount: null,
                     signProgress: null,
                 });
+                if (this.utxos) {
+                    this.utxos.clear();
+                }
                 setTimeout(() => this.setState({ isSent: false }), 5000);
             } else {
                 this.setState({
@@ -100,6 +192,7 @@ export default class Send extends Component {
         amount: this.state.amount,
         feeTarget: this.state.feeTarget,
         sendAll: this.state.sendAll ? 'yes' : 'no',
+        selectedUTXOs: Object.keys(this.selectedUTXOs),
     })
 
     sendDisabled = () => {
@@ -153,8 +246,10 @@ export default class Send extends Component {
 
     handleFormChange = event => {
         let value = event.target.value;
-        if (event.target.id === 'sendAll') {
+        if (event.target.type == 'checkbox') {
             value = event.target.checked;
+        }
+        if (event.target.id === 'sendAll') {
             if (!value) {
                 this.convertToFiat(this.state.amount);
             }
@@ -218,6 +313,11 @@ export default class Send extends Component {
         this.validateAndDisplayFee(this.state.sendAll);
     }
 
+    onSelectedUTXOsChange = selectedUTXOs => {
+        this.selectedUTXOs = selectedUTXOs;
+        this.validateAndDisplayFee(true);
+    };
+
     render({
         t,
         wallet,
@@ -245,6 +345,7 @@ export default class Send extends Component {
         amountError,
         paired,
         signProgress,
+        coinControl,
     }) {
         let confirmPrequel = () => {
             if (signProgress) {
@@ -276,7 +377,18 @@ export default class Send extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            { coinControl && (
+                                <div class="row">
+                                  <UTXOs
+                                    ref={ref => this.utxos = ref}
+                                    fiat={fiat}
+                                    walletCode={walletCode}
+                                    onChange={this.onSelectedUTXOsChange}
+                                    />
+                                </div>
+                            )
+                            }
+                <div class="row">
                                 <Input
                                     label={t('send.address.label')}
                                     placeholder={t('send.address.placeholder')}

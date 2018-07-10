@@ -18,7 +18,7 @@ import (
 // ProposedTransaction contains all the info needed to sign a btc transaction.
 type ProposedTransaction struct {
 	TXProposal      *maketx.TxProposal
-	PreviousOutputs map[wire.OutPoint]*transactions.TxOut
+	PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
 	GetAddress      func(blockchain.ScriptHashHex) *addresses.AccountAddress
 	// Signatures collects the signatures (signatures[transactionInput][cosignerIndex]).
 	Signatures [][]*btcec.Signature
@@ -30,7 +30,7 @@ type ProposedTransaction struct {
 func SignTransaction(
 	keystores keystore.Keystores,
 	txProposal *maketx.TxProposal,
-	previousOutputs map[wire.OutPoint]*transactions.TxOut,
+	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
 	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress,
 	log *logrus.Entry,
 ) error {
@@ -66,7 +66,7 @@ func SignTransaction(
 	return nil
 }
 
-func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]*transactions.TxOut,
+func txValidityCheck(transaction *wire.MsgTx, previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
 	sigHashes *txscript.TxSigHashes) error {
 	if !txsort.IsSorted(transaction) {
 		return errp.New("tx not bip69 conformant")

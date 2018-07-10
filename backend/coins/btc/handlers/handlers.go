@@ -8,12 +8,14 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/coins/coin"
 
+	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/gorilla/mux"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/coins/btc/util"
 	"github.com/shiftdevices/godbb/backend/devices/bitbox"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/sirupsen/logrus"
@@ -33,6 +35,7 @@ func NewHandlers(
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
+	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
@@ -116,6 +119,19 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	return result, nil
 }
 
+func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
+	result := []map[string]interface{}{}
+	for _, output := range handlers.account.SpendableOutputs() {
+		result = append(result,
+			map[string]interface{}{
+				"outPoint": output.OutPoint.String(),
+				"amount":   handlers.account.Coin().FormatAmountAsJSON(output.TxOut.Value),
+				"address":  output.Address,
+			})
+	}
+	return result, nil
+}
+
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
 	return map[string]interface{}{
@@ -129,24 +145,31 @@ type sendTxInput struct {
 	address       string
 	sendAmount    btc.SendAmount
 	feeTargetCode btc.FeeTargetCode
+	selectedUTXOs map[wire.OutPoint]struct{}
 	log           *logrus.Entry
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
-	jsonBody := map[string]string{}
+	jsonBody := struct {
+		Address       string   `json:"address"`
+		SendAll       string   `json:"sendAll"`
+		FeeTarget     string   `json:"feeTarget"`
+		Amount        string   `json:"amount"`
+		SelectedUTXOS []string `json:"selectedUTXOS"`
+	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
 	}
-	input.address = jsonBody["address"]
+	input.address = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody["feeTarget"], input.log)
+	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody.FeeTarget, input.log)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
-	if jsonBody["sendAll"] == "yes" {
+	if jsonBody.SendAll == "yes" {
 		input.sendAmount = btc.NewSendAmountAll()
 	} else {
-		amount, err := strconv.ParseFloat(jsonBody["amount"], 64)
+		amount, err := strconv.ParseFloat(jsonBody.Amount, 64)
 		if err != nil {
 			return errp.WithStack(btc.TxValidationError("invalid amount"))
 		}
@@ -159,6 +182,14 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 			return errp.WithStack(btc.TxValidationError("invalid amount"))
 		}
 	}
+	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
+	for _, outPointString := range jsonBody.SelectedUTXOS {
+		outPoint, err := util.ParseOutPoint([]byte(outPointString))
+		if err != nil {
+			return err
+		}
+		input.selectedUTXOs[*outPoint] = struct{}{}
+	}
 	return nil
 }
 
@@ -168,7 +199,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 
-	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode)
+	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode, input.selectedUTXOs)
 	if bitbox.IsErrorAbort(err) {
 		return map[string]interface{}{"success": false}, nil
 	}
@@ -203,6 +234,7 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 		input.address,
 		input.sendAmount,
 		input.feeTargetCode,
+		input.selectedUTXOs,
 	)
 	if err != nil {
 		return txProposalError(err)

@@ -2,8 +2,6 @@ package transactionsdb
 
 import (
 	"encoding/json"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -11,6 +9,7 @@ import (
 	bbolt "github.com/coreos/bbolt"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
 	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
+	"github.com/shiftdevices/godbb/backend/coins/btc/util"
 	"github.com/shiftdevices/godbb/util/errp"
 )
 
@@ -268,22 +267,6 @@ func (tx *Tx) Output(outPoint wire.OutPoint) (*wire.TxOut, error) {
 	return txOut, nil
 }
 
-func parseOutPoint(outPointBytes []byte) (*wire.OutPoint, error) {
-	split := strings.SplitN(string(outPointBytes), ":", 2)
-	if len(split) != 2 {
-		return nil, errp.Newf("wrong outPoint format %s", string(outPointBytes))
-	}
-	txHash, err := chainhash.NewHashFromStr(split[0])
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	index, err := strconv.ParseInt(split[1], 10, 32)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	return wire.NewOutPoint(txHash, uint32(index)), nil
-}
-
 // Outputs implements transactions.DBTxInterface.
 func (tx *Tx) Outputs() (map[wire.OutPoint]*wire.TxOut, error) {
 	outputs := map[wire.OutPoint]*wire.TxOut{}
@@ -293,7 +276,7 @@ func (tx *Tx) Outputs() (map[wire.OutPoint]*wire.TxOut, error) {
 		if err := json.Unmarshal(txOutJSONBytes, txOut); err != nil {
 			return nil, errp.WithStack(err)
 		}
-		outPoint, err := parseOutPoint(outPointBytes)
+		outPoint, err := util.ParseOutPoint(outPointBytes)
 		if err != nil {
 			return nil, err
 		}

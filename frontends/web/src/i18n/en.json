@@ -149,6 +149,10 @@
             "litecoinP2WPKHP2SH": "Litecoin",
             "litecoinP2WPKH": "Litecoin: bech32"
         },
+        "expert": {
+            "title": "Expert Settings",
+            "coinControl": "Enable coin control"
+        },
         "success": "Please unplug and replug the BitBox for the changes to take effect."
     },
     "language": {

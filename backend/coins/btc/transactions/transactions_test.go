@@ -202,11 +202,12 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		&transactions.Balance{Available: expectedAmount, Incoming: 0},
 		s.transactions.Balance(),
 	)
-	utxo := &transactions.TxOut{
-		TxOut: wire.NewTxOut(int64(expectedAmount), address.PubkeyScript()),
+	utxo := &transactions.SpendableOutput{
+		TxOut:   wire.NewTxOut(int64(expectedAmount), address.PubkeyScript()),
+		Address: "n4PBA1ARca4UcMBnssfFpkF7LraS58SZ4y",
 	}
 	require.Equal(s.T(),
-		map[wire.OutPoint]*transactions.TxOut{
+		map[wire.OutPoint]*transactions.SpendableOutput{
 			wire.OutPoint{Hash: tx1.TxHash(), Index: 0}: utxo,
 		},
 		s.transactions.SpendableOutputs(),

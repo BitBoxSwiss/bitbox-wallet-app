@@ -18,13 +18,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// TxOut is a transaction output which is part of the wallet.
-type TxOut struct {
+// SpendableOutput is an unspent coin.
+type SpendableOutput struct {
 	*wire.TxOut
+	Address string
 }
 
 // ScriptHashHex returns the hash of the PkScript of the output, in hex format.
-func (txOut *TxOut) ScriptHashHex() blockchain.ScriptHashHex {
+func (txOut *SpendableOutput) ScriptHashHex() blockchain.ScriptHashHex {
+	return getScriptHashHex(txOut.TxOut)
+}
+
+func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 	return blockchain.ScriptHashHex(chainhash.HashH(txOut.PkScript).String())
 }
 
@@ -151,7 +156,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 	// Gather transaction outputs that belong to us.
 	for index, txOut := range tx.TxOut {
 		// Check if output is ours.
-		if (&TxOut{txOut}).ScriptHashHex() == scriptHashHex {
+		if getScriptHashHex(txOut) == scriptHashHex {
 			err := dbTx.PutOutput(
 				wire.OutPoint{Hash: txHash, Index: uint32(index)},
 				txOut,
@@ -179,7 +184,7 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 // SpendableOutputs returns all unspent outputs of the wallet which are eligible to be spent. Those
 // include all unspent outputs of confirmed transactions, and unconfirmed outputs that we created
 // ourselves.
-func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
+func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*SpendableOutput {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 
@@ -193,7 +198,7 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 	if err != nil {
 		transactions.log.WithField("error", err).Panic("Failed to retrieve outputs")
 	}
-	result := map[wire.OutPoint]*TxOut{}
+	result := map[wire.OutPoint]*SpendableOutput{}
 	for outPoint, txOut := range outputs {
 		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
@@ -203,7 +208,10 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*TxOut {
 
 		spent := transactions.isInputSpent(dbTx, outPoint)
 		if !spent && (confirmed || transactions.allInputsOurs(dbTx, tx)) {
-			result[outPoint] = &TxOut{TxOut: txOut}
+			result[outPoint] = &SpendableOutput{
+				TxOut:   txOut,
+				Address: transactions.outputToAddress(txOut.PkScript),
+			}
 		}
 	}
 	return result
@@ -454,6 +462,15 @@ func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
 	return &feeRatePerKb
 }
 
+func (transactions *Transactions) outputToAddress(pkScript []byte) string {
+	_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
+	// unknown addresses and multisig scripts ignored.
+	if err != nil || len(extractedAddresses) != 1 {
+		return "<unknown address>"
+	}
+	return extractedAddresses[0].String()
+}
+
 // txInfo computes additional information to display to the user (type of tx, fee paid, etc.).
 func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
@@ -480,14 +497,6 @@ func (transactions *Transactions) txInfo(
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
 	receiveAddresses := []string{}
 	sendAddresses := []string{}
-	outputToAddress := func(pkScript []byte) string {
-		_, extractedAddresses, _, err := txscript.ExtractPkScriptAddrs(pkScript, transactions.net)
-		// unknown addresses and multisig scripts ignored.
-		if err != nil || len(extractedAddresses) != 1 {
-			return "<unknown address>"
-		}
-		return extractedAddresses[0].String()
-	}
 	allOutputsOurs := true
 	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
@@ -499,9 +508,9 @@ func (transactions *Transactions) txInfo(
 			// TODO
 			panic(err)
 		}
-		address := outputToAddress(txOut.PkScript)
+		address := transactions.outputToAddress(txOut.PkScript)
 		if output != nil {
-			if isChange((&TxOut{TxOut: output}).ScriptHashHex()) {
+			if isChange(getScriptHashHex(output)) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)

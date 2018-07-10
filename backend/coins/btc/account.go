@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"path"
+	"sort"
 
 	"github.com/shiftdevices/godbb/backend/signing"
 
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
 
@@ -38,15 +41,16 @@ type Interface interface {
 	Close()
 	Transactions() []*transactions.TxInfo
 	Balance() *transactions.Balance
-	SendTx(string, SendAmount, FeeTargetCode) error
+	SendTx(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, SendAmount, FeeTargetCode) (
+	TxProposal(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
 		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
 	GetUnusedReceiveAddresses() []*addresses.AccountAddress
 	VerifyAddress(blockchain.ScriptHashHex) (bool, error)
 	ConvertToLegacyAddress(blockchain.ScriptHashHex) (btcutil.Address, error)
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
+	SpendableOutputs() []*SpendableOutput
 }
 
 // Account is a account whose addresses are derived from an xpub.
@@ -510,4 +514,36 @@ func (account *Account) Keystores() keystore.Keystores {
 // HeadersStatus returns the status of the headers.
 func (account *Account) HeadersStatus() (*headers.Status, error) {
 	return account.headers.Status()
+}
+
+type byValue struct {
+	outputs []*SpendableOutput
+}
+
+func (p *byValue) Len() int { return len(p.outputs) }
+func (p *byValue) Less(i, j int) bool {
+	if p.outputs[i].TxOut.Value == p.outputs[j].TxOut.Value {
+		// Secondary sort to make coin selection deterministic.
+		return chainhash.HashH(p.outputs[i].TxOut.PkScript).String() < chainhash.HashH(p.outputs[j].TxOut.PkScript).String()
+	}
+	return p.outputs[i].TxOut.Value < p.outputs[j].TxOut.Value
+}
+func (p *byValue) Swap(i, j int) { p.outputs[i], p.outputs[j] = p.outputs[j], p.outputs[i] }
+
+// SpendableOutput is an unspent coin.
+type SpendableOutput struct {
+	*transactions.SpendableOutput
+	OutPoint wire.OutPoint
+}
+
+// SpendableOutputs returns the utxo set, sorted by the value descending.
+func (account *Account) SpendableOutputs() []*SpendableOutput {
+	account.synchronizer.WaitSynchronized()
+	defer account.RLock()()
+	result := []*SpendableOutput{}
+	for outPoint, txOut := range account.transactions.SpendableOutputs() {
+		result = append(result, &SpendableOutput{OutPoint: outPoint, SpendableOutput: txOut})
+	}
+	sort.Sort(sort.Reverse(&byValue{result}))
+	return result
 }
