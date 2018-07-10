@@ -34,7 +34,7 @@
     will-change: margin-right, right;
 }
 
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1335px) {
     .guide {
         position: fixed;
         margin-right: 0;

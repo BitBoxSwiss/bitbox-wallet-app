@@ -7,8 +7,9 @@ import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
-import deviceSettings from '../../assets/icons/wallet-dark.svg';
+import deviceSettings from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+import bitboxLogo from '../../assets/icons/bitbox-logo-alt.svg';
 
 const labelMap = {
     'btc-p2pkh': 'BTC',
@@ -39,8 +40,11 @@ class Sidebar extends Component {
     }, {
         accounts,
     }) {
+        const bitboxLogoStyle = `background-image: url(${bitboxLogo});`
         return (
             <nav className="sidebar">
+                <div className="sidebarLogo" style={bitboxLogoStyle}>
+                </div>
                 {
                     accounts && accounts.map(getWalletLink)
                 }
