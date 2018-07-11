@@ -51,7 +51,7 @@ func NewCommunication(device io.ReadWriteCloser) *Communication {
 // Close closes the underlying device.
 func (communication *Communication) Close() {
 	if err := communication.device.Close(); err != nil {
-		communication.log.WithField("error", err).Panic(err)
+		communication.log.WithError(err).Panic(err)
 		panic(err)
 	}
 }
@@ -187,7 +187,7 @@ func logCensoredCmd(log *logrus.Entry, msg string, receiving bool) error {
 		hideValues(cmd)
 		censoredMsg, err := json.Marshal(cmd)
 		if err != nil {
-			log.WithField("error", err).Error("Failed to censor message")
+			log.WithError(err).Error("Failed to censor message")
 		} else {
 			direction := "Sending"
 			if receiving {

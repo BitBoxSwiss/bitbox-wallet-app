@@ -1023,7 +1023,7 @@ func (dbb *Device) Sign(
 
 	deviceInfo, err := dbb.DeviceInfo()
 	if err != nil {
-		dbb.log.WithField("error", err).Error("Failed to load the device info for signing.")
+		dbb.log.WithError(err).Error("Failed to load the device info for signing.")
 		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
 	}
 
@@ -1096,7 +1096,7 @@ func (dbb *Device) DisplayAddress(keyPath string, typ string) error {
 	}
 	reply, err := dbb.sendKV("xpub", keyPath, dbb.pin)
 	if err != nil {
-		dbb.log.WithField("error", err).Error("Could not retrieve the xpub from the BitBox.")
+		dbb.log.WithError(err).Error("Could not retrieve the xpub from the BitBox.")
 		return nil
 	}
 	xpubEcho, ok := reply["echo"].(string)
@@ -1105,7 +1105,7 @@ func (dbb *Device) DisplayAddress(keyPath string, typ string) error {
 		return nil
 	}
 	if err := dbb.channel.SendXpubEcho(xpubEcho, typ); err != nil {
-		dbb.log.WithField("error", err).Error("Sending the xpub echo to the mobile failed.")
+		dbb.log.WithError(err).Error("Sending the xpub echo to the mobile failed.")
 		return nil
 	}
 	return nil

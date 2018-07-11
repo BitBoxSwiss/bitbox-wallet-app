@@ -30,7 +30,7 @@ func NewAddressChain(
 		signing.NewEmptyRelativeKeypath().Child(chainIndex, signing.NonHardened),
 	)
 	if err != nil {
-		log.WithField("error", err).Panic("Could not derive the chain configuration.")
+		log.WithError(err).Panic("Could not derive the chain configuration.")
 	}
 	return &AddressChain{
 		configuration: chainConfiguration,
@@ -61,7 +61,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 		signing.NewEmptyRelativeKeypath().Child(index, signing.NonHardened),
 	)
 	if err != nil {
-		addresses.log.WithField("error", err).Panic("Failed to derive the configuration.")
+		addresses.log.WithError(err).Panic("Failed to derive the configuration.")
 	}
 
 	address := NewAccountAddress(

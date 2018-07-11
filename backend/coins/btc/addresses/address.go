@@ -55,16 +55,16 @@ func NewAccountAddress(
 		for index, publicKey := range sortedPublicKeys {
 			addresses[index], err = btcutil.NewAddressPubKey(publicKey.SerializeCompressed(), net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get a P2PK address from a public key.")
+				log.WithError(err).Panic("Failed to get a P2PK address from a public key.")
 			}
 		}
 		redeemScript, err = txscript.MultiSigScript(addresses, configuration.SigningThreshold())
 		if err != nil {
-			log.WithField("error", err).Panic("Failed to get the redeem script for multisig.")
+			log.WithError(err).Panic("Failed to get the redeem script for multisig.")
 		}
 		address, err = btcutil.NewAddressScriptHash(redeemScript, net)
 		if err != nil {
-			log.WithField("error", err).Panic("Failed to get a P2SH address for multisig.")
+			log.WithError(err).Panic("Failed to get a P2SH address for multisig.")
 		}
 	} else {
 		publicKeyHash := btcutil.Hash160(configuration.PublicKeys()[0].SerializeCompressed())
@@ -72,26 +72,26 @@ func NewAccountAddress(
 		case signing.ScriptTypeP2PKH:
 			address, err = btcutil.NewAddressPubKeyHash(publicKeyHash, net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get P2PKH addr. from public key hash.")
+				log.WithError(err).Panic("Failed to get P2PKH addr. from public key hash.")
 			}
 		case signing.ScriptTypeP2WPKHP2SH:
 			var segwitAddress *btcutil.AddressWitnessPubKeyHash
 			segwitAddress, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
+				log.WithError(err).Panic("Failed to get p2wpkh-p2sh addr. from publ. key hash.")
 			}
 			redeemScript, err = txscript.PayToAddrScript(segwitAddress)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get redeem script for segwit address.")
+				log.WithError(err).Panic("Failed to get redeem script for segwit address.")
 			}
 			address, err = btcutil.NewAddressScriptHash(redeemScript, net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get a P2SH address for segwit.")
+				log.WithError(err).Panic("Failed to get a P2SH address for segwit.")
 			}
 		case signing.ScriptTypeP2WPKH:
 			address, err = btcutil.NewAddressWitnessPubKeyHash(publicKeyHash, net)
 			if err != nil {
-				log.WithField("error", err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
+				log.WithError(err).Panic("Failed to get p2wpkh addr. from publ. key hash.")
 			}
 		default:
 			log.Panic(fmt.Sprintf("Unrecognized script type: %s", configuration.ScriptType()))
@@ -115,7 +115,7 @@ func (address *AccountAddress) isUsed() bool {
 func (address *AccountAddress) PubkeyScript() []byte {
 	script, err := txscript.PayToAddrScript(address.Address)
 	if err != nil {
-		address.log.WithField("error", err).Panic("Failed to get the pubkey script for an address.")
+		address.log.WithError(err).Panic("Failed to get the pubkey script for an address.")
 	}
 	return script
 }
@@ -179,7 +179,7 @@ func (address *AccountAddress) SignatureScript(
 		}
 		signatureScript, err := scriptBuilder.AddData(address.redeemScript).Script()
 		if err != nil {
-			address.log.WithField("error", err).Panic("Failed to build signa. script for multisig.")
+			address.log.WithError(err).Panic("Failed to build signa. script for multisig.")
 		}
 		return signatureScript, nil
 	}
@@ -195,7 +195,7 @@ func (address *AccountAddress) SignatureScript(
 			AddData(publicKey.SerializeCompressed()).
 			Script()
 		if err != nil {
-			address.log.WithField("error", err).Panic("Failed to build signature script for P2PKH.")
+			address.log.WithError(err).Panic("Failed to build signature script for P2PKH.")
 		}
 		return signatureScript, nil
 	case signing.ScriptTypeP2WPKHP2SH:
@@ -203,7 +203,7 @@ func (address *AccountAddress) SignatureScript(
 			AddData(address.redeemScript).
 			Script()
 		if err != nil {
-			address.log.WithField("error", err).Panic("Failed to build segwit signature script.")
+			address.log.WithError(err).Panic("Failed to build segwit signature script.")
 		}
 		txWitness := wire.TxWitness{
 			append(signature.Serialize(), byte(txscript.SigHashAll)),

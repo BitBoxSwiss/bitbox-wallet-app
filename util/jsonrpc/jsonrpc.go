@@ -232,7 +232,7 @@ func (client *RPCClient) establishConnection(backend rpc.Backend) error {
 	client.connection = &connection{conn, backend}
 	go client.read(client.connection, client.handleResponse)
 	if err := client.onConnectCallback(); err != nil {
-		client.log.WithField("error", err).Error("Error happened in connect callback")
+		client.log.WithError(err).Error("Error happened in connect callback")
 		return err
 	}
 	go client.ping()
@@ -267,7 +267,7 @@ func (client *RPCClient) conn() (*connection, error) {
 				client.log.Debugf("Trying to connect to backend %v", client.backends[start].ServerInfo().Server)
 				err := client.establishConnection(client.backends[start])
 				if err != nil {
-					client.log.WithField("error", err).Info("Failover: backend is down")
+					client.log.WithError(err).Info("Failover: backend is down")
 					start = (start + 1) % len(client.backends)
 				} else {
 					client.log.Debug("Successfully connected to backend")

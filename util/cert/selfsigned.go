@@ -58,7 +58,7 @@ func createSelfSignedCertificate(privateKey *rsa.PrivateKey, log *logrus.Entry) 
 	}
 	derBytes, err := x509.CreateCertificate(rand.Reader, &template, &template, privateKey.Public(), privateKey)
 	if err != nil {
-		log.WithField("error", err).Error("Failed to create x.509 certificate")
+		log.WithError(err).Error("Failed to create x.509 certificate")
 		return nil, err
 	}
 	return derBytes, nil

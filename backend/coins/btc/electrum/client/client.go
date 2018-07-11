@@ -53,7 +53,7 @@ func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient 
 			// "[\"mn31QqyuBum6PFS7VFyo8oUL8Yc8G8MHZA\", \"3b98a4b9bed1312f4f53a1c6c9276b0ad8be68c57a5bcbe651688e4f4191b521\"]"
 			response := []string{}
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				electrumClient.log.WithField("error", err).Error("Failed to unmarshal JSON response")
+				electrumClient.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return
 			}
 			if len(response) != 2 {
@@ -67,7 +67,7 @@ func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient 
 			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
 			if ok {
 				if err := callback(status); err != nil {
-					electrumClient.log.WithField("error", err).Error("Failed to execute callback")
+					electrumClient.log.WithError(err).Error("Failed to execute callback")
 					return
 				}
 			}
@@ -174,7 +174,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 		func(responseBytes []byte) error {
 			response := &Balance{}
 			if err := json.Unmarshal(responseBytes, response); err != nil {
-				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(response)
@@ -197,7 +197,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 		func(responseBytes []byte) error {
 			txs := blockchain.TxHistory{}
 			if err := json.Unmarshal(responseBytes, &txs); err != nil {
-				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			return success(txs)
@@ -223,7 +223,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		func(responseBytes []byte) error {
 			var response *string
 			if err := json.Unmarshal(responseBytes, &response); err != nil {
-				client.log.WithField("error", err).Error("Failed to unmarshal JSON response")
+				client.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
 			if response == nil {
@@ -288,7 +288,7 @@ func (client *ElectrumClient) HeadersSubscribe(
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
 		response := []*blockchain.Header{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
-			client.log.WithField("error", err).Error("could not handle header notification")
+			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
 		if len(response) != 1 {
@@ -296,7 +296,7 @@ func (client *ElectrumClient) HeadersSubscribe(
 			return
 		}
 		if err := success(response[0]); err != nil {
-			client.log.WithField("error", err).Error("could not handle header notification")
+			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
 	})

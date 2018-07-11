@@ -109,11 +109,11 @@ func (transactions *Transactions) processTxForAddress(
 
 	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
+		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
 
 	if err := dbTx.PutTx(txHash, tx, height); err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to put tx")
+		transactions.log.WithError(err).Panic("Failed to put tx")
 	}
 
 	// Newly confirmed tx. Try to verify it.
@@ -123,7 +123,7 @@ func (transactions *Transactions) processTxForAddress(
 	}
 
 	if err := dbTx.AddAddressToTx(txHash, scriptHashHex); err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to add address to tx")
+		transactions.log.WithError(err).Panic("Failed to add address to tx")
 	}
 	transactions.processInputsAndOutputsForAddress(dbTx, scriptHashHex, txHash, tx)
 }
@@ -142,7 +142,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 		// since the output that it spends might be indexed later.
 		txInTxHash, err := dbTx.Input(txIn.PreviousOutPoint)
 		if err != nil {
-			transactions.log.WithField("error", err).Panic("Failed to retrieve input from previous outpoint")
+			transactions.log.WithError(err).Panic("Failed to retrieve input from previous outpoint")
 		}
 		if txInTxHash != nil && *txInTxHash != txHash {
 			transactions.log.WithFields(logrus.Fields{"txIn.PreviousOutPoint": txIn.PreviousOutPoint,
@@ -150,7 +150,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				Warning("Double spend detected")
 		}
 		if err := dbTx.PutInput(txIn.PreviousOutPoint, txHash); err != nil {
-			transactions.log.WithField("error", err).Panic("Failed to store the transaction input")
+			transactions.log.WithError(err).Panic("Failed to store the transaction input")
 		}
 	}
 	// Gather transaction outputs that belong to us.
@@ -162,7 +162,7 @@ func (transactions *Transactions) processInputsAndOutputsForAddress(
 				txOut,
 			)
 			if err != nil {
-				transactions.log.WithField("error", err).Panic("Failed to store the transaction output")
+				transactions.log.WithError(err).Panic("Failed to store the transaction output")
 			}
 		}
 	}
@@ -172,7 +172,7 @@ func (transactions *Transactions) allInputsOurs(dbTx DBTxInterface, transaction 
 	for _, txIn := range transaction.TxIn {
 		txOut, err := dbTx.Output(txIn.PreviousOutPoint)
 		if err != nil {
-			transactions.log.WithField("error", err).Panic("Failed to retrieve output")
+			transactions.log.WithError(err).Panic("Failed to retrieve output")
 		}
 		if txOut == nil {
 			return false
@@ -190,19 +190,19 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
+		transactions.log.WithError(err).Panic("Failed to begin transaction")
 	}
 	defer dbTx.Rollback()
 
 	outputs, err := dbTx.Outputs()
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve outputs")
+		transactions.log.WithError(err).Panic("Failed to retrieve outputs")
 	}
 	result := map[wire.OutPoint]*SpendableOutput{}
 	for outPoint, txOut := range outputs {
 		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
-			transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
+			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
 		confirmed := height > 0
 
@@ -220,7 +220,7 @@ func (transactions *Transactions) SpendableOutputs() map[wire.OutPoint]*Spendabl
 func (transactions *Transactions) isInputSpent(dbTx DBTxInterface, outPoint wire.OutPoint) bool {
 	input, err := dbTx.Input(outPoint)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve input for outPoint")
+		transactions.log.WithError(err).Panic("Failed to retrieve input for outPoint")
 	}
 	return input != nil
 }
@@ -230,7 +230,7 @@ func (transactions *Transactions) removeTxForAddress(
 	transactions.log.Debug("Remove transaction for address")
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
+		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 	}
 	if tx == nil {
 		// Not yet indexed.
@@ -241,7 +241,7 @@ func (transactions *Transactions) removeTxForAddress(
 	transactions.log.Debug("Deleting transaction address")
 	empty, err := dbTx.RemoveAddressFromTx(txHash, scriptHashHex)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to remove address from tx")
+		transactions.log.WithError(err).Panic("Failed to remove address from tx")
 	}
 	if empty {
 		// Tx is not touching any of our outputs anymore. Remove.
@@ -271,18 +271,18 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	dbTx, err := transactions.db.Begin()
 	defer dbTx.Rollback()
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
+		transactions.log.WithError(err).Panic("Failed to begin transaction")
 	}
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
 	}
 	if len(txsSet) != len(txs) {
-		transactions.log.WithField("error", err).Panic("duplicate tx ids in address history returned by server")
+		transactions.log.WithError(err).Panic("duplicate tx ids in address history returned by server")
 	}
 	previousHistory, err := dbTx.AddressHistory(scriptHashHex)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to get address history")
+		transactions.log.WithError(err).Panic("Failed to get address history")
 	}
 	for _, entry := range previousHistory {
 		if _, txOK := txsSet[entry.TXHash.Hash()]; txOK {
@@ -295,7 +295,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	}
 
 	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to store address history")
+		transactions.log.WithError(err).Panic("Failed to store address history")
 	}
 
 	for _, txInfo := range txs {
@@ -306,7 +306,7 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 		}(txInfo.TXHash.Hash(), txInfo.Height)
 	}
 	if err := dbTx.Commit(); err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to commit transaction")
+		transactions.log.WithError(err).Panic("Failed to commit transaction")
 	}
 }
 
@@ -318,7 +318,7 @@ func (transactions *Transactions) doForTransaction(
 ) {
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve transaction info")
+		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
 	if tx != nil {
 		callback(dbTx, tx)
@@ -339,7 +339,7 @@ func (transactions *Transactions) doForTransaction(
 			defer transactions.Lock()()
 			dbTx, err := transactions.db.Begin()
 			if err != nil {
-				transactions.log.WithField("error", err).Panic("Failed to begin transaction")
+				transactions.log.WithError(err).Panic("Failed to begin transaction")
 			}
 			defer dbTx.Rollback()
 
@@ -369,11 +369,11 @@ func (transactions *Transactions) Balance() *Balance {
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to begin transaction")
+		transactions.log.WithError(err).Panic("Failed to begin transaction")
 	}
 	outputs, err := dbTx.Outputs()
 	if err != nil {
-		transactions.log.WithField("error", err).Panic("Failed to retrieve outputs")
+		transactions.log.WithError(err).Panic("Failed to retrieve outputs")
 	}
 	defer dbTx.Rollback()
 	var available, incoming int64
@@ -384,7 +384,7 @@ func (transactions *Transactions) Balance() *Balance {
 		}
 		tx, _, height, _, err := dbTx.TxInfo(outPoint.Hash)
 		if err != nil {
-			transactions.log.WithField("error", err).Panic("Failed to retrieve tx info")
+			transactions.log.WithError(err).Panic("Failed to retrieve tx info")
 		}
 		confirmed := height > 0
 		if confirmed || transactions.allInputsOurs(dbTx, tx) {

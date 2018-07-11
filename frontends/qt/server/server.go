@@ -154,7 +154,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	var err error
 	token, err = random.HexString(16)
 	if err != nil {
-		log.WithField("error", err).Fatal("Failed to generate random string")
+		log.WithError(err).Fatal("Failed to generate random string")
 	}
 	cWrappedConnectionData := C.struct_ConnectionData{
 		token: C.CString(token),

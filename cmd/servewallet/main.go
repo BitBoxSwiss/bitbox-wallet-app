@@ -28,8 +28,9 @@ func main() {
 	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
 	log := logging.Get().WithGroup("servewallet")
 	defer func(log *logrus.Entry) {
-		// recover from all panics and log error before panicking again
+		// Recover from all panics and log error before panicking again.
 		if r := recover(); r != nil {
+			// r is of type interface{} and thus we cannot use log.WithError(r).
 			log.WithField("error", r).Error(r)
 			panic(r)
 		}

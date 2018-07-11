@@ -15,7 +15,7 @@ func Serve() {
 	log := logging.Get().WithGroup("android")
 	token, err := random.HexString(16)
 	if err != nil {
-		log.WithField("error", err).Fatal("Failed to generate random string")
+		log.WithError(err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
 	backend := backend.NewBackend(arguments.NewArguments(".", false, false, false, false))

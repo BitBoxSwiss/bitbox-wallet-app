@@ -432,12 +432,12 @@ func (account *Account) ensureAddresses() {
 		return nil
 	}
 	if err := syncSequence(false); err != nil {
-		account.log.WithField("error", err).Panic(err)
+		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
 	}
 	if err := syncSequence(true); err != nil {
-		account.log.WithField("error", err).Panic(err)
+		account.log.WithError(err).Panic(err)
 		// TODO
 		panic(err)
 	}

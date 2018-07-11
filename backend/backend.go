@@ -307,7 +307,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	go func() {
 		err := backend.checkForUpdate()
 		if err != nil {
-			backend.log.WithField("error", err).Error("The update check failed.")
+			backend.log.WithError(err).Error("The update check failed.")
 		}
 	}()
 	return backend.events

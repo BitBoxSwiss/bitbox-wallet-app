@@ -150,7 +150,7 @@ func (manager *Manager) ListenHID() {
 		deviceInfos := DeviceInfos()
 		for _, deviceInfo := range deviceInfos {
 			if err := manager.register(deviceInfo); err != nil {
-				manager.log.WithField("error", err).Error("Failed to register device")
+				manager.log.WithError(err).Error("Failed to register device")
 			}
 		}
 		time.Sleep(time.Second)

@@ -60,7 +60,7 @@ func SignTransaction(
 	// Sanity check: see if the created transaction is valid.
 	if err := txValidityCheck(txProposal.Transaction, previousOutputs,
 		proposedTransaction.SigHashes); err != nil {
-		log.WithField("error", err).Panic("Failed to pass transaction validity check.")
+		log.WithError(err).Panic("Failed to pass transaction validity check.")
 	}
 
 	return nil
