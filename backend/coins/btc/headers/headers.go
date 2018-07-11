@@ -1,15 +1,22 @@
 package headers
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
+	"math/big"
+	"time"
 
+	btcdBlockchain "github.com/btcsuite/btcd/blockchain"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
+	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/scrypt"
 )
 
 const reorgLimit = 100
@@ -153,8 +160,7 @@ func (headers *Headers) download() {
 					}, func() {})
 				batch := <-batchChan
 				if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
-					// TODO
-					panic(err)
+					headers.log.WithError(err).Panic("processBatch")
 				}
 			}()
 		}
@@ -163,6 +169,71 @@ func (headers *Headers) download() {
 
 var errPrevHash = errors.New("header prevhash does not match")
 
+func (headers *Headers) getTarget(dbTx DBTxInterface, index int) (*big.Int, error) {
+	targetTimespan := int64(headers.net.TargetTimespan / time.Second)
+	targetTimePerBlock := int64(headers.net.TargetTimePerBlock / time.Second)
+	blocksPerRetarget := int(targetTimespan / targetTimePerBlock)
+	chunkIndex := (index / blocksPerRetarget) - 1
+	if chunkIndex == -1 {
+		return btcdBlockchain.CompactToBig(headers.net.GenesisBlock.Header.Bits), nil
+	}
+
+	firstIndex := chunkIndex * blocksPerRetarget
+	if headers.net.Net == ltc.MainNetParams.Net && chunkIndex > 0 {
+		// Litecoin includes the last block of the previous window to fix a time warp attack:
+		// https://litecoin.info/index.php/Time_warp_attack#cite_note-2
+		firstIndex--
+	}
+	first, err := dbTx.HeaderByHeight(firstIndex)
+	if err != nil {
+		return nil, err
+	}
+	last, err := dbTx.HeaderByHeight((chunkIndex+1)*blocksPerRetarget - 1)
+	if err != nil {
+		return nil, err
+	}
+	lastTarget := btcdBlockchain.CompactToBig(last.Bits)
+	timespan := last.Timestamp.Unix() - first.Timestamp.Unix()
+
+	minRetargetTimespan := targetTimespan / headers.net.RetargetAdjustmentFactor
+	maxRetargetTimespan := targetTimespan * headers.net.RetargetAdjustmentFactor
+	if timespan < minRetargetTimespan {
+		timespan = minRetargetTimespan
+	} else if timespan > maxRetargetTimespan {
+		timespan = maxRetargetTimespan
+	}
+	newTarget := new(big.Int).Mul(lastTarget, big.NewInt(timespan))
+	newTarget.Div(newTarget, big.NewInt(targetTimespan))
+	if newTarget.Cmp(headers.net.PowLimit) > 0 {
+		newTarget.Set(headers.net.PowLimit)
+	}
+	return newTarget, nil
+}
+
+func (headers *Headers) powHash(msg []byte) chainhash.Hash {
+	switch headers.net.Net {
+	case chaincfg.MainNetParams.Net:
+		return chainhash.DoubleHashH(msg)
+	case ltc.MainNetParams.Net:
+		const (
+			N = 1024
+			r = 1
+			p = 1
+		)
+		hashBytes, err := scrypt.Key(msg, msg, N, r, p, 32)
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		hash := chainhash.Hash{}
+		if err := hash.SetBytes(hashBytes); err != nil {
+			panic(errp.WithStack(err))
+		}
+		return hash
+	default:
+		panic("unsupported coin")
+	}
+}
+
 func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.BlockHeader) error {
 	if tip == 0 {
 		if header.BlockHash() != *headers.net.GenesisHash {
@@ -170,8 +241,6 @@ func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.Blo
 				header.BlockHash(), *headers.net.GenesisHash)
 		}
 	} else {
-		// TODO: check difficulty target, PoW.
-
 		previousHeader, err := dbTx.HeaderByHeight(tip - 1)
 		if err != nil {
 			return err
@@ -181,6 +250,37 @@ func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.Blo
 			return errp.Wrap(errPrevHash,
 				fmt.Sprintf("%s (%d) does not connect to %s (%d)",
 					header.PrevBlock, tip, prevBlock, tip-1))
+		}
+
+		lastCheckpoint := headers.net.Checkpoints[len(headers.net.Checkpoints)-1]
+		if tip == int(lastCheckpoint.Height) {
+			if *lastCheckpoint.Hash != header.BlockHash() {
+				return errp.Newf("checkpoint mismatch at %d. Expected %s, got %s",
+					tip, lastCheckpoint.Hash, header.BlockHash())
+			}
+			headers.log.Infof("checkpoint at %d matches", tip)
+		}
+		// Check Diffuclty, PoW.
+		if headers.net.Net == chaincfg.MainNetParams.Net || headers.net.Net == ltc.MainNetParams.Net {
+			newTarget, err := headers.getTarget(dbTx, tip)
+			if err != nil {
+				return err
+			}
+			if header.Bits != btcdBlockchain.BigToCompact(newTarget) {
+				return errp.Newf("header %d has an unexpected difficulty", tip)
+			}
+			headerSerialized := &bytes.Buffer{}
+			if err := header.BtcEncode(headerSerialized, 0, wire.BaseEncoding); err != nil {
+				panic(errp.WithStack(err))
+			}
+			// Skip PoW check before the checkpoint for performance.
+			if tip > int(lastCheckpoint.Height) {
+				powHash := headers.powHash(headerSerialized.Bytes())
+				proofOfWork := btcdBlockchain.HashToBig(&powHash)
+				if proofOfWork.Cmp(newTarget) > 0 {
+					return errp.Newf("header %d, %s has insufficient proof of work.", tip, powHash)
+				}
+			}
 		}
 	}
 	return nil
@@ -225,7 +325,7 @@ func (headers *Headers) processBatch(
 			return nil
 		}
 		if err != nil {
-			return errp.WithMessage(err, "unexpected blockchain reply")
+			return errp.WithMessage(err, "can't connect header, unexpected blockchain reply")
 		}
 		tip++
 		if err := dbTx.PutHeader(tip, header); err != nil {

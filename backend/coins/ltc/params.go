@@ -97,6 +97,7 @@ var MainNetParams = chaincfg.Params{
 		{Height: 456000, Hash: newHashFromStr("bf34f71cc6366cd487930d06be22f897e34ca6a40501ac7d401be32456372004")},
 		{Height: 638902, Hash: newHashFromStr("15238656e8ec63d28de29a8c75fcf3a5819afc953dcd9cc45cecc53baec74f38")},
 		{Height: 721000, Hash: newHashFromStr("198a7b4de1df9478e2463bd99d75b714eab235a2e63e741641dc8a759a9840e5")},
+		{Height: 1350342, Hash: newHashFromStr("2f4dd5e541ef90464536f3402ae9ddd9564ddcc896d6ed2f7cc367734176c5c1")},
 	},
 
 	// Consensus rule change deployments.
