@@ -37,7 +37,6 @@ export default class App extends Component {
     handleRoute = event => {}
 
     componentDidMount() {
-        apiGet('wallets').then(accounts => this.setState({ accounts }));
         this.onDevicesRegisteredChanged();
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
@@ -113,6 +112,8 @@ export default class App extends Component {
                 console.log('app.jsx route /')
                 route('/', true);
             }
+
+            apiGet('wallets').then(accounts => this.setState({ accounts }));
         });
     }
 
