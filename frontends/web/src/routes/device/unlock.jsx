@@ -7,6 +7,7 @@ import Message from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
+import Spinner from '../../components/spinner/Spinner';
 import style from './device.css';
 
 const stateEnum = Object.freeze({
@@ -85,7 +86,7 @@ export default class Unlock extends Component {
             submissionState = <Message />;
             break;
         case stateEnum.WAITING:
-            submissionState = <Message type="info">{t('unlock.unlocking')}</Message>;
+            submissionState = <Spinner text={t('unlock.unlocking')} />
             break;
         case stateEnum.ERROR:
             submissionState = (
