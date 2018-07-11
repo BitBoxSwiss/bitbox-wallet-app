@@ -14,10 +14,8 @@ export default function Balance({
     }
     return (
         <header className={style.balance}>
+            <div class={['label', style.label].join(' ')}>{name}</div>
             <table className={style.balanceTable}>
-                <tr>
-                    <th className={['label', style.label].join(' ')}>{name}</th>
-                </tr>
                 <tr>
                     <td className={style.availableAmount}>{balance.available.amount}</td>
                     <td className={style.availableUnit}>{balance.available.unit}</td>

@@ -1,8 +1,9 @@
 .transactionContainer {
     background-color: var(--color-white);
-    padding: var(--spacing-half) var(--spacing-large);
+    padding: var(--spacing-default) var(--spacing-large);
     position: relative;
     overflow: hidden;
+    border-bottom: solid 1px var(--color-lightgray);
 }
 
 .transactionContainer.expanded {
@@ -23,15 +24,25 @@
 .date {
     color: var(--color-secondary);
     font-size: var(--size-small);
-    font-weight: bolder;
-    margin-bottom: 3px;
+    line-height: 1;
+    margin-bottom: 5px;
+}
+
+.address {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
 }
 
 .amount {
     font-weight: bold;
     min-width: 160px;
     text-align: right;
-    line-height: 20px;
+    line-height: 1;
+}
+
+.amount div:first-child {
+    margin-bottom: 5px;
 }
 
 .amount.receive {
@@ -51,8 +62,8 @@
 }
 
 .fiat {
-    font-weight: bold;
-    font-size: var(--size-small);
+    font-weight: normal;
+    font-size: var(--size-small) !important;
 }
 
 .unit {
@@ -65,16 +76,16 @@
 
 .transactionLabel {
     display: inline-block;
-    font-size: var(--size-label);
-    font-weight: bold;
-    text-transform: uppercase;
+    font-size: var(--size-small);
+    /*font-weight: bold;*/
+    /*text-transform: uppercase;*/
     background-color: var(--color-brightgray);
     color: var(--color-white);
     border-radius: 2px;
     width: 44px;
-    line-height: 16px;
+    line-height: 1;
     text-align: center;
-    margin-bottom: 3px;
+    margin-bottom: 5px;
     user-select: none;
 }
 
@@ -82,7 +93,10 @@
     position: relative;
     margin-right: var(--spacing-default);
     margin-bottom: 0;
-    padding: 8px 0;
+    padding: 9px 0;
+    line-height: 16px;
+    text-transform: uppercase;
+    font-weight: bold;
     cursor: pointer;
 }
 
@@ -103,7 +117,7 @@
     width: 10px;
     height: 10px;
     border: solid;
-    border-width: 3px 3px 0 0;
+    border-width: 2px 2px 0 0;
     border-color: var(--color-brightgray);
     transform: rotate(-45deg) translate(0%, -50%);
     margin: 10px 0 0 8px;
@@ -111,7 +125,7 @@
 }
 
 .toggle.collapsed {
-    border-width: 0 0 3px 3px;
+    border-width: 0 0 2px 2px;
     margin: 4px 0 0 8px;
 }
 
@@ -135,14 +149,7 @@
 }
 
 .row:not(:first-child) {
-    margin-top: var(--spacing-default);
-}
-
-.address {
-    /* font-weight: bold; */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 20px;
+    margin-top: var(--spacing-half);
 }
 
 .collapsedContent {
@@ -152,8 +159,8 @@
 }
 
 .collapsedContent.active {
-    margin-top: var(--spacing-default);
-    max-height: 104px;
+    margin-top: var(--spacing-half);
+    max-height: 82px;
 }
 
 .collapsedContent .spacer {

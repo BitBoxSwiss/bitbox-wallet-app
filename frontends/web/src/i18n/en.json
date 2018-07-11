@@ -197,9 +197,9 @@
             "send_to_self": "Self"
         },
         "confirmation": "Confirmations",
-        "vsize": "virtual size",
-        "size": "size",
-        "weight": "weight",
+        "vsize": "Virtual size",
+        "size": "Size",
+        "weight": "Weight",
         "fee": "Fee",
         "fiatHistorical": "Historical",
         "explorer": "Transaction ID",

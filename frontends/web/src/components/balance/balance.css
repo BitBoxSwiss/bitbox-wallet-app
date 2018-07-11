@@ -37,10 +37,14 @@
 
 .balanceTable {
     border-spacing: 0;
+    border-collapse: collapse;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
 }
 
-.balanceTable tr:not(:first-child) {
+.balanceTable tr {
     display: inline-block;
     vertical-align: bottom;
 }
@@ -54,6 +58,7 @@
 .balanceTable td {
     font-size: 24px;
     vertical-align: bottom;
+    line-height: 1;
 }
 
 .balanceTable .availableAmount {
@@ -88,6 +93,10 @@
         padding-left: 0;
         white-space: nowrap;
         font-size: var(--size-medium);
+    }
+
+    .balanceTable {
+        display: table;
     }
 
     .balanceTable tr {

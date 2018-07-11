@@ -1,7 +1,7 @@
 .rates {
     cursor: default;
     margin: 0;
-    font-size: 14px;
+    /*font-size: 14px;*/
     line-height: 1;
 }
 
@@ -11,7 +11,7 @@
 
 .fiatRow {
 	position: relative;
-	bottom: 4px;
+	bottom: 1px;
 }
 
 .availableFiatAmount {
