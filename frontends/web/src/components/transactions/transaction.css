@@ -29,7 +29,7 @@
 }
 
 .address {
-    overflow: hidden;
+    /* overflow: hidden; */
     text-overflow: ellipsis;
     line-height: 1;
 }
@@ -81,8 +81,6 @@
     /*text-transform: uppercase;*/
     background-color: var(--color-brightgray);
     color: var(--color-white);
-    border-radius: 2px;
-    width: 44px;
     line-height: 1;
     text-align: center;
     margin-bottom: 5px;
@@ -94,6 +92,8 @@
     margin-right: var(--spacing-default);
     margin-bottom: 0;
     padding: 9px 0;
+    width: 44px;
+    border-radius: 2px;
     line-height: 16px;
     text-transform: uppercase;
     font-weight: bold;
@@ -187,7 +187,8 @@
     outline: 1px solid;
     color: var(--color-brightblue);
     display: inline-block;
-    line-height: 1;
+    line-height: 16px;
+    height: 14px;
     margin-left: var(--spacing-half);
     margin-right: 6px;
 }
@@ -195,19 +196,15 @@
 .external::before {
     background: var(--color-white);
     content: "↗";
-    width: 15px;
+    width: 14px;
     height: 14px;
     display: inline-block;
-    top: -3px;
-    right: -5px;
+    top: -4px;
+    right: -4px;
     position: relative;
 }
 
-.external:hover {
-  outline-width: 2px;
-}
-
+.external:hover,
 .external:hover::before  {
-    top: -4px;
-    right: -6px;
+    color: var(--color-coolblue);
 }

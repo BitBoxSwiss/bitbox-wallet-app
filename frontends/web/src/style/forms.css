@@ -11,9 +11,11 @@ dt {
     color: var(--color-secondary);
     display: block;
     font-size: var(--size-small);
-    font-weight: bold;
-    margin-bottom: calc(var(--spacing-half) / 2);
-    text-transform: uppercase;
+    line-height: 1;
+    margin-bottom: 5px;
+    /* font-weight: bold; */
+    /* margin-bottom: calc(var(--spacing-half) / 2); */
+    /* text-transform: uppercase; */
 }
 
 input:invalid,
