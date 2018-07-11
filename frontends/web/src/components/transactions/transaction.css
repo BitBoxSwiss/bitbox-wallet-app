@@ -89,11 +89,10 @@
     margin-right: var(--spacing-default);
     margin-bottom: 0;
     padding: 9px 0;
-    width: 34px;
-    border-radius: 50%;
+    width: 44px;
+    border-radius: 2px;
     line-height: 16px;
     font-weight: bold;
-    font-size: 12px;
     cursor: pointer;
 }
 
@@ -161,7 +160,7 @@
 }
 
 .collapsedContent .spacer {
-    width: 34px;
+    width: 44px;
     margin-right: var(--spacing-default);
 }
 
