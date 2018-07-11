@@ -135,6 +135,7 @@ export default class Account extends Component {
         balance,
         hasCard,
     }) {
+        console.log(walletInitialized, walletConnected);
         if (!accounts) return null;
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
@@ -179,8 +180,8 @@ export default class Account extends Component {
                         {
                             !walletInitialized || !walletConnected ? (
                                 <Spinner text={
-                                    !walletInitialized && t('account.initializing') ||
-                                    !walletConnected && t('account.reconnecting')
+                                    !walletConnected && t('account.reconnecting') ||
+                                    !walletInitialized && t('account.initializing')
                                 } />
                             ) : (
                                 <Transactions
