@@ -29,7 +29,6 @@
 }
 
 .address {
-    /* overflow: hidden; */
     text-overflow: ellipsis;
     line-height: 1;
 }
@@ -77,8 +76,6 @@
 .transactionLabel {
     display: inline-block;
     font-size: var(--size-small);
-    /*font-weight: bold;*/
-    /*text-transform: uppercase;*/
     background-color: var(--color-brightgray);
     color: var(--color-white);
     line-height: 1;
@@ -92,12 +89,24 @@
     margin-right: var(--spacing-default);
     margin-bottom: 0;
     padding: 9px 0;
-    width: 44px;
-    border-radius: 2px;
+    width: 34px;
+    border-radius: 50%;
     line-height: 16px;
-    text-transform: uppercase;
     font-weight: bold;
+    font-size: 12px;
     cursor: pointer;
+}
+
+.transactionLabel.receive {
+    background-color: var(--color-softgreen);
+}
+
+.transactionLabel.send {
+    background-color: var(--color-softred);
+}
+
+.transactionLabel.send_to_self {
+
 }
 
 .toggleContainer {
@@ -121,7 +130,6 @@
     border-color: var(--color-brightgray);
     transform: rotate(-45deg) translate(0%, -50%);
     margin: 10px 0 0 8px;
-    /*transition: all 0.1s ease;*/
 }
 
 .toggle.collapsed {
@@ -135,17 +143,6 @@
 
 .toggle.send {
     border-color: var(--color-softred);
-}
-
-.transactionLabel.receive {
-    background-color: var(--color-softgreen);
-}
-
-.transactionLabel.send {
-    background-color: var(--color-softred);
-}
-
-.transactionLabel.send_to_self {
 }
 
 .row:not(:first-child) {
@@ -164,7 +161,7 @@
 }
 
 .collapsedContent .spacer {
-    width: 44px;
+    width: 34px;
     margin-right: var(--spacing-default);
 }
 
