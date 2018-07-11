@@ -54,14 +54,6 @@ export default class Device extends Component {
         this.unsubscribe();
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-        if (nextProps.default && nextState.deviceRegistered !== null && nextState.walletInitialized) {
-            apiGet('wallet-status').then(redirect);
-            return false;
-        }
-        return true;
-    }
-
     componentDidUpdate(prevProps, prevState) {
         if (this.props.deviceID !== prevProps.deviceID) {
             this.onDevicesRegisteredChanged();
@@ -70,6 +62,9 @@ export default class Device extends Component {
 
     onWalletStatusChanged = () => {
         apiGet('wallet-status').then(status => {
+            if (status === 'initialized' && this.props.default) {
+                route('/account', true);
+            }
             this.setState({
                 walletInitialized: status === 'initialized'
             });
