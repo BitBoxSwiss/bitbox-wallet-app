@@ -9,7 +9,7 @@
     display: inline-block;
     font-family: var(--font-family);
     font-size: var(--size-button);
-    font-weight: bold;
+    /* font-weight: bold; */
     justify-content: center;
     line-height: 32px;
     min-width: 120px;
@@ -19,7 +19,7 @@
     outline: none;
     text-align: center;
     text-decoration: none;
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     -webkit-appearance: none;
     transition: background-color .2s ease-out;
     will-change: background-color;

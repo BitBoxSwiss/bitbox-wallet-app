@@ -43,7 +43,8 @@ class Sidebar extends Component {
         const bitboxLogoStyle = `background-image: url(${bitboxLogo});`
         return (
             <nav className="sidebar">
-                <div className="sidebarLogo" style={bitboxLogoStyle}>
+                <div className="sidebarLogoContainer">
+                    <div className="sidebarLogo" style={bitboxLogoStyle}></div>
                 </div>
                 {
                     accounts && accounts.map(getWalletLink)
