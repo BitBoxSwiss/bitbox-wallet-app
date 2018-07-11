@@ -129,7 +129,3 @@ export default class Device extends Component {
         }
     }
 }
-
-function redirect(status) {
-    route(status === 'uninitialized' ? '/' : '/account', true);
-}
