@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
-import { Select } from '../../../components/forms';
+import { Select, Input } from '../../../components/forms';
 
 export default class FeeTargets extends Component {
     state = {
@@ -9,13 +9,11 @@ export default class FeeTargets extends Component {
     }
 
     componentDidMount() {
-        if (this.props.walletInitialized) {
-            this.updateFeeTargets(this.props.walletCode);
-        }
+        this.updateFeeTargets(this.props.walletCode);
     }
 
-    componentWillReceiveProps({ walletInitialized, walletCode }) {
-        if (walletInitialized && !this.props.walletInitialized || this.props.walletCode !== walletCode) {
+    componentWillReceiveProps({ walletCode }) {
+        if (this.props.walletCode !== walletCode) {
             this.updateFeeTargets(walletCode);
         }
     }
@@ -47,7 +45,11 @@ export default class FeeTargets extends Component {
     }) {
         if (!feeTargets) {
             return (
-                <span>{placeholder}</span>
+                <Input
+                    label={label}
+                    placeholder={placeholder}
+                    disabled
+                    transparent />
             );
         }
 

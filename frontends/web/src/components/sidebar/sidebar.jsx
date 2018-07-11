@@ -1,12 +1,12 @@
 import { Component } from 'preact';
-import { Link } from 'preact-router/match';
+import { Link, Match } from 'preact-router/match';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiPost, apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
-import settings_GREY from '../../assets/icons/settings-alt_disabled.svg';
+import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-dark.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 
@@ -30,9 +30,7 @@ class Sidebar extends Component {
     }
 
     componentDidMount() {
-        apiGet('wallets').then(accounts => {
-            this.setState({ accounts });
-        });
+        apiGet('wallets').then(accounts => this.setState({ accounts }));
     }
 
     render({
@@ -70,7 +68,7 @@ class Sidebar extends Component {
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
                             <div class="stacked">
-                                <img draggable="false" className="sidebar_settings" src={settings_GREY} alt={ t('sidebar.settings') } />
+                                <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={ t('sidebar.settings') } />
                                 <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                             </div>
                             {/* <span className="sidebar_label">{ t('sidebar.settings') }</span> */}
@@ -85,14 +83,32 @@ class Sidebar extends Component {
 function getWalletLink({ code, name }) {
     return (
         <div key={code} className="sideBarItem">
-            <Link
-                activeClassName="sidebar-active"
-                href={`/account/${code}`}
-                title={name}>
-                <Logo code={code} className="sidebar_icon" alt={name} />
-                <span className="sidebar_label">{ name || labelMap[code] }</span>
-            </Link>
+            <Match path={`/account/${code}/send`}>
+                {({ matches }) => {
+                    if (!matches) {
+                        return (
+                            <Match path={`/account/${code}/receive`}>
+                                {({ matches }) => getBackLink(code, name, matches)}
+                            </Match>
+                        );
+                    }
+                    return getBackLink(code, name, matches);
+                }}
+            </Match>
         </div>
+    );
+}
+
+function getBackLink(code, name, active) {
+    return (
+        <Link
+            activeClassName="sidebar-active"
+            className={active ? 'sidebar-active' : ''}
+            href={`/account/${code}`}
+            title={name}>
+            <Logo code={code} className="sidebar_icon" alt={name} />
+            <span className="sidebar_label">{ name || labelMap[code] }</span>
+        </Link>
     );
 }
 

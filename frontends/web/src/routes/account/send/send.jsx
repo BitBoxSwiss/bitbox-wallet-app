@@ -3,101 +3,16 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { debug } from '../../../utils/env';
-import { Button, Checkbox, Input } from '../../../components/forms';
+import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
-import Rates from '../../../components/rates/rates';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
+import UTXOs from './utxos';
 import approve from '../../../assets/device/approve.png';
 import reject from '../../../assets/device/reject.png';
 import style from './send.css';
-
-class UTXOs extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            show: false,
-            utxos: [],
-            selectedUTXOs: {}
-        };
-    }
-
-    componentDidMount() {
-        apiGet(`wallet/${this.props.walletCode}/utxos`).then(utxos => {
-            this.setState({ utxos });
-        });
-    }
-
-    clear = () => {
-        this.setState({ show: false, selectedUTXOs: []} );
-        this.props.onChange(this.state.selectedUTXOs);
-    }
-
-    handleUTXOChange = event => {
-        let selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
-        let outPoint = event.target.dataset.outpoint;
-        if (event.target.checked) {
-            selectedUTXOs[outPoint] = true;
-        } else {
-            delete selectedUTXOs[outPoint];
-        }
-        this.setState({ selectedUTXOs });
-        this.props.onChange(this.state.selectedUTXOs);
-    }
-
-    hide = () =>  {
-        this.setState({
-            show: false,
-            selectedUTXOs: []
-        });
-        this.props.onChange(this.state.selectedUTXOs);
-    }
-
-    render({ fiat }, { show, utxos, selectedUTXOs }) {
-        if (!show) {
-            return (
-                <span>
-                  <Button transparent onClick={() => this.setState({ show: true })}>
-                    Show coin control
-                  </Button>
-                </span>
-            );
-        }
-        return (
-            <span>
-              <Button transparent onClick={this.hide}>
-                Hide coin control
-              </Button><br/>
-              <table>
-                <tr><th></th><th>Output</th><th>Amount</th></tr>
-                { utxos.map(utxo => (
-                    <tr>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={!!selectedUTXOs[utxo.outPoint]}
-                          id={'utxo-' + utxo.outPoint}
-                          data-outpoint={utxo.outPoint}
-                          onChange={this.handleUTXOChange}
-                          />
-                      </td>
-                      <td>
-                        <label for={'utxo-' + utxo.outPoint}>Outpoint: {utxo.outPoint}</label>
-                        <label for={'utxo-' + utxo.outPoint}>Address: {utxo.address}</label>
-                      </td>
-                      <td>{utxo.amount.amount} {utxo.amount.unit}</td>
-                      <td><Rates amount={utxo.amount} fiat={fiat} /></td>
-                    </tr>
-                ))
-                }
-            </table>
-                </span>
-        );
-    }
-}
 
 @translate()
 export default class Send extends Component {
@@ -105,12 +20,8 @@ export default class Send extends Component {
     constructor(props) {
         super(props);
 
-        let coinUnitForConversion = props.wallet.coinCode.toUpperCase();
-        if (coinUnitForConversion.length === 4 && coinUnitForConversion.startsWith('T')) {
-            coinUnitForConversion = coinUnitForConversion.substring(1);
-        }
-
         this.state = {
+            amount: null,
             feeTarget: null,
             proposedFee: null,
             proposedAmount: null,
@@ -119,12 +30,12 @@ export default class Send extends Component {
             addressError: null,
             amountError: null,
             sendAll: false,
+            isConfirming: false,
             isSent: false,
             isAborted: false,
             paired: null,
             fiatAmount: null,
             fiatUnit: props.fiat.code,
-            coinUnitForConversion,
             signProgress: null,
             coinControl: false
         };
@@ -132,6 +43,7 @@ export default class Send extends Component {
     }
 
     componentDidMount() {
+        apiGet(`wallet/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
             apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
                 this.setState({ paired });
@@ -156,12 +68,12 @@ export default class Send extends Component {
     }
 
     send = () => {
-        this.setState({ signProgress: null });
-        this.props.setConfirmation({ isConfirming: true });
-        apiPost('wallet/' + this.props.walletCode + '/sendtx', this.txInput()).then(result => {
+        this.setState({ signProgress: null, isConfirming: true });
+        apiPost('wallet/' + this.getWallet().code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
+                    isConfirming: false,
                     isSent: true,
                     recipientAddress: null,
                     proposedAmount: null,
@@ -173,7 +85,7 @@ export default class Send extends Component {
                 if (this.utxos) {
                     this.utxos.clear();
                 }
-                setTimeout(() => this.setState({ isSent: false }), 5000);
+                setTimeout(() => this.setState({ isSent: false, isConfirming: false }), 5000);
             } else {
                 this.setState({
                     isAborted: true,
@@ -181,9 +93,9 @@ export default class Send extends Component {
                 setTimeout(() => this.setState({ isAborted: false }), 5000);
             }
             // The following method allows pressing escape again.
-            this.props.setConfirmation({ isConfirming: false });
+            this.setState({ isConfirming: false });
         }).catch(() => {
-            this.props.setConfirmation({ isConfirming: false });
+            this.setState({ isConfirming: false });
         });
     }
 
@@ -210,7 +122,7 @@ export default class Send extends Component {
             return;
         }
         const txInput = this.txInput();
-        apiPost('wallet/' + this.props.walletCode + '/tx-proposal', txInput).then(result => {
+        apiPost('wallet/' + this.getWallet().code + '/tx-proposal', txInput).then(result => {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
@@ -246,7 +158,7 @@ export default class Send extends Component {
 
     handleFormChange = event => {
         let value = event.target.value;
-        if (event.target.type == 'checkbox') {
+        if (event.target.type === 'checkbox') {
             value = event.target.checked;
         }
         if (event.target.id === 'sendAll') {
@@ -268,7 +180,11 @@ export default class Send extends Component {
 
     convertToFiat = value => {
         if (value) {
-            apiGet(`coins/convertToFiat?from=${this.state.coinUnitForConversion}&to=${this.state.fiatUnit}&amount=${value}`)
+            let coinUnit = this.getWallet().coinCode.toUpperCase();
+            if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
+                coinUnit = coinUnit.substring(1);
+            }
+            apiGet(`coins/convertToFiat?from=${coinUnit}&to=${this.state.fiatUnit}&amount=${value}`)
                 .then(data => {
                     if (data.success) {
                         this.setState({ fiatAmount: data.fiatAmount });
@@ -283,7 +199,11 @@ export default class Send extends Component {
 
     convertFromFiat = value => {
         if (value) {
-            apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${this.state.coinUnitForConversion}&amount=${value}`)
+            let coinUnit = this.getWallet().coinCode.toUpperCase();
+            if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
+                coinUnit = coinUnit.substring(1);
+            }
+            apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${coinUnit}&amount=${value}`)
                 .then(data => {
                     if (data.success) {
                         this.setState({ amount: data.amount });
@@ -302,7 +222,7 @@ export default class Send extends Component {
     }
 
     sendToSelf = event => {
-        apiGet('wallet/' + this.props.walletCode + '/receive-addresses').then(receiveAddresses => {
+        apiGet('wallet/' + this.getWallet().code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
             this.handleFormChange(event);
         });
@@ -316,19 +236,20 @@ export default class Send extends Component {
     onSelectedUTXOsChange = selectedUTXOs => {
         this.selectedUTXOs = selectedUTXOs;
         this.validateAndDisplayFee(true);
-    };
+    }
+
+    getWallet() {
+        if (!this.props.accounts) return null;
+        return this.props.accounts.find(({ code }) => code === this.props.code);
+    }
 
     render({
         t,
-        wallet,
-        walletCode,
-        walletInitialized,
-        unit,
-        isConfirming,
-        balance,
+        code,
         guide,
         fiat,
     }, {
+        balance,
         proposedFee,
         proposedTotal,
         recipientAddress,
@@ -339,6 +260,7 @@ export default class Send extends Component {
         fiatUnit,
         sendAll,
         feeTarget,
+        isConfirming,
         isSent,
         isAborted,
         addressError,
@@ -347,6 +269,9 @@ export default class Send extends Component {
         signProgress,
         coinControl,
     }) {
+        const wallet = this.getWallet();
+        if (!wallet) return null;
+
         let confirmPrequel = () => {
             if (signProgress) {
                 return (
@@ -379,16 +304,15 @@ export default class Send extends Component {
                             </div>
                             { coinControl && (
                                 <div class="row">
-                                  <UTXOs
-                                    ref={ref => this.utxos = ref}
-                                    fiat={fiat}
-                                    walletCode={walletCode}
-                                    onChange={this.onSelectedUTXOsChange}
-                                    />
+                                    <UTXOs
+                                        ref={ref => this.utxos = ref}
+                                        fiat={fiat}
+                                        walletCode={wallet.code}
+                                        onChange={this.onSelectedUTXOsChange} />
                                 </div>
                             )
                             }
-                <div class="row">
+                            <div class="row">
                                 <Input
                                     label={t('send.address.label')}
                                     placeholder={t('send.address.placeholder')}
@@ -398,7 +322,11 @@ export default class Send extends Component {
                                     value={recipientAddress}
                                     autofocus
                                 />
-                                { debug && <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>{t('send.toSelf')}</span> }
+                                { debug && (
+                                    <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
+                                        {t('send.toSelf')}
+                                    </span>
+                                ) }
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
@@ -409,7 +337,7 @@ export default class Send extends Component {
                                         disabled={sendAll}
                                         error={amountError}
                                         value={sendAll ? proposedAmount && proposedAmount.amount : amount}
-                                        placeholder={`${t('send.amount.placeholder')} (${unit})`} />
+                                        placeholder={`${t('send.amount.placeholder')} ` + (balance && `(${balance.available.unit})`)} />
                                     <Input
                                         label={fiatUnit}
                                         id="fiatAmount"
@@ -433,18 +361,15 @@ export default class Send extends Component {
                                     <FeeTargets
                                         label={t('send.feeTarget.label')}
                                         placeholder={t('send.feeTarget.placeholder')}
-                                        walletCode={walletCode}
+                                        walletCode={wallet.code}
                                         disabled={!amount && !sendAll}
-                                        walletInitialized={walletInitialized}
-                                        onFeeTargetChange={this.feeTargetChange}
-                                    />
+                                        onFeeTargetChange={this.feeTargetChange} />
                                     <Input
                                         label={t('send.fee.label')}
                                         value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
-                                        transparent
-                                    />
+                                        transparent />
                                     {/*
                                     <Input
                                         label={t('send.customFee.label')}
@@ -453,12 +378,14 @@ export default class Send extends Component {
                                     />
                                     */}
                                 </div>
-                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + (feeTarget || 'loading'))}</p>
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
-                                <Button secondary onClick={this.props.onClose}>
+                                <ButtonLink
+                                    secondary
+                                    href={`/account/${code}`}>
                                     {t('button.back')}
-                                </Button>
+                                </ButtonLink>
                                 <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
                                     {t('send.button')}
                                 </Button>
