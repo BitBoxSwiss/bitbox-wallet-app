@@ -184,7 +184,7 @@ export default class App extends Component {
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
-                {walletInitialized && (<Sidebar accounts={accounts} deviceIDs={deviceIDs} walletInitialized={walletInitialized}/>)}
+                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} walletInitialized={walletInitialized}/>)}
                 <div class="flex-column flex-1">
                     {update && <Status dismissable keyName={`update-${update.version}`} type="info">
                         {t('app.upgrade', {
