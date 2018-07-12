@@ -30,6 +30,7 @@ class Sidebar extends Component {
         t,
         deviceIDs,
         accounts,
+        walletInitialized,
     }, {
     }) {
         const bitboxLogoStyle = `background-image: url(${bitboxLogo});`
@@ -44,7 +45,7 @@ class Sidebar extends Component {
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {
-                        (debug && deviceIDs.length === 0) && (
+                        (debug && walletInitialized && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
                                 <img draggable="false" className="sidebar_settings" src={ejectIcon} alt={t('sidebar.leave')} />
                             </a>
