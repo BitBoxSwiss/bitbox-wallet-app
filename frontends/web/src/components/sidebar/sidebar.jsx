@@ -26,19 +26,11 @@ const labelMap = {
 
 @translate()
 class Sidebar extends Component {
-    state = {
-        accounts: [],
-    }
-
-    componentDidMount() {
-        apiGet('wallets').then(accounts => this.setState({ accounts }));
-    }
-
     render({
         t,
         deviceIDs,
-    }, {
         accounts,
+    }, {
     }) {
         const bitboxLogoStyle = `background-image: url(${bitboxLogo});`
         return (
