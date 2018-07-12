@@ -135,7 +135,6 @@ export default class Account extends Component {
         balance,
         hasCard,
     }) {
-        console.log(walletInitialized, walletConnected);
         if (!accounts) return null;
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
