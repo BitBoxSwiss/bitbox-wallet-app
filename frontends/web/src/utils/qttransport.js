@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { QWebChannel } from './qwebchannel';
 
 let cache = null;

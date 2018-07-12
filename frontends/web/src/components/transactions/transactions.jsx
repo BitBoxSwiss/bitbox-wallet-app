@@ -12,7 +12,11 @@ export default function Transactions({
         <div className={className} style="flex-grow: 1;">
             {
                 transactions.length > 0 ? transactions.map(props => (
-                    <Transaction key={props.id} explorerURL={explorerURL} fiat={fiat} {...props} />
+                    <Transaction
+                        key={props.id}
+                        explorerURL={explorerURL}
+                        fiat={fiat}
+                        {...props} />
                 )) : (
                     <div class="flex flex-row flex-center">
                         <p class="text-bold text-gray">

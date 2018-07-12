@@ -10,7 +10,9 @@ export function Guide({ guide, screen, children }) {
             <div className={style.toggler} onClick={guide.toggle}>{guide.shown ? '✕' : '?'}</div>
             <div className={[style.guide, guide.shown && style.show].join(' ')}>
                 <h1>{i18n.t('guide.title')}</h1>
-                {screen && i18n.t('guide.' + screen, { defaultValue: [] }).map(entry => <Entry entry={entry} />)}
+                {screen && i18n.t('guide.' + screen, { defaultValue: [] }).map((entry, i) => (
+                    <Entry key={screen + i} entry={entry} />
+                ))}
                 {children}
                 <div className={style.entry}>
                     {i18n.t('guide.appendix.text')} <A href={i18n.t('guide.appendix.href')}>{i18n.t('guide.appendix.link')}</A>
@@ -59,7 +61,7 @@ export class Entry extends Component {
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown && (
                         <div class="flex-1">
-                            {entry && entry.text.map(p => <p>{p}</p>)}
+                            {entry && entry.text.map(p => <p key={p}>{p}</p>)}
                             {entry && entry.link && (
                                 <p><A href={entry.link.url}>{entry.link.text}</A></p>
                             )}

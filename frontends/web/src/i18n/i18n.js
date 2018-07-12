@@ -1,5 +1,5 @@
 import i18n from 'i18next';
-import appTranslationsDE from './de';
+// import appTranslationsDE from './de';
 import appTranslationsEN from './en';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';

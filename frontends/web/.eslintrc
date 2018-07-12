@@ -9,6 +9,7 @@
       "avoidEscape": true,
       "allowTemplateLiterals": true
     }],
+    "quote-props": ["warn"],
     "react/self-closing-comp": 0,
     "react/jsx-curly-spacing": 0,
     "react/jsx-indent-props": ["warn", 4],
@@ -17,6 +18,7 @@
     "react/jsx-closing-bracket-location": 0,
     "react/jsx-max-props-per-line": ["warn", { "maximum": 3, "when": "always" }],
     "react/jsx-tag-spacing": ["warn"],
-    "react/jsx-no-bind": ["warn"]
+    "react/jsx-no-bind": ["warn"],
+    "react/jsx-key": ["error"]
   }
 }

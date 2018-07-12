@@ -61,8 +61,7 @@ export default class HiddenWallet extends Component {
             this.abort();
 
             if (!data.success) {
-                /* eslint no-alert: 0 */
-                alert(data.errorMessage);
+                alert(data.errorMessage); // eslint-disable-line no-alert
             }
         });
     }

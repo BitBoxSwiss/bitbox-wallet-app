@@ -55,7 +55,7 @@ export default class Create extends Component {
         }).then(data => {
             this.abort();
             if (!data.success) {
-                alert(data.errorMessage);
+                alert(data.errorMessage); // eslint-disable-line no-alert
             } else {
                 this.props.onCreate();
             }

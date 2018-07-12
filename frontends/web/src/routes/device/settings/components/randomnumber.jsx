@@ -6,8 +6,7 @@ import { apiPost } from '../../../../utils/request';
 export default class RandomNumber extends Component {
     getRandomNumber = () => {
         apiPost('devices/' + this.props.deviceID + '/random-number').then(num => {
-            /* eslint no-alert: 0 */
-            alert(i18n.t('random.description') + '\n' + num);
+            alert(i18n.t('random.description') + '\n' + num); // eslint-disable-line no-alert
         });
     };
 

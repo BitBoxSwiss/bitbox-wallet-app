@@ -2,7 +2,7 @@ import { Component } from 'preact';
 import { Link, Match } from 'preact-router/match';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { apiPost, apiGet } from '../../utils/request';
+import { apiPost } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
@@ -33,7 +33,7 @@ class Sidebar extends Component {
         walletInitialized,
     }, {
     }) {
-        const bitboxLogoStyle = `background-image: url(${bitboxLogo});`
+        const bitboxLogoStyle = `background-image: url(${bitboxLogo});`;
         return (
             <nav className="sidebar">
                 <div className="sidebarLogoContainer">
@@ -47,13 +47,17 @@ class Sidebar extends Component {
                     {
                         (debug && walletInitialized && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
-                                <img draggable="false" className="sidebar_settings" src={ejectIcon} alt={t('sidebar.leave')} />
+                                <img
+                                    draggable="false"
+                                    className="sidebar_settings"
+                                    src={ejectIcon}
+                                    alt={t('sidebar.leave')} />
                             </a>
                         )
                     }
                     {
                         deviceIDs.map(deviceID => (
-                            <div>
+                            <div key={deviceID}>
                                 <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.device') }>
                                     <div class="single">
                                         <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />

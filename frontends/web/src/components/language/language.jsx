@@ -1,8 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../forms';
-import Dialog from '../dialog/dialog';
-import style from './language.css';
+// import { Button } from '../forms';
+// import Dialog from '../dialog/dialog';
+// import style from './language.css';
 
 @translate()
 export default class LanguageSwitcher extends Component {
@@ -39,6 +39,7 @@ export default class LanguageSwitcher extends Component {
         activeDialog,
     }) {
         return; // TODO: remove when we have more languages.
+        /*
         return (
             <div class={style.languageSelect}>
                 <Button
@@ -55,6 +56,7 @@ export default class LanguageSwitcher extends Component {
                                     const selected = selectedIndex === i;
                                     return (
                                         <button
+                                            key={language.code}
                                             class={[style.language, selected ? style.selected : ''].join(' ')}
                                             onClick={this.changeLanguage}
                                             data-index={i}
@@ -69,5 +71,6 @@ export default class LanguageSwitcher extends Component {
                 }
             </div>
         );
+        */
     }
 }

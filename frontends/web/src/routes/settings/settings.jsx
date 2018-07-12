@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
-import { Button, Checkbox } from '../../components/forms';
+import { Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';

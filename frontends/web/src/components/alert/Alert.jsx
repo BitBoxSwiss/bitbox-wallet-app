@@ -43,7 +43,7 @@ export default class Alert extends Component {
         return (
             <div class={classes}>
                 <div class={style.alert}>
-                    {context.split('\n').map(line => <p>{line}</p>)}
+                    {context.split('\n').map(line => <p key={line}>{line}</p>)}
                     <div style="display: flex; flex-direction: row; justify-content: flex-end;">
                         <Button
                             primary

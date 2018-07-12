@@ -78,16 +78,14 @@ export default class Backups extends Component {
                 <div class="content">
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
-                            backupList.map(backup => {
-                                return (
-                                    <BackupsListItem
-                                        backup={backup}
-                                        selectedBackup={selectedBackup}
-                                        handleChange={this.handleBackuplistChange}
-                                        onFocus={this.scrollIntoView}
-                                    />
-                                );
-                            })
+                            backupList.map(backup => (
+                                <BackupsListItem
+                                    key={backup.id}
+                                    backup={backup}
+                                    selectedBackup={selectedBackup}
+                                    handleChange={this.handleBackuplistChange}
+                                    onFocus={this.scrollIntoView} />
+                            ))
                         }
                     </div>
                     <div class="buttons bottom">

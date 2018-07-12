@@ -59,11 +59,11 @@ export default class UTXOs extends Component {
             <span>
                 <Button transparent onClick={this.hide}>
                   Hide coin control
-                </Button><br/>
+                </Button><br />
                 <table className={style.table}>
                     <tr><th></th><th>Output</th><th>Amount</th></tr>
                     { utxos.map(utxo => (
-                        <tr>
+                        <tr key={utxo.outPoint}>
                             <td>
                                 <input
                                     type="checkbox"

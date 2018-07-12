@@ -49,6 +49,7 @@ export default class FiatSwitcher extends UpdatingComponent {
                             const active = currency === fiat.code;
                             return (
                                 <Checkbox
+                                    key={currency}
                                     name="oldmoney"
                                     id={`fiat-${index}`}
                                     label={currency}

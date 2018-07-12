@@ -86,7 +86,7 @@ export default class Unlock extends Component {
             submissionState = <Message />;
             break;
         case stateEnum.WAITING:
-            submissionState = <Spinner text={t('unlock.unlocking')} />
+            submissionState = <Spinner text={t('unlock.unlocking')} />;
             break;
         case stateEnum.ERROR:
             submissionState = (

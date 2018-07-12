@@ -5,7 +5,7 @@
   "scripts": {
     "build": "preact build --no-prerender --service-worker=false",
     "dev": "preact watch",
-    "lint": "eslint --cache --ignore-path ../../.gitignore .",
+    "lint": "eslint --cache --ignore-path ../../.gitignore \"**/*.{js,jsx}\"",
     "browserlist": "npx browserslist"
   },
   "eslintConfig": {

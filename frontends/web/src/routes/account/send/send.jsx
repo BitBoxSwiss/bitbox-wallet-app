@@ -290,7 +290,11 @@ export default class Send extends Component {
                             {paired === false && t('warning.sendPairing')}
                         </Status>
                         <div class="header">
-                            <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
+                            <Balance
+                                t={t}
+                                name={wallet.name}
+                                balance={balance}
+                                fiat={fiat} />
                         </div>
                     </div>
                     <div class="innerContainer">

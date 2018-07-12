@@ -64,11 +64,10 @@ export default class HiddenWallet extends Component {
             this.abort();
             if (success) {
                 if (didCreate) {
-                    /* eslint no-alert: 0 */
-                    alert(this.props.t('hiddenWallet.success'));
+                    alert(this.props.t('hiddenWallet.success')); // eslint-disable-line no-alert
                 }
             } else {
-                alert(errorMessage);
+                alert(errorMessage); // eslint-disable-line no-alert
             }
         });
     }

@@ -24,7 +24,7 @@ export default function Waiting({ testing, guide }) {
                 </div>
             </div>
             <Guide guide={guide} screen="waiting">
-                <Entry title={i18n.t('guide.waitingWithoutDevice.title')}>
+                <Entry key="waitingWithoutDevice" title={i18n.t('guide.waitingWithoutDevice.title')}>
                     {!(debug && testing) && <p>{i18n.t('guide.waitingWithoutDevice.text.0')}</p>}
                     {debug && testing && <p>{i18n.t('guide.waitingWithoutDevice.text.1')}</p>}
                 </Entry>

@@ -44,7 +44,7 @@ export default class Account extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (!this.props.code) {
             if (this.props.accounts && this.props.accounts.length) {
-                console.log('route', `/account/${this.props.accounts[0].code}`);
+                console.log('route', `/account/${this.props.accounts[0].code}`); // eslint-disable-line no-console
                 return route(`/account/${this.props.accounts[0].code}`, true);
             }
             return;
@@ -135,6 +135,7 @@ export default class Account extends Component {
         balance,
         hasCard,
     }) {
+        console.log(walletInitialized, walletConnected); // eslint-disable-line no-console
         if (!accounts) return null;
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
@@ -148,7 +149,11 @@ export default class Account extends Component {
                             {hasCard && t('warning.sdcard')}
                         </Status>
                         <div class="header">
-                            <Balance t={t} name={wallet.name} balance={balance} fiat={fiat} />
+                            <Balance
+                                t={t}
+                                name={wallet.name}
+                                balance={balance}
+                                fiat={fiat} />
                             <div class={componentStyle.buttons} style="align-self: flex-end;">
                                 <ButtonLink
                                     primary
@@ -197,40 +202,49 @@ export default class Account extends Component {
                     </div>
                 </div>
                 <Guide guide={guide} screen="account">
-                    <Entry title={t('guide.accountDescription.title')}>
+                    <Entry key="accountDescription" title={t('guide.accountDescription.title')}>
                         <p>{t('guide.accountDescription.text')}</p>
                     </Entry>
-                    {balance && balance.available.amount === '0' && <Entry title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
-                        <p>{t('guide.accountSendDisabled.text')}</p>
-                    </Entry>}
-                    <Entry title={t('guide.accountReload.title')}>
+                    {balance && balance.available.amount === '0' && (
+                        <Entry key="accountSendDisabled" title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
+                            <p>{t('guide.accountSendDisabled.text')}</p>
+                        </Entry>
+                    )}
+                    <Entry key="accountReload" title={t('guide.accountReload.title')}>
                         <p>{t('guide.accountReload.text')}</p>
                     </Entry>
-                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionLabel.title')}>
-                        <p>{t('guide.accountTransactionLabel.text')}</p>
-                    </Entry>}
-                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionTime.title')}>
-                        <p>{t('guide.accountTransactionTime.text')}</p>
-                    </Entry>}
-                    {transactions.length > 0 && <Entry title={t('guide.accountTransactionAttributes.title')}>
-                        <ul>
-                            {t('guide.accountTransactionAttributes.text').map(p => <li>{p}</li>)}
-                        </ul>
-                    </Entry>}
-                    {balance && balance.hasIncoming && <Entry title={t('guide.accountIncomingBalance.title')}>
-                        <p>{t('guide.accountIncomingBalance.text')}</p>
-                    </Entry>}
-                    <Entry title={t('guide.accountTransactionConfirmation.title')}>
+                    {transactions.length > 0 && (
+                        <Entry key="accountTransactionLabel" title={t('guide.accountTransactionLabel.title')}>
+                            <p>{t('guide.accountTransactionLabel.text')}</p>
+                        </Entry>
+                    )}
+                    {transactions.length > 0 && (
+                        <Entry key="accountTransactionTime" title={t('guide.accountTransactionTime.title')}>
+                            <p>{t('guide.accountTransactionTime.text')}</p>
+                        </Entry>
+                    )}
+                    {transactions.length > 0 && (
+                        <Entry key="accountTransactionAttributes" title={t('guide.accountTransactionAttributes.title')}>
+                            <ul>
+                                {t('guide.accountTransactionAttributes.text').map(p => <li key={p}>{p}</li>)}
+                            </ul>
+                        </Entry>
+                    )}
+                    {balance && balance.hasIncoming && (
+                        <Entry key="accountIncomingBalance" title={t('guide.accountIncomingBalance.title')}>
+                            <p>{t('guide.accountIncomingBalance.text')}</p>
+                        </Entry>
+                    )}
+                    <Entry key="accountTransactionConfirmation" title={t('guide.accountTransactionConfirmation.title')}>
                         <p>{t('guide.accountTransactionConfirmation.text')}</p>
                     </Entry>
-                    <Entry title={t('guide.accountFiat.title')}>
+                    <Entry key="accountFiat" title={t('guide.accountFiat.title')}>
                         <p>{t('guide.accountFiat.text')}</p>
                     </Entry>
-                    <Entry title={t('guide.accountRates.title')}>
+                    <Entry key="accountRates" title={t('guide.accountRates.title')}>
                         <p>{t('guide.accountRates.text')}</p>
                         <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
                     </Entry>
-
                 </Guide>
             </div>
         );

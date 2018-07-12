@@ -29,16 +29,15 @@ export default class Rates extends UpdatingComponent {
                     <td className={style.availableFiatUnit} onClick={fiat.next}>{fiat.code}</td>
                 </tr>
             );
-        } else {
-            return (
-                <span className={style.rates}>
-                    {children}
-                    {formatAsCurrency(value)}
-                    {' '}
-                    <span className={style.unit} onClick={fiat.next}>{fiat.code}</span>
-                </span>
-            );
         }
+        return (
+            <span className={style.rates}>
+                {children}
+                {formatAsCurrency(value)}
+                {' '}
+                <span className={style.unit} onClick={fiat.next}>{fiat.code}</span>
+            </span>
+        );
     }
 }
 

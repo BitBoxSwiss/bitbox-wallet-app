@@ -121,8 +121,7 @@ export default class Seed extends Component {
         const message = (
             <Message type={status === 'error' && 'error'}>
                 {
-                    /* eslint eqeqeq: 0 */
-                    sdcard == null ? '' : (
+                    sdcard == null ? '' : ( // eslint-disable-line eqeqeq
                         !sdcard && !fromBackup ?
                             t('seed.error.200') :
                             status === stateEnum.ERROR ?

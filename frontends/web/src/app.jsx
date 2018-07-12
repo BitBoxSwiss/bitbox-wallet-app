@@ -77,8 +77,7 @@ export default class App extends Component {
         });
 
         apiGet('config').then(({ frontend }) => {
-            /* eslint eqeqeq: 0 */
-            if (frontend && frontend.guideShown != null) {
+            if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
                 this.setState({ guideShown: frontend.guideShown });
             } else {
                 this.setState({ guideShown: true });
@@ -109,7 +108,7 @@ export default class App extends Component {
                 walletInitialized
             });
             if (!walletInitialized) {
-                console.log('app.jsx route /')
+                console.log('app.jsx route /'); // eslint-disable-line no-console
                 route('/', true);
             }
 

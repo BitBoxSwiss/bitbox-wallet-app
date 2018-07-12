@@ -32,8 +32,7 @@ export default class Receive extends Component {
         apiPost('wallet/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
             this.setState({ verifying: false });
             if (!hasSecureOutput) {
-                /* eslint no-alert: 0 */
-                alert(this.props.t('receive.warning.secureOutput'));
+                alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
             }
         });
     }
@@ -52,10 +51,10 @@ export default class Receive extends Component {
 
     ltcConvertToLegacy = () => {
         apiPost('wallet/' + this.props.code + '/convert-to-legacy-address',
-               this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).
-            then(legacyAddress => {
-                let address = this.state.receiveAddresses[this.state.activeIndex].address;
-                alert('Legacy format of ' + address + ':\n' + legacyAddress);
+            this.state.receiveAddresses[this.state.activeIndex].scriptHashHex)
+            .then(legacyAddress => {
+                const address = this.state.receiveAddresses[this.state.activeIndex].address;
+                alert('Legacy format of ' + address + ':\n' + legacyAddress); // eslint-disable-line no-alert
             });
     }
 
