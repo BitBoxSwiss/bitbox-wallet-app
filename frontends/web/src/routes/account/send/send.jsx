@@ -146,8 +146,7 @@ export default class Send extends Component {
                 default:
                     this.setState({ proposedFee: null });
                     if (error) {
-                        /* eslint no-alert: 0 */
-                        alert(error);
+                        alert(error); // eslint-disable-line no-alert
                     }
                 }
             }

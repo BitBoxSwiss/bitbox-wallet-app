@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { QWebChannel } from './qwebchannel';
 
 let cache = null;
@@ -25,7 +24,7 @@ function initTransport() {
                 webChannel = channel;
                 webChannel.objects.backend.gotResponse.connect(function(queryID, response) {
                     queryPromises[queryID].resolve(JSON.parse(response));
-                })
+                });
                 webChannel.objects.backend.pushNotify.connect(function(msg) {
                     if (currentListeners) {
                         currentListeners.forEach(listener => listener(JSON.parse(msg)));

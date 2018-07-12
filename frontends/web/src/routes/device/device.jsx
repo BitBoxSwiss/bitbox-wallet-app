@@ -40,7 +40,7 @@ export default class Device extends Component {
             if (type === 'devices' && data === 'registeredChanged') {
                 this.onDevicesRegisteredChanged();
             }
-            if (type === 'device' && data == 'statusChanged' && deviceID === this.getDeviceID()) {
+            if (type === 'device' && data === 'statusChanged' && deviceID === this.getDeviceID()) {
                 this.onDeviceStatusChanged();
             }
         });

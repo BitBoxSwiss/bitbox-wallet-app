@@ -44,8 +44,7 @@ export class PasswordRepeatInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            /* eslint no-alert: 0 */
-            alert(i18n.t('password.warning.paste', {
+            alert(i18n.t('password.warning.paste', { // eslint-disable-line no-alert
                 label: this.props.label
             }));
         }
