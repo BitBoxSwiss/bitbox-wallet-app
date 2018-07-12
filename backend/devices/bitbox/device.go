@@ -1205,8 +1205,8 @@ func (dbb *Device) ListenForMobile() {
 				dbb.fireEvent("mobileDisconnected", nil)
 			} else {
 				dbb.fireEvent("mobileConnected", nil)
-				time.Sleep(10 * time.Second)
 			}
+			time.Sleep(10 * time.Second)
 		}
 	}()
 }
