@@ -10,7 +10,7 @@ export default class UTXOs extends Component {
         this.state = {
             show: false,
             utxos: [],
-            selectedUTXOs: {}
+            selectedUTXOs: []
         };
     }
 
