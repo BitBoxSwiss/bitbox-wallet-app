@@ -47,11 +47,13 @@ class Sidebar extends Component {
                     {
                         (debug && walletInitialized && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
-                                <img
-                                    draggable="false"
-                                    className="sidebar_settings"
-                                    src={ejectIcon}
-                                    alt={t('sidebar.leave')} />
+                                <div class="single">
+                                    <img
+                                        draggable="false"
+                                        className="sidebar_settings"
+                                        src={ejectIcon}
+                                        alt={t('sidebar.leave')} />
+                                </div>
                             </a>
                         )
                     }
@@ -62,7 +64,7 @@ class Sidebar extends Component {
                                     <div class="single">
                                         <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
                                     </div>
-                                    { <span className="sidebar_label">{ t('sidebar.device') }</span> }
+                                    <span className="sidebar_label">{ t('sidebar.device') }</span>
                                 </Link>
                             </div>
                         ))
@@ -73,7 +75,7 @@ class Sidebar extends Component {
                                 <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={ t('sidebar.settings') } />
                                 <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
                             </div>
-                            { <span className="sidebar_label">{ t('sidebar.settings') }</span> }
+                            <span className="sidebar_label">{ t('sidebar.settings') }</span>
                         </Link>
                     </div>
                 </div>
