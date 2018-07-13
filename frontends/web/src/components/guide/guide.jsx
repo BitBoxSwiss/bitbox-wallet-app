@@ -22,7 +22,6 @@ export function Guide({ guide, screen, children }) {
     );
 }
 
-@translate()
 export class Entry extends Component {
     constructor(props) {
         super(props);
@@ -40,7 +39,6 @@ export class Entry extends Component {
     }
 
     render({
-        t,
         title,
         entry,
         children,

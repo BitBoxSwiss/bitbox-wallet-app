@@ -23,7 +23,7 @@ function handleError(endpoint) {
                     // which case the result does not matter.
                     return;
                 }
-                console.log('error from endpoint', endpoint, json); // eslint-disable-line no-console
+                console.error('error from endpoint', endpoint, json);
                 alert(i18n.t('genericError')); // eslint-disable-line no-alert
                 reject(json.error);
                 return;
@@ -42,7 +42,7 @@ export function apiGet(endpoint) {
     }
     return fetch(apiURL(endpoint), {
         method: 'GET'
-    }).then(r => r.json()).then(handleError(endpoint));
+    }).then(response => response.json()).then(handleError(endpoint));
 }
 
 export function apiPost(endpoint, body) {
@@ -56,5 +56,5 @@ export function apiPost(endpoint, body) {
     return fetch(apiURL(endpoint), {
         method: 'POST',
         body: JSON.stringify(body)
-    }).then(r => r.json()).then(handleError(endpoint));
+    }).then(response => response.json()).then(handleError(endpoint));
 }
