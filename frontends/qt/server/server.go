@@ -146,6 +146,9 @@ func getAppFolder() string {
 func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) C.struct_ConnectionData {
 	responseCallback = theResponseCallback
 
+	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
+	// unrecognized flags
+	_ = flag.Int("remote-debugging-port", 0, "")
 	testnet := flag.Bool("testnet", false, "activate testnets")
 	flag.Parse()
 	log := logging.Get().WithGroup("server")
