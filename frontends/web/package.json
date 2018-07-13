@@ -26,10 +26,10 @@
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
-    "react-i18next": "7.8.0",
-    "uglifyjs-webpack-plugin": "^1.2.7"
+    "react-i18next": "7.8.0"
   },
   "browserslist": [
-    "last 2 Chrome versions"
+    "iOS >= 3.2",
+    "Safari >= 3.2"
   ]
 }
