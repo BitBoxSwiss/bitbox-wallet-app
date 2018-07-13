@@ -1,6 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet, apiPost } from '../../utils/request';
+import { apiGet } from '../../utils/request';
+import { setConfig } from '../../utils/config';
 import { Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
@@ -16,30 +17,29 @@ export default class Settings extends Component {
     }
 
     componentDidMount() {
-        this.load();
-    }
-
-    load = () => {
         apiGet('config').then(config => this.setState({ config }));
     }
 
-    toggleAccountActive = event => {
-        let config = this.state.config;
-        if (!config) return;
-        config.backend[event.target.id] = event.target.checked;
-        apiPost('config', config).then(() => {
-            this.setState({
-                config,
-                accountSuccess: true,
-            });
-        });
+    handleToggleAccount = event => {
+        setConfig({
+            backend: {
+                [event.target.id]: event.target.checked
+            }
+        })
+            .then(config => this.setState({ config, accountSuccess: true }));
     }
 
-    setFrontendConfig = object => {
-        const newConfig = Object.assign(this.state.config, {
-            frontend: Object.assign({}, this.state.config.frontend, object)
-        });
-        apiPost('config', newConfig);
+    handleDismissMessage = event => {
+        this.setState({ accountSuccess: false });
+    }
+
+    handleToggleCoinControl = event => {
+        setConfig({
+            frontend: {
+                coinControl: event.target.checked
+            }
+        })
+            .then(config => this.setState({ config }));
     }
 
     render({
@@ -75,19 +75,19 @@ export default class Settings extends Component {
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2WPKHP2SHActive}
                                                     id="bitcoinP2WPKHP2SHActive"
-                                                    onChange={this.toggleAccountActive}
+                                                    onChange={this.handleToggleAccount}
                                                     label={t('settings.accounts.bitcoinP2WPKHP2SH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2WPKHActive}
                                                     id="bitcoinP2WPKHActive"
-                                                    onChange={this.toggleAccountActive}
+                                                    onChange={this.handleToggleAccount}
                                                     label={t('settings.accounts.bitcoinP2WPKH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2PKHActive}
                                                     id="bitcoinP2PKHActive"
-                                                    onChange={this.toggleAccountActive}
+                                                    onChange={this.handleToggleAccount}
                                                     label={t('settings.accounts.bitcoinP2PKH')}
                                                     className="text-medium" />
                                             </div>
@@ -95,13 +95,13 @@ export default class Settings extends Component {
                                                 <Checkbox
                                                     checked={config.backend.litecoinP2WPKHP2SHActive}
                                                     id="litecoinP2WPKHP2SHActive"
-                                                    onChange={this.toggleAccountActive}
+                                                    onChange={this.handleToggleAccount}
                                                     label={t('settings.accounts.litecoinP2WPKHP2SH')}
                                                     className="text-medium" />
                                                 <Checkbox
                                                     checked={config.backend.litecoinP2WPKHActive}
                                                     id="litecoinP2WPKHActive"
-                                                    onChange={this.toggleAccountActive}
+                                                    onChange={this.handleToggleAccount}
                                                     label={t('settings.accounts.litecoinP2WPKH')}
                                                     className="text-medium" />
                                             </div>
@@ -117,7 +117,7 @@ export default class Settings extends Component {
                                                 <Checkbox
                                                     checked={config.frontend.coinControl}
                                                     id="coinControl"
-                                                    onChange={ev => { this.setFrontendConfig({ coinControl: ev.target.checked }); }}
+                                                    onChange={this.handleToggleCoinControl}
                                                     label={t('settings.expert.coinControl')}
                                                     className="text-medium" />
                                             </div>
@@ -129,8 +129,7 @@ export default class Settings extends Component {
                                                         type="success"
                                                         align="left"
                                                         message={t('settings.success')}
-                                                        onEnd={() => this.setState({ accountSuccess: false })}
-                                                    />
+                                                        onEnd={this.handleDismissMessage} />
                                                 </div>
                                             )
                                         }

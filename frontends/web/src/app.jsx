@@ -2,7 +2,8 @@ import { Component } from 'preact';
 import { Router, route } from 'preact-router';
 import { translate } from 'react-i18next';
 
-import { apiGet, apiPost } from './utils/request';
+import { apiGet } from './utils/request';
+import { setConfig } from './utils/config';
 import { apiWebsocket } from './utils/websocket';
 import { equal } from './utils/equal';
 import Sidebar from './components/sidebar/sidebar';
@@ -119,7 +120,7 @@ export default class App extends Component {
     toggleGuide = (show) => {
         this.setState(state => {
             const guideShown = (typeof show === 'boolean') ? show : !state.guideShown;
-            setFrontendConfig({ guideShown });
+            setConfig({ frontend: { guideShown } });
             return { guideShown };
         });
     }
@@ -133,15 +134,18 @@ export default class App extends Component {
     }
 
     setFiatCode = (fiatCode) => {
+        if (!this.state.fiatList.includes(fiatCode)) {
+            this.addToFiatList(fiatCode);
+        }
         this.setState({ fiatCode });
-        setFrontendConfig({ fiatCode });
+        setConfig({ frontend: { fiatCode } });
     }
 
     nextFiatCode = () => {
         this.setState(state => {
             const index = state.fiatList.indexOf(state.fiatCode);
             const fiatCode = state.fiatList[(index + 1) % state.fiatList.length];
-            setFrontendConfig({ fiatCode });
+            setConfig({ frontend: { fiatCode } });
             return { fiatCode };
         });
     }
@@ -149,7 +153,7 @@ export default class App extends Component {
     addToFiatList = (fiatCode) => {
         this.setState(state => {
             const fiatList = state.fiatList ? [...state.fiatList, fiatCode] : [fiatCode];
-            setFrontendConfig({ fiatList });
+            setConfig({ frontend: { fiatList } });
             return { fiatList };
         });
     }
@@ -157,7 +161,7 @@ export default class App extends Component {
     removeFromFiatList = (fiatCode) => {
         this.setState(state => {
             const fiatList = state.fiatList.filter(item => !equal(item, fiatCode));
-            setFrontendConfig({ fiatList });
+            setConfig({ frontend: { fiatList } });
             return { fiatList };
         });
     }
@@ -183,7 +187,7 @@ export default class App extends Component {
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
-                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} walletInitialized={walletInitialized}/>)}
+                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} walletInitialized={walletInitialized} />)}
                 <div class="flex-column flex-1">
                     {update && <Status dismissable keyName={`update-${update.version}`} type="info">
                         {t('app.upgrade', {
@@ -239,13 +243,4 @@ export default class App extends Component {
             </div>
         );
     }
-}
-
-function setFrontendConfig(object) {
-    apiGet('config').then((config) => {
-        const newConfig = Object.assign(config, {
-            frontend: Object.assign({}, config.frontend, object)
-        });
-        apiPost('config', newConfig);
-    });
 }

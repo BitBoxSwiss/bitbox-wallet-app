@@ -1,12 +1,19 @@
+import { Component } from 'preact';
 import { translate } from 'react-i18next';
+import { apiGet } from '../../utils/request';
 import { Checkbox } from '../forms';
-import UpdatingComponent from '../updating/updating';
 import style from './fiat.css';
 
 @translate()
-export default class FiatSwitcher extends UpdatingComponent {
-    getStateMap() {
-        return { rates: 'coins/rates' };
+export default class Fiat extends Component {
+    state = {
+        currencies: []
+    }
+
+    componentDidMount() {
+        apiGet('coins/rates').then(rates => this.setState({
+            currencies: Object.keys(rates.BTC)
+        }));
     }
 
     change = event => {
@@ -17,12 +24,10 @@ export default class FiatSwitcher extends UpdatingComponent {
         }
     }
 
-    set = event => {
+    setDefault = event => {
         const code = event.target.dataset.code;
         this.props.fiat.set(code);
-        if (!this.props.fiat.list.includes(code)) {
-            this.props.fiat.add(code);
-        }
+        this.setState({ fiatCode: code });
         event.preventDefault();
     }
 
@@ -30,12 +35,11 @@ export default class FiatSwitcher extends UpdatingComponent {
         t,
         fiat,
     }, {
-        rates,
+        currencies,
     }) {
-        if (!rates) {
+        if (!currencies || !currencies.length) {
             return null;
         }
-        const currencies = Object.keys(rates.BTC);
         return (
             <div>
                 <div class="subHeaderContainer">
@@ -61,7 +65,7 @@ export default class FiatSwitcher extends UpdatingComponent {
                                     <span
                                         tabIndex="0"
                                         className={[style.action, active ? style.show : ''].join(' ')}
-                                        onClick={this.set}
+                                        onClick={this.setDefault}
                                         data-code={currency}>
                                         {t(active ? 'fiat.default' : 'fiat.setDefault', {
                                             code: currency
