@@ -53,7 +53,7 @@ export default class Settings extends Component {
                 case 'mobileConnected':
                     this.setState({ connected: true });
                     break;
-                case 'pairingTrue':
+                case 'pairingSuccess':
                     this.setState({ paired: true });
                     break;
                 case 'pairingFalse':
@@ -136,7 +136,7 @@ export default class Settings extends Component {
                                     </div>
                                 </dl>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                    <MobilePairing deviceID={deviceID} disabled={lock} />
+                                    <MobilePairing deviceID={deviceID} deviceLocked={lock}/>
                                     <DeviceLock deviceID={deviceID} disabled={lock} />
                                 </div>
 

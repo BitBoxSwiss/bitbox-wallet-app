@@ -24,6 +24,9 @@ export default class MobilePairing extends Component {
     onDeviceStatus = ({ type, data, deviceID }) => {
         if (type === 'device' && deviceID === this.props.deviceID) {
             switch (data){
+            case 'connectOnly':
+                this.setState({ status: 'connectOnly' });
+                break;
             case 'pairingStarted':
                 this.setState({ status: 'started' });
                 break;
@@ -49,28 +52,43 @@ export default class MobilePairing extends Component {
             status: 'loading',
         });
         apiPost('devices/' + this.props.deviceID + '/pairing/start').then(channel => {
-            this.setState({
-                channel,
-                status: 'start',
-            });
+            if (this.props.deviceLocked) {
+                this.setState({
+                    channel,
+                    status: 'connectOnly',
+                });
+            } else {
+                this.setState({
+                    channel,
+                    status: 'start',
+                });
+            }
         });
     }
 
     render({
         t,
-        disabled
+        deviceLocked
     }, {
         channel,
         status,
     }) {
-        const content = status === 'start'
-            ? (<QRCode data={JSON.stringify(channel)} />)
-            : (<p>{t(`pairing.${status}.text`)}</p>);
+        let content;
+        if (status === 'start') {
+            content = (<QRCode data={JSON.stringify(channel)} />);
+        } else if (status === 'connectOnly') {
+            let data = channel;
+            data.connectOnly = true;
+            content = (<QRCode data={JSON.stringify(data)} />);
+        } else {
+            content = (<p>{t(`pairing.${status}.text`)}</p>);
+        }
 
         return (
             <div>
-                <Button primary onClick={this.startPairing} disabled={disabled}>
-                    {t('pairing.button')}
+                <Button primary onClick={this.startPairing}>
+                    {!deviceLocked && t('pairing.button')}
+                    {deviceLocked && t(`pairing.connectOnly.button`)}
                 </Button>
                 {
                     status && (

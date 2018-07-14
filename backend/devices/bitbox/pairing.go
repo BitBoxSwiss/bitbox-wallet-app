@@ -6,11 +6,37 @@ import (
 	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
 )
 
+func (device *Device) storePairingConfig(channel *relay.Channel) {
+	if err := channel.StoreToConfigFile(); err != nil {
+		device.log.WithError(err).Error("Failed to store the channel config file.")
+		device.fireEvent(EventPairingError, nil)
+		return
+	}
+	device.channel = channel
+	device.ListenForMobile()
+}
+
 // finishPairing finishes the pairing after the channel has been displayed as a QR code.
 func (device *Device) finishPairing(channel *relay.Channel) {
 	if err := channel.WaitForScanningSuccess(time.Minute); err != nil {
 		device.log.WithError(err).Warning("Failed to wait for the scanning success.")
 		device.fireEvent(EventPairingTimedout, nil)
+		return
+	}
+	deviceInfo, err := device.DeviceInfo()
+	if err != nil {
+		device.log.WithError(err).Error("Failed to check if device is locked or not")
+		// TODO: should be a different event, I suppose
+		device.fireEvent(EventPairingAborted, nil)
+		return
+	}
+	if deviceInfo.Lock {
+		device.log.Debug("Device is locked. Only establishing connection to mobile app without repairing.")
+		device.fireEvent(EventConnectOnly, nil)
+
+		device.storePairingConfig(channel)
+		// TODO: fix events
+		device.fireEvent(EventPairingSuccess, nil)
 		return
 	}
 	device.fireEvent(EventPairingStarted, nil)
@@ -72,14 +98,7 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 	}
 	device.log.Debug("Finished pairing")
 	if challenge == "finish" {
-		if err := channel.StoreToConfigFile(); err != nil {
-			device.log.WithError(err).Error("Failed to store the channel config file.")
-			device.fireEvent(EventPairingError, nil)
-			return
-		}
-		device.channel = channel
-		device.ListenForMobile()
-		device.fireEvent("pairingTrue", nil)
+		device.storePairingConfig(channel)
 		device.fireEvent(EventPairingSuccess, nil)
 	} else {
 		device.fireEvent(EventPairingAborted, nil)
