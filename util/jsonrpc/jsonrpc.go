@@ -16,6 +16,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
 const (
 	responseTimeout = 30 * time.Second
 )
