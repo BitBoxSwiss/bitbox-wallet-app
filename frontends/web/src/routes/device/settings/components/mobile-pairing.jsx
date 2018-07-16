@@ -24,9 +24,6 @@ export default class MobilePairing extends Component {
     onDeviceStatus = ({ type, data, deviceID }) => {
         if (type === 'device' && deviceID === this.props.deviceID) {
             switch (data){
-            case 'connectOnly':
-                this.setState({ status: 'connectOnly' });
-                break;
             case 'pairingStarted':
                 this.setState({ status: 'started' });
                 break;
@@ -77,9 +74,7 @@ export default class MobilePairing extends Component {
         if (status === 'start') {
             content = (<QRCode data={JSON.stringify(channel)} />);
         } else if (status === 'connectOnly') {
-            let data = channel;
-            data.connectOnly = true;
-            content = (<QRCode data={JSON.stringify(data)} />);
+            content = (<QRCode data={JSON.stringify({ ...channel, connectOnly: true })} />);
         } else {
             content = (<p>{t(`pairing.${status}.text`)}</p>);
         }

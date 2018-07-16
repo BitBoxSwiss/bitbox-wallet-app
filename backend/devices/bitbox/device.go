@@ -1175,7 +1175,7 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 		dbb.fireEvent("pairingFalse", nil)
 	}
 	channel := relay.NewChannelWithRandomKey()
-	go dbb.finishPairing(channel)
+	go dbb.processPairing(channel)
 	return channel, nil
 }
 

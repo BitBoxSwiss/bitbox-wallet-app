@@ -83,7 +83,7 @@
             "title": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
         },
         "connectOnly": {
-            "title": "Scan with our mobile app by selecting the menu item 'Connect to new Desktop app'",
+            "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'",
             "button": "Connect Mobile App"
         },
         "started": {

@@ -8,9 +8,6 @@ const (
 	// EventPairingStarted is fired when the pairing started.
 	EventPairingStarted device.Event = "pairingStarted"
 
-	// EventConnectOnly is fired when the channel to the 2FA device is connected without pairing.
-	EventConnectOnly device.Event = "connectOnly"
-
 	// EventPairingTimedout is fired when the pairing timed out.
 	EventPairingTimedout device.Event = "pairingTimedout"
 
