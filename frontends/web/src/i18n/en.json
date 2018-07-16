@@ -43,9 +43,9 @@
                 "false": "Not paired"
             },
             "mobile": {
-                "label": "Mobile",
-                "true": "Connected",
-                "false": "Disconnected"
+                "label": "Mobile App",
+                "true": "Open",
+                "false": "Closed"
             },
             "lock": {
                 "label": "Two Factor Authorization (2FA)",
