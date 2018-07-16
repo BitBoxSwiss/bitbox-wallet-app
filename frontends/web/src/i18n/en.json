@@ -48,9 +48,9 @@
                 "false": "Disconnected"
             },
             "lock": {
-                "label": "2FA",
-                "true": "Locked",
-                "false": "Unlocked"
+                "label": "Two Factor Authorization (2FA)",
+                "true": "Enabled",
+                "false": "Disabled"
             }
         },
         "firmware": {
@@ -108,12 +108,12 @@
         }
     },
     "deviceLock": {
-        "button": "Enable Full 2FA",
-        "title": "Enable Full 2FA",
+        "button": "Enable Two Factor Authorization (2FA)",
+        "title": "Enable Two Factor Authorization (2FA)",
         "condition1": "Do you have a backup?",
         "condition2": "Is mobile app verification working?",
-        "condition3": "2FA mode DISABLES backups and mobile app pairing. The device must be ERASED to exit 2FA mode!",
-        "confirm": "Enable Full 2FA"
+        "condition3": "2FA DISABLES backups and mobile app pairing. The device must be RESET to exit 2FA!",
+        "confirm": "Enable Two Factor Authorization (2FA)"
     },
     "hiddenWallet": {
         "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
@@ -570,8 +570,8 @@
                 "text": [ "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
             },
             {
-                "title": "How can I reset full 2FA?",
-                "text": [ "To reset full 2FA you need to reset your wallet and restore it into its original state. Make sure that you still have the original SD card. Then press 'Reset Device'. Set a new pin and choose 'Or Restore a Backup'. Select the backup you have made from the original wallet, click 'Restore' and input your original recovery password." ]
+                "title": "How can I disable the two factor authorization (2FA)?",
+                "text": [ "In order to disable the two factor authorization, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
             }
         ],
         "backups": [

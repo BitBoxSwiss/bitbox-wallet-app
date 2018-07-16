@@ -1242,7 +1242,7 @@ func (dbb *Device) KeystoreForConfiguration(
 	}
 }
 
-// Lock locks the device for full 2FA. Returns true if successful and false if aborted by the user.
+// Lock locks the device for 2FA. Returns true if successful and false if aborted by the user.
 func (dbb *Device) Lock() (bool, error) {
 	reply, err := dbb.sendKV("device", "lock", dbb.pin)
 	if IsErrorAbort(err) {
