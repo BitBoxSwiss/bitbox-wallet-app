@@ -296,24 +296,29 @@ export default class Send extends Component {
                                 fiat={fiat} />
                         </div>
                     </div>
-                    <div class="innerContainer">
+                    <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div class="row">
-                                <div class="subHeaderContainer first">
-                                    <div class="subHeader">
-                                        <h3>{t('send.title')}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                            { coinControl && (
-                                <div class="row">
+                            {
+                                coinControl ? (
                                     <UTXOs
                                         ref={ref => this.utxos = ref}
                                         fiat={fiat}
                                         walletCode={wallet.code}
-                                        onChange={this.onSelectedUTXOsChange} />
-                                </div>
-                            )
+                                        onChange={this.onSelectedUTXOsChange}
+                                        includeTitle>
+                                        <div class="subHeader">
+                                            <h3>{t('send.title')}</h3>
+                                        </div>
+                                    </UTXOs>
+                                ) : (
+                                    <div class="row">
+                                        <div class="subHeaderContainer first">
+                                            <div class="subHeader">
+                                                <h3>{t('send.title')}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )
                             }
                             <div class="row">
                                 <Input

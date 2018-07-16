@@ -146,7 +146,7 @@
     padding: 0 var(--spacing-large);
     height: 100%;
     width: 100%;
-    overflow: auto;
+    /*overflow: auto;*/
 }
 
 .content.padded {
@@ -163,6 +163,10 @@
 
 .row:not(:first-child).extra {
     margin-top: var(--spacing-large);
+}
+
+.row:last-child {
+    margin-bottom: var(--spacing-default) !important;
 }
 
 .bottom {

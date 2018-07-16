@@ -11,6 +11,7 @@ export default class Rates extends UpdatingComponent {
         children,
         fiat,
         tableRow,
+        unstyled,
     }, {
         rates,
     }) {
@@ -24,9 +25,9 @@ export default class Rates extends UpdatingComponent {
         const value = rates[coin][fiat.code] * Number(amount.amount);
         if (tableRow) {
             return (
-                <tr className={style.fiatRow}>
-                    <td className={style.availableFiatAmount}>{formatAsCurrency(value)}</td>
-                    <td className={style.availableFiatUnit} onClick={fiat.next}>{fiat.code}</td>
+                <tr className={unstyled ? '' : style.fiatRow}>
+                    <td className={unstyled ? '' : style.availableFiatAmount}>{formatAsCurrency(value)}</td>
+                    <td className={unstyled ? '' : style.availableFiatUnit} onClick={fiat.next}>{fiat.code}</td>
                 </tr>
             );
         }

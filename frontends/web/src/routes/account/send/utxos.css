@@ -1,21 +1,109 @@
+.container {
+    position: relative;
+    transition: all 0.2s ease;
+    border-radius: 2px;
+}
+
+.container.collapsed {
+    height: 0;
+    width: 100%;
+    overflow: hidden;
+    border: solid 1px transparent;
+}
+
+.container.expanded {
+    height: 320px;
+    overflow-y: scroll;
+    border: solid 1px var(--color-lightgray);
+    margin-bottom: var(--spacing-default);
+}
+
 .table {
     border-collapse: collapse;
+    width: 100%;
     text-align: left;
 }
 
-.table td:nth-child(1) {
-    vertical-align: top;
+.table > tr:hover {
+    background-color: var(--color-lightgray);
 }
 
-.table td:nth-child(3),
-.table th:nth-child(3),
-.table td:nth-child(4),
-.table td:nth-child(4) {
-    text-align: right;
-    white-space: nowrap;
+.table > tr > td {
+    line-height: 1.3;
+    font-size: 14px;
+    padding: var(--spacing-default) 0;
+    border-bottom: solid 1px var(--color-lightgray);
 }
 
-.table td:nth-child(4) {
-    text-align: right;
+.table > tr > td > span {
+    display: block;
+}
+
+.table > tr > td label {
+    display: inline-block;
+    font-size: 14px;
+    margin: 0;
+}
+
+.table > tr > td:first-child {
     padding-left: var(--spacing-default);
+    padding-right: var(--spacing-half);
+    vertical-align: top;
+    width: calc(var(--spacing-large) + 1em);
+}
+
+.table > tr > td:first-child > span {
+    position: relative;
+}
+
+.table > tr > td:first-child > span label {
+    position: absolute;
+    top: 2px;
+}
+
+.table > tr > td:last-child {
+    padding-right: var(--spacing-default);
+}
+
+.right {
+    text-align: right;
+}
+
+.amountTable {
+    border-collapse: collapse;
+}
+
+.amountTable tr td {
+    padding: 0;
+}
+
+.amountTable tr td:first-child {
+    padding-right: 3px;
+}
+
+.amountTable tr td:last-child {
+    text-align: left;
+    color: var(--color-secondary);
+}
+
+@media (max-width: 885px) {
+    .table > tr > td label {
+        display: block;
+        font-size: var(--size-small);
+        margin-bottom: 3px;
+    }
+
+    .table > tr > td > span:last-child {
+        margin-top: 5px;
+    }
+
+    .table > tr > td:last-child {
+        vertical-align: bottom;
+    }
+}
+
+@media (max-width: 819px) {
+    .table > tr > td:nth-child(2) {
+        padding-left: 20px;
+    }
 }

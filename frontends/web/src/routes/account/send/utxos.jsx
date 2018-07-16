@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
-import { Button } from '../../../components/forms';
+import { Button, Checkbox } from '../../../components/forms';
 import Rates from '../../../components/rates/rates';
 import style from './utxos.css';
 
@@ -10,7 +10,7 @@ export default class UTXOs extends Component {
         this.state = {
             show: false,
             utxos: [],
-            selectedUTXOs: []
+            selectedUTXOs: [],
         };
     }
 
@@ -45,45 +45,68 @@ export default class UTXOs extends Component {
         this.props.onChange(this.state.selectedUTXOs);
     }
 
-    render({ fiat }, { show, utxos, selectedUTXOs }) {
-        if (!show) {
-            return (
-                <span>
-                    <Button transparent onClick={() => this.setState({ show: true })}>
-                        Show coin control
-                    </Button>
-                </span>
-            );
-        }
+    render({
+        fiat,
+        children,
+    }, {
+        show,
+        utxos,
+        selectedUTXOs,
+    }) {
         return (
-            <span>
-                <Button transparent onClick={this.hide}>
-                  Hide coin control
-                </Button><br />
-                <table className={style.table}>
-                    <tr><th></th><th>Output</th><th>Amount</th></tr>
-                    { utxos.map(utxo => (
-                        <tr key={utxo.outPoint}>
-                            <td>
-                                <input
-                                    type="checkbox"
-                                    checked={!!selectedUTXOs[utxo.outPoint]}
-                                    id={'utxo-' + utxo.outPoint}
-                                    data-outpoint={utxo.outPoint}
-                                    onChange={this.handleUTXOChange}
-                                />
-                            </td>
-                            <td>
-                                <label for={'utxo-' + utxo.outPoint}>Outpoint: {utxo.outPoint}</label>
-                                <label for={'utxo-' + utxo.outPoint}>Address: {utxo.address}</label>
-                            </td>
-                            <td>{utxo.amount.amount} {utxo.amount.unit}</td>
-                            <td><Rates amount={utxo.amount} fiat={fiat} /></td>
-                        </tr>
-                    ))
+            <div class="row">
+                <div class="subHeaderContainer first">
+                    {children}
+                    {
+                        show ? (
+                            <Button transparent onClick={this.hide}>
+                                Hide coin control
+                            </Button>
+                        ) : (
+                            <Button transparent onClick={() => this.setState({ show: true })}>
+                                Show coin control
+                            </Button>
+                        )
                     }
-                </table>
-            </span>
+                </div>
+                <div>
+                    <div class={[style.container, show ? style.expanded : style.collapsed].join(' ')}>
+                        {
+                            show && (
+                                <table className={style.table}>
+                                    {
+                                        utxos.map(utxo => (
+                                            <tr>
+                                                <td>
+                                                    <Checkbox
+                                                        checked={!!selectedUTXOs[utxo.outPoint]}
+                                                        id={'utxo-' + utxo.outPoint}
+                                                        data-outpoint={utxo.outPoint}
+                                                        onChange={this.handleUTXOChange}
+                                                    />
+                                                </td>
+                                                <td>
+                                                    <span><label>Outpoint:</label> {utxo.outPoint}</span>
+                                                    <span><label>Address:</label> {utxo.address}</span>
+                                                </td>
+                                                <td class={style.right}>
+                                                    <table class={style.amountTable} align="right">
+                                                        <tr>
+                                                            <td>{utxo.amount.amount}</td>
+                                                            <td>{utxo.amount.unit}</td>
+                                                        </tr>
+                                                        <Rates tableRow unstyled amount={utxo.amount} fiat={fiat} />
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
+                                </table>
+                            )
+                        }
+                    </div>
+                </div>
+            </div>
         );
     }
 }
