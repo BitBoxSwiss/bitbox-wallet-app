@@ -129,8 +129,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("tltc")).Methods("GET")
-	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("ltc")).Methods("GET")
+	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
