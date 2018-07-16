@@ -136,7 +136,7 @@ export default class Settings extends Component {
                                     </div>
                                 </dl>
                                 <div class="buttons wrapped flex flex-row flex-start flex-wrap">
-                                    <MobilePairing deviceID={deviceID} deviceLocked={lock} mobileConnected={connected} />
+                                    <MobilePairing deviceID={deviceID} deviceLocked={lock} mobilePaired={paired} />
                                     <DeviceLock deviceID={deviceID} disabled={lock} />
                                 </div>
 

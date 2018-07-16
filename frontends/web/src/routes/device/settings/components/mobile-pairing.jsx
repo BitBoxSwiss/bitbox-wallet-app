@@ -66,7 +66,7 @@ export default class MobilePairing extends Component {
     render({
         t,
         deviceLocked,
-        mobileConnected,
+        mobilePaired,
     }, {
         channel,
         status,
@@ -84,8 +84,8 @@ export default class MobilePairing extends Component {
             <div>
                 <Button primary onClick={this.startPairing}>
                     {!deviceLocked && t('pairing.button')}
-                    {deviceLocked && !mobileConnected && t(`pairing.connectOnly.button`)}
-                    {deviceLocked && mobileConnected && t(`pairing.reconnectOnly.button`)}
+                    {deviceLocked && !mobilePaired && t(`pairing.connectOnly.button`)}
+                    {deviceLocked && mobilePaired && t(`pairing.reconnectOnly.button`)}
                 </Button>
                 {
                     status && (
