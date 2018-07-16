@@ -158,7 +158,16 @@
         },
         "expert": {
             "title": "Expert Settings",
-            "coinControl": "Enable coin control"
+            "coinControl": "Enable coin control",
+            "electrum": {
+                "title": "Connect your own full node"
+            }
+        },
+        "electrum": {
+            "title-btc": "Bitcoin Electrum Servers",
+            "title-tbtc": "Bitcoin Testnet Electrum Servers",
+            "title-ltc": "Litecoin Electrum Servers",
+            "title-tltc": "Litecoin Testnet Electrum Servers"
         },
         "success": "Please unplug and replug the BitBox for the changes to take effect."
     },
@@ -558,6 +567,12 @@
             {
                 "title": "Can you add more coins?",
                 "text": [ "We will be integrating more altcoins besides Litecoin in the next few releases. If you are looking for a specific coin, leave us a suggestion at the contact below." ]
+            }
+        ],
+        "settings-electrum": [
+            {
+                "title": "What is this?",
+                "text": [ "It is possible to power your wallet with your own full nodes instead of using Shift servers." ]
             }
         ],
         "bitbox": [

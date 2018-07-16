@@ -1,7 +1,10 @@
 package backend
 
 import (
-	"fmt"
+	"bytes"
+	"crypto/tls"
+	"crypto/x509"
+	"encoding/pem"
 
 	"github.com/shiftdevices/godbb/backend/config"
 	"golang.org/x/text/language"
@@ -12,6 +15,8 @@ import (
 
 	"github.com/shiftdevices/godbb/backend/arguments"
 	"github.com/shiftdevices/godbb/backend/coins/btc"
+	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
+	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
 	"github.com/shiftdevices/godbb/backend/coins/coin"
 	"github.com/shiftdevices/godbb/backend/coins/ltc"
 	"github.com/shiftdevices/godbb/backend/devices/device"
@@ -19,6 +24,7 @@ import (
 	"github.com/shiftdevices/godbb/backend/keystore"
 	"github.com/shiftdevices/godbb/backend/signing"
 	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/shiftdevices/godbb/util/jsonrpc"
 	"github.com/shiftdevices/godbb/util/locker"
 	"github.com/shiftdevices/godbb/util/logging"
 	"github.com/shiftdevices/godbb/util/observable"
@@ -121,68 +127,91 @@ func (backend *Backend) addAccount(
 	backend.accounts = append(backend.accounts, account)
 }
 
-// Config returns the backend config.
+// Config returns the app config.
 func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
-func defaultProdServers(code string) []*rpc.ServerInfo {
-	hostsBtc := []string{"btc.shiftcrypto.ch", "merkle.shiftcrypto.ch"}
-	hostsLtc := []string{"ltc.shiftcrypto.ch", "ltc.shamir.shiftcrypto.ch"}
+// DefaultConfig returns the default app config.y
+func (backend *Backend) DefaultConfig() config.AppConfig {
+	return config.NewDefaultConfig()
+}
+
+func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	switch code {
 	case "btc":
-		port := 443
-		return combine(hostsBtc, port, false)
+		return backend.config.Config().Backend.BTC.ElectrumServers
 	case "tbtc":
-		port := 51002
-		return combine(hostsBtc, port, false)
+		return backend.config.Config().Backend.TBTC.ElectrumServers
 	case "ltc":
-		port := 443
-		return combine(hostsLtc, port, false)
+		return backend.config.Config().Backend.LTC.ElectrumServers
 	case "tltc":
-		port := 51004
-		return combine(hostsLtc, port, false)
+		return backend.config.Config().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
 }
 
 func defaultDevServers(code string) []*rpc.ServerInfo {
-	hosts := []string{"s1.dev.shiftcrypto.ch", "s2.dev.shiftcrypto.ch"}
-	port := 0
+	const devShiftCA = `-----BEGIN CERTIFICATE-----
+MIIGGjCCBAKgAwIBAgIJAO1AEqR+xvjRMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
+VQQGEwJDSDEPMA0GA1UECAwGWnVyaWNoMR0wGwYDVQQKDBRTaGlmdCBDcnlwdG9z
+ZWN1cml0eTEzMDEGA1UECwwqU2hpZnQgQ3J5cHRvc2VjdXJpdHkgQ2VydGlmaWNh
+dGUgQXV0aG9yaXR5MSUwIwYDVQQDDBxTaGlmdCBDcnlwdG9zZWN1cml0eSBSb290
+IENBMB4XDTE4MDMwNzE3MzUxMloXDTM4MDMwMjE3MzUxMlowgZkxCzAJBgNVBAYT
+AkNIMQ8wDQYDVQQIDAZadXJpY2gxHTAbBgNVBAoMFFNoaWZ0IENyeXB0b3NlY3Vy
+aXR5MTMwMQYDVQQLDCpTaGlmdCBDcnlwdG9zZWN1cml0eSBDZXJ0aWZpY2F0ZSBB
+dXRob3JpdHkxJTAjBgNVBAMMHFNoaWZ0IENyeXB0b3NlY3VyaXR5IFJvb3QgQ0Ew
+ggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQDlz32VZk/D3rfm7Qwx6WkE
+Fp9cdQV2FNYTeTjWVErVeTev02ctHHXV1fR3Svk8iIJWaALSJy7phdEDwC/3gDIQ
+Ylm15kpntCibOWiQPZZxGq7Udts20fooccdZqtG/PKFRCPWZ2MOgHAOWDKGk6Kb+
+siqkr55hkxwtiHuwkCcTh/Q2orEIuteSRbbYwgURZwd6dDIQq4ty7reC3j32xphh
+edbnVBoDE6DSdebSS5SJL/gb6LxUdio98XdJPwkaD8292uEODxx0DKw/Ou2e1f5Q
+Iv1WBl+LBaSrZ3sJSFUqoSvCQwBQmMAPoPJ1O13jCnFz1xoNygxUfz2eiKRL5E2l
+VTmTh7zIez4oniOh5MOmDnKMVgTUGP1II2UU5r6PAq2tDpw4lVwyezhyLaBegwMc
+pg/LinbABxUJrP8c8G2tve0yuTAhsir7r+Koo+nAE7FwcuIkD0UTyQcoag2IMS8O
+dKZdYMGXjfUPJRBWg60LfXJeqMyU1oHpDrsRoa5iaYPt7ZApxc41kyynqfuuuIRD
+du8327gd1nJ6ExMxGHY7dYelE4GNkOg3R0+5czykm/RxnGyDuDcO/RcYBJTChN1L
+HYq+dTt0dYPAzBtiXnfuvjDyOsDK5f65pbrDgoOr6AQ4lvDJabcXFsWPrulM9Dyu
+p0Y4+fuwXOCd8cr1Zm34MQIDAQABo2MwYTAdBgNVHQ4EFgQU486X86LMbNNSDw7J
+NcT2U30NrikwHwYDVR0jBBgwFoAU486X86LMbNNSDw7JNcT2U30NrikwDwYDVR0T
+AQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwDQYJKoZIhvcNAQENBQADggIBAN0N
+IPVBv8aaKDHDK9Nsu5fwiGp8GgkAN0B1+D34CbxTuzCDurToVMHCPEdo9tk/AzE4
+Aa1p/kMW9X3XP8IyCFFj+BpEVkBRr9fXTVuh3XRHbyN6tXFbkKWQ/6QeUcnefq2k
+DCpqEGjJQWsujZ4tJKkJl2HLIBZL6FAa/kaDLFHd3LeV1immC66CiN3ieHejCJL1
+zZXiWi8pNxvEanTLPBaBjCw/AAl/owg/ySu2hGZzL0wsFboPrUbo4J+KvL1pvwql
+PCT8AylJKCu+cn/N9zZDtUsgZJQBIq7btoakC3mCSnfVTlcbxfHVef0DbfohFqoV
+ZpdmIuy0/njw7o+2uL/ArPJscPOhNl60ocDbdFIyYvc85oxyts8yMvKDdWV9Bm//
+kl7lv4QUAvjqjb7ZgUhYibVk3Eu6n1MGZOP40l1/mm922/Wcd2n/HZVk/LsJs4tt
+B6DLMDpf5nzeI1Yz/QtDGvNyb4aiJoRV5tQb9KkFfIeSzBS/ORZto4tVHKS37lxV
+d1r8kFyCgpL9KASdahfyLBWCC7awlcOQP1QJA5QoO9u5Feq3lU0VnJF0YCZh8GOy
+py3n1TR6S59eT495BiKDjWnhdVchEa8zMGIW/wFW7EX/LyW2zX3hQsdfnmMWUPVr
+O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
+-----END CERTIFICATE-----`
+
 	switch code {
 	case "btc":
-		hosts = []string{"dev.shiftcrypto.ch"}
-		port = 50002
+		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50002", TLS: true, PEMCert: devShiftCA}}
 	case "tbtc":
-		port = 51003
+		return []*rpc.ServerInfo{
+			{Server: "s1.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
+			{Server: "s2.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
+		}
 	case "ltc":
-		hosts = []string{"dev.shiftcrypto.ch"}
-		port = 50004
+		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
 	case "tltc":
-		hosts = []string{"dev.shiftcrypto.ch"}
-		port = 51004
+		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:51004", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
-	return combine(hosts, port, true)
 }
 
-// combine is a utility function that combines the server/tls information with a given port.
-func combine(hosts []string, port int, devmode bool) []*rpc.ServerInfo {
-	serverInfos := []*rpc.ServerInfo{}
-	for _, host := range hosts {
-		server := fmt.Sprintf("%s:%d", host, port)
-		serverInfos = append(serverInfos, &rpc.ServerInfo{server, true, devmode})
-	}
-	return serverInfos
-}
-
-func defaultServers(code string, devmode bool) []*rpc.ServerInfo {
-	if devmode {
+func (backend *Backend) defaultServers(code string) []*rpc.ServerInfo {
+	if backend.arguments.DevMode() {
 		return defaultDevServers(code)
 	}
-	return defaultProdServers(code)
+
+	return backend.defaultProdServers(code)
 }
 
 // Coin returns a Coin instance for a coin type.
@@ -192,11 +221,11 @@ func (backend *Backend) Coin(code string) *btc.Coin {
 	if ok {
 		return coin
 	}
-	servers := defaultServers(code, backend.arguments.DevMode())
+	servers := backend.defaultServers(code)
 	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
 	case "rbtc":
-		servers = []*rpc.ServerInfo{{"127.0.0.1:52001", false, false}}
+		servers = []*rpc.ServerInfo{{"127.0.0.1:52001", false, ""}}
 		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", nil)
 	case "tbtc":
 		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
@@ -434,4 +463,49 @@ func (backend *Backend) listenHID() {
 // Rates return the latest rates.
 func (backend *Backend) Rates() map[string]map[string]float64 {
 	return backend.ratesUpdater.Last()
+}
+
+// DownloadCert downloads the first element of the remote certificate chain.
+func (backend *Backend) DownloadCert(server string) (string, error) {
+	var pemCert []byte
+	conn, err := tls.Dial("tcp", server, &tls.Config{
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			if len(rawCerts) == 0 {
+				return errp.New("no remote certs")
+			}
+
+			certificatePEM := &pem.Block{Type: "CERTIFICATE", Bytes: rawCerts[0]}
+			certificatePEMBytes := &bytes.Buffer{}
+			if err := pem.Encode(certificatePEMBytes, certificatePEM); err != nil {
+				panic(err)
+			}
+			pemCert = certificatePEMBytes.Bytes()
+			return nil
+		},
+		InsecureSkipVerify: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	_ = conn.Close()
+	return string(pemCert), nil
+}
+
+// CheckElectrumServer checks if a tls connection can be established with the electrum server, and
+// whether the server is an electrum server.
+func (backend *Backend) CheckElectrumServer(server string, pemCert string) error {
+	backends := []rpc.Backend{
+		electrum.NewElectrum(backend.log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}),
+	}
+	conn, err := backends[0].EstablishConnection()
+	if err != nil {
+		return err
+	}
+	_ = conn.Close()
+	// Simple check if the server is an electrum server.
+	jsonrpcClient := jsonrpc.NewRPCClient(backends, backend.log)
+	electrumClient := client.NewElectrumClient(jsonrpcClient, backend.log)
+	defer electrumClient.Close()
+	_, err = electrumClient.ServerVersion()
+	return err
 }

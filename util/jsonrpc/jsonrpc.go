@@ -266,7 +266,10 @@ func (client *RPCClient) conn() (*connection, error) {
 		defer client.connLock.Lock()()
 		if client.connection == nil {
 			defer client.backendsLock.RLock()()
-			start := rand.Intn(len(client.backends))
+			start := 0
+			if len(client.backends) > 0 {
+				start = rand.Intn(len(client.backends))
+			}
 			for i := 0; i < len(client.backends); i++ {
 				client.log.Debugf("Trying to connect to backend %v", client.backends[start].ServerInfo().Server)
 				err := client.establishConnection(client.backends[start])

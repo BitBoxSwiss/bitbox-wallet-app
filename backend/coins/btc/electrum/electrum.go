@@ -23,6 +23,11 @@ type Electrum struct {
 	serverInfo *rpc.ServerInfo
 }
 
+// NewElectrum creates a new Electrum instance.
+func NewElectrum(log *logrus.Entry, serverInfo *rpc.ServerInfo) *Electrum {
+	return &Electrum{log, serverInfo}
+}
+
 // ServerInfo returns the server info for this backend.
 func (electrum *Electrum) ServerInfo() *rpc.ServerInfo {
 	return electrum.serverInfo
@@ -33,17 +38,8 @@ func (electrum *Electrum) ServerInfo() *rpc.ServerInfo {
 func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	var conn io.ReadWriteCloser
 	if electrum.serverInfo.TLS {
-		var caCert []byte
 		var err error
-		if electrum.serverInfo.DevCaCert {
-			caCert, err = Asset("../../../../config/certificates/electrumx/dev/ca.cert.pem")
-		} else {
-			caCert, err = Asset("../../../../config/certificates/electrumx/prod/ca.cert.pem")
-		}
-		if err != nil {
-			panic(err)
-		}
-		conn, err = newTLSConnection(electrum.serverInfo.Server, caCert)
+		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert)
 		if err != nil {
 			return nil, ConnectionError(err)
 		}
@@ -57,22 +53,22 @@ func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	return conn, nil
 }
 
-func newTCPConnection(address string) (net.Conn, error) {
-	conn, err := net.Dial("tcp", address)
+func newTLSConnection(address string, pemCert string) (*tls.Conn, error) {
+	caCertPool := x509.NewCertPool()
+	if ok := caCertPool.AppendCertsFromPEM([]byte(pemCert)); !ok {
+		return nil, errp.New("Failed to append CA cert as trusted cert")
+	}
+	conn, err := tls.Dial("tcp", address, &tls.Config{
+		RootCAs: caCertPool,
+	})
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return conn, nil
 }
 
-func newTLSConnection(address string, caCert []byte) (*tls.Conn, error) {
-	caCertPool := x509.NewCertPool()
-	if ok := caCertPool.AppendCertsFromPEM(caCert); !ok {
-		return nil, errp.WithStack(errp.New("Failed to append CA cert as trusted cert"))
-	}
-	conn, err := tls.Dial("tcp", address, &tls.Config{
-		RootCAs: caCertPool,
-	})
+func newTCPConnection(address string) (net.Conn, error) {
+	conn, err := net.Dial("tcp", address)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}

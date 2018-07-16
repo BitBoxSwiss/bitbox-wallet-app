@@ -12,6 +12,7 @@ import Account from './routes/account/account';
 import Send from './routes/account/send/send';
 import Receive from './routes/account/receive/receive';
 import Settings from './routes/settings/settings';
+import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
 import Status from './components/status/status';
@@ -218,6 +219,9 @@ export default class App extends Component {
                             accounts={accounts}
                             guide={guide}
                             fiat={fiat} />
+                        <ElectrumSettings
+                            path="/settings/electrum"
+                            guide={guide} />
                         <Settings
                             path="/settings"
                             deviceIDs={deviceIDs}

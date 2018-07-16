@@ -7,7 +7,13 @@ import (
 
 	"github.com/shiftdevices/godbb/util/errp"
 	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/shiftdevices/godbb/util/rpc"
 )
+
+// CoinConfig holds configurations specific to a coin.
+type CoinConfig struct {
+	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
+}
 
 // Backend holds the backend specific configuration.
 type Backend struct {
@@ -16,6 +22,11 @@ type Backend struct {
 	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
 	LitecoinP2WPKHP2SHActive bool `json:"litecoinP2WPKHP2SHActive"`
 	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
+
+	BTC  CoinConfig `json:"btc"`
+	TBTC CoinConfig `json:"tbtc"`
+	LTC  CoinConfig `json:"ltc"`
+	TLTC CoinConfig `json:"tltc"`
 }
 
 // AccountActive returns the Active setting for a coin by code.
@@ -42,7 +53,46 @@ type AppConfig struct {
 	Frontend interface{} `json:"frontend"`
 }
 
-func defaultAppConfig() AppConfig {
+const shiftRootCA = `
+-----BEGIN CERTIFICATE-----
+MIIGGjCCBAKgAwIBAgIJAKRWPF0NRtHyMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
+VQQGEwJDSDEPMA0GA1UECAwGWnVyaWNoMR0wGwYDVQQKDBRTaGlmdCBDcnlwdG9z
+ZWN1cml0eTEzMDEGA1UECwwqU2hpZnQgQ3J5cHRvc2VjdXJpdHkgQ2VydGlmaWNh
+dGUgQXV0aG9yaXR5MSUwIwYDVQQDDBxTaGlmdCBDcnlwdG9zZWN1cml0eSBSb290
+IENBMB4XDTE4MDYwODE0NTA0MloXDTM4MDYwMzE0NTA0MlowgZkxCzAJBgNVBAYT
+AkNIMQ8wDQYDVQQIDAZadXJpY2gxHTAbBgNVBAoMFFNoaWZ0IENyeXB0b3NlY3Vy
+aXR5MTMwMQYDVQQLDCpTaGlmdCBDcnlwdG9zZWN1cml0eSBDZXJ0aWZpY2F0ZSBB
+dXRob3JpdHkxJTAjBgNVBAMMHFNoaWZ0IENyeXB0b3NlY3VyaXR5IFJvb3QgQ0Ew
+ggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQC0H598q5C+yDJI9F8QYkYK
+6/48kFNQ0rbAKcKkgR0+H8CGuFVOGQdcv7tObCMe0Dyr8ioNkq7AP+Nt1e1TVgKQ
+ANmJqz2rKvA4sIIgdBjUs0DXPuCaDzGGbJHIXnGMuGANX6xnqvdOj7kIA6r6s7Hh
+eWQEB8tGiRdHWJitpkc1xEfW1DhnMQPnSihSJM5qltXVPKxzqqElv0iGI/La3S8W
+nJV7kTGTsLouX1CcwLjp6avlVy56utOYRXkgfuY88XxmOjlAECeoYCWFBGaSWK+h
+2sBLbRC9G0YWmNCqB+GjMj8myj06crLn7mZgBODEyUrFYMjAPrpmAScmw38y2rwN
+AK6ii75P+sHc3BPi05Vap2GoTAY0db62NiN3dsNxHB5DbehA4Zfaqzcakjv4CSRo
+zkg2JSlofOZWd3aomxIKfFLl+aVFjukXEKaz8P+2xe5/2/M35kKIIJCuHz1Ybor1
+Ze9YmLAnLnbTCA7VcKkUs25lskL/zRC4sdLzgJ2V2UdHWPAo/ttwBXtw6piw4v4N
+DfCuKDMiomxwNiGvb3GZWMhOHT30NLZ0nuRAGjeg7jFBqSh2SPeDu+hnImAAh2WX
+7ul3/kschLF+3otC/x7jmAMWXzb1oVWRqj2Gyjner1p82gWxj5k7Hs/2mG3TV6sv
+pyVqMqonbirxuO+kbzYLxQIDAQABo2MwYTAdBgNVHQ4EFgQU301oVCni/CbDXJ9V
+Fez6Vgu0arUwHwYDVR0jBBgwFoAU301oVCni/CbDXJ9VFez6Vgu0arUwDwYDVR0T
+AQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwDQYJKoZIhvcNAQENBQADggIBAD1d
+/KJ3w1Je3oOx0afcXOf2IOoMvKSFbBg9u+rpXBh60cacjPtwbIMIyF3ynYYGzx7D
+x8mr6wagJ+uqKn9E7JGp2h0lKhT9cgxzqIk3r4D/jhvh1zijInCEbPPphwbemzIG
+JxxmpDOeURHVxCcSpIJlGfRURdfdXwleWiz9zCkNUvmgTDrfBjEk6ywSSKD4uJuT
+jBcav1P4OkeFokAPO1Uc9NCXox5NUAsDosdZUbxbH8vf61Xbr6fnxmy731s9D7cc
+djXPb3pbXtRL4A0hNnOWcuPM30hn4ZkIm08TGT+IMOFYBk+pe2IXSFzUcDYEL/ws
+wuHqctRlw/t4extJFYvzASOkBr4zFceR9jCSWR8kOkWY81evx/bxG+eQBJMkzrdw
+LOChedVDVIuoTZxfqNzU4Y2TgMGMRWsrEVvBvTMIY3qBue1yeT9M4jzAPhms3/It
+Ps7ZeqmF+HrRtFz5ctHQa0QOdZodsKJO0WwjjzjYTDMzZO+bnVFFUy9cG+Gr6mt1
+XMKJKkvXQuYTfbRrox4HzIjyfi54xYHnUI35uUUUzEO19Qtm4Ds+sz7/vyz3cYFI
+d8IgKoqstjsxtaRq1IS6WIj0bQ/nEqoTNg0I3bndrmCq5LbCoq0z2yXYr5Vl5Gvf
+ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
+-----END CERTIFICATE-----
+`
+
+// NewDefaultConfig returns the default app config.
+func NewDefaultConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
 			BitcoinP2PKHActive:       true,
@@ -50,6 +100,62 @@ func defaultAppConfig() AppConfig {
 			BitcoinP2WPKHActive:      false,
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     false,
+			BTC: CoinConfig{
+				ElectrumServers: []*rpc.ServerInfo{
+					{
+						Server:  "btc.shiftcrypto.ch:443",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+					{
+						Server:  "merkle.shiftcrypto.ch:443",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+				},
+			},
+			TBTC: CoinConfig{
+				ElectrumServers: []*rpc.ServerInfo{
+					{
+						Server:  "btc.shiftcrypto.ch:51002",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+					{
+						Server:  "merkle.shiftcrypto.ch:51002",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+				},
+			},
+			LTC: CoinConfig{
+				ElectrumServers: []*rpc.ServerInfo{
+					{
+						Server:  "ltc.shiftcrypto.ch:443",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+					{
+						Server:  "ltc.shamir.shiftcrypto.ch:443",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+				},
+			},
+			TLTC: CoinConfig{
+				ElectrumServers: []*rpc.ServerInfo{
+					{
+						Server:  "ltc.shiftcrypto.ch:51004",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+					{
+						Server:  "ltc.shamir.shiftcrypto.ch:51004",
+						TLS:     true,
+						PEMCert: shiftRootCA,
+					},
+				},
+			},
 		},
 	}
 }
@@ -66,7 +172,7 @@ type Config struct {
 func NewConfig(filename string) *Config {
 	config := &Config{
 		filename: filename,
-		config:   defaultAppConfig(),
+		config:   NewDefaultConfig(),
 	}
 	config.load()
 	return config

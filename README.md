@@ -53,19 +53,11 @@ Only the first time, set up the project with `make init`.
 
 ## ElectrumX Backend
 
-We run ElectrumX backends on a devserver. The host/ports are currently hardcoded. We are currently
-using our development server to host the ElectrumX servers. Running your own node would require that
-you change the TLS root certificate currently located under
-`config/certificates/electrumx/dev/ca.cert.pem`.
-
-Additionally, you have to create a new `assets.go` file in the `coins/btc/electrum` directory. You can do so by changing into
-the directory and executing:
-```
-go-bindata -o assets.go -pkg electrum ../../../config/certificates/electrumx/dev/ca.cert.pem
-```
+The servers used are configurable in the app settings. Currently, when running the app in devmode
+(`make servewallet`), the config is ignored and servers on Shift's devserver are used. The
+hosts/ports/certs of those are currently hardcoded.
 
 ## Development Workflow
-
 
 ### Local Development
 

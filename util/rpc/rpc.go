@@ -1,6 +1,8 @@
 package rpc
 
-import "io"
+import (
+	"io"
+)
 
 // Status is the connection status to the blockchain node
 type Status int
@@ -27,12 +29,9 @@ type Client interface {
 
 // ServerInfo holds information about the backend server(s).
 type ServerInfo struct {
-	Server string
-	TLS    bool
-	// Currently, we hardcode two ca certs, one for Shift dev servers, and one for Shift prod
-	// servers. This defines which one to take. In the future, we will allow self signed certs from
-	// third party backends.
-	DevCaCert bool
+	Server  string `json:"server"`
+	TLS     bool   `json:"tls"`
+	PEMCert string `json:"pemCert"`
 }
 
 // Backend describes the methods provided to connect to an RPC backend

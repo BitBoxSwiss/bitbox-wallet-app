@@ -33,6 +33,7 @@ import (
 // Backend models the API of the backend.
 type Backend interface {
 	Config() *config.Config
+	DefaultConfig() config.AppConfig
 	Coin(string) *btc.Coin
 	WalletStatus() string
 	Testing() bool
@@ -50,6 +51,8 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	Rates() map[string]map[string]float64
+	DownloadCert(string) (string, error)
+	CheckElectrumServer(string, string) error
 }
 
 // Handlers provides a web api to the backend.
@@ -116,6 +119,7 @@ func NewHandlers(
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -131,6 +135,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/tbtc/headers/status", handlers.getHeadersStatus("tbtc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("ltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
+	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
@@ -203,6 +209,10 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error)
 
 func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.Config().Config(), nil
+}
+
+func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.DefaultConfig(), nil
 }
 
 func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
@@ -308,6 +318,46 @@ func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) 
 	}
 }
 
+func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) (interface{}, error) {
+	var server string
+	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	pemCert, err := handlers.backend.DownloadCert(server)
+	if err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}, nil
+	}
+	return map[string]interface{}{
+		"success": true,
+		"pemCert": pemCert,
+	}, nil
+}
+
+func (handlers *Handlers) postCertsCheckHandler(r *http.Request) (interface{}, error) {
+	var server struct {
+		Server  string `json:"server"`
+		PEMCert string `json:"pemCert"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	if err := handlers.backend.CheckElectrumServer(
+		server.Server,
+		server.PEMCert); err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorMessage": err.Error(),
+		}, nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
 	conn, err := handlers.websocketUpgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -369,7 +419,7 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		defer func() {
 			// recover from all panics and log error before panicking again
 			if r := recover(); r != nil {
-				handlers.log.WithField("panic", true).Error("%v\n%s", r, string(debug.Stack()))
+				handlers.log.WithField("panic", true).Errorf("%v\n%s", r, string(debug.Stack()))
 				writeJSON(w, map[string]string{"error": fmt.Sprintf("%v", r)})
 			}
 		}()

@@ -2,7 +2,7 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
-import { Checkbox } from '../../components/forms';
+import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
@@ -120,6 +120,9 @@ export default class Settings extends Component {
                                                     onChange={this.handleToggleCoinControl}
                                                     label={t('settings.expert.coinControl')}
                                                     className="text-medium" />
+                                            </div>
+                                            <div class={style.column}>
+                                                <ButtonLink primary href='/settings/electrum'>{t('settings.expert.electrum.title')}</ButtonLink>
                                             </div>
                                         </div>
                                         {
