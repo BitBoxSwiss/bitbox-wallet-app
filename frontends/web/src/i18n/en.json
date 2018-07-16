@@ -338,7 +338,8 @@
         }
     },
     "confirm": {
-        "info": "On your device",
+        "info": "On your BitBox",
+        "infoWhenPaired": "First on the paired mobile and then your BitBox",
         "abortInfo": "Tap to ",
         "abortInfoRedText": "abort",
         "approveInfo": "Hold 3+ secs to ",

@@ -397,7 +397,12 @@ export default class Send extends Component {
                     </div>
                     {
                         isConfirming && (
-                            <WaitDialog title={t('send.confirm.title')} includeDefault prequel={confirmPrequel()}>
+                            <WaitDialog
+                                title={t('send.confirm.title')}
+                                prequel={confirmPrequel()}
+                                paired={paired}
+                                includeDefault
+                            >
                                 <div class={style.confirmationBox}>
                                     <div class="row">
                                         <p class={['label', style.confirmationLabel, 'first'].join(' ')}>

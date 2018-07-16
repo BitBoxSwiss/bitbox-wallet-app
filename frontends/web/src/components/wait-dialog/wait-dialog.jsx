@@ -36,6 +36,7 @@ export default class Confirm extends Component {
         includeDefault,
         prequel,
         title,
+        paired = false,
         children,
     }, {
         active,
@@ -45,7 +46,7 @@ export default class Confirm extends Component {
             <div class="flex flex-column flex-start">
                 { prequel && (<p>{prequel}</p> ) }
                 <p class={['label', style.confirmationLabel].join(' ')}>
-                    {t('confirm.info')}
+                    { paired ? t('confirm.infoWhenPaired') : t('confirm.info') }
                 </p>
                 <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
                     <div class="flex flex-column flex-center flex-items-center">
