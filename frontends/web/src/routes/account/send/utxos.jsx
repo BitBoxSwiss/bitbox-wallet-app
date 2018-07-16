@@ -45,6 +45,10 @@ export default class UTXOs extends Component {
         this.props.onChange(this.state.selectedUTXOs);
     }
 
+    show = () => {
+        this.setState({ show: true });
+    }
+
     render({
         fiat,
         children,
@@ -63,7 +67,7 @@ export default class UTXOs extends Component {
                                 Hide coin control
                             </Button>
                         ) : (
-                            <Button transparent onClick={() => this.setState({ show: true })}>
+                            <Button transparent onClick={this.show}>
                                 Show coin control
                             </Button>
                         )
