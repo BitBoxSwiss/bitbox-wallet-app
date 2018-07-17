@@ -222,6 +222,11 @@ export default class Account extends Component {
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>
                     )}
+                   {wallet.name === "Bitcoin Legacy" || wallet.name === "Bitcoin Testnet Legacy" && (
+                        <Entry key="accountLegacyConvert" title={t('guide.accountLegacyConvert.title')}>
+                            <p>{t('guide.accountLegacyConvert.text')}</p>
+                        </Entry>
+                    )}
                     {transactions.length > 0 && (
                         <Entry key="accountTransactionAttributes" title={t('guide.accountTransactionAttributes.title')}>
                             <ul>

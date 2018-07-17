@@ -430,6 +430,10 @@
             "title": "Why can't I send any {{unit}}?",
             "text": "Your balance may not be zero, otherwise you cannot cover the network fee."
         },
+        "accountLegacyConvert": {
+            "title": "How can I move my coins out of the Legacy account?",
+            "text": "Go to the Bitcoin account, select receive and copy the address. Go back to your legacy account, click send, paste the copied address and tick send all. Then sign and send to move all your coins in a single transaction."
+        },
         "accountReload": {
             "title": "How can I reload the transaction history?",
             "text": "All transaction information is updated automatically."
