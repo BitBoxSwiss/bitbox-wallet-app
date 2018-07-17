@@ -237,7 +237,7 @@
         "fiatAmount": {
             "placeholder": "Enter amount"
         },
-        "maximum": "Send all. Be careful!",
+        "maximum": "Send all",
         "toSelf": "Send to self",
         "fee": {
             "label": "Network Fee",
