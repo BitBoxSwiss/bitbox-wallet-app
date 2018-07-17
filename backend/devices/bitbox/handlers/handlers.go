@@ -6,7 +6,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
@@ -133,7 +132,6 @@ func (handlers *Handlers) postSetHiddenPasswordHandler(r *http.Request) (interfa
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	spew.Dump(jsonBody)
 	pin := jsonBody["pin"]
 	backupPassword := jsonBody["backupPassword"]
 	success, err := handlers.bitbox.SetHiddenPassword(pin, backupPassword)
