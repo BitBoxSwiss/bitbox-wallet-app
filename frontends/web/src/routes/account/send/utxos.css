@@ -12,7 +12,7 @@
 }
 
 .container.expanded {
-    height: 320px;
+    max-height: 320px;
     overflow-y: scroll;
     border: solid 1px var(--color-lightgray);
     margin-bottom: var(--spacing-default);
