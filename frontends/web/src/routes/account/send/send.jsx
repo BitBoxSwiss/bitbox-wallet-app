@@ -304,8 +304,7 @@ export default class Send extends Component {
                                         ref={ref => this.utxos = ref}
                                         fiat={fiat}
                                         walletCode={wallet.code}
-                                        onChange={this.onSelectedUTXOsChange}
-                                        includeTitle>
+                                        onChange={this.onSelectedUTXOsChange}>
                                         <div class="subHeader">
                                             <h3>{t('send.title')}</h3>
                                         </div>

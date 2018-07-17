@@ -80,7 +80,7 @@ export default class UTXOs extends Component {
                                 <table className={style.table}>
                                     {
                                         utxos.map(utxo => (
-                                            <tr>
+                                            <tr key={'utxo-' + utxo.outPoint}>
                                                 <td>
                                                     <Checkbox
                                                         checked={!!selectedUTXOs[utxo.outPoint]}
