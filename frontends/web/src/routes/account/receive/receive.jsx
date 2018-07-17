@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink, Input } from '../../../components/forms';
@@ -24,6 +25,20 @@ export default class Receive extends Component {
             apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
                 this.setState({ paired });
             });
+        }
+    }
+
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown = e => {
+        if (e.keyCode === 27) {
+            route(`/account/${this.props.code}`);
         }
     }
 

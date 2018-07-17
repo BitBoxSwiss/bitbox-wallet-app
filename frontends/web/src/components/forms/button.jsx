@@ -8,6 +8,7 @@ export function ButtonLink({
     transparent,
     danger,
     className,
+    tabIndex = '0',
     children,
     disabled,
     ...props
@@ -34,7 +35,7 @@ export function ButtonLink({
         );
     }
     return (
-        <Link className={classNames} {...props}>
+        <Link className={classNames} tabIndex={tabIndex} {...props}>
             {children}
         </Link>
     );

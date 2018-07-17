@@ -1,4 +1,5 @@
 import { Component } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
@@ -63,8 +64,19 @@ export default class Send extends Component {
         });
     }
 
+    componentWillMount() {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
     componentWillUnmount() {
         this.unsubscribe();
+        document.removeEventListener('keydown', this.handleKeyDown);
+    }
+
+    handleKeyDown = e => {
+        if (e.keyCode === 27) {
+            route(`/account/${this.props.code}`);
+        }
     }
 
     send = () => {

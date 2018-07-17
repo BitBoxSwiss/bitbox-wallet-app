@@ -29,6 +29,7 @@ input::-webkit-credentials-auto-fill-button {
     right: 0;
 }
 
+a[tabindex="0"]:focus,
 button:focus,
 input:focus,
 select:focus,
