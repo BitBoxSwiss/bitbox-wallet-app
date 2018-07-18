@@ -8,9 +8,14 @@ import (
 )
 
 // runWebsocket sets up loops for sending/receiving, abstracting away the low level details about
-// pings, timeouts, connection closing, etc.  It returns two channels: one to send messages to the
-// client, and one which notifies when the connection was closed.
-func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Entry) (chan []byte, <-chan struct{}) {
+// pings, timeouts, connection closing, etc.
+// It returns two channels: one to send messages to the client, and one which notifies
+// when the connection was closed.
+//
+// Closing msg makes runWebsocket's goroutines quit.
+// The goroutines close conn upon exit, due to a send/receive error or when msg is closed.
+// runWebsocket never closes msg.
+func runWebsocket(conn *websocket.Conn, apiData *ConnectionData, log *logrus.Entry) (msg chan<- []byte, quit <-chan struct{}) {
 	// Time allowed to read the next pong message from the peer.
 	const pongWait = 60 * time.Second
 	// Send pings to peer with this period. Must be less than pongWait.
