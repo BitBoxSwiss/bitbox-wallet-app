@@ -519,6 +519,30 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 	return nil
 }
 
+func (dbb *Device) CheckBackup(backupPassword, filename string) error {
+	if backupPassword == "" {
+		return errp.New("invalid password")
+	}
+	dbb.log.WithFields(logrus.Fields{"filename": filename}).Debug("Check")
+	key := stretchKey(backupPassword)
+    reply, err := dbb.send(
+		map[string]interface{}{
+			"backup": map[string]string{
+				"key":   key,
+				"check": filename,
+			},
+		},
+		dbb.pin)
+    if err != nil {
+		return errp.WithMessage(err, "There was an unexpected error during the wallet check")
+	}
+	backupCheck, ok := reply["backup"].(string)
+	if !ok || backupCheck != "success" {
+		return errp.New("Current Wallet does not match this backup")
+	}
+	return nil
+}
+
 func backupFilename(backupName string) string {
 	return fmt.Sprintf("%s-%s.pdf", backupName, time.Now().Format(backupDateFormat))
 }

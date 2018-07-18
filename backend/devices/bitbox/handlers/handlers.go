@@ -46,6 +46,7 @@ type Bitbox interface {
 	StartPairing() (*relay.Channel, error)
 	Paired() bool
 	Lock() (bool, error)
+    CheckBackup(string, string) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -80,6 +81,7 @@ func NewHandlers(
 	handleFunc("/backups/erase", handlers.postBackupsEraseHandler).Methods("POST")
 	handleFunc("/backups/restore", handlers.postBackupsRestoreHandler).Methods("POST")
 	handleFunc("/backups/create", handlers.postBackupsCreateHandler).Methods("POST")
+    handleFunc("/backups/check", handlers.postBackupsCheckHandler).Methods("POST")
 	handleFunc("/pairing/start", handlers.postPairingStartHandler).Methods("POST")
 	handleFunc("/bootloader/upgrade-firmware",
 		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
@@ -257,6 +259,23 @@ func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{
 	}
 	return map[string]interface{}{"didRestore": didRestore}, nil
 }
+
+func (handlers *Handlers) postBackupsCheckHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	filename := jsonBody["filename"]
+	handlers.log.WithField("filename", filename).Debug("Check backup")
+	err := handlers.bitbox.CheckBackup(jsonBody["password"], filename)
+	if err != nil {
+		handlers.log.WithFields(logrus.Fields{"walletName": filename, "error": err}).
+			Error("Failed to check backup")
+		return map[string]interface{}{"errorMessage": err.Error()}, nil
+	}
+    return map[string]interface{}{"success": true}, nil
+}
+
 
 func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}, error) {
 	jsonBody := map[string]string{}
