@@ -417,8 +417,7 @@ export default class Send extends Component {
                                 title={t('send.confirm.title')}
                                 prequel={confirmPrequel()}
                                 paired={paired}
-                                includeDefault
-                            >
+                                includeDefault>
                                 <div class={style.confirmationBox}>
                                     <div class="row">
                                         <p class={['label', style.confirmationLabel, 'first'].join(' ')}>
@@ -434,9 +433,13 @@ export default class Send extends Component {
                                             <p class={style.confirmationValue}>
                                                 {proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}
                                             </p>
-                                            { proposedAmount && proposedAmount.conversions && <p class={style.confirmationValue}>
-                                                { proposedAmount.conversions[fiatUnit] + ' ' + fiatUnit }
-                                            </p> }
+                                            {
+                                                proposedAmount && proposedAmount.conversions && (
+                                                    <p class={style.confirmationValue}>
+                                                        {proposedAmount.conversions[fiatUnit] + ' ' + fiatUnit}
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                         <div>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
@@ -446,9 +449,13 @@ export default class Send extends Component {
                                             <p class={style.confirmationValue}>
                                                 {proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}
                                             </p>
-                                            { proposedFee && proposedFee.conversions && <p class={style.confirmationValue}>
-                                                { proposedFee.conversions[fiatUnit] + ' ' + fiatUnit }
-                                            </p> }
+                                            {
+                                                proposedFee && proposedFee.conversions && (
+                                                    <p class={style.confirmationValue}>
+                                                        {proposedFee.conversions[fiatUnit] + ' ' + fiatUnit}
+                                                    </p>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                     <p class={['label', style.confirmationLabel].join(' ')}>
@@ -457,9 +464,13 @@ export default class Send extends Component {
                                     <p class={[style.confirmationValue, style.standOut].join(' ')}>
                                         {proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}
                                     </p>
-                                    { proposedTotal && proposedTotal.conversions && <p class={[style.confirmationValue, style.standOut].join(' ')}>
-                                        { proposedTotal.conversions[fiatUnit] + ' ' + fiatUnit }
-                                    </p> }
+                                    {
+                                        proposedTotal && proposedTotal.conversions && (
+                                            <p class={[style.confirmationValue, style.standOut].join(' ')}>
+                                                {proposedTotal.conversions[fiatUnit] + ' ' + fiatUnit}
+                                            </p>
+                                        )
+                                    }
                                 </div>
                             </WaitDialog>
                         )
