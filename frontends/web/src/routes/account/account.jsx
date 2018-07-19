@@ -138,7 +138,6 @@ export default class Account extends Component {
         if (!accounts) return null;
         const wallet = accounts.find(({ code }) => code === this.props.code);
         if (!wallet) return null;
-
         const noTransactions = (walletInitialized && transactions.length <= 0);
         return (
             <div class="contentWithGuide">
@@ -222,7 +221,7 @@ export default class Account extends Component {
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>
                     )}
-                   {wallet.name === "Bitcoin Legacy" || wallet.name === "Bitcoin Testnet Legacy" && (
+                   {(wallet.code === 'tbtc-p2pkh' || wallet.code === 'btc-p2pkh') && (
                         <Entry key="accountLegacyConvert" title={t('guide.accountLegacyConvert.title')}>
                             <p>{t('guide.accountLegacyConvert.text')}</p>
                         </Entry>
