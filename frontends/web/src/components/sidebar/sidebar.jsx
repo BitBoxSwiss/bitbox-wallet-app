@@ -60,22 +60,22 @@ class Sidebar extends Component {
                     {
                         deviceIDs.map(deviceID => (
                             <div key={deviceID}>
-                                <Link activeClassName="sidebar-active" class="settings" href={`/device/${deviceID}`} title={ t('sidebar.device') }>
+                                <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
                                     <div class="single">
-                                        <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={ t('sidebar.device') } />
+                                        <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
                                     </div>
-                                    <span className="sidebar_label">{ t('sidebar.device') }</span>
+                                    <span className="sidebar_label">{t('sidebar.device')}</span>
                                 </Link>
                             </div>
                         ))
                     }
                     <div>
-                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={ t('sidebar.settings') }>
+                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
                             <div class="stacked">
-                                <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={ t('sidebar.settings') } />
-                                <img draggable="false" className="sidebar_settings" src={settings} alt={ t('sidebar.settings') } />
+                                <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
+                                <img draggable="false" className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
                             </div>
-                            <span className="sidebar_label">{ t('sidebar.settings') }</span>
+                            <span className="sidebar_label">{t('sidebar.settings')}</span>
                         </Link>
                     </div>
                 </div>

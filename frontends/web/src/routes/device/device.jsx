@@ -74,6 +74,11 @@ export default class Device extends Component {
     onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(deviceIDs => {
             const deviceRegistered = deviceIDs.includes(this.getDeviceID());
+
+            if (this.props.default && deviceIDs.length === 1) {
+                console.log('device.jsx route to', '/device/' + deviceIDs[0]); // eslint-disable-line no-console
+                route('/device/' + deviceIDs[0], true);
+            }
             this.setState({
                 deviceRegistered,
                 deviceStatus: null

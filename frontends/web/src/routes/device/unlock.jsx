@@ -1,6 +1,6 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-
+import { route } from 'preact-router';
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import Message from '../../components/message/message';
@@ -58,6 +58,10 @@ export default class Unlock extends Component {
             status: stateEnum.WAITING
         });
         apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
+            if (data.success) {
+                console.log('unlock.jsx route to /account'); // eslint-disable-line no-console
+                route('/account', true);
+            }
             if (!data.success) {
                 if (data.code) {
                     this.setState({ errorCode: data.code });
