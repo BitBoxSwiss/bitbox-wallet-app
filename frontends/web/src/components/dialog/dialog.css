@@ -62,5 +62,19 @@
 }
 
 .confirmationInstructions {
-    margin-top: var(--spacing-default);
+    /* margin-top: var(--spacing-half); */
+    margin-top: 0;
+}
+
+.confirmationInstructions > div {
+    
+}
+
+.confirmationInstructions p {
+    line-height: 1;
+}
+
+.image {
+    height: 40px;
+    margin-right: var(--spacing-default);
 }

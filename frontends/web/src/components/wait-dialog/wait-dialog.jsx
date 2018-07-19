@@ -1,8 +1,8 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
+import approve from '../../assets/icons/checked.svg';
+import reject from '../../assets/icons/cancel.svg';
 import style from '../dialog/dialog.css';
-import approve from '../../assets/device/approve.png';
-import reject from '../../assets/device/reject.png';
 
 @translate()
 export default class Confirm extends Component {
@@ -44,20 +44,24 @@ export default class Confirm extends Component {
         const isActive = active ? style.active : '';
         const defaultContent = (
             <div class="flex flex-column flex-start">
-                { prequel && (<p>{prequel}</p> ) }
+                {
+                    prequel && (
+                        <p>{prequel}</p>
+                    )
+                }
                 <p class={['label', style.confirmationLabel].join(' ')}>
-                    { paired ? t('confirm.infoWhenPaired') : t('confirm.info') }
+                    {paired ? t('confirm.infoWhenPaired') : t('confirm.info')}
                 </p>
-                <div class={['flex', 'flex-row', 'flex-around', 'flex-items-end', style.confirmationInstructions].join(' ')}>
-                    <div class="flex flex-column flex-center flex-items-center">
-                        <img src={reject} alt="Reject" />
+                <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
+                    <div class="flex flex-row flex-start flex-items-center">
+                        <img class={style.image} src={reject} alt="Reject" />
                         <p class="text-bold">
                             {t('confirm.abortInfo')}
                             <span class="text-red">{t('confirm.abortInfoRedText')}</span>
                         </p>
                     </div>
-                    <div class="flex flex-column flex-center flex-items-center">
-                        <img src={approve} alt="Approve" />
+                    <div class="flex flex-row flex-start flex-items-center">
+                        <img class={style.image} src={approve} alt="Approve" />
                         <p class="text-bold">
                             {t('confirm.approveInfo')}
                             <span class="text-green">{t('confirm.approveInfoGreenText')}</span>

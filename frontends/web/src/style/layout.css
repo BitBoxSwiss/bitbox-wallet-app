@@ -10,6 +10,7 @@
 .flex-items-baseline { align-items: baseline; }
 .flex-items-start { align-items: flex-start; }
 .flex-items-end { align-items: flex-end; }
+.flex-items-stretch { align-items: stretch; }
 .flex-wrap { flex-wrap: wrap; }
 .flex-nowrap { flex-wrap: nowrap; }
 .flex-1 { flex: 1; }

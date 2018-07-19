@@ -271,6 +271,7 @@
         "button": "Sign and Send",
         "confirm": {
             "title": "Confirm Transaction",
+            "selected_coins": "Selected Coins",
             "total": "Total"
         },
         "success": "The transaction has been signed and sent.",

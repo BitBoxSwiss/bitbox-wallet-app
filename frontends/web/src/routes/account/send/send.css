@@ -29,41 +29,76 @@
     cursor: not-allowed;
 }
 
-.confirmationInstructions {
-    margin-top: var(--spacing-default);
-}
-
-.shortTouch {
-    width: 24px;
-    height: 24px;
-    background-color: var(--color-warn);
-    border-radius: 50%;
-}
-
-.longTouch {
-    width: 64px;
-    height: 64px;
-    background-color: var(--color-success);
-    border-radius: 50%;
+.confirmationTitle {
+    margin-bottom: 0;
 }
 
 .confirmationBox {
-    background-color: var(--color-lightgray);
     border-radius: 2px;
-    padding: var(--spacing-large);
-    margin-top: var(--spacing-half);
+    border: solid 1px var(--color-lightgray);
+    margin-top: var(--spacing-default);
 }
 
-.confirmationLabel {
+.confirmationBox .block {
+    padding: var(--spacing-default);
+}
+
+.confirmationBox .block.ignorePadding {
+    padding: 0;
+}
+
+.confirmationBox .block:not(:last-child) {
+    border-bottom: solid 0.5px var(--color-lightgray);
+}
+
+.confirmationBox .block:last-child {
+    display: flex;
+    flex-direction: column;
+}
+
+.confirmationBox .block p {
+    margin: 0;
+}
+
+.confirmationBox .block .half {
+    /*margin: calc(var(--spacing-default) * -1);*/
+    padding: var(--spacing-default);
+    width: 50%;
+}
+
+.confirmationBox .block .half:first-child {
+    border-right: solid 0.5px var(--color-lightgray);
+}
+
+.confirmationBox .block .confirmationLabel {
     margin-bottom: calc(var(--spacing-half) / 2);
-    margin-top: var(--spacing-default);
-    line-height: var(--size-label);
+}
+
+.confirmationValueTable {
+    border-collapse: collapse;
+}
+
+.confirmationValueTable td {
+    line-height: 1;
+}
+
+.confirmationValueTable td:first-child {
+    text-align: right;
+    padding-right: var(--spacing-half);
+}
+
+.confirmationValueTable td:last-child {
+    color: var(--color-secondary);
+}
+
+.confirmationValueTable.total td {
+    font-weight: bold;
 }
 
 .confirmationValue {
     font-size: var(--size-medium);
+    line-height: 1;
     margin: 0;
-    padding: 2px 0;
 }
 
 .confirmationValue.standOut {

@@ -419,58 +419,87 @@ export default class Send extends Component {
                                 paired={paired}
                                 includeDefault>
                                 <div class={style.confirmationBox}>
-                                    <div class="row">
+                                    <div class={style.block}>
                                         <p class={['label', style.confirmationLabel, 'first'].join(' ')}>
                                             {t('send.address.label')}
                                         </p>
                                         <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
                                     </div>
-                                    <div class="flex flex-row flex-start spaced">
-                                        <div>
+                                    <div class={['flex flex-row flex-start', style.block, style.ignorePadding].join(' ')}>
+                                        <div class={style.half}>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
                                                 {t('send.amount.label')}
                                             </p>
-                                            <p class={style.confirmationValue}>
-                                                {proposedAmount && proposedAmount.amount + ' ' + proposedAmount.unit || 'N/A'}
-                                            </p>
-                                            {
-                                                proposedAmount && proposedAmount.conversions && (
-                                                    <p class={style.confirmationValue}>
-                                                        {proposedAmount.conversions[fiatUnit] + ' ' + fiatUnit}
-                                                    </p>
-                                                )
-                                            }
+                                            <table class={style.confirmationValueTable} align="right">
+                                                <tr>
+                                                    <td>{proposedAmount && proposedAmount.amount || 'N/A'}</td>
+                                                    <td>{proposedAmount && proposedAmount.unit || 'N/A'}</td>
+                                                </tr>
+                                                {
+                                                    proposedAmount && proposedAmount.conversions && (
+                                                        <tr>
+                                                            <td>{proposedAmount.conversions[fiatUnit]}</td>
+                                                            <td>{fiatUnit}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </table>
                                         </div>
-                                        <div>
+                                        <div class={style.half}>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
-                                                {t('send.fee.label')}
-                                                ({feeTarget})
+                                                {t('send.fee.label')} ({feeTarget})
                                             </p>
-                                            <p class={style.confirmationValue}>
-                                                {proposedFee && proposedFee.amount + ' ' + proposedFee.unit || 'N/A'}
-                                            </p>
-                                            {
-                                                proposedFee && proposedFee.conversions && (
-                                                    <p class={style.confirmationValue}>
-                                                        {proposedFee.conversions[fiatUnit] + ' ' + fiatUnit}
-                                                    </p>
-                                                )
-                                            }
+                                            <table class={style.confirmationValueTable} align="right">
+                                                <tr>
+                                                    <td>{proposedFee && proposedFee.amount || 'N/A'}</td>
+                                                    <td>{proposedFee && proposedFee.unit || 'N/A'}</td>
+                                                </tr>
+                                                {
+                                                    proposedFee && proposedFee.conversions && (
+                                                        <tr>
+                                                            <td>{proposedFee.conversions[fiatUnit]}</td>
+                                                            <td>{fiatUnit}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </table>
                                         </div>
                                     </div>
-                                    <p class={['label', style.confirmationLabel].join(' ')}>
-                                        {t('send.confirm.total')}
-                                    </p>
-                                    <p class={[style.confirmationValue, style.standOut].join(' ')}>
-                                        {proposedTotal && proposedTotal.amount + ' ' + proposedTotal.unit || 'N/A'}
-                                    </p>
                                     {
-                                        proposedTotal && proposedTotal.conversions && (
-                                            <p class={[style.confirmationValue, style.standOut].join(' ')}>
-                                                {proposedTotal.conversions[fiatUnit] + ' ' + fiatUnit}
-                                            </p>
+                                        !this.selectedUTXOs.length === 0 && (
+                                            <div class={style.block}>
+                                                <p class={['label', style.confirmationLabel].join(' ')}>
+                                                    {t('send.confirm.selected_coins')}
+                                                </p>
+                                                {
+                                                    Object.keys(this.selectedUTXOs).map((uxto, i) => (
+                                                        <p class={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
+                                                    ))
+                                                }
+                                            </div>
                                         )
                                     }
+                                    <div class={style.block}>
+                                        <p class={['label', style.confirmationLabel].join(' ')}>
+                                            {t('send.confirm.total')}
+                                        </p>
+                                        <div>
+                                            <table class={[style.confirmationValueTable, style.total].join(' ')} align="right">
+                                                <tr>
+                                                    <td>{proposedTotal && proposedTotal.amount || 'N/A'}</td>
+                                                    <td>{proposedTotal && proposedTotal.unit || 'N/A'}</td>
+                                                </tr>
+                                                {
+                                                    proposedTotal && proposedTotal.conversions && (
+                                                        <tr>
+                                                            <td>{proposedTotal.conversions[fiatUnit]}</td>
+                                                            <td>{fiatUnit}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </WaitDialog>
                         )
