@@ -16,7 +16,7 @@
     "react/sort-comp": 0,
     "react/jsx-boolean-value": 0,
     "react/jsx-closing-bracket-location": 0,
-    "react/jsx-max-props-per-line": ["warn", { "maximum": 3, "when": "always" }],
+    "react/jsx-max-props-per-line": ["warn", { "maximum": 4, "when": "always" }],
     "react/jsx-tag-spacing": ["warn"],
     "react/jsx-no-bind": ["warn"],
     "react/jsx-key": ["error"]
