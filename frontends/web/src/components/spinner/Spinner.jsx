@@ -18,23 +18,27 @@ export default class Spinner extends Component {
 
     render({
         text,
+        showLogo = false,
     }, {
 
     }) {
         return (
-            <div class={style.spinnerContainer}>
-                <BitBox />
+            <div className={style.spinnerContainer}>
+                <div className={style.logo} style={showLogo && 'visibility:visible'}>
+                    <BitBox  />
+                </div>
                 {
                     text && (
-                        <p class={style.spinnerText}>{text}</p>
+                        <p className={style.spinnerText}>{text}</p>
                     )
                 }
-                <div class={style.spinner}>
+                <div className={style.spinner}>
                     <div></div>
                     <div></div>
                     <div></div>
                     <div></div>
                 </div>
+                <div className={style.overlay}></div>
             </div>
         );
     }

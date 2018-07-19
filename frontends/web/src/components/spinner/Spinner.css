@@ -74,3 +74,32 @@
     0% { transform: translate(0, 0); }
     100% { transform: translate(19px, 0); }
 }
+
+
+.logo {
+    visibility: visible;
+    width: 100%;
+}
+
+@media (min-width: 1000px) {
+    .logo {
+        visibility: hidden;
+    }
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    animation: fadein 0.3s;
+    opacity: 0;
+}
+
+@keyframes fadein {
+    0% { opacity: 1; }
+    66% { opacity: 1; }
+    100% { opacity: 0; }
+}

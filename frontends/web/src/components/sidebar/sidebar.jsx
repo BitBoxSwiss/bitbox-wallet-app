@@ -4,12 +4,11 @@ import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { debug } from '../../utils/env';
-import Logo from '../icon/logo';
+import Logo, { BitBoxInverted } from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
-import bitboxLogo from '../../assets/icons/bitbox-logo-alt.svg';
 
 const labelMap = {
     'btc-p2pkh': 'BTC',
@@ -33,11 +32,10 @@ class Sidebar extends Component {
         walletInitialized,
     }, {
     }) {
-        const bitboxLogoStyle = `background-image: url(${bitboxLogo});`;
         return (
             <nav className="sidebar">
-                <div className="sidebarLogoContainer">
-                    <div className="sidebarLogo" style={bitboxLogoStyle}></div>
+                <div className="sidebarLogoContainer" style={'opacity:' + (walletInitialized ? 1 : 0)}>
+                    <BitBoxInverted className="sidebarLogo" />
                 </div>
                 {
                     accounts && accounts.map(getWalletLink)
@@ -47,7 +45,7 @@ class Sidebar extends Component {
                     {
                         (debug && walletInitialized && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
-                                <div class="single">
+                                <div className="single">
                                     <img
                                         draggable="false"
                                         className="sidebar_settings"
@@ -61,7 +59,7 @@ class Sidebar extends Component {
                         deviceIDs.map(deviceID => (
                             <div key={deviceID}>
                                 <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
-                                    <div class="single">
+                                    <div className="single">
                                         <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
                                     </div>
                                     <span className="sidebar_label">{t('sidebar.device')}</span>
@@ -71,7 +69,7 @@ class Sidebar extends Component {
                     }
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
-                            <div class="stacked">
+                            <div className="stacked">
                                 <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
                                 <img draggable="false" className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
                             </div>
