@@ -16,100 +16,107 @@ func createWebsocketConn(t *testing.T) (client, server *websocket.Conn, cleanup 
 	t.Helper()
 
 	// Start a dummy server, simulating godbb's backend.
-	// chConn will have at most one *websocket.Conn item and then closed.
+	// chConn will have at most one item and then closed.
 	chConn := make(chan *websocket.Conn)
-	s := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer close(chConn)
-		var up websocket.Upgrader
-		ws, err := up.Upgrade(w, r, nil)
+		var upgrader websocket.Upgrader
+		wsConn, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			t.Errorf("websocket upgrade: %v", err)
 			return
 		}
-		chConn <- ws
+		chConn <- wsConn
 	}))
 
 	// Setup a dummy websocket client, simulating godbb's frontend.
-	u := "ws:" + strings.TrimPrefix(s.URL, "http:")
-	clientConn, _, err := websocket.DefaultDialer.Dial(u, nil)
+	url := "ws:" + strings.TrimPrefix(testServer.URL, "http:")
+	clientConn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {
-		s.Close()
+		testServer.Close()
 		t.Fatalf("websocket dialer: %v", err)
 	}
 
 	// Wait for the client to connect to the dummy backend server.
 	var serverConn *websocket.Conn
 	select {
-	case c := <-chConn:
-		if c == nil {
-			s.Close()
+	case conn := <-chConn:
+		if conn == nil {
+			testServer.Close()
 			t.Fatal("couldn't upgrade HTTP to websocket")
 		}
-		serverConn = c
+		serverConn = conn
 	case <-time.After(time.Second):
-		s.Close()
+		testServer.Close()
 		t.Fatal("websocket client took too long to connect")
 	}
 
-	return clientConn, serverConn, s.Close
+	return clientConn, serverConn, testServer.Close
 }
 
 func TestRunWebsocket(t *testing.T) {
+	t.Parallel()
 	client, server, cleanup := createWebsocketConn(t)
 	defer cleanup()
 
-	// Share all received messages from the client over recv
-	// until the connection is gone.
-	recv := make(chan []byte, 1)
+	// Share all received messages from the client over a channel
+	// until the connection is gone, at which point close messages.
+	messages := make(chan []byte)
 	go func() {
+		defer close(messages)
 		for {
-			_, b, err := client.ReadMessage()
+			_, msg, err := client.ReadMessage()
 			if err != nil {
 				t.Logf("client.ReadMessage: %v", err)
 				return
 			}
-			recv <- b
+			messages <- msg
 		}
 	}()
 
 	cdata := &ConnectionData{token: "auth-token"}
 	send, quit := runWebsocket(server, cdata, logrus.NewEntry(logrus.StandardLogger()))
 
-	// Send a message to the queue but do not expect to receive it yet
-	// because the client isn't authorized yet.
+	// Send a message to the queue but do not expect to receive it just yet
+	// because the client hasn't been authorized.
 	send <- []byte("before authz")
 	select {
-	case b := <-recv:
-		t.Errorf("recv unexpected msg before authz: %q", b)
-	default:
+	case <-time.After(10 * time.Millisecond):
 		// Ok: no messages before authz.
+	case msg := <-messages:
+		t.Errorf("received unexpected msg before authz: %q", msg)
 	}
 
-	// Authorize the client.
-	a := []byte("Authorization: Basic " + cdata.token)
-	if err := client.WriteMessage(websocket.TextMessage, a); err != nil {
+	// Authorize the client and send another message.
+	authz := []byte("Authorization: Basic " + cdata.token)
+	if err := client.WriteMessage(websocket.TextMessage, authz); err != nil {
 		t.Fatalf("client.WriteMessage: %v", err)
 	}
-	// Send a second message.
 	send <- []byte("after authz")
 
 	// Expect to receive both messages now.
+	// The values indicate whether a message has been received by the client.
 	wantMsg := map[string]bool{
 		"before authz": false,
 		"after authz":  false,
 	}
-recvLoop:
+messagesLoop:
 	for {
 		select {
-		case b := <-recv:
-			if _, exists := wantMsg[string(b)]; !exists {
-				t.Errorf("recv unexpected msg: %q", b)
-				continue
-			}
-			wantMsg[string(b)] = true
-		case <-time.After(100 * time.Millisecond):
+		case <-time.After(10 * time.Millisecond):
 			// No more messages.
-			break recvLoop
+			break messagesLoop
+		case msg := <-messages:
+			alreadyReceived, expected := wantMsg[string(msg)]
+			switch {
+			case !expected:
+				t.Errorf("received unexpected message: %q", msg)
+			case expected && alreadyReceived:
+				t.Errorf("received duplicated expected message: %q", msg)
+			default:
+				wantMsg[string(msg)] = true
+			}
+
 		}
 	}
 	for m, ok := range wantMsg {
@@ -125,11 +132,12 @@ recvLoop:
 	case <-quit:
 		// ok
 	case <-time.After(time.Second):
-		t.Fatal("runWebsocket's quit took too long to close")
+		t.Error("runWebsocket's quit took too long to close")
 	}
 }
 
 func TestRunWebsocketNoAuthz(t *testing.T) {
+	t.Parallel()
 	client, server, cleanup := createWebsocketConn(t)
 	defer cleanup()
 
@@ -150,11 +158,12 @@ func TestRunWebsocketNoAuthz(t *testing.T) {
 	cc.SetReadDeadline(time.Now().Add(time.Second))
 	b := []byte{0}
 	if _, err := cc.Read(b); err != io.EOF {
-		t.Errorf("client conn is not closed; err: %v", err)
+		t.Errorf("client net conn is not closed; err: %v", err)
 	}
 }
 
 func TestRunWebsocketCloseSend(t *testing.T) {
+	t.Parallel()
 	client, server, cleanup := createWebsocketConn(t)
 	defer cleanup()
 
@@ -171,7 +180,7 @@ func TestRunWebsocketCloseSend(t *testing.T) {
 
 	client.SetReadDeadline(time.Now().Add(time.Second))
 	_, _, err := client.ReadMessage()
-	if !websocket.IsCloseError(err, websocket.CloseNoStatusReceived) {
-		t.Errorf("client.ReadMessage: %v; want err type %v", err, websocket.CloseNoStatusReceived)
+	if _, ok := err.(*websocket.CloseError); !ok {
+		t.Errorf("client.ReadMessage: %v (%T); want *websocket.CloseError", err, err)
 	}
 }
