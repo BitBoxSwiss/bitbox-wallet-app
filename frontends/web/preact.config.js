@@ -13,5 +13,8 @@ export default function (config, env, helpers) {
         config.devServer.overlay = true;
         config.devServer.hot = false;
     }
+    if (env.production) {
+        helpers.getPluginsByName(config, 'UglifyJsPlugin')[0].plugin.options.sourceMap = false;
+    }
     preactCliTypeScript(config);
 }
