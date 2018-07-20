@@ -91,6 +91,7 @@ export default class Send extends Component {
                     proposedAmount: null,
                     proposedFee: null,
                     proposedTotal: null,
+                    fiatAmount: null,
                     amount: null,
                     signProgress: null,
                 });
