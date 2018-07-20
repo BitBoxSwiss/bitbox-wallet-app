@@ -348,6 +348,17 @@
                 "repeatPlaceholder": "Repeat recovery password",
                 "showLabel": "Recovery password"
             }
+        },
+        "check": {
+            "title": "Check Backup",
+            "confirmTitle": "Check Backup",
+            "checking": "Checking backup…",
+            "password": {
+                "label": "Recovery password or hidden recovery password",
+                "placeholder": "Recovery password",
+                "showLabel": "Recovery password"
+            },
+            "success": "Backup matches current wallet"
         }
     },
     "confirm": {
@@ -378,6 +389,7 @@
         "next": "Next",
         "restore": "Restore",
         "create": "Create",
+        "check" : "Check Backup",
         "abort": "Abort",
         "upgrade": "Upgrade",
         "download": "Download",
@@ -606,6 +618,10 @@
             {
                 "title": "Can I encrypt the backup?",
                 "text": [ "No but your recovery password is required to derive the wallet from the stored seed." ]
+            },
+            {
+                "title": "What is 'Check Backup'?",
+                "text": [ "Check backup allows you to verify that you indeed have a working backup corresponding to your current wallet. It can also be used to verify that you still have the correct recovery password." ]
             },
             {
                 "title": "How often do I have to make a backup?",

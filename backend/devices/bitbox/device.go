@@ -538,7 +538,7 @@ func (dbb *Device) CheckBackup(backupPassword, filename string) error {
 	}
 	backupCheck, ok := reply["backup"].(string)
 	if !ok || backupCheck != "success" {
-		return errp.New("Current Wallet does not match this backup")
+		return errp.New("Current Wallet does not match this backup/recovery combination")
 	}
 	return nil
 }

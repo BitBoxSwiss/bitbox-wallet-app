@@ -3,6 +3,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { Button } from '../forms';
 import Restore from './restore';
+import Check from './check';
 import Create from './create';
 import BackupsListItem from './backup';
 // import Erase from './erase';
@@ -94,6 +95,10 @@ export default class Backups extends Component {
                                 <Create onCreate={this.refresh} deviceID={deviceID} />
                             )
                         }
+                        <Check
+                            selectedBackup={selectedBackup}
+                            deviceID={deviceID}
+                        />
                         <Restore
                             selectedBackup={selectedBackup}
                             deviceID={deviceID}
