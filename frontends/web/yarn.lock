@@ -5878,9 +5878,9 @@ rc@^1.0.1, rc@^1.1.2, rc@^1.1.6, rc@^1.2.7:
     minimist "^1.2.0"
     strip-json-comments "~2.0.1"
 
-react-i18next@7.8.0:
-  version "7.8.0"
-  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-7.8.0.tgz#469af25cb15eb857fdd74a9d2b6688fac69f979e"
+react-i18next@7.9.0:
+  version "7.9.0"
+  resolved "https://registry.yarnpkg.com/react-i18next/-/react-i18next-7.9.0.tgz#9e4bdfbfbc0d084eddf13d1cd337cbd4beea6232"
   dependencies:
     hoist-non-react-statics "^2.3.1"
     html-parse-stringify2 "2.0.1"

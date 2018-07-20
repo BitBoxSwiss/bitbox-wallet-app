@@ -27,7 +27,7 @@
     "preact": "8.2.9",
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
-    "react-i18next": "7.8.0"
+    "react-i18next": "7.9.0"
   },
   "browserslist": [
     "iOS >= 3.2",
