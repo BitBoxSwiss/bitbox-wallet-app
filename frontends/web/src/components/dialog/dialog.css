@@ -62,12 +62,7 @@
 }
 
 .confirmationInstructions {
-    /* margin-top: var(--spacing-half); */
     margin-top: 0;
-}
-
-.confirmationInstructions > div {
-    
 }
 
 .confirmationInstructions p {
