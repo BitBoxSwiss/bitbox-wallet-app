@@ -1,6 +1,5 @@
 import { Component, h } from 'preact';
 import i18n from '../../i18n/i18n';
-
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import { BitBox, Shift } from '../../components/icon/logo';
