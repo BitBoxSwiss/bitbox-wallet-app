@@ -19,7 +19,8 @@
     "eslint": "5.1.0",
     "eslint-config-synacor": "3.0.1",
     "if-env": "1.0.4",
-    "preact-cli": "2.2.1"
+    "preact-cli": "2.2.1",
+    "preact-cli-plugin-typescript": "^0.2.2"
   },
   "dependencies": {
     "i18next": "11.3.6",

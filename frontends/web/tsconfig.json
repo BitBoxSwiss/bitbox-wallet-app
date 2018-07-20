@@ -1,6 +1,16 @@
 {
     "compilerOptions": {
-        "experimentalDecorators": true,
-        "allowJs": true
-    }
+        "target": "es2017",
+        "module": "esnext",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "react",
+        "jsxFactory": "h",
+        "experimentalDecorators": true
+    },
+    "include": [
+        "./src/**/*.tsx",
+        "./src/**/*.ts"
+    ]
 }
