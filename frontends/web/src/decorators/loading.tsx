@@ -6,13 +6,13 @@ import { equal } from '../utils/equal';
 /**
  * Loads API endpoints into the props of the component that uses this decorator.
  * 
- * @param endpoints - The endpoints that should be loaded to their respective property name.
+ * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads the endpoints into the props of the decorated component.
  * 
  * How to use this decorator on a component class?
  * ```
- * @Loading({ propertyName: 'path/to/endpoint' })
+ * @loading({ propertyName: 'path/to/endpoint' })
  * export default class Example extends Component<ExampleProps, ExampleState> {
  *     render({ propertyName }: RenderableProps<ExampleProps>): JSX.Element {
  *         return <div>{propertyName}</div>;
@@ -27,61 +27,61 @@ import { equal } from '../utils/equal';
  *     return <div>{propertyName}</div>
  * }
  * 
- * export const LoadingExample = Loading({ propertyName: 'path/to/endpoint' })(Example);
+ * export const LoadingExample = loading({ propertyName: 'path/to/endpoint' })(Example);
  * ```
  */
-export default function Loading<Props, State>(
-    endpoints: Endpoints | EndpointsFunction<Props>,
+export default function loading<Props, State>(
+    endpointsObjectOrFunction: Endpoints | EndpointsFunction<Props>,
     renderOnlyOnceLoaded: boolean = true,
 ) {
-    return function <Props, State>(
+    return function decorator(
         WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
     ) {
         return class LoadingComponent extends Component<Props, any> {
-            determineEndpoints(): Endpoints {
-                if (typeof endpoints === "function") {
-                    return endpoints(this.props as any); // How to avoid this cast?
+            private determineEndpoints(): Endpoints {
+                if (typeof endpointsObjectOrFunction === "function") {
+                    return endpointsObjectOrFunction(this.props as any); // How to avoid this cast?
                 }
-                return endpoints;
+                return endpointsObjectOrFunction;
             }
 
-            loadEndpoints(): void {
-                for (const key of Object.keys(endpoints)) {
-                    apiGet(endpoints[key]).then(object => this.setState({ [key]: object }));
+            private endpoints: Endpoints;
+
+            private loadEndpoints(): void {
+                for (const key of Object.keys(this.endpoints)) {
+                    apiGet(this.endpoints[key]).then(object => this.setState({ [key]: object }));
                 }
             }
 
-            private loadedEndpoints: Endpoints;
-
-            loadEndpointsIfChanged(): void {
+            private loadEndpointsIfChanged(): void {
                 const newEndpoints = this.determineEndpoints();
-                if (!equal(newEndpoints, this.loadedEndpoints)) {
-                    this.loadedEndpoints = newEndpoints;
+                if (!equal(newEndpoints, this.endpoints)) {
+                    this.endpoints = newEndpoints;
                     this.loadEndpoints();
                 }
             }
 
-            componentDidMount(): void {
+            public componentDidMount(): void {
                 this.loadEndpointsIfChanged();
             }
 
-            componentDidUpdate(): void {
+            public componentDidUpdate(): void {
                 this.loadEndpointsIfChanged();
             }
 
-            allEndpointsLoaded(): boolean {
-                if (!this.loadedEndpoints) { return false; }
-                for (const key of Object.keys(endpoints)) {
-                    if (!this.loadedEndpoints[key]) {
+            private allEndpointsLoaded(): boolean {
+                if (!this.endpoints) { return false; }
+                for (const key of Object.keys(this.endpoints)) {
+                    if (!this.state[key]) {
                         return false;
                     }
                 }
                 return true;
             }
             
-            render(): JSX.Element {
+            public render(props: RenderableProps<Props>, state: any): JSX.Element {
                 if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
-                return <WrappedComponent {...this.props} {...this.state} />;
+                return <WrappedComponent {...state} {...props} />; // This order allows the updating decorator (and others) to override the loaded endpoints with properties.
             }
         }
     }

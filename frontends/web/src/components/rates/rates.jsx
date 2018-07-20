@@ -1,20 +1,17 @@
-import UpdatingComponent from '../updating/updating';
+import { h, Component } from 'preact';
+import updating from '../../decorators/updating';
 import style from './rates.css';
 
-export default class Rates extends UpdatingComponent {
-    getStateMap() {
-        return { rates: 'coins/rates' };
-    }
-
+@updating({ rates: 'coins/rates' })
+export default class Rates extends Component {
     render({
         amount,
         children,
         fiat,
         tableRow,
         unstyled,
-    }, {
         rates,
-    }) {
+    }, {}) {
         let coin = amount.unit;
         if (coin.length === 4 && coin.startsWith('T')) {
             coin = coin.substring(1);
