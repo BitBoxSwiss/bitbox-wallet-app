@@ -41,6 +41,7 @@
 
 .confirmationBox .block {
     padding: var(--spacing-default);
+    overflow: hidden;
 }
 
 .confirmationBox .block.ignorePadding {
@@ -61,7 +62,6 @@
 }
 
 .confirmationBox .block .half {
-    /*margin: calc(var(--spacing-default) * -1);*/
     padding: var(--spacing-default);
     width: 50%;
 }
@@ -71,7 +71,7 @@
 }
 
 .confirmationBox .block .confirmationLabel {
-    margin-bottom: calc(var(--spacing-half) / 2);
+    margin-bottom: var(--spacing-half);
 }
 
 .confirmationValueTable {
@@ -93,18 +93,13 @@
 
 .confirmationValueTable.total td {
     font-weight: bold;
+    font-size: 1.2rem;
 }
 
 .confirmationValue {
     font-size: var(--size-medium);
     line-height: 1;
     margin: 0;
-}
-
-.confirmationValue.standOut {
-    font-size: 1.5rem;
-    font-weight: bold;
-    line-height: 1.5rem;
 }
 
 .maxAmount {

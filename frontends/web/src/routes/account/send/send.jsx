@@ -11,8 +11,8 @@ import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import UTXOs from './utxos';
-import approve from '../../../assets/device/approve.png';
-import reject from '../../../assets/device/reject.png';
+import approve from '../../../assets/icons/checked.svg';
+import reject from '../../../assets/icons/cancel.svg';
 import style from './send.css';
 
 @translate()
@@ -506,18 +506,18 @@ export default class Send extends Component {
                     }
                     {
                         isSent && (
-                            <WaitDialog title={t('send.success')}>
-                                <div style="margin-top: 20px;">
-                                    <img src={approve} alt="Success" />
+                            <WaitDialog>
+                                <div class="flex flex-row flex-center flex-items-center text-bold">
+                                    <img src={approve} alt="Success" style="height: 40px; margin-right: 1rem;" />{t('send.success')}
                                 </div>
                             </WaitDialog>
                         )
                     }
                     {
                         isAborted && (
-                            <WaitDialog title={t('send.abort')}>
-                                <div style="margin-top: 20px;">
-                                    <img src={reject} alt="Abort" />
+                            <WaitDialog>
+                                <div class="flex flex-row flex-center flex-items-center text-bold">
+                                    <img src={reject} alt="Abort" style="height: 40px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
                         )
