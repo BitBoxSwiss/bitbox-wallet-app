@@ -1,5 +1,4 @@
 import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
 import i18n from '../../i18n/i18n';
 import A from '../../components/anchor/anchor';
 import style from './guide.css';
