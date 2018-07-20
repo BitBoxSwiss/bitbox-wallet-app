@@ -35,7 +35,7 @@
 
 .confirmationBox {
     border-radius: 2px;
-    border: solid 1px var(--color-lightgray);
+    border: solid 1px var(--color-brightgray);
     margin-top: var(--spacing-default);
 }
 
@@ -49,7 +49,7 @@
 }
 
 .confirmationBox .block:not(:last-child) {
-    border-bottom: solid 0.5px var(--color-lightgray);
+    border-bottom: solid 0.5px var(--color-brightgray);
 }
 
 .confirmationBox .block:last-child {
@@ -67,7 +67,7 @@
 }
 
 .confirmationBox .block .half:first-child {
-    border-right: solid 0.5px var(--color-lightgray);
+    border-right: solid 0.5px var(--color-brightgray);
 }
 
 .confirmationBox .block .confirmationLabel {
