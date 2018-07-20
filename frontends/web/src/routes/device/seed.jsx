@@ -218,7 +218,7 @@ export default class Seed extends Component {
                     </div>
                     {
                         status === stateEnum.WAITING && (
-                            <Spinner text={t('seed.creating')} />
+                            <Spinner text={t('seed.creating')} showLogo />
                         )
                     }
                 </div>

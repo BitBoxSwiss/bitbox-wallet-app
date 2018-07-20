@@ -150,7 +150,7 @@ export default class Restore extends Component {
                 }
                 {
                     isLoading && (
-                        <Spinner text={t('backup.restore.restoring')} />
+                        <Spinner text={t('backup.restore.restoring')} showLogo />
                     )
                 }
             </span>

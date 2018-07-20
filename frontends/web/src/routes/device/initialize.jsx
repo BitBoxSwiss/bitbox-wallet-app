@@ -119,7 +119,7 @@ export default class Initialize extends Component {
                     </div>
                     {
                         status === stateEnum.WAITING && (
-                            <Spinner text={t('initialize.creating')} />
+                            <Spinner text={t('initialize.creating')} showLogo />
                         )
                     }
                 </div>
