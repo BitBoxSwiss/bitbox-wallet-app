@@ -519,13 +519,14 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 	return nil
 }
 
+//CheckBackup uses the provided backup file and recovery password to check if they correspond to the currently loaded wallet.
 func (dbb *Device) CheckBackup(backupPassword, filename string) error {
 	if backupPassword == "" {
 		return errp.New("invalid password")
 	}
 	dbb.log.WithFields(logrus.Fields{"filename": filename}).Debug("Check")
 	key := stretchKey(backupPassword)
-    reply, err := dbb.send(
+	reply, err := dbb.send(
 		map[string]interface{}{
 			"backup": map[string]string{
 				"key":   key,
@@ -533,7 +534,7 @@ func (dbb *Device) CheckBackup(backupPassword, filename string) error {
 			},
 		},
 		dbb.pin)
-    if err != nil {
+	if err != nil {
 		return errp.WithMessage(err, "There was an unexpected error during the wallet check")
 	}
 	backupCheck, ok := reply["backup"].(string)
