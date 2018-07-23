@@ -56,7 +56,6 @@
 }
 
 .confirmationLabel {
-    margin-bottom: var(--spacing-half);
     margin-top: var(--spacing-default);
     line-height: var(--size-label);
 }
@@ -65,11 +64,16 @@
     margin-top: 0;
 }
 
+.confirmationInstructions > div {
+  width: 50%;
+}
+
 .confirmationInstructions p {
     line-height: 1;
+    margin-top: var(--spacing-half);
 }
 
 .image {
-    height: 40px;
+    height: 120px;
     margin-right: var(--spacing-default);
 }

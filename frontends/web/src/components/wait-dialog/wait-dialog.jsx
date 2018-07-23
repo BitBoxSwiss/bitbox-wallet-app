@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import approve from '../../assets/icons/checked.svg';
-import reject from '../../assets/icons/cancel.svg';
+import approve from '../../assets/icons/hold.png';
+import reject from '../../assets/icons/tap.png';
 import style from '../dialog/dialog.css';
 
 @translate()
@@ -53,14 +53,14 @@ export default class Confirm extends Component {
                     {paired ? t('confirm.infoWhenPaired') : t('confirm.info')}
                 </p>
                 <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-                    <div class="flex flex-row flex-start flex-items-center">
+                    <div class="flex flex-column flex-center flex-items-center">
                         <img class={style.image} src={reject} alt="Reject" />
                         <p class="text-bold">
                             {t('confirm.abortInfo')}
                             <span class="text-red">{t('confirm.abortInfoRedText')}</span>
                         </p>
                     </div>
-                    <div class="flex flex-row flex-start flex-items-center">
+                    <div class="flex flex-column flex-center flex-items-center">
                         <img class={style.image} src={approve} alt="Approve" />
                         <p class="text-bold">
                             {t('confirm.approveInfo')}

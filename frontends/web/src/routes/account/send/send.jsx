@@ -38,7 +38,7 @@ export default class Send extends Component {
             fiatAmount: null,
             fiatUnit: props.fiat.code,
             signProgress: null,
-            coinControl: false
+            coinControl: false,
         };
         this.selectedUTXOs = [];
     }
