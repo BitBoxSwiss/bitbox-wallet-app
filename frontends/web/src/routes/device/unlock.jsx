@@ -76,12 +76,11 @@ export default class Unlock extends Component {
         apiPost('devices/' + this.props.deviceID + '/login', { password: this.state.password }).then(data => {
             if (data.success) {
                 apiGet('devices/' + this.props.deviceID + '/status').then(status => {
-                    if (status == 'seeded') {
+                    if (status === 'seeded') {
                         console.log('unlock.jsx route to /account'); // eslint-disable-line no-console
                         route('/account', true);
                     }
                 });
-
             }
             if (!data.success) {
                 if (data.code) {
@@ -108,7 +107,7 @@ export default class Unlock extends Component {
 
         switch (status) {
         case stateEnum.DEFAULT:
-            submissionState = <Message />;
+            submissionState = <Message>{t('unlock.description')}</Message>;
             break;
         case stateEnum.WAITING:
             submissionState = <Spinner text={t('unlock.unlocking')} showLogo />;
@@ -155,7 +154,7 @@ export default class Unlock extends Component {
                                 </div>
                                 <hr />
                                 <Footer>
-                                    <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                                    <Shift />
                                 </Footer>
                             </form>
                         )}

@@ -154,7 +154,7 @@ export default class Restore extends Component {
                                         secondary
                                         onClick={this.abort}
                                         disabled={isConfirming}>
-                                        {t('button.abort')}
+                                        {t('button.back')}
                                     </Button>
                                     <Button
                                         type="submit"

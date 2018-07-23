@@ -16,32 +16,31 @@
 
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet, apiPost } from '../../utils/request';
-import Backups from '../../components/backups/backups';
-import { PasswordRepeatInput } from '../../components/password';
-import { Button, Input, Checkbox } from '../../components/forms';
-import Message from '../../components/message/message';
-import { BitBox } from '../../components/icon/logo';
-import { Guide } from '../../components/guide/guide';
-import Footer from '../../components/footer/footer';
-import Spinner from '../../components/spinner/Spinner';
-import style from './device.css';
+import { apiGet, apiPost } from '../../../utils/request';
+import { PasswordRepeatInput } from '../../../components/password';
+import { Button, Input, Checkbox } from '../../../components/forms';
+import Message from '../../../components/message/message';
+import { BitBox, Shift } from '../../../components/icon/logo';
+import { Guide } from '../../../components/guide/guide';
+import Footer from '../../../components/footer/footer';
+import Spinner from '../../../components/spinner/Spinner';
+import { Steps, Step } from './components/steps';
+import style from '../device.css';
 
-const stateEnum = Object.freeze({
+const STATUS = Object.freeze({
     DEFAULT: 'default',
     WAITING: 'waiting',
     ERROR: 'error',
 });
 
 @translate()
-export default class Seed extends Component {
+export default class SeedCreateNew extends Component {
     state = {
-        status: stateEnum.DEFAULT,
+        showInfo: true,
+        status: STATUS.DEFAULT,
         walletName: '',
         backupPassword: '',
         error: '',
-        fromBackup: false,
-        sdcard: null,
         agreements: {
             password_change: false,
             password_required: false,
@@ -70,7 +69,7 @@ export default class Seed extends Component {
             return;
         }
         this.setState({
-            status: stateEnum.WAITING,
+            status: STATUS.WAITING,
             error: '',
         });
         apiPost('devices/' + this.props.deviceID + '/create-wallet', {
@@ -78,23 +77,17 @@ export default class Seed extends Component {
             backupPassword: this.state.backupPassword
         }).then(data => {
             if (!data.success) {
-                this.displayError(
-                    this.props.t(`seed.error.${data.code}`, {
+                this.setState({
+                    status: STATUS.ERROR,
+                    error: this.props.t(`seed.error.${data.code}`, {
                         defaultValue: data.errorMessage
-                    })
-                );
+                    }),
+                });
             }
             if (this.backupPasswordInput) {
                 this.backupPasswordInput.clear();
             }
             this.setState({ backupPassword: '' });
-        });
-    }
-
-    displayError = error => {
-        this.setState({
-            status: stateEnum.ERROR,
-            error,
         });
     }
 
@@ -109,60 +102,55 @@ export default class Seed extends Component {
     }
 
     handleAgreementChange = ({ target }) => {
-        let { agreements } = this.state;
-        agreements[target.id] = target.checked;
-        this.setState({ agreements });
+        this.setState(state => ({ agreements: {
+          ...state.agreements,
+          [target.id]: target.checked
+        } }));
     }
 
-    checkSDcard() {
+    checkSDcard = () => {
         apiGet('devices/' + this.props.deviceID + '/info').then(({ sdcard }) => {
-            this.setState(
-                Object.assign({ sdcard }, sdcard === false && { status: 'error' } )
-            );
+            if (sdcard) {
+                return this.setState({ status: STATUS.DEFAULT, error: '' });
+            }
+            this.setState({
+                status: STATUS.ERROR,
+                error: this.props.t('seed.error.200'),
+            });
+            setTimeout(this.checkSDcard, 2500);
         });
+    }
+
+    handleStart = () => {
+        this.setState({ showInfo: false });
+        this.checkSDcard();
     }
 
     render({
         t,
         deviceID,
         guide,
+        goBack,
     }, {
+        showInfo,
         status,
         walletName,
         error,
-        fromBackup,
-        sdcard,
         agreements,
     }) {
-        const message = (
-            <Message type={status === 'error' && 'error'}>
-                {
-                    sdcard == null ? '' : ( // eslint-disable-line eqeqeq
-                        !sdcard && !fromBackup ?
-                            t('seed.error.200') :
-                            status === stateEnum.ERROR ?
-                                error : (!fromBackup && t('seed.createDescription'))
-                    )
-                }
-            </Message>
-        );
-
-        const content = fromBackup ? (
-            <Backups
-                showCreate={false}
-                displayError={this.displayError}
-                deviceID={deviceID}
-                requireConfirmation={false}>
-                <Button
-                    type="button"
-                    transparent
-                    onClick={() => {
-                        this.checkSDcard();
-                        this.setState({ fromBackup: false, error: '', status: 'default' });
-                    }}>
-                    {t('seed.backToCreate')}
+        const content = showInfo ? (
+            <div>
+                <h2 className={style.heading}>{t('seed.info.title')}</h2>
+                <p>{t('seed.info.description')}</p>
+                <Button primary onClick={this.handleStart}>
+                    {t('seed.info.button')}
                 </Button>
-            </Backups>
+                <Button
+                    transparent
+                    onClick={goBack}>
+                    {t('button.back')}
+                </Button>
+            </div>
         ) : (
             <form onSubmit={this.handleSubmit}>
                 <div>
@@ -172,7 +160,7 @@ export default class Seed extends Component {
                         id="walletName"
                         label={t('seed.walletName.label')}
                         placeholder={t('seed.walletName.placeholder')}
-                        disabled={status === stateEnum.WAITING}
+                        disabled={status === STATUS.WAITING}
                         onInput={this.handleFormChange}
                         getRef={ref => this.walletNameInput = ref}
                         value={walletName} />
@@ -181,7 +169,7 @@ export default class Seed extends Component {
                         repeatPlaceholder={t('seed.password.repeatPlaceholder')}
                         showLabel="Password"
                         ref={ref => this.backupPasswordInput = ref}
-                        disabled={status === stateEnum.WAITING}
+                        disabled={status === STATUS.WAITING}
                         onValidPassword={this.setValidBackupPassword} />
                 </div>
                 <div class={style.agreements}>
@@ -206,17 +194,13 @@ export default class Seed extends Component {
                     <Button
                         type="submit"
                         primary
-                        disabled={!this.validate() || status === stateEnum.WAITING}>
+                        disabled={!this.validate() || status === STATUS.WAITING}>
                         {t('seed.create')}
                     </Button>
                     <Button
-                        type="button"
                         transparent
-                        onClick={() => {
-                            this.checkSDcard();
-                            this.setState({ fromBackup: true, error: '', status: 'default' });
-                        }}>
-                        {t('seed.backup')}
+                        onClick={goBack}>
+                        {t('button.back')}
                     </Button>
                 </div>
             </form>
@@ -227,13 +211,23 @@ export default class Seed extends Component {
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <BitBox />
                     <div className={style.content}>
-                        {message}
+                        <h1 className={style.title}>{t('setup')}</h1>
+                        <Steps current={1}>
+                            <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step title={t(`goal.step.2_create.title`)} description={t(`goal.step.2_create.description`)} />
+                            <Step title={t(`goal.step.3_create.title`)} description={t(`goal.step.3_create.description`)} />
+                        </Steps>
+                        <Message type={status === STATUS.ERROR && 'error'}>
+                            { error }
+                        </Message>
                         {content}
                         <hr />
-                        <Footer />
+                        <Footer>
+                            <Shift />
+                        </Footer>
                     </div>
                     {
-                        status === stateEnum.WAITING && (
+                        status === STATUS.WAITING && (
                             <Spinner text={t('seed.creating')} showLogo />
                         )
                     }

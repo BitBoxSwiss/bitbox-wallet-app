@@ -10,7 +10,7 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
-    padding: 4rem;
+    padding: 4rem 4rem 0 4rem;
 }
 
 .scrollable {
@@ -22,6 +22,15 @@
     margin-bottom: var(--spacing-default);
 }
 
+.title {
+    margin-top: 0;
+    text-align: center;
+}
+
+.heading {
+    margin-top: 1px;
+}
+
 .content {
     display: flex;
     flex-basis: auto;
@@ -30,11 +39,12 @@
     flex-shrink: 1;
     width: 440px;
     overflow: auto;
+    /* padding-top: var(--spacing-default); */
 }
 
 .content form {
     flex-grow: 1;
     flex-shrink: 1;
     text-align: left;
-    padding: 2rem;
+    padding: 1rem;
 }

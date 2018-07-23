@@ -16,11 +16,11 @@
 
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet } from '../../utils/request';
-import UpgradeFirmware from './settings/components/upgradefirmware';
-import { Guide } from '../../components/guide/guide';
-import { BitBox } from '../../components/icon/logo';
-import style from './device.css';
+import { apiGet } from '../../../utils/request';
+import UpgradeFirmware from '../settings/components/upgradefirmware';
+import { Guide } from '../../../components/guide/guide';
+import { BitBox } from '../../../components/icon/logo';
+import style from '../device.css';
 
 @translate()
 export default class RequireUpgrade extends Component {
