@@ -29,12 +29,14 @@ export default function Waiting({ testing, guide }) {
         <div class="contentWithGuide">
             <div className={style.container}>
                 <BitBox />
-                <div className={style.content}>
-                    <h3 style="text-align: center;">{i18n.t('device.waiting')}</h3>
+                <div className={style.content} style="text-align: center;">
+                    <h1>{i18n.t('welcome.title')}</h1>
+                    {i18n.t('welcome.paragraph')}
+                    <h3>{i18n.t('welcome.insertDevice')}</h3>
                     <SkipForTestingButton show={debug && testing} />
                     <hr />
                     <Footer>
-                        <Shift style="max-width: 100px; margin: auto auto auto 0;" />
+                        <Shift />
                     </Footer>
                 </div>
             </div>
@@ -67,7 +69,7 @@ class SkipForTestingButton extends Component {
             return null;
         }
         return (
-            <form onSubmit={this.registerTestingDevice}>
+            <form onSubmit={this.registerTestingDevice} style="flex-grow: 0;">
                 <Input
                     type="password"
                     autoFocus

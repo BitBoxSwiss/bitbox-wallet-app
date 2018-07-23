@@ -1,0 +1,97 @@
+:root {
+    --icon-size: 24px;
+}
+
+.steps {
+    display: flex;
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-default);
+    width: 100%;
+}
+
+.step {
+    display: inline-flex;
+    flex: 1 1 auto;
+    margin-right: 16px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.step:last-child {
+    flex: none;
+    margin-right: 0;
+}
+
+.stepIcon {
+    border: 1px solid rgba(0, 0, 0, .25);
+    border-radius: 32px;
+    display: inline-block;
+    flex-shrink: 0;
+    font-size: 14px;
+    height: var(--icon-size);
+    line-height: var(--icon-size);
+    text-align: center;
+    transition: background-color .3s, border-color .3s;
+    vertical-align: top;
+    width: var(--icon-size);
+}
+
+.stepIcon > span {
+    line-height: 1;
+    top: -1px;
+    position: relative;
+}
+
+.stepContent {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.stepTitle {
+    display: inline-block;
+    line-height: var(--icon-size);
+    min-height: 1.5rem;
+    position: relative;
+}
+
+.stepTitle:after {
+    background: #e8e8e8;
+    content: "";
+    display: block;
+    height: 1px;
+    left: 100%;
+    margin-left: 16px;
+    top: 12px;
+    position: absolute;
+    width: 9999px;
+}
+
+.stepDescription {
+    font-size: var(--size-small);
+    max-width: 150px;
+    white-space: normal;
+}
+
+.padding {
+    display: inline-block;
+    padding-left: var(--spacing-half);
+}
+
+.finish .stepIcon {
+    border-color: var(--color-focus);
+    color: var(--color-focus);
+}
+
+.finish .stepTitle:after {
+    background-color: var(--color-focus);
+}
+
+.process .stepIcon {
+    background: var(--color-focus);
+    border: 1px solid var(--color-focus);
+    color: #fff;
+}
+
+.wait {
+    color: rgba(0, 0, 0, .25);
+}

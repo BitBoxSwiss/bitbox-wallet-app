@@ -16,11 +16,11 @@
 
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet, apiPost } from '../../utils/request';
-import { apiWebsocket } from '../../utils/websocket';
-import { BitBox } from '../../components/icon/logo';
-import { Button } from '../../components/forms';
-import style from './device.css';
+import { apiGet, apiPost } from '../../../utils/request';
+import { apiWebsocket } from '../../../utils/websocket';
+import { BitBox } from '../../../components/icon/logo';
+import { Button } from '../../../components/forms';
+import style from '../device.css';
 
 @translate()
 export default class Bootloader extends Component {

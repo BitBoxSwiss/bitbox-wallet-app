@@ -1,6 +1,6 @@
 {
-    "appName": "Shift Wallet",
-    "appNameWithDefiniteArticle": "the Shift Wallet",
+    "appName": "BitBox App",
+    "appNameWithDefiniteArticle": "the BitBox App",
     "genericError": "An error occurred. If you notice any issues, please restart the application.",
     "months": [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     "days": [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ],
@@ -16,6 +16,7 @@
     },
     "unlock": {
         "unlocking": "Unlocking…",
+        "description": "",
         "input": {
             "label": "Device password",
             "placeholder": "Enter your device password to unlock the device"
@@ -26,8 +27,26 @@
             "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
         }
     },
-    "device": {
-        "waiting": "Please insert your device…"
+    "welcome": {
+        "title": "",
+        "paragraph": "",
+        "insertDevice": "To get started please insert your BitBox into a USB port."
+    },
+    "setup": "Setup",
+    "goal": {
+        "title": "",
+        "paragraph": "Please select one of the following options:",
+        "buttons": {
+            "create": "Create a new wallet",
+            "restore": "Restore a wallet from a backup"
+        },
+        "step": {
+            "1": { "title": "Device", "description": "Set a device password" },
+            "2_create": { "title": "Wallet", "description": "Create a new wallet" },
+            "2_restore": { "title": "Restore", "description": "from a backup" },
+            "3_create": { "title": "", "description": "" },
+            "3_restore": { "title": "", "description": "" }
+        }
     },
     "deviceSettings": {
         "loading": "Retrieving device info…",
@@ -290,7 +309,11 @@
         "abort": "The transaction has been aborted."
     },
     "seed": {
-        "creating": "Creating wallet…",
+        "info": {
+          "title": "Create a new wallet",
+          "description": "To create a new wallet, you must set a recovery password. This password is used to create, access and restore the wallet. It CANNOT be changed later and do NOT forget it.",
+          "button": "Set the recovery password now"
+        },
         "createDescription": "Initialize the wallet and automatically create a backup on the SD card.",
         "walletName": {
             "label": "Wallet Name",
@@ -307,6 +330,7 @@
             "funds_access": "I will NOT be able to access my funds if I forget my recovery password"
         },
         "create": "Create Wallet",
+        "creating": "Creating wallet. This takes a few seconds.",
         "backup": "Or restore a Backup…",
         "backToCreate": "Or create a new wallet…",
         "error" : {
@@ -315,8 +339,11 @@
         }
     },
     "initialize": {
-        "creating": "Setting device password…",
-        "description": "Please set a device password to interact with your device",
+        "info": {
+          "title": "Now you will set your device password",
+          "description": "The device password is only used for unlocking your BitBox. The BitBox resets if the device password is entered wrongly 15 times. Please remember it and keep it secret.",
+          "button": "Set the device password now"
+        },
         "input": {
             "label": "Device password",
             "labelRepeat": "Repeat device password",
@@ -324,6 +351,7 @@
             "invalid": ""
         },
         "create": "Set device password",
+        "creating": "Setting device password…",
         "error" : {
             "102": "The device password must consist of at least 4 characters."
         }
@@ -335,9 +363,15 @@
         "newTitle": "New device password"
     },
     "backup": {
+        "info": {
+          "title": "How to restore a wallet from a backup",
+          "description": "Insert the micro SD Card into your BitBox.",
+          "button": "Restore from backup now"
+        },
         "title": "Manage Backups",
         "insert": "Please insert SD card to manage backups.",
         "insertButton": "I have inserted the SD card",
+        "desc": "Please choose the wallet you would like to restore.",
         "create": {
             "title": "Create Backup",
             "name": {

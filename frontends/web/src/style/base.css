@@ -5,6 +5,7 @@ body {
     font-family: var(--font-family);
     font-weight: 400;
     height: 100%;
+    line-height: 1.5;
     margin: 0;
     overflow: hidden;
     padding: 0;
@@ -24,16 +25,16 @@ body {
     box-sizing: border-box;
 }
 
-p {
-    line-height: 1.3rem;
-}
-
 hr {
     background: none;
     border-color: var(--fat-border-color) transparent;
     border-style: solid;
     border-width: 1px 0 0 0;
     margin: var(--spacing-large) 0;
+}
+
+h1, h2, h3, h4, h5 {
+    line-height: 1.25;
 }
 
 ::-webkit-scrollbar {

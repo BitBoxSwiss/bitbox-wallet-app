@@ -20,11 +20,13 @@ import { apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
 import Waiting from './waiting';
-import Bootloader from './bootloader';
 import Unlock from './unlock';
-import Seed from './seed';
-import Initialize from './initialize';
-import RequireUpgrade from './require_upgrade';
+import Bootloader from './upgrade/bootloader';
+import RequireUpgrade from './upgrade/require_upgrade';
+import Goal from './setup/goal';
+import SeedCreateNew from './setup/seed-create-new';
+import SeedRestore from './setup/seed-restore';
+import Initialize from './setup/initialize';
 import Settings from './settings/settings';
 
 const DeviceStatus = Object.freeze({
@@ -36,6 +38,11 @@ const DeviceStatus = Object.freeze({
     REQUIRE_UPGRADE: 'require_upgrade'
 });
 
+const GOAL = Object.freeze({
+    CREATE: 'create',
+    RESTORE: 'restore'
+});
+
 export default class Device extends Component {
     state = {
         firmwareVersion: null,
@@ -43,6 +50,7 @@ export default class Device extends Component {
         deviceStatus: null,
         walletInitialized: null,
         testing: false,
+        goal: null,
     }
 
     componentDidMount() {
@@ -119,6 +127,18 @@ export default class Device extends Component {
         return this.props.deviceID || this.props.deviceIDs[0] || null;
     }
 
+    handleCreate = () => {
+        this.setState({ goal: GOAL.CREATE });
+    }
+
+    handleRestore = () => {
+        this.setState({ goal: GOAL.RESTORE });
+    }
+
+    handleBack = () => {
+        this.setState({ goal: null });
+    }
+
     render({
         deviceID,
         deviceIDs,
@@ -127,6 +147,7 @@ export default class Device extends Component {
         deviceRegistered,
         deviceStatus,
         walletInitialized,
+        goal,
         testing,
     }) {
         if (!deviceIDs.length && !walletInitialized) {
@@ -143,9 +164,19 @@ export default class Device extends Component {
         case DeviceStatus.INITIALIZED:
             return <Unlock deviceID={deviceID} guide={guide} />;
         case DeviceStatus.UNINITIALIZED:
-            return <Initialize deviceID={deviceID} guide={guide} />;
+            if (!goal) {
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
+            }
+            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
         case DeviceStatus.LOGGED_IN:
-            return <Seed deviceID={deviceID} guide={guide} />;
+            switch (goal) {
+            case GOAL.CREATE:
+                return <SeedCreateNew goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+            case GOAL.RESTORE:
+                return <SeedRestore goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+            default:
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
+            }
         case DeviceStatus.SEEDED:
             return <Settings deviceID={deviceID} guide={guide} />;
         }
