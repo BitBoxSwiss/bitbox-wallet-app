@@ -167,17 +167,8 @@
 .tabs .tab {
     width: 50%;
     height: 36px;
-    border-top: solid 1px var(--color-lightgray);
     border-bottom: solid 1px var(--color-lightgray);
     transition: all .2s ease-out;
-}
-
-.tabs .tab:first-child {
-    border-left: solid 1px var(--color-lightgray);
-}
-
-.tabs .tab:last-child {
-    border-right: solid 1px var(--color-lightgray);
 }
 
 .tabs .tab.active {
@@ -191,7 +182,6 @@
     text-align: center;
     line-height: 36px;
     text-decoration: none;
-    background-color: var(--color-lightgray);
     color: var(--color-secondary);
     transition: all .2s ease-out;
 }
