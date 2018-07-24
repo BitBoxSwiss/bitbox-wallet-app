@@ -158,6 +158,50 @@
     padding-top: var(--spacing-half);
 }
 
+.tabs {
+    margin: calc(var(--spacing-default) * -1) auto -1px auto;
+    width: 100%;
+    max-width: var(--content-width);
+}
+
+.tabs .tab {
+    width: 50%;
+    height: 36px;
+    border-top: solid 1px var(--color-lightgray);
+    border-bottom: solid 1px var(--color-lightgray);
+    transition: all .2s ease-out;
+}
+
+.tabs .tab:first-child {
+    border-left: solid 1px var(--color-lightgray);
+}
+
+.tabs .tab:last-child {
+    border-right: solid 1px var(--color-lightgray);
+}
+
+.tabs .tab.active {
+    border-bottom: solid 1px var(--color-brightblue);
+}
+
+.tabs .tab a {
+    width: 100%;
+    height: 100%;
+    display: block;
+    text-align: center;
+    line-height: 36px;
+    text-decoration: none;
+    background-color: var(--color-lightgray);
+    color: var(--color-secondary);
+    transition: all .2s ease-out;
+}
+
+.tabs .tab.active a {
+    color: var(--color-brightblue);
+    background-color: var(--color-white);
+    font-weight: bold;
+}
+
 .withFixedContent .content {
     margin-top: 0;
 }

@@ -167,7 +167,16 @@
             "title-btc": "Bitcoin Electrum Servers",
             "title-tbtc": "Bitcoin Testnet Electrum Servers",
             "title-ltc": "Litecoin Electrum Servers",
-            "title-tltc": "Litecoin Testnet Electrum Servers"
+            "title-tltc": "Litecoin Testnet Electrum Servers",
+            "reset": "Reset to default",
+            "check": "Check",
+            "add_server": "Add",
+            "servers": "Servers",
+            "add": "Add a server",
+            "step1": "Step 1. Enter the endpoint.",
+            "step2": "Step 2: Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
+            "step3": "Step 3: Check the connection and add the server.",
+            "download_cert": "Download remote certificate"
         },
         "success": "Please unplug and replug the BitBox for the changes to take effect."
     },

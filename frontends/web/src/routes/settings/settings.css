@@ -1,7 +1,86 @@
-.column {
+.title {
+    margin: var(--spacing-default) 0;
 }
 
-.column input + label {
-    display: block;
-    width: 250px;
+.serversContainer {
+    padding-bottom: var(--spacing-default);
+}
+
+.servers {
+    border: solid 1px var(--color-lightgray);
+    border-radius: 2px;
+    min-width: 450px;
+    margin-bottom: var(--spacing-large);
+}
+
+.servers .server {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 var(--spacing-half);
+}
+
+.servers .server:not(:last-child) {
+    border-bottom: solid 1px var(--color-lightgray);
+}
+
+.servers .server > div {
+    padding: var(--spacing-half);
+    line-height: 1;
+}
+
+.servers .server > div:first-child {
+    padding-right: var(--spacing-default);
+    width: 30px;
+    text-align: right;
+}
+
+.servers .server > div input[type="button"] {
+    border: none;
+    border-radius: 2px;
+    height: 24px;
+    line-height: 24px;
+    padding: 0 var(--spacing-default);
+    transition: all ease-out 0.2s;
+}
+
+.servers .server > div input[type="button"]:not(:last-child) {
+    margin-right: var(--spacing-half);
+}
+
+.primary {
+    background-color: var(--color-default);
+    color: var(--color-white);
+}
+
+.primary:hover {
+    background-color: var(--color-dark);
+}
+
+.warning {
+    background-color: var(--color-softred);
+    color: var(--color-white);
+}
+
+.warning:hover {
+    background-color: var(--color-swissred);
+}
+
+.textarea {
+    width: 100%;
+    border-radius: 2px;
+    border-color: var(--color-brightgray);
+    padding: var(--spacing-default) var(--spacing-default);
+    margin-bottom: var(--spacing-half);
+}
+
+.block {
+    margin-bottom: var(--spacing-default);
+}
+
+.addServer p {
+    font-size: 14px;
+    line-height: 1;
+    margin-bottom: var(--spacing-half);
 }
