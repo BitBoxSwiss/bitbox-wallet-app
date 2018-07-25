@@ -8,12 +8,6 @@ import (
 	"math"
 
 	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/semver"
-)
-
-var (
-	lowestSupportedBootloaderVersion    = semver.NewSemVer(2, 0, 0)
-	lowestNonSupportedBootloaderVersion = semver.NewSemVer(4, 0, 0)
 )
 
 const (

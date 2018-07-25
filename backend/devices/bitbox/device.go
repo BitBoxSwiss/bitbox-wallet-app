@@ -129,11 +129,6 @@ func NewDevice(
 	bootloader bool,
 	version *semver.SemVer,
 	communication CommunicationInterface) (*Device, error) {
-	if bootloader {
-		if !version.Between(lowestSupportedBootloaderVersion, lowestNonSupportedBootloaderVersion) {
-			return nil, errp.Newf("The bootloader version '%s' is not supported.", version)
-		}
-	}
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
 
