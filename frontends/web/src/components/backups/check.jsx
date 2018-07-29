@@ -1,19 +1,16 @@
 import { Component } from 'preact';
-import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import i18n from '../../i18n/i18n';
-import { Button, Checkbox } from '../forms';
+import { Button } from '../forms';
 import Dialog from '../dialog/dialog';
-import Spinner from '../spinner/Spinner';
 import { PasswordSingleInput } from '../password';
 import { apiPost } from '../../utils/request';
-import style from './backups.css';
 
 @translate()
 export default class Check extends Component {
     state = {
         password: null,
         activeDialog: false,
+        message: null,
     }
 
     componentWillMount() {
@@ -34,6 +31,7 @@ export default class Check extends Component {
         this.setState({
             password: null,
             activeDialog: false,
+            message: null,
         });
         if (this.passwordInput) {
             this.passwordInput.clear();
@@ -51,20 +49,17 @@ export default class Check extends Component {
     check = event => {
         event.preventDefault();
         if (!this.validate()) return;
-        this.setState({
-            activeDialog: false,
-        });
+        this.setState({ message: this.props.t('backup.check.checking') });
 
         apiPost('devices/' + this.props.deviceID + '/backups/check', {
             password: this.state.password,
             filename: this.props.selectedBackup,
         }).catch(() => {}).then(({ success, errorMessage }) => {
             if (success) {
-                alert(i18n.t('backup.check.success'))
+                this.setState({ message: this.props.t('backup.check.success') });
             } else if (errorMessage) {
-                alert(errorMessage);
+                this.setState({ message: errorMessage });
             }
-            this.abort();
         });
     }
 
@@ -78,6 +73,7 @@ export default class Check extends Component {
     }, {
         password,
         activeDialog,
+        message,
     }) {
         return (
             <span>
@@ -90,22 +86,33 @@ export default class Check extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('backup.check.title')}>
-                            <form onSubmit={this.check}>
-                                <PasswordSingleInput
-                                    ref={ref => this.passwordInput = ref}
-                                    label={t('backup.check.password.label')}
-                                    placeholder={t('backup.check.password.placeholder')}
-                                    showLabel={t('backup.check.password.showLabel')}
-                                    onValidPassword={this.setValidPassword} />
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort}>
-                                        {t('button.abort')}
-                                    </Button>
-                                    <Button type="submit" primary disabled={!this.validate()}>
-                                        {t('button.check')}
-                                    </Button>
+                            { message ? (
+                                <div>
+                                    <p style="min-height: 3rem;">{message}</p>
+                                    <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                        <Button primary onClick={this.abort}>
+                                            {t('button.back')}
+                                        </Button>
+                                    </div>
                                 </div>
-                            </form>
+                            ) : (
+                                <form onSubmit={this.check}>
+                                    <PasswordSingleInput
+                                        ref={ref => this.passwordInput = ref}
+                                        label={t('backup.check.password.label')}
+                                        placeholder={t('backup.check.password.placeholder')}
+                                        showLabel={t('backup.check.password.showLabel')}
+                                        onValidPassword={this.setValidPassword} />
+                                    <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                        <Button secondary onClick={this.abort}>
+                                            {t('button.back')}
+                                        </Button>
+                                        <Button type="submit" primary disabled={!this.validate()}>
+                                            {t('button.check')}
+                                        </Button>
+                                    </div>
+                                </form>
+                            )}
                         </Dialog>
                     )
                 }
