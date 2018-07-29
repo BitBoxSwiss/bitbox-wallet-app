@@ -108,7 +108,8 @@ export default class Restore extends Component {
         return (
             <span>
                 <Button
-                    danger
+                    danger={requireConfirmation}
+                    primary={!requireConfirmation}
                     disabled={selectedBackup === null}
                     onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.restore')}
@@ -132,10 +133,17 @@ export default class Restore extends Component {
                                         onChange={this.handleUnderstandChange} />
                                 </div>
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort} disabled={isConfirming}>
+                                    <Button
+                                        secondary
+                                        onClick={this.abort}
+                                        disabled={isConfirming}>
                                         {t('button.abort')}
                                     </Button>
-                                    <Button type="submit" danger disabled={!understand || !this.validate() || isConfirming}>
+                                    <Button
+                                        type="submit"
+                                        danger={requireConfirmation}
+                                        primary={!requireConfirmation}
+                                        disabled={!understand || !this.validate() || isConfirming}>
                                         {t('button.restore')}
                                     </Button>
                                 </div>

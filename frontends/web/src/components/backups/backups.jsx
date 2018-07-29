@@ -92,18 +92,22 @@ export default class Backups extends Component {
                     <div class="buttons bottom">
                         {
                             showCreate && (
-                                <Create onCreate={this.refresh} deviceID={deviceID} />
+                                <Create
+                                    onCreate={this.refresh}
+                                    deviceID={deviceID} />
                             )
                         }
-                        <Check
-                            selectedBackup={selectedBackup}
-                            deviceID={deviceID}
-                        />
+                        {
+                            showCreate && (
+                                <Check
+                                    selectedBackup={selectedBackup}
+                                    deviceID={deviceID} />
+                            )
+                        }
                         <Restore
                             selectedBackup={selectedBackup}
                             deviceID={deviceID}
-                            requireConfirmation={requireConfirmation}
-                        />
+                            requireConfirmation={requireConfirmation} />
                         {/*
                           <Erase
                           selectedBackup={selectedBackup}
