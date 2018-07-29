@@ -54,7 +54,7 @@ export default class Check extends Component {
         this.setState({
             activeDialog: false,
         });
-        
+
         apiPost('devices/' + this.props.deviceID + '/backups/check', {
             password: this.state.password,
             filename: this.props.selectedBackup,
@@ -82,7 +82,7 @@ export default class Check extends Component {
         return (
             <span>
                 <Button
-                    danger
+                    secondary
                     disabled={selectedBackup === null}
                     onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.check')}
@@ -101,7 +101,7 @@ export default class Check extends Component {
                                     <Button secondary onClick={this.abort}>
                                         {t('button.abort')}
                                     </Button>
-                                    <Button type="submit" danger disabled={!this.validate()}>
+                                    <Button type="submit" primary disabled={!this.validate()}>
                                         {t('button.check')}
                                     </Button>
                                 </div>
