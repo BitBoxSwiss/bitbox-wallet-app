@@ -156,7 +156,7 @@
 
 .collapsedContent.active {
     margin-top: var(--spacing-half);
-    max-height: 82px;
+    max-height: 100px;
 }
 
 .collapsedContent .spacer {
