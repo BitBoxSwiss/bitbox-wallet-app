@@ -367,7 +367,8 @@
                 "placeholder": "Recovery password",
                 "showLabel": "Recovery password"
             },
-            "success": "Backup matches current wallet"
+            "ok": "Backup matches current wallet.",
+            "notOK": "Backup does NOT match current wallet."
         }
     },
     "confirm": {

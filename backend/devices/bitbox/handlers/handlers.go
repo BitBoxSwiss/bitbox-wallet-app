@@ -60,7 +60,7 @@ type Bitbox interface {
 	StartPairing() (*relay.Channel, error)
 	Paired() bool
 	Lock() (bool, error)
-	CheckBackup(string, string) error
+	CheckBackup(string, string) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -281,13 +281,11 @@ func (handlers *Handlers) postBackupsCheckHandler(r *http.Request) (interface{},
 	}
 	filename := jsonBody["filename"]
 	handlers.log.WithField("filename", filename).Debug("Check backup")
-	err := handlers.bitbox.CheckBackup(jsonBody["password"], filename)
+	matches, err := handlers.bitbox.CheckBackup(jsonBody["password"], filename)
 	if err != nil {
-		handlers.log.WithFields(logrus.Fields{"walletName": filename, "error": err}).
-			Error("Failed to check backup")
-		return map[string]interface{}{"errorMessage": err.Error()}, nil
+		return maybeDBBErr(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true, "matches": matches}, nil
 }
 
 func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}, error) {

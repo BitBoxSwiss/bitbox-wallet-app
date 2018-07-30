@@ -70,12 +70,19 @@ export default class Check extends Component {
         apiPost('devices/' + this.props.deviceID + '/backups/check', {
             password: this.state.password,
             filename: this.props.selectedBackup,
-        }).catch(() => {}).then(({ success, errorMessage }) => {
+        }).catch(() => {}).then(({ success, matches, errorMessage }) => {
+            let message;
             if (success) {
+                if (matches) {
+                    message = this.props.t('backup.check.ok');
+                } else {
+                    message = this.props.t('backup.check.notOK');
+                }
                 this.setState({ message: this.props.t('backup.check.success') });
             } else if (errorMessage) {
-                this.setState({ message: errorMessage });
+                message = errorMessage;
             }
+            this.setState({ message });
         });
     }
 

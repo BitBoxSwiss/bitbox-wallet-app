@@ -533,10 +533,11 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 	return nil
 }
 
-//CheckBackup uses the provided backup file and recovery password to check if they correspond to the currently loaded wallet.
-func (dbb *Device) CheckBackup(backupPassword, filename string) error {
+// CheckBackup uses the provided backup file and recovery password to check if they correspond to
+//the current wallet. Returns true if it matches, false if not.
+func (dbb *Device) CheckBackup(backupPassword, filename string) (bool, error) {
 	if backupPassword == "" {
-		return errp.New("invalid password")
+		return false, errp.New("invalid password")
 	}
 	dbb.log.WithFields(logrus.Fields{"filename": filename}).Debug("Check")
 	key := stretchKey(backupPassword)
@@ -548,14 +549,17 @@ func (dbb *Device) CheckBackup(backupPassword, filename string) error {
 			},
 		},
 		dbb.pin)
+	if dbbErr, ok := errp.Cause(err).(*Error); ok && dbbErr.Code == ErrSDNoMatch {
+		return false, nil
+	}
 	if err != nil {
-		return errp.WithMessage(err, "There was an unexpected error during the wallet check")
+		return false, errp.WithMessage(err, "There was an unexpected error during the wallet check")
 	}
 	backupCheck, ok := reply["backup"].(string)
 	if !ok || backupCheck != "success" {
-		return errp.New("Current Wallet does not match this backup/recovery combination")
+		return false, errp.New("unexpected reply")
 	}
-	return nil
+	return true, nil
 }
 
 func backupFilename(backupName string) string {

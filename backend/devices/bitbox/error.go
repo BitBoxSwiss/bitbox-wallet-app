@@ -29,6 +29,9 @@ const (
 
 	// ErrInitializing is returned when the device is still booting up.
 	ErrInitializing = 503
+
+	// ErrSDNoMatch is returned when the backup check fails.
+	ErrSDNoMatch = 410
 )
 
 // Error wraps an error by the bitbox.
