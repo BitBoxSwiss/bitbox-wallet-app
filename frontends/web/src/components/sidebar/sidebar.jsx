@@ -46,10 +46,11 @@ class Sidebar extends Component {
         deviceIDs,
         accounts,
         walletInitialized,
+        guideShown,
     }, {
     }) {
         return (
-            <nav className="sidebar">
+            <nav className={['sidebar', guideShown ? 'withGuide' : ''].join(' ')}>
                 <div className="sidebarLogoContainer" style={'opacity:' + (walletInitialized ? 1 : 0)}>
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
