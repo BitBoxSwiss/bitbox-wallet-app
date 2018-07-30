@@ -18,6 +18,7 @@ import { apiWebsocket } from '../../utils/websocket';
 import { apiGet } from '../../utils/request';
 import { equal } from '../../utils/equal';
 import LoadingComponent from '../loading/loading';
+import '../../utils/polyfill';
 
 // Loads API endpoints into the state and updates them on events.
 export default class UpdatingComponent extends LoadingComponent {

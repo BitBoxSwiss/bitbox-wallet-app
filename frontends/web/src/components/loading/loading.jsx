@@ -17,6 +17,7 @@
 import { Component } from 'preact';
 import { apiGet } from '../../utils/request';
 import { equal } from '../../utils/equal';
+import '../../utils/polyfill';
 
 // Loads API endpoints into the state.
 export default class LoadingComponent extends Component {
