@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func createWebsocketConn(t *testing.T) (client, server *websocket.Conn, cleanup func()) {
@@ -89,9 +90,7 @@ func TestRunWebsocket(t *testing.T) {
 
 	// Authorize the client and send another message.
 	authz := []byte("Authorization: Basic " + cdata.token)
-	if err := client.WriteMessage(websocket.TextMessage, authz); err != nil {
-		t.Fatalf("client.WriteMessage: %v", err)
-	}
+	require.NoError(t, client.WriteMessage(websocket.TextMessage, authz))
 	send <- []byte("after authz")
 
 	// Expect to receive both messages now.
@@ -127,7 +126,7 @@ messagesLoop:
 
 	// Close client's websocket conn and expect runWebsocket's quit
 	// to be closed as well.
-	client.Close()
+	require.NoError(t, client.Close())
 	select {
 	case <-quit:
 		// ok
@@ -155,7 +154,7 @@ func TestRunWebsocketNoAuthz(t *testing.T) {
 	}
 
 	cc := client.UnderlyingConn()
-	cc.SetReadDeadline(time.Now().Add(time.Second))
+	require.NoError(t, cc.SetReadDeadline(time.Now().Add(time.Second)))
 	b := []byte{0}
 	if _, err := cc.Read(b); err != io.EOF {
 		t.Errorf("client net conn is not closed; err: %v", err)
@@ -178,7 +177,7 @@ func TestRunWebsocketCloseSend(t *testing.T) {
 		t.Errorf("runWebsocket's quit took too long to close")
 	}
 
-	client.SetReadDeadline(time.Now().Add(time.Second))
+	require.NoError(t, client.SetReadDeadline(time.Now().Add(time.Second)))
 	_, _, err := client.ReadMessage()
 	if _, ok := err.(*websocket.CloseError); !ok {
 		t.Errorf("client.ReadMessage: %v (%T); want *websocket.CloseError", err, err)
