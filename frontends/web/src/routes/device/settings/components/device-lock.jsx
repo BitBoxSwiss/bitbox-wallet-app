@@ -33,10 +33,14 @@ export default class DeviveLock extends Component {
             activeDialog: false,
             isConfirming: true,
         });
+        this.props.onLock();
         apiPost('devices/' + this.props.deviceID + '/lock').then(({ didLock }) => {
             this.setState({
                 isConfirming: false,
             });
+            if (didLock) {
+                this.props.onLock();
+            }
         });
     };
 
