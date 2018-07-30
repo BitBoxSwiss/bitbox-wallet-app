@@ -300,7 +300,7 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 	rate := handlers.backend.Rates()[from][to]
 	return map[string]interface{}{
 		"success":    true,
-		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', -1, 64),
+		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', 2, 64),
 	}, nil
 }
 
@@ -322,7 +322,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  strconv.FormatFloat(result, 'f', -1, 64),
+		"amount":  strconv.FormatFloat(result, 'f', 8, 64),
 	}, nil
 }
 
