@@ -465,7 +465,9 @@ export default class Send extends Component {
                                         </div>
                                         <div class={style.half}>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
-                                                {t('send.fee.label')} ({feeTarget})
+                                                {t('send.fee.label')}
+                                                {' '}
+                                                ({feeTarget})
                                             </p>
                                             <table class={style.confirmationValueTable} align="right">
                                                 <tr>
