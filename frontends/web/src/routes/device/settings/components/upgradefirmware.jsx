@@ -99,7 +99,13 @@ export default class UpgradeFirmware extends Component {
                         <WaitDialog title={t('upgradeFirmware.title')} includeDefault={!unlocked}>
                             {
                                 unlocked ? (
-                                    <p>{t('upgradeFirmware.unlocked')}</p>
+                                    <div>
+                                        <p>{t('upgradeFirmware.unlocked')}</p>
+                                        <ul style="line-height: 1.5;">
+                                            <li>{t('upgradeFirmware.unlocked1')}</li>
+                                            <li>{t('upgradeFirmware.unlocked2')}</li>
+                                        </ul>
+                                    </div>
                                 ) : (
                                     <p>{t('upgradeFirmware.locked', {
                                         currentVersion, newVersion

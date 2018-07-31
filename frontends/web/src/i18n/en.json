@@ -137,7 +137,9 @@
         "button": "Upgrade Firmware",
         "title": "Upgrade Firmware",
         "description": "Do you want to Upgrade the Firmware from version {{currentVersion}} to {{newVersion}}?",
-        "unlocked": "The bootloader is unlocked. To continue, please replug the device and tap the touch button when the LED lights up.",
+        "unlocked": "The bootloader is unlocked. To continue, please:",
+        "unlocked1": "Unplug and replug the device",
+        "unlocked2": "Tap the touch button when the LED lights up",
         "locked": "To upgrade from {{currentVersion}} to {{newVersion}}, please do a long touch."
     },
     "bootloader": {
