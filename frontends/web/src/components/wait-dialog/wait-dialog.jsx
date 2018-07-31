@@ -88,8 +88,8 @@ export default class Confirm extends Component {
             </div>
         );
         return (
-            <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: white;">
-                <div class={[style.modal, isActive].join(' ')} style="border-radius: 0; box-shadow: none;">
+            <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
+                <div class={[style.modal, isActive].join(' ')}>
                     <h3 class={style.modalHeader}>{title}</h3>
                     {
                         (children.length > 0 && includeDefault) && defaultContent

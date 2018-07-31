@@ -41,6 +41,7 @@
 
 .modal .modalHeader {
     margin: 0;
+    text-align: center;
 }
 
 .modal .modalContent {
@@ -56,8 +57,9 @@
 }
 
 .confirmationLabel {
-    margin-top: var(--spacing-default);
     line-height: var(--size-label);
+    margin-top: var(--spacing-default);
+    text-align: center;
 }
 
 .confirmationInstructions {
