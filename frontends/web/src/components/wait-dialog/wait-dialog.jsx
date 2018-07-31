@@ -31,16 +31,17 @@ export default class Confirm extends Component {
     }
 
     componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
+        document.body.addEventListener('keydown', this.handleKeyDown);
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
+        document.body.removeEventListener('keydown', this.handleKeyDown);
     }
 
     handleKeyDown = e => {
-        e.preventDefault();
         document.activeElement.blur();
+        e.preventDefault();
+        e.stopPropagation();
     }
 
     activate = () => {
