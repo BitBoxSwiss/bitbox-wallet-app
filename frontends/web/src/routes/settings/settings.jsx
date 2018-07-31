@@ -128,7 +128,7 @@ export default class Settings extends Component {
                                                 <h3>{t('settings.expert.title')}</h3>
                                             </div>
                                         </div>
-                                        <div class="flex flex-row flex-start flex-wrap wrapped">
+                                        <div class="flex flex-row flex-start flex-items-center flex-wrap wrapped">
                                             <div class={style.column}>
                                                 <Checkbox
                                                     checked={config.frontend.coinControl}
