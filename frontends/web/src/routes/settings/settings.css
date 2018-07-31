@@ -36,7 +36,7 @@
     text-align: right;
 }
 
-.servers .server > div input[type="button"] {
+.servers .server > div button {
     border: none;
     border-radius: 2px;
     height: 24px;
@@ -45,7 +45,16 @@
     transition: all ease-out 0.2s;
 }
 
-.servers .server > div input[type="button"]:not(:last-child) {
+.servers .server > div button[disabled] {
+    background-color: var(--color-disabled);
+    color: var(--color-rock);
+}
+
+.servers .server > div button:focus {
+    outline: none;
+}
+
+.servers .server > div button:not(:last-child) {
     margin-right: var(--spacing-half);
 }
 
@@ -83,4 +92,34 @@
     font-size: 14px;
     line-height: 1;
     margin-bottom: var(--spacing-half);
+}
+
+.miniSpinnerContainer {
+    position: relative;
+    left: -5px;
+    display: inline-block;
+}
+
+.miniSpinner {
+    color: var(--color-brightblue);
+}
+
+.miniSpinner:after {
+    position: relative;
+    top: 2px;
+    animation: changeContent .8s linear infinite;
+    display: block;
+    content: "⠋";
+}
+
+@keyframes changeContent {
+    10% { content: "⠙"; }
+    20% { content: "⠹"; }
+    30% { content: "⠸"; }
+    40% { content: "⠼"; }
+    50% { content: "⠴"; }
+    60% { content: "⠦"; }
+    70% { content: "⠧"; }
+    80% { content: "⠇"; }
+    90% { content: "⠏"; }
 }

@@ -82,7 +82,7 @@ class ElectrumServer extends Component {
     check = () => {
         this.setState({
             loading: true,
-            loadingText: 'Checking server...',
+            loadingText: '',
         });
         apiPost('certs/check', this.getServer()).then(({ success, errorMessage }) => {
             if (success) {
@@ -111,15 +111,24 @@ class ElectrumServer extends Component {
         loading,
         loadingText,
     }) {
-        if (loading) return <Spinner text={loadingText} />
+        if (loading && loadingText !== '') return <Spinner text={loadingText} />
         if (!onAdd) {
             return (
                 <div class={style.server}>
                     <div>{index}</div>
                     <div class="flex-1">{electrumServer}</div>
                     <div>
-                        <input class={style.primary} type="button" value="Check" disabled={electrumServer == '' || electrumCert == ''} onClick={this.check}/>
-                        <input class={style.warning} type="button" value="Remove" onClick={onRemove}/>
+                        <button class={style.primary} disabled={electrumServer == '' || electrumCert == '' || loading} onClick={this.check}>
+                            {
+                                (loading && loadingText === '') && (
+                                    <div class={style.miniSpinnerContainer}>
+                                      <div class={style.miniSpinner}></div>
+                                    </div>
+                                )
+                            }
+                            { loading ? t('settings.electrum.checking') : t('settings.electrum.check') }
+                        </button>
+                        <button class={style.warning} onClick={onRemove}>Remove</button>
                     </div>
                 </div>
             );
@@ -148,7 +157,16 @@ class ElectrumServer extends Component {
                 </div>
                 <p>{t('settings.electrum.step3')}</p>
                 <div class="buttons wrapped">
-                    <Button primary disabled={electrumServer == ''} onClick={this.check}>{t('settings.electrum.check')}</Button>
+                    <Button primary disabled={electrumServer == '' || loading} onClick={this.check}>
+                        {
+                            (loading && loadingText === '') && (
+                                <div class={style.miniSpinnerContainer}>
+                                  <div class={style.miniSpinner}></div>
+                                </div>
+                            )
+                        }
+                        { loading ? t('settings.electrum.checking') : t('settings.electrum.check') }
+                    </Button>
                     <Button primary disabled={!valid} onClick={this.add}>{t('settings.electrum.add_server')}</Button>
                 </div>
             </div>

@@ -170,6 +170,7 @@
             "title-tltc": "Litecoin Testnet Electrum Servers",
             "reset": "Reset to default",
             "check": "Check",
+            "checking": "Checking",
             "add_server": "Add",
             "servers": "Servers",
             "add": "Add a server",
