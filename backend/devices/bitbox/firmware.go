@@ -22,7 +22,7 @@ import (
 
 //go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets
 
-var bundledFirmwareVersion = semver.NewSemVer(3, 0, 2)
+var bundledFirmwareVersion = semver.NewSemVer(4, 0, 0)
 
 // BundledFirmwareVersion returns the version of the bundled firmware.
 func BundledFirmwareVersion() *semver.SemVer {
@@ -32,7 +32,7 @@ func BundledFirmwareVersion() *semver.SemVer {
 // BundledFirmware returns the binary of the bundled firmware.
 func BundledFirmware() []byte {
 	binary, err := Asset(fmt.Sprintf(
-		"assets/firmware.%s.signed.bin",
+		"assets/firmware.deterministic.%s.signed.bin",
 		bundledFirmwareVersion.String()))
 	if err != nil {
 		panic(err)
