@@ -210,11 +210,6 @@ class ElectrumServers extends Component {
                 <div class="flex flex-row flex-between flex-items-center row">
                     <h3>{t(`settings.electrum.title-${coin}`)}</h3>
                     <div class="buttons" style="margin-bottom: 0;">
-                        <ButtonLink
-                            secondary
-                            href={`/settings`}>
-                            {t('button.back')}
-                        </ButtonLink>
                         <Button onClick={this.resetToDefault} danger>{t('settings.electrum.reset')}</Button>
                     </div>
                 </div>
@@ -299,6 +294,13 @@ export default class ElectrumSettings extends Component {
                                     />
                                 )
                             }
+                            <div style="margin-bottom: 20px;">
+                                <ButtonLink
+                                    secondary
+                                    href={`/settings`}>
+                                    {t('button.back')}
+                                </ButtonLink>
+                            </div>
                         </div>
                     </div>
                 </div>
