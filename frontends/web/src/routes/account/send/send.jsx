@@ -91,6 +91,7 @@ export default class Send extends Component {
 
     handleKeyDown = e => {
         if (e.keyCode === 27) {
+            console.log('send.jsx route to /'); // eslint-disable-line no-console
             route(`/account/${this.props.code}`);
         }
     }

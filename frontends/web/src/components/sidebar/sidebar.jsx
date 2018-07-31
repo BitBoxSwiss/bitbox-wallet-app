@@ -133,6 +133,7 @@ function getBackLink(code, name, active) {
 
 function eject(e) {
     apiPost('test/deregister');
+    console.log('sidebar.jsx route to /'); // eslint-disable-line no-console
     route('/', true);
     e.preventDefault();
 }

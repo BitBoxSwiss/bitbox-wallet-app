@@ -95,6 +95,7 @@ export default class Restore extends Component {
         }).catch(() => {}).then(({ didRestore, errorMessage }) => {
             this.abort();
             if (didRestore) {
+                console.log('restore.jsx route to /'); // eslint-disable-line no-console
                 route('/', true);
             } else if (errorMessage) {
                 alert(errorMessage); // eslint-disable-line no-alert

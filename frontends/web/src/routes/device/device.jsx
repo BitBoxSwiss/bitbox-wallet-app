@@ -79,6 +79,7 @@ export default class Device extends Component {
     onWalletStatusChanged = () => {
         apiGet('wallet-status').then(status => {
             if (status === 'initialized' && this.props.default) {
+                console.log('device.jsx route to /account'); // eslint-disable-line no-console
                 route('/account', true);
             }
             this.setState({
