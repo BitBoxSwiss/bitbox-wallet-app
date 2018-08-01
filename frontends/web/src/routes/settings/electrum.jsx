@@ -211,12 +211,15 @@ class ElectrumServers extends Component {
     }
 
     resetToDefault = () => {
-        if (!confirm('Do you want to remove all servers and install the default servers?')) {
-            return;
-        }
-        apiGet('config/default').then(config => {
-            this.setState({ electrumServers: config.backend[this.props.coin].electrumServers });
-            this.save();
+        confirm('Do you want to remove all servers and install the default servers?', response => {
+            if (response) {
+                apiGet('config/default').then(config => {
+                    this.setState({ electrumServers: config.backend[this.props.coin].electrumServers });
+                    this.save();
+                });
+            } else {
+                return;
+            }
         });
     }
 
@@ -243,7 +246,11 @@ class ElectrumServers extends Component {
                                     index={index + 1}
                                     key={server.server}
                                     server={server}
-                                    onRemove={() => { if (confirm(`Remove ${server.server}?`)) this.onRemove(index) }}
+                                    onRemove={() => {
+                                        confirm(`Remove ${server.server}?`, confirmed => {
+                                          if (confirmed) this.onRemove(index);
+                                        });
+                                    }}
                                 />
                             ))
                         }

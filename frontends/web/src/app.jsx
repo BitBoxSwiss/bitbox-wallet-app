@@ -31,6 +31,7 @@ import Settings from './routes/settings/settings';
 import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
+import Confirm from './components/confirm/Confirm';
 import Status from './components/status/status';
 import A from './components/anchor/anchor';
 
@@ -260,6 +261,7 @@ export default class App extends Component {
                     </Router>
                 </div>
                 <Alert />
+                <Confirm />
             </div>
         );
     }
