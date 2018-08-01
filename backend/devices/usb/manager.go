@@ -105,11 +105,20 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		return errp.WithMessage(err, "Failed to open device")
 	}
 
+	usbWriteReportSize := 64
+	usbReadReportSize := 64
+	if bootloader && !firmwareVersion.AtLeast(semver.NewSemVer(3, 0, 0)) {
+		// Bootloader 3.0.0 changed to composite USB. Since then, the output report length is 65,
+		// not 4099 (including report ID).  See dev->output_report_length at
+		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
+		usbWriteReportSize = 4098
+	}
+	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
 		firmwareVersion,
-		NewCommunication(hidDevice),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize),
 	)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to establish communication to device")

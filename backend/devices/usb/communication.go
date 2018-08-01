@@ -20,6 +20,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
+	"runtime"
 	"sync"
 	"unicode"
 
@@ -33,8 +34,7 @@ import (
 )
 
 const (
-	usbReportSize = 64
-	hwwCID        = 0xff000000
+	hwwCID = 0xff000000
 	// initial frame identifier
 	u2fHIDTypeInit = 0x80
 	// first vendor defined command
@@ -45,20 +45,24 @@ const (
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
 // as USB packets, following the ISO 7816-4 standard.
 type Communication struct {
-	device io.ReadWriteCloser
-	mutex  sync.Mutex
-	log    *logrus.Entry
+	device             io.ReadWriteCloser
+	mutex              sync.Mutex
+	log                *logrus.Entry
+	usbWriteReportSize int
+	usbReadReportSize  int
 }
 
 // CommunicationErr is returned if there was an error with the device IO.
 type CommunicationErr error
 
 // NewCommunication creates a new Communication.
-func NewCommunication(device io.ReadWriteCloser) *Communication {
+func NewCommunication(device io.ReadWriteCloser, usbWriteReportSize, usbReadReportSize int) *Communication {
 	return &Communication{
-		device: device,
-		mutex:  sync.Mutex{},
-		log:    logging.Get().WithGroup("usb"),
+		device:             device,
+		mutex:              sync.Mutex{},
+		log:                logging.Get().WithGroup("usb"),
+		usbWriteReportSize: usbWriteReportSize,
+		usbReadReportSize:  usbReadReportSize,
 	}
 }
 
@@ -78,8 +82,8 @@ func (communication *Communication) sendFrame(msg string) error {
 	send := func(header []byte, readFrom *bytes.Buffer) error {
 		buf := new(bytes.Buffer)
 		buf.Write(header)
-		buf.Write(readFrom.Next(usbReportSize - buf.Len()))
-		for buf.Len() < usbReportSize {
+		buf.Write(readFrom.Next(communication.usbWriteReportSize - buf.Len()))
+		for buf.Len() < communication.usbWriteReportSize {
 			buf.WriteByte(0xee)
 		}
 		_, err := communication.device.Write(buf.Bytes())
@@ -117,7 +121,7 @@ func (communication *Communication) sendFrame(msg string) error {
 }
 
 func (communication *Communication) readFrame() ([]byte, error) {
-	read := make([]byte, usbReportSize)
+	read := make([]byte, communication.usbReadReportSize)
 	readLen, err := communication.device.Read(read)
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -154,24 +158,46 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
 	const (
-		maxSendLen = 4098
-		maxReadLen = 256
+		// the bootloader expects 4098 bytes as one message.
+		sendLen = 4098
+		// the bootloader sends 256 bytes as a response.
+		readLen = 256
+		// the device HID interface sends 64 bytes at once.
+		readPacketSize = 64
 	)
-	if len(msg) > maxSendLen {
+	if len(msg) > sendLen {
 		communication.log.WithFields(logrus.Fields{"message-length": len(msg),
-			"max-send-length": maxSendLen}).Panic("Message too long")
+			"max-send-length": sendLen}).Panic("Message too long")
 		panic("message too long")
 	}
-	var buf bytes.Buffer
-	buf.Write(msg)
-	buf.Write(bytes.Repeat([]byte{0}, maxSendLen-len(msg)))
-	_, err := communication.device.Write(buf.Bytes())
-	if err != nil {
-		return nil, errors.WithStack(err)
+
+	paddedMsg := new(bytes.Buffer)
+	paddedMsg.Write(msg)
+	paddedMsg.Write(bytes.Repeat([]byte{0}, sendLen-len(msg)))
+	// reset so we can read from it.
+	paddedMsg = bytes.NewBuffer(paddedMsg.Bytes())
+
+	written := 0
+	for written < sendLen {
+		chunk := paddedMsg.Next(communication.usbWriteReportSize)
+		chunkLen := len(chunk)
+		if runtime.GOOS != "windows" {
+			// packets have a 0 byte report ID in front. The karalabe hid library adds it
+			// automatically for windows, and not for unix, as there, it is stripped by the signal11
+			// hid library.  Since we are padding with zeroes, we have to add it (to be stripped by
+			// signal11), as otherwise, it would strip our 0 byte that is just padding.
+			chunk = append([]byte{0}, chunk...)
+		}
+		_, err := communication.device.Write(chunk)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		written += chunkLen
 	}
+
 	var read bytes.Buffer
-	for read.Len() < maxReadLen {
-		currentRead := make([]byte, maxReadLen)
+	for read.Len() < readLen {
+		currentRead := make([]byte, communication.usbReadReportSize)
 		readLen, err := communication.device.Read(currentRead)
 		if err != nil {
 			return nil, errors.WithStack(err)
