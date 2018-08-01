@@ -108,10 +108,11 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 	usbWriteReportSize := 64
 	usbReadReportSize := 64
 	if bootloader && !firmwareVersion.AtLeast(semver.NewSemVer(3, 0, 0)) {
-		// Bootloader 3.0.0 changed to composite USB. Since then, the output report length is 65,
-		// not 4099 (including report ID).  See dev->output_report_length at
+		// Bootloader 3.0.0 changed to composite USB. Since then, the report lengths are 65/65,
+		// not 4099/256 (including report ID).  See dev->output_report_length at
 		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
 		usbWriteReportSize = 4098
+		usbReadReportSize = 256
 	}
 	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	device, err := bitbox.NewDevice(
