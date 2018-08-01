@@ -56,7 +56,7 @@ export default class Confirm extends Component {
             <div class={style.overlay}>
                 <div class={style.confirmWindow}>
                     <p>{message}</p>
-                    <div class="buttons" style="margin-bottom: 0; text-align: right;">
+                    <div class={style.buttons}>
                         <Button secondary onClick={() => this.respond(false)}>Cancel</Button>
                         <Button primary onClick={() => this.respond(true)}>Confirm</Button>
                     </div>

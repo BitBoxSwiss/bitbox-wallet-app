@@ -4,12 +4,12 @@
     left: 0;
     height: 100%;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.5);
     display: none;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    z-index: 2001;
+    z-index: 8000;
 }
 
 .active {
@@ -18,7 +18,7 @@
 
 .alert {
     background-color: white;
-    max-width: 480px;
+    max-width: 400px;
     width: 50%;
     border-radius: 2px;
     padding: var(--spacing-large);
@@ -27,4 +27,18 @@
 
 .alert p:first-child {
     margin-top: 0;
+}
+
+.alert p:last-child {
+    margin-bottom: var(--spacing-large);
+}
+
+.buttons {
+    margin: calc(var(--spacing-large) * -1);
+    margin-top: var(--spacing-large);
+}
+
+.buttons button {
+    width: 100%;
+    border-radius: 0 0 2px 2px;
 }
