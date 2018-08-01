@@ -60,7 +60,7 @@ export default class Alert extends Component {
             <div class={classes}>
                 <div class={style.alert}>
                     {context.split('\n').map(line => <p key={line}>{line}</p>)}
-                    <div style="display: flex; flex-direction: row; justify-content: flex-end;">
+                    <div class={style.buttons}>
                         <Button
                             primary
                             ref={ref => this.button = ref}
