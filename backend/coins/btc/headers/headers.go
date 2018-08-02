@@ -274,7 +274,7 @@ func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.Blo
 			}
 			headers.log.Infof("checkpoint at %d matches", tip)
 		}
-		// Check Diffuclty, PoW.
+		// Check Difficulty, PoW.
 		if headers.net.Net == chaincfg.MainNetParams.Net || headers.net.Net == ltc.MainNetParams.Net {
 			newTarget, err := headers.getTarget(dbTx, tip)
 			if err != nil {
