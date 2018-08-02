@@ -323,9 +323,11 @@ func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
 		dbb.log = dbb.log.WithField("U2F", deviceInfo.U2F)
 		return nil, errp.New("U2F")
 	}
-	if deviceInfo.U2FHijack, ok = device["U2F_hijack"].(bool); !ok {
-		dbb.log = dbb.log.WithField("U2F_hijack", deviceInfo.U2FHijack)
-		return nil, errp.New("U2F_hijack")
+	if dbb.version.AtLeast(semver.NewSemVer(2, 2, 0)) {
+		if deviceInfo.U2FHijack, ok = device["U2F_hijack"].(bool); !ok {
+			dbb.log = dbb.log.WithField("U2F_hijack", deviceInfo.U2FHijack)
+			return nil, errp.New("U2F_hijack")
+		}
 	}
 	if deviceInfo.Version, ok = device["version"].(string); !ok {
 		dbb.log = dbb.log.WithField("version", deviceInfo.Version)
