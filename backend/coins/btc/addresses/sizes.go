@@ -14,7 +14,7 @@
 
 package addresses
 
-import "github.com/shiftdevices/godbb/backend/signing"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 
 // SigScriptWitnessSize returns the maximum possible sigscript size for a given address type.
 func SigScriptWitnessSize(configuration *signing.Configuration) (int, bool) {

@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/assert"
 )
 

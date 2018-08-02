@@ -14,7 +14,7 @@
 
 package observable
 
-import "github.com/shiftdevices/godbb/util/observable/action"
+import "github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 
 // Event is passed to the listeners of an observable type.
 type Event struct {

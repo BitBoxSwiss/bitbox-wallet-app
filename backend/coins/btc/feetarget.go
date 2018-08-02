@@ -16,7 +16,7 @@ package btc
 
 import (
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 

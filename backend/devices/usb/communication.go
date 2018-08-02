@@ -26,10 +26,10 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/pkg/errors"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/util/crypto"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

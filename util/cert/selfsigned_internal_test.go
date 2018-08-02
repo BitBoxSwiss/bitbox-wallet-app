@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"

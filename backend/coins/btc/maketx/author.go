@@ -7,8 +7,8 @@ package maketx
 
 import (
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
 )
 

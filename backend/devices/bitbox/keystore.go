@@ -19,10 +19,10 @@ import (
 
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/backend/coins/btc"
-	"github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 

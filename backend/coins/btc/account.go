@@ -20,7 +20,7 @@ import (
 	"path"
 	"sort"
 
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -28,16 +28,16 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
-	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
-	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
-	"github.com/shiftdevices/godbb/backend/coins/ltc"
-	"github.com/shiftdevices/godbb/backend/db/transactionsdb"
-	"github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/db/transactionsdb"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
 
 const (

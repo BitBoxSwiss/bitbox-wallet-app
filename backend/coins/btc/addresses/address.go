@@ -23,8 +23,8 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
 )
 

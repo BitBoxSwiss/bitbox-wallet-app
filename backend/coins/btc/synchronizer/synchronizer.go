@@ -15,7 +15,7 @@
 package synchronizer
 
 import (
-	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 

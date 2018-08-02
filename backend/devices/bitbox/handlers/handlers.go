@@ -23,11 +23,11 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
-	"github.com/shiftdevices/godbb/backend/devices/device"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Bitbox models the API of a Bitbox.

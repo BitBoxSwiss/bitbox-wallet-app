@@ -28,9 +28,9 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 

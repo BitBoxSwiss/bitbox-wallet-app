@@ -24,8 +24,8 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
 // ScriptType indicates which type of output should be produced in case of singlesig.

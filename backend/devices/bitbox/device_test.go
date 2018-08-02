@@ -22,11 +22,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox/mocks"
-	"github.com/shiftdevices/godbb/util/jsonp"
-	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -34,7 +34,7 @@ import (
 )
 
 var (
-	firmwareVersion = semver.NewSemVer(3, 0, 2)
+	firmwareVersion = semver.NewSemVer(4, 0, 0)
 )
 
 const (

@@ -21,8 +21,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/util/config"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (

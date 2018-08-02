@@ -24,11 +24,11 @@ import (
 	"github.com/karalabe/hid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/devices/bitbox"
-	"github.com/shiftdevices/godbb/backend/devices/device"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
 const (

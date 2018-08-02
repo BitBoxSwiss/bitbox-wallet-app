@@ -50,14 +50,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonp"
-	"github.com/shiftdevices/godbb/util/random"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 
-	"github.com/shiftdevices/godbb/backend"
-	"github.com/shiftdevices/godbb/backend/arguments"
-	backendHandlers "github.com/shiftdevices/godbb/backend/handlers"
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
 var theBackend *backend.Backend

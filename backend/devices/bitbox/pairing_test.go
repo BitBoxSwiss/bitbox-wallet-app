@@ -19,7 +19,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/stretchr/testify/assert"
 )
 

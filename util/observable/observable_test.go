@@ -19,8 +19,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/shiftdevices/godbb/util/observable"
-	"github.com/shiftdevices/godbb/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 )
 
 func TestObservable(t *testing.T) {

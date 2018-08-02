@@ -16,8 +16,8 @@ package keystore
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.

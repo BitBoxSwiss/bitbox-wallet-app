@@ -20,11 +20,11 @@ import (
 	"io"
 	"net"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum/client"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonrpc"
-	"github.com/shiftdevices/godbb/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 

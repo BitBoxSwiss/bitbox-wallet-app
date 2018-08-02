@@ -21,7 +21,7 @@ import (
 	"strings"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (

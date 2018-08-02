@@ -19,7 +19,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 )
 
 // DBTxInterface needs to be implemented to persist all wallet/transaction related data.

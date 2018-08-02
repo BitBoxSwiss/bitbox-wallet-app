@@ -21,12 +21,12 @@ import (
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
-	"github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // ProposedTransaction contains all the info needed to sign a btc transaction.

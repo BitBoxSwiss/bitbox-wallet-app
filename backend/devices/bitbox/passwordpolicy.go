@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // PasswordValidationError indicates an error when the given password does not comply with the policy.

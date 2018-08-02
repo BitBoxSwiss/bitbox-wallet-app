@@ -14,7 +14,7 @@
 
 package bitbox
 
-import "github.com/shiftdevices/godbb/backend/devices/device"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 
 // TODO: improve error handling and change event data into a JSON object, and split BitBox events
 // from generic device events

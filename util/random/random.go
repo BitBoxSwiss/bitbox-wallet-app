@@ -18,7 +18,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // HexString returns a random hex-encoded string of the given length in bytes.

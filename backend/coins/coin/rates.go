@@ -15,7 +15,7 @@
 package coin
 
 import (
-	"github.com/shiftdevices/godbb/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
 // RatesUpdater updates the exchange rates continuously.

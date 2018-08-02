@@ -20,7 +20,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/crypto"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/stretchr/testify/assert"
 )
 

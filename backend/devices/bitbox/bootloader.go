@@ -21,7 +21,7 @@ import (
 	"log"
 	"math"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (

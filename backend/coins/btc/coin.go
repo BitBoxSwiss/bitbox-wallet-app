@@ -24,15 +24,15 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/electrum"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
-	coinpkg "github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/db/headersdb"
-	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/shiftdevices/godbb/util/observable"
-	"github.com/shiftdevices/godbb/util/observable/action"
-	"github.com/shiftdevices/godbb/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/db/headersdb"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
 // Coin models a Bitcoin-related coin.

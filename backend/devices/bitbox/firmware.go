@@ -17,7 +17,7 @@ package bitbox
 import (
 	"fmt"
 
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
 //go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets

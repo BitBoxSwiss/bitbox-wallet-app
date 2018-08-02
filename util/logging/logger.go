@@ -21,7 +21,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Logger adds a method to the logrus logger.

@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // SemVer implements Semantic Versioning according to https://semver.org.

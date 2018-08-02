@@ -28,8 +28,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

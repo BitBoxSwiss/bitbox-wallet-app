@@ -25,10 +25,10 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
-	"github.com/shiftdevices/godbb/backend/coins/btc/synchronizer"
-	"github.com/shiftdevices/godbb/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
 

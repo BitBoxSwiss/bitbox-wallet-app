@@ -20,10 +20,10 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/shiftdevices/godbb/backend"
-	"github.com/shiftdevices/godbb/backend/arguments"
-	"github.com/shiftdevices/godbb/backend/handlers"
-	"github.com/shiftdevices/godbb/util/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 )
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.

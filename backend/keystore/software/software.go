@@ -26,11 +26,11 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc"
-	"github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
 // Keystore implements a keystore in software.

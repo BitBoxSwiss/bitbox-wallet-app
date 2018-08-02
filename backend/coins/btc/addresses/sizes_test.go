@@ -19,9 +19,9 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/btcec"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 

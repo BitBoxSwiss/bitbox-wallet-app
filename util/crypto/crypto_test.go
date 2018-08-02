@@ -17,8 +17,8 @@ package crypto_test
 import (
 	"testing"
 
-	"github.com/shiftdevices/godbb/util/crypto"
-	"github.com/shiftdevices/godbb/util/random"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 	"github.com/stretchr/testify/assert"
 )
 

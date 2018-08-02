@@ -34,15 +34,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/backend/devices/bitbox/relay"
-	"github.com/shiftdevices/godbb/backend/devices/device"
-	keystoreInterface "github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonp"
-	"github.com/shiftdevices/godbb/util/logging"
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
 var (

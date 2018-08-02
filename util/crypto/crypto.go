@@ -23,7 +23,7 @@ import (
 	"crypto/sha256"
 	"io"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // pad pads the given bytes to the AES block size.

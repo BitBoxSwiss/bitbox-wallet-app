@@ -17,9 +17,9 @@ package test
 import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
 const xpub = "tpubDCxoQyC5JaGydxN3yprM6sgqgu65LruN3JBm1fnSmGxXR3AcuNwr" +

@@ -19,11 +19,11 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 
-	"github.com/shiftdevices/godbb/backend/coins/btc/addresses"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/maketx"
-	"github.com/shiftdevices/godbb/backend/coins/btc/transactions"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // TxValidationError represents errors in the tx proposal input data.

@@ -23,10 +23,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/jsonp"
-	"github.com/shiftdevices/godbb/util/locker"
-	"github.com/shiftdevices/godbb/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 

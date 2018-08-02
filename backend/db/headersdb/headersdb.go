@@ -20,8 +20,8 @@ import (
 
 	"github.com/btcsuite/btcd/wire"
 	bbolt "github.com/coreos/bbolt"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // DB is a bbolt key/value database.

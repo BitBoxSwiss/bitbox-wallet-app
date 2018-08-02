@@ -16,9 +16,9 @@ package btc_test
 
 // import (
 // 	"github.com/btcsuite/btcd/chaincfg"
-// 	"github.com/shiftdevices/godbb/backend/coins/btc"
-// 	blockchainMock "github.com/shiftdevices/godbb/backend/coins/btc/blockchain/mocks"
-// 	"github.com/shiftdevices/godbb/backend/keystore/mocks"
+// 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+// 	blockchainMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain/mocks"
+// 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/mocks"
 // 	"github.com/sirupsen/logrus"
 // 	"github.com/stretchr/testify/suite"
 // )

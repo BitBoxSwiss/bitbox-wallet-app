@@ -19,7 +19,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Configuration serializes and deserializes the logging parameters.

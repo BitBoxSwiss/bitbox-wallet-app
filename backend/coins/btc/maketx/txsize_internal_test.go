@@ -23,8 +23,8 @@ import (
 	"github.com/btcsuite/btcd/mempool"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	addressesTest "github.com/shiftdevices/godbb/backend/coins/btc/addresses/test"
-	"github.com/shiftdevices/godbb/backend/signing"
+	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/stretchr/testify/require"
 )
 

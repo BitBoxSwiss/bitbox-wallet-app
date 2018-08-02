@@ -18,7 +18,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/shiftdevices/godbb/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
 

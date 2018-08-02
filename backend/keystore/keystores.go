@@ -16,9 +16,9 @@ package keystore
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/backend/coins/coin"
-	"github.com/shiftdevices/godbb/backend/signing"
-	"github.com/shiftdevices/godbb/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Keystores models a collection of keystores that can be passed from a wallet to its accounts.

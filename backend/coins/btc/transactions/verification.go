@@ -18,8 +18,8 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/coins/btc/headers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 )
 
 func (transactions *Transactions) onHeadersEvent(event headers.Event) {

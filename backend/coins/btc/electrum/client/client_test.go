@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/stretchr/testify/require"
 )
 

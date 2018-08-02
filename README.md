@@ -1,6 +1,6 @@
-# godbb
+# BitBox Wallet App
 
-This repo contains the source code for the Shift Wallet and related tools.
+This repo contains the source code for the BitBox Wallet App and related tools.
 
 ## Tech Stack
 
@@ -47,7 +47,7 @@ The below instructions assume a unix environment.
 
 Make sure $GOPATH is set and $GOPAH/bin and $GOROOT/bin is in your $PATH
 
-Clone/move this repo to `$GOPATH/src/github.com/shiftdevices/godbb` (`$GOPATH` is usually `~/go`).
+Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
 
 Only the first time, set up the project with `make init`.
 
@@ -81,7 +81,7 @@ Run `dep ensure` to update dependencies.
 #### Update npm dependencies
 
 Check outdated dependencies `cd frontends/web && yarn outdated` and `yarn upgrade
-modulename@specificversion` or just upgrade everything by `yarn upgrade --latest`.
+modulename@specificversion`.
 
 ### Production build
 

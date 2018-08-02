@@ -16,8 +16,8 @@ package device
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/shiftdevices/godbb/backend/keystore"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
 // Event instances are sent to the onEvent callback.

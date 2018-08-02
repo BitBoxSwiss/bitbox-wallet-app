@@ -19,9 +19,9 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/locker"
-	"github.com/shiftdevices/godbb/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
 // CoinConfig holds configurations specific to a coin.

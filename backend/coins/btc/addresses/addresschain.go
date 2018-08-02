@@ -15,8 +15,8 @@
 package addresses
 
 import (
-	"github.com/shiftdevices/godbb/backend/coins/btc/blockchain"
-	"github.com/shiftdevices/godbb/backend/signing"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
 
 	"github.com/btcsuite/btcd/chaincfg"

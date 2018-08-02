@@ -14,7 +14,7 @@
 
 package maketx
 
-import "github.com/shiftdevices/godbb/backend/signing"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 
 func TstEstimateTxSize(inputCount int,
 	inputConfiguration *signing.Configuration,

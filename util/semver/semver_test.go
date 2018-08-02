@@ -17,7 +17,7 @@ package semver_test
 import (
 	"testing"
 
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/stretchr/testify/assert"
 )
 

@@ -18,8 +18,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/shiftdevices/godbb/util/errp"
-	"github.com/shiftdevices/godbb/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
 const updateFileURL = "https://shiftcrypto.ch/updates/desktop.json"
