@@ -1,7 +1,7 @@
 import { h } from 'preact';
 import i18n from '../../../i18n/i18n';
 import { Button } from '../../../components/forms';
-import { BitBox, Shift } from '../../../components/icon/logo';
+import { Shift } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 // import { Steps, Step } from './components/steps';
@@ -15,7 +15,6 @@ export default function Goal({
     return (
         <div class="contentWithGuide">
             <div className={[style.container, style.scrollable].join(' ')}>
-                <BitBox />
                 <div className={style.content} style="text-align: center;">
                     <h1 className={style.title}>{i18n.t('setup')}</h1>
                     {/*
@@ -33,6 +32,7 @@ export default function Goal({
                         <Button primary onClick={onCreate}>
                             {i18n.t('goal.buttons.create')}
                         </Button>
+                        or
                         <Button secondary onClick={onRestore}>
                             {i18n.t('goal.buttons.restore')}
                         </Button>

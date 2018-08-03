@@ -15,7 +15,6 @@
  */
 
 import { Component } from 'preact';
-import { BitBox } from '../icon/logo';
 import style from './Spinner.css';
 
 export default class Spinner extends Component {
@@ -40,13 +39,6 @@ export default class Spinner extends Component {
     }) {
         return (
             <div className={style.spinnerContainer}>
-                {
-                    showLogo && (
-                        <div className={style.logo} style={showLogo && 'visibility:visible'}>
-                            <BitBox  />
-                        </div>
-                    )
-                }
                 {
                     text && (
                         <p className={style.spinnerText}>{text}</p>
