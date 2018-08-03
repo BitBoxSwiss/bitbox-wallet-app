@@ -93,6 +93,7 @@ export default class Backups extends Component {
         return (
             <div class={['innerContainer'].join(' ')}>
                 <div class="content">
+                    Select <strong>wallet backup file</strong>
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
                             backupList.map(backup => (
@@ -106,6 +107,7 @@ export default class Backups extends Component {
                         }
                     </div>
                     <div class="buttons bottom">
+                        {children}
                         {
                             showCreate && (
                                 <Create
@@ -131,7 +133,6 @@ export default class Backups extends Component {
                           deviceID={deviceID}
                         />
                         */}
-                        {children}
                     </div>
                 </div>
             </div>
