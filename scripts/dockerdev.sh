@@ -19,7 +19,7 @@ dockerdev () {
 
     # If already running, enter the container.
     if docker ps | grep -q $container_name; then
-        docker exec -it $container_name /opt/go/src/github.com/shiftdevices/godbb/scripts/docker_init.sh
+        docker exec -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
         return
     fi
 
@@ -27,7 +27,7 @@ dockerdev () {
         docker rm $container_name
     fi
 
-    local repo_path="${GOPATH%%:*}/src/github.com/shiftdevices/godbb"
+    local repo_path="${GOPATH%%:*}/src/github.com/digitalbitbox/bitbox-wallet-app"
     docker run \
            --detach \
            --privileged -v /dev/bus/usb:/dev/bus/usb \
@@ -36,7 +36,7 @@ dockerdev () {
            --add-host="dev.shiftcrypto.ch:176.9.28.202" \
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
-           -v $repo_path:/opt/go/src/github.com/shiftdevices/godbb \
+           -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
            godbb bash
 
     # Call a second time to enter the container.
