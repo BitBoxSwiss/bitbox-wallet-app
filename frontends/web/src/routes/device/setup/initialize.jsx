@@ -4,11 +4,12 @@ import { apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Button } from '../../../components/forms';
 import Message from '../../../components/message/message';
-import { BitBox, Shift } from '../../../components/icon/logo';
+import { Shift } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
+import InnerHTMLHelper from '../../../utils/innerHTML';
 import style from '../device.css';
 
 const stateEnum = Object.freeze({
@@ -96,16 +97,20 @@ export default class Initialize extends Component {
 
         const content = showInfo ? (
             <div>
-                <h2>{t('initialize.info.title')}</h2>
-                <p>{t('initialize.info.description')}</p>
-                <Button primary onClick={this.handleStart}>
-                    {t('initialize.info.button')}
-                </Button>
-                <Button
-                    transparent
-                    onClick={goBack}>
-                    {t('button.back')}
-                </Button>
+                <h2>{t('initialize.info.subtitle')}</h2>
+                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_1')} />
+                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_2')} />
+                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_3')} />
+                <div className="buttons buttons-end">
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.back')}
+                    </Button>
+                    <Button primary onClick={this.handleStart}>
+                        {t('initialize.info.button')}
+                    </Button>
+                </div>
             </div>
         ) : (
             <form onSubmit={this.handleSubmit}>
@@ -118,17 +123,17 @@ export default class Initialize extends Component {
                     ref={ref => this.passwordInput = ref}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
-                <div>
+                <div className="buttons buttons-end">
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.back')}
+                    </Button>
                     <Button
                         type="submit"
                         primary
                         disabled={!password || status === stateEnum.WAITING}>
                         {t('initialize.create')}
-                    </Button>
-                    <Button
-                        transparent
-                        onClick={goBack}>
-                        {t('button.back')}
                     </Button>
                 </div>
             </form>
@@ -137,13 +142,13 @@ export default class Initialize extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <BitBox />
                     <div className={style.content}>
-                        <h1 className={style.title}>{t('setup')}</h1>
-                        <Steps current={0}>
+                        <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
+                        <Steps current={1}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
-                            <Step title={t(`goal.step.2_${goal}.title`)} description={t(`goal.step.2_${goal}.description`)} />
-                            <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)}  />
+                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
+                            <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
+                            <Step title={t(`goal.step.4_${goal}.title`)} description={t(`goal.step.4_${goal}.description`)} />
                         </Steps>
                         {formSubmissionState}
                         {content}
