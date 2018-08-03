@@ -1,4 +1,5 @@
 .footer {
+    min-height: 2rem;
     padding: var(--spacing-half) var(--spacing-default);
 }
 

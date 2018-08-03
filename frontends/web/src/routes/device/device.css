@@ -37,7 +37,7 @@
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
-    width: 440px;
+    max-width: 600px;
     overflow: auto;
     /* padding-top: var(--spacing-default); */
 }
@@ -45,6 +45,8 @@
 .content form {
     flex-grow: 1;
     flex-shrink: 1;
-    text-align: left;
+    margin: 0 auto;
     padding: 1rem;
+    text-align: left;
+    width: 420px;
 }
