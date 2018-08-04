@@ -25,7 +25,11 @@ ADD Makefile /tmp/
 RUN make -C /tmp/ envinit
 
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
-RUN apt-get -y install --no-install-recommends fuse && cd /opt && wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage && chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
+RUN apt-get -y install --no-install-recommends fuse && \
+    cd /opt && \
+    wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage && \
+    echo "c068b019a2bdb616df84775054d4149ea1832ace5db1f95e0e417ef27e01f980 /opt/linuxdeployqt-continuous-x86_64.AppImage" | sha256sum -c - && \
+    chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
 
 ENV PATH /opt/qt5/bin:$PATH
 
