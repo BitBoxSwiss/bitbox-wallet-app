@@ -17,6 +17,11 @@
 dockerdev () {
     local container_name=godbb-dev
 
+    if ! docker images | grep -q godbb; then
+        echo "No godbb docker image found! Maybe you need to run 'make dockerinit'?" >&2
+        exit 1
+    fi
+
     # If already running, enter the container.
     if docker ps | grep -q $container_name; then
         docker exec -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
