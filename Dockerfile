@@ -32,7 +32,7 @@ RUN apt-get -y install --no-install-recommends fuse && \
     chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
-RUN apt-get -y install --no-install-recommends ruby ruby-dev build-essential && gem install --no-ri --no-rdoc fpm
+RUN apt-get -y install --no-install-recommends ruby ruby-dev build-essential rpm && gem install --no-ri --no-rdoc fpm
 
 ENV PATH /opt/qt5/bin:$PATH
 
