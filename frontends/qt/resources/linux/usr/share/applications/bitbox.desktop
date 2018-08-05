@@ -4,5 +4,5 @@ Name=BitBox
 Exec=BitBox
 Icon=/usr/share/pixmaps/bitbox.svg
 Comment=Manage your crypto assets
-Categories=Utility;
+Categories=Network;Utility;Finance;
 Terminal=false
