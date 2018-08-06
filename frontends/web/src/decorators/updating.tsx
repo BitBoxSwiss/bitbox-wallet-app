@@ -58,71 +58,85 @@ export default function updating<Props, State>(
         return class UpdatingComponent extends Component<Props, any> {
             private determineEndpoints(): Endpoints {
                 if (typeof endpointsObjectOrFunction === "function") {
-                    return endpointsObjectOrFunction(this.props as any); // How to avoid this cast?
+                    return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;
             }
 
-            private unsubscribe: () => void;
-
-            private unsubscribeIfSubscribed() {
-                if (this.unsubscribe) {
-                    this.unsubscribe();
-                    delete this.unsubscribe;
-                }
-            }
-
             private endpoints: Endpoints;
 
-            private updateEndpoints(): void {
-                this.unsubscribeIfSubscribed();
-                this.unsubscribe = apiWebsocket(({ subject, action, object }) => {
-                    if (!subject || !action) {
-                        return;
-                    }
-                    for (const key of Object.keys(this.endpoints)) {
-                        if (subject === this.endpoints[key]) {
-                            switch (action) {
-                            case 'replace':
-                                this.setState({ [key]: object });
-                                break;
-                            case 'prepend':
-                                this.setState(state => ({ [key]: [object, ...state[key]] }));
-                                break;
-                            case 'append':
-                                this.setState(state => ({ [key]: [...state[key], object] }));
-                                break;
-                            case 'remove':
-                                this.setState(state => ({ [key]: state[key].filter(item => !equal(item, object)) }));
-                                break;
-                            case 'reload':
-                                apiGet(this.endpoints[key]).then(object => this.setState({ [key]: object }));
-                                break;
-                            }
-                        }
-                    };
-                });        
+            private subscriptions: { [key: string]: () => void } = {};
+
+            private unsubscribe(key: string) {
+                this.subscriptions[key]();
+                delete this.subscriptions[key];
             }
 
-            private updateEndpointsIfChanged(): void {
-                const newEndpoints = this.determineEndpoints();
-                if (!equal(newEndpoints, this.endpoints)) {
-                    this.endpoints = newEndpoints;
-                    this.updateEndpoints();
+            private unsubscribeIfSubscribed(key: string) {
+                if (this.subscriptions[key]) {
+                    this.unsubscribe(key);
                 }
+            }
+
+            private updateEndpoint(key: string, endpoint: string): void {
+                this.unsubscribeIfSubscribed(key);
+                this.subscriptions[key] = apiWebsocket(({ subject, action, object }) => {
+                    if (subject === endpoint) {
+                        switch (action) {
+                        case 'replace':
+                            this.setState({ [key]: object });
+                            break;
+                        case 'prepend':
+                            this.setState(state => ({ [key]: [object, ...state[key]] }));
+                            break;
+                        case 'append':
+                            this.setState(state => ({ [key]: [...state[key], object] }));
+                            break;
+                        case 'remove':
+                            this.setState(state => ({ [key]: state[key].filter(item => !equal(item, object)) }));
+                            break;
+                        case 'reload':
+                            apiGet(endpoint).then(object => this.setState({ [key]: object }));
+                            break;
+                        }
+                    }
+                });
+            }
+
+            private updateEndpoints(): void {
+                const oldEndpoints = this.endpoints;
+                const newEndpoints = this.determineEndpoints();
+                // Update the endpoints that were different or undefined before.
+                for (const key of Object.keys(newEndpoints)) {
+                    if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
+                        this.updateEndpoint(key, newEndpoints[key]);
+                    }
+                }
+                if (oldEndpoints != null) {
+                    // Remove endpoints that no longer exist from the state.
+                    for (const key of Object.keys(oldEndpoints)) {
+                        if (newEndpoints[key] === undefined) {
+                            this.unsubscribeIfSubscribed(key);
+                            this.setState({ [key]: undefined });
+                        }
+                    }
+                }
+                this.endpoints = newEndpoints;
             }
 
             public componentDidMount(): void {
-                this.updateEndpointsIfChanged();
+                this.updateEndpoints();
             }
 
             public componentDidUpdate(): void {
-                this.updateEndpointsIfChanged();
+                this.updateEndpoints();
             }
 
             public componentWillUnmount() {
-                this.unsubscribeIfSubscribed();
-            }        
+                for (const key of Object.keys(this.subscriptions)) {
+                    this.unsubscribe(key);
+                }
+            }
 
             public render(props: RenderableProps<Props>, state: any): JSX.Element {
                 const LoadingWrappedComponent = loading(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);

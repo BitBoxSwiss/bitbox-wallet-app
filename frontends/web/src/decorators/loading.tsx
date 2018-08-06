@@ -17,7 +17,6 @@
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
 import { Endpoints, EndpointsFunction } from './endpoints';
 import { apiGet } from '../utils/request';
-import { equal } from '../utils/equal';
 
 /**
  * Loads API endpoints into the props of the component that uses this decorator.
@@ -56,39 +55,49 @@ export default function loading<Props, State>(
         return class LoadingComponent extends Component<Props, any> {
             private determineEndpoints(): Endpoints {
                 if (typeof endpointsObjectOrFunction === "function") {
-                    return endpointsObjectOrFunction(this.props as any); // How to avoid this cast?
+                    return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;
             }
 
             private endpoints: Endpoints;
 
-            private loadEndpoints(): void {
-                for (const key of Object.keys(this.endpoints)) {
-                    apiGet(this.endpoints[key]).then(object => this.setState({ [key]: object }));
-                }
+            private loadEndpoint(key: string, endpoint: string): void {
+                apiGet(endpoint).then(object => this.setState({ [key]: object }));
             }
 
-            private loadEndpointsIfChanged(): void {
+            private loadEndpoints(): void {
+                const oldEndpoints = this.endpoints;
                 const newEndpoints = this.determineEndpoints();
-                if (!equal(newEndpoints, this.endpoints)) {
-                    this.endpoints = newEndpoints;
-                    this.loadEndpoints();
+                // Load the endpoints that were different or undefined before.
+                for (const key of Object.keys(newEndpoints)) {
+                    if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
+                        this.loadEndpoint(key, newEndpoints[key]);
+                    }
                 }
+                if (oldEndpoints != null) {
+                    // Remove endpoints that no longer exist from the state.
+                    for (const key of Object.keys(oldEndpoints)) {
+                        if (newEndpoints[key] === undefined) {
+                            this.setState({ [key]: undefined });
+                        }
+                    }
+                }
+                this.endpoints = newEndpoints;
             }
 
             public componentDidMount(): void {
-                this.loadEndpointsIfChanged();
+                this.loadEndpoints();
             }
 
             public componentDidUpdate(): void {
-                this.loadEndpointsIfChanged();
+                this.loadEndpoints();
             }
 
             private allEndpointsLoaded(): boolean {
-                if (!this.endpoints) { return false; }
+                if (this.endpoints == null) { return false; }
                 for (const key of Object.keys(this.endpoints)) {
-                    if (!this.state[key]) {
+                    if (this.state[key] === undefined) {
                         return false;
                     }
                 }
