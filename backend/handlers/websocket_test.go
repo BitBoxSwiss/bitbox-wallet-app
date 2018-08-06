@@ -30,7 +30,7 @@ import (
 func createWebsocketConn(t *testing.T) (client, server *websocket.Conn, cleanup func()) {
 	t.Helper()
 
-	// Start a dummy server, simulating godbb's backend.
+	// Start a dummy server, simulating the app's backend.
 	// chConn will have at most one item and then closed.
 	chConn := make(chan *websocket.Conn)
 	testServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +44,7 @@ func createWebsocketConn(t *testing.T) (client, server *websocket.Conn, cleanup 
 		chConn <- wsConn
 	}))
 
-	// Setup a dummy websocket client, simulating godbb's frontend.
+	// Setup a dummy websocket client, simulating the app's frontend.
 	url := "ws:" + strings.TrimPrefix(testServer.URL, "http:")
 	clientConn, _, err := websocket.DefaultDialer.Dial(url, nil)
 	if err != nil {

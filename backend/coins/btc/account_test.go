@@ -47,7 +47,7 @@ package btc_test
 // 		panic(err)
 // 	}
 
-// 	db, err := transactionsdb.NewDB(test.TstTempFile("godbb-db-"))
+// 	db, err := transactionsdb.NewDB(test.TstTempFile("bitbox-wallet-db-"))
 // 	if err != nil {
 // 		panic(err)
 // 	}

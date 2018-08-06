@@ -34,4 +34,4 @@ function docker_exec {
     wait $PID
 }
 
-docker_exec godbb-dev make -C /opt/go/src/github.com/shiftdevices/godbb/ "$@"
+docker_exec bitbox-wallet-dev make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ "$@"

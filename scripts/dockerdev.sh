@@ -15,10 +15,10 @@
 
 
 dockerdev () {
-    local container_name=godbb-dev
+    local container_name=bitbox-wallet-dev
 
-    if ! docker images | grep -q godbb; then
-        echo "No godbb docker image found! Maybe you need to run 'make dockerinit'?" >&2
+    if ! docker images | grep -q bitbox-wallet; then
+        echo "No bitbox-wallet docker image found! Maybe you need to run 'make dockerinit'?" >&2
         exit 1
     fi
 
@@ -42,7 +42,7 @@ dockerdev () {
            --add-host="dev1.shiftcrypto.ch:176.9.28.155" \
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
            -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
-           godbb bash
+           bitbox-wallet bash
 
     # Call a second time to enter the container.
     dockerdev

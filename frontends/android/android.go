@@ -24,7 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 )
 
-// Serve serves the godbb API for use in a mobile client.
+// Serve serves the BitBox Wallet API for use in a mobile client.
 func Serve() {
 	log := logging.Get().WithGroup("android")
 	token, err := random.HexString(16)
