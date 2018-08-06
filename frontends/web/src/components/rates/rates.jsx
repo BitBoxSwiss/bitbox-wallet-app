@@ -32,7 +32,7 @@ export default class Rates extends Component {
         if (coin.length === 4 && coin.startsWith('T')) {
             coin = coin.substring(1);
         }
-        if (!rates || !rates[coin]) {
+        if (!rates[coin]) {
             return null;
         }
         const value = rates[coin][fiat.code] * Number(amount.amount);
