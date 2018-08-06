@@ -19,18 +19,18 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
+	"github.com/gorilla/mux"
 )
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
 	connectionData := handlers.NewConnectionData(8082, "")
 	backend := backend.NewBackend(arguments.NewArguments(
-		test.TstTempDir("godbb-listroutes-"), false, false, false, false))
+		test.TstTempDir("bitbox-wallet-listroutes-"), false, false, false, false))
 	handlers := handlers.NewHandlers(backend, connectionData)
 	err := handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()

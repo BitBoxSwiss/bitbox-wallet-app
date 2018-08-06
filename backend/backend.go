@@ -65,7 +65,7 @@ type WalletEvent struct {
 	Data string `json:"data"`
 }
 
-// Backend ties everything together and is the main starting point to use the godbb library.
+// Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
 	arguments *arguments.Arguments
 

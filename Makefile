@@ -60,6 +60,6 @@ ci:
 ci-fast:
 	./scripts/ci.sh --fast
 dockerinit:
-	docker build --pull --force-rm -t godbb .
+	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:
 	./scripts/dockerdev.sh
