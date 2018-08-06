@@ -156,7 +156,7 @@ export default class Settings extends Component {
                                     <DeviceLock
                                         deviceID={deviceID}
                                         onLock={() => this.setState({ lock: true })}
-                                        disabled={lock} />
+                                        disabled={lock || !paired} />
                                 </div>
 
                                 <hr />
