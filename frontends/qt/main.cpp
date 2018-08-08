@@ -54,6 +54,15 @@ int main(int argc, char *argv[])
 //     qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", QByteArray("1"));
 // #endif // QT_VERSION
 
+// QT configuration parameters which change the attack surface for memory
+// corruption vulnerabilities
+#if QT_VERSION >= QT_VERSION_CHECK(5,8,0)
+    qputenv("QMLSCENE_DEVICE", "softwarecontext");
+    qputenv("QT_QUICK_BACKEND", "software");
+    qputenv("QT_ENABLE_REGEXP_JIT", "0");
+    qputenv("QV4_FORCE_INTERPRETER", "1");
+#endif
+
     QApplication a(argc, argv);
     a.setApplicationName(QString("BitBox Wallet"));
     a.setOrganizationDomain("shiftcrypto.ch");
