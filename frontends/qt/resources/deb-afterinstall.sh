@@ -6,3 +6,6 @@ printf "KERNEL==\"hidraw*\", SUBSYSTEM==\"hidraw\", ATTRS{idVendor}==\"03eb\", A
 
 udevadm control --reload
 udevadm trigger
+
+echo "/opt/bitbox" > /etc/ld.so.conf.d/bitbox.conf
+ldconfig
