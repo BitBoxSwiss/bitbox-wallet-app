@@ -15,6 +15,17 @@
 SHELL:=/bin/bash
 WEBROOT:=`pwd`/frontends/web
 
+SECURITYFLAGS = "-O2 -D_FORTIFY_SOURCE=2 "
+SECURITYFLAGS += " -fstack-protector-all -fwrapv -fPIC -fPIE "
+SECURITYFLAGS += " -fstack-check "
+EXTLDFLAGS:="-Wl,-z,now,-z,relro,-z,noexecstack,-z,noexecheap,-z,defs,-pie,-s,--verbose"
+export CXXFLAGS += ${SECURITYFLAGS}
+export CFLAGS += ${SECURITYFLAGS}
+export LFLAGS += ${EXTLDFLAGS}
+export QMAKE_CXXFLAGS = ${SECURITYFLAGS}
+export QMAKE_FLAGS = ${SECURITYFLAGS}
+export QMAKE_LDFLAGS = ${EXTLDFLAGS}
+
 catch:
 	@echo "Choose a make target."
 envinit:
