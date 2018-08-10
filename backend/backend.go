@@ -20,7 +20,6 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"golang.org/x/text/language"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -33,6 +32,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"

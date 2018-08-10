@@ -141,7 +141,7 @@ func getAppFolder() string {
 	case "windows":
 		appFolder = os.Getenv("APPDATA")
 	case "darwin":
-		// Usually /home/<User>/Library/Application Support
+		// Usually /Users/<User>/Library/Application Support
 		appFolder = os.Getenv("HOME") + "/Library/Application Support"
 	case "linux":
 		if os.Getenv("XDG_CONFIG_HOME") != "" {
@@ -151,9 +151,7 @@ func getAppFolder() string {
 			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
 		}
 	}
-	appFolder = path.Join(appFolder, "bitbox")
-	logging.Get().WithGroup("arguments").Info("appFolder: ", appFolder)
-	return appFolder
+	return path.Join(appFolder, "bitbox")
 }
 
 //export serve
@@ -167,7 +165,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	flag.Parse()
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
-	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).Info("environment")
+	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).WithField("version", backend.Version).Info("environment")
 	var err error
 	token, err = random.HexString(16)
 	if err != nil {
