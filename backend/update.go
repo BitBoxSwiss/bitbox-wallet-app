@@ -62,7 +62,7 @@ func (backend *Backend) checkForUpdate() error {
 		return errp.WithStack(err)
 	}
 
-	if *update.NewVersion != *Version {
+	if !Version.AtLeast(update.NewVersion) {
 		update.CurrentVersion = Version
 		backend.events <- updateEvent{Type: "update", Data: update}
 	}
