@@ -823,13 +823,20 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 		return nil, errp.WithStack(errNoBootloader)
 	}
 	reply, err := dbb.sendKV("backup", "list", dbb.pin)
+	var filenames []interface{}
 	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
-	}
-	filenames, ok := reply["backup"].([]interface{})
-	if !ok {
-		dbb.log.Error("Unexpected reply: field 'backup' is missing")
-		return nil, errp.New("unexpected reply")
+		if err.Error() == "Could not open the directory." {
+			filenames = []interface{}{}
+		} else {
+			return nil, errp.WithMessage(err, "Failed to retrieve list of backups")
+		}
+	} else {
+		var ok bool
+		filenames, ok = reply["backup"].([]interface{})
+		if !ok {
+			dbb.log.Error("Unexpected reply: field 'backup' is missing")
+			return nil, errp.New("unexpected reply")
+		}
 	}
 	filenamesAndDate := []map[string]string{}
 	for _, filename := range filenames {
