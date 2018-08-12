@@ -26,6 +26,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/btcsuite/btcd/btcec"
@@ -101,10 +102,10 @@ type DeviceInfo struct {
 }
 
 // Device provides the API to communicate with the digital bitbox.
+// It is not safe for concurrent use.
 type Device struct {
 	deviceID      string
 	communication CommunicationInterface
-	onEvent       func(device.Event, interface{})
 
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
@@ -127,9 +128,18 @@ type Device struct {
 	// The password policy for the wallet recovery password.
 	recoveryPasswordPolicy *PasswordPolicy
 
-	// If set, the channel can be used to communicate to the mobile.
-	channel *relay.Channel
+	// BitBox desktop app config directory.
+	// Used to read/store channel settings.
+	// TODO: merge this with backend/config.
+	channelConfigDir string
 
+	mu sync.RWMutex
+	// If set, the channel can be used to communicate to the mobile.
+	// Channel readers should prefer accessing it using mobileChannel method.
+	channel *relay.Channel
+	// Device state change callback. Set in SetOnEvent.
+	onEvent func(device.Event, interface{})
+	// Indicates whether Close was called.
 	closed bool
 
 	log *logrus.Entry
@@ -138,10 +148,14 @@ type Device struct {
 // NewDevice creates a new instance of Device.
 // bootloader enables the bootloader API and should be true only if the device is in bootloader mode.
 // communication is used for transporting messages to/from the device.
+//
+// The channelConfigDir is the location of the channel settings file.
+// Callers can use util/config.DirectoryPath to obtain user standard config dir.
 func NewDevice(
 	deviceID string,
 	bootloader bool,
 	version *semver.SemVer,
+	channelConfigDir string,
 	communication CommunicationInterface) (*Device, error) {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
@@ -155,15 +169,14 @@ func NewDevice(
 		bootloaderStatus: bootloaderStatus,
 		version:          version,
 		communication:    communication,
-		onEvent:          nil,
-		channel:          relay.NewChannelFromConfigFile(),
-
-		closed: false,
-		log:    log,
+		closed:           false,
+		channel:          relay.NewChannelFromConfigFile(channelConfigDir),
+		channelConfigDir: channelConfigDir,
+		log:              log,
 	}
 
 	if device.channel != nil {
-		device.ListenForMobile()
+		go device.listenForMobile()
 	}
 
 	if !bootloader {
@@ -213,12 +226,20 @@ func (dbb *Device) setPasswordPolicy(testing bool) {
 
 // SetOnEvent installs a callback which is called for various events.
 func (dbb *Device) SetOnEvent(onEvent func(device.Event, interface{})) {
+	dbb.mu.Lock()
+	defer dbb.mu.Unlock()
 	dbb.onEvent = onEvent
 }
 
+// fireEvent calls dbb.onEvent callback if non-nil.
+// It blocks for the entire duration of the call.
+// The read-only lock is released before calling dbb.onEvent.
 func (dbb *Device) fireEvent(event device.Event, data interface{}) {
-	if dbb.onEvent != nil {
-		dbb.onEvent(event, data)
+	dbb.mu.RLock()
+	f := dbb.onEvent
+	dbb.mu.RUnlock()
+	if f != nil {
+		f(event, data)
 	}
 }
 
@@ -256,6 +277,8 @@ func (dbb *Device) Status() Status {
 
 // Close closes the HID device.
 func (dbb *Device) Close() {
+	dbb.mu.Lock()
+	defer dbb.mu.Unlock()
 	dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID}).Debug("Close connection")
 	dbb.communication.Close()
 	dbb.closed = true
@@ -998,15 +1021,15 @@ func (dbb *Device) signBatch(
 		return nil, errp.WithMessage(err, "Failed to sign batch (1)")
 	}
 
-	if txProposal != nil && dbb.channel != nil {
+	mobchan := dbb.mobileChannel()
+	if txProposal != nil && txProposal.AccountConfiguration.Singlesig() && mobchan != nil {
 		signingEcho, ok := echo["echo"].(string)
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
-		if txProposal.AccountConfiguration.Singlesig() {
-			if err = dbb.channel.SendSigningEcho(signingEcho, txProposal.Coin.Name(), string(txProposal.AccountConfiguration.ScriptType()), transaction); err != nil {
-				return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
-			}
+		typ := string(txProposal.AccountConfiguration.ScriptType())
+		if err := mobchan.SendSigningEcho(signingEcho, txProposal.Coin.Name(), typ, transaction); err != nil {
+			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
 		}
 	}
 
@@ -1214,13 +1237,21 @@ func (dbb *Device) ECDHchallenge() error {
 
 // StartPairing creates, stores and returns a new channel and finishes the pairing asynchronously.
 func (dbb *Device) StartPairing() (*relay.Channel, error) {
+	var removed bool
+	dbb.mu.Lock()
 	if dbb.channel != nil {
-		if err := dbb.channel.RemoveConfigFile(); err != nil {
+		if err := dbb.channel.RemoveConfigFile(dbb.channelConfigDir); err != nil {
+			dbb.mu.Unlock()
 			return nil, errp.WithStack(err)
 		}
 		dbb.channel = nil
+		removed = true
+	}
+	dbb.mu.Unlock()
+	if removed {
 		dbb.fireEvent("pairingFalse", nil)
 	}
+
 	channel := relay.NewChannelWithRandomKey()
 	go dbb.processPairing(channel)
 	return channel, nil
@@ -1228,34 +1259,50 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 
 // Paired returns whether a channel to a mobile exists.
 func (dbb *Device) Paired() bool {
-	return dbb.channel != nil
+	return dbb.mobileChannel() != nil
 }
 
 // PingMobile pings the mobile if a channel exists. Only returns no error if the pong was received.
 func (dbb *Device) PingMobile() error {
-	if dbb.channel != nil {
-		if err := dbb.channel.SendPing(); err != nil {
-			return err
-		}
-		if err := dbb.channel.WaitForPong(time.Second); err != nil {
-			return err
-		}
+	mob := dbb.mobileChannel()
+	if mob == nil {
+		return errp.New("bitbox: device's mobile channel is nil")
 	}
-	return nil
+	if err := mob.SendPing(); err != nil {
+		return err
+	}
+	return mob.WaitForPong(time.Second)
 }
 
-// ListenForMobile listens for the mobile until the BitBox is closed or the channel is removed.
-func (dbb *Device) ListenForMobile() {
-	go func() {
-		for !dbb.closed && dbb.channel != nil {
-			if dbb.PingMobile() != nil {
-				dbb.fireEvent("mobileDisconnected", nil)
-			} else {
-				dbb.fireEvent("mobileConnected", nil)
-			}
-			time.Sleep(10 * time.Second)
+// listenForMobile runs an endless loop, periodically pinging the mobile channel
+// until the BitBox is closed or the channel is removed.
+// Each loop iteration results in either "mobileConnected" or "mobileDisconnected" event.
+//
+// It is run in a separate goroutine in NewDevice and dbb.FinishPairing.
+func (dbb *Device) listenForMobile() {
+	for {
+		dbb.mu.RLock()
+		ok := !dbb.closed && dbb.channel != nil
+		dbb.mu.RUnlock()
+		if !ok {
+			return
 		}
-	}()
+
+		if dbb.PingMobile() != nil {
+			dbb.fireEvent("mobileDisconnected", nil)
+		} else {
+			dbb.fireEvent("mobileConnected", nil)
+		}
+		time.Sleep(10 * time.Second)
+	}
+}
+
+// mobileChannel is a helper which returns dbb's mobile channel or nil.
+// It is safe for concurrent use.
+func (dbb *Device) mobileChannel() *relay.Channel {
+	dbb.mu.RLock()
+	defer dbb.mu.RUnlock()
+	return dbb.channel
 }
 
 // ProductName implements device.Interface.

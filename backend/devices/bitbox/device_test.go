@@ -12,18 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bitbox_test
+package bitbox
 
 import (
 	"encoding/hex"
 	"encoding/json"
+	"io/ioutil"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
 	"testing"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
@@ -34,7 +37,7 @@ import (
 )
 
 var (
-	firmwareVersion = semver.NewSemVer(4, 0, 0)
+	firmVer400 = semver.NewSemVer(4, 0, 0)
 )
 
 const (
@@ -44,24 +47,44 @@ const (
 	stretchedKey     = "e3306aa321df2b4ae9ee131b385c19d73d41b92678c554ba9ec1737e6d141381465b881e3fec3d4edda3d93609ca5ec4e625a5a56107ab6e0f5019b199aa0fdb"
 )
 
+// mustTempDir creates a new temp directory with the given prefix and returns its path.
+func mustTempDir(prefix string) string {
+	dir, err := ioutil.TempDir("", prefix)
+	if err != nil {
+		panic(err.Error()) // should never happen
+	}
+	return dir
+}
+
 type dbbTestSuite struct {
 	suite.Suite
 	mockCommunication *mocks.CommunicationInterface
-	dbb               *bitbox.Device
+	mockCommClosed    bool
+	configDir         string
+	dbb               *Device
 
 	log *logrus.Entry
 }
 
 func (s *dbbTestSuite) SetupTest() {
+	s.configDir = mustTempDir("dbb_device_test")
 	s.log = logging.Get().WithGroup("bitbox_test")
 	s.mockCommunication = new(mocks.CommunicationInterface)
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil).
 		Once()
-	dbb, err := bitbox.NewDevice(deviceID, false, firmwareVersion, s.mockCommunication)
+	s.mockCommunication.On("Close").Run(func(mock.Arguments) {
+		s.mockCommClosed = true
+	})
+	dbb, err := NewDevice(deviceID, false /* bootloader */, firmVer400, s.configDir, s.mockCommunication)
 	dbb.Init(true)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
+}
+
+func (s *dbbTestSuite) TearDownTest() {
+	s.dbb.Close()
+	os.RemoveAll(s.configDir)
 }
 
 func TestDBBTestSuite(t *testing.T) {
@@ -69,7 +92,7 @@ func TestDBBTestSuite(t *testing.T) {
 }
 
 func (s *dbbTestSuite) TestNewDBBDevice() {
-	require.Equal(s.T(), bitbox.StatusUninitialized, s.dbb.Status())
+	require.Equal(s.T(), StatusUninitialized, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) TestDeviceID() {
@@ -99,7 +122,7 @@ func AssertPanicWithMessage(s *dbbTestSuite, expectedError string) {
 
 func (s *dbbTestSuite) TestSetPassword() {
 	require.NoError(s.T(), s.login())
-	require.Equal(s.T(), bitbox.StatusLoggedIn, s.dbb.Status())
+	require.Equal(s.T(), StatusLoggedIn, s.dbb.Status())
 }
 
 func (s *dbbTestSuite) login() error {
@@ -221,7 +244,7 @@ func (s *dbbTestSuite) TestSignSingle() {
 
 func (s *dbbTestSuite) mockDeviceInfo() {
 	deviceInfoMap := map[string]interface{}{"TFA": "", "U2F": false}
-	_ = json.Unmarshal(jsonp.MustMarshal(&bitbox.DeviceInfo{}), &deviceInfoMap)
+	_ = json.Unmarshal(jsonp.MustMarshal(&DeviceInfo{}), &deviceInfoMap)
 	s.mockCommunication.On(
 		"SendEncrypt",
 		jsonArgumentMatcher(map[string]interface{}{"device": "info"}),
@@ -334,4 +357,62 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	signatures, err := s.dbb.Sign(nil, signatureHashes, keypaths)
 	require.NoError(s.T(), err)
 	require.Len(s.T(), signatures, 16)
+}
+
+func (s *dbbTestSuite) TestDeviceClose() {
+	require.False(s.T(), s.dbb.closed, "s.dbb.closed")
+	s.dbb.Close()
+	require.True(s.T(), s.dbb.closed, "s.dbb.closed")
+	require.True(s.T(), s.mockCommClosed, "s.mockCommClosed")
+}
+
+func (s *dbbTestSuite) TestDeviceStatusEvent() {
+	s.dbb.onStatusChanged() // just make sure it doesn't block or panic
+	var fired, seen bool
+	s.dbb.SetOnEvent(func(e device.Event, data interface{}) {
+		fired = true
+		if !seen && e == EventStatusChanged {
+			seen = true
+		}
+	})
+	s.dbb.onStatusChanged()
+	require.True(s.T(), fired, "onEvent fired")
+	require.True(s.T(), seen, "EventStatusChanged")
+}
+
+func TestNewDeviceReadsChannel(t *testing.T) {
+	configDir := mustTempDir("dbb_device_test")
+	defer os.RemoveAll(configDir)
+	mobchan := relay.NewChannelWithRandomKey()
+	if err := mobchan.StoreToConfigFile(configDir); err != nil {
+		t.Fatal(err)
+	}
+
+	// TODO: Also run a relay server stub when available instead of hitting prod server; see TestPingMobile.
+	comm := new(mocks.CommunicationInterface)
+	comm.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
+		Return(map[string]interface{}{"ping": ""}, nil)
+	comm.On("Close")
+	dbb, err := NewDevice("test-device-id", false /* bootloader */, firmVer400, configDir, comm)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer dbb.Close()
+
+	if dbb.mobileChannel() == nil {
+		t.Error("dbb.mobileChannel() returned nil")
+	}
+	if id := dbb.mobileChannel().ChannelID; id != mobchan.ChannelID {
+		t.Errorf("channel ID = %q; want %q", id, mobchan.ChannelID)
+	}
+}
+
+func (s *dbbTestSuite) TestListenForMobile() {
+	// TODO: Need to be able to replace relay.DefaultServer URL in tests.
+	s.T().Skip("implement once relay server URL can be replaced in testing")
+}
+
+func (s *dbbTestSuite) TestPingMobile() {
+	// TODO: Need to be able to replace relay.DefaultServer URL in tests.
+	s.T().Skip("implement once relay server URL can be replaced in testing")
 }

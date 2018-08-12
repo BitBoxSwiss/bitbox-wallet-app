@@ -76,8 +76,8 @@ func NewChannelWithRandomKey() *Channel {
 
 // NewChannelFromConfigFile returns a new channel with the channel identifier and encryption key
 // from the config file or nil if the config file does not exist.
-func NewChannelFromConfigFile() *Channel {
-	configFile := config.NewFile(configFileName)
+func NewChannelFromConfigFile(configDir string) *Channel {
+	configFile := config.NewFile(configDir, configFileName)
 	if configFile.Exists() {
 		var configuration configuration
 		if err := configFile.ReadJSON(&configuration); err != nil {
@@ -88,16 +88,18 @@ func NewChannelFromConfigFile() *Channel {
 	return nil
 }
 
-// StoreToConfigFile stores the channel to the config file.
-func (channel *Channel) StoreToConfigFile() error {
+// StoreToConfigFile stores the channel to the config file located in the provided configDir.
+// Callers can use config.DirectoryPath to obtain standard user location config dir.
+func (channel *Channel) StoreToConfigFile(configDir string) error {
 	configuration := newConfiguration(channel)
-	configFile := config.NewFile(configFileName)
+	configFile := config.NewFile(configDir, configFileName)
 	return configFile.WriteJSON(configuration)
 }
 
 // RemoveConfigFile removes the config file.
-func (channel *Channel) RemoveConfigFile() error {
-	return config.NewFile(configFileName).Remove()
+// Callers can use config.DirectoryPath to obtain standard user location config dir.
+func (channel *Channel) RemoveConfigFile(configDir string) error {
+	return config.NewFile(configDir, configFileName).Remove()
 }
 
 // relayServer returns the configured relay server.

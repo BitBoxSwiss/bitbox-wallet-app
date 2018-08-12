@@ -22,9 +22,10 @@ import (
 	"runtime"
 )
 
-// DirectoryPath returns the absolute path to the application's directory.
+// DirectoryPath returns the absolute path to the application's directory
+// in the user standard config location.
 func DirectoryPath() string {
-	switch goos := runtime.GOOS; goos {
+	switch runtime.GOOS {
 	case "darwin":
 		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "bitbox")
 	case "windows":
@@ -36,17 +37,19 @@ func DirectoryPath() string {
 
 // File models a config file in the application's directory.
 type File struct {
+	dir  string
 	name string
 }
 
-// NewFile creates a new config file with the given name in the application's directory.
-func NewFile(name string) *File {
-	return &File{name}
+// NewFile creates a new config file with the given name in the application's directory dir.
+// Callers can use DirectoryPath function to use a standard user config dir.
+func NewFile(dir, name string) *File {
+	return &File{dir: dir, name: name}
 }
 
 // Path returns the absolute path to the config file.
 func (file *File) Path() string {
-	return filepath.Join(DirectoryPath(), file.name)
+	return filepath.Join(file.dir, file.name)
 }
 
 // Exists checks whether the file exists with suitable permissions as a file and not as a directory.
@@ -76,7 +79,7 @@ func (file *File) ReadJSON(object interface{}) error {
 
 // write writes the given data to the config file (and creates parent directories if necessary).
 func (file *File) write(data []byte) error {
-	if err := os.MkdirAll(DirectoryPath(), os.ModePerm); err != nil {
+	if err := os.MkdirAll(file.dir, 0700); err != nil {
 		return err
 	}
 	return ioutil.WriteFile(file.Path(), data, 0600)

@@ -23,13 +23,18 @@ import (
 // finishPairing finalizes the persistence of the pairing configuration, actively listens on the
 // mobile channel and fires an event to indicate pairing success or failure.
 func (device *Device) finishPairing(channel *relay.Channel) {
-	if err := channel.StoreToConfigFile(); err != nil {
+	device.mu.Lock()
+	if err := channel.StoreToConfigFile(device.channelConfigDir); err != nil {
+		device.mu.Unlock() // fireEvent below needs read-lock
 		device.log.WithError(err).Error("Failed to store the channel config file.")
 		device.fireEvent(EventPairingError, nil)
 		return
 	}
 	device.channel = channel
-	device.ListenForMobile()
+	// Release lock early to let the next calls proceed without being blocked.
+	device.mu.Unlock()
+
+	go device.listenForMobile()
 	device.fireEvent(EventPairingSuccess, nil)
 }
 
