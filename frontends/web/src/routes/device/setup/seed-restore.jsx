@@ -67,21 +67,29 @@ export default class SeedRestore extends Component {
             <div class="contentWithGuide">
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <div className={style.content}>
-                        <h1 className={style.title}>{t('seedRestore.title')}</h1>
                         <Steps current={2}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
+                            <Step divider />
                             <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)} />
+                            <Step divider />
                             <Step title={t(`goal.step.4_restore.title`)} description={t(`goal.step.4_restore.description`)} />
                         </Steps>
-                        <Message type={status === STATUS.ERROR && 'error'}>
-                            { error }
-                        </Message>
+                        <hr />
+                        {
+                            error && (
+                                <Message type={status === STATUS.ERROR && 'error'}>
+                                    { error }
+                                </Message>
+                            )
+                        }
+                        <h1 className={style.title}>{t('seedRestore.title')}</h1>
                         {showInfo ? (
-                            <div>
+                            <div class={style.block}>
                                 <h2>{t('seedRestore.info.title')}</h2>
                                 <p>{t('seedRestore.info.description')}</p>
-                                <div className="buttons buttons-end">
+                                <div className={['buttons buttons-end', style.buttons].join(' ')}>
                                     <Button
                                         transparent
                                         onClick={goBack}>
@@ -97,7 +105,8 @@ export default class SeedRestore extends Component {
                                 showCreate={false}
                                 displayError={this.displayError}
                                 deviceID={deviceID}
-                                requireConfirmation={false}>
+                                requireConfirmation={false}
+                                fillSpace>
                                 <Button
                                     transparent
                                     onClick={goBack}>
