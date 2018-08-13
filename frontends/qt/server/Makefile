@@ -1,7 +1,7 @@
 SECURITYFLAGS = " -O2 -D_FORTIFY_SOURCE=2 "
 SECURITYFLAGS += " -fstack-protector-all -fPIC -fPIE"
 SECURITYFLAGS += " -fstack-check "
-EXTLDFLAGS:="-Wl,-z,now,-z,relro,-z,noexecstack,-z,noexecheap,-z,defs,-pie,-s,--verbose"
+EXTLDFLAGS:="-Wl,-z,now,-z,relro,-z,noexecstack,-z,noexecheap,-z,defs,-pie,-s,--verbose,-E"
 CXXFLAGS += ${SECURITYFLAGS}
 CFLAGS += ${SECURITYFLAGS}
 LFLAGS += ${EXTLDFLAGS}
