@@ -74,6 +74,7 @@ export default class Backups extends Component {
         deviceID,
         children,
         requireConfirmation = true,
+        fillSpace,
     }, {
         backupList,
         selectedBackup,
@@ -96,8 +97,7 @@ export default class Backups extends Component {
         }
 
         return (
-            <div class={['innerContainer'].join(' ')}>
-                <div class="content">
+            <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
                     <InnerHTMLHelper tagName="p" html={t('backup.description')} />
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
@@ -111,7 +111,7 @@ export default class Backups extends Component {
                             ))
                         }
                     </div>
-                    <div class="buttons bottom">
+                    <div class="buttons buttons-end bottom">
                         {children}
                         {
                             showCreate && (
@@ -139,7 +139,6 @@ export default class Backups extends Component {
                         />
                         */}
                     </div>
-                </div>
             </div>
         );
     }

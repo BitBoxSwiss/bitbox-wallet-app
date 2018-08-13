@@ -24,7 +24,8 @@
 
 .title {
     margin-top: 0;
-    text-align: center;
+    margin-bottom: var(--spacing-large);
+    /*text-align: center;*/
 }
 
 .heading {
@@ -38,15 +39,55 @@
     flex-grow: 1;
     flex-shrink: 1;
     max-width: 600px;
+    width: 100%;
     overflow: auto;
     /* padding-top: var(--spacing-default); */
 }
 
 .content form {
-    flex-grow: 1;
+    /*flex-grow: 1;
     flex-shrink: 1;
     margin: 0 auto;
     padding: 1rem;
     text-align: left;
-    width: 420px;
+    width: 420px;*/
+    flex: 1;
+}
+
+.verticalButtons {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.verticalButtons button:first-child {
+    margin-bottom: var(--spacing-default);
+}
+
+.block {
+    flex: 1;
+}
+
+.block p:first-child,
+.block h2:first-child {
+    margin-top: 0;
+}
+
+.block p:last-child {
+    margin-bottom: var(--spacing-large);
+}
+
+.list {
+    padding-left: 18px;
+}
+
+.list li:not(:first-child) {
+    margin-top: var(--spacing-half);
+}
+
+.buttons {
+    margin-bottom: 0;
+    margin-top: var(--spacing-large);
 }
