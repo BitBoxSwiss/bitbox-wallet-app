@@ -25,7 +25,7 @@ export default class Initialize extends Component {
         password: null,
         status: stateEnum.DEFAULT,
         errorCode: null,
-        errorMessage: ''
+        errorMessage: '',
     }
 
     handleSubmit = event => {
@@ -96,12 +96,12 @@ export default class Initialize extends Component {
         }
 
         const content = showInfo ? (
-            <div>
+            <div className={style.block}>
                 <h2>{t('initialize.info.subtitle')}</h2>
                 <InnerHTMLHelper tagName="p" html={t('initialize.info.description_1')} />
                 <InnerHTMLHelper tagName="p" html={t('initialize.info.description_2')} />
                 <InnerHTMLHelper tagName="p" html={t('initialize.info.description_3')} />
-                <div className="buttons buttons-end">
+                <div className={['buttons buttons-end', style.buttons].join(' ')}>
                     <Button
                         transparent
                         onClick={goBack}>
@@ -123,7 +123,7 @@ export default class Initialize extends Component {
                     ref={ref => this.passwordInput = ref}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
-                <div className="buttons buttons-end">
+                <div className={['buttons buttons-end', style.buttons].join(' ')}>
                     <Button
                         transparent
                         onClick={goBack}>
@@ -143,17 +143,21 @@ export default class Initialize extends Component {
             <div class="contentWithGuide">
                 <div className={style.container}>
                     <div className={style.content}>
-                        <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
                         <Steps current={1}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
+                            <Step divider />
                             <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
+                            <Step divider />
                             <Step title={t(`goal.step.4_${goal}.title`)} description={t(`goal.step.4_${goal}.description`)} />
                         </Steps>
+                        <hr />
                         {formSubmissionState}
+                        <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
                         {content}
                         <hr />
-                        <Footer>
+                        <Footer bottomSpace>
                             <Shift />
                         </Footer>
                     </div>

@@ -4,36 +4,53 @@
 
 .steps {
     display: flex;
-    flex-shrink: 0;
-    margin-bottom: var(--spacing-default);
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    /*margin-bottom: var(--spacing-default);*/
     width: 100%;
 }
 
-.step {
-    display: inline-flex;
-    flex: 1 1 auto;
-    margin-right: 16px;
-    overflow: hidden;
-    white-space: nowrap;
+.divider {
+    margin: 0 var(--spacing-half);
+    color: rgba(0, 0, 0, .25);
 }
 
-.step:last-child {
-    flex: none;
-    margin-right: 0;
+.step {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+}
+
+.step:first-child {
+    border-radius: 2px 0 0 2px;
+}
+
+.step:not(:last-child) {
+
+}
+
+.step.process .stepContent {
+    font-weight: bold;
 }
 
 .stepIcon {
-    border: 1px solid rgba(0, 0, 0, .25);
-    border-radius: 32px;
+    border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
     font-size: 14px;
     height: var(--icon-size);
+    width: var(--icon-size);
     line-height: var(--icon-size);
     text-align: center;
     transition: background-color .3s, border-color .3s;
     vertical-align: top;
-    width: var(--icon-size);
+}
+
+.wait .stepIcon {
+    border: 1px solid rgba(0, 0, 0, .25);
 }
 
 .stepIcon > span {
@@ -42,39 +59,32 @@
     position: relative;
 }
 
+.stepIcon > img {
+    width: 100%;
+    height: 100%;
+}
+
 .stepContent {
-    display: inline-block;
-    vertical-align: top;
-}
-
-.stepTitle {
-    display: inline-block;
-    line-height: var(--icon-size);
-    min-height: 1.5rem;
     position: relative;
-}
-
-.stepTitle:after {
-    background: #e8e8e8;
-    content: "";
-    display: block;
-    height: 1px;
-    left: 100%;
-    margin-left: 16px;
-    top: 12px;
-    position: absolute;
-    width: 9999px;
-}
-
-.stepDescription {
+    line-height: 1;
+    margin: 0 0 0 var(--spacing-half);
     font-size: var(--size-small);
-    max-width: 150px;
+    width: min-content;
+    min-width: 78px;
+}
+
+.title {
+    font-weight: bold;
+}
+
+.description {
+    display: block;
     white-space: normal;
 }
 
 .padding {
-    display: inline-block;
-    padding-left: var(--spacing-half);
+    /*display: inline-block;
+    padding-left: var(--spacing-half);*/
 }
 
 .finish .stepIcon {

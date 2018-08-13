@@ -138,14 +138,14 @@ export default class SeedCreateNew extends Component {
         agreements,
     }) {
         const content = showInfo ? (
-            <div>
+            <div class={style.block}>
                 <ol>
                     <li>{t('seed.info.description_1')}</li>
                     <li>{t('seed.info.description_2')}</li>
                 </ol>
                 <p>{t('seed.info.description_3')}</p>
                 <p>{t('seed.info.description_4')}</p>
-                <div className="buttons buttons-end">
+                <div className={['buttons buttons-end', style.buttons].join(' ')}>
                     <Button
                         transparent
                         onClick={goBack}>
@@ -215,16 +215,24 @@ export default class SeedCreateNew extends Component {
             <div class="contentWithGuide">
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <div className={style.content}>
-                        <h1 className={style.title}>{t('seed.info.title')}</h1>
                         <Steps current={2}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step divider />
                             <Step title={t(`goal.step.2.title`)} description={t(`goal.step.2.description`)} />
+                            <Step divider />
                             <Step title={t(`goal.step.3_create.title`)} description={t(`goal.step.3_create.description`)} />
+                            <Step divider />
                             <Step title={t(`goal.step.4_create.title`)} description={t(`goal.step.4_create.description`)} />
                         </Steps>
-                        <Message type={status === STATUS.ERROR && 'error'}>
-                            { error }
-                        </Message>
+                        <hr />
+                        {
+                            error && (
+                                <Message type={status === STATUS.ERROR && 'error'}>
+                                    { error }
+                                </Message>
+                            )
+                        }
+                        <h1 className={style.title}>{t('seed.info.title')}</h1>
                         {content}
                         <hr />
                         <Footer>

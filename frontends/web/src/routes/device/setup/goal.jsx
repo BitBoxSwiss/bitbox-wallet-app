@@ -14,7 +14,7 @@ export default function Goal({
     const title = i18n.t('goal.title');
     return (
         <div class="contentWithGuide">
-            <div className={[style.container, style.scrollable].join(' ')}>
+            <div className={[style.container].join(' ')}>
                 <div className={style.content} style="text-align: center;">
                     <h1 className={style.title}>{i18n.t('setup')}</h1>
                     {/*
@@ -24,21 +24,24 @@ export default function Goal({
                         <Step  />
                     </Steps>
                       */}
-                    { title && (
-                        <h2>{title}</h2>
-                    )}
-                    <p>{i18n.t('goal.paragraph')}</p>
-                    <div className="buttons">
-                        <Button primary onClick={onCreate}>
-                            {i18n.t('goal.buttons.create')}
-                        </Button>
-                        or
-                        <Button secondary onClick={onRestore}>
-                            {i18n.t('goal.buttons.restore')}
-                        </Button>
+                    <div class={style.block}>
+                        {
+                            title && (
+                                <h2>{title}</h2>
+                            )
+                        }
+                        <p>{i18n.t('goal.paragraph')}</p>
+                        <div class={style.verticalButtons}>
+                            <Button primary onClick={onCreate}>
+                                {i18n.t('goal.buttons.create')}
+                            </Button>
+                            <Button secondary onClick={onRestore}>
+                                {i18n.t('goal.buttons.restore')}
+                            </Button>
+                        </div>
                     </div>
                     <hr />
-                    <Footer>
+                    <Footer bottomSpace>
                         <Shift />
                     </Footer>
                 </div>
