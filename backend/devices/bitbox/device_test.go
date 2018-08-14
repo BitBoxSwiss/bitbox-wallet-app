@@ -17,7 +17,6 @@ package bitbox
 import (
 	"encoding/hex"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"reflect"
 	"strconv"
@@ -30,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -47,15 +47,6 @@ const (
 	stretchedKey     = "e3306aa321df2b4ae9ee131b385c19d73d41b92678c554ba9ec1737e6d141381465b881e3fec3d4edda3d93609ca5ec4e625a5a56107ab6e0f5019b199aa0fdb"
 )
 
-// mustTempDir creates a new temp directory with the given prefix and returns its path.
-func mustTempDir(prefix string) string {
-	dir, err := ioutil.TempDir("", prefix)
-	if err != nil {
-		panic(err.Error()) // should never happen
-	}
-	return dir
-}
-
 type dbbTestSuite struct {
 	suite.Suite
 	mockCommunication *mocks.CommunicationInterface
@@ -67,7 +58,7 @@ type dbbTestSuite struct {
 }
 
 func (s *dbbTestSuite) SetupTest() {
-	s.configDir = mustTempDir("dbb_device_test")
+	s.configDir = test.TstTempDir("dbb_device_test")
 	s.log = logging.Get().WithGroup("bitbox_test")
 	s.mockCommunication = new(mocks.CommunicationInterface)
 	s.mockCommunication.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
@@ -383,7 +374,7 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 }
 
 func TestNewDeviceReadsChannel(t *testing.T) {
-	configDir := mustTempDir("dbb_device_test")
+	configDir := test.TstTempDir("dbb_device_test")
 	defer os.RemoveAll(configDir)
 	mobchan := relay.NewChannelWithRandomKey()
 	if err := mobchan.StoreToConfigFile(configDir); err != nil {
