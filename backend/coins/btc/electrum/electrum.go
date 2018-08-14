@@ -19,6 +19,7 @@ import (
 	"crypto/x509"
 	"io"
 	"net"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
@@ -67,13 +68,46 @@ func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	return conn, nil
 }
 
-func newTLSConnection(address string, pemCert string) (*tls.Conn, error) {
+func newTLSConnection(address string, rootCert string) (*tls.Conn, error) {
 	caCertPool := x509.NewCertPool()
-	if ok := caCertPool.AppendCertsFromPEM([]byte(pemCert)); !ok {
+	if ok := caCertPool.AppendCertsFromPEM([]byte(rootCert)); !ok {
 		return nil, errp.New("Failed to append CA cert as trusted cert")
 	}
 	conn, err := tls.Dial("tcp", address, &tls.Config{
-		RootCAs: caCertPool,
+		RootCAs:            caCertPool,
+		InsecureSkipVerify: true, // Not actually skipping, we check the cert in VerifyPeerCertificate
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			// Code copy/pasted and adapted from
+			// https://github.com/golang/go/blob/81555cb4f3521b53f9de4ce15f64b77cc9df61b9/src/crypto/tls/handshake_client.go#L327-L344, but adapted to skip the hostname verification.
+			// See https://github.com/golang/go/issues/21971#issuecomment-412836078.
+
+			// If this is the first handshake on a connection, process and
+			// (optionally) verify the server's certificates.
+			certs := make([]*x509.Certificate, len(rawCerts))
+			for i, asn1Data := range rawCerts {
+				cert, err := x509.ParseCertificate(asn1Data)
+				if err != nil {
+					return errp.New("bitbox/electrum: failed to parse certificate from server: " + err.Error())
+				}
+				certs[i] = cert
+			}
+
+			opts := x509.VerifyOptions{
+				Roots:         caCertPool,
+				CurrentTime:   time.Now(),
+				DNSName:       "", // <- skip hostname verification
+				Intermediates: x509.NewCertPool(),
+			}
+
+			for i, cert := range certs {
+				if i == 0 {
+					continue
+				}
+				opts.Intermediates.AddCert(cert)
+			}
+			_, err := certs[0].Verify(opts)
+			return err
+		},
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
