@@ -38,12 +38,16 @@ export default class Backups extends Component {
     }
 
     refresh = () => {
-        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, }) => {
-            this.setState({
-                selectedBackup: null,
-                sdCardInserted,
-                backupList,
-            });
+        apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
+            if (success) {
+                this.setState({
+                    selectedBackup: null,
+                    sdCardInserted,
+                    backupList,
+                });
+            } else if (errorMessage) {
+                alert(errorMessage);
+            }
         });
     }
 

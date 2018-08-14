@@ -161,11 +161,12 @@ func (handlers *Handlers) getBackupListHandler(_ *http.Request) (interface{}, er
 	backupList, err := handlers.bitbox.BackupList()
 	sdCardInserted := !bitbox.IsErrorSDCard(err)
 	if sdCardInserted && err != nil {
-		return nil, err
+		return maybeDBBErr(err, handlers.log), nil
 	}
 	handlers.log.WithFields(logrus.Fields{"sdCardInserted": sdCardInserted, "backupList": backupList}).
 		Debug("Get backup list")
 	return map[string]interface{}{
+		"success":        true,
 		"sdCardInserted": sdCardInserted,
 		"backupList":     backupList,
 	}, nil
