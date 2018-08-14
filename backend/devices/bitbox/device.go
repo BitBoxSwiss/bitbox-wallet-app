@@ -823,7 +823,6 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 		return nil, errp.WithStack(errNoBootloader)
 	}
 	reply, err := dbb.sendKV("backup", "list", dbb.pin)
-	const errSDOpenDir = 403
 	if dbbErr, ok := errp.Cause(err).(*Error); ok && dbbErr.Code == errSDOpenDir {
 		return []map[string]string{}, nil
 	}

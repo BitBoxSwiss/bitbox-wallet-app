@@ -32,6 +32,10 @@ const (
 
 	// ErrSDNoMatch is returned when the backup check fails.
 	ErrSDNoMatch = 410
+
+	// errSDOpenDir is returned when the digitalbitbox directory is missing on the SD card, when
+	// listing the backups.
+	errSDOpenDir = 403
 )
 
 // Error wraps an error by the bitbox.
