@@ -76,6 +76,7 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommunication.On("Close").Run(func(mock.Arguments) {
 		s.mockCommClosed = true
 	})
+	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false /* bootloader */, firmVer400, s.configDir, s.mockCommunication)
 	dbb.Init(true)
 	require.NoError(s.T(), err)
@@ -361,6 +362,7 @@ func (s *dbbTestSuite) TestSignSixteen() {
 
 func (s *dbbTestSuite) TestDeviceClose() {
 	require.False(s.T(), s.dbb.closed, "s.dbb.closed")
+	require.False(s.T(), s.mockCommClosed, "s.mockCommClosed")
 	s.dbb.Close()
 	require.True(s.T(), s.dbb.closed, "s.dbb.closed")
 	require.True(s.T(), s.mockCommClosed, "s.mockCommClosed")
