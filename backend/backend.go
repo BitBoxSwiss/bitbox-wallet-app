@@ -37,7 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
-	utilconf "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -472,8 +471,7 @@ func (backend *Backend) Deregister(deviceID string) {
 }
 
 func (backend *Backend) listenHID() {
-	// TODO: Merge utilconf with backend/config and/or arguments.ConfigFilename.
-	usb.NewManager(utilconf.DirectoryPath(), backend.Register, backend.Deregister).ListenHID()
+	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).ListenHID()
 }
 
 // Rates return the latest rates.

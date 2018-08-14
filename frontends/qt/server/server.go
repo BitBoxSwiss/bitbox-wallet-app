@@ -42,14 +42,12 @@ import (
 	"flag"
 	"net"
 	"net/http"
-	"os"
-	"path"
-	"path/filepath"
 	"runtime"
 	"runtime/debug"
 	"strings"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
@@ -134,26 +132,6 @@ func backendCall(queryID C.int, s *C.char) {
 	}()
 }
 
-// getAppFolder returns the production application folder.
-func getAppFolder() string {
-	var appFolder string
-	switch runtime.GOOS {
-	case "windows":
-		appFolder = os.Getenv("APPDATA")
-	case "darwin":
-		// Usually /Users/<User>/Library/Application Support
-		appFolder = os.Getenv("HOME") + "/Library/Application Support"
-	case "linux":
-		if os.Getenv("XDG_CONFIG_HOME") != "" {
-			// Usually /home/<User>/.config/
-			appFolder = os.Getenv("XDG_CONFIG_HOME")
-		} else {
-			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
-		}
-	}
-	return path.Join(appFolder, "bitbox")
-}
-
 //export serve
 func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) C.struct_ConnectionData {
 	responseCallback = theResponseCallback
@@ -178,7 +156,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	const port = -1
 	connectionData := backendHandlers.NewConnectionData(port, token)
 	theBackend := backend.NewBackend(arguments.NewArguments(
-		getAppFolder(), *testnet, false, false, false))
+		config.AppDir(), *testnet, false, false, false))
 	events := theBackend.Events()
 	go func() {
 		for {

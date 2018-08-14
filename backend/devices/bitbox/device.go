@@ -130,7 +130,6 @@ type Device struct {
 
 	// BitBox desktop app config directory.
 	// Used to read/store channel settings.
-	// TODO: merge this with backend/config.
 	channelConfigDir string
 
 	mu sync.RWMutex
@@ -150,7 +149,7 @@ type Device struct {
 // communication is used for transporting messages to/from the device.
 //
 // The channelConfigDir is the location of the channel settings file.
-// Callers can use util/config.DirectoryPath to obtain user standard config dir.
+// Callers can use util/config.AppDir to obtain user standard config dir.
 func NewDevice(
 	deviceID string,
 	bootloader bool,
