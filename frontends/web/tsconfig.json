@@ -5,6 +5,7 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "allowJs": true,
+        "checkJs": true,
         "jsx": "react",
         "jsxFactory": "h",
         "experimentalDecorators": true
