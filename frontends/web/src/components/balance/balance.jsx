@@ -16,9 +16,11 @@
 
 import Rates from '../../components/rates/rates';
 import style from './balance.css';
+import infoIcon from './info.png';
 
 export default function Balance({
     t,
+    code,
     name,
     balance,
     fiat,
@@ -30,7 +32,7 @@ export default function Balance({
     }
     return (
         <header className={style.balance}>
-            <div class={['label', style.label].join(' ')}>{name}</div>
+            <div class={[style.accountName, 'label'].join(' ')}>{name} <a href={`/account/${code}/info`}><img src={infoIcon} class={style.accountInfo}/></a></div>
             <table className={style.balanceTable}>
                 <tr>
                     <td className={style.availableAmount}>{balance.available.amount}</td>

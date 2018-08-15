@@ -27,6 +27,7 @@ import Device from './routes/device/device';
 import Account from './routes/account/account';
 import Send from './routes/account/send/send';
 import Receive from './routes/account/receive/receive';
+import Info from './routes/account/info/info';
 import Settings from './routes/settings/settings';
 import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
@@ -227,6 +228,11 @@ export default class App extends Component {
                         <Receive
                             path="/account/:code/receive"
                             deviceIDs={deviceIDs}
+                            accounts={accounts}
+                            guide={guide}
+                            fiat={fiat} />
+                        <Info
+                            path="/account/:code/info"
                             accounts={accounts}
                             guide={guide}
                             fiat={fiat} />

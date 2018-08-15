@@ -140,6 +140,7 @@ export default class Account extends Component {
 
     render({
         t,
+        code,
         accounts,
         deviceIDs,
         guide,
@@ -165,19 +166,20 @@ export default class Account extends Component {
                         <div class="header">
                             <Balance
                                 t={t}
+                                code={code}
                                 name={wallet.name}
                                 balance={balance}
                                 fiat={fiat} />
                             <div class={componentStyle.buttons} style="align-self: flex-end;">
                                 <ButtonLink
                                     primary
-                                    href={`/account/${this.props.code}/receive`}
+                                    href={`/account/${code}/receive`}
                                     disabled={!walletInitialized}>
                                     {t('button.receive')}
                                 </ButtonLink>
                                 <ButtonLink
                                     primary
-                                    href={`/account/${this.props.code}/send`}
+                                    href={`/account/${code}/send`}
                                     disabled={!walletInitialized || balance && balance.available.amount === '0'}>
                                     {t('button.send')}
                                 </ButtonLink>

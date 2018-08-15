@@ -110,3 +110,11 @@
         line-height: 1;
     }
 }
+
+.accountName {
+    font-size: var(--size-medium) !important;
+}
+
+.accountInfo {
+    vertical-align: middle;
+}

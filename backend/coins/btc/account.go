@@ -26,6 +26,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/sirupsen/logrus"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
@@ -47,6 +48,7 @@ const (
 
 // Interface is the API of a Account.
 type Interface interface {
+	Info() *Info
 	Code() string
 	Coin() *Coin
 	Init() error
@@ -273,6 +275,64 @@ func (account *Account) Init() error {
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
 	return nil
+}
+
+// Info holds account information.
+type Info struct {
+	SigningConfiguration *signing.Configuration `json:"signingConfiguration"`
+}
+
+func (account *Account) xpubVersionForScriptType(scriptType signing.ScriptType) [4]byte {
+	switch account.coin.Net().Net {
+	case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
+		versions := map[signing.ScriptType][4]byte{
+			signing.ScriptTypeP2PKH:      [4]byte{0x04, 0x88, 0xb2, 0x1e}, // xpub
+			signing.ScriptTypeP2WPKHP2SH: [4]byte{0x04, 0x9d, 0x7c, 0xb2}, // ypub
+			signing.ScriptTypeP2WPKH:     [4]byte{0x04, 0xb2, 0x47, 0x46}, // zpub
+		}
+		version, ok := versions[scriptType]
+		if !ok {
+			return versions[signing.ScriptTypeP2PKH]
+		}
+		return version
+	case chaincfg.TestNet3Params.Net:
+		return chaincfg.TestNet3Params.HDPublicKeyID
+	case ltc.TestNet4Params.Net:
+		return ltc.TestNet4Params.HDPublicKeyID
+	default:
+		return chaincfg.MainNetParams.HDPublicKeyID
+	}
+}
+
+// Info returns account info, such as the signing configuration (xpubs).
+func (account *Account) Info() *Info {
+	// The internal extended key representation always uses he same version bytes (prefix xpub). We
+	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
+	xpubs := []*hdkeychain.ExtendedKey{}
+	for _, xpub := range account.signingConfiguration.ExtendedPublicKeys() {
+		if xpub.IsPrivate() {
+			panic("xpub can't be private")
+		}
+		xpubStr := xpub.String()
+		xpubCopy, err := hdkeychain.NewKeyFromString(xpubStr)
+		if err != nil {
+			panic(err)
+		}
+		xpubCopy.SetNet(
+			&chaincfg.Params{
+				HDPublicKeyID: account.xpubVersionForScriptType(account.signingConfiguration.ScriptType()),
+			},
+		)
+		xpubs = append(xpubs, xpubCopy)
+	}
+	return &Info{
+		SigningConfiguration: signing.NewConfiguration(
+			account.signingConfiguration.ScriptType(),
+			account.signingConfiguration.AbsoluteKeypath(),
+			xpubs,
+			account.signingConfiguration.SigningThreshold(),
+		),
+	}
 }
 
 func (account *Account) onNewHeader(header *blockchain.Header) error {

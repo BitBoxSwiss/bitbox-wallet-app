@@ -38,6 +38,7 @@ export default class Send extends Component {
         super(props);
 
         this.state = {
+            balance: null,
             amount: null,
             feeTarget: null,
             proposedFee: null,
@@ -321,6 +322,7 @@ export default class Send extends Component {
                         <div class="header">
                             <Balance
                                 t={t}
+                                code={code}
                                 name={wallet.name}
                                 balance={balance}
                                 fiat={fiat} />
