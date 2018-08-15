@@ -309,8 +309,8 @@
         "abort": "The transaction has been aborted."
     },
     "accountInfo": {
-        "title": "Info",
-        "extendedPublicKey": "Extended Publickey"
+        "title": "Account Information",
+        "extendedPublicKey": "Extended Public Key"
     },
     "seed": {
         "info": {
@@ -604,10 +604,10 @@
         ],
         "accountInfo": [
             {
-                "title": "What is an extended publickey?",
+                "title": "What is an extended public key?",
                 "text": [
                     "An extended public key is a root key from which all receiving addresses of an account are derived.",
-                    "They are provided here for advanced use and interopatibility with watch-only wallets, such as Electrum or Sentinel."
+                    "It is provided here for advanced use and interoperability with watch-only wallets, such as Electrum or Sentinel."
                 ]
             }
         ],
