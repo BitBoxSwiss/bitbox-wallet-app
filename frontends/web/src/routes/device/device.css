@@ -10,16 +10,20 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
-    padding: 4rem 4rem 0 4rem;
+    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
 }
 
 .scrollable {
-    /*overflow: auto;*/
-    padding-bottom: var(--spacing-default);
+    overflow: auto;
+    /*padding-bottom: var(--spacing-default);*/
 }
 
 .agreements {
     margin-bottom: var(--spacing-default);
+}
+
+.agreementsLabel {
+    margin: var(--spacing-half) 0;
 }
 
 .title {

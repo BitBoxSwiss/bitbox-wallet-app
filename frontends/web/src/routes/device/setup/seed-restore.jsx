@@ -115,7 +115,7 @@ export default class SeedRestore extends Component {
                             </Backups>
                         )}
                         <hr />
-                        <Footer>
+                        <Footer bottomSpace>
                             <Shift />
                         </Footer>
                     </div>

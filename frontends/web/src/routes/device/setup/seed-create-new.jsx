@@ -25,6 +25,7 @@ import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
+import warning from '../../../assets/icons/warning.png';
 import style from '../device.css';
 
 const STATUS = Object.freeze({
@@ -178,7 +179,10 @@ export default class SeedCreateNew extends Component {
                         onValidPassword={this.setValidBackupPassword} />
                 </div>
                 <div class={style.agreements}>
-                    <p>{t('seed.description')}</p>
+                    <div class="flex flex-row flex-start flex-items-center">
+                        <img src={warning} style="width: 18px; margin-right: 10px; position: relative; bottom: 1px;" />
+                        <p class={style.agreementsLabel}>{t('seed.description')}</p>
+                    </div>
                     <Checkbox
                         id="password_change"
                         label={t('seed.agreements.password_change')}
@@ -235,7 +239,7 @@ export default class SeedCreateNew extends Component {
                         <h1 className={style.title}>{t('seed.info.title')}</h1>
                         {content}
                         <hr />
-                        <Footer>
+                        <Footer bottomSpace>
                             <Shift />
                         </Footer>
                     </div>
