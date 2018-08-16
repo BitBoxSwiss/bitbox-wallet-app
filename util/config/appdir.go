@@ -20,10 +20,13 @@ import (
 	"runtime"
 )
 
-// AppDir returns the absolute path to the default BitBox desktop app directory
-// in the user standard config location.
-func AppDir() string {
-	var appFolder string
+// appFolder is what AppDir always returns. It is initialized only once
+// in the init func.
+//
+// Also useful to replace with a temp dir in tests.
+var appFolder string
+
+func init() {
 	switch runtime.GOOS {
 	case "darwin":
 		// Usually /Users/$USER/Library/Application Support.
@@ -48,5 +51,11 @@ func AppDir() string {
 			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
 		}
 	}
-	return filepath.Join(appFolder, "bitbox")
+	appFolder = filepath.Join(appFolder, "bitbox")
+}
+
+// AppDir returns the absolute path to the default BitBox desktop app directory
+// in the user standard config location.
+func AppDir() string {
+	return appFolder
 }
