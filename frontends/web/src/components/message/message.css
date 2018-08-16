@@ -1,8 +1,8 @@
 .message {
-    text-align: center;
-    border: solid 1px var(--color-brightgray);;
+    /*text-align: center;*/
+    /*border: solid 1px var(--color-brightgray);
     border-radius: 2px;
-    padding: var(--spacing-half) 0;
+    padding: var(--spacing-half) 0;*/
     margin-bottom: var(--spacing-default);
 }
 
