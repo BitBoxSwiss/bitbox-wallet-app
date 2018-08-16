@@ -42,8 +42,10 @@ import (
 )
 
 const (
-	gapLimit       = 20
-	changeGapLimit = 6
+	gapLimit = 20
+	// Normally the same
+	receiveAddressesLimit = 20
+	changeGapLimit        = 6
 )
 
 // Interface is the API of a Account.
@@ -260,15 +262,20 @@ func (account *Account) Init() error {
 		account.coin.Net(), account.db, account.headers, account.synchronizer,
 		account.blockchain, account.log)
 
-	account.receiveAddresses = addresses.NewAddressChain(
-		account.signingConfiguration, account.coin.Net(), gapLimit, 0, account.log)
-
+	fixGapLimit := gapLimit
 	fixChangeGapLimit := changeGapLimit
 	if account.signingConfiguration.Singlesig() && account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
 		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
-		account.log.Warning("increased change gap limit to 20 for BWS compatibility")
 		fixChangeGapLimit = 20
+
+		// usually 20, but BWS used to not have any limit. We put it fairly high to cover most
+		// outliers.
+		fixGapLimit = 60
+		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
 	}
+
+	account.receiveAddresses = addresses.NewAddressChain(
+		account.signingConfiguration, account.coin.Net(), fixGapLimit, 0, account.log)
 	account.log.Debug("creating change address chain structure")
 	account.changeAddresses = addresses.NewAddressChain(
 		account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
@@ -546,7 +553,8 @@ func (account *Account) GetUnusedReceiveAddresses() []*addresses.AccountAddress 
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
-	return account.receiveAddresses.GetUnused()
+	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
+	return account.receiveAddresses.GetUnused()[:gapLimit]
 }
 
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
