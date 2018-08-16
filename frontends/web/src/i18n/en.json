@@ -645,6 +645,10 @@
                 "text": [ "You can remove the SD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup." ]
             },
             {
+                "title": "What is a hidden wallet?",
+                "text": [ "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
+            },
+            {
                 "title": "How to securely pair with your phone",
                 "text": [ "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app." ]
             },
@@ -657,10 +661,6 @@
             {
                 "title": "How can I disable the two factor authorization (2FA)?",
                 "text": [ "In order to disable the two factor authorization, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
-            },
-            {
-                "title": "What is a hidden wallet?",
-                "text": [ "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required." ]
             }
         ],
         "backups": [
