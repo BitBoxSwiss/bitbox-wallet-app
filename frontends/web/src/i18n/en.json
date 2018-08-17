@@ -659,8 +659,8 @@
                 ]
             },
             {
-                "title": "How can I disable the two factor authorization (2FA)?",
-                "text": [ "In order to disable the two factor authorization, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
+                "title": "How can I disable Two Factor Authorization (2FA)?",
+                "text": [ "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
             }
         ],
         "backups": [
