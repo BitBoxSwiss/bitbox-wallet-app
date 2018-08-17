@@ -16,7 +16,7 @@
 
 import i18n from '../i18n/i18n';
 import { extConfig } from './config';
-import { call } from './qttransport';
+import { call, runningInQtWebEngine } from './qttransport';
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');
@@ -50,7 +50,7 @@ function handleError(endpoint) {
 }
 
 export function apiGet(endpoint) {
-    if (typeof qt !== 'undefined') {
+    if (runningInQtWebEngine) {
         return call(JSON.stringify({
             method: 'GET',
             endpoint,
@@ -62,7 +62,7 @@ export function apiGet(endpoint) {
 }
 
 export function apiPost(endpoint, body) {
-    if (typeof qt !== 'undefined') {
+    if (runningInQtWebEngine) {
         return call(JSON.stringify({
             method: 'POST',
             endpoint,

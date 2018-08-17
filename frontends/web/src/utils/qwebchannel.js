@@ -39,6 +39,7 @@
 ****************************************************************************/
 
 /* eslint-disable */
+// @ts-nocheck
 
 var QWebChannelMessageTypes = {
     signal: 1,

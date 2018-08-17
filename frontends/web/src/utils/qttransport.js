@@ -22,6 +22,12 @@ let queryID = 0;
 let queryPromises = {};
 let currentListeners = [];
 
+/**
+ * Stores whether the code is running in QtWebEngine.
+ */
+// @ts-ignore
+export const runningInQtWebEngine = typeof qt !== 'undefined';
+
 function initTransport() {
     return new Promise((resolve, reject) => {
         if (webChannel) {
@@ -35,7 +41,7 @@ function initTransport() {
                 }
             };
             check();
-        } else if (typeof qt !== 'undefined') { // qt defined if running in qtwebengine.
+        } else if (runningInQtWebEngine) {
             const initWebChannel = function(channel){ // eslint-disable-line func-style
                 webChannel = channel;
                 webChannel.objects.backend.gotResponse.connect(function(queryID, response) {
@@ -48,6 +54,7 @@ function initTransport() {
                 });
                 resolve(webChannel);
             };
+            // @ts-ignore
             cache = new QWebChannel(qt.webChannelTransport, initWebChannel); // eslint-disable-line no-undef
         } else {
             reject();

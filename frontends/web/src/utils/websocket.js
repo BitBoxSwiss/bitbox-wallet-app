@@ -15,13 +15,13 @@
  */
 
 import { apiPort, apiToken, isTLS } from './request';
-import { qtSubscribePushNotifications } from './qttransport';
+import { qtSubscribePushNotifications, runningInQtWebEngine } from './qttransport';
 
 let socket = null;
 const currentListeners = [];
 
 export function apiWebsocket(msgCallback) {
-    if (typeof qt !== 'undefined') {
+    if (runningInQtWebEngine) {
         return qtSubscribePushNotifications(msgCallback);
     }
     currentListeners.push(msgCallback);
