@@ -58,7 +58,7 @@
 }
 
 .balanceTable .availableAmount {
-    font-size: var(--size-extra-large);
+    font-size: var(--size-large);
     padding-right: var(--spacing-half);
     text-align: right;
 }
