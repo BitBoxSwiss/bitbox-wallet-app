@@ -14,9 +14,15 @@
 # limitations under the License.
 
 
-# Call this script in the directory of a package. A html page will be
-# opened, showing the coverage of that package.
+# Call this script in the directory of a package or provide package paths
+# as positional arguments. For instance, to check coverage on all backend
+# packages, use the following:
+#
+#     scripts/coverage.sh ./backend/...
+#
+# An html page will be opened, showing the coverage of the indicated
+# packages.
 
-go test -coverprofile=coverage.cov .
+go test -coverprofile=coverage.cov "$@"
 go tool cover -html=coverage.cov
 rm coverage.cov
