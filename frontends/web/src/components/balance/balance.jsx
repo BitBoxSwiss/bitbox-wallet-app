@@ -32,7 +32,12 @@ export default function Balance({
     }
     return (
         <header className={style.balance}>
-            <div class={[style.accountName, 'label'].join(' ')}>{name} <a href={`/account/${code}/info`}><img src={infoIcon} class={style.accountInfo}/></a></div>
+            <div class={style.accountName}>
+                <span>{name}</span>
+                <a href={`/account/${code}/info`}>
+                    <img src={infoIcon} class={style.accountInfo}/>
+                </a>
+            </div>
             <table className={style.balanceTable}>
                 <tr>
                     <td className={style.availableAmount}>{balance.available.amount}</td>

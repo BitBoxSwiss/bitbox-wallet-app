@@ -112,9 +112,20 @@
 }
 
 .accountName {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.accountName span {
     font-size: var(--size-medium) !important;
+    color: var(--color-secondary);
+    line-height: 1;
+    margin-right: var(--spacing-half);
+    margin-bottom: 5px;
 }
 
 .accountInfo {
-    vertical-align: middle;
+    height: var(--size-medium);
 }
