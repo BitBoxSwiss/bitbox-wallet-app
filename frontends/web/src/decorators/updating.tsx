@@ -16,7 +16,7 @@
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
 import { Endpoints, EndpointsFunction } from './endpoints';
-import { apiWebsocket } from '../utils/websocket';
+import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { equal } from '../utils/equal';
 import loading from './loading';
@@ -80,25 +80,23 @@ export default function updating<Props, State>(
 
             private updateEndpoint(key: string, endpoint: string): void {
                 this.unsubscribeIfSubscribed(key);
-                this.subscriptions[key] = apiWebsocket(({ subject, action, object }) => {
-                    if (subject === endpoint) {
-                        switch (action) {
-                        case 'replace':
-                            this.setState({ [key]: object });
-                            break;
-                        case 'prepend':
-                            this.setState(state => ({ [key]: [object, ...state[key]] }));
-                            break;
-                        case 'append':
-                            this.setState(state => ({ [key]: [...state[key], object] }));
-                            break;
-                        case 'remove':
-                            this.setState(state => ({ [key]: state[key].filter(item => !equal(item, object)) }));
-                            break;
-                        case 'reload':
-                            apiGet(endpoint).then(object => this.setState({ [key]: object }));
-                            break;
-                        }
+                this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
+                    switch (event.action) {
+                    case 'replace':
+                        this.setState({ [key]: event.object });
+                        break;
+                    case 'prepend':
+                        this.setState(state => ({ [key]: [event.object, ...state[key]] }));
+                        break;
+                    case 'append':
+                        this.setState(state => ({ [key]: [...state[key], event.object] }));
+                        break;
+                    case 'remove':
+                        this.setState(state => ({ [key]: state[key].filter(item => !equal(item, event.object)) }));
+                        break;
+                    case 'reload':
+                        apiGet(event.subject).then(object => this.setState({ [key]: object }));
+                        break;
                     }
                 });
             }
