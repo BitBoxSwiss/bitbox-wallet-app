@@ -55,7 +55,8 @@ func DeviceInfos() []hid.DeviceInfo {
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
-	devices map[string]device.Interface
+	devices          map[string]device.Interface
+	channelConfigDir string // passed to each device during initialization
 
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
@@ -65,15 +66,20 @@ type Manager struct {
 
 // NewManager creates a new Manager. onRegister is called when a device has been
 // inserted. onUnregister is called when the device has been removed.
+//
+// The channelConfigDir argument is passed to each device during initialization,
+// before onRegister is called.
 func NewManager(
+	channelConfigDir string,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
-		devices:      map[string]device.Interface{},
-		onRegister:   onRegister,
-		onUnregister: onUnregister,
-		log:          logging.Get().WithGroup("manager"),
+		devices:          map[string]device.Interface{},
+		channelConfigDir: channelConfigDir,
+		onRegister:       onRegister,
+		onUnregister:     onUnregister,
+		log:              logging.Get().WithGroup("manager"),
 	}
 }
 
@@ -119,6 +125,7 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		deviceID,
 		bootloader,
 		firmwareVersion,
+		manager.channelConfigDir,
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize),
 	)
 	if err != nil {

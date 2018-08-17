@@ -12,21 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bitbox_test
+package bitbox
 
 import (
 	"encoding/base64"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/stretchr/testify/assert"
 )
 
 const (
 	// Use your own values here: Pair your BitBox first with the old desktop app and then retrieve
 	// the encryption key and channel ID from the configuration file (on macOS, run the following
-	// command: 'cat ~/Library/Application\ Support/DBB/config.dat') and the TFA test string and
+	// command: 'cat ~/Library/Application\ Support/bitbox/channel.json') and the TFA test string and
 	// xpub echo with the Electron demo app from https://github.com/digitalbitbox/ElectronDemo.
 	channelID         = "5wq2CsSzWZmuAtN7d5YcaTCzg76yhTJfcZunmWWYPDJG"
 	encryptionKey     = "F32H+9lxwWc0pAqmwhTSWfA+K7jT4cNx8frORb1LXoY="
@@ -36,6 +41,12 @@ const (
 )
 
 func TestChannel(t *testing.T) {
+	// Activate once you have configured the constants above and opened the mobile app.
+	const skip = true
+	if skip {
+		t.Skip("manual test")
+	}
+
 	encryptionKey, err := base64.StdEncoding.DecodeString(encryptionKey)
 	if err != nil {
 		panic("Cannot decode the testing encryption key!")
@@ -48,11 +59,58 @@ func TestChannel(t *testing.T) {
 
 	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey)
 
-	if false { // Activate once you have configured the constants above and opened the mobile app.
-		assert.NoError(t, channel.SendPing())
-		assert.NoError(t, channel.WaitForPong(40*time.Second))
-		assert.NoError(t, channel.SendPairingTest(tfaTestString))
-		time.Sleep(5 * time.Second)
-		assert.NoError(t, channel.SendXpubEcho(xpubEcho, "btc-p2pkh"))
+	assert.NoError(t, channel.SendPing())
+	assert.NoError(t, channel.WaitForPong(40*time.Second))
+	assert.NoError(t, channel.SendPairingTest(tfaTestString))
+	time.Sleep(5 * time.Second)
+	assert.NoError(t, channel.SendXpubEcho(xpubEcho, "btc-p2pkh"))
+}
+
+func TestFinishPairing(t *testing.T) {
+	okTempDir, err := ioutil.TempDir("", "dbb_device_test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(okTempDir)
+
+	tt := []struct {
+		configDir  string
+		wantEvent  device.Event
+		wantPaired bool
+	}{
+		{okTempDir, EventPairingSuccess, true},
+		{"/", EventPairingError, false}, // assumes never writable; reconsider if flaky
+	}
+	for i, test := range tt {
+		t.Run(fmt.Sprintf("%d: %s", i, test.wantEvent), func(t *testing.T) {
+			dbb := &Device{
+				closed:           true, // don't run listenForMobile
+				channelConfigDir: test.configDir,
+				log:              logging.Get().WithGroup("finish_pairing_test"),
+			}
+			var event device.Event
+			dbb.onEvent = func(e device.Event, data interface{}) {
+				event = e
+			}
+			newChan := relay.NewChannelWithRandomKey()
+			dbb.finishPairing(newChan)
+			if event != test.wantEvent {
+				t.Errorf("event = %q; want %q", event, test.wantEvent)
+			}
+			if paired := dbb.Paired(); paired != test.wantPaired {
+				t.Errorf("paired = %v; want %v", paired, test.wantPaired)
+			}
+
+			if !test.wantPaired {
+				return
+			}
+			storedChan := relay.NewChannelFromConfigFile(test.configDir)
+			if storedChan == nil {
+				t.Fatalf("relay.NewChannelFromConfigFile(%q) returned nil", test.configDir)
+			}
+			if storedChan.ChannelID != newChan.ChannelID {
+				t.Errorf("storedChan.ChannelID = %q; want %q", storedChan.ChannelID, newChan.ChannelID)
+			}
+		})
 	}
 }

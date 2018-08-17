@@ -37,7 +37,7 @@ var once sync.Once
 func Get() *Logger {
 	once.Do(func() {
 		var configuration Configuration
-		configFile := config.NewFile(configFileName)
+		configFile := config.NewFile(config.DirectoryPath(), configFileName)
 		if configFile.Exists() {
 			if err := configFile.ReadJSON(&configuration); err != nil {
 				panic(errp.WithStack(err))
