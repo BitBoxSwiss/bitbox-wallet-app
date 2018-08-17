@@ -21,7 +21,7 @@ let socket = null;
 const currentListeners = [];
 
 export function apiWebsocket(msgCallback) {
-    if (runningInQtWebEngine) {
+    if (runningInQtWebEngine()) {
         return qtSubscribePushNotifications(msgCallback);
     }
     currentListeners.push(msgCallback);

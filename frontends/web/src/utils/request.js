@@ -50,7 +50,7 @@ function handleError(endpoint) {
 }
 
 export function apiGet(endpoint) {
-    if (runningInQtWebEngine) {
+    if (runningInQtWebEngine()) {
         return call(JSON.stringify({
             method: 'GET',
             endpoint,
@@ -62,7 +62,7 @@ export function apiGet(endpoint) {
 }
 
 export function apiPost(endpoint, body) {
-    if (runningInQtWebEngine) {
+    if (runningInQtWebEngine()) {
         return call(JSON.stringify({
             method: 'POST',
             endpoint,

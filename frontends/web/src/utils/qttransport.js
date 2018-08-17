@@ -23,10 +23,12 @@ let queryPromises = {};
 let currentListeners = [];
 
 /**
- * Stores whether the code is running in QtWebEngine.
+ * Returns whether the code is running in QtWebEngine.
  */
-// @ts-ignore
-export const runningInQtWebEngine = typeof qt !== 'undefined';
+export function runningInQtWebEngine() {
+    // @ts-ignore
+    return typeof qt !== 'undefined';
+}
 
 function initTransport() {
     return new Promise((resolve, reject) => {
@@ -41,7 +43,7 @@ function initTransport() {
                 }
             };
             check();
-        } else if (runningInQtWebEngine) {
+        } else if (runningInQtWebEngine()) {
             const initWebChannel = function(channel){ // eslint-disable-line func-style
                 webChannel = channel;
                 webChannel.objects.backend.gotResponse.connect(function(queryID, response) {
