@@ -19,30 +19,16 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"runtime"
 )
 
-// DirectoryPath returns the absolute path to the application's directory
-// in the user standard config location.
-func DirectoryPath() string {
-	switch runtime.GOOS {
-	case "darwin":
-		return filepath.Join(os.Getenv("HOME"), "Library", "Application Support", "bitbox")
-	case "windows":
-		return filepath.Join(os.Getenv("APPDATA"), "bitbox")
-	default:
-		return filepath.Join(os.Getenv("HOME"), ".config", "bitbox")
-	}
-}
-
 // File models a config file in the application's directory.
+// Callers can use AppDir function to obtain the default app config dir.
 type File struct {
 	dir  string
 	name string
 }
 
-// NewFile creates a new config file with the given name in the application's directory dir.
-// Callers can use DirectoryPath function to use a standard user config dir.
+// NewFile creates a new config file with the given name in a directory dir.
 func NewFile(dir, name string) *File {
 	return &File{dir: dir, name: name}
 }

@@ -89,7 +89,7 @@ func NewChannelFromConfigFile(configDir string) *Channel {
 }
 
 // StoreToConfigFile stores the channel to the config file located in the provided configDir.
-// Callers can use config.DirectoryPath to obtain standard user location config dir.
+// Callers can use config.AppDir to obtain standard user location config dir.
 func (channel *Channel) StoreToConfigFile(configDir string) error {
 	configuration := newConfiguration(channel)
 	configFile := config.NewFile(configDir, configFileName)
@@ -97,7 +97,7 @@ func (channel *Channel) StoreToConfigFile(configDir string) error {
 }
 
 // RemoveConfigFile removes the config file.
-// Callers can use config.DirectoryPath to obtain standard user location config dir.
+// Callers can use config.AppDir to obtain standard user location config dir.
 func (channel *Channel) RemoveConfigFile(configDir string) error {
 	return config.NewFile(configDir, configFileName).Remove()
 }

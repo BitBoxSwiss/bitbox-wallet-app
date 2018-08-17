@@ -37,7 +37,7 @@ var once sync.Once
 func Get() *Logger {
 	once.Do(func() {
 		var configuration Configuration
-		configFile := config.NewFile(config.DirectoryPath(), configFileName)
+		configFile := config.NewFile(config.AppDir(), configFileName)
 		if configFile.Exists() {
 			if err := configFile.ReadJSON(&configuration); err != nil {
 				panic(errp.WithStack(err))
@@ -45,7 +45,7 @@ func Get() *Logger {
 			fmt.Printf("Logging configuration taken from '%s'.\n", configFile.Path())
 		} else {
 			configuration = Configuration{
-				Output: filepath.Join(config.DirectoryPath(), "log.txt"),
+				Output: filepath.Join(config.AppDir(), "log.txt"),
 				Level:  logrus.DebugLevel, // Change to InfoLevel before a release.
 			}
 			if err := configFile.WriteJSON(configuration); err != nil {
