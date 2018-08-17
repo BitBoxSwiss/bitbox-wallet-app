@@ -16,7 +16,7 @@
 
 .pendingBalance {
     margin: 0;
-    padding-top: 1px;
+    padding-top: 5px;
     color: var(--color-secondary);
     font-size: 14px;
     line-height: 1;
@@ -58,7 +58,7 @@
 }
 
 .balanceTable .availableAmount {
-    font-size: var(--size-extra-large);
+    font-size: var(--size-large);
     padding-right: var(--spacing-half);
     text-align: right;
 }
@@ -112,9 +112,36 @@
 }
 
 .accountName {
-    font-size: var(--size-medium) !important;
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.accountName span {
+    font-size: 14px;
+    color: var(--color-secondary);
+    line-height: 1;
+    margin-right: var(--spacing-half);
+}
+
+.accountName a {
+    position: absolute;
+    right: -18px;
+    display: inline-block;
+    text-decoration: none;
+    background-color: var(--color-darkblue);
+    color: var(--color-white);
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+    border-radius: 50%;
+    text-align: center;
 }
 
 .accountInfo {
-    vertical-align: middle;
+    height: var(--size-medium);
 }

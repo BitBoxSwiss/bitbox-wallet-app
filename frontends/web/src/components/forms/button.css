@@ -11,9 +11,9 @@
     font-size: var(--size-button);
     font-weight: 500;
     justify-content: center;
-    line-height: 32px;
+    line-height: 30px;
     min-width: 120px;
-    height: 36px;
+    height: 34px;
     padding: 0 var(--spacing-default);
     position: relative;
     outline: none;
