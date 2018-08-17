@@ -107,7 +107,6 @@
     padding: var(--spacing-large) var(--spacing-large);
     max-width: var(--content-width);
     width: 100%;
-    min-height: 114px;
     margin: 0 auto;
     display: flex;
     flex-direction: row;

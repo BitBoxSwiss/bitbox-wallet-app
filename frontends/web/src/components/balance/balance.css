@@ -16,7 +16,7 @@
 
 .pendingBalance {
     margin: 0;
-    padding-top: 1px;
+    padding-top: 5px;
     color: var(--color-secondary);
     font-size: 14px;
     line-height: 1;
@@ -119,7 +119,7 @@
 }
 
 .accountName span {
-    font-size: var(--size-medium) !important;
+    font-size: 14px;
     color: var(--color-secondary);
     line-height: 1;
     margin-right: var(--spacing-half);
