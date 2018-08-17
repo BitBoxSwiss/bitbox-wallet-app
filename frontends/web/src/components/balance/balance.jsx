@@ -34,9 +34,7 @@ export default function Balance({
         <header className={style.balance}>
             <div class={style.accountName}>
                 <span>{name}</span>
-                <a href={`/account/${code}/info`}>
-                    <img src={infoIcon} class={style.accountInfo}/>
-                </a>
+                <a href={`/account/${code}/info`}>i</a>
             </div>
             <table className={style.balanceTable}>
                 <tr>

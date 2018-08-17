@@ -112,10 +112,12 @@
 }
 
 .accountName {
-    display: flex;
+    position: relative;
+    display: inline-flex;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
+    margin-bottom: 5px;
 }
 
 .accountName span {
@@ -123,7 +125,21 @@
     color: var(--color-secondary);
     line-height: 1;
     margin-right: var(--spacing-half);
-    margin-bottom: 5px;
+}
+
+.accountName a {
+    position: absolute;
+    right: -18px;
+    display: inline-block;
+    text-decoration: none;
+    background-color: var(--color-darkblue);
+    color: var(--color-white);
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+    border-radius: 50%;
+    text-align: center;
 }
 
 .accountInfo {
