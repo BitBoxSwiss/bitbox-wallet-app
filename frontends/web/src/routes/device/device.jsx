@@ -24,6 +24,7 @@ import Unlock from './unlock';
 import Bootloader from './upgrade/bootloader';
 import RequireUpgrade from './upgrade/require_upgrade';
 import Goal from './setup/goal';
+import SecurityInformation from './setup/security-information';
 import SeedCreateNew from './setup/seed-create-new';
 import SeedRestore from './setup/seed-restore';
 import Initialize from './setup/initialize';
@@ -167,7 +168,11 @@ export default class Device extends Component {
             if (!goal) {
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
             }
-            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+            return (
+                <SecurityInformation goal={goal} goBack={this.handleBack}>
+                    <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />
+                </SecurityInformation>
+            );
         case DeviceStatus.LOGGED_IN:
             switch (goal) {
             case GOAL.CREATE:

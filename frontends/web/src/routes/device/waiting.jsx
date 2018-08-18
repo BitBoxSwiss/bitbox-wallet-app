@@ -25,14 +25,15 @@ import { debug } from '../../utils/env';
 import style from './device.css';
 
 export default function Waiting({ testing, guide }) {
+    const title = i18n.t('welcome.title');
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
-                <BitBox />
                 <div className={style.content} style="text-align: center;">
-                    <h1>{i18n.t('welcome.title')}</h1>
-                    {i18n.t('welcome.paragraph')}
+                    {title && (<h1>{title}</h1>)}
                     <h3>{i18n.t('welcome.insertDevice')}</h3>
+                    {i18n.t('welcome.paragraph')}
+                    {i18n.t('deviceTampered')}
                     <SkipForTestingButton show={debug && testing} />
                     <hr />
                     <Footer>

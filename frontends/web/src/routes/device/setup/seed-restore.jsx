@@ -4,7 +4,7 @@ import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 import Message from '../../../components/message/message';
-import { BitBox, Shift } from '../../../components/icon/logo';
+import { Shift } from '../../../components/icon/logo';
 import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
@@ -67,29 +67,31 @@ export default class SeedRestore extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={[style.container, style.scrollable].join(' ')}>
-                    <BitBox />
                     <div className={style.content}>
-                        <h1 className={style.title}>{t('setup')}</h1>
-                        <Steps current={1}>
+                        <h1 className={style.title}>{t('seedRestore.title')}</h1>
+                        <Steps current={2}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
-                            <Step title={t(`goal.step.2_restore.title`)} description={t(`goal.step.2_restore.description`)} />
-                            <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)}  />
+                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
+                            <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)} />
+                            <Step title={t(`goal.step.4_restore.title`)} description={t(`goal.step.4_restore.description`)} />
                         </Steps>
                         <Message type={status === STATUS.ERROR && 'error'}>
                             { error }
                         </Message>
                         {showInfo ? (
                             <div>
-                                <h2>{t('backup.info.title')}</h2>
-                                <p>{t('backup.info.description')}</p>
-                                <Button primary onClick={this.handleStart}>
-                                    {t('backup.info.button')}
-                                </Button>
-                                <Button
-                                    transparent
-                                    onClick={goBack}>
-                                    {t('button.back')}
-                                </Button>
+                                <h2>{t('seedRestore.info.title')}</h2>
+                                <p>{t('seedRestore.info.description')}</p>
+                                <div className="buttons buttons-end">
+                                    <Button
+                                        transparent
+                                        onClick={goBack}>
+                                        {t('button.back')}
+                                    </Button>
+                                    <Button primary onClick={this.handleStart}>
+                                        {t('seedRestore.info.button')}
+                                    </Button>
+                                </div>
                             </div>
                         ) : (
                             <Backups
