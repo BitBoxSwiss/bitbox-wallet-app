@@ -35,6 +35,7 @@ typedef struct ConnectionData {
 } ConnectionData;
 #endif
 */
+// #cgo CFLAGS: -O2 -D_FORTIFY_SOURCE=2 -fstack-check -fstack-protector-all -fPIC -fPIE
 import "C"
 
 import (
