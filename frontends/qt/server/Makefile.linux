@@ -1,0 +1,18 @@
+include ../../../hardening.mk.inc
+include ../../../env.mk.inc
+CGO=1
+BUILDMODE=c-shared
+GOARCH=amd64
+GOOS=linux
+
+linux:
+	CC=clang \
+	CGO_CFLAGS="${GOLNXSECFLAGS} ${CFLAGS}" \
+	CGO_LDFLAGS="${GOLNXLDFLAGS} ${LFLAGS}" \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
+	go build -x -buildmode=${BUILDMODE} -ldflags \
+		-extldflags="${GOLNXEXTLDFLAGS}" -o ${LIBNAME}.so
+
+clean:
+	-rm ${LIBNAME}.so
+	-rm ${LIBNAME}.h

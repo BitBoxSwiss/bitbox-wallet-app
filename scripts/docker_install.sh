@@ -21,6 +21,7 @@ apt-get install -y --no-install-recommends curl ca-certificates
 curl -sL https://deb.nodesource.com/setup_9.x | bash -
 
 apt-get install -y --no-install-recommends \
+    clang \
     gcc \
     libc6-dev \
     make \

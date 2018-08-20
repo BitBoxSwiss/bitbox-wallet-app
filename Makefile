@@ -59,6 +59,8 @@ ci:
 	./scripts/ci.sh
 ci-fast:
 	./scripts/ci.sh --fast
+clean:
+	make -C frontends/qt clean
 dockerinit:
 	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:

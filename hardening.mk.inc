@@ -1,0 +1,26 @@
+CFORTIFY=-O2 -D_FORTIFY_SOURCE=2
+CASLR=-fPIC -fPIE
+CSTACK=-fstack-protector-all
+CSTACKEXTRA_UNUSED=-fstack-check
+
+LSTRIP=-s
+LEXPORT=-E
+LRELRO=-Wl,-z,now,-z,relro
+LDEP=-z,noexecstack,-z,defs
+LDEPEXTRA_UNUSED=-z,noexecheap
+LASLR=-pie
+
+WDEP=-Wl,--nxcompat
+WASLR=-Wl,--dynamicbase
+WASLR_UNUSED=-Wl,--high-entropy-va
+WEXPORT=-Wl,--export-all-symbols
+WLIBS=-lwinmm -lhid -lsetupapi -lws2_32 -llibssp
+
+GOLNXSECFLAGS=${CFORTIFY} ${CSTACK}
+GODARWINSECFLAGS=${CFORTIFY} ${CSTACK}
+GOWINSECFLAGS=${CFORTIFY} ${CSTACK}
+
+GOLNXLDFLAGS=${LASLR} ${LRELRO},${LASLR},${LSTRIP},${LEXPORT},${LDEP}
+GOLNXEXTLDFLAGS=${LRELRO},${LASLR},${LSTRIP},${LEXPORT},${LDEP}
+GODARWINLDFLAGS=${LASLR} -s -w
+GOWINLDFLAGS= -w -s ${GOWINEXTLDFLAGS} ${WLIBS} ${WEXPORT} ${WASLR} ${WDEP}
