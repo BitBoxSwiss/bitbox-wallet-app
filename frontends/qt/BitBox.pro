@@ -10,6 +10,11 @@ QT       += webenginewidgets
 TARGET = BitBox
 TEMPLATE = app
 
+SECURITYFLAGS = "-O2 -D_FORTIFY_SOURCE=2 "
+SECURITYFLAGS += " -fstack-protector-all -fwrapv -fPIC -fPIE "
+SECURITYFLAGS += " -fstack-check "
+EXTLDFLAGS ="-Wl,-z,now,-z,relro,-z,noexecstack,-z,noexecheap,-z,defs,-pie,-s,--verbose"
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -23,6 +28,10 @@ win32 {
 } else {
     QMAKE_CXXFLAGS += -std=c++11
     LIBS += -L$$PWD/server -lserver
+    CXXFLAGS += $$SECURITYFLAGS
+    CFLAGS += $$SECURITYFLAGS
+    QMAKE_CXXFLAGS += $$SECURITYFLAGS
+    QMAKE_LFLAGS += $$EXTLDFLAGS
 }
 
 # https://stackoverflow.com/questions/18462420/how-to-specify-mac-platform-in-qmake-qtcreator
