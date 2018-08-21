@@ -14,6 +14,8 @@
 
 package coin
 
+import "github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+
 // FormattedAmount with unit and conversions.
 type FormattedAmount struct {
 	Amount      string            `json:"amount"`
@@ -23,8 +25,12 @@ type FormattedAmount struct {
 
 // Coin models the currency of a blockchain.
 type Coin interface {
+	observable.Interface
 	// Code returns the acronym of the currency in lowercase.
 	// Code() string
+
+	// Init initializes the coin (blockchain connection, header feed, etc.).
+	Init()
 
 	// Name returns the written-out name of the coin.
 	Name() string

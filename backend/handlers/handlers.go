@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
@@ -48,7 +49,7 @@ import (
 type Backend interface {
 	Config() *config.Config
 	DefaultConfig() config.AppConfig
-	Coin(string) *btc.Coin
+	Coin(string) coin.Coin
 	WalletStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
@@ -328,7 +329,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 
 func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
 	return func(_ *http.Request) (interface{}, error) {
-		return handlers.backend.Coin(coinCode).Headers().Status()
+		return handlers.backend.Coin(coinCode).(*btc.Coin).Headers().Status()
 	}
 }
 

@@ -80,7 +80,7 @@ type Backend struct {
 	onDeviceInit   func(device.Interface)
 	onDeviceUninit func(string)
 
-	coins     map[string]*btc.Coin
+	coins     map[string]coin.Coin
 	coinsLock locker.Locker
 
 	accounts     []*btc.Account
@@ -103,14 +103,14 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 
 		devices:      map[string]device.Interface{},
 		keystores:    keystore.NewKeystores(),
-		coins:        map[string]*btc.Coin{},
+		coins:        map[string]coin.Coin{},
 		ratesUpdater: btc.NewRatesUpdater(),
 		log:          log,
 	}
 }
 
 func (backend *Backend) addAccount(
-	coin *btc.Coin,
+	coin coin.Coin,
 	code string,
 	name string,
 	keypath string,
@@ -136,9 +136,14 @@ func (backend *Backend) addAccount(
 	if backend.arguments.Multisig() {
 		name = name + " Multisig"
 	}
-	account := btc.NewAccount(coin, backend.arguments.CacheDirectoryPath(), code, name,
-		getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
-	backend.accounts = append(backend.accounts, account)
+	switch specificCoin := coin.(type) {
+	case *btc.Coin:
+		account := btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+			getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
+		backend.accounts = append(backend.accounts, account)
+	default:
+		panic("unknown coin type")
+	}
 }
 
 // Config returns the app config.
@@ -229,7 +234,7 @@ func (backend *Backend) defaultServers(code string) []*rpc.ServerInfo {
 }
 
 // Coin returns a Coin instance for a coin type.
-func (backend *Backend) Coin(code string) *btc.Coin {
+func (backend *Backend) Coin(code string) coin.Coin {
 	defer backend.coinsLock.Lock()()
 	coin, ok := backend.coins[code]
 	if ok {
