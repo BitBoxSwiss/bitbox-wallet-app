@@ -172,6 +172,7 @@ class ElectrumServer extends Component {
                     </Button>
                     <Button primary disabled={!valid} onClick={this.add}>{t('settings.electrum.add_server')}</Button>
                 </div>
+                <p>{t('settings.electrum.step4')}</p>
             </div>
         );
     }
