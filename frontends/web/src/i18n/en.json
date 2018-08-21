@@ -79,7 +79,8 @@
             },
             "newVersion": {
                 "label": "Available Version"
-            }
+            },
+            "upToDate": "Your device is up to date"
         },
         "hardware": {
             "title": "Hardware",

@@ -98,6 +98,7 @@ export default class Settings extends Component {
         paired,
         connected,
     }) {
+        const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -171,17 +172,23 @@ export default class Settings extends Component {
                                         <dt>{t('deviceSettings.firmware.version.label')}</dt>
                                         <dd>{firmwareVersion ? firmwareVersion : t('loading')}</dd>
                                     </div>
-                                    {firmwareVersion && (newVersion !== firmwareVersion) && (
+                                    {canUpgrade && (
                                         <div>
                                             <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
                                             <dd>{newVersion}</dd>
                                         </div>
+                                    ) || (
+                                         <div>
+                                            <dt></dt>
+                                            <dd>{t('deviceSettings.firmware.upToDate')}</dd>
+                                        </div>
                                     )}
                                 </dl>
-
-                                <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
-                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
-                                </div>
+                                {canUpgrade && (
+                                     <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
+                                         <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                     </div>
+                                )}
 
                                 <hr />
 
