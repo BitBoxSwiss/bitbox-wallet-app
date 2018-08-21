@@ -18,6 +18,12 @@ import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponen
 import { Endpoints, EndpointsFunction } from './endpoints';
 import { apiGet } from '../utils/request';
 
+// Stores whether to log the time needed for individual API calls.
+const logPerformance = false;
+
+// The counter is used to measure the time needed for individual API calls.
+let logCounter = 0;
+
 /**
  * Loads API endpoints into the props of the component that uses this decorator.
  * 
@@ -60,11 +66,17 @@ export default function loading<Props, State>(
                 return endpointsObjectOrFunction;
             }
 
-            private endpoints: Endpoints;
-
             private loadEndpoint(key: string, endpoint: string): void {
-                apiGet(endpoint).then(object => this.setState({ [key]: object }));
+                logCounter += 1;
+                const timerID = endpoint + ' ' + logCounter;
+                if (logPerformance) { console.time(timerID); }
+                apiGet(endpoint).then(object => {
+                    this.setState({ [key]: object });
+                    if (logPerformance) { console.timeEnd(timerID); }
+                });
             }
+
+            private endpoints: Endpoints;
 
             private loadEndpoints(): void {
                 const oldEndpoints = this.endpoints;
