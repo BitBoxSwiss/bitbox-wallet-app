@@ -16,7 +16,6 @@
 
 import Rates from '../../components/rates/rates';
 import style from './balance.css';
-import infoIcon from './info.png';
 
 export default function Balance({
     t,
