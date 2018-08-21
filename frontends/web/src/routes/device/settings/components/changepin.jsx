@@ -24,7 +24,7 @@ import { apiPost } from '../../../../utils/request';
 
 
 @translate()
-export default class HiddenWallet extends Component {
+export default class ChangePIN extends Component {
     state = {
         oldPIN: null,
         newPIN: null,
