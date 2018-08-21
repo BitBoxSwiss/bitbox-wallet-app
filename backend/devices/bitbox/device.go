@@ -259,8 +259,13 @@ func (dbb *Device) Status() Status {
 	}
 	defer dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID, "seeded": dbb.seeded,
 		"pin-set": (dbb.pin != ""), "initialized": dbb.initialized}).Debug("Device status")
-	if (dbb.seeded || dbb.pin != "") && !dbb.version.Between(lowestSupportedFirmwareVersion, lowestNonSupportedFirmwareVersion) {
-		return StatusRequireUpgrade
+	if dbb.seeded || dbb.pin != "" {
+		if !dbb.version.AtLeast(lowestSupportedFirmwareVersion) {
+			return StatusRequireFirmwareUpgrade
+		}
+		if dbb.version.AtLeast(lowestNonSupportedFirmwareVersion) {
+			return StatusRequireAppUpgrade
+		}
 	}
 	if dbb.seeded {
 		return StatusSeeded

@@ -38,7 +38,10 @@ const (
 	// XPub(), Sign() etc.
 	StatusSeeded Status = "seeded"
 
-	// StatusRequireUpgrade means that the a firmware upgrade is required before being able to
-	// proceed to StatusLoggedIn or StatusSeeded.
-	StatusRequireUpgrade = "require_upgrade"
+	// StatusRequireFirmwareUpgrade means that the a firmware upgrade is required before being able
+	// to proceed to StatusLoggedIn or StatusSeeded (firmware version too old).
+	StatusRequireFirmwareUpgrade = "require_firmware_upgrade"
+
+	// StatusRequireAppUpgrade means that the an app upgrade is required (firmware version too new).
+	StatusRequireAppUpgrade = "require_app_upgrade"
 )

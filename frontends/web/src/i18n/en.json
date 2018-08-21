@@ -48,6 +48,9 @@
             "3_restore": { "title": "", "description": "" }
         }
     },
+    "device": {
+        "appUpradeRequired": "Your BitBox is not compatible with this desktop app. Please download and install the latest version."
+    },
     "deviceSettings": {
         "loading": "Retrieving device info…",
         "secrets": {

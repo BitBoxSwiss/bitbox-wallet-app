@@ -16,6 +16,7 @@
 
 import { Component } from 'preact';
 import { route } from 'preact-router';
+import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
@@ -28,6 +29,9 @@ import SeedCreateNew from './setup/seed-create-new';
 import SeedRestore from './setup/seed-restore';
 import Initialize from './setup/initialize';
 import Settings from './settings/settings';
+import A from '../../components/anchor/anchor';
+
+import style from './device.css';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -35,7 +39,8 @@ const DeviceStatus = Object.freeze({
     UNINITIALIZED: 'uninitialized',
     LOGGED_IN: 'logged_in',
     SEEDED: 'seeded',
-    REQUIRE_UPGRADE: 'require_upgrade'
+    REQUIRE_FIRMWARE_UPGRADE: 'require_firmware_upgrade',
+    REQUIRE_APP_UPGRADE: 'require_app_upgrade'
 });
 
 const GOAL = Object.freeze({
@@ -43,6 +48,7 @@ const GOAL = Object.freeze({
     RESTORE: 'restore'
 });
 
+@translate()
 export default class Device extends Component {
     state = {
         firmwareVersion: null,
@@ -140,6 +146,7 @@ export default class Device extends Component {
     }
 
     render({
+        t,
         deviceID,
         deviceIDs,
         guide,
@@ -156,18 +163,30 @@ export default class Device extends Component {
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
         }
+        console.log(deviceStatus);
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
             return <Bootloader deviceID={deviceID} guide={guide} />;
-        case DeviceStatus.REQUIRE_UPGRADE:
+        case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
             return <RequireUpgrade deviceID={deviceID} guide={guide} />;
+        case DeviceStatus.REQUIRE_APP_UPGRADE:
+            return (
+                <div class="contentWithGuide">
+                    <div className={style.container}>
+                        {t('device.appUpradeRequired')}
+                        <A href="https://shiftcrypto.ch/start">
+                            {t('button.download')}
+                        </A>
+                    </div>
+                </div>
+            );
         case DeviceStatus.INITIALIZED:
             return <Unlock deviceID={deviceID} guide={guide} />;
         case DeviceStatus.UNINITIALIZED:
             if (!goal) {
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
-            }
-            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+        }
+                return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
         case DeviceStatus.LOGGED_IN:
             switch (goal) {
             case GOAL.CREATE:
