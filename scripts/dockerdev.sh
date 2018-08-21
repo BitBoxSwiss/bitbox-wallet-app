@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 dockerdev () {
     local container_name=bitbox-wallet-dev
@@ -32,7 +33,7 @@ dockerdev () {
         docker rm $container_name
     fi
 
-    local repo_path="${GOPATH%%:*}/src/github.com/digitalbitbox/bitbox-wallet-app"
+    local repo_path="$DIR/.."
     docker run \
            --detach \
            --privileged -v /dev/bus/usb:/dev/bus/usb \
