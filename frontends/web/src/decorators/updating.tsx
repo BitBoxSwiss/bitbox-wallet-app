@@ -136,9 +136,10 @@ export default function updating<Props, State>(
                 }
             }
 
+            private readonly LoadingWrappedComponent = loading(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
+
             public render(props: RenderableProps<Props>, state: any): JSX.Element {
-                const LoadingWrappedComponent = loading(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
-                return <LoadingWrappedComponent {...state} {...props} />;
+                return <this.LoadingWrappedComponent {...state} {...props} />;
             }
         }
     }
