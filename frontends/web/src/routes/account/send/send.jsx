@@ -55,6 +55,7 @@ export default class Send extends Component {
             fiatAmount: null,
             fiatUnit: props.fiat.code,
             signProgress: null,
+            signConfirm: null, // show visual BitBox in dialog when instructed to sign.
             coinControl: false,
         };
         this.selectedUTXOs = [];
@@ -73,7 +74,10 @@ export default class Send extends Component {
             case 'device':
                 switch (data) {
                 case 'signProgress':
-                    this.setState({ signProgress: meta });
+                    this.setState({ signProgress: meta, signConfirm: null });
+                    break;
+                case 'signConfirm':
+                    this.setState({ signConfirm: true });
                     break;
                 }
                 break;
@@ -111,7 +115,6 @@ export default class Send extends Component {
                     proposedTotal: null,
                     fiatAmount: null,
                     amount: null,
-                    signProgress: null,
                 });
                 if (this.utxos) {
                     this.utxos.clear();
@@ -124,9 +127,9 @@ export default class Send extends Component {
                 setTimeout(() => this.setState({ isAborted: false }), 5000);
             }
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false });
+            this.setState({ isConfirming: false,signProgress: null, signConfirm: null });
         }).catch(() => {
-            this.setState({ isConfirming: false });
+            this.setState({ isConfirming: false,signProgress: null, signConfirm: null });
         });
     }
 
@@ -297,13 +300,14 @@ export default class Send extends Component {
         amountError,
         paired,
         signProgress,
+        signConfirm,
         coinControl,
     }) {
         const account = this.getAccount();
         if (!account) return null;
 
         let confirmPrequel = () => {
-            if (signProgress) {
+            if (signProgress && signProgress.steps > 1) {
                 return (
                     <span>
                         This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times.<br />
@@ -437,6 +441,7 @@ export default class Send extends Component {
                                 title={t('send.confirm.title')}
                                 prequel={confirmPrequel()}
                                 paired={paired}
+                                signConfirm={signConfirm}
                                 includeDefault>
                                 <div class={style.confirmationBox}>
                                     <div class={style.block}>

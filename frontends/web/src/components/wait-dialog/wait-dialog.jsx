@@ -54,6 +54,7 @@ export default class Confirm extends Component {
         prequel,
         title,
         paired = false,
+        signConfirm,
         children,
     }, {
         active,
@@ -69,22 +70,24 @@ export default class Confirm extends Component {
                 <p class={['label', style.confirmationLabel].join(' ')}>
                     {paired ? t('confirm.infoWhenPaired') : t('confirm.info')}
                 </p>
-                <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-                    <div class="flex flex-column flex-center flex-items-center">
-                        <img class={style.image} src={reject} alt="Reject" />
-                        <p class="text-bold">
-                            {t('confirm.abortInfo')}
-                            <span class="text-red">{t('confirm.abortInfoRedText')}</span>
-                        </p>
+                { signConfirm && (
+                    <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
+                        <div class="flex flex-column flex-center flex-items-center">
+                            <img class={style.image} src={reject} alt="Reject" />
+                            <p class="text-bold">
+                                {t('confirm.abortInfo')}
+                                <span class="text-red">{t('confirm.abortInfoRedText')}</span>
+                            </p>
+                        </div>
+                        <div class="flex flex-column flex-center flex-items-center">
+                            <img class={style.image} src={approve} alt="Approve" />
+                            <p class="text-bold">
+                                {t('confirm.approveInfo')}
+                                <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
+                            </p>
+                        </div>
                     </div>
-                    <div class="flex flex-column flex-center flex-items-center">
-                        <img class={style.image} src={approve} alt="Approve" />
-                        <p class="text-bold">
-                            {t('confirm.approveInfo')}
-                            <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
-                        </p>
-                    </div>
-                </div>
+                )}
             </div>
         );
         return (

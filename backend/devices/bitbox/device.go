@@ -1052,6 +1052,10 @@ func (dbb *Device) signBatch(
 	}
 
 	// Second call returns the signatures.
+
+	// Fire event that we are about to sign with a touch (in 2FA, this might be delayed until the
+	// user confirms on the mobile phone).
+	dbb.fireEvent(EventSignConfirm, nil)
 	var pin interface{}
 	if nonce != "" {
 		pin = map[string]interface{}{
@@ -1107,15 +1111,13 @@ func (dbb *Device) Sign(
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)
 		}
-		if steps > 1 {
-			dbb.fireEvent(EventSignProgress, struct {
-				Step  int `json:"step"`
-				Steps int `json:"steps"`
-			}{
-				Step:  i / signatureBatchSize,
-				Steps: steps,
-			})
-		}
+		dbb.fireEvent(EventSignProgress, struct {
+			Step  int `json:"step"`
+			Steps int `json:"steps"`
+		}{
+			Step:  i / signatureBatchSize,
+			Steps: steps,
+		})
 		reply, err := dbb.signBatch(
 			txProposal,
 			signatureHashes[i:upper],
