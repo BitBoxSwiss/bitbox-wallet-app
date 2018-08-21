@@ -48,7 +48,7 @@ export default class Device extends Component {
         firmwareVersion: null,
         deviceRegistered: false,
         deviceStatus: null,
-        walletInitialized: null,
+        accountsStatus: null,
         testing: false,
         goal: null,
     }
@@ -56,10 +56,10 @@ export default class Device extends Component {
     componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onDeviceStatusChanged();
-        this.onWalletStatusChanged();
+        this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
             if (type === 'backend' && data === 'accountsStatusChanged') {
-                this.onWalletStatusChanged();
+                this.onAccountsStatusChanged();
             }
             if (type === 'devices' && data === 'registeredChanged') {
                 this.onDevicesRegisteredChanged();
@@ -84,14 +84,14 @@ export default class Device extends Component {
         }
     }
 
-    onWalletStatusChanged = () => {
+    onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
             if (status === 'initialized' && this.props.default) {
                 console.log('device.jsx route to /account'); // eslint-disable-line no-console
                 route('/account', true);
             }
             this.setState({
-                walletInitialized: status === 'initialized'
+                accountsStatus: status === 'initialized'
             });
         });
     }
@@ -146,11 +146,11 @@ export default class Device extends Component {
     }, {
         deviceRegistered,
         deviceStatus,
-        walletInitialized,
+        accountsStatus,
         goal,
         testing,
     }) {
-        if (!deviceIDs.length && !walletInitialized) {
+        if (!deviceIDs.length && !accountsStatus) {
             return <Waiting testing={testing} guide={guide} />;
         }
         if (!deviceRegistered || !deviceStatus) {

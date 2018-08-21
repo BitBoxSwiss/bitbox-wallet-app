@@ -41,7 +41,7 @@ export default class App extends Component {
     state = {
         accounts: [],
         backendConnected: true,
-        walletInitialized: false,
+        accountsInitialized: false,
         deviceIDs: [],
         update: null,
         guideShown: false,
@@ -58,7 +58,7 @@ export default class App extends Component {
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
-        this.onWalletStatusChanged();
+        this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
             switch (type) {
             case 'frontend': // special event from websocket.js
@@ -69,17 +69,17 @@ export default class App extends Component {
             case 'backend':
                 switch (data) {
                 case 'accountsStatusChanged':
-                    this.onWalletStatusChanged();
+                    this.onAccountsStatusChanged();
                     break;
                 }
                 break;
             case 'device':
                 switch (data) {
                 case 'keystoreAvailable':
-                    this.onWalletStatusChanged();
+                    this.onAccountsStatusChanged();
                     break;
                 case 'keystoreGone':
-                    this.onWalletStatusChanged();
+                    this.onAccountsStatusChanged();
                     break;
                 }
                 break;
@@ -121,13 +121,13 @@ export default class App extends Component {
         });
     }
 
-    onWalletStatusChanged = () => {
+    onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
-            const walletInitialized = status === 'initialized';
+            const accountsInitialized = status === 'initialized';
             this.setState({
-                walletInitialized
+                accountsInitialized
             });
-            if (!walletInitialized) {
+            if (!accountsInitialized) {
                 console.log('app.jsx route /'); // eslint-disable-line no-console
                 route('/', true);
             }
@@ -189,7 +189,7 @@ export default class App extends Component {
         accounts,
         backendConnected,
         deviceIDs,
-        walletInitialized,
+        accountsInitialized,
         update,
         guideShown,
         fiatCode,
@@ -206,7 +206,7 @@ export default class App extends Component {
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
-                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} walletInitialized={walletInitialized} guideShown={guideShown} />)}
+                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} accountsInitialized={accountsInitialized} guideShown={guideShown} />)}
                 <div class="flex-column flex-1">
                     {update && <Status dismissable keyName={`update-${update.version}`} type="info">
                         {t('app.upgrade', {

@@ -45,22 +45,22 @@ class Sidebar extends Component {
         t,
         deviceIDs,
         accounts,
-        walletInitialized,
+        accountsInitialized,
         guideShown,
     }, {
     }) {
         return (
             <nav className={['sidebar', guideShown ? 'withGuide' : ''].join(' ')}>
-                <div className="sidebarLogoContainer" style={'opacity:' + (walletInitialized ? 1 : 0)}>
+                <div className="sidebarLogoContainer" style={'opacity:' + (accountsInitialized ? 1 : 0)}>
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
                 {
-                    accounts && accounts.map(getWalletLink)
+                    accounts && accounts.map(getAccountLink)
                 }
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
                     {
-                        (debug && walletInitialized && deviceIDs.length === 0) && (
+                        (debug && accountsInitialized && deviceIDs.length === 0) && (
                             <a href="#" onClick={eject}>
                                 <div className="single">
                                     <img
@@ -99,7 +99,7 @@ class Sidebar extends Component {
     }
 }
 
-function getWalletLink({ code, name }) {
+function getAccountLink({ code, name }) {
     return (
         <div key={code} className="sideBarItem">
             <Match path={`/account/${code}/send`}>

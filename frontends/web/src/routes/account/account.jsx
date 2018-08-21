@@ -32,9 +32,9 @@ import componentStyle from '../../components/style.css';
 @translate()
 export default class Account extends Component {
     state = {
-        walletInitialized: false,
+        initialized: false,
         transactions: [],
-        walletConnected: false,
+        connected: false,
         balance: null,
         hasCard: false,
     }
@@ -44,7 +44,7 @@ export default class Account extends Component {
     }
 
     componentDidMount() {
-        this.unsubscribe = apiWebsocket(this.onWalletEvent);
+        this.unsubscribe = apiWebsocket(this.onEvent);
         this.checkSDCards();
         if (!this.props.code) {
             return;
@@ -91,7 +91,7 @@ export default class Account extends Component {
         }
     }
 
-    onWalletEvent = data => {
+    onEvent = data => {
         if (!this.props.code) return;
         if (data.type !== 'account' || data.code !== this.props.code) {
             return;
@@ -101,7 +101,7 @@ export default class Account extends Component {
             this.onStatusChanged();
             break;
         case 'syncdone':
-            this.onWalletChanged();
+            this.onAccountChanged();
             break;
         }
     }
@@ -111,21 +111,21 @@ export default class Account extends Component {
         if (!code) return;
         apiGet(`account/${code}/status`).then(status => {
             let state = {
-                walletInitialized: status.includes('accountSynced'),
-                walletConnected: !status.includes('offlineMode'),
+                initialized: status.includes('accountSynced'),
+                connected: !status.includes('offlineMode'),
             };
-            if (!status.walletInitialized && !status.includes('accountDisabled')) {
+            if (!status.initialized && !status.includes('accountDisabled')) {
                 apiPost(`account/${code}/init`);
             }
 
             this.setState(state);
-            this.onWalletChanged();
+            this.onAccountChanged();
         });
     }
 
-    onWalletChanged = () => {
+    onAccountChanged = () => {
         if (!this.props.code) return;
-        if (this.state.walletInitialized && this.state.walletConnected) {
+        if (this.state.initialized && this.state.connected) {
             apiGet(`account/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
             });
@@ -147,15 +147,15 @@ export default class Account extends Component {
         fiat,
     }, {
         transactions,
-        walletInitialized,
-        walletConnected,
+        initialized,
+        connected,
         balance,
         hasCard,
     }) {
         if (!accounts) return null;
-        const wallet = accounts.find(({ code }) => code === this.props.code);
-        if (!wallet) return null;
-        const noTransactions = (walletInitialized && transactions.length <= 0);
+        const account = accounts.find(({ code }) => code === this.props.code);
+        if (!account) return null;
+        const noTransactions = (initialized && transactions.length <= 0);
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -167,27 +167,27 @@ export default class Account extends Component {
                             <Balance
                                 t={t}
                                 code={code}
-                                name={wallet.name}
+                                name={account.name}
                                 balance={balance}
                                 fiat={fiat} />
                             <div class={componentStyle.buttons} style="align-self: flex-end;">
                                 <ButtonLink
                                     primary
                                     href={`/account/${code}/receive`}
-                                    disabled={!walletInitialized}>
+                                    disabled={!initialized}>
                                     {t('button.receive')}
                                 </ButtonLink>
                                 <ButtonLink
                                     primary
                                     href={`/account/${code}/send`}
-                                    disabled={!walletInitialized || balance && balance.available.amount === '0'}>
+                                    disabled={!initialized || balance && balance.available.amount === '0'}>
                                     {t('button.send')}
                                 </ButtonLink>
                             </div>
                         </div>
                         <div>
                             {
-                                !walletConnected && (
+                                !connected && (
                                     <Status>
                                         <p>{t('account.disconnect')}</p>
                                     </Status>
@@ -196,16 +196,16 @@ export default class Account extends Component {
                         </div>
                     </div>
                     <div class={['innerContainer', ''].join(' ')}>
-                        <HeadersSync coinCode={wallet.coinCode} />
+                        <HeadersSync coinCode={account.coinCode} />
                         {
-                            !walletInitialized || !walletConnected ? (
+                            !initialized || !connected ? (
                                 <Spinner text={
-                                    !walletConnected && t('account.reconnecting') ||
-                                    !walletInitialized && t('account.initializing')
+                                    !connected && t('account.reconnecting') ||
+                                    !initialized && t('account.initializing')
                                 } />
                             ) : (
                                 <Transactions
-                                    explorerURL={wallet.blockExplorerTxPrefix}
+                                    explorerURL={account.blockExplorerTxPrefix}
                                     transactions={transactions}
                                     className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
                                     fiat={fiat}
@@ -239,7 +239,7 @@ export default class Account extends Component {
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>
                     )}
-                   {(wallet.code === 'tbtc-p2pkh' || wallet.code === 'btc-p2pkh') && (
+                   {(account.code === 'tbtc-p2pkh' || account.code === 'btc-p2pkh') && (
                         <Entry key="accountLegacyConvert" title={t('guide.accountLegacyConvert.title')}>
                             <p>{t('guide.accountLegacyConvert.text')}</p>
                         </Entry>

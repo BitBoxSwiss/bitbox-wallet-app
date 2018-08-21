@@ -25,17 +25,17 @@ export default class FeeTargets extends Component {
     }
 
     componentDidMount() {
-        this.updateFeeTargets(this.props.walletCode);
+        this.updateFeeTargets(this.props.accountCode);
     }
 
-    componentWillReceiveProps({ walletCode }) {
-        if (this.props.walletCode !== walletCode) {
-            this.updateFeeTargets(walletCode);
+    componentWillReceiveProps({ accountCode }) {
+        if (this.props.accountCode !== accountCode) {
+            this.updateFeeTargets(accountCode);
         }
     }
 
-    updateFeeTargets = (walletCode) => {
-        apiGet('account/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+    updateFeeTargets = (accountCode) => {
+        apiGet('account/' + accountCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
             // feeTargets.push({code: 'custom'});
             this.setState({ feeTargets });
             this.setFeeTarget(defaultFeeTarget);

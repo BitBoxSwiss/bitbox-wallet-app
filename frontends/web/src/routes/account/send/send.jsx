@@ -99,7 +99,7 @@ export default class Send extends Component {
 
     send = () => {
         this.setState({ signProgress: null, isConfirming: true });
-        apiPost('account/' + this.getWallet().code + '/sendtx', this.txInput()).then(result => {
+        apiPost('account/' + this.getAccount().code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
@@ -153,7 +153,7 @@ export default class Send extends Component {
             return;
         }
         const txInput = this.txInput();
-        apiPost('account/' + this.getWallet().code + '/tx-proposal', txInput).then(result => {
+        apiPost('account/' + this.getAccount().code + '/tx-proposal', txInput).then(result => {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
@@ -210,7 +210,7 @@ export default class Send extends Component {
 
     convertToFiat = value => {
         if (value) {
-            let coinUnit = this.getWallet().coinCode.toUpperCase();
+            let coinUnit = this.getAccount().coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
                 coinUnit = coinUnit.substring(1);
             }
@@ -229,7 +229,7 @@ export default class Send extends Component {
 
     convertFromFiat = value => {
         if (value) {
-            let coinUnit = this.getWallet().coinCode.toUpperCase();
+            let coinUnit = this.getAccount().coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
                 coinUnit = coinUnit.substring(1);
             }
@@ -252,7 +252,7 @@ export default class Send extends Component {
     }
 
     sendToSelf = event => {
-        apiGet('account/' + this.getWallet().code + '/receive-addresses').then(receiveAddresses => {
+        apiGet('account/' + this.getAccount().code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
             this.handleFormChange(event);
         });
@@ -268,7 +268,7 @@ export default class Send extends Component {
         this.validateAndDisplayFee(true);
     }
 
-    getWallet() {
+    getAccount() {
         if (!this.props.accounts) return null;
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
@@ -299,8 +299,8 @@ export default class Send extends Component {
         signProgress,
         coinControl,
     }) {
-        const wallet = this.getWallet();
-        if (!wallet) return null;
+        const account = this.getAccount();
+        if (!account) return null;
 
         let confirmPrequel = () => {
             if (signProgress) {
@@ -323,7 +323,7 @@ export default class Send extends Component {
                             <Balance
                                 t={t}
                                 code={code}
-                                name={wallet.name}
+                                name={account.name}
                                 balance={balance}
                                 fiat={fiat} />
                         </div>
@@ -335,7 +335,7 @@ export default class Send extends Component {
                                     <UTXOs
                                         ref={ref => this.utxos = ref}
                                         fiat={fiat}
-                                        walletCode={wallet.code}
+                                        accountCode={account.code}
                                         onChange={this.onSelectedUTXOsChange}>
                                         <div class="subHeader">
                                             <h3>{t('send.title')}</h3>
@@ -400,7 +400,7 @@ export default class Send extends Component {
                                     <FeeTargets
                                         label={t('send.feeTarget.label')}
                                         placeholder={t('send.feeTarget.placeholder')}
-                                        walletCode={wallet.code}
+                                        accountCode={account.code}
                                         disabled={!amount && !sendAll}
                                         onFeeTargetChange={this.feeTargetChange} />
                                     <Input
