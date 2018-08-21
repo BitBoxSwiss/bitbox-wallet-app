@@ -506,7 +506,7 @@
          },
         "accountSendDisabled": {
             "title": "Why can't I send any {{unit}}?",
-            "text": "Your balance may not be zero, otherwise you cannot cover the network fee."
+            "text": "The ‘Send’ button is activated when your balance is more than zero."
         },
         "accountLegacyConvert": {
             "title": "How can I move my coins out of the Legacy account?",
