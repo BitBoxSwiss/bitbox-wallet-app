@@ -198,6 +198,7 @@
             "step1": "Step 1. Enter the endpoint.",
             "step2": "Step 2: Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
             "step3": "Step 3: Check the connection and add the server.",
+            "step4": "Step 4: Restart the wallet. If you do not remove the default servers, your own node will be added as a redundancy.",
             "download_cert": "Download remote certificate"
         },
         "success": "Please unplug and replug the BitBox for the changes to take effect."
