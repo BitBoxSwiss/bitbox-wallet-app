@@ -109,7 +109,7 @@ ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
 func NewDefaultConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
-			BitcoinP2PKHActive:       true,
+			BitcoinP2PKHActive:       false,
 			BitcoinP2WPKHP2SHActive:  true,
 			BitcoinP2WPKHActive:      false,
 			LitecoinP2WPKHP2SHActive: true,
