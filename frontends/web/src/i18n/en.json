@@ -88,7 +88,7 @@
         "hardware": {
             "title": "Hardware",
             "sdcard": {
-                "label": "SD Card",
+                "label": "Micro SD Card",
                 "true": "Inserted",
                 "false": "Not inserted"
             }
@@ -323,7 +323,7 @@
           "description": "To create a new wallet, you must set a recovery password. This password is used to create, access and restore the wallet. It CANNOT be changed later and do NOT forget it.",
           "button": "Set the recovery password now"
         },
-        "createDescription": "Initialize the wallet and automatically create a backup on the SD card.",
+        "createDescription": "Initialize the wallet and automatically create a backup on the micro SD card.",
         "walletName": {
             "label": "Wallet Name",
             "placeholder": ""
@@ -344,7 +344,7 @@
         "backToCreate": "Or create a new wallet…",
         "error" : {
             "102": "The password must consist of at least 8 characters.",
-            "200": "Wallet creation requires an SD card for automatic backup."
+            "200": "Wallet creation requires an micro SD card for automatic backup."
         }
     },
     "initialize": {
@@ -378,8 +378,8 @@
           "button": "Restore from backup now"
         },
         "title": "Manage Backups",
-        "insert": "Please insert SD card to manage backups.",
-        "insertButton": "I have inserted the SD card",
+        "insert": "Please insert micro SD card to manage backups.",
+        "insertButton": "I have inserted the micro SD card",
         "desc": "Please choose the wallet you would like to restore.",
         "create": {
             "title": "Create Backup",
@@ -429,7 +429,7 @@
         "appVersion": "App Version:"
     },
     "warning": {
-        "sdcard": "Keep the SD card stored separate from the BitBox, unless you want to manage backups.",
+        "sdcard": "Keep the micro SD card stored separate from the BitBox, unless you want to manage backups.",
         "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage Device' in the sidebar.",
         "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage Device' in the sidebar."
     },
@@ -659,8 +659,8 @@
                 "text": [ "You can unplug the BitBox at any time without having to eject it first." ]
             },
             {
-                "title": "How can I eject the SD card?",
-                "text": [ "You can remove the SD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup." ]
+                "title": "How can I eject the micro SD card?",
+                "text": [ "You can remove the micro SD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup." ]
             },
             {
                 "title": "What is a hidden wallet?",
@@ -678,13 +678,13 @@
             },
             {
                 "title": "How can I disable Two Factor Authorization (2FA)?",
-                "text": [ "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
+                "text": [ "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the micro SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet." ]
             }
         ],
         "backups": [
             {
                 "title": "What is a backup?",
-                "text": [ "It is a copy of the seed on an SD card. The seed together with your recovery password generates your wallet." ]
+                "text": [ "It is a copy of the seed on an micro SD card. The seed together with your recovery password generates your wallet." ]
             },
             {
                 "title": "Can I encrypt the backup?",
@@ -696,7 +696,7 @@
             },
             {
                 "title": "How often do I have to make a backup?",
-                "text": [ "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your SD card is lost or damaged, or if you want to use multiple SD cards as backups. You do not need to create new backups after any transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you." ]
+                "text": [ "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your micro SD card is lost or damaged, or if you want to use multiple micro SD cards as backups. You do not need to create new backups after any transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you." ]
             }
         ],
         "unlock": [
@@ -722,15 +722,15 @@
         "seed": [
             {
                 "title": "Recovery password tips",
-                "text": [ "The recovery password should be strong and not easy to guess (no birthdates, names, phone numbers). We also recommend that you write it down and store it in a safe place separate from the SD card." ]
+                "text": [ "The recovery password should be strong and not easy to guess (no birthdates, names, phone numbers). We also recommend that you write it down and store it in a safe place separate from the micro SD card." ]
             },
             {
-                "title": "Why should I keep the SD card somewhere safe?",
+                "title": "Why should I keep the micro SD card somewhere safe?",
                 "text": [ "One of the reasons for using the BitBox is that your computer is too vulnerable to handle private keys for cryptocurrencies. Remove it from the BitBox and do not insert it into your computer." ]
             },
             {
-                "title": "Can I print the backup on the SD card?",
-                "text": [ "You can print it, since the seed is stored in a PDF on the SD card. However, you should either insert the SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several SD cards instead." ]
+                "title": "Can I print the backup on the micro SD card?",
+                "text": [ "You can print it, since the seed is stored in a PDF on the micro SD card. However, you should either insert the micro SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several micro SD cards instead." ]
             },
             {
                 "title": "Why can't I change the recovery password later on?",
