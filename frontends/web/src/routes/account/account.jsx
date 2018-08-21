@@ -93,7 +93,7 @@ export default class Account extends Component {
 
     onWalletEvent = data => {
         if (!this.props.code) return;
-        if (data.type !== 'wallet' || data.code !== this.props.code) {
+        if (data.type !== 'account' || data.code !== this.props.code) {
             return;
         }
         switch (data.data) {
@@ -109,13 +109,13 @@ export default class Account extends Component {
     onStatusChanged() {
         const code = this.props.code;
         if (!code) return;
-        apiGet(`wallet/${code}/status`).then(status => {
+        apiGet(`account/${code}/status`).then(status => {
             let state = {
                 walletInitialized: status.includes('accountSynced'),
                 walletConnected: !status.includes('offlineMode'),
             };
             if (!status.walletInitialized && !status.includes('accountDisabled')) {
-                apiPost(`wallet/${code}/init`);
+                apiPost(`account/${code}/init`);
             }
 
             this.setState(state);
@@ -126,10 +126,10 @@ export default class Account extends Component {
     onWalletChanged = () => {
         if (!this.props.code) return;
         if (this.state.walletInitialized && this.state.walletConnected) {
-            apiGet(`wallet/${this.props.code}/balance`).then(balance => {
+            apiGet(`account/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
             });
-            apiGet(`wallet/${this.props.code}/transactions`).then(transactions => {
+            apiGet(`account/${this.props.code}/transactions`).then(transactions => {
                 this.setState({ transactions });
             });
         } else {

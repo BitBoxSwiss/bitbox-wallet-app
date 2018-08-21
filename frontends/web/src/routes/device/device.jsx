@@ -58,7 +58,7 @@ export default class Device extends Component {
         this.onDeviceStatusChanged();
         this.onWalletStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
-            if (type === 'backend' && data === 'walletStatusChanged') {
+            if (type === 'backend' && data === 'accountsStatusChanged') {
                 this.onWalletStatusChanged();
             }
             if (type === 'devices' && data === 'registeredChanged') {
@@ -85,7 +85,7 @@ export default class Device extends Component {
     }
 
     onWalletStatusChanged = () => {
-        apiGet('wallet-status').then(status => {
+        apiGet('accounts-status').then(status => {
             if (status === 'initialized' && this.props.default) {
                 console.log('device.jsx route to /account'); // eslint-disable-line no-console
                 route('/account', true);

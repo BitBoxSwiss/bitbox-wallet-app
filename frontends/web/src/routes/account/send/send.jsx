@@ -61,7 +61,7 @@ export default class Send extends Component {
     }
 
     componentDidMount() {
-        apiGet(`wallet/${this.props.code}/balance`).then(balance => this.setState({ balance }));
+        apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
             apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
                 this.setState({ paired });
@@ -99,7 +99,7 @@ export default class Send extends Component {
 
     send = () => {
         this.setState({ signProgress: null, isConfirming: true });
-        apiPost('wallet/' + this.getWallet().code + '/sendtx', this.txInput()).then(result => {
+        apiPost('account/' + this.getWallet().code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
@@ -153,7 +153,7 @@ export default class Send extends Component {
             return;
         }
         const txInput = this.txInput();
-        apiPost('wallet/' + this.getWallet().code + '/tx-proposal', txInput).then(result => {
+        apiPost('account/' + this.getWallet().code + '/tx-proposal', txInput).then(result => {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
@@ -252,7 +252,7 @@ export default class Send extends Component {
     }
 
     sendToSelf = event => {
-        apiGet('wallet/' + this.getWallet().code + '/receive-addresses').then(receiveAddresses => {
+        apiGet('account/' + this.getWallet().code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
             this.handleFormChange(event);
         });

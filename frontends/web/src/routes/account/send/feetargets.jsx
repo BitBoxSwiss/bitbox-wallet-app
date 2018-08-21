@@ -35,7 +35,7 @@ export default class FeeTargets extends Component {
     }
 
     updateFeeTargets = (walletCode) => {
-        apiGet('wallet/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
+        apiGet('account/' + walletCode + '/fee-targets').then(({ feeTargets, defaultFeeTarget }) => {
             // feeTargets.push({code: 'custom'});
             this.setState({ feeTargets });
             this.setFeeTarget(defaultFeeTarget);

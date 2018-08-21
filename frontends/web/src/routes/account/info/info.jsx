@@ -62,8 +62,8 @@ export default class Info extends Component {
     }
 
     componentDidMount() {
-        apiGet(`wallet/${this.props.code}/balance`).then(balance => this.setState({ balance }));
-        apiGet(`wallet/${this.props.code}/info`).then(info => this.setState({ info }));
+        apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
+        apiGet(`account/${this.props.code}/info`).then(info => this.setState({ info }));
     }
 
     componentWillMount() {

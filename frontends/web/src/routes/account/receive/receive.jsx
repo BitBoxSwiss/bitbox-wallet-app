@@ -34,7 +34,7 @@ export default class Receive extends Component {
     }
 
     componentDidMount() {
-        apiGet('wallet/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
+        apiGet('account/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
         if (this.props.deviceIDs.length > 0) {
@@ -61,7 +61,7 @@ export default class Receive extends Component {
 
     verifyAddress = () => {
         this.setState({ verifying: true });
-        apiPost('wallet/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
+        apiPost('account/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
             this.setState({ verifying: false });
             if (!hasSecureOutput) {
                 alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
@@ -82,7 +82,7 @@ export default class Receive extends Component {
     };
 
     ltcConvertToLegacy = () => {
-        apiPost('wallet/' + this.props.code + '/convert-to-legacy-address',
+        apiPost('account/' + this.props.code + '/convert-to-legacy-address',
             this.state.receiveAddresses[this.state.activeIndex].scriptHashHex)
             .then(legacyAddress => {
                 const address = this.state.receiveAddresses[this.state.activeIndex].address;

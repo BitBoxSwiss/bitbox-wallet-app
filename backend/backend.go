@@ -58,8 +58,8 @@ type deviceEvent struct {
 	Meta interface{} `json:"meta"`
 }
 
-// WalletEvent models an event triggered by a wallet.
-type WalletEvent struct {
+// AccountEvent models an event triggered by an account.
+type AccountEvent struct {
 	Type string `json:"type"`
 	Code string `json:"code"`
 	Data string `json:"data"`
@@ -73,12 +73,12 @@ type Backend struct {
 
 	events chan interface{}
 
-	devices        map[string]device.Interface
-	keystores      keystore.Keystores
-	onWalletInit   func(*btc.Account)
-	onWalletUninit func(*btc.Account)
-	onDeviceInit   func(device.Interface)
-	onDeviceUninit func(string)
+	devices         map[string]device.Interface
+	keystores       keystore.Keystores
+	onAccountInit   func(*btc.Account)
+	onAccountUninit func(*btc.Account)
+	onDeviceInit    func(device.Interface)
+	onDeviceUninit  func(string)
 
 	coins     map[string]coin.Coin
 	coinsLock locker.Locker
@@ -123,7 +123,7 @@ func (backend *Backend) addAccount(
 	backend.log.WithField("code", code).WithField("name", name).Info("init account")
 	onEvent := func(code string) func(btc.Event) {
 		return func(event btc.Event) {
-			backend.events <- WalletEvent{Type: "wallet", Code: code, Data: string(event)}
+			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
 		}
 	}
 	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
@@ -264,6 +264,10 @@ func (backend *Backend) Coin(code string) coin.Coin {
 }
 
 func (backend *Backend) initAccounts() {
+	// Since initAccounts replaces all previous accounts, we need to properly close them first.
+	backend.uninitAccounts()
+	defer backend.accountsLock.Lock()()
+
 	backend.accounts = []*btc.Account{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
@@ -291,12 +295,12 @@ func (backend *Backend) initAccounts() {
 		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
 	}
 	for _, account := range backend.accounts {
-		backend.onWalletInit(account)
+		backend.onAccountInit(account)
 	}
 }
 
-// WalletStatus returns whether the wallets have been initialized.
-func (backend *Backend) WalletStatus() string {
+// AccountsStatus returns whether the accounts have been initialized.
+func (backend *Backend) AccountsStatus() string {
 	if backend.keystores.Count() > 0 {
 		return "initialized"
 	}
@@ -328,14 +332,14 @@ func (backend *Backend) UserLanguage() language.Tag {
 	return tag
 }
 
-// OnWalletInit installs a callback to be called when a wallet is initialized.
-func (backend *Backend) OnWalletInit(f func(*btc.Account)) {
-	backend.onWalletInit = f
+// OnAccountInit installs a callback to be called when an account is initialized.
+func (backend *Backend) OnAccountInit(f func(*btc.Account)) {
+	backend.onAccountInit = f
 }
 
-// OnWalletUninit installs a callback to be called when a wallet is stopped.
-func (backend *Backend) OnWalletUninit(f func(*btc.Account)) {
-	backend.onWalletUninit = f
+// OnAccountUninit installs a callback to be called when an account is stopped.
+func (backend *Backend) OnAccountUninit(f func(*btc.Account)) {
+	backend.onAccountUninit = f
 }
 
 // OnDeviceInit installs a callback to be called when a device is initialized.
@@ -366,13 +370,6 @@ func (backend *Backend) Events() <-chan interface{} {
 	return backend.events
 }
 
-func (backend *Backend) initWallets() {
-	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitWallets()
-	defer backend.accountsLock.Lock()()
-	backend.initAccounts()
-}
-
 // DevicesRegistered returns a slice of device IDs of registered devices.
 func (backend *Backend) DevicesRegistered() []string {
 	deviceIDs := []string{}
@@ -382,11 +379,11 @@ func (backend *Backend) DevicesRegistered() []string {
 	return deviceIDs
 }
 
-func (backend *Backend) uninitWallets() {
+func (backend *Backend) uninitAccounts() {
 	defer backend.accountsLock.Lock()()
 	for _, account := range backend.accounts {
 		account := account
-		backend.onWalletUninit(account)
+		backend.onAccountUninit(account)
 		account.Close()
 	}
 	backend.accounts = nil
@@ -406,16 +403,16 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
 	}
-	backend.initWallets()
-	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
+	backend.initAccounts()
+	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // DeregisterKeystore removes the registered keystore.
 func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
-	backend.uninitWallets()
-	backend.events <- backendEvent{Type: "backend", Data: "walletStatusChanged"}
+	backend.uninitAccounts()
+	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // Register registers the given device at this backend.

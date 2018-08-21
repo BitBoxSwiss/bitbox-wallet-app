@@ -50,12 +50,12 @@ type Backend interface {
 	Config() *config.Config
 	DefaultConfig() config.AppConfig
 	Coin(string) coin.Coin
-	WalletStatus() string
+	AccountsStatus() string
 	Testing() bool
 	Accounts() []*btc.Account
 	UserLanguage() language.Tag
-	OnWalletInit(f func(*btc.Account))
-	OnWalletUninit(f func(*btc.Account))
+	OnAccountInit(f func(*btc.Account))
+	OnAccountUninit(f func(*btc.Account))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() []string
@@ -139,8 +139,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/wallets", handlers.getWalletsHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/wallet-status", handlers.getWalletStatusHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/coins/rates", handlers.getRatesHandler).Methods("GET")
@@ -163,7 +163,7 @@ func NewHandlers(
 		defer handlersMapLock.Lock()()
 		if _, ok := accountHandlersMap[accountCode]; !ok {
 			accountHandlersMap[accountCode] = accountHandlers.NewHandlers(getAPIRouter(
-				apiRouter.PathPrefix(fmt.Sprintf("/wallet/%s", accountCode)).Subrouter(),
+				apiRouter.PathPrefix(fmt.Sprintf("/account/%s", accountCode)).Subrouter(),
 			), log)
 		}
 		accHandlers := accountHandlersMap[accountCode]
@@ -171,11 +171,11 @@ func NewHandlers(
 		return accHandlers
 	}
 
-	backend.OnWalletInit(func(account *btc.Account) {
+	backend.OnAccountInit(func(account *btc.Account) {
 		log.WithField("code", account.Code()).Debug("Initializing account")
 		getAccountHandlers(account.Code()).Init(account)
 	})
-	backend.OnWalletUninit(func(account *btc.Account) {
+	backend.OnAccountUninit(func(account *btc.Account) {
 		getAccountHandlers(account.Code()).Uninit()
 	})
 
@@ -254,12 +254,12 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 	return handlers.backend.Testing(), nil
 }
 
-func (handlers *Handlers) getWalletsHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.Accounts(), nil
 }
 
-func (handlers *Handlers) getWalletStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.WalletStatus(), nil
+func (handlers *Handlers) getAccountsStatusHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.AccountsStatus(), nil
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {

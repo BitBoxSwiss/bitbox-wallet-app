@@ -31,7 +31,7 @@ export default class UTXOs extends Component {
     }
 
     componentDidMount() {
-        apiGet(`wallet/${this.props.walletCode}/utxos`).then(utxos => {
+        apiGet(`account/${this.props.walletCode}/utxos`).then(utxos => {
             this.setState({ utxos });
         });
     }

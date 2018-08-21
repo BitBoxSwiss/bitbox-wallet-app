@@ -68,7 +68,7 @@ export default class App extends Component {
                 break;
             case 'backend':
                 switch (data) {
-                case 'walletStatusChanged':
+                case 'accountsStatusChanged':
                     this.onWalletStatusChanged();
                     break;
                 }
@@ -122,7 +122,7 @@ export default class App extends Component {
     }
 
     onWalletStatusChanged = () => {
-        apiGet('wallet-status').then(status => {
+        apiGet('accounts-status').then(status => {
             const walletInitialized = status === 'initialized';
             this.setState({
                 walletInitialized
@@ -132,7 +132,7 @@ export default class App extends Component {
                 route('/', true);
             }
 
-            apiGet('wallets').then(accounts => this.setState({ accounts }));
+            apiGet('accounts').then(accounts => this.setState({ accounts }));
         });
     }
 
