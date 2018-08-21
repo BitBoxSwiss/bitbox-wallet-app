@@ -85,7 +85,6 @@ type Backend struct {
 
 	accounts     []*btc.Account
 	accountsLock locker.Locker
-	// accountsSyncStart time.Time
 
 	// Stored and exposed temporarily through the backend.
 	ratesUpdater coin.RatesUpdater
