@@ -31,12 +31,12 @@ class ElectrumServer extends Component {
             electrumCert: '',
             loadingCheck: false,
             loadingCert: false,
-        }
+        };
         if (props.server !== null) {
             this.setState({
                 electrumServer: props.server.server,
                 electrumCert: props.server.pemCert,
-            })
+            });
         }
     }
 
@@ -68,7 +68,7 @@ class ElectrumServer extends Component {
             if (data.success) {
                 this.setState({ electrumCert: data.pemCert });
             } else {
-                alert(data.errorMessage)
+                alert(data.errorMessage);
             }
             this.setState({
                 loadingCert: false,
@@ -82,9 +82,9 @@ class ElectrumServer extends Component {
         });
         apiPost('certs/check', this.getServer()).then(({ success, errorMessage }) => {
             if (success) {
-                alert(`Successfully established a connection to ${this.state.electrumServer}`)
+                alert(`Successfully established a connection to ${this.state.electrumServer}`);
             } else {
-                alert("Failed:\n" + errorMessage);
+                alert('Failed:\n' + errorMessage);
             }
             this.setState({
                 valid: success,
@@ -112,11 +112,11 @@ class ElectrumServer extends Component {
                     <div>{index}</div>
                     <div class="flex-1">{electrumServer}</div>
                     <div>
-                        <button class={style.primary} disabled={electrumServer == '' || electrumCert == '' || loadingCheck} onClick={this.check}>
+                        <button class={style.primary} disabled={electrumServer === '' || electrumCert === '' || loadingCheck} onClick={this.check}>
                             {
                                 loadingCheck && (
                                     <div class={style.miniSpinnerContainer}>
-                                      <div class={style.miniSpinner}></div>
+                                        <div class={style.miniSpinner}></div>
                                     </div>
                                 )
                             }
@@ -144,10 +144,10 @@ class ElectrumServer extends Component {
                     data-statekey="electrumCert"
                     onInput={this.handleFormChange}
                     value={electrumCert}
-                    placeholder={"-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----"}
+                    placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}
                 />
                 <div class={style.block}>
-                    <Button primary disabled={loadingCert || electrumCert != ''} onClick={this.downloadCert}>
+                    <Button primary disabled={loadingCert || electrumCert !== ''} onClick={this.downloadCert}>
                         {
                             loadingCert && (
                                 <div class={style.miniSpinnerContainer}>
@@ -160,11 +160,11 @@ class ElectrumServer extends Component {
                 </div>
                 <p>{t('settings.electrum.step3')}</p>
                 <div class="buttons wrapped">
-                    <Button primary disabled={electrumServer == '' || loadingCheck} onClick={this.check}>
+                    <Button primary disabled={electrumServer === '' || loadingCheck} onClick={this.check}>
                         {
                             loadingCheck && (
                                 <div class={style.miniSpinnerContainer}>
-                                  <div class={style.miniSpinner}></div>
+                                    <div class={style.miniSpinner}></div>
                                 </div>
                             )
                         }
@@ -225,11 +225,16 @@ class ElectrumServers extends Component {
     }
 
     render({
-      t,
-      coin,
+        t,
+        coin,
     }, {
-      electrumServers,
+        electrumServers,
     }) {
+        let onRemove = (server, index) => (() => {
+            confirm(`Remove ${server.server}?`, confirmed => {
+                if (confirmed) this.onRemove(index);
+            });
+        });
         return (
             <div class={style.serversContainer}>
                 <div class="flex flex-row flex-between flex-items-center row">
@@ -247,11 +252,7 @@ class ElectrumServers extends Component {
                                     index={index + 1}
                                     key={server.server}
                                     server={server}
-                                    onRemove={() => {
-                                        confirm(`Remove ${server.server}?`, confirmed => {
-                                          if (confirmed) this.onRemove(index);
-                                        });
-                                    }}
+                                    onRemove={onRemove(server, index)}
                                 />
                             ))
                         }
@@ -259,7 +260,7 @@ class ElectrumServers extends Component {
                 </div>
                 <div class="row">
                     <h4 class={style.title}>{t('settings.electrum.add')}</h4>
-                    <ElectrumServer server={null} onAdd={this.onAdd}/>
+                    <ElectrumServer server={null} onAdd={this.onAdd} />
                 </div>
             </div>
         );
@@ -285,10 +286,10 @@ export default class ElectrumSettings extends Component {
     render({
         t,
         guide,
-      }, {
+    }, {
         testing,
         activeTab,
-      }) {
+    }) {
         return (
             <div class="contentWithGuide">
                 <div class="container">

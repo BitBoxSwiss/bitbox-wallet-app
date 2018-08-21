@@ -30,7 +30,7 @@ export default class Confirm extends Component {
 
     confirmOverride = (message, callback) => {
         this.setState({
-            message: message,
+            message,
             active: true,
         });
         this.callback = callback;
@@ -42,14 +42,14 @@ export default class Confirm extends Component {
             active: false,
             message: '',
         }, () => {
-          this.callback = null;
+            this.callback = null;
         });
     }
 
     render({}, {
-      message,
-      callback,
-      active,
+        message,
+        callback,
+        active,
     }) {
         if (!active) return;
         return (

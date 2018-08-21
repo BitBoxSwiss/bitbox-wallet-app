@@ -178,16 +178,16 @@ export default class Settings extends Component {
                                             <dd>{newVersion}</dd>
                                         </div>
                                     ) || (
-                                         <div>
+                                        <div>
                                             <dt></dt>
                                             <dd>{t('deviceSettings.firmware.upToDate')}</dd>
                                         </div>
                                     )}
                                 </dl>
                                 {canUpgrade && (
-                                     <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
-                                         <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
-                                     </div>
+                                    <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
+                                        <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                    </div>
                                 )}
 
                                 <hr />

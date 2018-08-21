@@ -138,7 +138,7 @@ export default class Settings extends Component {
                                                     className="text-medium" />
                                             </div>
                                             <div class={style.column}>
-                                                <ButtonLink primary href='/settings/electrum'>{t('settings.expert.electrum.title')}</ButtonLink>
+                                                <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
                                             </div>
                                         </div>
                                         {

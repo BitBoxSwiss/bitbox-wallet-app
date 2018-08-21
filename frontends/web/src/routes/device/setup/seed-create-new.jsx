@@ -103,8 +103,8 @@ export default class SeedCreateNew extends Component {
 
     handleAgreementChange = ({ target }) => {
         this.setState(state => ({ agreements: {
-          ...state.agreements,
-          [target.id]: target.checked
+            ...state.agreements,
+            [target.id]: target.checked
         } }));
     }
 

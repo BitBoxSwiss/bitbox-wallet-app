@@ -24,28 +24,28 @@ import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import style from './info.css';
 
-function SigningConfiguration({t, signingConfiguration }) {
+function SigningConfiguration({ t, signingConfiguration }) {
     return (
         // TODO: add info if single or multisig, and threshold.
         <div>
-        {
-            signingConfiguration.xpubs.map((xpub, index) => {
-                return (
-                    <div>
-                        <strong>
-                            {t('accountInfo.extendedPublicKey')}
-                            {signingConfiguration.xpubs.length > 1 && (' #' + (index+1))}
-                        </strong><br/>
-                        <QRCode data={xpub}/><br/>
-                        <Input
-                            readOnly
-                            className={style.addressField}
-                            onFocus={focus}
-                            value={xpub} />
-                    </div>
-                );
-            })
-        }
+            {
+                signingConfiguration.xpubs.map((xpub, index) => {
+                    return (
+                        <div key={xpub}>
+                            <strong>
+                                {t('accountInfo.extendedPublicKey')}
+                                {signingConfiguration.xpubs.length > 1 && (' #' + (index+1))}
+                            </strong><br />
+                            <QRCode data={xpub} /><br />
+                            <Input
+                                readOnly
+                                className={style.addressField}
+                                onFocus={focus}
+                                value={xpub} />
+                        </div>
+                    );
+                })
+            }
         </div>
     );
 }
@@ -126,7 +126,7 @@ export default class Info extends Component {
                             <div class={style.infoContent}>
                                 <SigningConfiguration
                                     t={t}
-                                    signingConfiguration={info.signingConfiguration}/>
+                                    signingConfiguration={info.signingConfiguration} />
                             </div>
                         </div>
                         <div class="flex flex-row flex-between" style="margin: 0 2rem 2rem 2rem;">

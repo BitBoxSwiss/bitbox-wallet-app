@@ -163,7 +163,6 @@ export default class Device extends Component {
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
         }
-        console.log(deviceStatus);
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
             return <Bootloader deviceID={deviceID} guide={guide} />;
@@ -185,8 +184,8 @@ export default class Device extends Component {
         case DeviceStatus.UNINITIALIZED:
             if (!goal) {
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
-        }
-                return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+            }
+            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
         case DeviceStatus.LOGGED_IN:
             switch (goal) {
             case GOAL.CREATE:

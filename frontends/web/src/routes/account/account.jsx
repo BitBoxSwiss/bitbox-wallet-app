@@ -239,7 +239,7 @@ export default class Account extends Component {
                             <p>{t('guide.accountTransactionTime.text')}</p>
                         </Entry>
                     )}
-                   {(account.code === 'tbtc-p2pkh' || account.code === 'btc-p2pkh') && (
+                    {(account.code === 'tbtc-p2pkh' || account.code === 'btc-p2pkh') && (
                         <Entry key="accountLegacyConvert" title={t('guide.accountLegacyConvert.title')}>
                             <p>{t('guide.accountLegacyConvert.text')}</p>
                         </Entry>
