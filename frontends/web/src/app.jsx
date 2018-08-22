@@ -16,12 +16,12 @@
 
 import { Component } from 'preact';
 import { Router, route } from 'preact-router';
-import { translate } from 'react-i18next';
 
 import { apiGet } from './utils/request';
 import { setConfig } from './utils/config';
 import { apiWebsocket } from './utils/websocket';
 import { equal } from './utils/equal';
+import Update from './components/update/update';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
@@ -33,17 +33,13 @@ import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
 import Confirm from './components/confirm/Confirm';
-import Status from './components/status/status';
-import A from './components/anchor/anchor';
 
-@translate()
 export default class App extends Component {
     state = {
         accounts: [],
         backendConnected: true,
         accountsInitialized: false,
         deviceIDs: [],
-        update: null,
         guideShown: false,
         fiatCode: 'CHF',
         fiatList: ['USD', 'EUR', 'CHF'],
@@ -89,9 +85,6 @@ export default class App extends Component {
                     this.onDevicesRegisteredChanged();
                     break;
                 }
-                break;
-            case 'update':
-                this.setState({ update: data });
                 break;
             }
         });
@@ -206,18 +199,13 @@ export default class App extends Component {
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
-                {(<Sidebar accounts={accounts} deviceIDs={deviceIDs} accountsInitialized={accountsInitialized} guideShown={guideShown} />)}
+                <Sidebar
+                    accounts={accounts}
+                    deviceIDs={deviceIDs}
+                    accountsInitialized={accountsInitialized}
+                    guideShown={guideShown} />
                 <div class="flex-column flex-1">
-                    {update && <Status dismissable keyName={`update-${update.version}`} type="info">
-                        {t('app.upgrade', {
-                            current: update.current,
-                            version: update.version
-                        })} {update.description}
-                        {' '}
-                        <A href="https://shiftcrypto.ch/start">
-                            {t('button.download')}
-                        </A>
-                    </Status>}
+                    <Update />
                     <Router onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"

@@ -137,6 +137,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
@@ -244,6 +245,10 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 		return nil, errp.WithStack(err)
 	}
 	return nil, system.Open(url)
+}
+
+func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error) {
+	return backend.CheckForUpdate()
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {

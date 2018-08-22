@@ -18,13 +18,12 @@ import { h, RenderableProps } from 'preact';
 import { apiPost } from '../../utils/request';
 import * as style from './anchor.css';
 
-interface Properties {
+interface Props {
     href: string;
-    children?: any;
     [property: string]: any;
 }
 
-export default function A({ href, children, ...props }: RenderableProps<Properties>): JSX.Element {
+export default function A({ href, children, ...props }: RenderableProps<Props>): JSX.Element {
     return (
         <span className={style.link} onClick={() => apiPost('open', href)} title={href} {...props}>
             {children}

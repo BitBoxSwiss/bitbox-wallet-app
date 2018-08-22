@@ -29,8 +29,8 @@ var (
 	Version = semver.NewSemVer(4, 1, 0)
 )
 
-// The update file is retrieved from the server.
-type updateFile struct {
+// UpdateFile is retrieved from the server.
+type UpdateFile struct {
 	// CurrentVersion stores the current version and is not loaded from the server.
 	CurrentVersion *semver.SemVer `json:"current"`
 
@@ -41,31 +41,27 @@ type updateFile struct {
 	Description string `json:"description"`
 }
 
-type updateEvent struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
-}
-
 // CheckForUpdate checks whether a newer version of this application has been released.
-func (backend *Backend) checkForUpdate() error {
+// It returns the retrieved update file if a newer version has been released and nil otherwise.
+func CheckForUpdate() (*UpdateFile, error) {
 	response, err := http.Get(updateFileURL)
 	if err != nil {
-		return errp.WithStack(err)
+		return nil, errp.WithStack(err)
 	}
 	defer func() {
 		_ = response.Body.Close()
 	}()
 
-	var update updateFile
-	err = json.NewDecoder(response.Body).Decode(&update)
+	var updateFile UpdateFile
+	err = json.NewDecoder(response.Body).Decode(&updateFile)
 	if err != nil {
-		return errp.WithStack(err)
+		return nil, errp.WithStack(err)
 	}
 
-	if !Version.AtLeast(update.NewVersion) {
-		update.CurrentVersion = Version
-		backend.events <- updateEvent{Type: "update", Data: update}
+	if Version.AtLeast(updateFile.NewVersion) {
+		return nil, nil
 	}
 
-	return nil
+	updateFile.CurrentVersion = Version
+	return &updateFile, nil
 }

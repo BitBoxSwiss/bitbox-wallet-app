@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-import { I18nextProvider } from 'react-i18next';
+// This file is the entry point used by 'preact-cli' to start the application.
+// It is recommended to leave this file as 'index.js' and not rename it to 'index.jsx', 'index.ts'
+// or 'index.tsx' (see https://github.com/wub/preact-cli-plugin-typescript#changing-the-entrypoint).
 
-import TheApp from './app';
+import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n/i18n';
+import App from './app';
 import './style';
 
-
-export default function App() {
+export default function Index() {
     return (
-        <I18nextProvider i18n={ i18n }><TheApp /></I18nextProvider>
+        <I18nextProvider i18n={i18n}><App /></I18nextProvider>
     );
 }
