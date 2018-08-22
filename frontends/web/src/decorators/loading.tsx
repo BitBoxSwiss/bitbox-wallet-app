@@ -48,8 +48,13 @@ let logCounter = 0;
  *     return <div>{propertyName}</div>
  * }
  * 
- * export const LoadingExample = loading({ propertyName: 'path/to/endpoint' })(Example);
+ * const LoadingExample = loading({ propertyName: 'path/to/endpoint' })(Example);
+ * export default LoadingExample;
  * ```
+ * 
+ * Please note that you cannot export the constant directly as a default
+ * because `export default const a = 1, b = 2;` does not make sense
+ * (see https://github.com/Microsoft/TypeScript/issues/18737).
  */
 export default function loading<Props, State>(
     endpointsObjectOrFunction: Endpoints | EndpointsFunction<Props>,
