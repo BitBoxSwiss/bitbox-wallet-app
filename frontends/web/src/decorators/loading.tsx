@@ -15,7 +15,7 @@
  */
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { Endpoints, EndpointsFunction } from './endpoints';
+import { EndpointsObject, EndpointsFunction } from './endpoints';
 import { apiGet } from '../utils/request';
 
 // Stores whether to log the time needed for individual API calls.
@@ -33,7 +33,7 @@ let logCounter = 0;
  * 
  * How to use this decorator on a component class?
  * ```
- * @loading({ propertyName: 'path/to/endpoint' })
+ * @loading<ExampleProps>({ propertyName: 'path/to/endpoint' })
  * export default class Example extends Component<ExampleProps, ExampleState> {
  *     render({ propertyName }: RenderableProps<ExampleProps>): JSX.Element {
  *         return <div>{propertyName}</div>;
@@ -48,7 +48,7 @@ let logCounter = 0;
  *     return <div>{propertyName}</div>
  * }
  * 
- * const LoadingExample = loading({ propertyName: 'path/to/endpoint' })(Example);
+ * const LoadingExample = loading<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
  * export default LoadingExample;
  * ```
  * 
@@ -56,15 +56,15 @@ let logCounter = 0;
  * because `export default const a = 1, b = 2;` does not make sense
  * (see https://github.com/Microsoft/TypeScript/issues/18737).
  */
-export default function loading<Props, State>(
-    endpointsObjectOrFunction: Endpoints | EndpointsFunction<Props>,
+export default function loading<Props, State = {}>(
+    endpointsObjectOrFunction: EndpointsObject<Props> | EndpointsFunction<Props>,
     renderOnlyOnceLoaded: boolean = true,
 ) {
     return function decorator(
         WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
     ) {
         return class LoadingComponent extends Component<Props, any> {
-            private determineEndpoints(): Endpoints {
+            private determineEndpoints(): EndpointsObject<Props> {
                 if (typeof endpointsObjectOrFunction === "function") {
                     return endpointsObjectOrFunction(this.props);
                 }
@@ -81,7 +81,7 @@ export default function loading<Props, State>(
                 });
             }
 
-            private endpoints: Endpoints;
+            private endpoints: EndpointsObject<Props>;
 
             private loadEndpoints(): void {
                 const oldEndpoints = this.endpoints;
@@ -121,7 +121,7 @@ export default function loading<Props, State>(
                 return true;
             }
             
-            public render(props: RenderableProps<Props>, state: any): JSX.Element {
+            public render(props: RenderableProps<Props>, state: any): JSX.Element | null {
                 if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
                 return <WrappedComponent {...state} {...props} />; // This order allows the updating decorator (and others) to override the loaded endpoints with properties.
             }

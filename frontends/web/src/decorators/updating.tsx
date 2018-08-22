@@ -15,7 +15,7 @@
  */
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { Endpoints, EndpointsFunction } from './endpoints';
+import { EndpointsObject, EndpointsFunction } from './endpoints';
 import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { equal } from '../utils/equal';
@@ -30,7 +30,7 @@ import loading from './loading';
  * 
  * How to use this decorator on a component class?
  * ```
- * @updating({ propertyName: 'path/to/endpoint' })
+ * @updating<ExampleProps>({ propertyName: 'path/to/endpoint' })
  * export default class Example extends Component<ExampleProps, ExampleState> {
  *     render({ propertyName }: RenderableProps<ExampleProps>): JSX.Element {
  *         return <div>{propertyName}</div>;
@@ -45,7 +45,7 @@ import loading from './loading';
  *     return <div>{propertyName}</div>
  * }
  * 
- * const UpdatingExample = updating({ propertyName: 'path/to/endpoint' })(Example);
+ * const UpdatingExample = updating<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
  * export default UpdatingExample;
  * ```
  * 
@@ -54,21 +54,21 @@ import loading from './loading';
  * (see https://github.com/Microsoft/TypeScript/issues/18737).
  */
 export default function updating<Props, State>(
-    endpointsObjectOrFunction: Endpoints | EndpointsFunction<Props>,
+    endpointsObjectOrFunction: EndpointsObject<Props> | EndpointsFunction<Props>,
     renderOnlyOnceLoaded: boolean = true,
 ) {
     return function decorator(
         WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
     ) {
         return class UpdatingComponent extends Component<Props, any> {
-            private determineEndpoints(): Endpoints {
+            private determineEndpoints(): EndpointsObject<Props> {
                 if (typeof endpointsObjectOrFunction === "function") {
                     return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;
             }
 
-            private endpoints: Endpoints;
+            private endpoints: EndpointsObject<Props>;
 
             private subscriptions: { [key: string]: () => void } = {};
 

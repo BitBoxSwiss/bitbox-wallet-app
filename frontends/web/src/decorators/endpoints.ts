@@ -1,12 +1,12 @@
-import { Component, RenderableProps } from 'preact';
+import { RenderableProps } from 'preact';
 
 /**
  * Describes which endpoints should be loaded to which property names.
  * 
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
-export interface Endpoints {
-    readonly [key: string]: string;
+export type EndpointsObject<Props> = {
+    readonly [Key in keyof Props]?: string;
 }
 
 /**
@@ -14,4 +14,4 @@ export interface Endpoints {
  * 
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
-export type EndpointsFunction<Props> = (props: RenderableProps<Props>) => Endpoints;
+export type EndpointsFunction<Props> = (props: RenderableProps<Props>) => EndpointsObject<Props>;
