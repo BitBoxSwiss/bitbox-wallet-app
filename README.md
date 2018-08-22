@@ -51,6 +51,19 @@ Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app`
 
 Only the first time, set up the project with `make init`.
 
+## Mac OS X
+
+Install build dependencies for OS X:
+
+`make osx-init`
+
+Build BitBox.app on OS X:
+
+`make qt-osx`
+
+After the build, `BitBox.app` is located in `frontends/qt/build/osx/BitBox.app`
+and the disk image is in `frontends/qt/build/osx/BitBox.dmg`.
+
 ## ElectrumX Backend
 
 The servers used are configurable in the app settings. Currently, when running the app in devmode
