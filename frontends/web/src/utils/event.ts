@@ -73,7 +73,7 @@ function handleEvent(payload: any): void {
 /**
  * This variable keeps track of whether the below method has subscribed to the websocket.
  */
-let subscribed = null;
+let subscribed: Unsubscribe | null = null;
 
 /**
  * Subscribes the given observer on events of the given subject and returns a method to unsubscribe.
