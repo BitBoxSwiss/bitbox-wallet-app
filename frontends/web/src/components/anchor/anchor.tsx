@@ -14,11 +14,17 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, RenderableProps } from 'preact';
 import { apiPost } from '../../utils/request';
-import style from './anchor.css';
+import * as style from './anchor.css';
 
-export default function A({ href, children, ...props }) {
+interface Properties {
+    href: string;
+    children?: any;
+    [property: string]: any;
+}
+
+export default function A({ href, children, ...props }: RenderableProps<Properties>): JSX.Element {
     return (
         <span className={style.link} onClick={() => apiPost('open', href)} title={href} {...props}>
             {children}
