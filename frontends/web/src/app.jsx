@@ -178,12 +178,11 @@ export default class App extends Component {
         });
     }
 
-    render({ t }, {
+    render({}, {
         accounts,
         backendConnected,
         deviceIDs,
         accountsInitialized,
-        update,
         guideShown,
         fiatCode,
         fiatList
