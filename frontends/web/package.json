@@ -20,8 +20,8 @@
     "eslint-config-synacor": "3.0.1",
     "if-env": "1.0.4",
     "preact-cli": "2.2.1",
-    "preact-cli-plugin-typescript": "^0.2.2",
-    "typings-for-css-modules-loader": "^1.7.0"
+    "preact-cli-plugin-typescript": "0.2.2",
+    "typings-for-css-modules-loader": "1.7.0"
   },
   "dependencies": {
     "i18next": "11.3.6",
