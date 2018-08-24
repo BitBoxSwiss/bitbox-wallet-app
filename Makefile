@@ -29,6 +29,19 @@ init:
 	make envinit
 	dep ensure
 	make generate
+# This must be run in $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
+osx-init:
+	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	brew install yarn
+	brew install go
+	brew install qt
+	export PATH="/usr/local/opt/qt/bin:$PATH"
+	export LDFLAGS="-L/usr/local/opt/qt/lib"
+	export CPPFLAGS="-I/usr/local/opt/qt/include"
+	export GOPATH=~/go/
+	export PATH=$PATH:~/go/bin
+	make init
+
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
@@ -55,6 +68,10 @@ qt-linux: # run inside dockerdev
 qt-osx: # run on OSX.
 	make generate
 	make -C frontends/qt osx
+	make osx-sec-check
+osx-sec-check:
+	@echo "Checking build output"
+	./scripts/osx-build-check.sh
 ci:
 	./scripts/ci.sh
 ci-fast:
