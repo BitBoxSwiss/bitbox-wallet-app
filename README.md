@@ -2,6 +2,8 @@
 
 This repo contains the source code for the BitBox Wallet App and related tools.
 
+[![Build Status](https://travis-ci.org/digitalbitbox/bitbox-wallet-app.svg?branch=master)](https://travis-ci.org/digitalbitbox/bitbox-wallet-app)
+
 ## Tech Stack
 
 The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
