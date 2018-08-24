@@ -76,7 +76,7 @@ func (s *dbbTestSuite) SetupTest() {
 
 func (s *dbbTestSuite) TearDownTest() {
 	s.dbb.Close()
-	os.RemoveAll(s.configDir)
+	_ = os.RemoveAll(s.configDir)
 }
 
 func TestDBBTestSuite(t *testing.T) {
@@ -375,7 +375,7 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 
 func TestNewDeviceReadsChannel(t *testing.T) {
 	configDir := test.TstTempDir("dbb_device_test")
-	defer os.RemoveAll(configDir)
+	defer func() { _ = os.RemoveAll(configDir) }()
 	mobchan := relay.NewChannelWithRandomKey()
 	if err := mobchan.StoreToConfigFile(configDir); err != nil {
 		t.Fatal(err)

@@ -48,7 +48,7 @@ func TestAppDir(t *testing.T) {
 	// Parent process.
 	// Prepare an existing temp home dir and run child process tests.
 	homeDir := test.TstTempDir("test_app_dir")
-	defer os.RemoveAll(homeDir)
+	defer func() { _ = os.RemoveAll(homeDir) }()
 	legacyConfigDir := homeDir + "/.config/bitbox"
 	if err := os.MkdirAll(legacyConfigDir, 0755); err != nil {
 		t.Fatalf("os.MkdirAll: %v", err)

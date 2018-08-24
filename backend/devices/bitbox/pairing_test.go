@@ -71,7 +71,7 @@ func TestFinishPairing(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(okTempDir)
+	defer func() { _ = os.RemoveAll(okTempDir) }()
 
 	tt := []struct {
 		configDir  string

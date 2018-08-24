@@ -42,10 +42,8 @@ import (
 )
 
 const (
-	gapLimit = 20
-	// Normally the same
-	receiveAddressesLimit = 20
-	changeGapLimit        = 6
+	gapLimit       = 20
+	changeGapLimit = 6
 )
 
 // Interface is the API of a Account.
