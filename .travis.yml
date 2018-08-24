@@ -1,0 +1,13 @@
+sudo: required
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - make
+
+script:
+- docker build --tag bitbox-wallet-dev -f Dockerfile .
+- docker build --tag bitbox-wallet-ci -f Dockerfile.travis .
