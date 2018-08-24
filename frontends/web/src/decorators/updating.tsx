@@ -62,7 +62,7 @@ export default function updating<Props, State>(
     ) {
         return class UpdatingComponent extends Component<Props, any> {
             private determineEndpoints(): EndpointsObject<Props> {
-                if (typeof endpointsObjectOrFunction === "function") {
+                if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;

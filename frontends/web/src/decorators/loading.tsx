@@ -65,7 +65,7 @@ export default function loading<Props, State = {}>(
     ) {
         return class LoadingComponent extends Component<Props, any> {
             private determineEndpoints(): EndpointsObject<Props> {
-                if (typeof endpointsObjectOrFunction === "function") {
+                if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;

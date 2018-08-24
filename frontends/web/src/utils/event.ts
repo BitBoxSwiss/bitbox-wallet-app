@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { apiWebsocket } from "./websocket";
+import { apiWebsocket } from './websocket';
 
 /**
  * This type describes the subject of an event.
@@ -24,7 +24,7 @@ export type Subject = string;
 /**
  * This type enumerates the various actions of an event.
  */
-export type Action = "replace" | "prepend" | "append" | "remove" | "reload";
+export type Action = 'replace' | 'prepend' | 'append' | 'remove' | 'reload';
 
 /**
  * This interface models the events that are received from the backend.
