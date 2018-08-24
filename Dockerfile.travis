@@ -22,5 +22,5 @@ RUN mkdir -p /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/
 ADD . /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/
 
 RUN make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ init
-RUN make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ ci
-RUN make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ qt-linux
+# RUN make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ ci
+# RUN make -C /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ qt-linux

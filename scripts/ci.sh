@@ -27,7 +27,7 @@ gometalinter.v1 \
     "$fast" \
     --concurrency 3 \
     --skip=mocks \
-    --deadline=600s \
+    --deadline=1200s \
     --vendored-linters \
     --vendor \
     --disable-all \
