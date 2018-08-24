@@ -1,0 +1,17 @@
+include ../../../hardening.mk.inc
+include ../../../env.mk.inc
+CGO=1
+BUILDMODE=c-shared
+GOARCH=amd64
+GOOS=darwin
+
+darwin:
+	CGO_CFLAGS="-g ${GODARWINSECFLAGS} ${CFLAGS}" \
+	CGO_LDFLAGS="${GODARWINLDFLAGS} ${LFLAGS}" \
+	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
+	go build -x \
+	-buildmode="c-shared" -o ${LIBNAME}.so
+
+clean:
+	-rm ${LIBNAME}.so
+	-rm ${LIBNAME}.h

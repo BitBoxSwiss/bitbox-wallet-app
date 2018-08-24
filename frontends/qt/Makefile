@@ -1,11 +1,13 @@
 base:
-	make -C server/
-	rm -rf build/
 	mkdir build
 	./genassets.sh
 	qmake -o build/Makefile
 	make -C build
+clean:
+	-rm -rf build
+	make -C server clean
 linux:
+	make -C server/ linux
 	make base
 	mkdir build/linux-tmp build/linux
 	mv build/BitBox build/linux-tmp
@@ -24,6 +26,7 @@ linux:
 	mv build/linux-tmp/BitBox-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
+	make -C server/ macosx
 	make base
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
