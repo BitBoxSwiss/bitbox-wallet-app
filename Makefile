@@ -41,7 +41,6 @@ osx-init:
 	export GOPATH=~/go/
 	export PATH=$PATH:~/go/bin
 	make init
-
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:

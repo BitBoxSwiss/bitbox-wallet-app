@@ -55,5 +55,3 @@ function inspect {
 inspect $BITBOX
 inspect $QTWEBENGINE
 inspect $LIBSERVER
-
-exit $EXIT 
