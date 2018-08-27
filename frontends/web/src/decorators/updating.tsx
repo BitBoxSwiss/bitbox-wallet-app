@@ -45,13 +45,8 @@ import loading from './loading';
  *     return <div>{propertyName}</div>
  * }
  * 
- * const UpdatingExample = updating<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
- * export default UpdatingExample;
+ * export default updating<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
  * ```
- * 
- * Please note that you cannot export the constant directly as a default
- * because `export default const a = 1, b = 2;` does not make sense
- * (see https://github.com/Microsoft/TypeScript/issues/18737).
  */
 export default function updating<Props, State>(
     endpointsObjectOrFunction: EndpointsObject<Props> | EndpointsFunction<Props>,

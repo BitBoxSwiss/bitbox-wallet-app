@@ -51,5 +51,4 @@ function Update({t, file}: RenderableProps<Props>): JSX.Element | null {
     );
 }
 
-const LoadingUpdate = translate()(loading<Props>({ file: 'update' })(Update));
-export default LoadingUpdate;
+export default translate()(loading<Props>({ file: 'update' })(Update));
