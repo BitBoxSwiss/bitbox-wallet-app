@@ -56,4 +56,4 @@ inspect $BITBOX
 inspect $QTWEBENGINE
 inspect $LIBSERVER
 
-exit $EXIT 
+exit $EXIT

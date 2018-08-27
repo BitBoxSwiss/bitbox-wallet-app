@@ -5,16 +5,14 @@ sudo: true
 services:
   - docker
 
+os:
+  - linux
+  - osx
+
 addons:
   apt:
     packages:
       - make
 
 script:
-- set -e
-- docker build --tag bitbox-wallet-dev -f Dockerfile .
-- docker build --tag bitbox-wallet-ci -f Dockerfile.travis .
-- docker run -i bitbox-wallet-ci bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app ci" &
-- while [ -e /proc/$! ]; do echo -n "."  && sleep 60; done
-- docker run --privileged -i bitbox-wallet-ci bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
-- set +e
+- ./scripts/travis-ci.sh
