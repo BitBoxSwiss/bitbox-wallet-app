@@ -37,4 +37,4 @@ apt-get install -y --no-install-recommends \
 npm install -g yarn
 
 mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.11.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
