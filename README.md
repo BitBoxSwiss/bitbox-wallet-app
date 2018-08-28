@@ -49,7 +49,7 @@ Make sure $GOPATH is set and $GOPAH/bin and $GOROOT/bin is in your $PATH
 
 Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
 
-Only the first time, set up the project with `make init`.
+Only the first time, call `make envinit` to install the required go utilities (linters, dep, ...).
 
 ## Mac OS X
 
@@ -119,9 +119,6 @@ After that, `make dockerdev` enters the container (a shell inside an Ubuntu virt
 you can perform the same steps as in the previous section (`make servewallet` and `make
 webdev`). Running `make dockerdev` multiple times shares the same container. You can edit the code
 in your usual editor in the host and compile inside the container.
-
-For the first time after `make dockerinit`, enter the image with `make dockerdev` and run `make
-init` to initialize the repo.
 
 To execute `make servewallet` and `make webdev` insider the container, but from the host, use this:
 

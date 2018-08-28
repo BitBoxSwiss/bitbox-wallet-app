@@ -20,6 +20,6 @@ if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     mkdir -p $GOPATH/src/github.com/digitalbitbox/
     cd ../ && mv bitbox-wallet-app $GOPATH/src/github.com/digitalbitbox/
     cd $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app/
-    make init
+    make envinit
     make qt-osx
 fi
