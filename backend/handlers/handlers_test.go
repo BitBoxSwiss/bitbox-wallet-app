@@ -28,6 +28,10 @@ import (
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
+	const skip = true
+	if skip {
+		t.Skip("manual listing of handlers")
+	}
 	connectionData := handlers.NewConnectionData(8082, "")
 	backend := backend.NewBackend(arguments.NewArguments(
 		test.TstTempDir("bitbox-wallet-listroutes-"), false, false, false, false))

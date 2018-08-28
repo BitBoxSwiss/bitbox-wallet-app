@@ -107,9 +107,9 @@ func (account *Account) MarshalJSON() ([]byte, error) {
 		Name                  string `json:"name"`
 		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
 	}{
-		CoinCode: account.coin.Name(),
-		Code:     account.code,
-		Name:     account.name,
+		CoinCode:              account.coin.Name(),
+		Code:                  account.code,
+		Name:                  account.name,
 		BlockExplorerTxPrefix: account.coin.blockExplorerTxPrefix,
 	})
 }
@@ -147,10 +147,10 @@ func NewAccount(
 	log.Debug("Creating new account")
 
 	account := &Account{
-		coin:     coin,
-		dbFolder: dbFolder,
-		code:     code,
-		name:     name,
+		coin:                    coin,
+		dbFolder:                dbFolder,
+		code:                    code,
+		name:                    name,
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,

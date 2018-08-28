@@ -54,9 +54,9 @@ type ElectrumClient struct {
 // NewElectrumClient creates a new Electrum client.
 func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient {
 	electrumClient := &ElectrumClient{
-		rpc: rpcClient,
+		rpc:                             rpcClient,
 		scriptHashNotificationCallbacks: map[string]func(string) error{},
-		log: log.WithField("group", "client"),
+		log:                             log.WithField("group", "client"),
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
 	// installed by ScriptHashSubscribe().

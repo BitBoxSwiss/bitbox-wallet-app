@@ -123,15 +123,15 @@ type RPCClient struct {
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
 func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
-		backends: backends,
-		msgID:    0,
-		status:   rpc.CONNECTED,
+		backends:                        backends,
+		msgID:                           0,
+		status:                          rpc.CONNECTED,
 		onConnectionStatusChangesNotify: []func(rpc.Status){},
 		pendingRequests:                 map[int]*request{},
 		pingRequests:                    map[int]bool{},
 		subscriptionRequests:            []*request{},
 		notificationsCallbacks:          map[string][]func([]byte){},
-		log: log,
+		log:                             log,
 	}
 	return client
 }
