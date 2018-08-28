@@ -262,7 +262,8 @@ func (account *Account) Init() error {
 
 	fixGapLimit := gapLimit
 	fixChangeGapLimit := changeGapLimit
-	if account.signingConfiguration.Singlesig() && account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
+	if account.signingConfiguration.Singlesig() &&
+		account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
 		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
 		fixChangeGapLimit = 20
 
@@ -291,9 +292,9 @@ func (account *Account) xpubVersionForScriptType(scriptType signing.ScriptType) 
 	switch account.coin.Net().Net {
 	case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
 		versions := map[signing.ScriptType][4]byte{
-			signing.ScriptTypeP2PKH:      [4]byte{0x04, 0x88, 0xb2, 0x1e}, // xpub
-			signing.ScriptTypeP2WPKHP2SH: [4]byte{0x04, 0x9d, 0x7c, 0xb2}, // ypub
-			signing.ScriptTypeP2WPKH:     [4]byte{0x04, 0xb2, 0x47, 0x46}, // zpub
+			signing.ScriptTypeP2PKH:      {0x04, 0x88, 0xb2, 0x1e}, // xpub
+			signing.ScriptTypeP2WPKHP2SH: {0x04, 0x9d, 0x7c, 0xb2}, // ypub
+			signing.ScriptTypeP2WPKH:     {0x04, 0xb2, 0x47, 0x46}, // zpub
 		}
 		version, ok := versions[scriptType]
 		if !ok {

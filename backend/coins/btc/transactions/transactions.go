@@ -365,7 +365,6 @@ func (transactions *Transactions) doForTransaction(
 		},
 		func() { done() },
 	)
-	return
 }
 
 // Balance contains the available and incoming balance of the wallet.
@@ -436,9 +435,9 @@ const (
 	// TxTypeReceive is a tx which sends funds to our wallet.
 	TxTypeReceive TxType = "receive"
 	// TxTypeSend is a tx which sends funds out of our wallet.
-	TxTypeSend = "send"
+	TxTypeSend TxType = "send"
 	// TxTypeSendSelf is a tx from out wallet to our wallet.
-	TxTypeSendSelf = "sendSelf"
+	TxTypeSendSelf TxType = "sendSelf"
 )
 
 // TxInfo contains additional tx information to display to the user.

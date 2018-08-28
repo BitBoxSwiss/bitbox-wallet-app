@@ -1,0 +1,79 @@
+# This file contains all available configuration options
+# with their default values.
+
+# options for analysis running
+run:
+  # default concurrency is a available CPU number
+  concurrency: 4
+
+  # timeout for analysis, e.g. 30s, 5m, default is 1m
+  deadline: 10m
+
+  # exit code when at least one issue was found, default is 1
+  issues-exit-code: 1
+
+  # include test files or not, default is true
+  tests: true
+
+# output configuration options
+output:
+  # colored-line-number|line-number|json|tab|checkstyle, default is "colored-line-number"
+  format: colored-line-number
+
+  # print lines of code with issue, default is true
+  print-issued-lines: true
+
+  # print linter name in the end of issue text, default is true
+  print-linter-name: true
+
+
+# all available settings of specific linters
+linters-settings:
+  gocyclo:
+    min-complexity: 25
+  maligned:
+    # print struct with more effective memory layout or not, false by default
+    suggest-new: true
+  dupl:
+    # tokens count to trigger issue, 150 by default
+    threshold: 100
+  goconst:
+    # minimal length of string constant, 3 by default
+    min-len: 3
+    # minimal occurrences count to trigger, 3 by default
+    min-occurrences: 3
+  misspell:
+    # Correct spellings using locale preferences for US or UK.
+    # Default is to use a neutral variety of English.
+    # Setting locale to US will correct the British spelling of 'colour' to 'color'.
+    locale: US
+  lll:
+    # max line length, lines longer will be reported. Default is 120.
+    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
+    line-length: 120
+    # allow long comments.
+    exclude: '//'
+    # tab width in spaces. Default to 1.
+    tab-width: 4
+
+
+linters:
+  enable-all: true
+  disable:
+    - maligned
+    - prealloc
+    - lll
+  disable-all: false
+
+issues:
+  # List of regexps of issue texts to exclude, empty list by default.
+  # But independently from this option we use default exclude patterns,
+  # it can be disabled by `exclude-use-default: false`. To list all
+  # excluded by default patterns execute `golangci-lint run --help`
+  exclude:
+    # TLS `InsecureSkipVerify` set true. (gas)
+    - G402
+    # Potential hardcoded credentials (gas)
+    - G101
+    # gas: Duplicated errcheck checks
+    - G104

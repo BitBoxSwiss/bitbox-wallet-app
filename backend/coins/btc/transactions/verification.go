@@ -26,12 +26,10 @@ func (transactions *Transactions) onHeadersEvent(event headers.Event) {
 	switch event {
 	case headers.EventSynced:
 		transactions.verifyTransactions()
-		break
 	case headers.EventNewTip:
 		done := transactions.synchronizer.IncRequestsCounter()
 		transactions.headersTipHeight = transactions.headers.TipHeight()
 		done()
-		break
 	}
 }
 

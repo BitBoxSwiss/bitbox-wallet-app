@@ -70,7 +70,6 @@ func (p *byValue) Swap(i, j int) { p.outPoints[i], p.outPoints[j] = p.outPoints[
 func coinSelection(
 	minAmount btcutil.Amount,
 	outputs map[wire.OutPoint]*wire.TxOut,
-	log *logrus.Entry,
 ) (btcutil.Amount, []wire.OutPoint, error) {
 	outPoints := []wire.OutPoint{}
 	for outPoint := range outputs {
@@ -111,13 +110,12 @@ func NewTxSpendAll(
 		outputsSum += btcutil.Amount(output.Value)
 		inputs = append(inputs, wire.NewTxIn(&outPoint, nil, nil))
 	}
-	output := wire.NewTxOut(0, outputPkScript)
 	txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(outputPkScript), 0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
 		return nil, errp.WithStack(ErrInsufficientFunds)
 	}
-	output = wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
+	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{
 		Version:  wire.TxVersion,
 		TxIn:     inputs,
@@ -159,7 +157,6 @@ func NewTx(
 		selectedOutputsSum, selectedOutPoints, err := coinSelection(
 			targetAmount+targetFee,
 			spendableOutputs,
-			log,
 		)
 		if err != nil {
 			return nil, err

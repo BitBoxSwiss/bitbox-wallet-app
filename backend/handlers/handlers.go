@@ -18,6 +18,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"runtime/debug"
 	"strconv"
@@ -204,7 +205,7 @@ func NewHandlers(
 	return handlers
 }
 
-func writeJSON(w http.ResponseWriter, value interface{}) {
+func writeJSON(w io.Writer, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)
 	}

@@ -79,7 +79,7 @@ func createSelfSignedCertificate(privateKey *rsa.PrivateKey, log *logrus.Entry) 
 }
 
 // saveAsPEM saves the given PEM block as a file
-func saveAsPEM(name string, pemBytes *pem.Block, log *logrus.Entry) error {
+func saveAsPEM(name string, pemBytes *pem.Block) error {
 	certificateDir := filepath.Dir(name)
 	err := os.MkdirAll(certificateDir, os.ModeDir|os.ModePerm)
 	if err != nil {
@@ -122,7 +122,7 @@ func SaveNewSelfSignedPEM(filename string) (*tls.Config, error) {
 		return nil, err
 	}
 	certificatePEM := derToPem("CERTIFICATE", certificate)
-	if err := saveAsPEM(filename, certificatePEM, log); err != nil {
+	if err := saveAsPEM(filename, certificatePEM); err != nil {
 		return nil, err
 	}
 	var certAndKey tls.Certificate

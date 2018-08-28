@@ -55,12 +55,12 @@ func TestEstimateTxSize(t *testing.T) {
 				tx := &wire.MsgTx{
 					Version: wire.TxVersion,
 					TxIn: []*wire.TxIn{
-						&wire.TxIn{
+						{
 							SignatureScript: sigScript,
 							Witness:         witness,
 							Sequence:        0,
 						},
-						&wire.TxIn{
+						{
 							SignatureScript: sigScript,
 							Witness:         witness,
 							Sequence:        0,
@@ -68,7 +68,7 @@ func TestEstimateTxSize(t *testing.T) {
 					},
 					// One output and one change.
 					TxOut: []*wire.TxOut{
-						&wire.TxOut{
+						{
 							Value:    1,
 							PkScript: outputPkScript,
 						},

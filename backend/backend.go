@@ -45,6 +45,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
+const (
+	coinBTC  = "btc"
+	coinTBTC = "tbtc"
+	coinLTC  = "ltc"
+	coinTLTC = "tltc"
+)
+
 type backendEvent struct {
 	Type string `json:"type"`
 	Data string `json:"data"`
@@ -157,13 +164,13 @@ func (backend *Backend) DefaultConfig() config.AppConfig {
 
 func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	switch code {
-	case "btc":
+	case coinBTC:
 		return backend.config.Config().Backend.BTC.ElectrumServers
-	case "tbtc":
+	case coinTBTC:
 		return backend.config.Config().Backend.TBTC.ElectrumServers
-	case "ltc":
+	case coinLTC:
 		return backend.config.Config().Backend.LTC.ElectrumServers
-	case "tltc":
+	case coinTLTC:
 		return backend.config.Config().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
@@ -208,16 +215,16 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 -----END CERTIFICATE-----`
 
 	switch code {
-	case "btc":
+	case coinBTC:
 		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50002", TLS: true, PEMCert: devShiftCA}}
-	case "tbtc":
+	case coinTBTC:
 		return []*rpc.ServerInfo{
 			{Server: "s1.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 			{Server: "s2.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 		}
-	case "ltc":
+	case coinLTC:
 		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
-	case "tltc":
+	case coinTLTC:
 		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:51004", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
@@ -243,16 +250,20 @@ func (backend *Backend) Coin(code string) coin.Coin {
 	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
 	case "rbtc":
-		servers = []*rpc.ServerInfo{{"127.0.0.1:52001", false, ""}}
+		servers = []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
 		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", nil)
-	case "tbtc":
-		coin = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, dbFolder, servers, "https://testnet.blockchain.info/tx/", backend.ratesUpdater)
-	case "btc":
-		coin = btc.NewCoin("btc", "BTC", &chaincfg.MainNetParams, dbFolder, servers, "https://blockchain.info/tx/", backend.ratesUpdater)
-	case "tltc":
-		coin = btc.NewCoin("tltc", "TLTC", &ltc.TestNet4Params, dbFolder, servers, "http://explorer.litecointools.com/tx/", backend.ratesUpdater)
-	case "ltc":
-		coin = btc.NewCoin("ltc", "LTC", &ltc.MainNetParams, dbFolder, servers, "https://insight.litecore.io/tx/", backend.ratesUpdater)
+	case coinTBTC:
+		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
+			"https://testnet.blockchain.info/tx/", backend.ratesUpdater)
+	case coinBTC:
+		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
+			"https://blockchain.info/tx/", backend.ratesUpdater)
+	case coinTLTC:
+		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
+			"http://explorer.litecointools.com/tx/", backend.ratesUpdater)
+	case coinLTC:
+		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
+			"https://insight.litecore.io/tx/", backend.ratesUpdater)
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
@@ -271,27 +282,39 @@ func (backend *Backend) initAccounts() {
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			RBTC := backend.Coin("rbtc")
-			backend.addAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
-			backend.addAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
+				signing.ScriptTypeP2PKH)
+			backend.addAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
+				signing.ScriptTypeP2WPKHP2SH)
 		} else {
-			TBTC := backend.Coin("tbtc")
-			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
-			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
-			backend.addAccount(TBTC, "tbtc-p2pkh", "Bitcoin Testnet Legacy", "m/44'/1'/0'", signing.ScriptTypeP2PKH)
+			TBTC := backend.Coin(coinTBTC)
+			backend.addAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
+				signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(TBTC, "tbtc-p2wpkh", "Bitcoin Testnet: bech32", "m/84'/1'/0'",
+				signing.ScriptTypeP2WPKH)
+			backend.addAccount(TBTC, "tbtc-p2pkh", "Bitcoin Testnet Legacy", "m/44'/1'/0'",
+				signing.ScriptTypeP2PKH)
 
-			TLTC := backend.Coin("tltc")
-			backend.addAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'", signing.ScriptTypeP2WPKHP2SH)
-			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'", signing.ScriptTypeP2WPKH)
+			TLTC := backend.Coin(coinTLTC)
+			backend.addAccount(TLTC, "tltc-p2wpkh-p2sh", "Litecoin Testnet", "m/49'/1'/0'",
+				signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'",
+				signing.ScriptTypeP2WPKH)
 		}
 	} else {
-		BTC := backend.Coin("btc")
-		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'", signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'", signing.ScriptTypeP2WPKH)
-		backend.addAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'", signing.ScriptTypeP2PKH)
+		BTC := backend.Coin(coinBTC)
+		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
+			signing.ScriptTypeP2WPKHP2SH)
+		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
+			signing.ScriptTypeP2WPKH)
+		backend.addAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
+			signing.ScriptTypeP2PKH)
 
-		LTC := backend.Coin("ltc")
-		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'", signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'", signing.ScriptTypeP2WPKH)
+		LTC := backend.Coin(coinLTC)
+		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
+			signing.ScriptTypeP2WPKHP2SH)
+		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
+			signing.ScriptTypeP2WPKH)
 	}
 	for _, account := range backend.accounts {
 		backend.onAccountInit(account)

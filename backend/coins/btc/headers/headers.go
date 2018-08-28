@@ -147,37 +147,34 @@ type batchInfo struct {
 }
 
 func (headers *Headers) download() {
-	for {
-		select {
-		case <-headers.kickChan:
-			func() {
-				defer headers.lock.Lock()()
-				dbTx, err := headers.db.Begin()
-				if err != nil {
-					// TODO
-					panic(err)
-				}
-				defer func() {
-					_ = dbTx.Commit()
-				}()
-				tip, err := dbTx.Tip()
-				if err != nil {
-					// TODO
-					panic(err)
-				}
-				batchChan := make(chan batchInfo)
-				headers.blockchain.Headers(
-					tip+1, headers.headersPerBatch,
-					func(blockHeaders []*wire.BlockHeader, max int) error {
-						batchChan <- batchInfo{blockHeaders, max}
-						return nil
-					}, func() {})
-				batch := <-batchChan
-				if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
-					headers.log.WithError(err).Panic("processBatch")
-				}
+	for range headers.kickChan {
+		func() {
+			defer headers.lock.Lock()()
+			dbTx, err := headers.db.Begin()
+			if err != nil {
+				// TODO
+				panic(err)
+			}
+			defer func() {
+				_ = dbTx.Commit()
 			}()
-		}
+			tip, err := dbTx.Tip()
+			if err != nil {
+				// TODO
+				panic(err)
+			}
+			batchChan := make(chan batchInfo)
+			headers.blockchain.Headers(
+				tip+1, headers.headersPerBatch,
+				func(blockHeaders []*wire.BlockHeader, max int) error {
+					batchChan <- batchInfo{blockHeaders, max}
+					return nil
+				}, func() {})
+			batch := <-batchChan
+			if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
+				headers.log.WithError(err).Panic("processBatch")
+			}
+		}()
 	}
 }
 

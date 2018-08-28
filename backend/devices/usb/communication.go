@@ -25,11 +25,11 @@ import (
 	"unicode"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/pkg/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -162,8 +162,6 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		sendLen = 4098
 		// the bootloader sends 256 bytes as a response.
 		readLen = 256
-		// the device HID interface sends 64 bytes at once.
-		readPacketSize = 64
 	)
 	if len(msg) > sendLen {
 		communication.log.WithFields(logrus.Fields{"message-length": len(msg),

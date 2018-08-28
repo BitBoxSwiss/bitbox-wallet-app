@@ -58,7 +58,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 )
 
-var theBackend *backend.Backend
 var handlers *backendHandlers.Handlers
 var responseCallback C.responseCallback
 var token string
@@ -79,8 +78,8 @@ func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-	tc.SetKeepAlive(true)
-	tc.SetKeepAlivePeriod(3 * time.Minute)
+	_ = tc.SetKeepAlive(true)
+	_ = tc.SetKeepAlivePeriod(3 * time.Minute)
 	return tc, nil
 }
 

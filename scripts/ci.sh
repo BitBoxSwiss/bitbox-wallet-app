@@ -22,31 +22,5 @@ else
 fi
 
 go build ./...
-
-gometalinter.v1 \
-    "$fast" \
-    --concurrency 3 \
-    --skip=mocks \
-    --deadline=1200s \
-    --vendored-linters \
-    --vendor \
-    --disable-all \
-    --tests \
-    --exclude=assets.go \
-    --exclude=server.go \
-    -E test \
-    -E golint \
-    -E vet \
-    -E vetshadow \
-    -E deadcode \
-    -E ineffassign \
-    -E staticcheck \
-    -E unconvert \
-    -E unused \
-    -E gosimple \
-    -E unparam \
-    -E misspell \
-    -E structcheck \
-    -E varcheck \
-    -E errcheck \
-    ./...
+go test ./...
+golangci-lint run

@@ -129,7 +129,8 @@ func (account *Account) newTx(
 			return nil, nil, err
 		}
 	}
-	account.log.Debugf("creating tx with %d inputs, %d outputs", len(txProposal.Transaction.TxIn), len(txProposal.Transaction.TxOut))
+	account.log.Debugf("creating tx with %d inputs, %d outputs",
+		len(txProposal.Transaction.TxIn), len(txProposal.Transaction.TxOut))
 	return utxo, txProposal, nil
 }
 

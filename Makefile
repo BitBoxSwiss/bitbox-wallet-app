@@ -18,8 +18,7 @@ WEBROOT:=`pwd`/frontends/web
 catch:
 	@echo "Choose a make target."
 envinit:
-	go get -u gopkg.in/alecthomas/gometalinter.v1
-	gometalinter.v1 --install
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/stretchr/testify # needed for mockery
 	go get -u github.com/vektra/mockery/cmd/mockery
@@ -73,8 +72,6 @@ osx-sec-check:
 	./scripts/osx-build-check.sh
 ci:
 	./scripts/ci.sh
-ci-fast:
-	./scripts/ci.sh --fast
 clean:
 	make -C frontends/qt clean
 dockerinit:

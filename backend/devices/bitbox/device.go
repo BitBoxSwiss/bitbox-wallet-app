@@ -75,6 +75,8 @@ const (
 
 	// backupDateFormat is the date format used in the backup name.
 	backupDateFormat = "2006-01-02-15-04-05"
+
+	responseSuccess = "success"
 )
 
 // CommunicationInterface contains functions needed to communicate with the device.
@@ -405,7 +407,7 @@ func (dbb *Device) SetPassword(pin string) error {
 	if err != nil {
 		return errp.WithMessage(err, "Failed to set new pin")
 	}
-	if reply["password"] != "success" {
+	if reply["password"] != responseSuccess {
 		return errp.New("Unexpected reply")
 	}
 	dbb.log.Debug("Pin set")
@@ -434,7 +436,7 @@ func (dbb *Device) ChangePassword(oldPIN string, newPIN string) error {
 	if err != nil {
 		return errp.WithMessage(err, "Failed to replace pin")
 	}
-	if reply["password"] != "success" {
+	if reply["password"] != responseSuccess {
 		return errp.New("Unexpected reply")
 	}
 	dbb.log.Debug("Pin replaced")
@@ -539,7 +541,7 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create or backup wallet (seed)")
 	}
-	if reply["seed"] != "success" {
+	if reply["seed"] != responseSuccess {
 		return errp.New("Unexpected result")
 	}
 	reply, err = dbb.send(
@@ -555,7 +557,7 @@ func (dbb *Device) seed(pin, backupPassword, source, filename string) error {
 			"Please contact our support and do not use this wallet.")
 	}
 	backupCheck, ok := reply["backup"].(string)
-	if !ok || backupCheck != "success" {
+	if !ok || backupCheck != responseSuccess {
 		return errp.New("There was an unexpected error during wallet creation or restoring." +
 			" Please contact our support and do not use this wallet.")
 	}
@@ -585,7 +587,7 @@ func (dbb *Device) CheckBackup(backupPassword, filename string) (bool, error) {
 		return false, errp.WithMessage(err, "There was an unexpected error during the wallet check")
 	}
 	backupCheck, ok := reply["backup"].(string)
-	if !ok || backupCheck != "success" {
+	if !ok || backupCheck != responseSuccess {
 		return false, errp.New("unexpected reply")
 	}
 	return true, nil
@@ -675,7 +677,7 @@ func (dbb *Device) SetHiddenPassword(hiddenPIN string, hiddenBackupPassword stri
 	if err != nil {
 		return false, err
 	}
-	if reply["hidden_password"] != "success" {
+	if reply["hidden_password"] != responseSuccess {
 		return false, errp.New("Unexpected result")
 	}
 	return true, nil
@@ -729,7 +731,7 @@ func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) erro
 	if err != nil {
 		return errp.WithMessage(err, "Failed to create backup")
 	}
-	if reply["backup"] != "success" {
+	if reply["backup"] != responseSuccess {
 		return errp.New("Unexpected result: backup != success")
 	}
 	return nil
@@ -765,7 +767,7 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if reply["reset"] != "success" {
+	if reply["reset"] != responseSuccess {
 		return false, errp.New("unexpected reply")
 	}
 	dbb.pin = ""
@@ -870,8 +872,8 @@ func (dbb *Device) BackupList() ([]map[string]string, error) {
 			return nil, errp.New("unexpected reply")
 		}
 		filenameAndDate["id"] = filenameString
-		pattern := regexp.MustCompile("(.*)-(\\d{4}-\\d{2}-\\d{2}-\\d{2}-\\d{2}-\\d{2}).pdf")
-		if pattern.Match([]byte(filenameString)) {
+		pattern := regexp.MustCompile(`(.*)-(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}).pdf`)
+		if pattern.MatchString(filenameString) {
 			groups := pattern.FindStringSubmatch(filenameString)
 			filenameAndDate["name"] = groups[1]
 			backupDate, err := time.Parse(backupDateFormat, groups[2])
@@ -920,7 +922,7 @@ func (dbb *Device) EraseBackup(filename string) error {
 	if err != nil {
 		return errp.WithMessage(err, "Failed to erase backup")
 	}
-	if reply["backup"] != "success" {
+	if reply["backup"] != responseSuccess {
 		return errp.New("Unexpected result: field 'backup' is missing")
 	}
 	return nil
@@ -989,7 +991,7 @@ func (dbb *Device) signBatch(
 	}
 
 	command := map[string]map[string]interface{}{
-		"sign": map[string]interface{}{
+		"sign": {
 			"data": data,
 		},
 	}
@@ -1231,7 +1233,7 @@ func (dbb *Device) ECDHchallenge() error {
 	if err != nil {
 		return err
 	}
-	if reply["ecdh"] != "success" {
+	if reply["ecdh"] != responseSuccess {
 		return errp.New("Unexpected response from bitbox")
 	}
 	return nil

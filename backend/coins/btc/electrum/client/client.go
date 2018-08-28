@@ -250,7 +250,7 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 		string(scriptHashHex))
 }
 
-func parseTX(rawTXHex string, log *logrus.Entry) (*wire.MsgTx, error) {
+func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 	rawTX, err := hex.DecodeString(rawTXHex)
 	if err != nil {
 		return nil, errp.Wrap(err, "Failed to decode transaction hex")
@@ -275,7 +275,7 @@ func (client *ElectrumClient) TransactionGet(
 			if err := json.Unmarshal(responseBytes, &rawTXHex); err != nil {
 				return errp.WithStack(err)
 			}
-			tx, err := parseTX(rawTXHex, client.log)
+			tx, err := parseTX(rawTXHex)
 			if err != nil {
 				return err
 			}

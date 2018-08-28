@@ -57,7 +57,8 @@ func SignTransaction(
 	}
 
 	for i := range proposedTransaction.Signatures {
-		proposedTransaction.Signatures[i] = make([]*btcec.Signature, keystores.Count()) // TODO: Replace count with configuration.NumberOfSigners()
+		// TODO: Replace count with configuration.NumberOfSigners()
+		proposedTransaction.Signatures[i] = make([]*btcec.Signature, keystores.Count())
 	}
 
 	if err := keystores.SignTransaction(proposedTransaction); err != nil {

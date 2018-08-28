@@ -74,7 +74,7 @@ func (s *certTestSuite) TestSavingCertAsPEM() {
 			require.NoError(s.T(), err)
 		}
 	}()
-	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate), s.log)
+	err = saveAsPEM(f.Name(), derToPem("CERTIFICATE", certificate))
 	require.NoError(s.T(), err)
 	_, err = os.Stat(f.Name())
 	require.NoError(s.T(), err)
