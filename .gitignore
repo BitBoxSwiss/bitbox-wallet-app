@@ -1,5 +1,3 @@
-/backend/handlers/assets.go
-/backend/devices/bitbox/assets.go
 /cache
 /cmd/playground/
 /config.json
