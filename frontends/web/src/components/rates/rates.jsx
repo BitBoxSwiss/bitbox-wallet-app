@@ -15,10 +15,10 @@
  */
 
 import { h, Component } from 'preact';
-import updating from '../../decorators/updating';
+import subscribe from '../../decorators/subscribe';
 import style from './rates.css';
 
-@updating({ rates: 'coins/rates' })
+@subscribe({ rates: 'coins/rates' })
 export default class Rates extends Component {
     render({
         amount,

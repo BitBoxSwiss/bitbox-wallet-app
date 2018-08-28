@@ -17,7 +17,7 @@
 import { h, RenderableProps } from 'preact';
 import { translate } from 'react-i18next';
 import { Translate } from '../../utils/translate';
-import loading from '../../decorators/loading';
+import load from '../../decorators/load';
 import Status from '../status/status';
 import A from '../anchor/anchor';
 
@@ -51,4 +51,4 @@ function Update({t, file}: RenderableProps<Props>): JSX.Element | null {
     );
 }
 
-export default translate()(loading<Props>({ file: 'update' })(Update));
+export default translate()(load<Props>({ file: 'update' })(Update));
