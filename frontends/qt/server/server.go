@@ -115,7 +115,7 @@ func backendCall(queryID C.int, s *C.char) {
 		defer func() {
 			// recover from all panics and log error before panicking again
 			if r := recover(); r != nil {
-				logging.Get().WithGroup("server").WithField("panic", true).Error("%v\n%s", r, string(debug.Stack()))
+				logging.Get().WithGroup("server").WithField("panic", true).Errorf("%v\n%s", r, string(debug.Stack()))
 			}
 		}()
 
