@@ -61,6 +61,7 @@
     height: 100vh;
     position: relative;
     width: 100%;
+    min-width: 0;
 }
 
 .innerContainer {
@@ -104,15 +105,23 @@
 }
 
 .headerContainer .header {
-    padding: var(--spacing-large) var(--spacing-large);
+    position: relative;
+    padding: var(--spacing-large) calc(var(--spacing-large) + var(--spacing-default));
     max-width: var(--content-width);
     width: 100%;
     margin: 0 auto;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     flex: none;
+    line-height: 1;
+}
+
+@media (max-width: 530px) {
+    .headerContainer .header header {
+        align-self: flex-end;
+    }
 }
 
 .header h2 {
@@ -147,7 +156,7 @@
     flex-direction: column;
     margin: 0 auto;
     max-width: var(--content-width);
-    padding: 0 var(--spacing-large);
+    padding: 0 calc(var(--spacing-large) + var(--spacing-default));
     height: 100%;
     width: 100%;
     /*overflow: auto;*/

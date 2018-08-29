@@ -82,11 +82,11 @@ export default class Backups extends Component {
             return (
                 <div class="content">
                     <p>{t('backup.insert')}</p>
-                    <div class="buttons">
+                    <div class="buttons flex flex-row flex-between">
+                        {children}
                         <Button secondary onClick={this.refresh}>
                             {t('backup.insertButton')}
                         </Button>
-                        {children}
                     </div>
                 </div>
             );
@@ -109,33 +109,37 @@ export default class Backups extends Component {
                             ))
                         }
                     </div>
-                    <div class="buttons bottom">
-                        {
-                            showCreate && (
-                                <Create
-                                    onCreate={this.refresh}
-                                    deviceID={deviceID} />
-                            )
-                        }
-                        {
-                            showCreate && (
-                                <Check
-                                    selectedBackup={selectedBackup}
-                                    deviceID={deviceID} />
-                            )
-                        }
-                        <Restore
-                            selectedBackup={selectedBackup}
-                            deviceID={deviceID}
-                            requireConfirmation={requireConfirmation} />
-                        {/*
-                          <Erase
-                          selectedBackup={selectedBackup}
-                          onErase={this.refresh}
-                          deviceID={deviceID}
-                        />
-                        */}
-                        {children}
+                    <div class="buttons bottom flex flex-row flex-between">
+                        <div>
+                          {children}
+                        </div>
+                        <div class="buttons">
+                            {
+                                showCreate && (
+                                    <Create
+                                        onCreate={this.refresh}
+                                        deviceID={deviceID} />
+                                )
+                            }
+                            {
+                                showCreate && (
+                                    <Check
+                                        selectedBackup={selectedBackup}
+                                        deviceID={deviceID} />
+                                )
+                            }
+                            <Restore
+                                selectedBackup={selectedBackup}
+                                deviceID={deviceID}
+                                requireConfirmation={requireConfirmation} />
+                            {/*
+                              <Erase
+                              selectedBackup={selectedBackup}
+                              onErase={this.refresh}
+                              deviceID={deviceID}
+                            />
+                            */}
+                        </div>
                     </div>
                 </div>
             </div>

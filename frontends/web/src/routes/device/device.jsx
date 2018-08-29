@@ -149,6 +149,7 @@ export default class Device extends Component {
         t,
         deviceID,
         deviceIDs,
+        sidebar,
         guide,
     }, {
         deviceRegistered,
@@ -158,16 +159,16 @@ export default class Device extends Component {
         testing,
     }) {
         if (!deviceIDs.length && !accountsStatus) {
-            return <Waiting testing={testing} guide={guide} />;
+            return <Waiting testing={testing} sidebar={sidebar} guide={guide} />;
         }
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return <Bootloader deviceID={deviceID} guide={guide} />;
+            return <Bootloader deviceID={deviceID} sidebar={sidebar} guide={guide} />;
         case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
-            return <RequireUpgrade deviceID={deviceID} guide={guide} />;
+            return <RequireUpgrade deviceID={deviceID} sidebar={sidebar} guide={guide} />;
         case DeviceStatus.REQUIRE_APP_UPGRADE:
             return (
                 <div class="contentWithGuide">
@@ -180,23 +181,23 @@ export default class Device extends Component {
                 </div>
             );
         case DeviceStatus.INITIALIZED:
-            return <Unlock deviceID={deviceID} guide={guide} />;
+            return <Unlock deviceID={deviceID} sidebar={sidebar} guide={guide} />;
         case DeviceStatus.UNINITIALIZED:
             if (!goal) {
-                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} sidebar={sidebar} guide={guide} />;
             }
-            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} sidebar={sidebar} guide={guide} />;
         case DeviceStatus.LOGGED_IN:
             switch (goal) {
             case GOAL.CREATE:
-                return <SeedCreateNew goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+                return <SeedCreateNew goBack={this.handleBack} deviceID={deviceID} sidebar={sidebar} guide={guide} />;
             case GOAL.RESTORE:
-                return <SeedRestore goBack={this.handleBack} deviceID={deviceID} guide={guide} />;
+                return <SeedRestore goBack={this.handleBack} deviceID={deviceID} sidebar={sidebar} guide={guide} />;
             default:
-                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} guide={guide} />;
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} sidebar={sidebar} guide={guide} />;
             }
         case DeviceStatus.SEEDED:
-            return <Settings deviceID={deviceID} guide={guide} />;
+            return <Settings deviceID={deviceID} sidebar={sidebar} guide={guide} />;
         }
     }
 }

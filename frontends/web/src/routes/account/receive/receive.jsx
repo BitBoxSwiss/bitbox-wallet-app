@@ -20,6 +20,8 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import Header from '../../../components/header/Header';
+import ButtonGroup from '../../../components/buttonGroup/ButtonGroup';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
 import style from './receive.css';
@@ -94,6 +96,7 @@ export default class Receive extends Component {
         t,
         coinCode,
         code,
+        sidebar,
         guide,
     }, {
         verifying,
@@ -150,16 +153,13 @@ export default class Receive extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {paired === false && t('warning.receivePairing')}
-                        </Status>
-                        {/*
-                        <div class="header">
-                            <h2>{t('receive.title')}</h2>
-                        </div>
-                        */}
-                    </div>
+                    <Status type="warning">
+                        {paired === false && t('warning.receivePairing')}
+                    </Status>
+                    <Header sidebar={sidebar} guide={guide}>
+                        <h2>{t('receive.title')}</h2>
+                        <ButtonGroup guide={guide} />
+                    </Header>
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">
                             <div class={style.receiveContent}>

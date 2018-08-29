@@ -1,13 +1,18 @@
 .transactionContainer {
     background-color: var(--color-white);
-    padding: var(--spacing-default) var(--spacing-large);
+    padding: var(--spacing-default) calc(var(--spacing-large) + var(--spacing-default));
     position: relative;
     overflow: hidden;
     border-bottom: solid 1px var(--color-lightgray);
+    transition: all 0.2s ease;
 }
 
-.transactionContainer.expanded {
-    background-color: var(--color-white);
+.transactionContainer:hover {
+    background-color: #FAFAFA;
+}
+
+.transactionContainer * {
+    min-width: 0;
 }
 
 .transactionContainer:hover .toggleContainer,
@@ -17,7 +22,7 @@
 
 .transaction {
     margin: 0 auto;
-    max-width: 800px;
+    max-width: var(--content-width);
     padding: var(--spacing-half) 0;
 }
 
@@ -29,19 +34,21 @@
 }
 
 .address {
-    text-overflow: ellipsis;
     line-height: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .amount {
-    font-weight: bold;
+    /*font-weight: bold;*/
     min-width: 160px;
     text-align: right;
     line-height: 1;
 }
 
 .amount div:first-child {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .amount.receive {
@@ -71,29 +78,42 @@
 
 .labelContainer {
     position: relative;
+    min-width: 50px;
 }
 
 .transactionLabel {
     display: inline-block;
     font-size: var(--size-small);
-    background-color: var(--color-brightgray);
+    background-color: var(--color-secondary);
     color: var(--color-white);
     line-height: 1;
     text-align: center;
     margin-bottom: 5px;
     user-select: none;
+    white-space: nowrap;
 }
 
 .transactionLabel.flat {
     position: relative;
     margin-right: var(--spacing-default);
     margin-bottom: 0;
-    padding: 9px 0;
-    width: 44px;
+    width: 34px;
+    height: 34px;
     border-radius: 2px;
-    line-height: 16px;
-    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
+}
+
+.transactionLabel.flat img {
+    width: 16px;
+}
+
+.transactionLabel.flat span {
+    display: block;
+    font-size: var(--size-small);
 }
 
 .transactionLabel.receive {
@@ -126,7 +146,7 @@
     height: 10px;
     border: solid;
     border-width: 2px 2px 0 0;
-    border-color: var(--color-brightgray);
+    border-color: var(--color-secondary);
     transform: rotate(-45deg) translate(0%, -50%);
     margin: 10px 0 0 8px;
 }
@@ -160,7 +180,7 @@
 }
 
 .collapsedContent .spacer {
-    width: 44px;
+    width: 34px;
     margin-right: var(--spacing-default);
 }
 
@@ -179,28 +199,59 @@
     color: var(--color-brightblue);
 }
 
+.externalLabel {
+    display: none;
+    width: 13px;
+    height: 13px;
+    margin-left: 5px;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+.externalLabel img {
+    width: 13px;
+    height: 13px;
+}
+
 .external {
-    outline: 1px solid;
-    color: var(--color-brightblue);
-    display: inline-block;
-    line-height: 16px;
-    height: 14px;
-    margin-left: var(--spacing-half);
-    margin-right: 6px;
-}
-
-.external::before {
-    background: var(--color-white);
-    content: "↗";
-    width: 14px;
-    height: 14px;
-    display: inline-block;
-    top: -4px;
-    right: -4px;
     position: relative;
+    top: -1px;
+    display: inline-block;
+    vertical-align: bottom;
+    width: 16px;
+    height: 16px;
+    margin-left: 5px;
+    cursor: pointer;
 }
 
-.external:hover,
-.external:hover::before  {
-    color: var(--color-coolblue);
+.external img {
+    width: 16px;
+}
+
+@media (max-width:700px) {
+    .collapsedContent .spacer {
+        display: none;
+    }
+
+    .spaced > *:not(:last-child) {
+        margin-right: var(--spacing-default);
+    }
+
+    .transactionLabel {
+        display: block;
+        word-wrap: break-word;
+    }
+
+    .address {
+        /*direction: rtl;*/
+        position: relative;
+    }
+
+    .externalLabel {
+        display: inline-block;
+    }
+
+    .external {
+        display: none;
+    }
 }

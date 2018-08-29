@@ -19,26 +19,27 @@ import i18n from '../../../i18n/i18n';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
+import Header from '../../../components/header/Header';
+import ButtonGroup from '../../../components/buttonGroup/ButtonGroup';
 
 export default function ManageBackups({
     deviceID,
+    sidebar,
     guide,
 }) {
     return (
         <div class="contentWithGuide">
             <div class="container">
-                <div class="headerContainer">
-                    <div class="header">
-                        <h2>{i18n.t('backup.title')}</h2>
-                    </div>
-                </div>
+                <Header sidebar={sidebar} guide={guide}>
+                    <h2>{i18n.t('backup.title')}</h2>
+                    <ButtonGroup guide={guide} />
+                </Header>
                 <Backups
                     deviceID={deviceID}
                     showCreate={true}>
                     <ButtonLink
                         secondary
-                        href={`/device/${deviceID}`}
-                        style="position: absolute; right: 0;">
+                        href={`/device/${deviceID}`}>
                         {i18n.t('button.back')}
                     </ButtonLink>
                 </Backups>

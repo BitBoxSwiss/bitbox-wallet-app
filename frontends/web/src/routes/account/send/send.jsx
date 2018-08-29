@@ -24,6 +24,8 @@ import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
+import Header from '../../../components/header/Header';
+import ButtonGroup from '../../../components/buttonGroup/ButtonGroup';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import UTXOs from './utxos';
@@ -279,6 +281,7 @@ export default class Send extends Component {
     render({
         t,
         code,
+        sidebar,
         guide,
         fiat,
     }, {
@@ -319,19 +322,18 @@ export default class Send extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {paired === false && t('warning.sendPairing')}
-                        </Status>
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
-                        </div>
-                    </div>
+                    <Status type="warning">
+                        {paired === false && t('warning.sendPairing')}
+                    </Status>
+                    <Header sidebar={sidebar} guide={guide}>
+                        <Balance
+                            t={t}
+                            code={code}
+                            name={account.name}
+                            balance={balance}
+                            fiat={fiat} />
+                        <ButtonGroup guide={guide} />
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {

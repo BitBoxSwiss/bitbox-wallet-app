@@ -21,6 +21,8 @@ import { setConfig } from '../../utils/config';
 import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import Fiat from '../../components/fiat/fiat';
+import Header from '../../components/header/Header';
+import ButtonGroup from '../../components/buttonGroup/ButtonGroup';
 import Footer from '../../components/footer/footer';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import style from './settings.css';
@@ -60,6 +62,7 @@ export default class Settings extends Component {
 
     render({
         t,
+        sidebar,
         guide,
         fiat,
     }, {
@@ -69,11 +72,10 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <h2>{t('settings.title')}</h2>
-                        </div>
-                    </div>
+                    <Header sidebar={sidebar} guide={guide}>
+                        <h2>{t('settings.title')}</h2>
+                        <ButtonGroup guide={guide} />
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {

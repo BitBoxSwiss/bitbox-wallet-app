@@ -18,6 +18,10 @@ import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import A from '../anchor/anchor';
 import Rates from '../rates/rates';
+import arrowDown from '../../assets/icons/arrow-down.svg';
+import arrowRight from '../../assets/icons/arrow-right.svg';
+import arrowUp from '../../assets/icons/arrow-up.svg';
+import externalLink from '../../assets/icons/external-link.svg';
 import style from './transaction.css';
 
 @translate()
@@ -58,18 +62,20 @@ export default class Transaction extends Component {
     }) {
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
+        const icon = type === 'send' ? arrowUp : type === 'receive' ? arrowDown : arrowRight;
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
                 <div class={['flex flex-column flex-start', style.transaction].join(' ')}>
                     <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
-                        <div class="flex flex-row flex-start flex-items-center">
+                        <div class="flex flex-row flex-start flex-items-start">
                             <div class={style.labelContainer} onClick={this.onUncollapse}>
                                 <div class={style.toggleContainer}>
                                     <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
                                 </div>
                                 <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
-                                    {badge}
+                                    <img src={icon} />
+                                    <span>{badge}</span>
                                 </div>
                             </div>
                             <div>
@@ -124,11 +130,14 @@ export default class Transaction extends Component {
                             <div class={style.row}>
                                 <div class={style.transactionLabel}>
                                     {t('transaction.explorer')}
+                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')} class={style.externalLabel}>
+                                        <img src={externalLink} />
+                                    </A>
                                 </div>
-                                <div class={style.address}>
+                                <div class={[style.address, 'relative'].join(' ')}>
                                     {id}
-                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
-                                        <span class={style.external}></span>
+                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')} class={style.external}>
+                                        <img src={externalLink} />
                                     </A>
                                 </div>
                             </div>

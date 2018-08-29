@@ -10,14 +10,12 @@
 }
 
 .fiatRow {
-	position: relative;
-	bottom: 1px;
+	/*position: relative;
+	bottom: 1px;*/
 }
 
 .availableFiatAmount {
-	font-size: 24px;
-	line-height: 24px;
-	padding-right: var(--spacing-half);
+	padding-right: 5px;
 	text-align: right;
 }
 
@@ -28,16 +26,7 @@
 }
 
 @media (max-width: 880px) {
-	.rates {
-		font-size: var(--size-small);
-	}
-
 	.fiatRow {
 		bottom: 0;
-	}
-
-	.availableFiatAmount,
-	.availableFiatUnit {
-		line-height: 24px;
 	}
 }

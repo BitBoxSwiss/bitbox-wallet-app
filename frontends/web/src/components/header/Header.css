@@ -1,0 +1,40 @@
+.sidebarTogglerContainer {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    display: block;
+    align-self: flex-end;
+    background-color: transparent;
+    width: calc(var(--spacing-large) + var(--spacing-half));
+    height: calc(var(--spacing-large) * 2);
+    z-index: 1;
+}
+
+@media (min-width: 950px) {
+    .sidebarTogglerContainer:not(.withGuide) {
+      display: none;
+    }
+}
+
+.sidebarToggler {
+    background-color: var(--color-secondary);
+    width: var(--spacing-default);
+    height: 100%;
+    border-radius: 0 2px 2px 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.1s ease-out;
+    z-index: 1;
+}
+
+.sidebarToggler img {
+    width: 16px;
+    height: 16px;
+}
+
+.sidebarTogglerContainer:hover .sidebarToggler {
+    width: var(--spacing-large);
+}
