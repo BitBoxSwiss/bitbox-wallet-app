@@ -331,6 +331,7 @@ export default class Send extends Component {
                             code={code}
                             name={account.name}
                             balance={balance}
+                            guide={guide}
                             fiat={fiat} />
                         <ButtonGroup guide={guide} />
                     </Header>

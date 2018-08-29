@@ -97,6 +97,16 @@
     }
 }
 
+@media (max-width: 1050px) {
+    .withGuide .balanceTable {
+        display: table;
+    }
+
+    .withGuide .balanceTable tr {
+        display: table-row !important;
+    }
+}
+
 .accountName {
     position: relative;
     display: inline-flex;

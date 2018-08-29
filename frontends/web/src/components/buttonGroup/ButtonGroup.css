@@ -39,7 +39,11 @@
 }
 
 @media (max-width: 1050px) {
-    .container.withGuide > *:not(:last-child) {
+    .withGuide > * {
+        display: block;
+    }
+
+    .withGuide > *:not(:last-child) {
         margin-right: 0;
         margin-bottom: 3px;
     }

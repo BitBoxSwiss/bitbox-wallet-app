@@ -178,6 +178,7 @@ export default class Account extends Component {
                             code={code}
                             name={account.name}
                             balance={balance}
+                            guide={guide}
                             fiat={fiat} />
                         <ButtonGroup guide={guide}>
                             <ButtonLink

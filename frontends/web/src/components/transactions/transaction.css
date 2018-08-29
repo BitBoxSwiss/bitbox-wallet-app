@@ -41,7 +41,7 @@
 }
 
 .amount {
-    /*font-weight: bold;*/
+    font-weight: bold;
     min-width: 160px;
     text-align: right;
     line-height: 1;
