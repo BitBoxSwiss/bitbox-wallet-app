@@ -39,7 +39,7 @@
 .sidebar .sidebarLogoContainer {
     display: block;
     height: auto;
-    padding: var(--spacing-large) 0;
+    padding: calc(var(--spacing-large) + 1px) 0 var(--spacing-large) 0;
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
     opacity: 1;
