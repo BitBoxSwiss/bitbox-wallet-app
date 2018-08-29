@@ -15,7 +15,7 @@
  */
 
 import { h, Component } from 'preact';
-import subscribe from '../../decorators/subscribe';
+import { subscribe } from '../../decorators/subscribe';
 import style from './rates.css';
 
 @subscribe({ rates: 'coins/rates' })

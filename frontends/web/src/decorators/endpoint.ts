@@ -26,8 +26,8 @@ export type Endpoint = string;
  * 
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
-export type EndpointsObject<Props> = {
-    readonly [Key in keyof Props]?: Endpoint;
+export type EndpointsObject<LoadedProps> = {
+    readonly [Key in keyof LoadedProps]: Endpoint;
 }
 
 /**
@@ -35,4 +35,4 @@ export type EndpointsObject<Props> = {
  * 
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
-export type EndpointsFunction<Props> = (props: RenderableProps<Props>) => EndpointsObject<Props>;
+export type EndpointsFunction<ProvidedProps, LoadedProps> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;

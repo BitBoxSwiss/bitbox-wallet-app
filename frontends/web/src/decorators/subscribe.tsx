@@ -20,7 +20,7 @@ import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
 import { equal } from '../utils/equal';
-import load from './load';
+import { load } from './load';
 
 /**
  * Loads API endpoints into the props of the component that uses this decorator and updates them on events.
@@ -28,47 +28,27 @@ import load from './load';
  * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
- * 
- * How to use this decorator on a component class?
- * ```
- * @subscribe<ExampleProps>({ propertyName: 'path/to/endpoint' })
- * export default class Example extends Component<ExampleProps, ExampleState> {
- *     render({ propertyName }: RenderableProps<ExampleProps>): JSX.Element {
- *         return <div>{propertyName}</div>;
- *     }
- * }
- * ```
- * 
- * How to use this decorator on a functional component?
- * Unfortunately, the decorator cannot be applied directly.
- * ```
- * function Example({ propertyName }: RenderableProps<ExampleProps>): JSX.Element {
- *     return <div>{propertyName}</div>
- * }
- * 
- * export default subscribe<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
- * ```
  */
-export default function subscribe<Props, State = {}>(
-    endpointsObjectOrFunction: EndpointsObject<Props> | EndpointsFunction<Props>,
-    renderOnlyOnceLoaded: boolean = true,
+export function subscribe<LoadedProps, ProvidedProps = {}>(
+    endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
+    renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
     return function decorator(
-        WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
+        WrappedComponent:  ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
-        return class Subscribe extends Component<Props, Props> {
-            private determineEndpoints(): EndpointsObject<Props> {
+        return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
+            private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
                 }
                 return endpointsObjectOrFunction;
             }
 
-            private endpoints: EndpointsObject<Props>;
+            private endpoints: EndpointsObject<LoadedProps>;
 
-            private subscriptions: { [Key in keyof Props]?: () => void } = {};
+            private subscriptions: { [Key in keyof LoadedProps]?: () => void } = {};
 
-            private unsubscribeEndpoint(key: keyof Props) {
+            private unsubscribeEndpoint(key: keyof LoadedProps) {
                 const subscription = this.subscriptions[key];
                 if (subscription !== undefined) {
                     subscription();
@@ -76,12 +56,12 @@ export default function subscribe<Props, State = {}>(
                 }
             }
 
-            private subscribeEndpoint(key: keyof Props, endpoint: Endpoint): void {
+            private subscribeEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
                 this.unsubscribeEndpoint(key);
                 this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
                     switch (event.action) {
                     case 'replace':
-                        this.setState({ [key]: event.object } as Pick<Props, keyof Props>);
+                        this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
                         break;
                     case 'prepend':
                         this.setState(state => ({ [key]: [event.object, ...state[key]] }));
@@ -93,7 +73,7 @@ export default function subscribe<Props, State = {}>(
                         this.setState(state => ({ [key]: state[key].filter(item => !equal(item, event.object)) }));
                         break;
                     case 'reload':
-                        apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<Props, keyof Props>));
+                        apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
                         break;
                     }
                 });
@@ -103,17 +83,17 @@ export default function subscribe<Props, State = {}>(
                 const oldEndpoints = this.endpoints;
                 const newEndpoints = this.determineEndpoints();
                 // Update the endpoints that were different or undefined before.
-                for (const key of Object.keys(newEndpoints) as KeysOf<Props>) {
+                for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
                     if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
                         this.subscribeEndpoint(key, newEndpoints[key] as Endpoint);
                     }
                 }
                 if (oldEndpoints != null) {
                     // Remove endpoints that no longer exist from the state.
-                    for (const key of Object.keys(oldEndpoints) as KeysOf<Props>) {
+                    for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
                         if (newEndpoints[key] === undefined) {
                             this.unsubscribeEndpoint(key);
-                            this.setState({ [key]: undefined as any } as Pick<Props, keyof Props>);
+                            this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
                         }
                     }
                 }
@@ -129,14 +109,14 @@ export default function subscribe<Props, State = {}>(
             }
 
             public componentWillUnmount() {
-                for (const key of Object.keys(this.subscriptions) as KeysOf<Props>) {
+                for (const key of Object.keys(this.subscriptions) as KeysOf<LoadedProps>) {
                     this.unsubscribeEndpoint(key);
                 }
             }
 
             private readonly LoadWrappedComponent = load(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
 
-            public render(props: RenderableProps<Props>, state: any): JSX.Element {
+            public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element {
                 return <this.LoadWrappedComponent {...state} {...props} />;
             }
         }

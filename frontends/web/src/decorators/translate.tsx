@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
+import { translate as originalTranslate } from 'react-i18next';
+
 // Instead of 'https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-i18next'.
 
 /**
@@ -27,3 +30,19 @@ export interface InterpolationValues {
  * This type describes the translate method of 'react-i18next'.
  */
 export type Translate = (i18nKey: string, values?: InterpolationValues) => string;
+
+/**
+ * This interface makes it easier to declare properties with intersection types.
+ */
+export interface TranslateProp {
+    t: Translate;
+}
+
+/**
+ * This function provides type safety for the 'react-i18next' translate decorator.
+ */
+export function translate<ProvidedProps = {}>(
+    WrappedComponent:  ComponentConstructor<TranslateProp & ProvidedProps> | FunctionalComponent<TranslateProp & ProvidedProps>,
+) {
+    return originalTranslate(WrappedComponent) as ComponentConstructor<ProvidedProps> | FunctionalComponent<ProvidedProps>;
+}

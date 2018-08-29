@@ -15,9 +15,8 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { translate } from 'react-i18next';
-import { Translate } from '../../utils/translate';
-import load from '../../decorators/load';
+import { TranslateProp, translate } from '../../decorators/translate';
+import { load } from '../../decorators/load';
 import Status from '../status/status';
 import A from '../anchor/anchor';
 
@@ -30,12 +29,13 @@ interface File {
     description: string;
 }
 
-interface Props {
-    t: Translate;
+interface LoadedProps {
     file: File | null;
 }
 
-function Update({t, file}: RenderableProps<Props>): JSX.Element | null {
+type Props = LoadedProps & TranslateProp;
+
+function InternalUpdate({ file, t }: RenderableProps<Props>): JSX.Element | null {
     return file && (
         <Status dismissable keyName={`update-${file.version}`} type="info">
             {t('app.upgrade', {
@@ -51,4 +51,4 @@ function Update({t, file}: RenderableProps<Props>): JSX.Element | null {
     );
 }
 
-export default translate()(load<Props>({ file: 'update' })(Update));
+export const Update = translate(load<LoadedProps, TranslateProp>({ file: 'update' })(InternalUpdate));

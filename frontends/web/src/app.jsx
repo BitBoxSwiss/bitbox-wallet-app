@@ -21,7 +21,7 @@ import { apiGet } from './utils/request';
 import { setConfig } from './utils/config';
 import { apiWebsocket } from './utils/websocket';
 import { equal } from './utils/equal';
-import Update from './components/update/update';
+import { Update } from './components/update/update';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
