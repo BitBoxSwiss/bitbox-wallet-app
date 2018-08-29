@@ -1,6 +1,6 @@
 .transactionContainer {
     background-color: var(--color-white);
-    padding: var(--spacing-default) calc(var(--spacing-large) + var(--spacing-default));
+    padding: var(--spacing-default) calc(var(--spacing-large) + var(--spacing-half));
     position: relative;
     overflow: hidden;
     border-bottom: solid 1px var(--color-lightgray);

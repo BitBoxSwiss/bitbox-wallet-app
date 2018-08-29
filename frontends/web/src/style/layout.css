@@ -106,7 +106,7 @@
 
 .headerContainer .header {
     position: relative;
-    padding: var(--spacing-large) calc(var(--spacing-large) + var(--spacing-default));
+    padding: var(--spacing-large) calc(var(--spacing-large) + var(--spacing-half));
     max-width: var(--content-width);
     width: 100%;
     margin: 0 auto;
@@ -156,7 +156,7 @@
     flex-direction: column;
     margin: 0 auto;
     max-width: var(--content-width);
-    padding: 0 calc(var(--spacing-large) + var(--spacing-default));
+    padding: 0 calc(var(--spacing-large) + var(--spacing-half));
     height: 100%;
     width: 100%;
     /*overflow: auto;*/
