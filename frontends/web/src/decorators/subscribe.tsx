@@ -15,9 +15,10 @@
  */
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { EndpointsObject, EndpointsFunction } from './endpoints';
+import { Endpoint, EndpointsObject, EndpointsFunction } from './endpoint';
 import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
+import { KeysOf } from '../utils/types';
 import { equal } from '../utils/equal';
 import load from './load';
 
@@ -48,14 +49,14 @@ import load from './load';
  * export default subscribe<ExampleProps>({ propertyName: 'path/to/endpoint' })(Example);
  * ```
  */
-export default function subscribe<Props, State>(
+export default function subscribe<Props, State = {}>(
     endpointsObjectOrFunction: EndpointsObject<Props> | EndpointsFunction<Props>,
     renderOnlyOnceLoaded: boolean = true,
 ) {
     return function decorator(
         WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
     ) {
-        return class Subscribe extends Component<Props, any> {
+        return class Subscribe extends Component<Props, Props> {
             private determineEndpoints(): EndpointsObject<Props> {
                 if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
@@ -65,25 +66,22 @@ export default function subscribe<Props, State>(
 
             private endpoints: EndpointsObject<Props>;
 
-            private subscriptions: { [key: string]: () => void } = {};
+            private subscriptions: { [Key in keyof Props]?: () => void } = {};
 
-            private unsubscribeEndpoint(key: string) {
-                this.subscriptions[key]();
-                delete this.subscriptions[key];
-            }
-
-            private unsubscribeIfSubscribed(key: string) {
-                if (this.subscriptions[key]) {
-                    this.unsubscribeEndpoint(key);
+            private unsubscribeEndpoint(key: keyof Props) {
+                const subscription = this.subscriptions[key];
+                if (subscription !== undefined) {
+                    subscription();
+                    delete this.subscriptions[key];
                 }
             }
 
-            private subscribeEndpoint(key: string, endpoint: string): void {
-                this.unsubscribeIfSubscribed(key);
+            private subscribeEndpoint(key: keyof Props, endpoint: Endpoint): void {
+                this.unsubscribeEndpoint(key);
                 this.subscriptions[key] = apiSubscribe(endpoint, (event: Event) => {
                     switch (event.action) {
                     case 'replace':
-                        this.setState({ [key]: event.object });
+                        this.setState({ [key]: event.object } as Pick<Props, keyof Props>);
                         break;
                     case 'prepend':
                         this.setState(state => ({ [key]: [event.object, ...state[key]] }));
@@ -95,7 +93,7 @@ export default function subscribe<Props, State>(
                         this.setState(state => ({ [key]: state[key].filter(item => !equal(item, event.object)) }));
                         break;
                     case 'reload':
-                        apiGet(event.subject).then(object => this.setState({ [key]: object }));
+                        apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<Props, keyof Props>));
                         break;
                     }
                 });
@@ -105,17 +103,17 @@ export default function subscribe<Props, State>(
                 const oldEndpoints = this.endpoints;
                 const newEndpoints = this.determineEndpoints();
                 // Update the endpoints that were different or undefined before.
-                for (const key of Object.keys(newEndpoints)) {
+                for (const key of Object.keys(newEndpoints) as KeysOf<Props>) {
                     if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
-                        this.subscribeEndpoint(key, newEndpoints[key]);
+                        this.subscribeEndpoint(key, newEndpoints[key] as Endpoint);
                     }
                 }
                 if (oldEndpoints != null) {
                     // Remove endpoints that no longer exist from the state.
-                    for (const key of Object.keys(oldEndpoints)) {
+                    for (const key of Object.keys(oldEndpoints) as KeysOf<Props>) {
                         if (newEndpoints[key] === undefined) {
-                            this.unsubscribeIfSubscribed(key);
-                            this.setState({ [key]: undefined });
+                            this.unsubscribeEndpoint(key);
+                            this.setState({ [key]: undefined as any } as Pick<Props, keyof Props>);
                         }
                     }
                 }
@@ -131,7 +129,7 @@ export default function subscribe<Props, State>(
             }
 
             public componentWillUnmount() {
-                for (const key of Object.keys(this.subscriptions)) {
+                for (const key of Object.keys(this.subscriptions) as KeysOf<Props>) {
                     this.unsubscribeEndpoint(key);
                 }
             }

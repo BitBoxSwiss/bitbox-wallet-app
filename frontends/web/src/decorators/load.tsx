@@ -15,8 +15,9 @@
  */
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { EndpointsObject, EndpointsFunction } from './endpoints';
+import { Endpoint, EndpointsObject, EndpointsFunction } from './endpoint';
 import { apiGet } from '../utils/request';
+import { KeysOf } from '../utils/types';
 
 // Stores whether to log the time needed for individual API calls.
 const logPerformance = false;
@@ -58,7 +59,7 @@ export default function load<Props, State = {}>(
     return function decorator(
         WrappedComponent:  ComponentConstructor<Props, State> | FunctionalComponent<Props>,
     ) {
-        return class Load extends Component<Props, any> {
+        return class Load extends Component<Props, Props> {
             private determineEndpoints(): EndpointsObject<Props> {
                 if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
@@ -66,12 +67,12 @@ export default function load<Props, State = {}>(
                 return endpointsObjectOrFunction;
             }
 
-            private loadEndpoint(key: string, endpoint: string): void {
+            private loadEndpoint(key: keyof Props, endpoint: Endpoint): void {
                 logCounter += 1;
                 const timerID = endpoint + ' ' + logCounter;
                 if (logPerformance) { console.time(timerID); }
                 apiGet(endpoint).then(object => {
-                    this.setState({ [key]: object });
+                    this.setState({ [key]: object } as Pick<Props, keyof Props>);
                     if (logPerformance) { console.timeEnd(timerID); }
                 });
             }
@@ -82,16 +83,16 @@ export default function load<Props, State = {}>(
                 const oldEndpoints = this.endpoints;
                 const newEndpoints = this.determineEndpoints();
                 // Load the endpoints that were different or undefined before.
-                for (const key of Object.keys(newEndpoints)) {
+                for (const key of Object.keys(newEndpoints) as KeysOf<Props>) {
                     if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
-                        this.loadEndpoint(key, newEndpoints[key]);
+                        this.loadEndpoint(key, newEndpoints[key] as Endpoint);
                     }
                 }
                 if (oldEndpoints != null) {
                     // Remove endpoints that no longer exist from the state.
-                    for (const key of Object.keys(oldEndpoints)) {
+                    for (const key of Object.keys(oldEndpoints) as KeysOf<Props>) {
                         if (newEndpoints[key] === undefined) {
-                            this.setState({ [key]: undefined });
+                            this.setState({ [key]: undefined as any} as Pick<Props, keyof Props>);
                         }
                     }
                 }
@@ -108,7 +109,7 @@ export default function load<Props, State = {}>(
 
             private allEndpointsLoaded(): boolean {
                 if (this.endpoints == null) { return false; }
-                for (const key of Object.keys(this.endpoints)) {
+                for (const key of Object.keys(this.endpoints) as KeysOf<Props>) {
                     if (this.state[key] === undefined) {
                         return false;
                     }
