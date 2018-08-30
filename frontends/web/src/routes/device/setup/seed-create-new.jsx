@@ -21,7 +21,7 @@ import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
 import Message from '../../../components/message/message';
 import { Shift } from '../../../components/icon/logo';
-import { Guide } from '../../../components/guide/guide';
+// import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -249,7 +249,6 @@ export default class SeedCreateNew extends Component {
                         )
                     }
                 </div>
-                <Guide screen="seed" />
             </div>
         );
     }

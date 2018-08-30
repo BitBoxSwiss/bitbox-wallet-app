@@ -71,6 +71,7 @@ export default class Backups extends Component {
     render({
         t,
         showCreate = false,
+        showRestore = true,
         deviceID,
         children,
         requireConfirmation = true,
@@ -115,22 +116,26 @@ export default class Backups extends Component {
                         {children}
                         {
                             showCreate && (
+                                <Check
+                                    selectedBackup={selectedBackup}
+                                    deviceID={deviceID} />
+                            )
+                        }
+                        {
+                            showCreate && (
                                 <Create
                                     onCreate={this.refresh}
                                     deviceID={deviceID} />
                             )
                         }
                         {
-                            showCreate && (
-                                <Check
+                            showRestore && (
+                                <Restore
                                     selectedBackup={selectedBackup}
-                                    deviceID={deviceID} />
+                                    deviceID={deviceID}
+                                    requireConfirmation={requireConfirmation} />
                             )
                         }
-                        <Restore
-                            selectedBackup={selectedBackup}
-                            deviceID={deviceID}
-                            requireConfirmation={requireConfirmation} />
                         {/*
                           <Erase
                           selectedBackup={selectedBackup}

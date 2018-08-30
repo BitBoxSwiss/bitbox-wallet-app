@@ -18,11 +18,12 @@ import { Component, h } from 'preact';
 import i18n from '../../i18n/i18n';
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
-import { BitBox, Shift } from '../../components/icon/logo';
+import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
+import InnerHTMLHelper from '../../utils/innerHTML';
 import style from './device.css';
 
 export default function Waiting({ testing }) {
@@ -33,11 +34,14 @@ export default function Waiting({ testing }) {
                 <div className={style.content} style="text-align: center;">
                     {title && (<h1>{title}</h1>)}
                     <h3>{i18n.t('welcome.insertDevice')}</h3>
-                    {i18n.t('welcome.paragraph')}
-                    {i18n.t('deviceTampered')}
-                    <SkipForTestingButton show={debug && testing} />
+                    <div className="flex-1">
+                        {i18n.t('welcome.paragraph')}
+                        <Alert />
+                        <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
+                        <SkipForTestingButton show={debug && testing} />
+                    </div>
                     <hr />
-                    <Footer>
+                    <Footer bottomSpace>
                         <Shift />
                     </Footer>
                 </div>
