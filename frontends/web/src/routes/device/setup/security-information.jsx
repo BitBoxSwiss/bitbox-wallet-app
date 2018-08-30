@@ -1,7 +1,7 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../components/forms';
-import { Shift } from '../../../components/icon/logo';
+import { Shift, Alert } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
 import InnerHTMLHelper from '../../../utils/innerHTML';
@@ -66,10 +66,13 @@ export default class SecurityInformation extends Component {
                                 </div>
                             ) : (
                                 <div class={style.block}>
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_1')} />
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_2')} />
+                                    <ul class={style.list}>
+                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_1')} />
+                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_2')} />
+                                    </ul>
                                     <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_3')} />
-                                    <p>{t('deviceTampered')}</p>
+                                    <Alert style="float: left; margin-right: var(--spacing-half);" />
+                                    <InnerHTMLHelper tagName="p" html={t('deviceTampered')} />
                                     <div className={['buttons buttons-end', style.buttons].join(' ')}>
                                         <Button
                                             transparent

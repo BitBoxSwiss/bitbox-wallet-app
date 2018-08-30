@@ -1,0 +1,7 @@
+.manageBackups {
+  display: flex;
+  margin: 0 auto;
+  max-width: var(--content-width);
+  padding: var(--spacing-large) var(--spacing-large);
+  width: 100%;
+}
