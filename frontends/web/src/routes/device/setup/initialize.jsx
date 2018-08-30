@@ -98,8 +98,10 @@ export default class Initialize extends Component {
         const content = showInfo ? (
             <div className={style.block}>
                 <h2>{t('initialize.info.subtitle')}</h2>
-                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_1')} />
-                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_2')} />
+                <ul>
+                    <InnerHTMLHelper tagName="li" html={t('initialize.info.description_1')} />
+                    <InnerHTMLHelper tagName="li" html={t('initialize.info.description_2')} />
+                </ul>
                 <InnerHTMLHelper tagName="p" html={t('initialize.info.description_3')} />
                 <div className={['buttons buttons-end', style.buttons].join(' ')}>
                     <Button

@@ -32,7 +32,7 @@
         "paragraph": "",
         "insertDevice": "Please connect your device to get started"
     },
-    "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
+    "deviceTampered": "Has your BitBox been supplied with a recovery password?<br>If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
     "setup": "Setup device",
     "goal": {
         "title": "",

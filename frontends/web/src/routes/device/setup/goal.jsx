@@ -2,7 +2,7 @@ import { h } from 'preact';
 import i18n from '../../../i18n/i18n';
 import { Button } from '../../../components/forms';
 import { Shift } from '../../../components/icon/logo';
-import { Guide } from '../../../components/guide/guide';
+// import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 // import { Steps, Step } from './components/steps';
 import style from '../device.css';
@@ -46,7 +46,6 @@ export default function Goal({
                     </Footer>
                 </div>
             </div>
-            <Guide screen="seed" />
         </div>
     );
 }

@@ -15,7 +15,10 @@
  */
 
 import { h } from 'preact';
+import alert from './assets/icons/alert-triangle.svg';
 
-export default function InnerHTMLHelper({ tagName, html, ...props }) {
-    return h(tagName, { dangerouslySetInnerHTML: { __html: html }, ...props });
+export function Alert({ code, ...props }) {
+    return (
+        <img draggable="false" src={alert} {...props} />
+    );
 }

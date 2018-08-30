@@ -19,6 +19,7 @@ import i18n from '../../../i18n/i18n';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
+import styles from './manage-backups.css';
 
 export default function ManageBackups({
     deviceID,
@@ -31,16 +32,18 @@ export default function ManageBackups({
                         <h2>{i18n.t('backup.title')}</h2>
                     </div>
                 </div>
-                <Backups
-                    deviceID={deviceID}
-                    showCreate={true}>
-                    <ButtonLink
-                        secondary
-                        href={`/device/${deviceID}`}
-                        style="position: absolute; right: 0;">
-                        {i18n.t('button.back')}
-                    </ButtonLink>
-                </Backups>
+                <div className={styles.manageBackups}>
+                    <Backups
+                        deviceID={deviceID}
+                        showCreate={true}
+                        showRestore={false}>
+                        <ButtonLink
+                            secondary
+                            href={`/device/${deviceID}`}>
+                            {i18n.t('button.back')}
+                        </ButtonLink>
+                    </Backups>
+                </div>
             </div>
             <Guide screen="backups" />
         </div>

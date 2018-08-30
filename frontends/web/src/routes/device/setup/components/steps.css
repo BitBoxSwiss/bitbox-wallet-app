@@ -4,6 +4,7 @@
 
 .steps {
     display: flex;
+    flex-shrink: 0;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
@@ -30,10 +31,6 @@
 
 .step:not(:last-child) {
 
-}
-
-.step.process .stepContent {
-    font-weight: bold;
 }
 
 .stepIcon {
