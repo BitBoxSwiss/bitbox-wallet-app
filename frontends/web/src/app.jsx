@@ -41,6 +41,7 @@ export default class App extends Component {
         accountsInitialized: false,
         deviceIDs: [],
         guideShown: false,
+        sidebarShown: false,
         fiatCode: 'CHF',
         fiatList: ['USD', 'EUR', 'CHF'],
     }
@@ -50,7 +51,9 @@ export default class App extends Component {
      * @param {Object} event "change" event from [preact-router](http://git.io/preact-router)
      * @param {string} event.url The newly routed URL
      */
-    handleRoute = event => {}
+    handleRoute = event => {
+        if (this.state.sidebarShown) this.setState({ sidebarShown: false });
+    }
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
@@ -137,6 +140,10 @@ export default class App extends Component {
         });
     }
 
+    toggleSidebar = () => {
+        this.setState({ sidebarShown: !this.state.sidebarShown });
+    }
+
     showGuide = () => {
         this.setState({ guideShown: true });
     }
@@ -183,6 +190,7 @@ export default class App extends Component {
         backendConnected,
         deviceIDs,
         accountsInitialized,
+        sidebarShown,
         guideShown,
         fiatCode,
         fiatList
@@ -194,62 +202,73 @@ export default class App extends Component {
                 </div>
             );
         }
+        const sidebar = { shown: sidebarShown, toggle: this.toggleSidebar };
         const guide = { shown: guideShown, toggle: this.toggleGuide, show: this.showGuide, hide: this.hideGuide };
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
                 <Sidebar
+                    sidebar={sidebar}
                     accounts={accounts}
                     deviceIDs={deviceIDs}
                     accountsInitialized={accountsInitialized}
                     guideShown={guideShown} />
-                <div class="flex-column flex-1">
+                <div class="flex flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Router onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
+                            sidebar={sidebar}
                             guide={guide}
                             fiat={fiat} />
                         <Receive
                             path="/account/:code/receive"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
+                            sidebar={sidebar}
                             guide={guide}
                             fiat={fiat} />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts}
+                            sidebar={sidebar}
                             guide={guide}
                             fiat={fiat} />
                         <Account
                             path="/account/:code?"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
+                            sidebar={sidebar}
                             guide={guide}
                             fiat={fiat} />
                         <ElectrumSettings
                             path="/settings/electrum"
+                            sidebar={sidebar}
                             guide={guide} />
                         <Settings
                             path="/settings"
                             deviceIDs={deviceIDs}
+                            sidebar={sidebar}
                             guide={guide}
                             fiat={fiat} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
                             deviceIDs={deviceIDs}
+                            sidebar={sidebar}
                             guide={guide} />
                         <Device
                             path="/device/:deviceID"
                             deviceIDs={deviceIDs}
+                            sidebar={sidebar}
                             guide={guide} />
                         <Device
                             default
-                            deviceID={deviceIDs[0]}
                             deviceIDs={deviceIDs}
+                            deviceID={deviceIDs[0]}
+                            sidebar={sidebar}
                             guide={guide} />
                     </Router>
                 </div>

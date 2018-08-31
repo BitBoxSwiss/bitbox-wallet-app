@@ -22,9 +22,11 @@ import style from './guide.css';
 export function Guide({ guide, screen, children }) {
     return (
         <div className={style.wrapper}>
-            <div className={style.toggler} onClick={guide.toggle}>{guide.shown ? '✕' : '?'}</div>
             <div className={[style.guide, guide.shown && style.show].join(' ')}>
-                <h1>{i18n.t('guide.title')}</h1>
+                <div class={['flex flex-row flex-between', style.title].join(' ')}>
+                    <h1>{i18n.t('guide.title')}</h1>
+                    <button className={style.closeButton} onClick={guide.hide}>✕</button>
+                </div>
                 {screen && i18n.t('guide.' + screen, { defaultValue: [] }).map((entry, i) => (
                     <Entry key={screen + i} entry={entry} />
                 ))}

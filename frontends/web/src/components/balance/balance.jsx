@@ -22,6 +22,7 @@ export default function Balance({
     code,
     name,
     balance,
+    guide,
     fiat,
 }) {
     if (!balance) {
@@ -30,7 +31,7 @@ export default function Balance({
         );
     }
     return (
-        <header className={style.balance}>
+        <header className={[style.balance, guide.shown ? style.withGuide: ''].join(' ')}>
             <div class={style.accountName}>
                 <span>{name}</span>
                 <a href={`/account/${code}/info`}>i</a>

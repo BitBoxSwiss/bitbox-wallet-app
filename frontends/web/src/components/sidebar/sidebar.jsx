@@ -21,6 +21,7 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { debug } from '../../utils/env';
 import Logo, { BitBoxInverted } from '../icon/logo';
+import arrowIcon from '../../assets/icons/chevrons-right.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
@@ -46,55 +47,60 @@ class Sidebar extends Component {
         deviceIDs,
         accounts,
         accountsInitialized,
+        sidebar,
         guideShown,
     }, {
     }) {
+        const show = sidebar.shown;
         return (
-            <nav className={['sidebar', guideShown ? 'withGuide' : ''].join(' ')}>
-                <div className="sidebarLogoContainer" style={'opacity:' + (accountsInitialized ? 1 : 0)}>
-                    <BitBoxInverted className="sidebarLogo" />
-                </div>
-                {
-                    accounts && accounts.map(getAccountLink)
-                }
-                <div className="sidebar_drawer"></div>
-                <div className="sidebar_bottom">
-                    {
-                        (debug && accountsInitialized && deviceIDs.length === 0) && (
-                            <a href="#" onClick={eject}>
-                                <div className="single">
-                                    <img
-                                        draggable="false"
-                                        className="sidebar_settings"
-                                        src={ejectIcon}
-                                        alt={t('sidebar.leave')} />
-                                </div>
-                            </a>
-                        )
-                    }
-                    {
-                        deviceIDs.map(deviceID => (
-                            <div key={deviceID}>
-                                <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
-                                    <div className="single">
-                                        <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
-                                    </div>
-                                    <span className="sidebar_label">{t('sidebar.device')}</span>
-                                </Link>
-                            </div>
-                        ))
-                    }
-                    <div>
-                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
-                            <div className="stacked">
-                                <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
-                                <img draggable="false" className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
-                            </div>
-                            <span className="sidebar_label">{t('sidebar.settings')}</span>
-                        </Link>
+            <div className={['sidebarContainer', guideShown ? 'withGuide' : ''].join(' ')}>
+                <div className={['sidebarOverlay', show ? 'show' : ''].join(' ')} onClick={sidebar.toggle}></div>
+                <nav className={['sidebar', show ? 'forceShow' : ''].join(' ')}>
+                    <div className="sidebarLogoContainer" style={'opacity:' + (accountsInitialized ? 1 : 0)}>
+                        <BitBoxInverted className="sidebarLogo" />
                     </div>
-                </div>
-            </nav>
+                    {
+                        accounts && accounts.map(getAccountLink)
+                    }
+                    <div className="sidebar_drawer"></div>
+                    <div className="sidebar_bottom">
+                        {
+                            (debug && accountsInitialized && deviceIDs.length === 0) && (
+                                <a href="#" onClick={eject}>
+                                    <div className="single">
+                                        <img
+                                            draggable="false"
+                                            className="sidebar_settings"
+                                            src={ejectIcon}
+                                            alt={t('sidebar.leave')} />
+                                    </div>
+                                </a>
+                            )
+                        }
+                        {
+                            deviceIDs.map(deviceID => (
+                                <div key={deviceID}>
+                                    <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
+                                        <div className="single">
+                                            <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
+                                        </div>
+                                        <span className="sidebar_label">{t('sidebar.device')}</span>
+                                    </Link>
+                                </div>
+                            ))
+                        }
+                        <div>
+                            <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
+                                <div className="stacked">
+                                    <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
+                                    <img draggable="false" className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
+                                </div>
+                                <span className="sidebar_label">{t('sidebar.settings')}</span>
+                            </Link>
+                        </div>
+                    </div>
+                </nav>
+            </div>
         );
     }
 }

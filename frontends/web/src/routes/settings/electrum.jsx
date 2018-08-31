@@ -19,6 +19,8 @@ import { translate } from 'react-i18next';
 import { Guide } from '../../components/guide/guide';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
+import Header from '../../components/header/Header';
+import ButtonGroup from '../../components/buttonGroup/ButtonGroup';
 import style from './settings.css';
 
 @translate()
@@ -283,8 +285,23 @@ export default class ElectrumSettings extends Component {
         this.setState({ activeTab: target });
     }
 
+    tabs = () => {
+        const { activeTab, testing } = this.state;
+        return (
+            <div class="flex flex-row flex-between flex-items-center tabs">
+                <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
+                    <a href="#" onClick={this.handleTab} data-tab="btc">{testing ? 'TBTC' : 'BTC'}</a>
+                </div>
+                <div class={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
+                    <a href="#" onClick={this.handleTab} data-tab="ltc">{testing ? 'TLTC' : 'LTC'}</a>
+                </div>
+            </div>
+        );
+    }
+
     render({
         t,
+        sidebar,
         guide,
     }, {
         testing,
@@ -293,19 +310,10 @@ export default class ElectrumSettings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <h2>{t('settings.expert.electrum.title')}</h2>
-                        </div>
-                        <div class="flex flex-row flex-between flex-items-center tabs">
-                            <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
-                                <a href="#" onClick={this.handleTab} data-tab="btc">{testing ? 'TBTC' : 'BTC'}</a>
-                            </div>
-                            <div class={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
-                                <a href="#" onClick={this.handleTab} data-tab="ltc">{testing ? 'TLTC' : 'LTC'}</a>
-                            </div>
-                        </div>
-                    </div>
+                    <Header sidebar={sidebar} guide={guide} extraContent={this.tabs}>
+                        <h2>{t('settings.expert.electrum.title')}</h2>
+                        <ButtonGroup guide={guide} />
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {

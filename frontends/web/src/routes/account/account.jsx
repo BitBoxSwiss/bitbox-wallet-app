@@ -21,6 +21,8 @@ import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { ButtonLink } from '../../components/forms';
 import { Guide, Entry } from '../../components/guide/guide';
+import Header from '../../components/header/Header';
+import ButtonGroup from '../../components/buttonGroup/ButtonGroup';
 import Balance from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
@@ -143,6 +145,7 @@ export default class Account extends Component {
         code,
         accounts,
         deviceIDs,
+        sidebar,
         guide,
         fiat,
     }, {
@@ -159,42 +162,39 @@ export default class Account extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {hasCard && t('warning.sdcard')}
-                        </Status>
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
-                            <div class={componentStyle.buttons} style="align-self: flex-end;">
-                                <ButtonLink
-                                    primary
-                                    href={`/account/${code}/receive`}
-                                    disabled={!initialized}>
-                                    {t('button.receive')}
-                                </ButtonLink>
-                                <ButtonLink
-                                    primary
-                                    href={`/account/${code}/send`}
-                                    disabled={!initialized || balance && balance.available.amount === '0'}>
-                                    {t('button.send')}
-                                </ButtonLink>
-                            </div>
-                        </div>
-                        <div>
-                            {
-                                !connected && (
-                                    <Status>
-                                        <p>{t('account.disconnect')}</p>
-                                    </Status>
-                                )
-                            }
-                        </div>
-                    </div>
+                    <Status type="warning">
+                        {hasCard && t('warning.sdcard')}
+                    </Status>
+                    {
+                        !connected && (
+                            <Status>
+                                <p>{t('account.disconnect')}</p>
+                            </Status>
+                        )
+                    }
+                    <Header sidebar={sidebar} guide={guide}>
+                        <Balance
+                            t={t}
+                            code={code}
+                            name={account.name}
+                            balance={balance}
+                            guide={guide}
+                            fiat={fiat} />
+                        <ButtonGroup guide={guide}>
+                            <ButtonLink
+                                primary
+                                href={`/account/${code}/receive`}
+                                disabled={!initialized}>
+                                {t('button.receive')}
+                            </ButtonLink>
+                            <ButtonLink
+                                primary
+                                href={`/account/${code}/send`}
+                                disabled={!initialized || balance && balance.available.amount === '0'}>
+                                {t('button.send')}
+                            </ButtonLink>
+                        </ButtonGroup>
+                    </Header>
                     <div class={['innerContainer', ''].join(' ')}>
                         <HeadersSync coinCode={account.coinCode} />
                         {

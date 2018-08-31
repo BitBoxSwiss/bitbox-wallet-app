@@ -29,6 +29,8 @@ import Reset from './components/reset';
 import MobilePairing from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
+import Header from '../../../components/header/Header';
+import ButtonGroup from '../../../components/buttonGroup/ButtonGroup';
 
 @translate()
 export default class Settings extends Component {
@@ -87,6 +89,7 @@ export default class Settings extends Component {
     render({
         t,
         deviceID,
+        sidebar,
         guide,
     }, {
         firmwareVersion,
@@ -102,11 +105,10 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <h2>{name === null ? '' : name || 'BitBox'}</h2>
-                        </div>
-                    </div>
+                    <Header sidebar={sidebar} guide={guide}>
+                        <h2>{name === null ? '' : name || 'BitBox'}</h2>
+                        <ButtonGroup guide={guide} />
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="flex-1">

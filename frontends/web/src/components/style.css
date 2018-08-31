@@ -6,15 +6,6 @@
 	width: 100%;
 }
 
-/* BUTTONS */
-.buttons button:not(:last-child) {
-	margin-right: var(--spacing-half);
-}
-
-.buttons a:not(:last-child) {
-	margin-right: var(--spacing-half);
-}
-
 .badge {
     position: absolute;
     top: -8px;
@@ -28,5 +19,3 @@
     font-weight: bold;
     font-size: 11px;
 }
-
-/* BUTTONS END */

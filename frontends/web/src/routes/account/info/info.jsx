@@ -22,9 +22,11 @@ import { translate } from 'react-i18next';
 import QRCode from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
+import Header from '../../../components/header/Header';
+import ButtonGroup from '../../../components/buttonGroup/ButtonGroup';
 import style from './info.css';
 
-function SigningConfiguration({ t, signingConfiguration }) {
+function SigningConfiguration({ t, sidebar, signingConfiguration }) {
     return (
         // TODO: add info if single or multisig, and threshold.
         <div>
@@ -91,6 +93,7 @@ export default class Info extends Component {
         t,
         code,
         guide,
+        sidebar,
         fiat,
     }, {
         balance,
@@ -101,16 +104,16 @@ export default class Info extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
-                        </div>
-                    </div>
+                    <Header sidebar={sidebar} guide={guide}>
+                        <Balance
+                            t={t}
+                            code={code}
+                            name={account.name}
+                            balance={balance}
+                            guide={guide}
+                            fiat={fiat} />
+                        <ButtonGroup guide={guide} />
+                    </Header>
 
                     <div class="innerContainer">
                         <div class="content padded">

@@ -258,7 +258,7 @@
         "explorerTitle": "Open in external block Explorer"
     },
     "receive": {
-        "title": "Get Coins",
+        "title": "Receive Coins",
         "label": "Your address",
         "verify": "Verify address securely",
         "warning": {

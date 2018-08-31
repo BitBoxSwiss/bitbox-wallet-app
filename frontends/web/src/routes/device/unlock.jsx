@@ -98,7 +98,7 @@ export default class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t, guide }, {
+    render({ t, sidebar, guide }, {
         status, password,
         errorCode, errorMessage, remainingAttempts, needsLongTouch
     }) {

@@ -1,7 +1,7 @@
 .syncContainer {
     position: absolute;
     width: 100%;
-    top: -22px;
+    top: -21px;
 }
 
 .progressBar {
@@ -25,8 +25,8 @@
     color: var(--color-secondary);
     text-align: right;
     margin: 0 auto;
-    margin-bottom: 4px;
-    padding: 0 var(--spacing-large);
+    margin-bottom: 3px;
+    padding: 0 calc(var(--spacing-large) + var(--spacing-default));
 }
 
 .syncText {

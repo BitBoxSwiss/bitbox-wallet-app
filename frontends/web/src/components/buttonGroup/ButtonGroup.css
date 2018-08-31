@@ -1,0 +1,50 @@
+.container {
+    align-self: flex-end;
+    text-align: right;
+}
+
+.container > *:not(:last-child) {
+    margin-right: var(--spacing-half);
+}
+
+.guideToggler {
+		border: none;
+		z-index: 2000;
+		padding: 8px 12px;
+		border-radius: 19px;
+		width: 34px;
+		height: 34px;
+		color: white;
+		cursor: default;
+    font-size: var(--size-button);
+		font-weight: bold;
+    line-height: 1;
+		display: inline-flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		background-color: var(--color-darkblue);
+		user-select: none;
+}
+
+@media (max-width: 530px) {
+    .container > *:not(:last-child) {
+        margin-right: 0;
+        margin-bottom: 3px;
+    }
+
+    .container > *:last-child {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 1050px) {
+    .withGuide > * {
+        display: block;
+    }
+
+    .withGuide > *:not(:last-child) {
+        margin-right: 0;
+        margin-bottom: 3px;
+    }
+}
