@@ -76,6 +76,7 @@ export default class Backups extends Component {
         children,
         requireConfirmation = true,
         fillSpace,
+        onRestore,
     }, {
         backupList,
         selectedBackup,
@@ -133,6 +134,7 @@ export default class Backups extends Component {
                                 <Restore
                                     selectedBackup={selectedBackup}
                                     deviceID={deviceID}
+                                    onRestore={onRestore}
                                     requireConfirmation={requireConfirmation} />
                             )
                         }

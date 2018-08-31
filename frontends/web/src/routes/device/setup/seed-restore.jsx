@@ -5,7 +5,6 @@ import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 import Message from '../../../components/message/message';
 import { Shift } from '../../../components/icon/logo';
-// import { Guide } from '../../../components/guide/guide';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -58,6 +57,7 @@ export default class SeedRestore extends Component {
         t,
         deviceID,
         goBack,
+        onSuccess,
     }, {
         showInfo,
         status,
@@ -106,6 +106,7 @@ export default class SeedRestore extends Component {
                                 displayError={this.displayError}
                                 deviceID={deviceID}
                                 requireConfirmation={false}
+                                onRestore={onSuccess}
                                 fillSpace>
                                 <Button
                                     transparent

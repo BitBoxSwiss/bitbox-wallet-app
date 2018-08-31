@@ -95,6 +95,9 @@ export default class Restore extends Component {
         }).catch(() => {}).then(({ didRestore, errorMessage }) => {
             this.abort();
             if (didRestore) {
+                if (this.props.onRestore) {
+                    return this.props.onRestore();
+                }
                 console.log('restore.jsx route to /'); // eslint-disable-line no-console
                 route('/', true);
             } else if (errorMessage) {
