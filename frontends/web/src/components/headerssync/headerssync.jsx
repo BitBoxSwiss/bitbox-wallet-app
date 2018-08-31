@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
+import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import UpdatingComponent from '../updating/updating';
+import { subscribe } from '../../decorators/subscribe';
 import style from './headerssync.css';
 
 @translate()
-export default class HeadersSync extends UpdatingComponent {
+@subscribe(props => ({ status: 'coins/' + props.coinCode + '/headers/status' }))
+export default class HeadersSync extends Component {
     constructor(props) {
         super(props);
         this.state = { show: 0 };
     }
 
-    getStateMap() {
-        return { status: 'coins/' + this.props.coinCode + '/headers/status' };
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        super.componentDidUpdate(prevProps);
-        const status = this.state.status;
-        if (status && prevState.status && status.tip !== prevState.status.tip) {
+    componentDidUpdate(prevProps) {
+        const status = this.props.status;
+        if (status && prevProps.status && status.tip !== prevProps.status.tip) {
             this.setState({ show: status.tip }); // eslint-disable-line
             if (status.tip === status.targetHeight) {
                 setTimeout(() => this.setState(state => state.show === status.tip && { show: 0 }), 4000);
@@ -41,9 +38,9 @@ export default class HeadersSync extends UpdatingComponent {
     }
 
     render({
-        t
-    }, {
+        t,
         status,
+    }, {
         show,
     }) {
         if (!status || !show) {
