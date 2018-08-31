@@ -54,7 +54,7 @@ export default class Confirm extends Component {
         prequel,
         title,
         paired = false,
-        signConfirm,
+        touchConfirm = true,
         children,
     }, {
         active,
@@ -70,7 +70,7 @@ export default class Confirm extends Component {
                 <p class={['label', style.confirmationLabel].join(' ')}>
                     {paired ? t('confirm.infoWhenPaired') : t('confirm.info')}
                 </p>
-                { signConfirm && (
+                { touchConfirm && (
                     <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
                         <div class="flex flex-column flex-center flex-items-center">
                             <img class={style.image} src={reject} alt="Reject" />

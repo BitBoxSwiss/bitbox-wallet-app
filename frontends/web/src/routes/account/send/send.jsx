@@ -441,7 +441,7 @@ export default class Send extends Component {
                                 title={t('send.confirm.title')}
                                 prequel={confirmPrequel()}
                                 paired={paired}
-                                signConfirm={signConfirm}
+                                touchConfirm={signConfirm}
                                 includeDefault>
                                 <div class={style.confirmationBox}>
                                     <div class={style.block}>
