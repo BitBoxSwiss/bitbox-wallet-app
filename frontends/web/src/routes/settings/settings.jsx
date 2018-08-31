@@ -20,7 +20,7 @@ import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
-import Fiat from '../../components/fiat/fiat';
+import { FiatSelection } from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import style from './settings.css';
@@ -60,7 +60,6 @@ export default class Settings extends Component {
 
     render({
         t,
-        fiat,
     }, {
         config,
         accountSuccess,
@@ -78,7 +77,7 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
-                                        <Fiat fiat={fiat} />
+                                        <FiatSelection />
                                         <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">

@@ -143,7 +143,6 @@ export default class Account extends Component {
         t,
         code,
         accounts,
-        fiat,
     }, {
         transactions,
         initialized,
@@ -167,8 +166,7 @@ export default class Account extends Component {
                                 t={t}
                                 code={code}
                                 name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
+                                balance={balance} />
                             <div class={componentStyle.buttons} style="align-self: flex-end;">
                                 <ButtonLink
                                     primary
@@ -207,7 +205,6 @@ export default class Account extends Component {
                                     explorerURL={account.blockExplorerTxPrefix}
                                     transactions={transactions}
                                     className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
-                                    fiat={fiat}
                                 />
                             )
                         }

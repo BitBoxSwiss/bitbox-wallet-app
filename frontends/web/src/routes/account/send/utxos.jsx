@@ -17,7 +17,7 @@
 import { Component } from 'preact';
 import { apiGet } from '../../../utils/request';
 import { Button, Checkbox } from '../../../components/forms';
-import Rates from '../../../components/rates/rates';
+import { FiatConversion } from '../../../components/rates/rates';
 import style from './utxos.css';
 
 export default class UTXOs extends Component {
@@ -66,7 +66,6 @@ export default class UTXOs extends Component {
     }
 
     render({
-        fiat,
         children,
     }, {
         show,
@@ -115,7 +114,7 @@ export default class UTXOs extends Component {
                                                             <td>{utxo.amount.amount}</td>
                                                             <td>{utxo.amount.unit}</td>
                                                         </tr>
-                                                        <Rates tableRow unstyled amount={utxo.amount} fiat={fiat} />
+                                                        <FiatConversion amount={utxo.amount} tableRow unstyled />
                                                     </table>
                                                 </td>
                                             </tr>

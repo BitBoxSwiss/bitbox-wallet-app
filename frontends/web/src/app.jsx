@@ -17,9 +17,7 @@
 import { Component } from 'preact';
 import { Router, route } from 'preact-router';
 import { apiGet } from './utils/request';
-import { setConfig } from './utils/config';
 import { apiWebsocket } from './utils/websocket';
-import { equal } from './utils/equal';
 import { Update } from './components/update/update';
 import Sidebar from './components/sidebar/sidebar';
 import Device from './routes/device/device';
@@ -39,8 +37,6 @@ export default class App extends Component {
         backendConnected: true,
         accountsInitialized: false,
         deviceIDs: [],
-        fiatCode: 'CHF',
-        fiatList: ['USD', 'EUR', 'CHF'],
     }
 
     /**
@@ -86,15 +82,6 @@ export default class App extends Component {
                 break;
             }
         });
-
-        apiGet('config').then(({ frontend }) => {
-            if (frontend && frontend.fiatCode) {
-                this.setState({ fiatCode: frontend.fiatCode });
-            }
-            if (frontend && frontend.fiatList) {
-                this.setState({ fiatList: frontend.fiatList });
-            }
-        });
     }
 
     componentWillUnmount() {
@@ -122,46 +109,11 @@ export default class App extends Component {
         });
     }
 
-    setFiatCode = (fiatCode) => {
-        if (!this.state.fiatList.includes(fiatCode)) {
-            this.addToFiatList(fiatCode);
-        }
-        this.setState({ fiatCode });
-        setConfig({ frontend: { fiatCode } });
-    }
-
-    nextFiatCode = () => {
-        this.setState(state => {
-            const index = state.fiatList.indexOf(state.fiatCode);
-            const fiatCode = state.fiatList[(index + 1) % state.fiatList.length];
-            setConfig({ frontend: { fiatCode } });
-            return { fiatCode };
-        });
-    }
-
-    addToFiatList = (fiatCode) => {
-        this.setState(state => {
-            const fiatList = state.fiatList ? [...state.fiatList, fiatCode] : [fiatCode];
-            setConfig({ frontend: { fiatList } });
-            return { fiatList };
-        });
-    }
-
-    removeFromFiatList = (fiatCode) => {
-        this.setState(state => {
-            const fiatList = state.fiatList.filter(item => !equal(item, fiatCode));
-            setConfig({ frontend: { fiatList } });
-            return { fiatList };
-        });
-    }
-
     render({}, {
         accounts,
         backendConnected,
         deviceIDs,
         accountsInitialized,
-        fiatCode,
-        fiatList
     }) {
         if (!backendConnected) {
             return (
@@ -170,7 +122,6 @@ export default class App extends Component {
                 </div>
             );
         }
-        const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
                 <Sidebar
@@ -183,28 +134,23 @@ export default class App extends Component {
                         <Send
                             path="/account/:code/send"
                             deviceIDs={deviceIDs}
-                            accounts={accounts}
-                            fiat={fiat} />
+                            accounts={accounts} />
                         <Receive
                             path="/account/:code/receive"
                             deviceIDs={deviceIDs}
-                            accounts={accounts}
-                            fiat={fiat} />
+                            accounts={accounts} />
                         <Info
                             path="/account/:code/info"
-                            accounts={accounts}
-                            fiat={fiat} />
+                            accounts={accounts} />
                         <Account
                             path="/account/:code?"
                             deviceIDs={deviceIDs}
-                            accounts={accounts}
-                            fiat={fiat} />
+                            accounts={accounts} />
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings
                             path="/settings"
-                            deviceIDs={deviceIDs}
-                            fiat={fiat} />
+                            deviceIDs={deviceIDs} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}

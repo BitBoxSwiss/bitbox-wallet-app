@@ -16,8 +16,8 @@
 
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
+import { FiatConversion } from '../rates/rates';
 import A from '../anchor/anchor';
-import Rates from '../rates/rates';
 import style from './transaction.css';
 
 @translate()
@@ -43,7 +43,6 @@ export default class Transaction extends Component {
         type,
         id,
         amount,
-        fiat,
         fiatHistorical = '',
         fee,
         feeRatePerKb,
@@ -79,7 +78,7 @@ export default class Transaction extends Component {
                         </div>
                         <div class={[style.amount, style[type]].join(' ')}>
                             <div>{sign}{amount.amount} <span class={style.unit}>{amount.unit}</span></div>
-                            <div class={style.fiat}><Rates amount={amount} fiat={fiat}>{sign}</Rates></div>
+                            <div class={style.fiat}><FiatConversion amount={amount}>{sign}</FiatConversion></div>
                         </div>
                     </div>
                     <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>

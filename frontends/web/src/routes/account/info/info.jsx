@@ -86,11 +86,9 @@ export default class Info extends Component {
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
-
     render({
         t,
         code,
-        fiat,
     }, {
         balance,
         info
@@ -106,8 +104,7 @@ export default class Info extends Component {
                                 t={t}
                                 code={code}
                                 name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
+                                balance={balance} />
                         </div>
                     </div>
 

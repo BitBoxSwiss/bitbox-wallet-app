@@ -22,7 +22,6 @@ export default function Transactions({
     explorerURL,
     transactions,
     className,
-    fiat,
 }) {
     return (
         <div className={className} style="flex-grow: 1;">
@@ -31,7 +30,6 @@ export default function Transactions({
                     <Transaction
                         key={props.id}
                         explorerURL={explorerURL}
-                        fiat={fiat}
                         {...props} />
                 )) : (
                     <div class="flex flex-row flex-center">

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import Rates from '../../components/rates/rates';
+import { FiatConversion } from '../../components/rates/rates';
 import style from './balance.css';
 
 export default function Balance({
@@ -22,7 +22,6 @@ export default function Balance({
     code,
     name,
     balance,
-    fiat,
 }) {
     if (!balance) {
         return (
@@ -40,13 +39,16 @@ export default function Balance({
                     <td className={style.availableAmount}>{balance.available.amount}</td>
                     <td className={style.availableUnit}>{balance.available.unit}</td>
                 </tr>
-                <Rates tableRow amount={balance.available} fiat={fiat} />
+                <FiatConversion amount={balance.available} tableRow />
             </table>
             {
                 balance && balance.hasIncoming && (
                     <p class={style.pendingBalance}>
                         {t('account.incoming')} {balance.incoming.amount} {balance.incoming.unit} /
-                        <span className={style.incomingConversion}> <Rates amount={balance.incoming} fiat={fiat} /></span>
+                        <span className={style.incomingConversion}>
+                            {' '}
+                            <FiatConversion amount={balance.incoming} />
+                        </span>
                     </p>
                 )
             }

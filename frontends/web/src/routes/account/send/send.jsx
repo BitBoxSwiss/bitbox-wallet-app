@@ -279,7 +279,6 @@ export default class Send extends Component {
     render({
         t,
         code,
-        fiat,
     }, {
         balance,
         proposedFee,
@@ -327,8 +326,7 @@ export default class Send extends Component {
                                 t={t}
                                 code={code}
                                 name={account.name}
-                                balance={balance}
-                                fiat={fiat} />
+                                balance={balance} />
                         </div>
                     </div>
                     <div class="innerContainer scrollableContainer">
@@ -337,7 +335,6 @@ export default class Send extends Component {
                                 coinControl ? (
                                     <UTXOs
                                         ref={ref => this.utxos = ref}
-                                        fiat={fiat}
                                         accountCode={account.code}
                                         onChange={this.onSelectedUTXOsChange}>
                                         <div class="subHeader">
