@@ -18,6 +18,11 @@ bridge, and one to invoke calls in the backend.
 Similarly to the Desktop variant, the Go library can be statically compiled and added to an Android
 Studio / XCode project. This is not part of this repo yet.
 
+## Build status
+
+[![Build Status](https://travis-ci.org/digitalbitbox/bitbox-wallet-app.svg?branch=master)](https://travis-ci.org/digitalbitbox/bitbox-wallet-app)
+[![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)](https://ci.appveyor.com/project/digitalbitbox/bitbox-wallet-app)
+
 ## Directories (subject to change)
 
 - `cmd/`: Go projects which generate binaries are here.

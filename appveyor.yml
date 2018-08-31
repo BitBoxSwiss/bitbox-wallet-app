@@ -1,0 +1,44 @@
+image: Visual Studio 2017
+
+environment:
+  matrix:
+    - QT: C:\Qt\5.11.1\msvc2017_64
+      GO: C:\go
+      GOPATH: C:\gopath\
+      PLATFORM: amd64
+      COMPILER: msvc
+
+matrix:
+  fast_finish: true
+
+before_build:
+  - set PATH=%QT5%\bin;C:\Qt\Tools\QtCreator\bin\;%GO%\bin;C:\gopath\bin\;C:\Qt\5.11.1\msvc2017_64\bin\;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;C:\MinGW\bin;%PATH%
+
+build_script:
+  - echo on
+  - choco install make
+  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
+  - go get -u gopkg.in/alecthomas/gometalinter.v1
+  - gometalinter.v1 --install
+  - go get -u github.com/golang/dep/cmd/dep
+  - go get -u github.com/stretchr/testify # needed for mockery
+  - go get -u github.com/vektra/mockery/cmd/mockery
+  - go get golang.org/x/tools/cmd/goimports
+  - go get -u github.com/jteeuwen/go-bindata/...
+  - cd ../
+  - mkdir C:\gopath\src\github.com\digitalbitbox
+  - mv bitbox-wallet-app C:\gopath\src\github.com\digitalbitbox\
+  - cd C:\gopath\src\github.com\digitalbitbox\bitbox-wallet-app\
+  - dep ensure
+  - yarn --cwd=frontends/web install
+  - yarn --cwd=frontends/web run build
+  - go generate ./...
+  - cd frontends/qt/server/
+  - make -f Makefile.windows windows-appveyor
+  - ls -al
+  - cd ..
+  - mkdir build
+  - qmake BitBox.pro
+  - qmake
+  - nmake
+  - bash -c "make -f Makefile windows_post"
