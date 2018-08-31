@@ -66,7 +66,6 @@ export default class Initialize extends Component {
     render({
         t,
         goal,
-        guide,
         goBack,
     }, {
         showInfo,
@@ -159,7 +158,7 @@ export default class Initialize extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide} screen="initialize" />
+                <Guide screen="initialize" />
             </div>
         );
     }

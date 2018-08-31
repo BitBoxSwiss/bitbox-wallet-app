@@ -19,12 +19,13 @@ import i18n from '../../i18n/i18n';
 import { apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
 import { BitBox, Shift } from '../../components/icon/logo';
-import { Guide, Entry } from '../../components/guide/guide';
+import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import style from './device.css';
 
-export default function Waiting({ testing, guide }) {
+export default function Waiting({ testing }) {
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
@@ -40,7 +41,7 @@ export default function Waiting({ testing, guide }) {
                     </Footer>
                 </div>
             </div>
-            <Guide guide={guide} screen="waiting">
+            <Guide screen="waiting">
                 <Entry key="waitingWithoutDevice" title={i18n.t('guide.waitingWithoutDevice.title')}>
                     {!(debug && testing) && <p>{i18n.t('guide.waitingWithoutDevice.text.0')}</p>}
                     {debug && testing && <p>{i18n.t('guide.waitingWithoutDevice.text.1')}</p>}

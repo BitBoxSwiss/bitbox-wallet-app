@@ -90,7 +90,6 @@ export default class Info extends Component {
     render({
         t,
         code,
-        guide,
         fiat,
     }, {
         balance,
@@ -138,7 +137,7 @@ export default class Info extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide guide={guide} screen="accountInfo" />
+                <Guide screen="accountInfo" />
             </div>
         );
     }

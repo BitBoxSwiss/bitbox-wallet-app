@@ -1,0 +1,81 @@
+/**
+ * Copyright 2018 Shift Devices AG
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import { h, RenderableProps } from 'preact';
+import { translate, TranslateProp } from '../../decorators/translate';
+import { share, Store } from '../../decorators/share';
+import { setConfig } from '../../utils/config';
+import { apiGet } from '../../utils/request';
+import { Entry, ImplicitEntry } from './entry';
+import A from '../anchor/anchor';
+import * as style from './guide.css';
+
+interface SharedProps {
+    shown: boolean;
+}
+
+export const store = new Store<SharedProps>({ shown: false });
+
+apiGet('config').then(({ frontend }) => {
+    if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
+        store.setState({ shown: frontend.guideShown });
+    } else {
+        store.setState({ shown: true });
+    }
+});
+
+function setShown(shown: boolean) {
+    store.setState({ shown });
+    setConfig({ frontend: { guideShown: shown } });
+}
+
+export function toggle() {
+    setShown(!store.state.shown);
+}
+
+export function show() {
+    setShown(true);
+}
+
+export function hide() {
+    setShown(false);
+}
+
+interface ProvidedProps {
+    screen: string;
+}
+
+type Props = ProvidedProps & SharedProps & TranslateProp;
+
+function InternalGuide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Element {
+    return (
+        <div className={style.wrapper}>
+            <div className={style.toggler} onClick={toggle}>{shown ? '✕' : '?'}</div>
+            <div className={[style.guide, shown && style.show].join(' ')}>
+                <h1>{t('guide.title')}</h1>
+                {screen && t('guide.' + screen, { defaultValue: [] }).map((entry: ImplicitEntry, i: number) => (
+                    <Entry key={screen + i} entry={entry} />
+                ))}
+                {children}
+                <div className={style.entry}>
+                    {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export const Guide = translate<ProvidedProps>()(share<SharedProps, ProvidedProps & TranslateProp>(store)(InternalGuide));

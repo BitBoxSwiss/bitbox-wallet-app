@@ -34,7 +34,7 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
     return function decorator(
-        WrappedComponent:  ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
+        WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
             private determineEndpoints(): EndpointsObject<LoadedProps> {
@@ -119,6 +119,6 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
             public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element {
                 return <this.LoadWrappedComponent {...state} {...props} />;
             }
-        }
-    }
+        };
+    };
 }

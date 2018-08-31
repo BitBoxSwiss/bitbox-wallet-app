@@ -25,6 +25,8 @@ import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
+import { share } from '../../decorators/share';
+import { store } from '../../components/guide/guide';
 
 const labelMap = {
     'btc-p2pkh': 'BTC',
@@ -40,17 +42,17 @@ const labelMap = {
 };
 
 @translate()
-class Sidebar extends Component {
+@share(store)
+export default class Sidebar extends Component {
     render({
         t,
         deviceIDs,
         accounts,
         accountsInitialized,
-        guideShown,
-    }, {
+        shown,
     }) {
         return (
-            <nav className={['sidebar', guideShown ? 'withGuide' : ''].join(' ')}>
+            <nav className={['sidebar', shown ? 'withGuide' : ''].join(' ')}>
                 <div className="sidebarLogoContainer" style={'opacity:' + (accountsInitialized ? 1 : 0)}>
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
@@ -137,5 +139,3 @@ function eject(e) {
     route('/', true);
     e.preventDefault();
 }
-
-export default Sidebar;

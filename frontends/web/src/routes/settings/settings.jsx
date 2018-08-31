@@ -60,7 +60,6 @@ export default class Settings extends Component {
 
     render({
         t,
-        guide,
         fiat,
     }, {
         config,
@@ -159,7 +158,7 @@ export default class Settings extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide guide={guide} screen="settings" />
+                <Guide screen="settings" />
             </div>
         );
     }

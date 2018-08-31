@@ -20,7 +20,8 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { ButtonLink } from '../../components/forms';
-import { Guide, Entry } from '../../components/guide/guide';
+import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 import Balance from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
@@ -142,8 +143,6 @@ export default class Account extends Component {
         t,
         code,
         accounts,
-        deviceIDs,
-        guide,
         fiat,
     }, {
         transactions,
@@ -217,7 +216,7 @@ export default class Account extends Component {
                         </Status>
                     </div>
                 </div>
-                <Guide guide={guide} screen="account">
+                <Guide screen="account">
                     <Entry key="accountDescription" title={t('guide.accountDescription.title')}>
                         <p>{t('guide.accountDescription.text')}</p>
                     </Entry>

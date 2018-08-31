@@ -98,7 +98,7 @@ export default class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t, guide }, {
+    render({ t }, {
         status, password,
         errorCode, errorMessage, remainingAttempts, needsLongTouch
     }) {
@@ -160,7 +160,7 @@ export default class Unlock extends Component {
                         )}
                     </div>
                 </div>
-                <Guide guide={guide} screen="unlock" />
+                <Guide screen="unlock" />
             </div>
         );
     }

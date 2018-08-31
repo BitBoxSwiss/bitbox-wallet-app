@@ -79,7 +79,7 @@ export class Store<State> {
  * 
  * class InternalCounter extends Component<SharedProps> {
  *     public render({ value }: RenderableProps<SharedProps>): JSX.Element {
- *         return <div onClick={incrementValue}>Value: { value }</div>
+ *         return <div onClick={incrementValue}>Value: { value }</div>;
  *     }
  * }
  * 
@@ -90,7 +90,7 @@ export function share<SharedProps, ProvidedProps = {}>(
     store: Store<SharedProps>,
 ) {
     return function decorator(
-        WrappedComponent:  ComponentConstructor<SharedProps & ProvidedProps> | FunctionalComponent<SharedProps & ProvidedProps>,
+        WrappedComponent: ComponentConstructor<SharedProps & ProvidedProps> | FunctionalComponent<SharedProps & ProvidedProps>,
     ) {
         return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
             public componentDidMount(): void {
@@ -104,6 +104,6 @@ export function share<SharedProps, ProvidedProps = {}>(
             public render(props: RenderableProps<ProvidedProps & Partial<SharedProps>>): JSX.Element {
                 return <WrappedComponent {...store.state} {...props as any} />; // This order allows the parent component to override the shared store with properties.
             }
-        }
-    }
+        };
+    };
 }

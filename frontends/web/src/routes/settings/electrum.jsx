@@ -285,7 +285,6 @@ export default class ElectrumSettings extends Component {
 
     render({
         t,
-        guide,
     }, {
         testing,
         activeTab,
@@ -334,7 +333,7 @@ export default class ElectrumSettings extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide guide={guide} screen="settings-electrum" />
+                <Guide screen="settings-electrum" />
             </div>
         );
     }

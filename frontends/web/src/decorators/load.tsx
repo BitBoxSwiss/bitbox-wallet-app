@@ -37,7 +37,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
     return function decorator(
-        WrappedComponent:  ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
+        WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Load extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
             private determineEndpoints(): EndpointsObject<LoadedProps> {
@@ -101,6 +101,6 @@ export function load<LoadedProps, ProvidedProps = {}>(
                 if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
                 return <WrappedComponent {...state} {...props as any} />; // This order allows the subscribe decorator (and others) to override the loaded endpoints with properties.
             }
-        }
-    }
+        };
+    };
 }

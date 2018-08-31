@@ -15,7 +15,7 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { TranslateProp, translate } from '../../decorators/translate';
+import { translate, TranslateProp } from '../../decorators/translate';
 import { load } from '../../decorators/load';
 import Status from '../status/status';
 import A from '../anchor/anchor';
@@ -51,4 +51,4 @@ function InternalUpdate({ file, t }: RenderableProps<Props>): JSX.Element | null
     );
 }
 
-export const Update = translate(load<LoadedProps, TranslateProp>({ file: 'update' })(InternalUpdate));
+export const Update = translate()(load<LoadedProps, TranslateProp>({ file: 'update' })(InternalUpdate));

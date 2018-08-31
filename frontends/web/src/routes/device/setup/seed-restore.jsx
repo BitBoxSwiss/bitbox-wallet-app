@@ -57,7 +57,6 @@ export default class SeedRestore extends Component {
     render({
         t,
         deviceID,
-        guide,
         goBack,
     }, {
         showInfo,
@@ -115,7 +114,7 @@ export default class SeedRestore extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide} screen="seed" />
+                <Guide screen="seed" />
             </div>
         );
     }

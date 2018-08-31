@@ -10,7 +10,6 @@ import style from '../device.css';
 export default function Goal({
     onCreate,
     onRestore,
-    guide
 }) {
     const title = i18n.t('goal.title');
     return (
@@ -44,7 +43,7 @@ export default function Goal({
                     </Footer>
                 </div>
             </div>
-            <Guide guide={guide} screen="seed" />
+            <Guide screen="seed" />
         </div>
     );
 }

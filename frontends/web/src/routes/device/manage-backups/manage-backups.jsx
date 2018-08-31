@@ -22,7 +22,6 @@ import Backups from '../../../components/backups/backups';
 
 export default function ManageBackups({
     deviceID,
-    guide,
 }) {
     return (
         <div class="contentWithGuide">
@@ -43,7 +42,7 @@ export default function ManageBackups({
                     </ButtonLink>
                 </Backups>
             </div>
-            <Guide guide={guide} screen="backups" />
+            <Guide screen="backups" />
         </div>
     );
 }

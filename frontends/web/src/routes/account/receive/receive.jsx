@@ -94,7 +94,6 @@ export default class Receive extends Component {
         t,
         coinCode,
         code,
-        guide,
     }, {
         verifying,
         activeIndex,
@@ -181,7 +180,7 @@ export default class Receive extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide guide={guide} screen="receive" />
+                <Guide screen="receive" />
             </div>
         );
     }

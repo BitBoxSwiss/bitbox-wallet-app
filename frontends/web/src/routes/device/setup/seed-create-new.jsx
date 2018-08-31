@@ -129,7 +129,6 @@ export default class SeedCreateNew extends Component {
     render({
         t,
         deviceID,
-        guide,
         goBack,
     }, {
         showInfo,
@@ -232,7 +231,7 @@ export default class SeedCreateNew extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide} screen="seed" />
+                <Guide screen="seed" />
             </div>
         );
     }

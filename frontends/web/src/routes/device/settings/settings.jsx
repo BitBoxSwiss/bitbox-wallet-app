@@ -87,7 +87,6 @@ export default class Settings extends Component {
     render({
         t,
         deviceID,
-        guide,
     }, {
         firmwareVersion,
         newVersion,
@@ -216,7 +215,7 @@ export default class Settings extends Component {
                         { spinner && <Spinner text={t('deviceSettings.loading')} /> }
                     </div>
                 </div>
-                <Guide guide={guide} screen="bitbox" />
+                <Guide screen="bitbox" />
             </div>
         );
     }

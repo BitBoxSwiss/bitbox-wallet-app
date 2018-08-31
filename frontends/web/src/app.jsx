@@ -16,7 +16,6 @@
 
 import { Component } from 'preact';
 import { Router, route } from 'preact-router';
-
 import { apiGet } from './utils/request';
 import { setConfig } from './utils/config';
 import { apiWebsocket } from './utils/websocket';
@@ -40,7 +39,6 @@ export default class App extends Component {
         backendConnected: true,
         accountsInitialized: false,
         deviceIDs: [],
-        guideShown: false,
         fiatCode: 'CHF',
         fiatList: ['USD', 'EUR', 'CHF'],
     }
@@ -90,11 +88,6 @@ export default class App extends Component {
         });
 
         apiGet('config').then(({ frontend }) => {
-            if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
-                this.setState({ guideShown: frontend.guideShown });
-            } else {
-                this.setState({ guideShown: true });
-            }
             if (frontend && frontend.fiatCode) {
                 this.setState({ fiatCode: frontend.fiatCode });
             }
@@ -127,22 +120,6 @@ export default class App extends Component {
 
             apiGet('accounts').then(accounts => this.setState({ accounts }));
         });
-    }
-
-    toggleGuide = (show) => {
-        this.setState(state => {
-            const guideShown = (typeof show === 'boolean') ? show : !state.guideShown;
-            setConfig({ frontend: { guideShown } });
-            return { guideShown };
-        });
-    }
-
-    showGuide = () => {
-        this.setState({ guideShown: true });
-    }
-
-    hideGuide = () => {
-        this.setState({ guideShown: false });
     }
 
     setFiatCode = (fiatCode) => {
@@ -183,7 +160,6 @@ export default class App extends Component {
         backendConnected,
         deviceIDs,
         accountsInitialized,
-        guideShown,
         fiatCode,
         fiatList
     }) {
@@ -194,15 +170,13 @@ export default class App extends Component {
                 </div>
             );
         }
-        const guide = { shown: guideShown, toggle: this.toggleGuide, show: this.showGuide, hide: this.hideGuide };
         const fiat = { code: fiatCode, list: fiatList, set: this.setFiatCode, next: this.nextFiatCode, add: this.addToFiatList, remove: this.removeFromFiatList };
         return (
             <div className="app">
                 <Sidebar
                     accounts={accounts}
                     deviceIDs={deviceIDs}
-                    accountsInitialized={accountsInitialized}
-                    guideShown={guideShown} />
+                    accountsInitialized={accountsInitialized} />
                 <div class="flex-column flex-1">
                     <Update />
                     <Router onChange={this.handleRoute}>
@@ -210,47 +184,38 @@ export default class App extends Component {
                             path="/account/:code/send"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
-                            guide={guide}
                             fiat={fiat} />
                         <Receive
                             path="/account/:code/receive"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
-                            guide={guide}
                             fiat={fiat} />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts}
-                            guide={guide}
                             fiat={fiat} />
                         <Account
                             path="/account/:code?"
                             deviceIDs={deviceIDs}
                             accounts={accounts}
-                            guide={guide}
                             fiat={fiat} />
                         <ElectrumSettings
-                            path="/settings/electrum"
-                            guide={guide} />
+                            path="/settings/electrum" />
                         <Settings
                             path="/settings"
                             deviceIDs={deviceIDs}
-                            guide={guide}
                             fiat={fiat} />
                         <ManageBackups
                             path="/manage-backups/:deviceID"
                             showCreate={true}
-                            deviceIDs={deviceIDs}
-                            guide={guide} />
+                            deviceIDs={deviceIDs} />
                         <Device
                             path="/device/:deviceID"
-                            deviceIDs={deviceIDs}
-                            guide={guide} />
+                            deviceIDs={deviceIDs} />
                         <Device
                             default
                             deviceID={deviceIDs[0]}
-                            deviceIDs={deviceIDs}
-                            guide={guide} />
+                            deviceIDs={deviceIDs} />
                     </Router>
                 </div>
                 <Alert />

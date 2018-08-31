@@ -279,7 +279,6 @@ export default class Send extends Component {
     render({
         t,
         code,
-        guide,
         fiat,
     }, {
         balance,
@@ -550,7 +549,7 @@ export default class Send extends Component {
                         )
                     }
                 </div>
-                <Guide guide={guide} screen="send" />
+                <Guide screen="send" />
             </div>
         );
     }
