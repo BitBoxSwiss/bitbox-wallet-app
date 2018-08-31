@@ -10,7 +10,8 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
-    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
+    overflow: auto;
+    padding: 0 var(--spacing-large);
 }
 
 .scrollable {
@@ -44,8 +45,7 @@
     flex-shrink: 1;
     max-width: 600px;
     width: 100%;
-    overflow: auto;
-    /* padding-top: var(--spacing-default); */
+    padding-top: var(--spacing-large);
 }
 
 .content form {

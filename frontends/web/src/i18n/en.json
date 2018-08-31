@@ -46,8 +46,8 @@
             "2": { "title": "Device", "description": "Set a device password" },
             "3_create": { "title": "Wallet", "description": "Create a new wallet" },
             "3_restore": { "title": "Restore", "description": "from a backup" },
-            "4_create": { "title": "", "description": "" },
-            "4_restore": { "title": "", "description": "" }
+            "4_create": { "title": "Summary", "description": "" },
+            "4_restore": { "title": "Summary", "description": "" }
         }
     },
     "device": {
@@ -446,6 +446,16 @@
             },
             "ok": "Backup matches current wallet.",
             "notOK": "Backup does NOT match current wallet."
+        }
+    },
+    "success": {
+        "create": {
+            "title": "Success",
+            "info": "you successfully created a new wallet."
+        },
+        "restore": {
+            "title": "Success",
+            "info": "you successfully restored a wallet from a backup."
         }
     },
     "confirm": {
