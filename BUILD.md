@@ -4,8 +4,8 @@ platforms should be viable for development, building, and use of the BitBit
 Wallet application.
 
 * Debian GNU/Linux: Stretch and Buster
-* Fedora: 26, 27, 28, and 29
 * Ubuntu: 14.04, 16.04, 17.10, and 18.04
+* Fedora: 26, 27, 28, and 29
 * MacOS: 10.13
 * Windows: Windows 7, Windows 10
 
@@ -53,6 +53,10 @@ Prepare the MacOS system to have the build environment:
 Build the QT frontend for MacOS:
 `make qt-osx`
 
+Build artifacts:
+* `frontends/qt/build/osx/BitBox.app`
+* `frontends/qt/build/osx/BitBox.dmg`
+
 ## Windows
 
 The exact steps to build are documented in `appveyor.yml` and there is no
@@ -62,12 +66,14 @@ process is currently a work in progress. The build requires `mingw-w64`,
 and possibly other tools. 
 
 Build the QT frontend for Windows:
-`cd frontends/qt/server/`
-`make -f Makefile.windows windows-legacy`
-`cd .. && mkdir build && cd build`
-`qmake ..\BitBox.pro`
-`nmake`
-`cd .. && bash windows_post.sh`
+```
+cd frontends/qt/server/
+make -f Makefile.windows windows-legacy
+cd .. && mkdir build && cd build
+qmake ..\BitBox.pro
+nmake
+cd .. && bash windows_post.sh
+```
 
 Other GNU/Linux systems should be able to run AppImage releases. Builds may
 be produced with or without Docker on each supported platform.
