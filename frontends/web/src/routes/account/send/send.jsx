@@ -22,6 +22,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { debug } from '../../../utils/env';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import { store as fiat } from '../../../components/rates/rates';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
@@ -53,7 +54,7 @@ export default class Send extends Component {
             isAborted: false,
             paired: null,
             fiatAmount: null,
-            fiatUnit: props.fiat.code,
+            fiatUnit: fiat.state.active,
             signProgress: null,
             signConfirm: null, // show visual BitBox in dialog when instructed to sign.
             coinControl: false,
