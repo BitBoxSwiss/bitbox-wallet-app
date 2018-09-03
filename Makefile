@@ -35,7 +35,7 @@ osx-init:
 	export CPPFLAGS="-I/usr/local/opt/qt/include"
 	export GOPATH=~/go/
 	export PATH=$PATH:~/go/bin
-	make init
+	make envinit
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
