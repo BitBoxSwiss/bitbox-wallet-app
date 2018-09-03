@@ -50,7 +50,7 @@ func TestAppDir(t *testing.T) {
 	homeDir := test.TstTempDir("test_app_dir")
 	defer func() { _ = os.RemoveAll(homeDir) }()
 	legacyConfigDir := homeDir + "/.config/bitbox"
-	if err := os.MkdirAll(legacyConfigDir, 0755); err != nil {
+	if err := os.MkdirAll(legacyConfigDir, 0750); err != nil {
 		t.Fatalf("os.MkdirAll: %v", err)
 	}
 
@@ -64,7 +64,7 @@ func TestAppDir(t *testing.T) {
 	var failed bool
 	for i, test := range tt {
 		// The -test.run argument must match this test function name.
-		cmd := exec.Command(os.Args[0], "-test.run=TestAppDir", "-test.v=true")
+		cmd := exec.Command(os.Args[0], "-test.run=TestAppDir", "-test.v=true") // #nosec G204
 		cmd.Env = []string{
 			fmt.Sprintf("HOME=%s", test.home),
 			fmt.Sprintf("XDG_CONFIG_HOME=%s", test.xdg),

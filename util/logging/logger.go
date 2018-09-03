@@ -45,7 +45,7 @@ func NewLogger(configuration *Configuration) *Logger {
 		if err := os.MkdirAll(filepath.Dir(configuration.Output), os.ModeDir|os.ModePerm); err != nil {
 			panic(errp.WithStack(err))
 		}
-		file, err := os.OpenFile(configuration.Output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+		file, err := os.OpenFile(configuration.Output, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0600)
 		if err != nil {
 			panic(errp.WithStack(err))
 		}

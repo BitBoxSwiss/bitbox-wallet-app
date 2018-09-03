@@ -167,7 +167,7 @@ func (client *RPCClient) resendPendingRequests() {
 	client.log.Debugf("Queueing %v pending requests to resend.", len(client.pendingRequests))
 	// This needs to be executed in a go-routine so that it doesn't block if the connection fails
 	// and a failover is initiated.
-	go func(requests map[int]*request) {
+	go func() {
 		for _, request := range client.pendingRequests {
 			err := client.send(request.jsonText)
 			if err != nil {
@@ -181,7 +181,7 @@ func (client *RPCClient) resendPendingRequests() {
 				return
 			}
 		}
-	}(client.pendingRequests)
+	}()
 }
 
 // resendPendingRequestsAndSubscriptions tries to re-subscribe to all subscriptions associated with the given

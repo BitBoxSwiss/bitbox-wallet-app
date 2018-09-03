@@ -33,5 +33,5 @@ func Open(url string) error {
 		cmd = "xdg-open"
 	}
 	args = append(args, url)
-	return exec.Command(cmd, args...).Start()
+	return exec.Command(cmd, args...).Start() // #nosec G204
 }
