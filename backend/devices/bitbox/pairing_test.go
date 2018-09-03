@@ -79,7 +79,7 @@ func TestFinishPairing(t *testing.T) {
 		wantPaired bool
 	}{
 		{okTempDir, EventPairingSuccess, true},
-		// {"/", EventPairingError, false}, // assumes never writable; reconsider if flaky
+		{"\x00", EventPairingError, false}, // assumes never writable; reconsider if flaky
 	}
 	for i, test := range tt {
 		t.Run(fmt.Sprintf("%d: %s", i, test.wantEvent), func(t *testing.T) {
