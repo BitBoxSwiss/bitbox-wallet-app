@@ -18,15 +18,23 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
 )
 
 // appFolder is what AppDir always returns. It is initialized only once
-// in the init func.
+// in the initAppFolder func.
 //
-// Also useful to replace with a temp dir in tests.
+// It is tempting to initialize appFolder in an init func but because
+// the Go code is called from C/C++ using CGO, we take a safer approach
+// and do it in a sync.Once call to make it more future proof and avoid
+// potential bugs where an init is potentially called only after appFolder
+// is being accessed.
+//
+// When replacing the value in tests, make sure initAppFolderOnce below
+// has already been called.
 var appFolder string
 
-func init() {
+func initAppFolder() {
 	switch runtime.GOOS {
 	case "darwin":
 		// Usually /Users/$USER/Library/Application Support.
@@ -54,8 +62,12 @@ func init() {
 	appFolder = filepath.Join(appFolder, "bitbox")
 }
 
+// initAppFolderOnce serializes initialization of the appFolder in calls to AppDir.
+var initAppFolderOnce sync.Once
+
 // AppDir returns the absolute path to the default BitBox desktop app directory
 // in the user standard config location.
 func AppDir() string {
+	initAppFolderOnce.Do(initAppFolder)
 	return appFolder
 }
