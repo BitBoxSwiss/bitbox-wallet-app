@@ -11,11 +11,6 @@ windows:
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
        	go build -x \
         -buildmode="${BUILDMODE}" -o ${LIBNAME}.dll
-windows-appveyor:
-	CGO_ENABLED=${CGO} go build -ldflags="-s -w" -buildmode=c-archive \
-		-o libserver.a
-	gcc server.def libserver.a -shared -lwinmm -lhid -lsetupapi -lWs2_32 \
-		-o libserver.dll -Wl,--out-implib,libserver.lib
 
 windows-cross:
 	CC=/usr/bin/x86_64-w64-mingw32-gcc \

@@ -13,32 +13,24 @@ matrix:
 
 before_build:
   - set PATH=%QT5%\bin;C:\Qt\Tools\QtCreator\bin\;%GO%\bin;C:\gopath\bin\;C:\Qt\5.11.1\msvc2017_64\bin\;C:\mingw-w64\x86_64-7.3.0-posix-seh-rt_v5-rev0\mingw64\bin;C:\MinGW\bin;%PATH%
+  - set MINGW_BIN=/c/mingw-w64/x86_64-7.3.0-posix-seh-rt_v5-rev0/mingw64/bin
 
 build_script:
   - echo on
   - choco install make
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
-  - go get -u gopkg.in/alecthomas/gometalinter.v1
-  - gometalinter.v1 --install
-  - go get -u github.com/golang/dep/cmd/dep
-  - go get -u github.com/stretchr/testify # needed for mockery
-  - go get -u github.com/vektra/mockery/cmd/mockery
-  - go get golang.org/x/tools/cmd/goimports
-  - go get -u github.com/jteeuwen/go-bindata/...
-  - cd ../
-  - mkdir C:\gopath\src\github.com\digitalbitbox
-  - mv bitbox-wallet-app C:\gopath\src\github.com\digitalbitbox\
-  - cd C:\gopath\src\github.com\digitalbitbox\bitbox-wallet-app\
-  - dep ensure
+  - mkdir %GOPATH%\src\github.com\digitalbitbox
+  - cd ..
+  - mv bitbox-wallet-app %GOPATH%\src\github.com\digitalbitbox\
+  - cd %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\
   - yarn --cwd=frontends/web install
   - yarn --cwd=frontends/web run build
-  - go generate ./...
   - cd frontends/qt/server/
-  - make -f Makefile.windows windows-appveyor
-  - ls -al
+  - make -f Makefile.windows windows-legacy
   - cd ..
   - mkdir build
-  - qmake BitBox.pro
-  - qmake
+  - cd build
+  - qmake ..\BitBox.pro
   - nmake
-  - bash -c "make -f Makefile windows_post"
+  - cd ..
+  - bash windows_post.sh
