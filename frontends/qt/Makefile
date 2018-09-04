@@ -36,7 +36,6 @@ osx:
 	cp server/libserver.so build/osx/BitBox.app/Contents/Frameworks
 	cp build/assets.rcc build/osx/BitBox.app/Contents/MacOS/
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
-	macdeployqt build/osx/BitBox.app/ -dmg
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
 windows:
 	@echo "Open the .pro file in QT Creator in Windows, switch to Release mode on the left, then do \"Build/run qmake\" and then \"Build/Build All\", then run \"make windows_post\"".
