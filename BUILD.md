@@ -1,6 +1,6 @@
 The BitBox Wallet supports building on X86_64 machines. Building on 32bit
 systems is may be possible but it is explicitly unsupported. The following
-platforms should be viable for development, building, and use of the BitBit
+platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
 * Debian GNU/Linux: Stretch and Buster
@@ -11,39 +11,70 @@ Wallet application.
 
 ## Debian GNU/Linux
 
-Install Docker:
-`./scripts/docker_install.sh`
+Install [Docker for Debian]
+(https://docs.docker.com/install/linux/docker-ce/Debian/):
 
 Initalize the Docker image:
 `make dockerinit`
+
+Enter the Docker environment:
 `make dockerdev`
 
 Within the Docker dev environment, build the QT frontend:
 `make qt-linux`
 
+Build artifacts:
+* `frontends/qt/build/linux/bitbox-4.0.0-1.x86_64.rpm`
+* `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
+* `frontends/qt/build/linux/BitBox-x86_64.AppImage`
+
+Extra artifacts:
+* `frontends/qt/build/linux-tmp/lib/libserver.so`
+* `frontends/qt/build/server/libserver.h`
+
 ## Ubuntu
 
-Install Docker:
-`./scripts/docker_install.sh`
+Install [Docker for Ubuntu]
+(https://docs.docker.com/install/linux/docker-ce/Ubuntu/):
 
 Initalize the Docker image:
 `make dockerinit`
+
+Enter the Docker environment:
 `make dockerdev`
 
 Inside of Docker, build the QT frontend:
 `make qt-linux`
+
+Build artifacts:
+* `frontends/qt/build/linux/bitbox-4.0.0-1.x86_64.rpm`
+* `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
+* `frontends/qt/build/linux/BitBox-x86_64.AppImage`
+* `frontends/qt/build/linux-tmp/lib/libserver.so`
+* `frontends/qt/build/server/libserver.h`
 
 ## Fedora
 
 Install [Docker for Fedora]
-(https://docs.docker.com/install/linux/docker-ce/fedora/#install-using-the-repository):
+(https://docs.docker.com/install/linux/docker-ce/fedora/):
 
 Initalize the Docker image:
 `make dockerinit`
+
+Enter the Docker environment:
 `make dockerdev`
 
 Inside of Docker, build the QT frontend:
 `make qt-linux`
+
+Build artifacts:
+* `frontends/qt/build/linux/bitbox-4.0.0-1.x86_64.rpm`
+* `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
+* `frontends/qt/build/linux/BitBox-x86_64.AppImage`
+
+Extra artifacts:
+* `frontends/qt/build/linux-tmp/lib/libserver.so`
+* `frontends/qt/build/server/libserver.h`
 
 ## MacOS
 
@@ -75,5 +106,20 @@ nmake
 cd .. && bash windows_post.sh
 ```
 
-Other GNU/Linux systems should be able to run AppImage releases. Builds may
-be produced with or without Docker on each supported platform.
+Build artifacts:
+* `frontends\qt\build\windows\*`
+
+## Cross compile from GNU/Linux to Windows
+It is not currently possible to cross compile the BitBox wallet for Windows.
+The `qtwebwidgets` QT module only supports native building on Windows. It is
+possible to cross compile `libserver.so` library for Windows from GNU/Linux.
+
+Enter the Docker environment:
+`make dockerdev`
+
+Cross compile the library:
+`cd frontends/qt/server/ && make windows-cross`
+
+Build artifacts:
+* `frontends/qt/server/libserver.dll`
+* `frontends/qt/server/libserver.h`
