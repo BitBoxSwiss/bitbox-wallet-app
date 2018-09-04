@@ -21,7 +21,7 @@ Studio / XCode project. This is not part of this repo yet.
 ## Build status
 
 [![Build Status](https://travis-ci.org/digitalbitbox/bitbox-wallet-app.svg?branch=master)](https://travis-ci.org/digitalbitbox/bitbox-wallet-app)
-[![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?retina=true)](https://ci.appveyor.com/project/digitalbitbox/bitbox-wallet-app)
+[![Build status](https://ci.appveyor.com/api/projects/status/4c8pc8jpa1utnj26/branch/master?svg=true)](https://ci.appveyor.com/project/benma/bitbox-wallet-app/branch/master)
 
 ## Directories (subject to change)
 
