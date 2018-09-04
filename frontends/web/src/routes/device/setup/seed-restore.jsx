@@ -85,38 +85,40 @@ export default class SeedRestore extends Component {
                             )
                         }
                         <h1 className={style.title}>{t('seedRestore.title')}</h1>
-                        {showInfo ? (
-                            <div class={style.block}>
-                                <h2>{t('seedRestore.info.title')}</h2>
-                                <p>{t('seedRestore.info.description')}</p>
-                                <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                        {
+                            showInfo ? (
+                                <div class={style.block}>
+                                    <h2>{t('seedRestore.info.title')}</h2>
+                                    <p>{t('seedRestore.info.description')}</p>
+                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
+                                        <Button
+                                            secondary
+                                            onClick={goBack}>
+                                            {t('button.back')}
+                                        </Button>
+                                        <Button primary onClick={this.handleStart}>
+                                            {t('seedRestore.info.button')}
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <Backups
+                                    showCreate={false}
+                                    displayError={this.displayError}
+                                    deviceID={deviceID}
+                                    requireConfirmation={false}
+                                    onRestore={onSuccess}
+                                    fillSpace>
                                     <Button
-                                        transparent
+                                        secondary
                                         onClick={goBack}>
                                         {t('button.back')}
                                     </Button>
-                                    <Button primary onClick={this.handleStart}>
-                                        {t('seedRestore.info.button')}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : (
-                            <Backups
-                                showCreate={false}
-                                displayError={this.displayError}
-                                deviceID={deviceID}
-                                requireConfirmation={false}
-                                onRestore={onSuccess}
-                                fillSpace>
-                                <Button
-                                    transparent
-                                    onClick={goBack}>
-                                    {t('button.back')}
-                                </Button>
-                            </Backups>
-                        )}
+                                </Backups>
+                            )
+                        }
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>

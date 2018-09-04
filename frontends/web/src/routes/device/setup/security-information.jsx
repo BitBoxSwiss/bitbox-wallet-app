@@ -5,6 +5,7 @@ import { Shift, Alert } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
 import InnerHTMLHelper from '../../../utils/innerHTML';
+import Message from '../../../components/message/message';
 import style from '../device.css';
 
 @translate()
@@ -30,7 +31,7 @@ export default class SecurityInformation extends Component {
         }
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
+                <div className={[style.container, 'scrollableContainer'].join(' ')}>
                     <div className={style.content}>
                         <Steps current={0}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
@@ -48,14 +49,14 @@ export default class SecurityInformation extends Component {
                                 <div class={style.block}>
                                     <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_1')} />
                                     <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_2')} />
-                                    <ul class={style.list}>
+                                    <ul class={[style.list, 'first'].join(' ')}>
                                         <InnerHTMLHelper tagName="li" html={t('securityInformation.create.description_3')} />
                                         <InnerHTMLHelper tagName="li" html={t('securityInformation.create.description_4')} />
                                     </ul>
                                     <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_5')} />
-                                    <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button
-                                            transparent
+                                            secondary
                                             onClick={goBack}>
                                             {t('button.back')}
                                         </Button>
@@ -66,16 +67,18 @@ export default class SecurityInformation extends Component {
                                 </div>
                             ) : (
                                 <div class={style.block}>
-                                    <ul class={style.list}>
+                                    <ul class={[style.list, 'first'].join(' ')}>
                                         <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_1')} />
                                         <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_2')} />
                                     </ul>
                                     <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_3')} />
-                                    <Alert style="float: left; margin-right: var(--spacing-half);" />
-                                    <InnerHTMLHelper tagName="p" html={t('deviceTampered')} />
-                                    <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                                    <Message type="warning">
+                                        <Alert />
+                                        <InnerHTMLHelper tagName="p" class="first" html={t('deviceTampered')} />
+                                    </Message>
+                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button
-                                            transparent
+                                            secondary
                                             onClick={goBack}>
                                             {t('button.back')}
                                         </Button>
@@ -87,7 +90,7 @@ export default class SecurityInformation extends Component {
                             )
                         }
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>

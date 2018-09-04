@@ -15,21 +15,14 @@ export default function Goal({
         <div class="contentWithGuide">
             <div className={[style.container].join(' ')}>
                 <div className={style.content} style="text-align: center;">
-                    <h1 className={style.title}>{i18n.t('setup')}</h1>
-                    {/*
-                    <Steps current={0}>
-                        <Step icon="?" description="" />
-                        <Step />
-                        <Step  />
-                    </Steps>
-                      */}
-                    <div class={style.block}>
+                    <div className="flex-1 flex flex-column flex-center">
+                        <h1 className={style.title}>{i18n.t('setup')}</h1>
                         {
                             title && (
                                 <h2>{title}</h2>
                             )
                         }
-                        <p>{i18n.t('goal.paragraph')}</p>
+                        <p class="first">{i18n.t('goal.paragraph')}</p>
                         <div class={style.verticalButtons}>
                             <Button primary onClick={onCreate}>
                                 {i18n.t('goal.buttons.create')}
@@ -40,7 +33,7 @@ export default function Goal({
                         </div>
                     </div>
                     <hr />
-                    <Footer bottomSpace>
+                    <Footer>
                         <Shift />
                     </Footer>
                 </div>

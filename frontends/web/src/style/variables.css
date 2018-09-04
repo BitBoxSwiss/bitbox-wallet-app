@@ -25,7 +25,7 @@
     /* status colors */
     --color-success: var(--color-greentea);
     --color-info: var(--color-brightblue);
-    --color-warn: var(--color-coolgold);
+    --color-warn: var(--color-softred);
     --color-warning: var(--color-warn);
     --color-warning-experimental: #ffab0b;
     --color-error: var(--color-swissred);

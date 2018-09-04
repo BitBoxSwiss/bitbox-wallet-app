@@ -141,15 +141,15 @@ export default class SeedCreateNew extends Component {
     }) {
         const content = showInfo ? (
             <div class={style.block}>
-                <ol>
+                <ol class="first">
                     <li>{t('seed.info.description_1')}</li>
                     <li>{t('seed.info.description_2')}</li>
                 </ol>
                 <p>{t('seed.info.description_3')}</p>
                 <p>{t('seed.info.description_4')}</p>
-                <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.back')}
                     </Button>
@@ -200,9 +200,9 @@ export default class SeedCreateNew extends Component {
                         checked={agreements.funds_access}
                         onChange={this.handleAgreementChange} />
                 </div>
-                <div className="buttons buttons-end">
+                <div className="buttons flex flex-row flex-between">
                     <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.back')}
                     </Button>
@@ -240,7 +240,7 @@ export default class SeedCreateNew extends Component {
                         <h1 className={style.title}>{t('seed.info.title')}</h1>
                         {content}
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>
