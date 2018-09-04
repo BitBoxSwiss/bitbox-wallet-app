@@ -98,16 +98,20 @@ export default class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t }, {
-        status, password,
-        errorCode, errorMessage, remainingAttempts, needsLongTouch
+    render({
+        t,
+    }, {
+        status,
+        password,
+        errorCode,
+        errorMessage,
+        remainingAttempts,
+        needsLongTouch,
     }) {
-
         let submissionState = null;
-
         switch (status) {
         case stateEnum.DEFAULT:
-            submissionState = <Message>{t('unlock.description')}</Message>;
+            submissionState = <p style="max-width: 400px; width: 100%; align-self: center;">{t('unlock.description')}</p>;
             break;
         case stateEnum.WAITING:
             submissionState = <Spinner text={t('unlock.unlocking')} showLogo />;
@@ -127,12 +131,12 @@ export default class Unlock extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <div className={style.content} style="padding-top: 20vh;">
-                        <BitBox />
-                        <div className="flex-1">
+                    <div className={style.content}>
+                        <div className="flex-1 flex flex-column flex-center">
+                            <BitBox />
                             {submissionState}
                             {status !== stateEnum.WAITING && (
-                                <form onSubmit={this.handleSubmit} style="max-width: 400px;margin: 0 auto;">
+                                <form onSubmit={this.handleSubmit} style="max-width: 400px; width: 100%; align-self: center;">
                                     <div>
                                         <Input
                                             autoFocus
@@ -157,7 +161,7 @@ export default class Unlock extends Component {
                             )}
                         </div>
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>

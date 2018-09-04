@@ -21,6 +21,7 @@ import { Button, Input } from '../../components/forms';
 import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
+import Message from '../../components/message/message';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import InnerHTMLHelper from '../../utils/innerHTML';
@@ -31,17 +32,19 @@ export default function Waiting({ testing }) {
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
-                <div className={style.content} style="text-align: center;">
-                    {title && (<h1>{title}</h1>)}
-                    <h3>{i18n.t('welcome.insertDevice')}</h3>
-                    <div className="flex-1">
+                <div className={style.content}>
+                    <div className="flex-1 flex flex-column flex-center">
+                        {title && (<h1 style="text-align: center;">{title}</h1>)}
+                        <h3 style="text-align: center;">{i18n.t('welcome.insertDevice')}</h3>
                         {i18n.t('welcome.paragraph')}
-                        <Alert />
-                        <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
+                        <Message type="warning" style="max-width: 400px; align-self: center;">
+                          <Alert />
+                          <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
+                        </Message>
                         <SkipForTestingButton show={debug && testing} />
                     </div>
                     <hr />
-                    <Footer bottomSpace>
+                    <Footer>
                         <Shift />
                     </Footer>
                 </div>
@@ -75,7 +78,7 @@ class SkipForTestingButton extends Component {
             return null;
         }
         return (
-            <form onSubmit={this.registerTestingDevice} style="flex-grow: 0;">
+            <form onSubmit={this.registerTestingDevice} style="flex-grow: 0; max-width: 400px; width: 100%; align-self: center;">
                 <Input
                     type="password"
                     autoFocus

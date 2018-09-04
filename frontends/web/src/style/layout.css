@@ -153,6 +153,10 @@
     /*overflow: auto;*/
 }
 
+.content.noSpace {
+    padding: 0 !important;
+}
+
 .content.padded {
     padding-top: var(--spacing-half);
 }

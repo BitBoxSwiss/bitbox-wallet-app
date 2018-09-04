@@ -1,11 +1,10 @@
 .footer {
     min-height: 2rem;
-    padding: var(--spacing-half) var(--spacing-default);
+    padding: var(--spacing-half) var(--spacing-default) var(--spacing-large) var(--spacing-default);
 }
 
 .footer p {
     color: var(--color-secondary);
-    font-weight: bold;
     font-size: var(--size-small);
     margin: 0;
     text-transform: uppercase;
@@ -14,8 +13,4 @@
 .footer img {
     max-width: 120px;
     margin: 0 auto 0 0;
-}
-
-.bottomSpace {
-    padding-bottom: var(--spacing-large);
 }
