@@ -14,13 +14,6 @@
 # limitations under the License.
 
 
-# use `ci.sh --fast` to only run fast checkers.
-if [ "$1" == "--fast" ]; then
-    fast="--fast"
-else
-    fast=""
-fi
-
 go build ./...
 go test ./...
 golangci-lint run
