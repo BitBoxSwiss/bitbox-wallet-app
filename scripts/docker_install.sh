@@ -32,7 +32,8 @@ apt-get install -y --no-install-recommends \
     net-tools \
     nodejs \
     g++ \
-    dnsutils
+    dnsutils \
+    gcc-mingw-w64-x86-64
 
 npm install -g yarn
 
