@@ -1,9 +1,23 @@
 .message {
-    /*text-align: center;*/
-    /*border: solid 1px var(--color-brightgray);
+    border: solid 1px var(--color-brightgray);
+    color: var(--color-secondary);
     border-radius: 2px;
-    padding: var(--spacing-half) 0;*/
+    padding: var(--spacing-default);
     margin-bottom: var(--spacing-default);
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.message img {
+    margin-right: var(--spacing-default);
+}
+
+.message p:last-child {
+    margin-bottom: 0 !important;
 }
 
 .success {

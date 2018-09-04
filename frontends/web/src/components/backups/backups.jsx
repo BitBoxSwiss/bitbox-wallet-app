@@ -84,13 +84,13 @@ export default class Backups extends Component {
     }) {
         if (sdCardInserted === false) {
             return (
-                <div class="content">
-                    <p>{t('backup.insert')}</p>
+                <div class={['content', !requireConfirmation ? 'noSpace' :''].join(' ')}>
+                    <p class="first">{t('backup.insert')}</p>
                     <div class="buttons">
+                        {children}
                         <Button secondary onClick={this.refresh}>
                             {t('backup.insertButton')}
                         </Button>
-                        {children}
                     </div>
                 </div>
             );
@@ -113,7 +113,7 @@ export default class Backups extends Component {
                             ))
                         }
                     </div>
-                    <div class="buttons buttons-end bottom">
+                    <div class="buttons bottom flex flex-row flex-between">
                         {children}
                         {
                             showCreate && (

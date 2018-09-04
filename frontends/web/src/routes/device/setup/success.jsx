@@ -27,12 +27,12 @@ export default class Success extends Component {
                             <Step title={t(`goal.step.4_${goal}.title`)} description={t(`goal.step.4_${goal}.description`)} />
                         </Steps>
                         <hr />
-                        <h1 class={style.title}>{t(`successs.${goal}.title`)}</h1>
+                        <h1 class={style.title}>{t(`success.${goal}.title`)}</h1>
                         <div class={style.block}>
                             {t(`success.${goal}.info`)}
                         </div>
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>

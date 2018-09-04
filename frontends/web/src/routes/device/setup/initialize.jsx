@@ -102,9 +102,9 @@ export default class Initialize extends Component {
                     <InnerHTMLHelper tagName="li" html={t('initialize.info.description_2')} />
                 </ul>
                 <InnerHTMLHelper tagName="p" html={t('initialize.info.description_3')} />
-                <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.back')}
                     </Button>
@@ -114,7 +114,7 @@ export default class Initialize extends Component {
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} class="flex-1">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
                     title={t('initialize.input.invalid')}
@@ -124,9 +124,9 @@ export default class Initialize extends Component {
                     ref={ref => this.passwordInput = ref}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
-                <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
-                        transparent
+                        secondary
                         onClick={goBack}>
                         {t('button.back')}
                     </Button>
@@ -158,7 +158,7 @@ export default class Initialize extends Component {
                         <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
                         {content}
                         <hr />
-                        <Footer bottomSpace>
+                        <Footer>
                             <Shift />
                         </Footer>
                     </div>

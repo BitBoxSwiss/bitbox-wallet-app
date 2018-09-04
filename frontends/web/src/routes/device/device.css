@@ -48,16 +48,6 @@
     padding-top: var(--spacing-large);
 }
 
-.content form {
-    /*flex-grow: 1;
-    flex-shrink: 1;
-    margin: 0 auto;
-    padding: 1rem;
-    text-align: left;
-    width: 420px;*/
-    flex: 1;
-}
-
 .verticalButtons {
     display: flex;
     flex-direction: column;
