@@ -9,10 +9,10 @@ Wallet application.
 * MacOS: 10.13
 * Windows: Windows 7, Windows 10
 
-## Debian GNU/Linux
+## Debian, Ubuntu, and Fedora GNU/Linux with Docker
 
-Install [Docker for Debian]
-(https://docs.docker.com/install/linux/docker-ce/Debian/):
+Install [Docker]
+(https://docs.docker.com/install/linux/docker-ce/):
 
 Initalize the Docker image:
 `make dockerinit`
@@ -28,54 +28,6 @@ Build artifacts:
 * `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
 * `frontends/qt/build/linux/BitBox-x86_64.AppImage`
 
-Extra artifacts:
-* `frontends/qt/build/linux-tmp/lib/libserver.so`
-* `frontends/qt/build/server/libserver.h`
-
-## Ubuntu
-
-Install [Docker for Ubuntu]
-(https://docs.docker.com/install/linux/docker-ce/Ubuntu/):
-
-Initalize the Docker image:
-`make dockerinit`
-
-Enter the Docker environment:
-`make dockerdev`
-
-Inside of Docker, build the QT frontend:
-`make qt-linux`
-
-Build artifacts:
-* `frontends/qt/build/linux/bitbox-4.0.0-1.x86_64.rpm`
-* `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
-* `frontends/qt/build/linux/BitBox-x86_64.AppImage`
-* `frontends/qt/build/linux-tmp/lib/libserver.so`
-* `frontends/qt/build/server/libserver.h`
-
-## Fedora
-
-Install [Docker for Fedora]
-(https://docs.docker.com/install/linux/docker-ce/fedora/):
-
-Initalize the Docker image:
-`make dockerinit`
-
-Enter the Docker environment:
-`make dockerdev`
-
-Inside of Docker, build the QT frontend:
-`make qt-linux`
-
-Build artifacts:
-* `frontends/qt/build/linux/bitbox-4.0.0-1.x86_64.rpm`
-* `frontends/qt/build/linux/bitbox_4.0.0_amd64.deb`
-* `frontends/qt/build/linux/BitBox-x86_64.AppImage`
-
-Extra artifacts:
-* `frontends/qt/build/linux-tmp/lib/libserver.so`
-* `frontends/qt/build/server/libserver.h`
-
 ## MacOS
 
 Prepare the MacOS system to have the build environment:
@@ -86,7 +38,6 @@ Build the QT frontend for MacOS:
 
 Build artifacts:
 * `frontends/qt/build/osx/BitBox.app`
-* `frontends/qt/build/osx/BitBox.dmg`
 
 ## Windows
 
