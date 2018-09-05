@@ -101,10 +101,11 @@ export default class UpgradeFirmware extends Component {
                                 unlocked ? (
                                     <div>
                                         <p>{t('upgradeFirmware.unlocked')}</p>
-                                        <ul style="line-height: 1.5;">
+                                        <ol style="line-height: 1.5;">
                                             <li>{t('upgradeFirmware.unlocked1')}</li>
                                             <li>{t('upgradeFirmware.unlocked2')}</li>
-                                        </ul>
+                                            <li>{t('upgradeFirmware.unlocked3')}</li>
+                                        </ol>
                                     </div>
                                 ) : (
                                     <p>{t('upgradeFirmware.locked', {
