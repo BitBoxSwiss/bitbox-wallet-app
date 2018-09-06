@@ -95,6 +95,9 @@ export default class Restore extends Component {
         }).catch(() => {}).then(({ didRestore, errorMessage }) => {
             this.abort();
             if (didRestore) {
+                if (this.props.onRestore) {
+                    return this.props.onRestore();
+                }
                 console.log('restore.jsx route to /'); // eslint-disable-line no-console
                 route('/', true);
             } else if (errorMessage) {
@@ -149,7 +152,7 @@ export default class Restore extends Component {
                                         checked={understand}
                                         onChange={this.handleUnderstandChange} />
                                 </div>
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                <div class={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
                                     <Button
                                         secondary
                                         onClick={this.abort}

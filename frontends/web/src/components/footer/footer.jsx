@@ -32,12 +32,13 @@ export default class Footer extends Component {
 
     render({
         t,
+        bottomSpace,
         children
     }, {
         version,
     }) {
         return (
-            <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
+            <footer class={[style.footer, 'flex flex-row flex-items-center flex-end', bottomSpace ? style.bottomSpace : ''].join(' ')}>
                 {children}
                 {version && (<p>{t('footer.appVersion')} {version}</p>)}
                 <LanguageSwitch />

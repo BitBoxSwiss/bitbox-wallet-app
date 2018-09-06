@@ -98,16 +98,20 @@ export default class Unlock extends Component {
         this.setState({ password: '' });
     };
 
-    render({ t }, {
-        status, password,
-        errorCode, errorMessage, remainingAttempts, needsLongTouch
+    render({
+        t,
+    }, {
+        status,
+        password,
+        errorCode,
+        errorMessage,
+        remainingAttempts,
+        needsLongTouch,
     }) {
-
         let submissionState = null;
-
         switch (status) {
         case stateEnum.DEFAULT:
-            submissionState = <Message>{t('unlock.description')}</Message>;
+            submissionState = <p style="max-width: 400px; width: 100%; align-self: center;">{t('unlock.description')}</p>;
             break;
         case stateEnum.WAITING:
             submissionState = <Spinner text={t('unlock.unlocking')} showLogo />;
@@ -127,37 +131,39 @@ export default class Unlock extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <BitBox />
                     <div className={style.content}>
-                        {submissionState}
-                        {status !== stateEnum.WAITING && (
-                            <form onSubmit={this.handleSubmit}>
-                                <div>
-                                    <Input
-                                        autoFocus
-                                        getRef={ref => this.passwordInput = ref}
-                                        id="password"
-                                        type="password"
-                                        label={t('unlock.input.label')}
-                                        disabled={status === stateEnum.WAITING}
-                                        placeholder={t('unlock.input.placeholder')}
-                                        onInput={this.handleFormChange}
-                                        value={password} />
-                                </div>
-                                <div>
-                                    <Button
-                                        primary
-                                        type="submit"
-                                        disabled={!this.validate() || status === stateEnum.WAITING}>
-                                        {t('button.unlock')}
-                                    </Button>
-                                </div>
-                                <hr />
-                                <Footer>
-                                    <Shift />
-                                </Footer>
-                            </form>
-                        )}
+                        <div className="flex-1 flex flex-column flex-center">
+                            <BitBox />
+                            {submissionState}
+                            {status !== stateEnum.WAITING && (
+                                <form onSubmit={this.handleSubmit} style="max-width: 400px; width: 100%; align-self: center;">
+                                    <div>
+                                        <Input
+                                            autoFocus
+                                            getRef={ref => this.passwordInput = ref}
+                                            id="password"
+                                            type="password"
+                                            label={t('unlock.input.label')}
+                                            disabled={status === stateEnum.WAITING}
+                                            placeholder={t('unlock.input.placeholder')}
+                                            onInput={this.handleFormChange}
+                                            value={password} />
+                                    </div>
+                                    <div>
+                                        <Button
+                                            primary
+                                            type="submit"
+                                            disabled={!this.validate() || status === stateEnum.WAITING}>
+                                            {t('button.unlock')}
+                                        </Button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                        <hr />
+                        <Footer>
+                            <Shift />
+                        </Footer>
                     </div>
                 </div>
                 <Guide screen="unlock" />

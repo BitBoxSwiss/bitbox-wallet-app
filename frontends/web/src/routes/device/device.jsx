@@ -25,9 +25,11 @@ import Unlock from './unlock';
 import Bootloader from './upgrade/bootloader';
 import RequireUpgrade from './upgrade/require_upgrade';
 import Goal from './setup/goal';
+import SecurityInformation from './setup/security-information';
 import SeedCreateNew from './setup/seed-create-new';
 import SeedRestore from './setup/seed-restore';
-import Initialize from './setup/initialize';
+import Initialize from './setup/initialize'
+import Success from './setup/success';
 import Settings from './settings/settings';
 import A from '../../components/anchor/anchor';
 
@@ -57,6 +59,7 @@ export default class Device extends Component {
         accountsStatus: null,
         testing: false,
         goal: null,
+        success: null,
     }
 
     componentDidMount() {
@@ -145,6 +148,10 @@ export default class Device extends Component {
         this.setState({ goal: null });
     }
 
+    handleSuccess = () => {
+        this.setState({ success: true });
+    }
+
     render({
         t,
         deviceID,
@@ -154,6 +161,7 @@ export default class Device extends Component {
         deviceStatus,
         accountsStatus,
         goal,
+        success,
         testing,
     }) {
         if (!deviceIDs.length && !accountsStatus) {
@@ -161,6 +169,9 @@ export default class Device extends Component {
         }
         if (!deviceRegistered || !deviceStatus) {
             return null; //<h3>waiting</h3>;
+        }
+        if (success) {
+            return <Success goal={goal} />;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
@@ -184,13 +195,27 @@ export default class Device extends Component {
             if (!goal) {
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
             }
-            return <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} />;
+            return (
+                <SecurityInformation goal={goal} goBack={this.handleBack}>
+                    <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} />
+                </SecurityInformation>
+            );
         case DeviceStatus.LOGGED_IN:
             switch (goal) {
             case GOAL.CREATE:
-                return <SeedCreateNew goBack={this.handleBack} deviceID={deviceID} />;
+                return (
+                    <SeedCreateNew
+                        goBack={this.handleBack}
+                        onSuccess={this.handleSuccess}
+                        deviceID={deviceID} />
+                );
             case GOAL.RESTORE:
-                return <SeedRestore goBack={this.handleBack} deviceID={deviceID} />;
+                return (
+                    <SeedRestore
+                        goBack={this.handleBack}
+                        onSuccess={this.handleSuccess}
+                        deviceID={deviceID} />
+                );
             default:
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
             }

@@ -16,7 +16,7 @@
     },
     "unlock": {
         "unlocking": "Unlocking…",
-        "description": "",
+        "description": "Enter your device password to unlock your device.",
         "input": {
             "label": "Device password",
             "placeholder": "Enter your device password to unlock the device"
@@ -30,9 +30,10 @@
     "welcome": {
         "title": "",
         "paragraph": "",
-        "insertDevice": "To get started please insert your BitBox into a USB port."
+        "insertDevice": "Please connect your device to get started"
     },
-    "setup": "Setup",
+    "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
+    "setup": "Setup device",
     "goal": {
         "title": "",
         "paragraph": "Please select one of the following options:",
@@ -41,11 +42,12 @@
             "restore": "Restore a wallet from a backup"
         },
         "step": {
-            "1": { "title": "Device", "description": "Set a device password" },
-            "2_create": { "title": "Wallet", "description": "Create a new wallet" },
-            "2_restore": { "title": "Restore", "description": "from a backup" },
-            "3_create": { "title": "", "description": "" },
-            "3_restore": { "title": "", "description": "" }
+            "1": { "title": "Security Information", "description": "" },
+            "2": { "title": "Device", "description": "Set a device password" },
+            "3_create": { "title": "Wallet", "description": "Create a new wallet" },
+            "3_restore": { "title": "Restore", "description": "from a backup" },
+            "4_create": { "title": "Summary", "description": "" },
+            "4_restore": { "title": "Summary", "description": "" }
         }
     },
     "device": {
@@ -320,9 +322,12 @@
     },
     "seed": {
         "info": {
-          "title": "Create a new wallet",
-          "description": "To create a new wallet, you must set a recovery password. This password is used to create, access and restore the wallet. It CANNOT be changed later and do NOT forget it.",
-          "button": "Set the recovery password now"
+            "title": "Create a new wallet",
+            "description_1": "Insert the micro SD card in to the BitBox",
+            "description_2": "Choose a recovery password for the wallet and select “Set recovery password now”",
+            "description_3": "The back up to micro SD card and your recovery password is the only method to recover your funds in case of lost or stolen BitBox device.",
+            "description_4": "You cannot change your recovery password later on without transferring your funds.",
+            "button": "Set recovery password now"
         },
         "createDescription": "Initialize the wallet and automatically create a backup on the micro SD card.",
         "walletName": {
@@ -340,7 +345,8 @@
             "funds_access": "I will NOT be able to access my funds if I forget my recovery password"
         },
         "create": "Create Wallet",
-        "creating": "Creating wallet. This takes a few seconds.",
+        "creating": "Creating wallet",
+        "creating2": "Backing up wallet to micro SD Card",
         "backup": "Or restore a Backup…",
         "backToCreate": "Or create a new wallet…",
         "error" : {
@@ -348,11 +354,40 @@
             "200": "Wallet creation requires an micro SD card for automatic backup."
         }
     },
+    "seedRestore": {
+        "title": "Restore wallet",
+        "info": {
+          "title": "How to restore a wallet from a backup",
+          "description": "To continue please insert the micro SD card in to the BitBox.",
+          "button": "Continue"
+        }
+    },
+    "securityInformation": {
+        "create": {
+            "title": "Security Information",
+            "description_1": "Before setting up your device it is recommended that you do so in a secure environment.",
+            "description_2": "You will be asked to create two passwords.",
+            "description_3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
+            "description_4": "The second is the <strong>recovery password</strong> which unlocks your wallet. This password cannot be changed later.",
+            "description_5": "The wallet you create will be backed up to a file on the micro SD card provided. This can be used in an emergency to recover your funds using your <strong>recovery password</strong>.",
+            "button": "Continue"
+        },
+        "restore": {
+            "title": "Security Information",
+            "description_1": "You will be asked to insert the micro SD card you used to store you backup.",
+            "description_2": "To restore your device you will need your recovery password. ",
+            "description_3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect (learn more).",
+            "button": "Continue"
+        }
+    },
     "initialize": {
         "info": {
-          "title": "Now you will set your device password",
-          "description": "The device password is only used for unlocking your BitBox. The BitBox resets if the device password is entered wrongly 15 times. Please remember it and keep it secret.",
-          "button": "Set the device password now"
+            "title": "Initialising your device",
+            "subtitle": "Now you will set your device password",
+            "description_1": "Choose your device password. This will be used to unlock your BitBox.",
+            "description_2": "You can use numbers, letters & symbols. Longer passwords offer higher security.",
+            "description_3": "If you lose the device password you will have to reset your device and restore your wallet backup.",
+            "button": "Continue"
         },
         "input": {
             "label": "Device password",
@@ -373,15 +408,10 @@
         "newTitle": "New device password"
     },
     "backup": {
-        "info": {
-          "title": "How to restore a wallet from a backup",
-          "description": "Insert the micro SD Card into your BitBox.",
-          "button": "Restore from backup now"
-        },
         "title": "Manage Backups",
-        "insert": "Please insert micro SD card to manage backups.",
+        "description": "Select <strong>wallet backup file</strong>",
+        "insert": "Please insert the micro SD card to manage backups.",
         "insertButton": "I have inserted the micro SD card",
-        "desc": "Please choose the wallet you would like to restore.",
         "create": {
             "title": "Create Backup",
             "name": {
@@ -416,6 +446,16 @@
             },
             "ok": "Backup matches current wallet.",
             "notOK": "Backup does NOT match current wallet."
+        }
+    },
+    "success": {
+        "create": {
+            "title": "Success",
+            "info": "you successfully created a new wallet."
+        },
+        "restore": {
+            "title": "Success",
+            "info": "you successfully restored a wallet from a backup."
         }
     },
     "confirm": {

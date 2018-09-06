@@ -153,6 +153,10 @@
     /*overflow: auto;*/
 }
 
+.content.noSpace {
+    padding: 0 !important;
+}
+
 .content.padded {
     padding-top: var(--spacing-half);
 }
@@ -237,8 +241,16 @@
     position: relative;
 }
 
+.buttons-end {
+    text-align: right;
+}
+
 .buttons > *:not(:last-child) {
     margin-right: var(--spacing-half);
+}
+
+.buttons > *:not(:first-child) {
+    margin-left: var(--spacing-half);
 }
 
 .buttons:last-child {

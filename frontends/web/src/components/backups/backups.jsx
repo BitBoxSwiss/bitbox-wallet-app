@@ -23,6 +23,7 @@ import Check from './check';
 import Create from './create';
 import BackupsListItem from './backup';
 // import Erase from './erase';
+import InnerHTMLHelper from '../../utils/innerHTML';
 import style from './backups.css';
 
 @translate()
@@ -70,9 +71,12 @@ export default class Backups extends Component {
     render({
         t,
         showCreate = false,
+        showRestore = true,
         deviceID,
         children,
         requireConfirmation = true,
+        fillSpace,
+        onRestore,
     }, {
         backupList,
         selectedBackup,
@@ -80,13 +84,13 @@ export default class Backups extends Component {
     }) {
         if (sdCardInserted === false) {
             return (
-                <div class="content">
-                    <p>{t('backup.insert')}</p>
+                <div class={['content', !requireConfirmation ? 'noSpace' :''].join(' ')}>
+                    <p class="first">{t('backup.insert')}</p>
                     <div class="buttons">
+                        {children}
                         <Button secondary onClick={this.refresh}>
                             {t('backup.insertButton')}
                         </Button>
-                        {children}
                     </div>
                 </div>
             );
@@ -95,8 +99,8 @@ export default class Backups extends Component {
         }
 
         return (
-            <div class={['innerContainer'].join(' ')}>
-                <div class="content">
+            <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
+                    <InnerHTMLHelper tagName="p" html={t('backup.description')} />
                     <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                         {
                             backupList.map(backup => (
@@ -109,7 +113,15 @@ export default class Backups extends Component {
                             ))
                         }
                     </div>
-                    <div class="buttons bottom">
+                    <div class="buttons bottom flex flex-row flex-between">
+                        {children}
+                        {
+                            showCreate && (
+                                <Check
+                                    selectedBackup={selectedBackup}
+                                    deviceID={deviceID} />
+                            )
+                        }
                         {
                             showCreate && (
                                 <Create
@@ -118,16 +130,14 @@ export default class Backups extends Component {
                             )
                         }
                         {
-                            showCreate && (
-                                <Check
+                            showRestore && (
+                                <Restore
                                     selectedBackup={selectedBackup}
-                                    deviceID={deviceID} />
+                                    deviceID={deviceID}
+                                    onRestore={onRestore}
+                                    requireConfirmation={requireConfirmation} />
                             )
                         }
-                        <Restore
-                            selectedBackup={selectedBackup}
-                            deviceID={deviceID}
-                            requireConfirmation={requireConfirmation} />
                         {/*
                           <Erase
                           selectedBackup={selectedBackup}
@@ -135,9 +145,7 @@ export default class Backups extends Component {
                           deviceID={deviceID}
                         />
                         */}
-                        {children}
                     </div>
-                </div>
             </div>
         );
     }

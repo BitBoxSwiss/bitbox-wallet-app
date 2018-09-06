@@ -21,7 +21,7 @@ import reject from '../../assets/icons/tap.png';
 import style from '../dialog/dialog.css';
 
 @translate()
-export default class Confirm extends Component {
+export default class WaitDialog extends Component {
     state = {
         active: false,
     }

@@ -15,14 +15,15 @@
  */
 
 import { h } from 'preact';
-import style from './message.css';
+import styles from './message.css';
 
 export default function Message({
     type,
-    children
+    style,
+    children,
 }) {
     return (
-        <div className={style[type] || style.message}>
+        <div className={styles[type] || styles.message} style={style}>
             {children}
         </div>
     );
