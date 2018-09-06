@@ -65,7 +65,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
                 // Load the endpoints that were different or undefined before.
                 for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
                     if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
-                        this.loadEndpoint(key, newEndpoints[key] as Endpoint);
+                        this.loadEndpoint(key, newEndpoints[key]);
                     }
                 }
                 if (oldEndpoints != null) {

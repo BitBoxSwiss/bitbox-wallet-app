@@ -85,7 +85,7 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
                 // Update the endpoints that were different or undefined before.
                 for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
                     if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
-                        this.subscribeEndpoint(key, newEndpoints[key] as Endpoint);
+                        this.subscribeEndpoint(key, newEndpoints[key]);
                     }
                 }
                 if (oldEndpoints != null) {
