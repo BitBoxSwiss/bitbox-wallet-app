@@ -46,7 +46,7 @@ export class Store<State> {
     /**
      * Creates a new store with the given initial state.
      */
-    public constructor(public readonly state: State) {}
+    public constructor(public readonly state: Readonly<State>) {}
 
     /**
      * Sets the state of this store and updates the subscribed components.
