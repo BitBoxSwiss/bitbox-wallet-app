@@ -18,6 +18,7 @@ import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponen
 import { Endpoint, EndpointsObject, EndpointsFunction } from './endpoint';
 import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
+import { getDisplayName } from '../utils/component';
 
 // Stores whether to log the time needed for individual API calls.
 const logPerformance = false;
@@ -40,6 +41,8 @@ export function load<LoadedProps, ProvidedProps = {}>(
         WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Load extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
+            static displayName = `Load(${getDisplayName(WrappedComponent)})`;
+
             private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);

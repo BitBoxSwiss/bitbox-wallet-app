@@ -15,6 +15,7 @@
  */
 
 import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
+import { getDisplayName } from '../utils/component';
 
 /**
  * This class allows all instances of a component to share a common state.
@@ -93,6 +94,8 @@ export function share<SharedProps, ProvidedProps = {}>(
         WrappedComponent: ComponentConstructor<SharedProps & ProvidedProps> | FunctionalComponent<SharedProps & ProvidedProps>,
     ) {
         return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
+            static displayName = `Share(${getDisplayName(WrappedComponent)})`;
+
             public componentDidMount(): void {
                 store.subscribe(this);
             }

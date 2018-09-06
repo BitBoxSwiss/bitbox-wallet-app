@@ -21,6 +21,7 @@ import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
 import { equal } from '../utils/equal';
 import { load } from './load';
+import { getDisplayName } from '../utils/component';
 
 /**
  * Loads API endpoints into the props of the component that uses this decorator and updates them on events.
@@ -37,6 +38,8 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
         WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
+            static displayName = `Subscribe(${getDisplayName(WrappedComponent)})`;
+
             private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {
                     return endpointsObjectOrFunction(this.props);
