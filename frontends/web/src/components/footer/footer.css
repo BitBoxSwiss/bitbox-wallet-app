@@ -1,4 +1,5 @@
 .footer {
+    min-height: 2rem;
     padding: var(--spacing-half) var(--spacing-default);
 }
 
@@ -13,4 +14,8 @@
 .footer img {
     max-width: 120px;
     margin: 0 auto 0 0;
+}
+
+.bottomSpace {
+    padding-bottom: var(--spacing-large);
 }

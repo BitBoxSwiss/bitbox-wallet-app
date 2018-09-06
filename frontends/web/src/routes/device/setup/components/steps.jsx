@@ -1,4 +1,5 @@
-import { h, cloneElement } from 'preact';
+import { h, Component, cloneElement } from 'preact';
+import finishIcon from '../../../../assets/icons/ok.svg';
 import style from './steps.css';
 
 const STATUS = Object.freeze({
@@ -13,19 +14,27 @@ export function Steps({
 }) {
     return (
         <div className={style.steps}>
-            {children.map((child, index) => {
-                if (!child) {
-                    return null;
-                }
-                const status = index === current ? STATUS.PROCESS: (
-                    index < current ? STATUS.FINISH : STATUS.WAIT
-                );
-                return cloneElement(child, {
-                    step: `${index + 1}`,
-                    status,
-                    ...child.props,
-                });
-            })}
+            {
+                children.map((child, index) => {
+                    if (!child) return null;
+                    if (child.attributes.divider) {
+                        return (
+                            <div className={style.divider}>»</div>
+                        );
+                    } else {
+                        const step = Math.ceil(index / 2);
+                        const status = step === current ? STATUS.PROCESS : (
+                            step < current ? STATUS.FINISH : STATUS.WAIT
+                        );
+                        return cloneElement(child, {
+                            step: `${step + 1}`,
+                            // step: step,
+                            status,
+                            ...child.props,
+                        });
+                    }
+                })
+            }
         </div>
     );
 }
@@ -39,27 +48,29 @@ export function Step({
     ...props
 }) {
     return (
-        <div
-            className={[style.step, style[status]].join(' ')}
-            {...props} >
-
+        <div className={[style.step, style[status]].join(' ')} {...props}>
             <div className={style.stepIcon}>
-                <span>{icon || (status === STATUS.FINISH ? '✓' : step)}</span>
+                {
+                    icon || (status === STATUS.FINISH ? (
+                        <img src={finishIcon} />
+                    ) : (
+                        <span>{step}</span>
+                    ))
+                }
             </div>
+            <p className={style.stepContent}>
+                {
+                    title && (
+                        <span className={style.title}>{title}</span>
+                    )
+                }
 
-            <div className={style.stepContent}>
-                <div className={style.stepTitle}>
-                    { title && (
-                        <span className={style.padding}>{title}</span>
-                    )}
-                </div>
-                <div className={style.stepDescription}>
-                    { description && (
-                        <span className={style.padding}>{description}</span>
-                    )}
-                </div>
-            </div>
-
+                {
+                    description && (
+                        <span className={style.description}>{description}</span>
+                    )
+                }
+            </p>
         </div>
     );
 }

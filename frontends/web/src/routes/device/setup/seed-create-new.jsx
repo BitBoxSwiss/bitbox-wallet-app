@@ -20,11 +20,11 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
 import Message from '../../../components/message/message';
-import { BitBox, Shift } from '../../../components/icon/logo';
-import { Guide } from '../../../components/guide/guide';
+import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
+import warning from '../../../assets/icons/warning.png';
 import style from '../device.css';
 
 const STATUS = Object.freeze({
@@ -83,6 +83,8 @@ export default class SeedCreateNew extends Component {
                         defaultValue: data.errorMessage
                     }),
                 });
+            } else {
+                this.props.onSuccess();
             }
             if (this.backupPasswordInput) {
                 this.backupPasswordInput.clear();
@@ -138,17 +140,23 @@ export default class SeedCreateNew extends Component {
         agreements,
     }) {
         const content = showInfo ? (
-            <div>
-                <h2 className={style.heading}>{t('seed.info.title')}</h2>
-                <p>{t('seed.info.description')}</p>
-                <Button primary onClick={this.handleStart}>
-                    {t('seed.info.button')}
-                </Button>
-                <Button
-                    transparent
-                    onClick={goBack}>
-                    {t('button.back')}
-                </Button>
+            <div class={style.block}>
+                <ol>
+                    <li>{t('seed.info.description_1')}</li>
+                    <li>{t('seed.info.description_2')}</li>
+                </ol>
+                <p>{t('seed.info.description_3')}</p>
+                <p>{t('seed.info.description_4')}</p>
+                <div className={['buttons buttons-end', style.buttons].join(' ')}>
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.back')}
+                    </Button>
+                    <Button primary onClick={this.handleStart}>
+                        {t('seed.info.button')}
+                    </Button>
+                </div>
             </div>
         ) : (
             <form onSubmit={this.handleSubmit}>
@@ -172,7 +180,10 @@ export default class SeedCreateNew extends Component {
                         onValidPassword={this.setValidBackupPassword} />
                 </div>
                 <div class={style.agreements}>
-                    <p>{t('seed.description')}</p>
+                    <div class="flex flex-row flex-start flex-items-center">
+                        <img src={warning} style="width: 18px; margin-right: 10px; position: relative; bottom: 1px;" />
+                        <p class={style.agreementsLabel}>{t('seed.description')}</p>
+                    </div>
                     <Checkbox
                         id="password_change"
                         label={t('seed.agreements.password_change')}
@@ -189,17 +200,17 @@ export default class SeedCreateNew extends Component {
                         checked={agreements.funds_access}
                         onChange={this.handleAgreementChange} />
                 </div>
-                <div>
+                <div className="buttons buttons-end">
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.back')}
+                    </Button>
                     <Button
                         type="submit"
                         primary
                         disabled={!this.validate() || status === STATUS.WAITING}>
                         {t('seed.create')}
-                    </Button>
-                    <Button
-                        transparent
-                        onClick={goBack}>
-                        {t('button.back')}
                     </Button>
                 </div>
             </form>
@@ -208,20 +219,28 @@ export default class SeedCreateNew extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={[style.container, style.scrollable].join(' ')}>
-                    <BitBox />
                     <div className={style.content}>
-                        <h1 className={style.title}>{t('setup')}</h1>
-                        <Steps current={1}>
+                        <Steps current={2}>
                             <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
-                            <Step title={t(`goal.step.2_create.title`)} description={t(`goal.step.2_create.description`)} />
+                            <Step divider />
+                            <Step title={t(`goal.step.2.title`)} description={t(`goal.step.2.description`)} />
+                            <Step divider />
                             <Step title={t(`goal.step.3_create.title`)} description={t(`goal.step.3_create.description`)} />
+                            <Step divider />
+                            <Step title={t(`goal.step.4_create.title`)} description={t(`goal.step.4_create.description`)} />
                         </Steps>
-                        <Message type={status === STATUS.ERROR && 'error'}>
-                            { error }
-                        </Message>
+                        <hr />
+                        {
+                            error && (
+                                <Message type={status === STATUS.ERROR && 'error'}>
+                                    { error }
+                                </Message>
+                            )
+                        }
+                        <h1 className={style.title}>{t('seed.info.title')}</h1>
                         {content}
                         <hr />
-                        <Footer>
+                        <Footer bottomSpace>
                             <Shift />
                         </Footer>
                     </div>
@@ -231,7 +250,6 @@ export default class SeedCreateNew extends Component {
                         )
                     }
                 </div>
-                <Guide screen="seed" />
             </div>
         );
     }

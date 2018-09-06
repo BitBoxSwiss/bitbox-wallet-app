@@ -10,21 +10,27 @@
     justify-content: center;
     margin: 0 auto;
     max-height: 100vh;
-    padding: 4rem 4rem 0 4rem;
+    overflow: auto;
+    padding: 0 var(--spacing-large);
 }
 
 .scrollable {
-    /*overflow: auto;*/
-    padding-bottom: var(--spacing-default);
+    overflow: auto;
+    /*padding-bottom: var(--spacing-default);*/
 }
 
 .agreements {
     margin-bottom: var(--spacing-default);
 }
 
+.agreementsLabel {
+    margin: var(--spacing-half) 0;
+}
+
 .title {
     margin-top: 0;
-    text-align: center;
+    margin-bottom: var(--spacing-large);
+    /*text-align: center;*/
 }
 
 .heading {
@@ -37,14 +43,55 @@
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
-    width: 440px;
-    overflow: auto;
-    /* padding-top: var(--spacing-default); */
+    max-width: 600px;
+    width: 100%;
+    padding-top: var(--spacing-large);
 }
 
 .content form {
-    flex-grow: 1;
+    /*flex-grow: 1;
     flex-shrink: 1;
-    text-align: left;
+    margin: 0 auto;
     padding: 1rem;
+    text-align: left;
+    width: 420px;*/
+    flex: 1;
+}
+
+.verticalButtons {
+    display: flex;
+    flex-direction: column;
+    max-width: 300px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.verticalButtons button:first-child {
+    margin-bottom: var(--spacing-default);
+}
+
+.block {
+    flex: 1;
+}
+
+.block p:first-child,
+.block h2:first-child {
+    margin-top: 0;
+}
+
+.block p:last-child {
+    margin-bottom: var(--spacing-large);
+}
+
+.list {
+    padding-left: 18px;
+}
+
+.list li:not(:first-child) {
+    margin-top: var(--spacing-half);
+}
+
+.buttons {
+    margin-bottom: 0;
+    margin-top: var(--spacing-large);
 }
