@@ -60,7 +60,7 @@ interface ProvidedProps {
 
 type Props = ProvidedProps & SharedProps & TranslateProp;
 
-function InternalGuide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Element {
+function Guide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={style.wrapper}>
             <div className={style.toggler} onClick={toggle}>{shown ? '✕' : '?'}</div>
@@ -78,4 +78,6 @@ function InternalGuide({ screen, shown, t, children }: RenderableProps<Props>): 
     );
 }
 
-export const Guide = translate<ProvidedProps>()(share<SharedProps, ProvidedProps & TranslateProp>(store)(InternalGuide));
+const HOC = translate<ProvidedProps>()(share<SharedProps, ProvidedProps & TranslateProp>(store)(Guide));
+
+export { HOC as Guide };

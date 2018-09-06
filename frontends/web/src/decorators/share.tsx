@@ -78,13 +78,15 @@ export class Store<State> {
  *     store.setState({ value: store.state.value + 1});
  * }
  * 
- * class InternalCounter extends Component<SharedProps> {
+ * class Counter extends Component<SharedProps> {
  *     public render({ value }: RenderableProps<SharedProps>): JSX.Element {
  *         return <div onClick={incrementValue}>Value: { value }</div>;
  *     }
  * }
  * 
- * export const Counter = share(store)(InternalCounter);
+ * const HOC = share(store)(Counter);
+ * 
+ * export { HOC as Counter };
  * ```
  */
 export function share<SharedProps, ProvidedProps = {}>(

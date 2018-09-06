@@ -35,7 +35,7 @@ interface LoadedProps {
 
 type Props = LoadedProps & TranslateProp;
 
-function InternalUpdate({ file, t }: RenderableProps<Props>): JSX.Element | null {
+function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
     return file && (
         <Status dismissable keyName={`update-${file.version}`} type="info">
             {t('app.upgrade', {
@@ -51,4 +51,6 @@ function InternalUpdate({ file, t }: RenderableProps<Props>): JSX.Element | null
     );
 }
 
-export const Update = translate()(load<LoadedProps, TranslateProp>({ file: 'update' })(InternalUpdate));
+const HOC = translate()(load<LoadedProps, TranslateProp>({ file: 'update' })(Update));
+
+export { HOC as Update }
