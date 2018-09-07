@@ -104,7 +104,7 @@ Run `make ci` to run all static analysis tools and tests.
 
 ### Build the UI
 
-To statically compile the UI, run `make generate` again, which compiles the web ui into a compact
+To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
 bundle.
 
 ## Develop using Docker
