@@ -28,11 +28,13 @@ import { getDisplayName } from '../utils/component';
  * 
  * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
+ * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
 export function subscribe<LoadedProps, ProvidedProps = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
+    subscribeWithoutLoading: boolean = false,
 ) {
     return function decorator(
         WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
@@ -117,10 +119,10 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
                 }
             }
 
-            private readonly LoadWrappedComponent = load(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
+            private readonly component = subscribeWithoutLoading ? WrappedComponent : load(endpointsObjectOrFunction, renderOnlyOnceLoaded)(WrappedComponent);
 
             public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element {
-                return <this.LoadWrappedComponent {...state} {...props} />;
+                return <this.component {...state} {...props} />;
             }
         };
     };
