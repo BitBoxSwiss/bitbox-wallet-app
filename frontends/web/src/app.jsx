@@ -31,10 +31,9 @@ import ManageBackups from './routes/device/manage-backups/manage-backups';
 import Alert from './components/alert/Alert';
 import Confirm from './components/confirm/Confirm';
 
-export default class App extends Component {
+export class App extends Component {
     state = {
         accounts: [],
-        backendConnected: true,
         accountsInitialized: false,
         deviceIDs: [],
     }
@@ -51,11 +50,6 @@ export default class App extends Component {
         this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
             switch (type) {
-            case 'frontend': // special event from websocket.js
-                if (data === 'closed') {
-                    this.setState({ backendConnected: false });
-                }
-                break;
             case 'backend':
                 switch (data) {
                 case 'accountsStatusChanged':
@@ -111,17 +105,9 @@ export default class App extends Component {
 
     render({}, {
         accounts,
-        backendConnected,
         deviceIDs,
         accountsInitialized,
     }) {
-        if (!backendConnected) {
-            return (
-                <div className="app" style="padding: 40px">
-                    An error occurred. Please restart the application.
-                </div>
-            );
-        }
         return (
             <div className="app">
                 <Sidebar

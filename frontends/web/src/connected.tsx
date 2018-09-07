@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-// This file is the entry point used by 'preact-cli' to start the application.
-// It is recommended to leave this file as 'index.js' and not rename it to 'index.jsx', 'index.ts'
-// or 'index.tsx' (see https://github.com/wub/preact-cli-plugin-typescript#changing-the-entrypoint).
+import { h, RenderableProps } from 'preact';
+import { subscribe } from './decorators/subscribe';
+import { App } from './app';
 
-import { I18nextProvider } from 'react-i18next';
-import { ConnectedApp } from './connected';
-import i18n from './i18n/i18n';
-import './style';
+interface Props {
+    connected?: boolean;
+}
 
-export default function Index() {
-    return (
-        <I18nextProvider i18n={i18n}><ConnectedApp /></I18nextProvider>
+function ConnectedApp({ connected = true }: RenderableProps<Props>): JSX.Element {
+    return connected ? <App /> : (
+        <div className="app" style="padding: 40px">
+            The WebSocket closed. Please restart the backend and reload this page.
+        </div>
     );
 }
+
+const HOC = subscribe<Props>({ connected: 'backend/connected' }, false, true)(ConnectedApp);
+
+export { HOC as ConnectedApp }
