@@ -7095,7 +7095,7 @@ type-is@~1.6.15, type-is@~1.6.16:
     media-typer "0.3.0"
     mime-types "~2.1.18"
 
-typed-css-modules@^0.3.5:
+typed-css-modules@0.3.5:
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/typed-css-modules/-/typed-css-modules-0.3.5.tgz#32590e183c76bf65996a1a988c0c6f1cf801370b"
   dependencies:
