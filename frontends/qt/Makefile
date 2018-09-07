@@ -7,6 +7,7 @@ clean:
 	-rm -rf build
 	make -C server clean
 linux:
+	make clean
 	make -C server/ linux
 	make base
 	mkdir build/linux-tmp build/linux
@@ -26,6 +27,7 @@ linux:
 	mv build/linux-tmp/BitBox-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
+	make clean
 	make -C server/ macosx
 	make base
 	mkdir build/osx
