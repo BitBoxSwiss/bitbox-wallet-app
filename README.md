@@ -15,8 +15,8 @@ WebChannels.
 The Go library is compiled as a C library which exposes two functions only: one to set up the
 bridge, and one to invoke calls in the backend.
 
-Similarly to the Desktop variant, the Go library can be statically compiled and added to an Android
-Studio / XCode project. This is not part of this repo yet.
+Similarly to the Desktop variant, the Go library can be compiled and added to an Android Studio /
+XCode project.
 
 ## Build status
 
@@ -36,6 +36,7 @@ Studio / XCode project. This is not part of this repo yet.
 - `backend/`: The library that ties it all together. Uses the above packages to create a wallet
   talking Electrum using the BitBox for signing, and serve a high level HTTP API to control it.
 - `frontends/qt/`: the C++/Qt5 app which builds the wallet app for the desktop.
+- `frontends/android/`: Android target (EXPERIMENTAL / ALPHA)
 - `frontends/web/`: home of the preact UI.
 
 ## Set up the development environment

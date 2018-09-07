@@ -49,7 +49,6 @@ type DeviceInfo interface {
 	Interface() int
 	Serial() string
 	Product() string
-	Manufacturer() string
 	Identifier() string
 	Open() (io.ReadWriteCloser, error)
 }
@@ -109,13 +108,12 @@ func NewManager(
 
 func deviceInfoLogFields(deviceInfo DeviceInfo) logrus.Fields {
 	return logrus.Fields{
-		"identifier":   deviceInfo.Identifier(),
-		"vendorID":     deviceInfo.VendorID(),
-		"productID":    deviceInfo.ProductID(),
-		"serial":       deviceInfo.Serial(),
-		"manufacturer": deviceInfo.Manufacturer(),
-		"product":      deviceInfo.Product(),
-		"usagePage":    deviceInfo.UsagePage(),
+		"identifier": deviceInfo.Identifier(),
+		"vendorID":   deviceInfo.VendorID(),
+		"productID":  deviceInfo.ProductID(),
+		"serial":     deviceInfo.Serial(),
+		"product":    deviceInfo.Product(),
+		"usagePage":  deviceInfo.UsagePage(),
 	}
 }
 
@@ -223,6 +221,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
+
 	usbWriteReportSize := 64
 	usbReadReportSize := 64
 	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)

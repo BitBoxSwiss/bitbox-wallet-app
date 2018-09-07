@@ -24,6 +24,7 @@ envinit:
 	go get -u github.com/vektra/mockery/cmd/mockery
 	go get golang.org/x/tools/cmd/goimports
 	go get -u github.com/jteeuwen/go-bindata/...
+	go get -u golang.org/x/mobile/cmd/gomobile
 # This must be run in $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 osx-init:
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
@@ -59,9 +60,6 @@ weblint:
 	cd frontends/web && $(MAKE) lint
 webtest:
 	cd frontends/web && $(MAKE) jstest
-qt:
-	$(MAKE) buildweb
-	cd frontends/qt && $(MAKE)
 qt-linux: # run inside dockerdev
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) linux
@@ -72,13 +70,18 @@ qt-osx: # run on OSX.
 qt-windows:
 	$(MAKE) buildweb
 	cd frontends/qt && $(MAKE) windows
+android:
+	$(MAKE) buildweb
+	cd frontends/android && ${MAKE} apk-debug
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh
 ci:
 	./scripts/ci.sh
 clean:
+	rm -rf ${WEBROOT}/build
 	cd frontends/qt && $(MAKE) clean
+	cd frontends/android && $(MAKE) clean
 dockerinit:
 	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:

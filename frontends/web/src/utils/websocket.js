@@ -16,6 +16,7 @@
 
 import { apiPort, apiToken, isTLS } from './request';
 import { qtSubscribePushNotifications, runningInQtWebEngine } from './qttransport';
+import { androidSubscribePushNotifications, runningInAndroid } from './androidtransport';
 
 let socket = null;
 const currentListeners = [];
@@ -23,6 +24,9 @@ const currentListeners = [];
 export function apiWebsocket(msgCallback) {
     if (runningInQtWebEngine()) {
         return qtSubscribePushNotifications(msgCallback);
+    }
+    if (runningInAndroid()) {
+        return androidSubscribePushNotifications(msgCallback);
     }
     currentListeners.push(msgCallback);
     if (!socket) {

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <!-- BitBox02 -->
+    <usb-device vendor-id="1003" product-id="9219" />
+</resources>
