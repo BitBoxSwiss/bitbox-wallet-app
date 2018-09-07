@@ -44,23 +44,22 @@ servewallet-regtest:
 	go install ./cmd/servewallet/... && servewallet -regtest
 servewallet-multisig:
 	go install ./cmd/servewallet/... && servewallet -multisig
-generate:
+buildweb:
 	rm -rf ${WEBROOT}/build
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
-	go generate ./...
 webdev:
 	make -C frontends/web dev
 weblint:
 	make -C frontends/web lint
 qt:
-	make generate
+	make buildweb
 	make -C frontends/qt
 qt-linux: # run inside dockerdev
-	make generate
+	make buildweb
 	make -C frontends/qt linux
 qt-osx: # run on OSX.
-	make generate
+	make buildweb
 	make -C frontends/qt osx
 	make osx-sec-check
 osx-sec-check:
