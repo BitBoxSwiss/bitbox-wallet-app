@@ -249,7 +249,7 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 }
 
 func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error) {
-	return backend.CheckForUpdate()
+	return backend.CheckForUpdateIgnoringErrors(), nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {

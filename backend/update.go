@@ -19,6 +19,7 @@ import (
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
@@ -64,4 +65,14 @@ func CheckForUpdate() (*UpdateFile, error) {
 
 	updateFile.CurrentVersion = Version
 	return &updateFile, nil
+}
+
+// CheckForUpdateIgnoringErrors suppresses any errors that are triggered, for example, when offline.
+func CheckForUpdateIgnoringErrors() *UpdateFile {
+	updateFile, err := CheckForUpdate()
+	if err != nil {
+		logging.Get().WithGroup("update").WithError(err).Warn("Check for update failed.")
+		return nil
+	}
+	return updateFile
 }
