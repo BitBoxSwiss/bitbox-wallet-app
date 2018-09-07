@@ -17,7 +17,8 @@
 import { Component, h } from 'preact';
 import i18n from '../../i18n/i18n';
 import { apiPost } from '../../utils/request';
-import { Button, Input } from '../../components/forms';
+import { Button } from '../../components/forms';
+import { PasswordSingleInput } from '../../components/password';
 import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
@@ -69,8 +70,8 @@ class SkipForTestingButton extends Component {
         e.preventDefault();
     }
 
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
+    handleFormChange = value => {
+        this.setState({ testPIN: value });
     };
 
     render({ show }, { testPIN }) {
@@ -79,12 +80,11 @@ class SkipForTestingButton extends Component {
         }
         return (
             <form onSubmit={this.registerTestingDevice} style="flex-grow: 0; max-width: 400px; width: 100%; align-self: center;">
-                <Input
+                <PasswordSingleInput
                     type="password"
                     autoFocus
-                    id="testPIN"
                     label="Test Password"
-                    onInput={this.handleFormChange}
+                    onValidPassword={this.handleFormChange}
                     value={testPIN} />
                 <Button type="submit" secondary>
                     Skip for Testing

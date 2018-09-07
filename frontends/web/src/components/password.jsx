@@ -41,8 +41,7 @@ export class PasswordSingleInput extends Component {
     }
 
     componentWillMount() {
-        document.addEventListener('keydown', this.handleCheckCaps);
-        document.addEventListener('keyup', this.handleCheckCaps);
+        window.addEventListener('keydown', this.handleCheckCaps);
     }
 
     componentDidMount() {
@@ -52,8 +51,7 @@ export class PasswordSingleInput extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleCheckCaps);
-        document.removeEventListener('keyup', this.handleCheckCaps);
+        window.removeEventListener('keydown', this.handleCheckCaps);
     }
 
     tryPaste = event => {
@@ -95,8 +93,10 @@ export class PasswordSingleInput extends Component {
     }
 
     handleCheckCaps = event => {
-        const capsLock = event.getModifierState && event.getModifierState('CapsLock');
-        this.setState({ capsLock });
+        const capsLock = hasCaps(event);
+        if (capsLock !== null) {
+            this.setState({ capsLock });
+        }
     }
 
     render({
@@ -129,8 +129,6 @@ export class PasswordSingleInput extends Component {
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    onKeyUp={this.handleCheckCaps}
-                    onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.password = ref}
                     value={password}>
                     {warning}
@@ -164,8 +162,7 @@ export class PasswordRepeatInput extends Component {
     }
 
     componentWillMount() {
-        document.addEventListener('keydown', this.handleCheckCaps);
-        document.addEventListener('keyup', this.handleCheckCaps);
+        window.addEventListener('keydown', this.handleCheckCaps);
     }
 
     componentDidMount() {
@@ -175,8 +172,7 @@ export class PasswordRepeatInput extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleCheckCaps);
-        document.removeEventListener('keyup', this.handleCheckCaps);
+        window.removeEventListener('keydown', this.handleCheckCaps);
     }
 
     tryPaste = event => {
@@ -219,8 +215,10 @@ export class PasswordRepeatInput extends Component {
     }
 
     handleCheckCaps = event => {
-        const capsLock = event.getModifierState && event.getModifierState('CapsLock');
-        this.setState({ capsLock });
+        const capsLock = hasCaps(event);
+        if (capsLock != null) { // eslint-disable-line
+            this.setState({ capsLock });
+        }
     }
 
     render({
@@ -256,8 +254,6 @@ export class PasswordRepeatInput extends Component {
                     placeholder={placeholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    onKeyUp={this.handleCheckCaps}
-                    onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.password = ref}
                     value={password}>
                     {warning}
@@ -276,8 +272,6 @@ export class PasswordRepeatInput extends Component {
                     placeholder={repeatPlaceholder}
                     onInput={this.handleFormChange}
                     onPaste={this.tryPaste}
-                    onKeyUp={this.handleCheckCaps}
-                    onKeyDown={this.handleCheckCaps}
                     getRef={ref => this.passwordRepeat = ref}
                     value={passwordRepeat}>
                     {warning}
@@ -308,4 +302,15 @@ function MatchesPattern({ regex, value = '', text }) {
     return (
         <p style="color: var(--color-error);">{text}</p>
     );
+}
+
+const excludeKeys = /^(Shift|Alt|Backspace|CapsLock|Tab)$/i;
+
+function hasCaps({ key }) {
+    // will return null, when we cannot clearly detect if capsLock is active or not
+    if (key.length > 1 || key.toUpperCase() === key.toLowerCase() || excludeKeys.test(key)) {
+        return null;
+    }
+    // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
+    return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
 }
