@@ -28,7 +28,7 @@ import Goal from './setup/goal';
 import SecurityInformation from './setup/security-information';
 import SeedCreateNew from './setup/seed-create-new';
 import SeedRestore from './setup/seed-restore';
-import Initialize from './setup/initialize'
+import Initialize from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
 import A from '../../components/anchor/anchor';

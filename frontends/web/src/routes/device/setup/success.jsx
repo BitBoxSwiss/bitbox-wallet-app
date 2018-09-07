@@ -1,6 +1,5 @@
 import { Component } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../../../components/forms';
 import { Shift } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';

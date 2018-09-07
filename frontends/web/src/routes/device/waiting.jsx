@@ -38,8 +38,8 @@ export default function Waiting({ testing }) {
                         <h3 style="text-align: center;">{i18n.t('welcome.insertDevice')}</h3>
                         {i18n.t('welcome.paragraph')}
                         <Message type="warning" style="max-width: 400px; align-self: center;">
-                          <Alert />
-                          <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
+                            <Alert />
+                            <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
                         </Message>
                         <SkipForTestingButton show={debug && testing} />
                     </div>

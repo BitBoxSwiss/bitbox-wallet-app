@@ -100,52 +100,52 @@ export default class Backups extends Component {
 
         return (
             <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
-                    <InnerHTMLHelper tagName="p" html={t('backup.description')} />
-                    <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
-                        {
-                            backupList.map(backup => (
-                                <BackupsListItem
-                                    key={backup.id}
-                                    backup={backup}
-                                    selectedBackup={selectedBackup}
-                                    handleChange={this.handleBackuplistChange}
-                                    onFocus={this.scrollIntoView} />
-                            ))
-                        }
-                    </div>
-                    <div class="buttons bottom flex flex-row flex-between">
-                        {children}
-                        {
-                            showCreate && (
-                                <Check
-                                    selectedBackup={selectedBackup}
-                                    deviceID={deviceID} />
-                            )
-                        }
-                        {
-                            showCreate && (
-                                <Create
-                                    onCreate={this.refresh}
-                                    deviceID={deviceID} />
-                            )
-                        }
-                        {
-                            showRestore && (
-                                <Restore
-                                    selectedBackup={selectedBackup}
-                                    deviceID={deviceID}
-                                    onRestore={onRestore}
-                                    requireConfirmation={requireConfirmation} />
-                            )
-                        }
-                        {/*
-                          <Erase
-                          selectedBackup={selectedBackup}
-                          onErase={this.refresh}
-                          deviceID={deviceID}
-                        />
-                        */}
-                    </div>
+                <InnerHTMLHelper tagName="p" html={t('backup.description')} />
+                <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
+                    {
+                        backupList.map(backup => (
+                            <BackupsListItem
+                                key={backup.id}
+                                backup={backup}
+                                selectedBackup={selectedBackup}
+                                handleChange={this.handleBackuplistChange}
+                                onFocus={this.scrollIntoView} />
+                        ))
+                    }
+                </div>
+                <div class="buttons bottom flex flex-row flex-between">
+                    {children}
+                    {
+                        showCreate && (
+                            <Check
+                                selectedBackup={selectedBackup}
+                                deviceID={deviceID} />
+                        )
+                    }
+                    {
+                        showCreate && (
+                            <Create
+                                onCreate={this.refresh}
+                                deviceID={deviceID} />
+                        )
+                    }
+                    {
+                        showRestore && (
+                            <Restore
+                                selectedBackup={selectedBackup}
+                                deviceID={deviceID}
+                                onRestore={onRestore}
+                                requireConfirmation={requireConfirmation} />
+                        )
+                    }
+                    {/*
+                      <Erase
+                      selectedBackup={selectedBackup}
+                      onErase={this.refresh}
+                      deviceID={deviceID}
+                    />
+                    */}
+                </div>
             </div>
         );
     }
