@@ -1,4 +1,4 @@
-import { h, Component, cloneElement } from 'preact';
+import { h, cloneElement } from 'preact';
 import finishIcon from '../../../../assets/icons/ok.svg';
 import style from './steps.css';
 
@@ -21,18 +21,17 @@ export function Steps({
                         return (
                             <div className={style.divider}>»</div>
                         );
-                    } else {
-                        const step = Math.ceil(index / 2);
-                        const status = step === current ? STATUS.PROCESS : (
-                            step < current ? STATUS.FINISH : STATUS.WAIT
-                        );
-                        return cloneElement(child, {
-                            step: `${step + 1}`,
-                            // step: step,
-                            status,
-                            ...child.props,
-                        });
                     }
+                    const step = Math.ceil(index / 2);
+                    const status = step === current ? STATUS.PROCESS : (
+                        step < current ? STATUS.FINISH : STATUS.WAIT
+                    );
+                    return cloneElement(child, {
+                        step: `${step + 1}`,
+                        // step: step,
+                        status,
+                        ...child.props,
+                    });
                 })
             }
         </div>
