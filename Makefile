@@ -52,6 +52,8 @@ webdev:
 	make -C frontends/web dev
 weblint:
 	make -C frontends/web lint
+webtest:
+	make -C frontends/web jstest
 qt:
 	make buildweb
 	make -C frontends/qt

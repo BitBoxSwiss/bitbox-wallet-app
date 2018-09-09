@@ -19,3 +19,4 @@ go test ./...
 golangci-lint run
 yarn --cwd=frontends/web install # needed to install the eslint dev dep.
 make weblint
+yarn --cwd=frontends/web test --ci --no-color --coverage
