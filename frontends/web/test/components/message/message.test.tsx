@@ -20,32 +20,32 @@ import { shallow, deep } from 'preact-render-spy';
 import Message from '../../../src/components/message/message';
 
 describe('components/message/message', () => {
-  it('should use type attr as CSS class', () => {
-    const msg = deep(<Message type="warning"/>);
-    expect(msg.find('.warning').length).toBe(1);
-  });
+    it('should use type attr as CSS class', () => {
+        const msg = deep(<Message type="warning"/>);
+        expect(msg.find('.warning').length).toBe(1);
+    });
 
-  it('should preserve style attribute', () => {
-    const msg = deep(<Message style="width:100%"/>);
-    expect(msg.first().attr('style')).toBe('width:100%');
-  });
+    it('should preserve style attribute', () => {
+        const msg = deep(<Message style="width:100%"/>);
+        expect(msg.first().attr('style')).toBe('width:100%');
+    });
 
-  it('should have child nodes', () => {
-    const msg = shallow(<Message><span>hello</span></Message>);
-    expect(msg.children()[0]).toEqual(<span>hello</span>);
-  });
+    it('should have child nodes', () => {
+        const msg = shallow(<Message><span>hello</span></Message>);
+        expect(msg.children()[0]).toEqual(<span>hello</span>);
+    });
 
-  it('should preserve text', () => {
-    const msg = shallow(<Message><span>hello world</span></Message>);
-    expect(msg.text()).toBe('hello world');
-  });
+    it('should preserve text', () => {
+        const msg = shallow(<Message><span>hello world</span></Message>);
+        expect(msg.text()).toBe('hello world');
+    });
 
-  it('should match the snapshot', () => {
-    const msg = deep(
-      <Message type="success" style="width:100%">
-        <span>hello</span>
-      </Message>
-    );
-    expect(msg).toMatchSnapshot();
-  });
+    it('should match the snapshot', () => {
+        const msg = deep(
+            <Message type="success" style="width:100%">
+                <span>hello</span>
+            </Message>
+        );
+        expect(msg).toMatchSnapshot();
+    });
 });
