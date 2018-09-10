@@ -33,7 +33,6 @@
     "react-i18next": "7.9.0"
   },
   "browserslist": [
-    "iOS >= 3.2",
-    "Safari >= 3.2"
+    "last 2 Chrome versions"
   ]
 }
