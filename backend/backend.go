@@ -82,15 +82,15 @@ type Backend struct {
 
 	devices         map[string]device.Interface
 	keystores       keystore.Keystores
-	onAccountInit   func(*btc.Account)
-	onAccountUninit func(*btc.Account)
+	onAccountInit   func(btc.Interface)
+	onAccountUninit func(btc.Interface)
 	onDeviceInit    func(device.Interface)
 	onDeviceUninit  func(string)
 
 	coins     map[string]coin.Coin
 	coinsLock locker.Locker
 
-	accounts     []*btc.Account
+	accounts     []btc.Interface
 	accountsLock locker.Locker
 
 	// Stored and exposed temporarily through the backend.
@@ -278,7 +278,7 @@ func (backend *Backend) initAccounts() {
 	backend.uninitAccounts()
 	defer backend.accountsLock.Lock()()
 
-	backend.accounts = []*btc.Account{}
+	backend.accounts = []btc.Interface{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			RBTC := backend.Coin("rbtc")
@@ -335,7 +335,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the supported accounts.
-func (backend *Backend) Accounts() []*btc.Account {
+func (backend *Backend) Accounts() []btc.Interface {
 	return backend.accounts
 }
 
@@ -355,12 +355,12 @@ func (backend *Backend) UserLanguage() language.Tag {
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
-func (backend *Backend) OnAccountInit(f func(*btc.Account)) {
+func (backend *Backend) OnAccountInit(f func(btc.Interface)) {
 	backend.onAccountInit = f
 }
 
 // OnAccountUninit installs a callback to be called when an account is stopped.
-func (backend *Backend) OnAccountUninit(f func(*btc.Account)) {
+func (backend *Backend) OnAccountUninit(f func(btc.Interface)) {
 	backend.onAccountUninit = f
 }
 
