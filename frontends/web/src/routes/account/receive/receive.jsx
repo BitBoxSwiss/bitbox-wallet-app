@@ -61,7 +61,7 @@ export default class Receive extends Component {
 
     verifyAddress = () => {
         this.setState({ verifying: true });
-        apiPost('account/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].scriptHashHex).then(hasSecureOutput => {
+        apiPost('account/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].addressID).then(hasSecureOutput => {
             this.setState({ verifying: false });
             if (!hasSecureOutput) {
                 alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
@@ -83,7 +83,7 @@ export default class Receive extends Component {
 
     ltcConvertToLegacy = () => {
         apiPost('account/' + this.props.code + '/convert-to-legacy-address',
-            this.state.receiveAddresses[this.state.activeIndex].scriptHashHex)
+            this.state.receiveAddresses[this.state.activeIndex].addressID)
             .then(legacyAddress => {
                 const address = this.state.receiveAddresses[this.state.activeIndex].address;
                 alert('Legacy format of ' + address + ':\n' + legacyAddress); // eslint-disable-line no-alert
