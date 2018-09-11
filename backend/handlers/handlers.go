@@ -53,10 +53,10 @@ type Backend interface {
 	Coin(string) coin.Coin
 	AccountsStatus() string
 	Testing() bool
-	Accounts() []*btc.Account
+	Accounts() []btc.Interface
 	UserLanguage() language.Tag
-	OnAccountInit(f func(*btc.Account))
-	OnAccountUninit(f func(*btc.Account))
+	OnAccountInit(f func(btc.Interface))
+	OnAccountUninit(f func(btc.Interface))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() []string
@@ -173,11 +173,11 @@ func NewHandlers(
 		return accHandlers
 	}
 
-	backend.OnAccountInit(func(account *btc.Account) {
+	backend.OnAccountInit(func(account btc.Interface) {
 		log.WithField("code", account.Code()).Debug("Initializing account")
 		getAccountHandlers(account.Code()).Init(account)
 	})
-	backend.OnAccountUninit(func(account *btc.Account) {
+	backend.OnAccountUninit(func(account btc.Interface) {
 		getAccountHandlers(account.Code()).Uninit()
 	})
 

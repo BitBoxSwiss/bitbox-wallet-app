@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/db/transactionsdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -50,7 +51,7 @@ const (
 type Interface interface {
 	Info() *Info
 	Code() string
-	Coin() *Coin
+	Coin() coin.Coin
 	Init() error
 	InitialSyncDone() bool
 	Offline() bool
@@ -184,7 +185,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().String(), account.code)
+	return fmt.Sprintf("%s-%s", account.Coin().Name(), account.code)
 }
 
 // Code returns the code of the account.
@@ -193,7 +194,7 @@ func (account *Account) Code() string {
 }
 
 // Coin returns the coin of the account.
-func (account *Account) Coin() *Coin {
+func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
@@ -580,7 +581,7 @@ func (account *Account) ConvertToLegacyAddress(scriptHashHex blockchain.ScriptHa
 	if address == nil {
 		return nil, errp.New("unknown address not found")
 	}
-	if account.Coin().Net() != &ltc.MainNetParams || address.Configuration.ScriptType() != signing.ScriptTypeP2WPKHP2SH {
+	if account.coin.Net() != &ltc.MainNetParams || address.Configuration.ScriptType() != signing.ScriptTypeP2WPKHP2SH {
 		return nil, errp.New("must be an ltc p2sh address")
 	}
 	hash := address.Address.(*btcutil.AddressScriptHash).Hash160()

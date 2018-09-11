@@ -82,15 +82,15 @@ type Backend struct {
 
 	devices         map[string]device.Interface
 	keystores       keystore.Keystores
-	onAccountInit   func(*btc.Account)
-	onAccountUninit func(*btc.Account)
+	onAccountInit   func(btc.Interface)
+	onAccountUninit func(btc.Interface)
 	onDeviceInit    func(device.Interface)
 	onDeviceUninit  func(string)
 
 	coins     map[string]coin.Coin
 	coinsLock locker.Locker
 
-	accounts     []*btc.Account
+	accounts     []btc.Interface
 	accountsLock locker.Locker
 
 	// Stored and exposed temporarily through the backend.
@@ -231,7 +231,7 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 	}
 }
 
-func (backend *Backend) defaultServers(code string) []*rpc.ServerInfo {
+func (backend *Backend) defaultElectrumXServers(code string) []*rpc.ServerInfo {
 	if backend.arguments.DevMode() {
 		return defaultDevServers(code)
 	}
@@ -246,22 +246,25 @@ func (backend *Backend) Coin(code string) coin.Coin {
 	if ok {
 		return coin
 	}
-	servers := backend.defaultServers(code)
 	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
 	case "rbtc":
-		servers = []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
+		servers := []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
 		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", nil)
 	case coinTBTC:
+		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
 			"https://testnet.blockchain.info/tx/", backend.ratesUpdater)
 	case coinBTC:
+		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
 			"https://blockchain.info/tx/", backend.ratesUpdater)
 	case coinTLTC:
+		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
 			"http://explorer.litecointools.com/tx/", backend.ratesUpdater)
 	case coinLTC:
+		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.ratesUpdater)
 	default:
@@ -278,7 +281,7 @@ func (backend *Backend) initAccounts() {
 	backend.uninitAccounts()
 	defer backend.accountsLock.Lock()()
 
-	backend.accounts = []*btc.Account{}
+	backend.accounts = []btc.Interface{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Regtest() {
 			RBTC := backend.Coin("rbtc")
@@ -335,7 +338,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the supported accounts.
-func (backend *Backend) Accounts() []*btc.Account {
+func (backend *Backend) Accounts() []btc.Interface {
 	return backend.accounts
 }
 
@@ -355,12 +358,12 @@ func (backend *Backend) UserLanguage() language.Tag {
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
-func (backend *Backend) OnAccountInit(f func(*btc.Account)) {
+func (backend *Backend) OnAccountInit(f func(btc.Interface)) {
 	backend.onAccountInit = f
 }
 
 // OnAccountUninit installs a callback to be called when an account is stopped.
-func (backend *Backend) OnAccountUninit(f func(*btc.Account)) {
+func (backend *Backend) OnAccountUninit(f func(btc.Interface)) {
 	backend.onAccountUninit = f
 }
 
