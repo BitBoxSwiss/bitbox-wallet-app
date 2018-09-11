@@ -25,7 +25,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
@@ -73,20 +72,33 @@ func (handlers *Handlers) Uninit() {
 	handlers.account = nil
 }
 
+// formattedAmount with unit.
+type formattedAmount struct {
+	Amount string `json:"amount"`
+	Unit   string `json:"unit"`
+}
+
+func (handlers *Handlers) formatAmountAsJSON(amount int64) formattedAmount {
+	return formattedAmount{
+		Amount: handlers.account.Coin().FormatAmount(amount),
+		Unit:   handlers.account.Coin().Unit(),
+	}
+}
+
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID               string               `json:"id"`
-	VSize            int64                `json:"vsize"`
-	Size             int64                `json:"size"`
-	Weight           int64                `json:"weight"`
-	NumConfirmations int                  `json:"numConfirmations"`
-	Height           int                  `json:"height"`
-	Type             string               `json:"type"`
-	Amount           coin.FormattedAmount `json:"amount"`
-	Fee              coin.FormattedAmount `json:"fee"`
-	FeeRatePerKb     coin.FormattedAmount `json:"feeRatePerKb"`
-	Time             *string              `json:"time"`
-	Addresses        []string             `json:"addresses"`
+	ID               string          `json:"id"`
+	VSize            int64           `json:"vsize"`
+	Size             int64           `json:"size"`
+	Weight           int64           `json:"weight"`
+	NumConfirmations int             `json:"numConfirmations"`
+	Height           int             `json:"height"`
+	Type             string          `json:"type"`
+	Amount           formattedAmount `json:"amount"`
+	Fee              formattedAmount `json:"fee"`
+	FeeRatePerKb     formattedAmount `json:"feeRatePerKb"`
+	Time             *string         `json:"time"`
+	Addresses        []string        `json:"addresses"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -102,10 +114,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString, feeRatePerKb coin.FormattedAmount
+		var feeString, feeRatePerKb formattedAmount
 		if txInfo.Fee != nil {
-			feeString = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.Fee))
-			feeRatePerKb = handlers.account.Coin().FormatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
+			feeString = handlers.formatAmountAsJSON(int64(*txInfo.Fee))
+			feeRatePerKb = handlers.formatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -124,7 +136,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount:       handlers.account.Coin().FormatAmountAsJSON(int64(txInfo.Amount)),
+			Amount:       handlers.formatAmountAsJSON(int64(txInfo.Amount)),
 			Fee:          feeString,
 			FeeRatePerKb: feeRatePerKb,
 			Time:         formattedTime,
@@ -144,7 +156,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
-				"amount":   handlers.account.Coin().FormatAmountAsJSON(output.TxOut.Value),
+				"amount":   handlers.formatAmountAsJSON(output.TxOut.Value),
 				"address":  output.Address,
 			})
 	}
@@ -154,8 +166,8 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
 	return map[string]interface{}{
-		"available":   handlers.account.Coin().FormatAmountAsJSON(int64(balance.Available)),
-		"incoming":    handlers.account.Coin().FormatAmountAsJSON(int64(balance.Incoming)),
+		"available":   handlers.formatAmountAsJSON(int64(balance.Available)),
+		"incoming":    handlers.formatAmountAsJSON(int64(balance.Incoming)),
 		"hasIncoming": balance.Incoming != 0,
 	}, nil
 }
@@ -260,9 +272,9 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  handlers.account.Coin().FormatAmountAsJSON(int64(outputAmount)),
-		"fee":     handlers.account.Coin().FormatAmountAsJSON(int64(fee)),
-		"total":   handlers.account.Coin().FormatAmountAsJSON(int64(total)),
+		"amount":  handlers.formatAmountAsJSON(int64(outputAmount)),
+		"fee":     handlers.formatAmountAsJSON(int64(fee)),
+		"total":   handlers.formatAmountAsJSON(int64(total)),
 	}, nil
 }
 
@@ -274,9 +286,9 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
-		var feeRatePerKb coin.FormattedAmount
+		var feeRatePerKb formattedAmount
 		if feeTarget.FeeRatePerKb != nil {
-			feeRatePerKb = handlers.account.Coin().FormatAmountAsJSON(int64(*feeTarget.FeeRatePerKb))
+			feeRatePerKb = handlers.formatAmountAsJSON(int64(*feeTarget.FeeRatePerKb))
 		}
 		result = append(result,
 			map[string]interface{}{
