@@ -129,17 +129,8 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount int64) string {
-	formattedAmount := coin.FormatAmountAsJSON(amount)
-	return fmt.Sprintf("%s %s", formattedAmount.Amount, formattedAmount.Unit)
-}
-
-// FormatAmountAsJSON implements coin.Coin.
-func (coin *Coin) FormatAmountAsJSON(amount int64) coinpkg.FormattedAmount {
 	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
-	return coinpkg.FormattedAmount{
-		Amount: strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64),
-		Unit:   coin.Unit(),
-	}
+	return strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64)
 }
 
 // RatesUpdater returns current exchange rates.
