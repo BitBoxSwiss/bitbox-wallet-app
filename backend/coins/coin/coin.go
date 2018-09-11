@@ -57,6 +57,6 @@ type Coin interface {
 	// // Account-based transactions can have only one output and need no change address.
 	// AccountBased() bool
 
-	// // BlockExplorerTransactionURLPrefix returns the URL prefix of the block explorer.
-	// BlockExplorerTransactionURLPrefix() string
+	// BlockExplorerTransactionURLPrefix returns the URL prefix of the block explorer.
+	BlockExplorerTransactionURLPrefix() string
 }

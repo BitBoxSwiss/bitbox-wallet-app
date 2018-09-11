@@ -261,7 +261,22 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Accounts(), nil
+	type accountJSON struct {
+		CoinCode              string `json:"coinCode"`
+		Code                  string `json:"code"`
+		Name                  string `json:"name"`
+		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
+	}
+	accounts := []*accountJSON{}
+	for _, account := range handlers.backend.Accounts() {
+		accounts = append(accounts, &accountJSON{
+			CoinCode:              account.Coin().Name(),
+			Code:                  account.Code(),
+			Name:                  account.Name(),
+			BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
+		})
+	}
+	return accounts, nil
 }
 
 func (handlers *Handlers) getAccountsStatusHandler(_ *http.Request) (interface{}, error) {

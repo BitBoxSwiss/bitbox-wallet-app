@@ -15,7 +15,6 @@
 package btc
 
 import (
-	"encoding/json"
 	"fmt"
 	"path"
 	"sort"
@@ -52,6 +51,8 @@ type Interface interface {
 	Info() *Info
 	Code() string
 	Coin() coin.Coin
+	// Name returns a human readable long name.
+	Name() string
 	Init() error
 	InitialSyncDone() bool
 	Offline() bool
@@ -98,21 +99,6 @@ type Account struct {
 	offline         bool
 	onEvent         func(Event)
 	log             *logrus.Entry
-}
-
-// MarshalJSON implements json.Marshaler.
-func (account *Account) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		CoinCode              string `json:"coinCode"`
-		Code                  string `json:"code"`
-		Name                  string `json:"name"`
-		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
-	}{
-		CoinCode:              account.coin.Name(),
-		Code:                  account.code,
-		Name:                  account.name,
-		BlockExplorerTxPrefix: account.coin.blockExplorerTxPrefix,
-	})
 }
 
 // Status indicates the connection and initialization status.
@@ -191,6 +177,11 @@ func (account *Account) String() string {
 // Code returns the code of the account.
 func (account *Account) Code() string {
 	return account.code
+}
+
+// Name returns the name of the account.
+func (account *Account) Name() string {
+	return account.name
 }
 
 // Coin returns the coin of the account.

@@ -186,3 +186,8 @@ func (coin *Coin) Headers() *headers.Headers {
 func (coin *Coin) String() string {
 	return coin.name
 }
+
+// BlockExplorerTransactionURLPrefix implements coin.Coin.
+func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
+	return coin.blockExplorerTxPrefix
+}
