@@ -49,6 +49,7 @@ const (
 // Interface is the API of a Account.
 type Interface interface {
 	Info() *Info
+	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
 	Code() string
 	Coin() coin.Coin
 	// Name returns a human readable long name.
