@@ -16,11 +16,10 @@ package coin
 
 import "github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 
-// FormattedAmount with unit and conversions.
+// FormattedAmount with unit.
 type FormattedAmount struct {
-	Amount      string            `json:"amount"`
-	Unit        string            `json:"unit"`
-	Conversions map[string]string `json:"conversions"`
+	Amount string `json:"amount"`
+	Unit   string `json:"unit"`
 }
 
 // Coin models the currency of a blockchain.

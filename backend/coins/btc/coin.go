@@ -18,7 +18,6 @@ import (
 	"fmt"
 	"path"
 	"strconv"
-	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil"
@@ -130,41 +129,16 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount int64) string {
-	return strconv.FormatFloat(btcutil.Amount(amount).ToUnit(btcutil.AmountBTC), 'f',
-		-int(btcutil.AmountBTC+8), 64) + " " + coin.Unit()
-}
-
-func formatAsCurrency(amount float64) string {
-	formatted := strconv.FormatFloat(amount, 'f', 2, 64)
-	position := strings.Index(formatted, ".") - 3
-	for position > 0 {
-		formatted = formatted[:position] + "'" + formatted[position:]
-		position = position - 3
-	}
-	return formatted
+	formattedAmount := coin.FormatAmountAsJSON(amount)
+	return fmt.Sprintf("%s %s", formattedAmount.Amount, formattedAmount.Unit)
 }
 
 // FormatAmountAsJSON implements coin.Coin.
 func (coin *Coin) FormatAmountAsJSON(amount int64) coinpkg.FormattedAmount {
 	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
-	var conversions map[string]string
-	if coin.ratesUpdater != nil {
-		rates := coin.ratesUpdater.Last()
-		if rates != nil {
-			unit := coin.unit
-			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
-				unit = unit[1:]
-			}
-			conversions = map[string]string{}
-			for key, value := range rates[unit] {
-				conversions[key] = formatAsCurrency(float * value)
-			}
-		}
-	}
 	return coinpkg.FormattedAmount{
-		Amount:      strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64),
-		Unit:        coin.Unit(),
-		Conversions: conversions,
+		Amount: strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64),
+		Unit:   coin.Unit(),
 	}
 }
 
