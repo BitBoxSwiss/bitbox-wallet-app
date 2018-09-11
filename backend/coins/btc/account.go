@@ -64,9 +64,9 @@ type Interface interface {
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
 		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
-	GetUnusedReceiveAddresses() []*addresses.AccountAddress
-	VerifyAddress(blockchain.ScriptHashHex) (bool, error)
-	ConvertToLegacyAddress(blockchain.ScriptHashHex) (btcutil.Address, error)
+	GetUnusedReceiveAddresses() []coin.Address
+	VerifyAddress(addressID string) (bool, error)
+	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
 	Keystores() keystore.Keystores
 	HeadersStatus() (*headers.Status, error)
 	SpendableOutputs() []*SpendableOutput
@@ -541,19 +541,24 @@ func (account *Account) Transactions() []*transactions.TxInfo {
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
-func (account *Account) GetUnusedReceiveAddresses() []*addresses.AccountAddress {
+func (account *Account) GetUnusedReceiveAddresses() []coin.Address {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
+	addresses := []coin.Address{}
 	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
-	return account.receiveAddresses.GetUnused()[:gapLimit]
+	for _, address := range account.receiveAddresses.GetUnused()[:gapLimit] {
+		addresses = append(addresses, address)
+	}
+	return addresses
 }
 
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
-func (account *Account) VerifyAddress(scriptHashHex blockchain.ScriptHashHex) (bool, error) {
+func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
+	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
 	if address == nil {
 		return false, errp.New("unknown address not found")
@@ -566,9 +571,10 @@ func (account *Account) VerifyAddress(scriptHashHex blockchain.ScriptHashHex) (b
 
 // ConvertToLegacyAddress converts a ltc p2sh address to the legacy format (starting with
 // '3'). Returns an error for non litecoin p2sh accounts.
-func (account *Account) ConvertToLegacyAddress(scriptHashHex blockchain.ScriptHashHex) (btcutil.Address, error) {
+func (account *Account) ConvertToLegacyAddress(addressID string) (btcutil.Address, error) {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
+	scriptHashHex := blockchain.ScriptHashHex(addressID)
 	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
 	if address == nil {
 		return nil, errp.New("unknown address not found")

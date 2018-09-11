@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -329,30 +328,30 @@ func (handlers *Handlers) getReceiveAddresses(_ *http.Request) (interface{}, err
 	addresses := []interface{}{}
 	for _, address := range handlers.account.GetUnusedReceiveAddresses() {
 		addresses = append(addresses, struct {
-			Address       string `json:"address"`
-			ScriptHashHex string `json:"scriptHashHex"`
+			Address   string `json:"address"`
+			AddressID string `json:"addressID"`
 		}{
-			Address:       address.EncodeAddress(),
-			ScriptHashHex: string(address.PubkeyScriptHashHex()),
+			Address:   address.EncodeForHumans(),
+			AddressID: address.ID(),
 		})
 	}
 	return addresses, nil
 }
 
 func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error) {
-	var scriptHashHex string
-	if err := json.NewDecoder(r.Body).Decode(&scriptHashHex); err != nil {
+	var addressID string
+	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return handlers.account.VerifyAddress(blockchain.ScriptHashHex(scriptHashHex))
+	return handlers.account.VerifyAddress(addressID)
 }
 
 func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {
-	var scriptHashHex string
-	if err := json.NewDecoder(r.Body).Decode(&scriptHashHex); err != nil {
+	var addressID string
+	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	address, err := handlers.account.ConvertToLegacyAddress(blockchain.ScriptHashHex(scriptHashHex))
+	address, err := handlers.account.ConvertToLegacyAddress(addressID)
 	if err != nil {
 		return nil, err
 	}

@@ -121,6 +121,16 @@ func NewAccountAddress(
 	}
 }
 
+// ID implements coin.Address.
+func (address *AccountAddress) ID() string {
+	return string(address.PubkeyScriptHashHex())
+}
+
+// EncodeForHumans implements coin.EncodeForHumans.
+func (address *AccountAddress) EncodeForHumans() string {
+	return address.EncodeAddress()
+}
+
 func (address *AccountAddress) isUsed() bool {
 	return address.HistoryStatus != ""
 }
