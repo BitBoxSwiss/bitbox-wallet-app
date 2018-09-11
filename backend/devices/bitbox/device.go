@@ -1030,7 +1030,7 @@ func (dbb *Device) signBatch(
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
 		}
 		typ := string(txProposal.AccountConfiguration.ScriptType())
-		if err := mobchan.SendSigningEcho(signingEcho, txProposal.Coin.Name(), typ, transaction); err != nil {
+		if err := mobchan.SendSigningEcho(signingEcho, txProposal.Coin.Code(), typ, transaction); err != nil {
 			return nil, errp.WithMessage(err, "Could not send the signing echo to the mobile.")
 		}
 	}

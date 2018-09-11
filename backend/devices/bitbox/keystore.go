@@ -63,7 +63,7 @@ func (keystore *keystore) OutputAddress(
 	if !keystore.HasSecureOutput() {
 		panic("HasSecureOutput must be true")
 	}
-	return keystore.dbb.DisplayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Name(), string(scriptType)))
+	return keystore.dbb.DisplayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(scriptType)))
 }
 
 // ExtendedPublicKey implements keystore.Keystore.

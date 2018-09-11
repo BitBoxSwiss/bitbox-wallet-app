@@ -171,7 +171,7 @@ func NewAccount(
 
 // String returns a representation of the account for logging.
 func (account *Account) String() string {
-	return fmt.Sprintf("%s-%s", account.Coin().Name(), account.code)
+	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.code)
 }
 
 // Code returns the code of the account.

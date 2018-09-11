@@ -26,14 +26,13 @@ type FormattedAmount struct {
 // Coin models the currency of a blockchain.
 type Coin interface {
 	observable.Interface
-	// Code returns the acronym of the currency in lowercase.
-	// Code() string
+
+	// Code returns the code used to identify the coin (should be the acronym of the coin in
+	// lowercase).
+	Code() string
 
 	// Init initializes the coin (blockchain connection, header feed, etc.).
 	Init()
-
-	// Name returns the written-out name of the coin.
-	Name() string
 
 	// // Type returns the coin type according to BIP44:
 	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md

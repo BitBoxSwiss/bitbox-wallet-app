@@ -37,7 +37,7 @@ import (
 
 // Coin models a Bitcoin-related coin.
 type Coin struct {
-	name                  string
+	code                  string
 	unit                  string
 	net                   *chaincfg.Params
 	dbFolder              string
@@ -55,7 +55,7 @@ type Coin struct {
 
 // NewCoin creates a new coin with the given parameters.
 func NewCoin(
-	name string,
+	code string,
 	unit string,
 	net *chaincfg.Params,
 	dbFolder string,
@@ -64,7 +64,7 @@ func NewCoin(
 	ratesUpdater coinpkg.RatesUpdater,
 ) *Coin {
 	coin := &Coin{
-		name:                  name,
+		code:                  code,
 		unit:                  unit,
 		net:                   net,
 		dbFolder:              dbFolder,
@@ -72,7 +72,7 @@ func NewCoin(
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		ratesUpdater:          ratesUpdater,
 
-		log: logging.Get().WithGroup("coin").WithField("name", name),
+		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
 	return coin
 }
@@ -84,7 +84,7 @@ func (coin *Coin) Init() {
 
 	// Init Headers
 	db, err := headersdb.NewDB(
-		path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.name)))
+		path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code)))
 	if err != nil {
 		coin.log.WithError(err).Panic("Could not open headers DB")
 	}
@@ -101,7 +101,7 @@ func (coin *Coin) Init() {
 				coin.log.Error("Could not get headers status")
 			}
 			coin.Notify(observable.Event{
-				Subject: fmt.Sprintf("coins/%s/headers/status", coin.name),
+				Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
 				Action:  action.Replace,
 				Object:  status,
 			})
@@ -113,9 +113,9 @@ func (coin *Coin) Init() {
 	}
 }
 
-// Name returns the coin's name.
-func (coin *Coin) Name() string {
-	return coin.name
+// Code implements coin.Coin.
+func (coin *Coin) Code() string {
+	return coin.code
 }
 
 // Net returns the coin's network params.
@@ -184,7 +184,7 @@ func (coin *Coin) Headers() *headers.Headers {
 }
 
 func (coin *Coin) String() string {
-	return coin.name
+	return coin.code
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.
