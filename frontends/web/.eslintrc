@@ -1,7 +1,7 @@
 {
   "extends": "eslint-config-synacor",
   "rules": {
-    "no-alert": off,
+    "no-alert": "off",
     "arrow-body-style": [0, "as-needed"],
     "brace-style": [1, "1tbs"],
     "comma-dangle": 0,
@@ -19,7 +19,7 @@
     "react/jsx-closing-bracket-location": 0,
     "react/jsx-max-props-per-line": ["warn", { "maximum": 4, "when": "always" }],
     "react/jsx-tag-spacing": ["warn"],
-    "react/jsx-no-bind": off,
-    "react/jsx-key": ["error"],
+    "react/jsx-no-bind": "off",
+    "react/jsx-key": ["error"]
   }
 }
