@@ -15,10 +15,10 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { translate, TranslateProp } from '../../decorators/translate';
 import { share } from '../../decorators/share';
-import { store, SharedProps, selectFiat, unselectFiat, setActiveFiat } from '../rates/rates';
+import { translate, TranslateProp } from '../../decorators/translate';
 import { Checkbox } from '../forms';
+import { Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
 import * as style from './fiat.css';
 
 function changeSelected(event): void {
@@ -45,7 +45,7 @@ function Selection({
     if (!rates) {
         return null;
     }
-    const currencies = Object.keys(rates.BTC);
+    const currencies = Object.keys(rates.BTC) as Fiat[];
     return (
         <div>
             <div class="subHeaderContainer">
@@ -64,7 +64,6 @@ function Selection({
                                 name="fiat"
                                 id={`fiat-${index}`}
                                 label={currency}
-                                // @ts-ignore
                                 checked={selected.includes(currency)}
                                 disabled={main}
                                 onChange={changeSelected}
@@ -76,7 +75,7 @@ function Selection({
                                     onClick={setDefault}
                                     data-code={currency}>
                                     {t(main ? 'fiat.default' : 'fiat.setDefault', {
-                                        code: currency
+                                        code: currency,
                                     })}
                                 </span>
                             </Checkbox>

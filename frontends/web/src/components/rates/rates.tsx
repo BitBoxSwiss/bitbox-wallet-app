@@ -15,11 +15,12 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { share, Store } from '../../decorators/share';
-import { apiGet } from '../../utils/request';
-import { apiSubscribe } from '../../utils/event';
+import { share } from '../../decorators/share';
+import { Store } from '../../decorators/store';
 import { setConfig } from '../../utils/config';
 import { equal } from '../../utils/equal';
+import { apiSubscribe } from '../../utils/event';
+import { apiGet } from '../../utils/request';
 import * as style from './rates.css';
 
 export type MainnetCoin = 'BTC' | 'LTC';
@@ -34,7 +35,7 @@ export type Rates = {
     [coin in MainnetCoin]: {
         [fiat in Fiat]: number;
     }
-}
+};
 
 export interface SharedProps {
     rates: Rates | undefined | null;
@@ -62,7 +63,6 @@ apiGet('coins/rates').then(rates => store.setState({ rates }));
 apiSubscribe('coins/rates', ({ object }) => store.setState({ rates: object }));
 
 export function setActiveFiat(fiat: Fiat): void {
-    // @ts-ignore
     if (!store.state.selected.includes(fiat)) {
         selectFiat(fiat);
     }
@@ -123,7 +123,6 @@ function Conversion({
         return null;
     }
     let coin = amount.unit;
-    // @ts-ignore
     if (coin.length === 4 && coin.startsWith('T')) {
         coin = coin.substring(1) as Coin;
     }

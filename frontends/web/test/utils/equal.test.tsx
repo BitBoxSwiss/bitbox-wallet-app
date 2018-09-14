@@ -37,43 +37,43 @@ describe('equal', () => {
     });
 
     it('is always false for different types', () => {
-        const a = {one: "two"};
-        const b = ["two"];
+        const a = { one: 'two' };
+        const b = ['two'];
         expect(equal(a, b)).toBeFalsy();
     });
 
     describe('arrays', () => {
-      it('is false for [] and null', () => {
-          expect(equal([], null)).toBeFalsy();
-          expect(equal(null, [])).toBeFalsy();
-      });
+        it('is false for [] and null', () => {
+            expect(equal([], null)).toBeFalsy();
+            expect(equal(null, [])).toBeFalsy();
+        });
 
-      it('is true for same elements, same order', () => {
-          const a = [1, 2, 3];
-          const b = [1, 2, 3];
-          expect(equal(a, b)).toBeTruthy();
-      });
+        it('is true for same elements, same order', () => {
+            const a = [1, 2, 3];
+            const b = [1, 2, 3];
+            expect(equal(a, b)).toBeTruthy();
+        });
 
-      it('is false for same elements, diff order', () => {
-          const a = [1, 2, 3];
-          const b = [1, 3, 2];
-          expect(equal(a, b)).toBeFalsy();
-          expect(equal(b, a)).toBeFalsy();
-      });
+        it('is false for same elements, diff order', () => {
+            const a = [1, 2, 3];
+            const b = [1, 3, 2];
+            expect(equal(a, b)).toBeFalsy();
+            expect(equal(b, a)).toBeFalsy();
+        });
 
-      it('is false with an extra element', () => {
-          const a = [1, 2, 3];
-          const b = [1, 2];
-          expect(equal(a, b)).toBeFalsy();
-          expect(equal(b, a)).toBeFalsy();
-      });
+        it('is false with an extra element', () => {
+            const a = [1, 2, 3];
+            const b = [1, 2];
+            expect(equal(a, b)).toBeFalsy();
+            expect(equal(b, a)).toBeFalsy();
+        });
 
-      it('is false for different elements', () => {
-          const a = [1, 13];
-          const b = [11, 42];
-          expect(equal(a, b)).toBeFalsy();
-          expect(equal(b, a)).toBeFalsy();
-      });
+        it('is false for different elements', () => {
+            const a = [1, 13];
+            const b = [11, 42];
+            expect(equal(a, b)).toBeFalsy();
+            expect(equal(b, a)).toBeFalsy();
+        });
     });
 
     describe('objects', () => {
@@ -83,40 +83,40 @@ describe('equal', () => {
         });
 
         it('is true for same key/value pairs', () => {
-            const a = {one: "two", three: "four"};
-            const b = {one: "two", three: "four"};
+            const a = { one: 'two', three: 'four' };
+            const b = { one: 'two', three: 'four' };
             expect(equal(a, b)).toBeTruthy();
         });
 
         it('is false with an extra key', () => {
-            const a = {one: "two"};
-            const b = {one: "two", three: "four"};
+            const a = { one: 'two' };
+            const b = { one: 'two', three: 'four' };
             expect(equal(a, b)).toBeFalsy();
             expect(equal(b, a)).toBeFalsy();
         });
 
         it('is false with different keys', () => {
-            const a = {one: "two", foo: "bar"};
-            const b = {one: "two", three: "four"};
+            const a = { one: 'two', foo: 'bar' };
+            const b = { one: 'two', three: 'four' };
             expect(equal(a, b)).toBeFalsy();
             expect(equal(b, a)).toBeFalsy();
         });
 
         it('ignores keys order', () => {
-            const a = {one: "two", three: "four"};
-            const b = {three: "four", one: "two"};
+            const a = { one: 'two', three: 'four' };
+            const b = { three: 'four', one: 'two' };
             expect(equal(a, b)).toBeTruthy();
             expect(equal(b, a)).toBeTruthy();
         });
 
         it('compares values', () => {
-            const a = {one: "two", three: "four"};
-            const b = {one: "two", three: "bar"};
+            const a = { one: 'two', three: 'four' };
+            const b = { one: 'two', three: 'bar' };
             expect(equal(a, b)).toBeFalsy();
         });
 
         it('compares with null', () => {
-            const a = {one: "two", three: "four"};
+            const a = { one: 'two', three: 'four' };
             expect(equal(a, null)).toBeFalsy();
             expect(equal(null, a)).toBeFalsy();
         });

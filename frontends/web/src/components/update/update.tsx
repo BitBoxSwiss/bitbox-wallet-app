@@ -15,10 +15,10 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { translate, TranslateProp } from '../../decorators/translate';
 import { load } from '../../decorators/load';
-import Status from '../status/status';
+import { translate, TranslateProp } from '../../decorators/translate';
 import A from '../anchor/anchor';
+import Status from '../status/status';
 
 /**
  * Describes the file that is loaded from 'https://shiftcrypto.ch/updates/desktop.json'.
@@ -40,7 +40,7 @@ function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
         <Status dismissable keyName={`update-${file.version}`} type="info">
             {t('app.upgrade', {
                 current: file.current,
-                version: file.version
+                version: file.version,
             })}
             {file.description}
             {' '}
@@ -53,4 +53,4 @@ function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
 
 const HOC = translate()(load<LoadedProps, TranslateProp>({ file: 'update' })(Update));
 
-export { HOC as Update }
+export { HOC as Update };

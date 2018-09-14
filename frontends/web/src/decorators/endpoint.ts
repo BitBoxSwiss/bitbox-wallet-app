@@ -23,16 +23,16 @@ export type Endpoint = string;
 
 /**
  * Describes which endpoints should be loaded to which property names.
- * 
+ *
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
 export type EndpointsObject<LoadedProps> = {
     readonly [Key in keyof LoadedProps]: Endpoint;
-}
+};
 
 /**
  * Allows to derive the endpoints based on existing properties.
- * 
+ *
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
 export type EndpointsFunction<ProvidedProps, LoadedProps> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;

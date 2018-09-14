@@ -15,8 +15,8 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import { subscribe } from './decorators/subscribe';
 import { App } from './app';
+import { subscribe } from './decorators/subscribe';
 
 interface Props {
     connected?: boolean;
@@ -32,4 +32,4 @@ function ConnectedApp({ connected = true }: RenderableProps<Props>): JSX.Element
 
 const HOC = subscribe<Props>({ connected: 'backend/connected' }, false, true)(ConnectedApp);
 
-export { HOC as ConnectedApp }
+export { HOC as ConnectedApp };

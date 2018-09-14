@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { Endpoint, EndpointsObject, EndpointsFunction } from './endpoint';
+import { Component, ComponentConstructor, FunctionalComponent, h, RenderableProps } from 'preact';
+import { getDisplayName } from '../utils/component';
 import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
-import { getDisplayName } from '../utils/component';
+import { Endpoint, EndpointsFunction, EndpointsObject } from './endpoint';
 
 // Stores whether to log the time needed for individual API calls.
 const logPerformance = false;
@@ -28,7 +28,7 @@ let logCounter = 0;
 
 /**
  * Loads API endpoints into the props of the component that uses this decorator.
- * 
+ *
  * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads the endpoints into the props of the decorated component.
@@ -41,7 +41,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
         WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Load extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
-            static displayName = `Load(${getDisplayName(WrappedComponent)})`;
+            public static displayName = `Load(${getDisplayName(WrappedComponent)})`;
 
             private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {
@@ -53,10 +53,10 @@ export function load<LoadedProps, ProvidedProps = {}>(
             private loadEndpoint(key: keyof LoadedProps, endpoint: Endpoint): void {
                 logCounter += 1;
                 const timerID = endpoint + ' ' + logCounter;
-                if (logPerformance) { console.time(timerID); }
+                if (logPerformance) { console.time(timerID); } // tslint:disable-line:no-console
                 apiGet(endpoint).then(object => {
                     this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>);
-                    if (logPerformance) { console.timeEnd(timerID); }
+                    if (logPerformance) { console.timeEnd(timerID); } // tslint:disable-line:no-console
                 });
             }
 
@@ -75,7 +75,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
                     // Remove endpoints that no longer exist from the state.
                     for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
                         if (newEndpoints[key] === undefined) {
-                            this.setState({ [key]: undefined as any} as Pick<LoadedProps, keyof LoadedProps>);
+                            this.setState({ [key]: undefined as any } as Pick<LoadedProps, keyof LoadedProps>);
                         }
                     }
                 }
@@ -99,7 +99,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
                 }
                 return true;
             }
-            
+
             public render(props: RenderableProps<ProvidedProps & Partial<LoadedProps>>, state: LoadedProps): JSX.Element | null {
                 if (renderOnlyOnceLoaded && !this.allEndpointsLoaded()) { return null; }
                 return <WrappedComponent {...state} {...props as any} />; // This order allows the subscribe decorator (and others) to override the loaded endpoints with properties.

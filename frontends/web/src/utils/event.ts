@@ -55,7 +55,7 @@ interface Subscriptions {
 /**
  * Stores the subscriptions as an object-based hash map.
  */
-const subscriptions : Subscriptions = {};
+const subscriptions: Subscriptions = {};
 
 /**
  * This function dispatches the events from the websocket to the observers.
@@ -89,15 +89,13 @@ export function apiSubscribe(subject: Subject, observer: Observer): Unsubscribe 
     }
     observers.push(observer);
     return () => {
-        // @ts-ignore: includes is only available from target es2016.
         if (!observers.includes(observer)) {
-            console.warn('!observers.includes(observer)');
+            console.warn('!observers.includes(observer)'); // tslint:disable-line:no-console
         }
         const index = observers.indexOf(observer);
         observers.splice(index, 1);
-        // @ts-ignore: includes is only available from target es2016.
         if (observers.includes(observer)) {
-            console.warn('observers.includes(observer)');
+            console.warn('observers.includes(observer)'); // tslint:disable-line:no-console
         }
     };
 }

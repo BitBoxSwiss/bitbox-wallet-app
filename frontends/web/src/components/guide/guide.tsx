@@ -15,12 +15,13 @@
  */
 
 import { h, RenderableProps } from 'preact';
+import { share } from '../../decorators/share';
+import { Store } from '../../decorators/store';
 import { translate, TranslateProp } from '../../decorators/translate';
-import { share, Store } from '../../decorators/share';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
-import { Entry, ImplicitEntry } from './entry';
 import A from '../anchor/anchor';
+import { Entry, ImplicitEntry } from './entry';
 import * as style from './guide.css';
 
 interface SharedProps {

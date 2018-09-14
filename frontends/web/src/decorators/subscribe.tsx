@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import { h, Component, RenderableProps, ComponentConstructor, FunctionalComponent } from 'preact';
-import { Endpoint, EndpointsObject, EndpointsFunction } from './endpoint';
+import { Component, ComponentConstructor, FunctionalComponent, h, RenderableProps } from 'preact';
+import { getDisplayName } from '../utils/component';
+import { equal } from '../utils/equal';
 import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
-import { equal } from '../utils/equal';
+import { Endpoint, EndpointsFunction, EndpointsObject } from './endpoint';
 import { load } from './load';
-import { getDisplayName } from '../utils/component';
 
 /**
  * Loads API endpoints into the props of the component that uses this decorator and updates them on events.
- * 
+ *
  * @param endpointsObjectOrFunction - The endpoints that should be loaded to their respective property name.
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
@@ -40,7 +40,7 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
         WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
     ) {
         return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
-            static displayName = `Subscribe(${getDisplayName(WrappedComponent)})`;
+            public static displayName = `Subscribe(${getDisplayName(WrappedComponent)})`;
 
             private determineEndpoints(): EndpointsObject<LoadedProps> {
                 if (typeof endpointsObjectOrFunction === 'function') {

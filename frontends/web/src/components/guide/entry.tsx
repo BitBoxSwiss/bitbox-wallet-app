@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { h, Component, RenderableProps } from 'preact';
-import * as style from './guide.css';
+import { Component, h, RenderableProps } from 'preact';
 import A from '../anchor/anchor';
+import * as style from './guide.css';
 
 /**
  * Typically manually written as a child of the guide component.
@@ -66,14 +66,14 @@ export class Entry extends Component<Props, State> {
         };
     }
 
-    toggle = () => {
+    private toggle = () => {
         this.setState((state: State): State => ({
             shown: !state.shown,
             highlighted: false,
         }));
     }
 
-    render(props: RenderableProps<Props>, {
+    public render(props: RenderableProps<Props>, {
         shown,
         highlighted,
     }: Readonly<State>) {
@@ -90,7 +90,7 @@ export class Entry extends Component<Props, State> {
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown && (
                         <div class="flex-1">
-                            {isImplicitEntryProps(props) && props.entry.text.map(p => <p>{p}</p>)}
+                            {isImplicitEntryProps(props) && props.entry.text.map(p => <p key={p}>{p}</p>)}
                             {isImplicitEntryProps(props) && props.entry.link && (
                                 <p><A href={props.entry.link.url}>{props.entry.link.text}</A></p>
                             )}
