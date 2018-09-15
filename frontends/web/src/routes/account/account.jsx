@@ -22,12 +22,16 @@ import { apiWebsocket } from '../../utils/websocket';
 import { ButtonLink } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
+import Header from '../../components/header/Header';
 import Balance from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
 import A from '../../components/anchor/anchor';
+import InfoIcon from '../../assets/icons/info.svg';
+import ArrowUp from '../../assets/icons/arrow-up.svg';
+import ArrowDown from '../../assets/icons/arrow-down.svg';
 import * as componentStyle from '../../components/style.css';
 
 @translate()
@@ -159,41 +163,44 @@ export default class Account extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {hasCard && t('warning.sdcard')}
-                        </Status>
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance} />
-                            <div class={componentStyle.buttons} style="align-self: flex-end;">
-                                <ButtonLink
-                                    primary
-                                    href={`/account/${code}/receive`}
-                                    disabled={!initialized}>
-                                    {t('button.receive')}
-                                </ButtonLink>
-                                <ButtonLink
-                                    primary
-                                    href={`/account/${code}/send`}
-                                    disabled={!initialized || balance && balance.available.amount === '0'}>
-                                    {t('button.send')}
-                                </ButtonLink>
-                            </div>
+                    <Status type="warning">
+                        {hasCard && t('warning.sdcard')}
+                    </Status>
+                    {
+                        !connected ? (
+                            <Status>
+                                <p>{t('account.disconnect')}</p>
+                            </Status>
+                        ) : null
+                    }
+                    <Header
+                        title={
+                            <h2 className={componentStyle.title}>
+                                {account.name}
+                                <a href={`/account/${code}/info`}><img src={InfoIcon} /></a>
+                            </h2>
+                        }
+                        {...this.props}>
+                        <Balance
+                            t={t}
+                            balance={balance} />
+                        <div class={componentStyle.buttons}>
+                            <ButtonLink
+                                primary
+                                href={`/account/${code}/receive`}
+                                disabled={!initialized}>
+                                <img src={ArrowDown} />
+                                <span>{t('button.receive')}</span>
+                            </ButtonLink>
+                            <ButtonLink
+                                primary
+                                href={`/account/${code}/send`}
+                                disabled={!initialized || balance && balance.available.amount === '0'}>
+                                <img src={ArrowUp} />
+                                <span>{t('button.send')}</span>
+                            </ButtonLink>
                         </div>
-                        <div>
-                            {
-                                !connected ? (
-                                    <Status>
-                                        <p>{t('account.disconnect')}</p>
-                                    </Status>
-                                ) : null
-                            }
-                        </div>
-                    </div>
+                    </Header>
                     <div class={['innerContainer', ''].join(' ')}>
                         <HeadersSync coinCode={account.coinCode} />
                         {

@@ -19,27 +19,22 @@ import i18n from '../../../i18n/i18n';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
+import Header from '../../../components/header/Header';
 import * as styles from './manage-backups.css';
 
-export default function ManageBackups({
-    deviceID,
-}) {
+const ManageBackups = (props) => {
     return (
         <div class="contentWithGuide">
             <div class="container">
-                <div class="headerContainer">
-                    <div class="header">
-                        <h2>{i18n.t('backup.title')}</h2>
-                    </div>
-                </div>
+                <Header title={<h2>{i18n.t('backup.title')}</h2>} {...props} />
                 <div className={styles.manageBackups}>
                     <Backups
-                        deviceID={deviceID}
+                        deviceID={props.deviceID}
                         showCreate={true}
                         showRestore={false}>
                         <ButtonLink
                             secondary
-                            href={`/device/${deviceID}`}>
+                            href={`/device/${props.deviceID}`}>
                             {i18n.t('button.back')}
                         </ButtonLink>
                     </Backups>
@@ -48,4 +43,6 @@ export default function ManageBackups({
             <Guide screen="backups" />
         </div>
     );
-}
+};
+
+export default ManageBackups;

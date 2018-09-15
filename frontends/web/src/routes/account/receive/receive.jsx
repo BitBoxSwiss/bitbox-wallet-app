@@ -20,6 +20,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
 import * as style from './receive.css';
@@ -159,23 +160,17 @@ export default class Receive extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {paired === false && t('warning.receivePairing')}
-                        </Status>
-                        {/*
-                        <div class="header">
-                            <h2>{t('receive.title')}</h2>
-                        </div>
-                        */}
-                    </div>
+                    <Status type="warning">
+                        {paired === false && t('warning.receivePairing')}
+                    </Status>
+                    <Header title={<h2>{t('receive.title')}</h2>} {...this.props} />
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">
                             <div class={style.receiveContent}>
                                 {content}
                             </div>
                         </div>
-                        <div class="flex flex-row flex-between" style="margin: 0 2rem 2rem 2rem;">
+                        <div class={style.bottomButtons}>
                             <ButtonLink
                                 secondary
                                 href={`/account/${code}`}>

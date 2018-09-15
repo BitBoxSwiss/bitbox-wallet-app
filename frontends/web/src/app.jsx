@@ -17,11 +17,12 @@
 // @ts-nocheck
 
 import { Component, h } from 'preact';
-import { Router, route } from 'preact-router';
+import { route } from 'preact-router';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { Update } from './components/update/update';
 import Sidebar from './components/sidebar/sidebar';
+import Container from './components/container/Container';
 import Device from './routes/device/device';
 import Account from './routes/account/account';
 import Send from './routes/account/send/send';
@@ -38,6 +39,7 @@ export class App extends Component {
         accounts: [],
         accountsInitialized: false,
         deviceIDs: [],
+        activeSidebar: false,
     }
 
     /**
@@ -45,7 +47,11 @@ export class App extends Component {
      * @param {Object} event "change" event from [preact-router](http://git.io/preact-router)
      * @param {string} event.url The newly routed URL
      */
-    handleRoute = event => {}
+    handleRoute = event => {
+        if (this.state.activeSidebar) {
+            this.setState({ activeSidebar: !this.state.activeSidebar });
+        }
+    }
 
     componentDidMount() {
         this.onDevicesRegisteredChanged();
@@ -107,20 +113,27 @@ export class App extends Component {
         });
     }
 
+    toggleSidebar = () => {
+        this.setState({ activeSidebar: !this.state.activeSidebar });
+    }
+
     render({}, {
         accounts,
         deviceIDs,
         accountsInitialized,
+        activeSidebar,
     }) {
         return (
             <div className="app">
                 <Sidebar
                     accounts={accounts}
                     deviceIDs={deviceIDs}
-                    accountsInitialized={accountsInitialized} />
-                <div class="flex-column flex-1">
+                    accountsInitialized={accountsInitialized}
+                    toggle={this.toggleSidebar}
+                    show={activeSidebar} />
+                <div class="appContent flex-column flex-1" style="min-width: 0;">
                     <Update />
-                    <Router onChange={this.handleRoute}>
+                    <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"
                             deviceIDs={deviceIDs}
@@ -154,7 +167,7 @@ export class App extends Component {
                             default
                             deviceID={deviceIDs[0]}
                             deviceIDs={deviceIDs} />
-                    </Router>
+                    </Container>
                 </div>
                 <Alert />
                 <Confirm />

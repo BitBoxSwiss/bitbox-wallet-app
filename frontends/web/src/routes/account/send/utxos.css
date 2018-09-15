@@ -38,6 +38,7 @@
 
 .table > tr > td > span {
     display: block;
+    white-space: nowrap;
 }
 
 .table > tr > td label {
@@ -89,13 +90,13 @@
 
 @media (max-width: 885px) {
     .table > tr > td label {
-        display: block;
+        /*display: block;
         font-size: var(--size-small);
-        margin-bottom: 3px;
+        margin-bottom: 3px;*/
     }
 
     .table > tr > td > span:last-child {
-        margin-top: 5px;
+        /*margin-top: 5px;*/
     }
 
     .table > tr > td:last-child {
@@ -103,8 +104,19 @@
     }
 }
 
-@media (max-width: 819px) {
+@media (max-width: 816px) {
+    .table > tr > td:first-child {
+        padding-left: var(--spacing-half);
+    }
+
     .table > tr > td:nth-child(2) {
-        padding-left: 20px;
+        padding-left: 17px;
+        text-overflow: ellipsis;
+        max-width: calc(100% - (180px));
+    }
+
+    .table > tr > td:last-child {
+        padding-right: var(--spacing-half);
+        padding-left: var(--spacing-half);
     }
 }

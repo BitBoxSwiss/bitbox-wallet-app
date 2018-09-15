@@ -1,5 +1,5 @@
 .receiveContent {
-    height: 400px;
+    /*height: 400px;*/
     margin: 0 auto;
     text-align: center;
 }
@@ -16,10 +16,27 @@
     font-size: var(--size-subheader);
     padding: 0;
     text-align: center;
-    width: 600px;
+    /*width: 600px;*/
+}
+
+.bottomButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 var(--spacing-large) var(--spacing-default) var(--spacing-large);
 }
 
 .button {
     min-width: 70px;
-    margin: 0 1em;
+    margin: 0 var(--spacing-half);
+}
+
+@media (max-width: 640px) {
+    .addressField input {
+        font-size: var(--size-small);
+    }
+
+    .bottomButtons {
+        padding: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
+    }
 }

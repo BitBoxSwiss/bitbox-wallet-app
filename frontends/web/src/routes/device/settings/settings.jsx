@@ -20,6 +20,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Guide } from '../../../components/guide/guide';
+import Header from '../../../components/header/Header';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import RandomNumber from './components/randomnumber';
@@ -103,21 +104,16 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <h2>{name === null ? '' : name || 'BitBox'}</h2>
-                        </div>
-                    </div>
+                    <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} {...this.props} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="flex-1">
-
                                 <div class="subHeaderContainer first">
                                     <div class="subHeader">
                                         <h3>{t('deviceSettings.secrets.title')}</h3>
                                     </div>
                                 </div>
-                                <div class="buttons wrapped flex flex-row flex-start flex-items-baseline flex-wrap">
+                                <div class="buttons flex-row flex-start flex-items-baseline flex-wrap">
                                     <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>
                                         {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
@@ -133,7 +129,7 @@ export default class Settings extends Component {
                                         <h3>{t('deviceSettings.pairing.title')}</h3>
                                     </div>
                                 </div>
-                                <dl>
+                                <dl class="items marginBottom">
                                     <div>
                                         <dt>{t('deviceSettings.pairing.status.label')}</dt>
                                         <dd>
@@ -153,7 +149,7 @@ export default class Settings extends Component {
                                         </dd>
                                     </div>
                                 </dl>
-                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                <div class="buttons flex flex-row flex-start flex-wrap">
                                     <MobilePairing deviceID={deviceID} deviceLocked={lock} mobilePaired={paired} />
                                     <DeviceLock
                                         deviceID={deviceID}
@@ -168,7 +164,7 @@ export default class Settings extends Component {
                                         <h3>{t('deviceSettings.firmware.title')}</h3>
                                     </div>
                                 </div>
-                                <dl>
+                                <dl class="items">
                                     <div>
                                         <dt>{t('deviceSettings.firmware.version.label')}</dt>
                                         <dd>{firmwareVersion ? firmwareVersion : t('loading')}</dd>
@@ -186,7 +182,7 @@ export default class Settings extends Component {
                                     )}
                                 </dl>
                                 {canUpgrade && (
-                                    <div class="buttons wrapped flex flex-row flex-start flex-baseline flex-wrap">
+                                    <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
                                         <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                                     </div>
                                 )}
@@ -198,14 +194,14 @@ export default class Settings extends Component {
                                         <h3>{t('deviceSettings.hardware.title')}</h3>
                                     </div>
                                 </div>
-                                <dl>
+                                <dl class="items marginBottom">
                                     <div>
                                         <dt>{t('deviceSettings.hardware.sdcard.label')}</dt>
                                         <dd>{t(`deviceSettings.hardware.sdcard.${sdcard}`)}</dd>
                                     </div>
                                 </dl>
 
-                                <div class="buttons wrapped flex flex-row flex-start flex-wrap">
+                                <div class="buttons flex flex-row flex-start flex-wrap">
                                     <RandomNumber deviceID={deviceID} />
                                     <Blink deviceID={deviceID} />
                                 </div>

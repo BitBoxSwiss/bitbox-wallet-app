@@ -2,27 +2,6 @@
     position: relative;
 }
 
-.toggler {
-    position: fixed;
-    top: var(--spacing-default);
-    right: var(--spacing-default);
-    line-height: 1;
-    z-index: 2000;
-    padding: 8px 12px;
-    border-radius: 19px;
-    width: 38px;
-    height: 38px;
-    color: white;
-    cursor: default;
-    font-weight: bold;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    background-color: var(--color-darkblue);
-    user-select: none;
-}
-
 .guide {
     margin-right: -350px;
     height: 100vh;
@@ -35,11 +14,26 @@
     will-change: margin-right, right;
 }
 
+.header {
+    margin-bottom: var(--spacing-large);
+}
+
+.header h1 {
+    margin: 0;
+}
+
+.header a {
+    cursor: pointer;
+    font-size: 20px;
+}
+
 @media screen and (max-width: 1335px) {
     .guide {
         position: fixed;
         margin-right: 0;
-        right: -350px;
+        right: -100%;
+        width: 100%;
+        z-index: 4002;
     }
     .show {
         right: 0;

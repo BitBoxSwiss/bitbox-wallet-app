@@ -221,7 +221,7 @@ export default class Device extends Component {
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
             }
         case DeviceStatus.SEEDED:
-            return <Settings deviceID={deviceID} />;
+            return <Settings deviceID={deviceID} {...this.props} />;
         default:
             return null;
         }

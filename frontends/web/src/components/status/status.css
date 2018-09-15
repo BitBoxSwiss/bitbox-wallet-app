@@ -7,7 +7,8 @@
     margin: 0 auto;
     max-width: var(--content-width);
     padding: var(--spacing-half) var(--spacing-large);
-    text-align: center;
+    font-size: var(--size-medium);
+    /*text-align: center;*/
 }
 
 .success {
@@ -35,4 +36,10 @@
     position: absolute;
     top: 0;
     right: 0;
+}
+
+@media (max-width: 640px) {
+    .status {
+        padding: var(--spacing-half);
+    }
 }

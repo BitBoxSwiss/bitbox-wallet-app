@@ -17,6 +17,10 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { FiatConversion } from '../rates/rates';
+import ArrowUp from '../../assets/icons/arrow-up.svg';
+import ArrowDown from '../../assets/icons/arrow-down.svg';
+import ArrowRight from '../../assets/icons/arrow-right.svg';
+import ExternalLink from '../../assets/icons/external-link.svg';
 import A from '../anchor/anchor';
 import * as style from './transaction.css';
 
@@ -35,6 +39,11 @@ export default class Transaction extends Component {
         const days = this.props.t('days');
         const dt = new Date(Date.parse(time));
         return `${days[dt.getDay()]}, ${dt.getDate()}${this.props.t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${this.props.t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+    }
+
+    parseTimeShort = time => {
+        const dt = new Date(Date.parse(time));
+        return `${dt.getMonth() + 1}/${dt.getDate()}/${dt.getFullYear()} @${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
     }
 
     render({
@@ -56,8 +65,10 @@ export default class Transaction extends Component {
         collapsed,
     }) {
         const badge = t(`transaction.badge.${type}`);
+        const arrow = badge === 'In' ? ArrowDown : badge === 'Out' ? ArrowUp : ArrowRight;
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
+        const sDate = time ? this.parseTimeShort(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
         return (
             <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
                 <div class={['flex flex-column flex-start', style.transaction].join(' ')}>
@@ -68,16 +79,20 @@ export default class Transaction extends Component {
                                     <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
                                 </div>
                                 <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
+                                    <img src={arrow} />
                                     {badge}
                                 </div>
                             </div>
                             <div>
-                                <div class={style.date}>{date}</div>
+                                <div class={style.date}>
+                                    <span>{date}</span>
+                                    <span>{sDate}</span>
+                                </div>
                                 <div class={style.address}>{addresses.join(', ')}</div>
                             </div>
                         </div>
                         <div class={[style.amount, style[type]].join(' ')}>
-                            <div>{sign}{amount.amount} <span class={style.unit}>{amount.unit}</span></div>
+                            <div><span class={style.amountValue}>{sign}{amount.amount}</span> <span class={style.unit}>{amount.unit}</span></div>
                             <div class={style.fiat}><FiatConversion amount={amount}>{sign}</FiatConversion></div>
                         </div>
                     </div>
@@ -123,11 +138,12 @@ export default class Transaction extends Component {
                             <div class={style.row}>
                                 <div class={style.transactionLabel}>
                                     {t('transaction.explorer')}
+                                    <img class={style.externalLabel} src={ExternalLink} />
                                 </div>
                                 <div class={style.address}>
                                     {id}
                                     <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
-                                        <span class={style.external}></span>
+                                        <img class={style.external} src={ExternalLink} />
                                     </A>
                                 </div>
                             </div>

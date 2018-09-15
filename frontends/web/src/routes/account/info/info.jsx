@@ -22,6 +22,7 @@ import { translate } from 'react-i18next';
 import QRCode from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
+import Header from '../../../components/header/Header';
 import * as style from './info.css';
 
 function SigningConfiguration({ t, signingConfiguration }) {
@@ -54,7 +55,6 @@ function SigningConfiguration({ t, signingConfiguration }) {
 export default class Info extends Component {
     constructor(props) {
         super(props);
-
         this.state = {
             balance: null,
             info: null
@@ -98,27 +98,13 @@ export default class Info extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance} />
-                        </div>
-                    </div>
-
+                    <Header title={<h2>{t('accountInfo.title')}</h2>} {...this.props}>
+                        <Balance
+                            t={t}
+                            balance={balance} />
+                    </Header>
                     <div class="innerContainer">
-                        <div class="content padded">
-                            <div class="row">
-                                <div class="subHeaderContainer first">
-                                    <div class="subHeader">
-                                        <h3>{t('accountInfo.title')}</h3>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="content">
+                        <div class="content padded flex flex-column flex-center">
                             <div class={style.infoContent}>
                                 <SigningConfiguration
                                     t={t}

@@ -1,30 +1,27 @@
 .balance {
-    font-weight: bold;
+    /*font-weight: bold;*/
 }
 
 .amount {
     position: relative;
-    font-size: var(--size-extra-large);
     line-height: 1;
     margin: 0;
 }
 
 .unit {
     color: var(--color-secondary);
-    font-size: var(--size-large);
 }
 
 .pendingBalance {
     margin: 0;
     padding-top: 5px;
     color: var(--color-secondary);
-    font-size: 14px;
+    font-size: var(--size-small);
     line-height: 1;
 }
 
 .balanceConversion {
     padding-left: var(--spacing-default);
-    font-size: 24px;
 }
 
 .incomingConversion {
@@ -52,19 +49,23 @@
 }
 
 .balanceTable td {
-    font-size: 24px;
-    vertical-align: bottom;
+    font-size: var(--size-large);
+    font-weight: 300;
     line-height: 1;
+    vertical-align: baseline;
+    padding: 0;
+}
+
+.balanceTable td:last-child {
+    font-size: var(--size-label);
 }
 
 .balanceTable .availableAmount {
-    font-size: var(--size-large);
-    padding-right: var(--spacing-half);
+    padding-right: 4px;
     text-align: right;
 }
 
 .balanceTable .availableUnit {
-    font-size: var(--size-large);
     color: var(--color-secondary);
     padding-right: var(--spacing-default);
 }
@@ -74,40 +75,35 @@
 }
 
 .balanceTable .incomingRow td {
-    font-size: var(--size-small);
+    font-size: var(--size-small) !important;
 }
 
-@media (max-width: 880px) {
-    .pendingBalance {
-        font-size: var(--size-small);
+@media (max-width: 640px) {
+    .balanceTable .availableUnit {
+        padding-right: var(--spacing-half);
     }
+}
 
-    .balanceConversion {
-        display: block;
-        position: absolute;
-        top: 38px;
-        padding-left: 0;
-        white-space: nowrap;
-        font-size: var(--size-medium);
+@media (max-width: 560px) {
+    .balanceTable td {
+        font-size: var(--size-subheader);
+        font-weight: normal;
     }
+}
 
+@media (max-width: 560px) {
     .balanceTable {
         display: table;
+        margin-left: calc(32px + var(--spacing-half));
     }
 
     .balanceTable tr {
-        display: table-row !important;
+        display: table-row;
     }
 
-    .balanceTable th {
-        padding-bottom: 5px;
-    }
-
-    .balanceTable .availableAmount,
-    .balanceTable .availableUnit {
-        font-size: 24px;
-        line-height:24px;
-        line-height: 1;
+    .balanceTable td {
+      font-size: var(--size-subheader);
+      font-weight: normal;
     }
 }
 
