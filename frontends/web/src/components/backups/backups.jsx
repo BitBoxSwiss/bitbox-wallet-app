@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { Button } from '../forms';
@@ -24,7 +24,7 @@ import Create from './create';
 import BackupsListItem from './backup';
 // import Erase from './erase';
 import InnerHTMLHelper from '../../utils/innerHTML';
-import style from './backups.css';
+import * as style from './backups.css';
 
 @translate()
 export default class Backups extends Component {

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
@@ -28,7 +28,7 @@ import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
 import A from '../../components/anchor/anchor';
-import componentStyle from '../../components/style.css';
+import * as componentStyle from '../../components/style.css';
 
 @translate()
 export default class Account extends Component {
@@ -55,7 +55,9 @@ export default class Account extends Component {
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -184,11 +186,11 @@ export default class Account extends Component {
                         </div>
                         <div>
                             {
-                                !connected && (
+                                !connected ? (
                                     <Status>
                                         <p>{t('account.disconnect')}</p>
                                     </Status>
-                                )
+                                ) : null
                             }
                         </div>
                     </div>

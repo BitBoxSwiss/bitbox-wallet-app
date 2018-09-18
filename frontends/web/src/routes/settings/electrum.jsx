@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Guide } from '../../components/guide/guide';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
-import style from './settings.css';
+import * as style from './settings.css';
 
 @translate()
 class ElectrumServer extends Component {
@@ -212,6 +212,7 @@ class ElectrumServers extends Component {
     }
 
     resetToDefault = () => {
+        // @ts-ignore (non-standard usage of confirm method with a second argument)
         confirm('Do you want to remove all servers and install the default servers?', response => {
             if (response) {
                 apiGet('config/default').then(config => {
@@ -231,6 +232,7 @@ class ElectrumServers extends Component {
         electrumServers,
     }) {
         let onRemove = (server, index) => (() => {
+            // @ts-ignore (non-standard usage of confirm method with a second argument)
             confirm(`Remove ${server.server}?`, confirmed => {
                 if (confirmed) this.onRemove(index);
             });

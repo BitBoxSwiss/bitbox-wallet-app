@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -22,13 +22,17 @@ import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
-import style from './receive.css';
+import * as style from './receive.css';
 
 @translate()
 export default class Receive extends Component {
     state = {
         verifying: false,
+
+        /** @type {number | null} */
         activeIndex: null,
+
+        /** @type {{ addressID: any, address: any }[] | null} */
         receiveAddresses: null,
         paired: null,
     }
@@ -61,12 +65,15 @@ export default class Receive extends Component {
 
     verifyAddress = () => {
         this.setState({ verifying: true });
-        apiPost('account/' + this.props.code + '/verify-address', this.state.receiveAddresses[this.state.activeIndex].addressID).then(hasSecureOutput => {
-            this.setState({ verifying: false });
-            if (!hasSecureOutput) {
-                alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
-            }
-        });
+        const { receiveAddresses, activeIndex } = this.state;
+        if (receiveAddresses && activeIndex) {
+            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(hasSecureOutput => {
+                this.setState({ verifying: false });
+                if (!hasSecureOutput) {
+                    alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
+                }
+            });
+        }
     }
 
     previous = () => {
@@ -82,12 +89,15 @@ export default class Receive extends Component {
     };
 
     ltcConvertToLegacy = () => {
-        apiPost('account/' + this.props.code + '/convert-to-legacy-address',
-            this.state.receiveAddresses[this.state.activeIndex].addressID)
-            .then(legacyAddress => {
-                const address = this.state.receiveAddresses[this.state.activeIndex].address;
-                alert('Legacy format of ' + address + ':\n' + legacyAddress); // eslint-disable-line no-alert
-            });
+        const { receiveAddresses, activeIndex } = this.state;
+        if (receiveAddresses && activeIndex) {
+            apiPost('account/' + this.props.code + '/convert-to-legacy-address',
+                receiveAddresses[activeIndex].addressID)
+                .then(legacyAddress => {
+                    const address = receiveAddresses[activeIndex].address;
+                    alert('Legacy format of ' + address + ':\n' + legacyAddress); // eslint-disable-line no-alert
+                });
+        }
     }
 
     render({

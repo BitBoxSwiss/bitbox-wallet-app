@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -30,7 +30,7 @@ import FeeTargets from './feetargets';
 import UTXOs from './utxos';
 import approve from '../../../assets/icons/checked.svg';
 import reject from '../../../assets/icons/cancel.svg';
-import style from './send.css';
+import * as style from './send.css';
 
 @translate()
 export default class Send extends Component {
@@ -91,7 +91,9 @@ export default class Send extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
@@ -490,7 +492,7 @@ export default class Send extends Component {
                                         </div>
                                     </div>
                                     {
-                                        !this.selectedUTXOs.length === 0 && (
+                                        this.selectedUTXOs.length !== 0 && (
                                             <div class={style.block}>
                                                 <p class={['label', style.confirmationLabel].join(' ')}>
                                                     {t('send.confirm.selected_coins')}

@@ -15,7 +15,7 @@
  */
 
 import { h } from 'preact';
-import style from './field.css';
+import * as style from './field.css';
 
 export default function Field({
     children, ...props

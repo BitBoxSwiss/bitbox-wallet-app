@@ -15,7 +15,7 @@
  */
 
 import { h } from 'preact';
-import style from './logo.css';
+import * as style from './logo.css';
 import BTC from './assets/bitcoin.svg';
 import BTC_GREY from './assets/bitcoin_disabled.svg';
 import LTC from './assets/litecoin.svg';
@@ -49,8 +49,8 @@ const logoMap = {
 export default function Logo({ code, ...props }) {
     return (
         <div class="stacked">
-            <img draggable="false" src={logoMap[code][1]} {...props} />
-            <img draggable="false" src={logoMap[code][0]} {...props} />
+            <img draggable={false} src={logoMap[code][1]} {...props} />
+            <img draggable={false} src={logoMap[code][0]} {...props} />
         </div>
     );
 }

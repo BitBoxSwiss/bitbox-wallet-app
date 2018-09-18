@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../forms';
@@ -23,7 +23,7 @@ import WaitDialog from '../wait-dialog/wait-dialog';
 import Spinner from '../spinner/Spinner';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
-import style from './backups.css';
+import * as style from './backups.css';
 
 @translate()
 export default class Restore extends Component {

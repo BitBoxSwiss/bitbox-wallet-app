@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
@@ -25,7 +25,7 @@ import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
 import warning from '../../../assets/icons/warning.png';
-import style from '../device.css';
+import * as style from '../device.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',

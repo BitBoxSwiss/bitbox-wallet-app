@@ -26,7 +26,7 @@ import Message from '../../components/message/message';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import InnerHTMLHelper from '../../utils/innerHTML';
-import style from './device.css';
+import * as style from './device.css';
 
 export default function Waiting({ testing }) {
     const title = i18n.t('welcome.title');

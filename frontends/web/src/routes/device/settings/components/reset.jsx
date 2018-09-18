@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../../../../components/forms';
@@ -22,7 +22,7 @@ import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
-import style from '../../device.css';
+import * as style from '../../device.css';
 
 @translate()
 export default class Reset extends Component {

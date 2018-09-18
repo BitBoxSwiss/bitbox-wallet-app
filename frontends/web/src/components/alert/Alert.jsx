@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import i18n from '../../i18n/i18n';
 import { Button } from '../forms';
-import style from './Alert.css';
+import * as style from './Alert.css';
 
 export default class Alert extends Component {
     state = {

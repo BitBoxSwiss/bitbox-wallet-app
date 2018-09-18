@@ -83,12 +83,13 @@ export class Entry extends Component<Props, State> {
                     <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
                     <div class={style.entryTitleText}>
                         <h2>
-                            {isExplicitEntryProps(props) && props.title || isImplicitEntryProps(props) && props.entry.title}
+                            {isExplicitEntryProps(props) ? props.title : ''}
+                            {isImplicitEntryProps(props) ? props.entry.title : ''}
                         </h2>
                     </div>
                 </div>
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
-                    {shown && (
+                    {shown ? (
                         <div class="flex-1">
                             {isImplicitEntryProps(props) && props.entry.text.map(p => <p key={p}>{p}</p>)}
                             {isImplicitEntryProps(props) && props.entry.link && (
@@ -96,7 +97,7 @@ export class Entry extends Component<Props, State> {
                             )}
                             {props.children}
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </div>
         );

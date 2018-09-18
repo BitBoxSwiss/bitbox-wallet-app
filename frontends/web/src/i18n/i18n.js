@@ -15,10 +15,8 @@
  */
 
 import i18n from 'i18next';
-// @ts-ignore
-// import appTranslationsDE from './de';
-// @ts-ignore
-import appTranslationsEN from './en';
+// import appTranslationsDE from './de.json';
+import appTranslationsEN from './en.json';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
 

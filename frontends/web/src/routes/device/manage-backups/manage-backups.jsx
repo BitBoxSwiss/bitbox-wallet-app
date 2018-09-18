@@ -19,7 +19,7 @@ import i18n from '../../../i18n/i18n';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
-import styles from './manage-backups.css';
+import * as styles from './manage-backups.css';
 
 export default function ManageBackups({
     deviceID,

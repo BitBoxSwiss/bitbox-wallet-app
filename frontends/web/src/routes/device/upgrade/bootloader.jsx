@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { BitBox } from '../../../components/icon/logo';
 import { Button } from '../../../components/forms';
-import style from '../device.css';
+import * as style from '../device.css';
 
 @translate()
 export default class Bootloader extends Component {
@@ -40,7 +40,9 @@ export default class Bootloader extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     onEvent = data => {

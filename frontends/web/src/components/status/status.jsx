@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../forms';
 import { apiGet, apiPost } from '../../utils/request';
-import style from './status.css';
+import * as style from './status.css';
 
 
 export default class Status extends Component {

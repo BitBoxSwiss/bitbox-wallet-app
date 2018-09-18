@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "i18next": "11.3.6",
-    "preact": "8.2.9",
+    "preact": "8.3.1",
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
     "react-i18next": "7.9.0"

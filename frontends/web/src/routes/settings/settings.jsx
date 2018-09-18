@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
@@ -23,7 +23,6 @@ import { Guide } from '../../components/guide/guide';
 import { FiatSelection } from '../../components/fiat/fiat';
 import Footer from '../../components/footer/footer';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
-import style from './settings.css';
 
 @translate()
 export default class Settings extends Component {
@@ -85,7 +84,7 @@ export default class Settings extends Component {
                                             </div>
                                         </div>
                                         <div class="flex flex-row flex-start flex-wrap wrapped">
-                                            <div class={style.column}>
+                                            <div>
                                                 <Checkbox
                                                     checked={config.backend.bitcoinP2WPKHP2SHActive}
                                                     id="bitcoinP2WPKHP2SHActive"
@@ -105,7 +104,7 @@ export default class Settings extends Component {
                                                     label={t('settings.accounts.bitcoinP2PKH')}
                                                     className="text-medium" />
                                             </div>
-                                            <div class={style.column}>
+                                            <div>
                                                 <Checkbox
                                                     checked={config.backend.litecoinP2WPKHP2SHActive}
                                                     id="litecoinP2WPKHP2SHActive"
@@ -127,7 +126,7 @@ export default class Settings extends Component {
                                             </div>
                                         </div>
                                         <div class="flex flex-row flex-start flex-items-center flex-wrap wrapped">
-                                            <div class={style.column}>
+                                            <div>
                                                 <Checkbox
                                                     checked={config.frontend.coinControl}
                                                     id="coinControl"
@@ -135,7 +134,7 @@ export default class Settings extends Component {
                                                     label={t('settings.expert.coinControl')}
                                                     className="text-medium" />
                                             </div>
-                                            <div class={style.column}>
+                                            <div>
                                                 <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
                                             </div>
                                         </div>

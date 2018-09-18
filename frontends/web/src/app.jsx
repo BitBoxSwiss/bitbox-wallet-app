@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+// @ts-nocheck
+
+import { Component, h } from 'preact';
 import { Router, route } from 'preact-router';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
@@ -79,7 +81,9 @@ export class App extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     onDevicesRegisteredChanged = () => {
@@ -137,10 +141,12 @@ export class App extends Component {
                         <Settings
                             path="/settings"
                             deviceIDs={deviceIDs} />
+                        {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                         <ManageBackups
                             path="/manage-backups/:deviceID"
-                            showCreate={true}
-                            deviceIDs={deviceIDs} />
+                            // showCreate={true} // Does not exist!
+                            // deviceIDs={deviceIDs} // Does not exist!
+                        />
                         <Device
                             path="/device/:deviceID"
                             deviceIDs={deviceIDs} />

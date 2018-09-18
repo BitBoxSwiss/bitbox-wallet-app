@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { Link, Match } from 'preact-router/match';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
@@ -42,6 +42,7 @@ const labelMap = {
 };
 
 @translate()
+// @ts-ignore (generics need to be typed explicitly once converted to TypeScript)
 @share(store)
 export default class Sidebar extends Component {
     render({
@@ -66,7 +67,7 @@ export default class Sidebar extends Component {
                             <a href="#" onClick={eject}>
                                 <div className="single">
                                     <img
-                                        draggable="false"
+                                        draggable={false}
                                         className="sidebar_settings"
                                         src={ejectIcon}
                                         alt={t('sidebar.leave')} />
@@ -79,7 +80,7 @@ export default class Sidebar extends Component {
                             <div key={deviceID}>
                                 <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
                                     <div className="single">
-                                        <img draggable="false" className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
+                                        <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
                                     </div>
                                     <span className="sidebar_label">{t('sidebar.device')}</span>
                                 </Link>
@@ -89,8 +90,8 @@ export default class Sidebar extends Component {
                     <div>
                         <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
                             <div className="stacked">
-                                <img draggable="false" className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
-                                <img draggable="false" className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
+                                <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
+                                <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
                             </div>
                             <span className="sidebar_label">{t('sidebar.settings')}</span>
                         </Link>

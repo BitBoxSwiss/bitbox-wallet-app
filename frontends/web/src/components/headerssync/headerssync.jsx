@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { subscribe } from '../../decorators/subscribe';
-import style from './headerssync.css';
+import * as style from './headerssync.css';
 
 @translate()
+// @ts-ignore (generics need to be typed explicitly once converted to TypeScript)
 @subscribe(props => ({ status: 'coins/' + props.coinCode + '/headers/status' }))
 export default class HeadersSync extends Component {
     constructor(props) {

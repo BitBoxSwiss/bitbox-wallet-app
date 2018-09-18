@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import i18n from '../i18n/i18n';
 import { Input, Checkbox, Field } from './forms';
-import style from './password.css';
+import * as style from './password.css';
 
 export function PasswordInput (props) {
     const { seePlaintext, ...rest } = props;
@@ -312,5 +312,6 @@ function hasCaps({ key }) {
         return null;
     }
     // ideally we return event.getModifierState('CapsLock')) but this currently does always return false in Qt
+    // @ts-ignore (event can be undefined and shiftKey exists only on MouseEvent but not Event)
     return key.toUpperCase() === key && key.toLowerCase() !== key && !event.shiftKey;
 }

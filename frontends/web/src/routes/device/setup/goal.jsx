@@ -4,7 +4,7 @@ import { Button } from '../../../components/forms';
 import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
 // import { Steps, Step } from './components/steps';
-import style from '../device.css';
+import * as style from '../device.css';
 
 export default function Goal({
     onCreate,

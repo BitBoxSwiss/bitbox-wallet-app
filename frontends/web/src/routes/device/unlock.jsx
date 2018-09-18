@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { route } from 'preact-router';
 import { apiGet, apiPost } from '../../utils/request';
@@ -24,7 +24,7 @@ import { BitBox, Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
-import style from './device.css';
+import * as style from './device.css';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',

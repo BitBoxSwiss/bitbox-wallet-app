@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button, Input } from '../forms';
 import { PasswordInput } from '../password';
@@ -58,7 +58,7 @@ export default class Create extends Component {
     };
 
     validate = () => {
-        return !this.waiting && this.state.backupName !== '';
+        return !this.state.waiting && this.state.backupName !== '';
     }
 
     create = event => {

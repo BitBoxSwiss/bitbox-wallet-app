@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../forms';
 import { apiPost } from '../../utils/request';
 import Dialog from '../dialog/dialog';

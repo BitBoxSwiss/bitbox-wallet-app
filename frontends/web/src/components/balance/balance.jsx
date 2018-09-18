@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import { h } from 'preact';
 import { FiatConversion } from '../../components/rates/rates';
-import style from './balance.css';
+import * as style from './balance.css';
 
 export default function Balance({
     t,

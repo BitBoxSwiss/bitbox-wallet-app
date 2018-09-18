@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { ButtonLink } from '../../../components/forms';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
@@ -81,7 +81,9 @@ export default class Settings extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     render({

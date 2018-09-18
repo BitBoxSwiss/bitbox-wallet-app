@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
-import componentStyle from '../../../../components/style.css';
+import * as style from '../../../../components/style.css';
 
 @translate()
 export default class UpgradeFirmware extends Component {
@@ -73,7 +73,7 @@ export default class UpgradeFirmware extends Component {
                     {t('upgradeFirmware.button')}
                     {
                         currentVersion !== null && newVersion !== currentVersion && (
-                            <div class={componentStyle.badge}>1</div>
+                            <div class={style.badge}>1</div>
                         )
                     }
                 </Button>

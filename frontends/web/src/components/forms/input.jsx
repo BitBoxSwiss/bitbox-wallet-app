@@ -19,15 +19,15 @@ import { input, errorText, isTransparent } from './input.css';
 
 export default function Input({
     type = 'text',
-    disabled,
-    label,
-    id,
-    error,
-    className,
-    style,
-    children,
-    getRef,
-    transparent,
+    disabled = false,
+    label = undefined,
+    id = undefined,
+    error = undefined,
+    className = '',
+    style = undefined,
+    children = undefined,
+    getRef = undefined,
+    transparent = false,
     ...props
 }) {
     return (
@@ -45,9 +45,9 @@ export default function Input({
                 )
             }
             <input
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck={false}
                 type={type}
                 id={id}
                 disabled={disabled}

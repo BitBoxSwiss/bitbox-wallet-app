@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+import { h } from 'preact';
 import i18n from '../../i18n/i18n';
 import { Radio } from '../forms';
 
+/** @param {{ backup: any; selectedBackup: any; handleChange: any; onFocus: any; key: any }} props */
 export default function BackupsListItem({
     backup,
     selectedBackup,

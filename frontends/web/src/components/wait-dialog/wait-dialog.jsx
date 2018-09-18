@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
-import style from '../dialog/dialog.css';
+import * as style from '../dialog/dialog.css';
 
 @translate()
 export default class WaitDialog extends Component {
@@ -39,6 +39,7 @@ export default class WaitDialog extends Component {
     }
 
     handleKeyDown = e => {
+        // @ts-ignore (blur exists only on HTMLElements)
         document.activeElement.blur();
         e.preventDefault();
         e.stopPropagation();

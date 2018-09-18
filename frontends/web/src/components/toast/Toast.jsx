@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
-import style from './Toast.css';
+import { Component, h } from 'preact';
+import * as style from './Toast.css';
 
 export default class Toast extends Component {
     state = {

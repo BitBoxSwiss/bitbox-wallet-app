@@ -16,17 +16,17 @@
 
 import { h } from 'preact';
 import { Link } from 'preact-router/match';
-import style from './button.css';
+import * as style from './button.css';
 
 export function ButtonLink({
-    primary,
-    secondary,
-    transparent,
-    danger,
-    className,
-    tabIndex = '0',
+    primary = false,
+    secondary = false,
+    transparent = false,
+    danger = false,
+    className = '',
+    tabIndex = 0,
     children,
-    disabled,
+    disabled = undefined,
     ...props
 }) {
     const classNames = [
@@ -51,7 +51,7 @@ export function ButtonLink({
         );
     }
     return (
-        <Link className={classNames} tabIndex={tabIndex} {...props}>
+        <Link activeClassName="active" className={classNames} tabIndex={tabIndex} {...props}>
             {children}
         </Link>
     );
@@ -59,11 +59,11 @@ export function ButtonLink({
 
 export default function Button({
     type = 'button',
-    primary,
-    secondary,
-    transparent,
-    danger,
-    className,
+    primary = false,
+    secondary = false,
+    transparent = false,
+    danger = false,
+    className = '',
     children,
     ...props
 }) {

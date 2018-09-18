@@ -15,10 +15,10 @@
  */
 
 import { h } from 'preact';
-import style from './radio.css';
+import * as style from './radio.css';
 
 export default function Radio({
-    disabled,
+    disabled = false,
     label,
     id,
     children,

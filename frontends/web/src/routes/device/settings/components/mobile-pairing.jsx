@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import QRCode from '../../../../components/qrcode/qrcode';
@@ -34,7 +34,9 @@ export default class MobilePairing extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     onDeviceStatus = ({ type, data, deviceID }) => {

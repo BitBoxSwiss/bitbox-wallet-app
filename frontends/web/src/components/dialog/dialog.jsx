@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
-import style from './dialog.css';
-
+import { Component, h } from 'preact';
+import * as style from './dialog.css';
 
 export default class Dialog extends Component {
     state = {
@@ -38,9 +37,6 @@ export default class Dialog extends Component {
     render({
         title,
         children,
-        onDanger,
-        onSecondary,
-        onPrimary,
         small,
     },{
         active,

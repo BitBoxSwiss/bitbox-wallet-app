@@ -15,14 +15,14 @@
  */
 
 import { h } from 'preact';
-import style from './checkbox.css';
+import * as style from './checkbox.css';
 
 export default function Checkbox({
-    disabled,
-    label,
+    disabled = false,
+    label = undefined,
     id,
-    className,
-    children,
+    className = '',
+    children = undefined,
     ...props
 }) {
     return (

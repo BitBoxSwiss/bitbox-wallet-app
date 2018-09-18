@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { Button } from '../forms';
-import style from './Confirm.css';
+import * as style from './Confirm.css';
 
 export default class Confirm extends Component {
     state = {
@@ -25,6 +25,7 @@ export default class Confirm extends Component {
     }
 
     componentDidMount() {
+        // @ts-ignore (override changes the method signature)
         window.confirm = this.confirmOverride;
     }
 
@@ -51,7 +52,7 @@ export default class Confirm extends Component {
         callback,
         active,
     }) {
-        if (!active) return;
+        if (!active) return null;
         return (
             <div class={style.overlay}>
                 <div class={style.confirmWindow}>

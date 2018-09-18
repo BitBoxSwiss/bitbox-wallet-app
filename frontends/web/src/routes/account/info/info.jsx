@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { ButtonLink, Input } from '../../../components/forms';
 import Balance from '../../../components/balance/balance';
 import { route } from 'preact-router';
@@ -22,7 +22,7 @@ import { translate } from 'react-i18next';
 import QRCode from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
-import style from './info.css';
+import * as style from './info.css';
 
 function SigningConfiguration({ t, signingConfiguration }) {
     return (

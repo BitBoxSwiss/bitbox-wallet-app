@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { apiGet } from '../../../utils/request';
 import { Select, Input } from '../../../components/forms';
 
@@ -43,7 +43,10 @@ export default class FeeTargets extends Component {
     }
 
     handleFeeTargetChange = event => {
-        this.setFeeTarget(this.state.feeTargets[event.target.selectedIndex].code);
+        const feeTargets = this.state.feeTargets;
+        if (feeTargets) {
+            this.setFeeTarget(feeTargets[event.target.selectedIndex].code);
+        }
     }
 
     setFeeTarget = feeTarget => {

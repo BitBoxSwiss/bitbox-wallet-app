@@ -17,8 +17,8 @@
 import { h } from 'preact';
 import alert from './assets/icons/alert-triangle.svg';
 
-export function Alert({ code, ...props }) {
+export function Alert(props) {
     return (
-        <img draggable="false" src={alert} {...props} />
+        <img draggable={false} src={alert} {...props} />
     );
 }

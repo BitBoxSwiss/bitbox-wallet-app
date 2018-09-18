@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
@@ -32,8 +32,7 @@ import Initialize from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
 import A from '../../components/anchor/anchor';
-
-import style from './device.css';
+import * as style from './device.css';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -84,7 +83,9 @@ export default class Device extends Component {
     }
 
     componentWillUnmount() {
-        this.unsubscribe();
+        if (this.unsubscribe) {
+            this.unsubscribe();
+        }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -221,6 +222,8 @@ export default class Device extends Component {
             }
         case DeviceStatus.SEEDED:
             return <Settings deviceID={deviceID} />;
+        default:
+            return null;
         }
     }
 }

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { apiGet } from '../../../utils/request';
 import { Button, Checkbox } from '../../../components/forms';
 import { FiatConversion } from '../../../components/rates/rates';
-import style from './utxos.css';
+import * as style from './utxos.css';
 
 export default class UTXOs extends Component {
     constructor(props) {

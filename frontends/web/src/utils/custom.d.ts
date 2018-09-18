@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import * as styles from './message.css';
+// Allows to import JSON.
+declare module '*.json';
 
-export default function Message({
-    type,
-    style = '',
-    children,
-}) {
-    return (
-        <div className={styles[type] || styles.message} style={style}>
-            {children}
-        </div>
-    );
+// Allows to import PNG.
+declare module '*.png';
+
+// Allows to import SVG.
+declare module '*.svg';
+
+// Extends preact's HTML attributes.
+declare namespace JSX { // tslint:disable-line:no-namespace
+    interface HTMLAttributes {
+        align?: 'left' | 'right' | 'center';
+        autocorrect?: 'on' | 'off';
+        spellcheck?: boolean;
+    }
 }

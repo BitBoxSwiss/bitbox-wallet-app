@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { FiatConversion } from '../rates/rates';
 import A from '../anchor/anchor';
-import style from './transaction.css';
+import * as style from './transaction.css';
 
 @translate()
 export default class Transaction extends Component {

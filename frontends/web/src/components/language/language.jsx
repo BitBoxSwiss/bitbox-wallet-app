@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 // import { Button } from '../forms';
 // import Dialog from '../dialog/dialog';
-// import style from './language.css';
+// import * as style from './language.css';
 
 @translate()
 export default class LanguageSwitcher extends Component {
@@ -54,7 +54,7 @@ export default class LanguageSwitcher extends Component {
         selectedIndex,
         activeDialog,
     }) {
-        return; // TODO: remove when we have more languages.
+        return null; // TODO: remove when we have more languages.
         /*
         return (
             <div class={style.languageSelect}>

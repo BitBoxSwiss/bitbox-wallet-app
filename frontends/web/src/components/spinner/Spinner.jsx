@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { Component } from 'preact';
-import style from './Spinner.css';
+import { Component, h } from 'preact';
+import * as style from './Spinner.css';
 
 export default class Spinner extends Component {
     componentWillMount() {
@@ -28,15 +28,13 @@ export default class Spinner extends Component {
 
     handleKeyDown = e => {
         e.preventDefault();
+        // @ts-ignore (blur exists only on HTMLElements)
         document.activeElement.blur();
     }
 
     render({
         text,
-        showLogo = false,
-    }, {
-
-    }) {
+    }, {}) {
         return (
             <div className={style.spinnerContainer}>
                 {
