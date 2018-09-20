@@ -6,7 +6,8 @@
     "postinstall": "npx tcm src --camelCase dashes",
     "build": "preact build --no-prerender --service-worker=false",
     "dev": "preact watch",
-    "lint": "eslint --cache --ignore-path ../../.gitignore '**/*.{js,jsx}'; exit_code_eslint=$?; tslint -e 'src/**/*.css.d.ts' 'src/**/*.ts?(x)'; exit_code_tslint=$?; if [ $exit_code_eslint -gt 0 -o $exit_code_tslint -gt 0 ]; then exit 1; fi",
+    "lint": "eslint --cache --ignore-path ../../.gitignore '**/*.{js,jsx}'",
+    "postlint": "tslint -e 'src/**/*.css.d.ts' 'src/**/*.ts?(x)'",
     "test": "jest",
     "browserlist": "npx browserslist"
   },
