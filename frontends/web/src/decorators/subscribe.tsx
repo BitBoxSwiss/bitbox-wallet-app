@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentConstructor, FunctionalComponent, h, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { equal } from '../utils/equal';
 import { apiSubscribe, Event } from '../utils/event';
@@ -37,7 +37,7 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
     subscribeWithoutLoading: boolean = false,
 ) {
     return function decorator(
-        WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
+        WrappedComponent: ComponentFactory<LoadedProps & ProvidedProps>,
     ) {
         return class Subscribe extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
             public static displayName = `Subscribe(${getDisplayName(WrappedComponent)})`;

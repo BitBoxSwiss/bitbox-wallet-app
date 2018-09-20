@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import { ComponentConstructor, FunctionalComponent } from 'preact';
+import { ComponentFactory } from 'preact';
 
-export function getDisplayName(component: ComponentConstructor<any> | FunctionalComponent<any>): string {
+export function getDisplayName(component: ComponentFactory<any>): string {
     return component.displayName || (component as any).name || 'Component';
 }

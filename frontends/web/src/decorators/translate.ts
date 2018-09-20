@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { ComponentConstructor, FunctionalComponent } from 'preact';
+import { ComponentFactory } from 'preact';
 import { translate as originalTranslate } from 'react-i18next';
 
 // The types in 'https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-i18next'
@@ -65,8 +65,8 @@ export function translate<ProvidedProps = {}>(
     options?: NamespaceOptions<ProvidedProps>,
 ) {
     return function decorator(
-        WrappedComponent: ComponentConstructor<TranslateProp & ProvidedProps> | FunctionalComponent<TranslateProp & ProvidedProps>,
-    ): ComponentConstructor<ProvidedProps> | FunctionalComponent<ProvidedProps> {
+        WrappedComponent: ComponentFactory<TranslateProp & ProvidedProps>,
+    ): ComponentFactory<ProvidedProps> {
         return originalTranslate(options)(WrappedComponent);
     };
 }

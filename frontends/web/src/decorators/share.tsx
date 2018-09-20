@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentConstructor, FunctionalComponent, h, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { Store } from './store';
 
@@ -51,7 +51,7 @@ export function share<SharedProps, ProvidedProps = {}>(
     store: Store<SharedProps>,
 ) {
     return function decorator(
-        WrappedComponent: ComponentConstructor<SharedProps & ProvidedProps> | FunctionalComponent<SharedProps & ProvidedProps>,
+        WrappedComponent: ComponentFactory<SharedProps & ProvidedProps>,
     ) {
         return class Share extends Component<ProvidedProps & Partial<SharedProps>> {
             public static displayName = `Share(${getDisplayName(WrappedComponent)})`;

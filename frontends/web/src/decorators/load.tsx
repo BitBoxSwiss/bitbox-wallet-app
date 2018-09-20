@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, ComponentConstructor, FunctionalComponent, h, RenderableProps } from 'preact';
+import { Component, ComponentFactory, h, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { apiGet } from '../utils/request';
 import { KeysOf } from '../utils/types';
@@ -38,7 +38,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
     return function decorator(
-        WrappedComponent: ComponentConstructor<LoadedProps & ProvidedProps> | FunctionalComponent<LoadedProps & ProvidedProps>,
+        WrappedComponent: ComponentFactory<LoadedProps & ProvidedProps>,
     ) {
         return class Load extends Component<ProvidedProps & Partial<LoadedProps>, LoadedProps> {
             public static displayName = `Load(${getDisplayName(WrappedComponent)})`;
