@@ -22,7 +22,7 @@ import { PasswordSingleInput } from '../../components/password';
 import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import Message from '../../components/message/message';
+import { Message } from '../../components/message/message';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import InnerHTMLHelper from '../../utils/innerHTML';

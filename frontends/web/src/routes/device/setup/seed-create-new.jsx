@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
-import Message from '../../../components/message/message';
+import { Message } from '../../../components/message/message';
 import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
@@ -232,7 +232,7 @@ export default class SeedCreateNew extends Component {
                         <hr />
                         {
                             error && (
-                                <Message type={status === STATUS.ERROR && 'error'}>
+                                <Message type={status === STATUS.ERROR ? 'error' : undefined}>
                                     { error }
                                 </Message>
                             )

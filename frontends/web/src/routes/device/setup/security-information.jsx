@@ -21,7 +21,7 @@ import { Shift, Alert } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
 import InnerHTMLHelper from '../../../utils/innerHTML';
-import Message from '../../../components/message/message';
+import { Message } from '../../../components/message/message';
 import * as style from '../device.css';
 
 @translate()

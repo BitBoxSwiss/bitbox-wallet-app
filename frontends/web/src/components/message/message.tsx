@@ -14,16 +14,21 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { h, RenderableProps } from 'preact';
 import * as styles from './message.css';
 
-export default function Message({
-    type,
+export interface Props {
+    type?: 'message' | 'success' | 'info' | 'warning' | 'error';
+    style?: string;
+}
+
+export function Message({
+    type = 'message',
     style = '',
     children,
-}) {
+}: RenderableProps<Props>) {
     return (
-        <div className={styles[type] || styles.message} style={style}>
+        <div className={styles[type]} style={style}>
             {children}
         </div>
     );

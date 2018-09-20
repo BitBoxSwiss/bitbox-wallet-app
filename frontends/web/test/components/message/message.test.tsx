@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
+import 'jest';
 import { h } from 'preact';
-import { shallow, deep } from 'preact-render-spy';
+import { deep, shallow } from 'preact-render-spy';
 
-import Message from '../../../src/components/message/message';
+import { Message, Props } from '../../../src/components/message/message';
 
 describe('components/message/message', () => {
     it('should use type attr as CSS class', () => {
-        const msg = deep(<Message type="warning" />);
+        const msg = deep(<Message type="warning">content</Message>);
         expect(msg.find('.warning').length).toBe(1);
     });
 
     it('should preserve style attribute', () => {
-        const msg = deep(<Message style="width:100%" />);
-        expect(msg.first().attr('style')).toBe('width:100%');
+        const msg = deep<Props, {}>(<Message style="width:100%">content</Message>);
+        expect(msg.first<Props, {}>().attr('style')).toBe('width:100%');
     });
 
     it('should have child nodes', () => {
@@ -44,7 +45,7 @@ describe('components/message/message', () => {
         const msg = deep(
             <Message type="success" style="width:100%">
                 <span>hello</span>
-            </Message>
+            </Message>,
         );
         expect(msg).toMatchSnapshot();
     });

@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { route } from 'preact-router';
 import { apiGet, apiPost } from '../../utils/request';
 import { Button, Input } from '../../components/forms';
-import Message from '../../components/message/message';
+import { Message } from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import Footer from '../../components/footer/footer';

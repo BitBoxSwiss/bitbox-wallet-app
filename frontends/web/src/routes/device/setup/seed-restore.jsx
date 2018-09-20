@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
-import Message from '../../../components/message/message';
+import { Message } from '../../../components/message/message';
 import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
@@ -95,7 +95,7 @@ export default class SeedRestore extends Component {
                         <hr />
                         {
                             error && (
-                                <Message type={status === STATUS.ERROR && 'error'}>
+                                <Message type={status === STATUS.ERROR ? 'error' : undefined}>
                                     { error }
                                 </Message>
                             )
