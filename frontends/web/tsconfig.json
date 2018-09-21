@@ -8,6 +8,7 @@
         "checkJs": true,
         "jsx": "react",
         "jsxFactory": "h",
+        "alwaysStrict": true,
         "noImplicitThis": true,
         "strictNullChecks": true,
         "noImplicitReturns": true,
