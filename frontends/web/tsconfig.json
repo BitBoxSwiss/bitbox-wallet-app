@@ -9,6 +9,7 @@
         "jsx": "react",
         "jsxFactory": "h",
         "strictNullChecks": true,
+        "noImplicitReturns": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,

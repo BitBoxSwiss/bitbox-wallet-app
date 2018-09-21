@@ -307,16 +307,12 @@ export default class Send extends Component {
         const account = this.getAccount();
         if (!account) return null;
 
-        let confirmPrequel = () => {
-            if (signProgress && signProgress.steps > 1) {
-                return (
-                    <span>
-                        This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times.<br />
-                        Progress: {signProgress.step}/{signProgress.steps}
-                    </span>
-                );
-            }
-        };
+        const confirmPrequel = signProgress && signProgress.steps > 1 ?
+            <span>
+                This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times.<br />
+                Progress: {signProgress.step}/{signProgress.steps}
+            </span>
+            : null;
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -438,7 +434,7 @@ export default class Send extends Component {
                         isConfirming && (
                             <WaitDialog
                                 title={t('send.confirm.title')}
-                                prequel={confirmPrequel()}
+                                prequel={confirmPrequel}
                                 paired={paired}
                                 touchConfirm={signConfirm}
                                 includeDefault>
