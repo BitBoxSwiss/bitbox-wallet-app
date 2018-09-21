@@ -49,8 +49,6 @@ export function subscribe<LoadedProps extends object, ProvidedProps = {}>(
                 return endpointsObjectOrFunction;
             }
 
-            private endpoints: EndpointsObject<LoadedProps>;
-
             private subscriptions: { [Key in keyof LoadedProps]?: () => void } = {};
 
             private unsubscribeEndpoint(key: keyof LoadedProps) {
@@ -84,12 +82,14 @@ export function subscribe<LoadedProps extends object, ProvidedProps = {}>(
                 });
             }
 
+            private endpoints?: EndpointsObject<LoadedProps>;
+
             private subscribeEndpoints(): void {
                 const oldEndpoints = this.endpoints;
                 const newEndpoints = this.determineEndpoints();
                 // Update the endpoints that were different or undefined before.
                 for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
-                    if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
+                    if (oldEndpoints === undefined || newEndpoints[key] !== oldEndpoints[key]) {
                         this.subscribeEndpoint(key, newEndpoints[key]);
                     }
                 }

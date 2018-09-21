@@ -60,7 +60,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
                 });
             }
 
-            private endpoints: EndpointsObject<LoadedProps>;
+            private endpoints?: EndpointsObject<LoadedProps>;
 
             private loadEndpoints(): void {
                 const oldEndpoints = this.endpoints;
