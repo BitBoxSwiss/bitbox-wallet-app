@@ -10,6 +10,7 @@
         "jsxFactory": "h",
         "strictNullChecks": true,
         "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
         "removeComments": true,
     },
     "include": [
