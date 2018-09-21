@@ -122,11 +122,14 @@ function Conversion({
     if (!rates) {
         return null;
     }
-    let coin = amount.unit;
+    const coin = amount.unit;
+    let mainnetCoin: MainnetCoin;
     if (coin.length === 4 && coin.startsWith('T')) {
-        coin = coin.substring(1) as Coin;
+        mainnetCoin = coin.substring(1) as MainnetCoin;
+    } else {
+        mainnetCoin = coin as MainnetCoin;
     }
-    const value = rates[coin][active] * Number(amount.amount);
+    const value = rates[mainnetCoin][active] * Number(amount.amount);
     if (tableRow) {
         return (
             <tr className={unstyled ? '' : style.fiatRow}>

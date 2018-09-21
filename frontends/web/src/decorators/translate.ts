@@ -15,10 +15,11 @@
  */
 
 import { ComponentFactory } from 'preact';
+// @ts-ignore ('frontends/web/node_modules/react-i18next/dist/commonjs/index.js' implicitly has an 'any' type)
 import { translate as originalTranslate } from 'react-i18next';
 
 // The types in 'https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-i18next'
-// use the types of React instead of Preact.
+// use the types of React instead of Preact, thus we define our own types in this file.
 
 /**
  * This interface describes the interpolation values of 'i18next'.

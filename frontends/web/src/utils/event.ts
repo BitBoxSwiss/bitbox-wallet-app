@@ -38,7 +38,7 @@ export interface Event {
 /**
  * This type describes the function used to observe the events.
  */
-export type Observer = (Event) => void;
+export type Observer = (event: Event) => void;
 
 /**
  * This type describes the method returned to unsubscribe again.

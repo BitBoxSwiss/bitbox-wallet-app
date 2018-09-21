@@ -21,16 +21,18 @@ import { Checkbox } from '../forms';
 import { Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
 import * as style from './fiat.css';
 
-function changeSelected(event): void {
-    if (event.target.checked) {
-        selectFiat(event.target.value);
+function changeSelected(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    if (target.checked) {
+        selectFiat(target.value as Fiat);
     } else {
-        unselectFiat(event.target.value);
+        unselectFiat(target.value as Fiat);
     }
 }
 
-function setDefault(event): void {
-    setActiveFiat(event.target.dataset.code);
+function setDefault(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    setActiveFiat(target.dataset.code as Fiat);
     event.preventDefault();
 }
 

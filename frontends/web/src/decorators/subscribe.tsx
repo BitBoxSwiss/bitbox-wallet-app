@@ -31,7 +31,7 @@ import { load } from './load';
  * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
-export function subscribe<LoadedProps, ProvidedProps = {}>(
+export function subscribe<LoadedProps extends object, ProvidedProps = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
     subscribeWithoutLoading: boolean = false,
@@ -69,13 +69,13 @@ export function subscribe<LoadedProps, ProvidedProps = {}>(
                         this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
                         break;
                     case 'prepend':
-                        this.setState(state => ({ [key]: [event.object, ...state[key]] }));
+                        this.setState((state: LoadedProps) => ({ [key]: [event.object, ...state[key] as any] }));
                         break;
                     case 'append':
-                        this.setState(state => ({ [key]: [...state[key], event.object] }));
+                        this.setState((state: LoadedProps) => ({ [key]: [...state[key] as any, event.object] }));
                         break;
                     case 'remove':
-                        this.setState(state => ({ [key]: state[key].filter(item => !equal(item, event.object)) }));
+                        this.setState((state: LoadedProps) => ({ [key]: (state[key] as any).filter((item: any) => !equal(item, event.object)) }));
                         break;
                     case 'reload':
                         apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));
