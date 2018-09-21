@@ -12,6 +12,7 @@
         "noImplicitThis": true,
         "strictNullChecks": true,
         "noImplicitReturns": true,
+        "strictFunctionTypes": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
