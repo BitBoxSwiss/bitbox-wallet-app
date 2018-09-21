@@ -47,7 +47,7 @@ import { Store } from './store';
  * export { HOC as Counter };
  * ```
  */
-export function share<SharedProps, ProvidedProps = {}>(
+export function share<SharedProps extends object, ProvidedProps extends object = {}>(
     store: Store<SharedProps>,
 ) {
     return function decorator(

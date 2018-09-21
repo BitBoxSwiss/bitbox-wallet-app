@@ -19,7 +19,7 @@ import { Component } from 'preact';
 /**
  * This class allows all instances of a component to share a common state.
  */
-export class Store<State> {
+export class Store<State extends object> {
     private components: Component[] = [];
 
     /**

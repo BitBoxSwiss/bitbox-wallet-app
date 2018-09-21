@@ -31,7 +31,7 @@ import { load } from './load';
  * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
-export function subscribe<LoadedProps extends object, ProvidedProps = {}>(
+export function subscribe<LoadedProps extends object, ProvidedProps extends object = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
     subscribeWithoutLoading: boolean = false,

@@ -55,14 +55,14 @@ export interface TranslateProp {
 
 type Namespaces = string | string[];
 
-type NamespacesFunction<ProvidedProps> = (props: ProvidedProps) => Namespaces;
+type NamespacesFunction<ProvidedProps extends object> = (props: ProvidedProps) => Namespaces;
 
-type NamespaceOptions<ProvidedProps> = Namespaces | NamespacesFunction<ProvidedProps>;
+type NamespaceOptions<ProvidedProps extends object> = Namespaces | NamespacesFunction<ProvidedProps>;
 
 /**
  * This function provides type safety for the 'react-i18next' translate decorator.
  */
-export function translate<ProvidedProps = {}>(
+export function translate<ProvidedProps extends object = {}>(
     options?: NamespaceOptions<ProvidedProps>,
 ) {
     return function decorator(

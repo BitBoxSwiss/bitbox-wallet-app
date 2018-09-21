@@ -26,7 +26,7 @@ export type Endpoint = string;
  *
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
-export type EndpointsObject<LoadedProps> = {
+export type EndpointsObject<LoadedProps extends object> = {
     readonly [Key in keyof LoadedProps]: Endpoint;
 };
 
@@ -35,4 +35,4 @@ export type EndpointsObject<LoadedProps> = {
  *
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
-export type EndpointsFunction<ProvidedProps, LoadedProps> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;
+export type EndpointsFunction<ProvidedProps extends object, LoadedProps extends object> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;

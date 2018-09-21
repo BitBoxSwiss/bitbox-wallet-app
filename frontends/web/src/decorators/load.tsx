@@ -33,7 +33,7 @@ let logCounter = 0;
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads the endpoints into the props of the decorated component.
  */
-export function load<LoadedProps, ProvidedProps = {}>(
+export function load<LoadedProps extends object, ProvidedProps extends object = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {
@@ -67,7 +67,7 @@ export function load<LoadedProps, ProvidedProps = {}>(
                 const newEndpoints = this.determineEndpoints();
                 // Load the endpoints that were different or undefined before.
                 for (const key of Object.keys(newEndpoints) as KeysOf<LoadedProps>) {
-                    if (oldEndpoints == null || newEndpoints[key] !== oldEndpoints[key]) {
+                    if (oldEndpoints === undefined || newEndpoints[key] !== oldEndpoints[key]) {
                         this.loadEndpoint(key, newEndpoints[key]);
                     }
                 }
