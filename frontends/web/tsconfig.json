@@ -8,6 +8,7 @@
         "checkJs": true,
         "jsx": "react",
         "jsxFactory": "h",
+        "noImplicitThis": true,
         "strictNullChecks": true,
         "noImplicitReturns": true,
         "experimentalDecorators": true,
