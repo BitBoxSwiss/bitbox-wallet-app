@@ -16,6 +16,7 @@
 
 import { Component, ComponentFactory, h, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
+import { ObjectButNotFunction } from '../utils/types';
 import { Store } from './store';
 
 /**
@@ -47,7 +48,7 @@ import { Store } from './store';
  * export { HOC as Counter };
  * ```
  */
-export function share<SharedProps extends object, ProvidedProps extends object = {}>(
+export function share<SharedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     store: Store<SharedProps>,
 ) {
     return function decorator(

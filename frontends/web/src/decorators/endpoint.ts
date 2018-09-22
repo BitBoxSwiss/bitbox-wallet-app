@@ -15,6 +15,7 @@
  */
 
 import { RenderableProps } from 'preact';
+import { ObjectButNotFunction } from '../utils/types';
 
 /**
  * Describes the path of an API endpoint (available with the GET method).
@@ -26,7 +27,7 @@ export type Endpoint = string;
  *
  * Example: `{ propertyName: 'path/to/endpoint' }`
  */
-export type EndpointsObject<LoadedProps extends object> = {
+export type EndpointsObject<LoadedProps extends ObjectButNotFunction> = {
     readonly [Key in keyof LoadedProps]: Endpoint;
 };
 
@@ -35,4 +36,4 @@ export type EndpointsObject<LoadedProps extends object> = {
  *
  * Example: `props => 'subject/' + props.id + '/attribute`
  */
-export type EndpointsFunction<ProvidedProps extends object, LoadedProps extends object> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;
+export type EndpointsFunction<ProvidedProps extends ObjectButNotFunction, LoadedProps extends ObjectButNotFunction> = (props: RenderableProps<ProvidedProps>) => EndpointsObject<LoadedProps>;

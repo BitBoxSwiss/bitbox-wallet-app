@@ -17,7 +17,7 @@
 import { Component, ComponentFactory, h, RenderableProps } from 'preact';
 import { getDisplayName } from '../utils/component';
 import { apiGet } from '../utils/request';
-import { KeysOf } from '../utils/types';
+import { KeysOf, ObjectButNotFunction } from '../utils/types';
 import { Endpoint, EndpointsFunction, EndpointsObject } from './endpoint';
 
 // Stores whether to log the time needed for individual API calls.
@@ -33,7 +33,7 @@ let logCounter = 0;
  * @param renderOnlyOnceLoaded - Whether the decorated component shall only be rendered once all endpoints are loaded.
  * @return A function that returns the higher-order component that loads the endpoints into the props of the decorated component.
  */
-export function load<LoadedProps extends object, ProvidedProps extends object = {}>(
+export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
 ) {

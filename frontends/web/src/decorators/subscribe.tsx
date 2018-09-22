@@ -19,7 +19,7 @@ import { getDisplayName } from '../utils/component';
 import { equal } from '../utils/equal';
 import { apiSubscribe, Event } from '../utils/event';
 import { apiGet } from '../utils/request';
-import { KeysOf } from '../utils/types';
+import { KeysOf, ObjectButNotFunction } from '../utils/types';
 import { Endpoint, EndpointsFunction, EndpointsObject } from './endpoint';
 import { load } from './load';
 
@@ -31,7 +31,7 @@ import { load } from './load';
  * @param subscribeWithoutLoading - Whether the endpoints shall only be subscribed without loading them first.
  * @return A function that returns the higher-order component that loads and updates the endpoints into the props of the decorated component.
  */
-export function subscribe<LoadedProps extends object, ProvidedProps extends object = {}>(
+export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProps extends ObjectButNotFunction = {}>(
     endpointsObjectOrFunction: EndpointsObject<LoadedProps> | EndpointsFunction<ProvidedProps, LoadedProps>,
     renderOnlyOnceLoaded: boolean = true, // Use false only if all loaded props are optional!
     subscribeWithoutLoading: boolean = false,

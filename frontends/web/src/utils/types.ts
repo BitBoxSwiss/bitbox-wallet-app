@@ -18,3 +18,11 @@
  * Array with keys of the given type.
  */
 export type KeysOf<T> = Array<keyof T>;
+
+/**
+ * Constrain a type to objects without allowing functions.
+ * (See https://github.com/Microsoft/TypeScript/issues/27278.)
+ * As it turns out, you need TypeScript 3 to enforce this constraint.
+ * At the moment, we are using version 2.9.2 (yarn run tsc -version).
+ */
+export type ObjectButNotFunction = object & { prototype?: never; };

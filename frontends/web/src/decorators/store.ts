@@ -15,11 +15,12 @@
  */
 
 import { Component } from 'preact';
+import { ObjectButNotFunction } from '../utils/types';
 
 /**
  * This class allows all instances of a component to share a common state.
  */
-export class Store<State extends object> {
+export class Store<State extends ObjectButNotFunction> {
     private components: Component[] = [];
 
     /**

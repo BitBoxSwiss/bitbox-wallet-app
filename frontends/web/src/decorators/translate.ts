@@ -17,6 +17,7 @@
 import { ComponentFactory } from 'preact';
 // @ts-ignore ('frontends/web/node_modules/react-i18next/dist/commonjs/index.js' implicitly has an 'any' type)
 import { translate as originalTranslate } from 'react-i18next';
+import { ObjectButNotFunction } from '../utils/types';
 
 // The types in 'https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-i18next'
 // use the types of React instead of Preact, thus we define our own types in this file.
@@ -55,14 +56,14 @@ export interface TranslateProp {
 
 type Namespaces = string | string[];
 
-type NamespacesFunction<ProvidedProps extends object> = (props: ProvidedProps) => Namespaces;
+type NamespacesFunction<ProvidedProps extends ObjectButNotFunction> = (props: ProvidedProps) => Namespaces;
 
-type NamespaceOptions<ProvidedProps extends object> = Namespaces | NamespacesFunction<ProvidedProps>;
+type NamespaceOptions<ProvidedProps extends ObjectButNotFunction> = Namespaces | NamespacesFunction<ProvidedProps>;
 
 /**
  * This function provides type safety for the 'react-i18next' translate decorator.
  */
-export function translate<ProvidedProps extends object = {}>(
+export function translate<ProvidedProps extends ObjectButNotFunction = {}>(
     options?: NamespaceOptions<ProvidedProps>,
 ) {
     return function decorator(
