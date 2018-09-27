@@ -29,7 +29,7 @@ export default class Header extends Component {
     }
 
     render({
-        title = undefined,
+        title = null,
         toggleSidebar = undefined,
         children,
     }) {
