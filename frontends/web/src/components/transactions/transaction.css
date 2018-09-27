@@ -301,6 +301,10 @@
         display: inline;
     }
 
+    .amount {
+        min-width: 130px !important;
+    }
+
     .amountValue {
         font-size: var(--size-button);
     }
