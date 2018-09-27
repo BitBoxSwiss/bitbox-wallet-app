@@ -282,7 +282,7 @@ export default class Send extends Component {
     }
 
     toggleCoinControl = () => {
-        this.setState({ activeCoinControl: !this.state.activeCoinControl });
+        this.setState(({ activeCoinControl }) => ({ activeCoinControl: !activeCoinControl }));
     }
 
     render({
@@ -332,8 +332,8 @@ export default class Send extends Component {
                             balance={balance} />
                         {
                             coinControl ? (
-                                <div>
-                                    <Button onClick={this.toggleCoinControl} transparent>Toggle Coin Control</Button>
+                                <div style="align-self: flex-end;">
+                                    <Button onClick={this.toggleCoinControl} primary>Toggle Coin Control</Button>
                                 </div>
                             ) : null
                         }

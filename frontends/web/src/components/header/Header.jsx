@@ -30,7 +30,7 @@ export default class Header extends Component {
 
     render({
         title = null,
-        toggleSidebar = undefined,
+        toggleSidebar = null,
         children,
     }) {
         return (

@@ -114,7 +114,7 @@ export class App extends Component {
     }
 
     toggleSidebar = () => {
-        this.setState({ activeSidebar: !this.state.activeSidebar });
+        this.setState(({ activeSidebar }) => ({ activeSidebar: !activeSidebar }));
     }
 
     render({}, {

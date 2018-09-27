@@ -1,18 +1,18 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  min-height: 100%;
-  width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    min-height: 100%;
+    width: 100%;
 }
 
 /* BUTTONS */
 .buttons button:not(:last-child) {
-  margin-right: var(--spacing-half);
+    margin-right: var(--spacing-half);
 }
 
 .buttons a:not(:last-child) {
-  margin-right: var(--spacing-half);
+    margin-right: var(--spacing-half);
 }
 
 .buttons > * > img {
