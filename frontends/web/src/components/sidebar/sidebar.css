@@ -146,7 +146,7 @@ a.sidebar-active .stacked img:last-child,
 }
 
 .sidebar img {
-    width: 30px;
+    width: 26px;
     height: auto;
     -webkit-transform-style: preserve-3d;
     -webkit-backface-visibility: hidden;
@@ -211,7 +211,7 @@ a.sidebar-active .single img,
 
     .sidebar .stacked,
     .sidebar .single {
-        margin: 0 var(--spacing-half) 0 var(--spacing-default);
+        margin: 0 var(--spacing-half) 0 calc(var(--spacing-default) + var(--spacing-half));
     }
 
     .sidebar:not(.withGuide) .stacked img,

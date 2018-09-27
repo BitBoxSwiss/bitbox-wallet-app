@@ -7,10 +7,6 @@
     transition: all 0.2s ease;
 }
 
-.transactionContainer:hover {
-    background-color: #FAFAFA;
-}
-
 .transactionContainer * {
     min-width: 0;
 }
@@ -30,7 +26,7 @@
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: 1;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
 }
 
 .date span:first-child {
@@ -55,7 +51,7 @@
 }
 
 .amount div:first-child {
-    margin-bottom: 4px;
+    margin-bottom: 3px;
 }
 
 .amount.receive {
@@ -99,7 +95,7 @@
     color: var(--color-white);
     line-height: 1;
     text-align: center;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
     user-select: none;
     white-space: nowrap;
 }
@@ -108,8 +104,8 @@
     position: relative;
     margin-right: var(--spacing-default);
     margin-bottom: 0;
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 2px;
     display: flex;
     flex-direction: column;
@@ -177,6 +173,14 @@
 
 .row:not(:first-child) {
     margin-top: var(--spacing-half);
+}
+
+.items {
+    margin: 0 calc(var(--spacing-default) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-default) * -1);
+}
+
+.items > * {
+    margin: 0 var(--spacing-default) var(--spacing-half) var(--spacing-default);
 }
 
 .collapsedContent {
@@ -254,12 +258,21 @@
         padding: var(--spacing-default) var(--spacing-half);
     }
 
-    .collapsedContent .spacer {
-        display: none;
+    .collapsedContent.active {
+        max-height: 106px;
     }
 
-    .spaced > *:not(:last-child) {
+    .collapsedContent .spacer {
+        min-width: 34px;
         margin-right: var(--spacing-half);
+    }
+
+    .items {
+        margin: 0 calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1);
+    }
+
+    .items > * {
+        margin: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
     }
 
     .transactionLabel {
