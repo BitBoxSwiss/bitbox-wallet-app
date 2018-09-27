@@ -7,42 +7,30 @@
 }
 
 .servers {
-    border: solid 1px var(--color-lightgray);
-    border-radius: 2px;
-    min-width: 450px;
-    margin-bottom: var(--spacing-large);
+    list-style-type: decimal;
+    padding-left: 20px;
 }
 
-.servers .server {
+.servers li:not(:last-child) {
+    margin-bottom: var(--spacing-half);
+}
+
+.servers li .server {
     display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
     align-items: center;
-    padding: 0 var(--spacing-half);
+    flex-wrap: wrap;
 }
 
-.servers .server:not(:last-child) {
-    border-bottom: solid 1px var(--color-lightgray);
+.servers li .server > div:last-child {
+    margin-left: auto;
+    align-self: flex-end;
 }
 
-.servers .server > div {
-    padding: var(--spacing-half);
-    line-height: 1;
-}
-
-.servers .server > div:first-child {
-    padding-right: var(--spacing-default);
-    width: 30px;
-    text-align: right;
-}
-
-.servers .server > div button {
+.servers li .server > div:last-child button {
     border: none;
     border-radius: 2px;
-    height: 24px;
-    line-height: 24px;
-    padding: 0 var(--spacing-default);
-    transition: all ease-out 0.2s;
+    line-height: 22px;
+    padding: 0 var(--spacing-half);
 }
 
 .servers .server > div button[disabled] {
@@ -89,8 +77,8 @@
 }
 
 .addServer p {
-    font-size: 14px;
-    line-height: 1;
+    font-size: var(--size-medium);
+    margin-top:var(--spacing-default);
     margin-bottom: var(--spacing-half);
 }
 

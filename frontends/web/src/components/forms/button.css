@@ -12,9 +12,9 @@
     font-weight: 500;
     justify-content: center;
     line-height: 30px;
-    min-width: 120px;
+    min-width: 100px;
     height: 34px;
-    padding: 0 var(--spacing-default);
+    padding: 0 var(--spacing-half);
     position: relative;
     outline: none;
     text-align: center;
@@ -77,4 +77,13 @@
     background-color: var(--color-white) !important;
     border-color: var(--color-brightgray) !important;
     color: var(--color-brightgray) !important;
+}
+
+@media (max-width: 640px) {
+    .button {
+        line-height: 28px;
+        min-width: 90px;
+        height: 32px;
+        font-size: var(--size-small);
+    }
 }

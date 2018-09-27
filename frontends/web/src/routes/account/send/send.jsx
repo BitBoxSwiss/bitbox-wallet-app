@@ -23,6 +23,7 @@ import { debug } from '../../../utils/env';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { store as fiat } from '../../../components/rates/rates';
+import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
@@ -58,6 +59,7 @@ export default class Send extends Component {
             signProgress: null,
             signConfirm: null, // show visual BitBox in dialog when instructed to sign.
             coinControl: false,
+            activeCoinControl: false,
         };
         this.selectedUTXOs = [];
     }
@@ -279,6 +281,10 @@ export default class Send extends Component {
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
+    toggleCoinControl = () => {
+        this.setState(({ activeCoinControl }) => ({ activeCoinControl: !activeCoinControl }));
+    }
+
     render({
         t,
         code,
@@ -303,6 +309,7 @@ export default class Send extends Component {
         signProgress,
         signConfirm,
         coinControl,
+        activeCoinControl,
     }) {
         const account = this.getAccount();
         if (!account) return null;
@@ -316,38 +323,30 @@ export default class Send extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <Status type="warning">
-                            {paired === false && t('warning.sendPairing')}
-                        </Status>
-                        <div class="header">
-                            <Balance
-                                t={t}
-                                code={code}
-                                name={account.name}
-                                balance={balance} />
-                        </div>
-                    </div>
+                    <Status type="warning">
+                        {paired === false && t('warning.sendPairing')}
+                    </Status>
+                    <Header title={<h2>{t('send.title')}</h2>} {...this.props}>
+                        <Balance
+                            t={t}
+                            balance={balance} />
+                        {
+                            coinControl ? (
+                                <div style="align-self: flex-end;">
+                                    <Button onClick={this.toggleCoinControl} primary>Toggle Coin Control</Button>
+                                </div>
+                            ) : null
+                        }
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {
-                                coinControl ? (
+                                coinControl && (
                                     <UTXOs
+                                        active={activeCoinControl}
                                         ref={ref => this.utxos = ref}
                                         accountCode={account.code}
-                                        onChange={this.onSelectedUTXOsChange}>
-                                        <div class="subHeader">
-                                            <h3>{t('send.title')}</h3>
-                                        </div>
-                                    </UTXOs>
-                                ) : (
-                                    <div class="row">
-                                        <div class="subHeaderContainer first">
-                                            <div class="subHeader">
-                                                <h3>{t('send.title')}</h3>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        onChange={this.onSelectedUTXOsChange} />
                                 )
                             }
                             <div class="row">

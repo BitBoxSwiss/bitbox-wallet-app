@@ -1,0 +1,163 @@
+.container {
+    background-color: var(--color-white);
+    border-bottom: 1px solid var(--fat-border-color);
+    width: 100%;
+}
+
+.container.fixed {
+    position: fixed;
+    left: var(--sidebar-width);
+    height: var(--header-height);
+    width: calc(100% - var(--sidebar-width));
+    z-index: 1001;
+}
+
+.header {
+    padding: var(--spacing-large);
+    max-width: var(--content-width);
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex: none;
+}
+
+.header.children {
+    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
+    max-width: var(--content-width);
+    width: 100%;
+}
+
+.children {
+    padding: 0 var(--spacing-large) var(--spacing-large) var(--spacing-large);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex: none;
+}
+
+.header > *:nth-child(2) {
+    flex: 1;
+}
+
+.title > * {
+    margin: 0;
+    font-size: var(--size-large);
+    font-weight: 300;
+    line-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    user-select: none;
+}
+
+.header.children .title > * {
+    font-size: var(--size-medium);
+    font-weight: normal;
+    text-transform: uppercase;
+}
+
+.sidebarToggler {
+    width: 32px;
+    height: 32px;
+    margin-right: var(--spacing-default);
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.sidebarToggler img {
+    width: 20px;
+}
+
+.guideWrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 56px;
+    height: 56px;
+    z-index: 4003;
+    /* overflow: hidden; */
+}
+
+.guideToggler {
+    position: relative;
+    top: -48px;
+    right: -21px;
+    color: var(--color-white);
+    background-color: var(--color-darkblue);
+    width: 96px;
+    height: 96px;
+    transform: rotate(45deg);
+    font-size: var(--size-medium);
+    transition: all ease 0.1s;
+}
+
+.guideWrapper:hover .guideToggler {
+    top: -48px;
+    right: -10px;
+}
+
+.guideToggler span {
+    position: absolute;
+    bottom: 5px;
+    left: 28px;
+    cursor: default;
+    display: block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    transform: rotate(-45deg);
+    transition: all ease 0.1s;
+    user-select: none;
+}
+
+.guideWrapper:hover .guideToggler span {
+    left: 37px;
+    bottom: 7px;
+}
+
+@media (min-width: 901px) {
+    .sidebarToggler {
+        display: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .header {
+        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default);
+    }
+
+    .header.children {
+        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default) 0 var(--spacing-default);
+    }
+
+    .children {
+        padding: 0 var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default);
+    }
+}
+
+@media (max-width: 640px) {
+    .header {
+        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half);
+    }
+
+    .header.children {
+        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half) 0 var(--spacing-half);
+    }
+
+    .children {
+        padding: 0 var(--spacing-half) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half);
+    }
+
+    .sidebarToggler {
+        margin-right: var(--spacing-half);
+    }
+
+    .title > * {
+        font-size: var(--size-large-mobile);
+    }
+}

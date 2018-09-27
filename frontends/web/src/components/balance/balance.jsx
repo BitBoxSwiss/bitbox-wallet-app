@@ -20,8 +20,6 @@ import * as style from './balance.css';
 
 export default function Balance({
     t,
-    code,
-    name,
     balance,
 }) {
     if (!balance) {
@@ -31,10 +29,6 @@ export default function Balance({
     }
     return (
         <header className={style.balance}>
-            <div class={style.accountName}>
-                <span>{name}</span>
-                <a href={`/account/${code}/info`}>i</a>
-            </div>
             <table className={style.balanceTable}>
                 <tr>
                     <td className={style.availableAmount}>{balance.available.amount}</td>

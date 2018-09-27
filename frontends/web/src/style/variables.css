@@ -43,6 +43,7 @@
     /* font sizes */
     --size-extra-large: 2.2rem;
     --size-large: 2rem;
+    --size-large-mobile: 1.4rem;
     --size-subheader: 1.3rem;
     --size-medium: 1rem;
     --size-small: 13px;
@@ -55,7 +56,7 @@
     --spacing-half: .5rem;
 
     /* typography */
-    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 
     /* sidebar */
     --sidebar-width: 72px;
@@ -65,7 +66,7 @@
     --header-height: 91px;
 
     /* content */
-    --content-width: calc((2 * var(--spacing-large)) + 800px);
+    --content-width: 100%;
 
     /* guide */
     --guide-width: 350px;

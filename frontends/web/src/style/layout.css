@@ -15,6 +15,9 @@
 .flex-nowrap { flex-wrap: nowrap; }
 .flex-1 { flex: 1; }
 .flex-none { flex: none !important; }
+.flex > * {
+    min-width: 0;
+}
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
@@ -46,6 +49,13 @@
     display: flex;
     flex: 1 1 auto;
     min-height: 100vh;
+}
+
+@media (max-width: 900px) {
+    .appContent {
+        position: absolute;
+        width: 100%;
+    }
 }
 
 .contentWithGuide {
@@ -89,40 +99,6 @@
     overflow: visible;
 }
 
-.headerContainer {
-    background-color: var(--color-white);
-    border-bottom: 1px solid var(--fat-border-color);
-    width: 100%;
-}
-
-.headerContainer.fixed {
-    position: fixed;
-    left: var(--sidebar-width);
-    height: var(--header-height);
-    width: calc(100% - var(--sidebar-width));
-    z-index: 1001;
-}
-
-.headerContainer .header {
-    padding: var(--spacing-large) var(--spacing-large);
-    max-width: var(--content-width);
-    width: 100%;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex: none;
-}
-
-.header h2 {
-    margin: 0;
-    font-size: var(--size-large);
-    line-height: 36px;
-    user-select: none;
-    align-self: center;
-}
-
 .subHeaderContainer {
     margin: var(--spacing-default) 0;
     display: flex;
@@ -132,7 +108,7 @@
 }
 
 .subHeaderContainer.first {
-    /* margin-top: 0; */
+
 }
 
 .subHeaderContainer .subHeader h3 {
@@ -150,7 +126,6 @@
     padding: 0 var(--spacing-large);
     height: 100%;
     width: 100%;
-    /*overflow: auto;*/
 }
 
 .content.noSpace {
@@ -158,11 +133,25 @@
 }
 
 .content.padded {
-    padding-top: var(--spacing-half);
+    padding-top: var(--spacing-large);
+}
+
+@media (max-width: 640px) {
+    .content {
+        padding: 0 var(--spacing-half);
+    }
+
+    .content.padded {
+        padding-top: var(--spacing-default);
+    }
+
+    .subHeaderContainer .subHeader h3 {
+        font-size: var(--size-medium);
+    }
 }
 
 .tabs {
-    margin: calc(var(--spacing-default) * -1) auto -1px auto;
+    min-height: 36px;
     width: 100%;
     max-width: var(--content-width);
 }
@@ -236,23 +225,24 @@
     margin-top: var(--spacing-half);
 }
 
-.buttons {
+.buttons,
+.items {
     flex-shrink: 0;
     position: relative;
+    margin: calc(var(--spacing-half) * -1);
+}
+
+.buttons.marginBottom,
+.items.marginBottom {
+    margin-bottom: var(--spacing-default);
 }
 
 .buttons-end {
     text-align: right;
 }
 
-.buttons > *:not(:last-child) {
-    margin-right: var(--spacing-half);
-}
-
-.buttons > *:not(:first-child) {
-    margin-left: var(--spacing-half);
-}
-
-.buttons:last-child {
-    margin-bottom: var(--spacing-half);
+.buttons > *,
+.items > * {
+    display: inline-block;
+    margin: var(--spacing-half);
 }

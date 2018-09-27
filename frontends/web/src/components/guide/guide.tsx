@@ -64,9 +64,10 @@ type Props = ProvidedProps & SharedProps & TranslateProp;
 function Guide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={style.wrapper}>
-            <div className={style.toggler} onClick={toggle}>{shown ? '✕' : '?'}</div>
             <div className={[style.guide, shown && style.show].join(' ')}>
-                <h1>{t('guide.title')}</h1>
+                <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+                    <h1>{t('guide.title')}</h1>
+                </div>
                 {screen && t('guide.' + screen, { defaultValue: [] }).map((entry: ImplicitEntry, i: number) => (
                     <Entry key={screen + i} entry={entry} />
                 ))}

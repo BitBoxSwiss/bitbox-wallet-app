@@ -19,6 +19,7 @@ import { translate } from 'react-i18next';
 import { Guide } from '../../components/guide/guide';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
+import Header from '../../components/header/Header';
 import * as style from './settings.css';
 
 @translate()
@@ -108,23 +109,24 @@ class ElectrumServer extends Component {
     }) {
         if (!onAdd) {
             return (
-                <div class={style.server}>
-                    <div>{index}</div>
-                    <div class="flex-1">{electrumServer}</div>
-                    <div>
-                        <button class={style.primary} disabled={electrumServer === '' || electrumCert === '' || loadingCheck} onClick={this.check}>
-                            {
-                                loadingCheck && (
-                                    <div class={style.miniSpinnerContainer}>
-                                        <div class={style.miniSpinner}></div>
-                                    </div>
-                                )
-                            }
-                            { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
-                        </button>
-                        <button class={style.warning} onClick={onRemove}>Remove</button>
+                <li>
+                    <div class={style.server}>
+                        <div style="min-width: 250px;">{electrumServer}</div>
+                        <div>
+                            <button class={style.primary} disabled={electrumServer === '' || electrumCert === '' || loadingCheck} onClick={this.check}>
+                                {
+                                    loadingCheck && (
+                                        <div class={style.miniSpinnerContainer}>
+                                            <div class={style.miniSpinner}></div>
+                                        </div>
+                                    )
+                                }
+                                { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
+                            </button>
+                            <button class={style.warning} onClick={onRemove}>Remove</button>
+                        </div>
                     </div>
-                </div>
+                </li>
             );
         }
         return (
@@ -239,15 +241,17 @@ class ElectrumServers extends Component {
         });
         return (
             <div class={style.serversContainer}>
-                <div class="flex flex-row flex-between flex-items-center row">
-                    <h3>{t(`settings.electrum.title-${coin}`)}</h3>
-                    <div class="buttons" style="margin-bottom: 0;">
-                        <Button onClick={this.resetToDefault} danger>{t('settings.electrum.reset')}</Button>
+                <div class="subHeaderContainer">
+                    <div class="subHeader">
+                        <h3>{t(`settings.electrum.title-${coin}`)}</h3>
                     </div>
+                    <Button onClick={this.resetToDefault} danger>{t('settings.electrum.reset')}</Button>
+                </div>
+                <div class="flex flex-row flex-between flex-items-center row">
                 </div>
                 <div class="row">
                     <h4 class={style.title}>{t('settings.electrum.servers')}</h4>
-                    <div class={style.servers}>
+                    <ul class={style.servers}>
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
@@ -258,8 +262,9 @@ class ElectrumServers extends Component {
                                 />
                             ))
                         }
-                    </div>
+                    </ul>
                 </div>
+                <hr />
                 <div class="row">
                     <h4 class={style.title}>{t('settings.electrum.add')}</h4>
                     <ElectrumServer server={null} onAdd={this.onAdd} />
@@ -294,10 +299,8 @@ export default class ElectrumSettings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <div class="headerContainer">
-                        <div class="header">
-                            <h2>{t('settings.expert.electrum.title')}</h2>
-                        </div>
+                    <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} {...this.props} />
+                    <div class="innerContainer scrollableContainer">
                         <div class="flex flex-row flex-between flex-items-center tabs">
                             <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
                                 <a href="#" onClick={this.handleTab} data-tab="btc">{testing ? 'TBTC' : 'BTC'}</a>
@@ -306,8 +309,6 @@ export default class ElectrumSettings extends Component {
                                 <a href="#" onClick={this.handleTab} data-tab="ltc">{testing ? 'TLTC' : 'LTC'}</a>
                             </div>
                         </div>
-                    </div>
-                    <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {
                                 activeTab === 'btc' && (

@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { apiGet } from '../../../utils/request';
-import { Button, Checkbox } from '../../../components/forms';
+import { Checkbox } from '../../../components/forms';
 import { FiatConversion } from '../../../components/rates/rates';
 import * as style from './utxos.css';
 
@@ -66,7 +66,7 @@ export default class UTXOs extends Component {
     }
 
     render({
-        children,
+        active,
     }, {
         show,
         utxos,
@@ -74,56 +74,40 @@ export default class UTXOs extends Component {
     }) {
         return (
             <div class="row">
-                <div class="subHeaderContainer first">
-                    {children}
+                <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
                     {
-                        show ? (
-                            <Button transparent onClick={this.hide}>
-                                Hide coin control
-                            </Button>
-                        ) : (
-                            <Button transparent onClick={this.show}>
-                                Show coin control
-                            </Button>
+                        active && (
+                            <table className={style.table}>
+                                {
+                                    utxos.map(utxo => (
+                                        <tr key={'utxo-' + utxo.outPoint}>
+                                            <td>
+                                                <Checkbox
+                                                    checked={!!selectedUTXOs[utxo.outPoint]}
+                                                    id={'utxo-' + utxo.outPoint}
+                                                    data-outpoint={utxo.outPoint}
+                                                    onChange={this.handleUTXOChange}
+                                                />
+                                            </td>
+                                            <td>
+                                                <span><label>Outpoint:</label> {utxo.outPoint}</span>
+                                                <span><label>Address:</label> {utxo.address}</span>
+                                            </td>
+                                            <td class={style.right}>
+                                                <table class={style.amountTable} align="right">
+                                                    <tr>
+                                                        <td>{utxo.amount.amount}</td>
+                                                        <td>{utxo.amount.unit}</td>
+                                                    </tr>
+                                                    <FiatConversion amount={utxo.amount} tableRow unstyled />
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    ))
+                                }
+                            </table>
                         )
                     }
-                </div>
-                <div>
-                    <div class={[style.container, show ? style.expanded : style.collapsed].join(' ')}>
-                        {
-                            show && (
-                                <table className={style.table}>
-                                    {
-                                        utxos.map(utxo => (
-                                            <tr key={'utxo-' + utxo.outPoint}>
-                                                <td>
-                                                    <Checkbox
-                                                        checked={!!selectedUTXOs[utxo.outPoint]}
-                                                        id={'utxo-' + utxo.outPoint}
-                                                        data-outpoint={utxo.outPoint}
-                                                        onChange={this.handleUTXOChange}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <span><label>Outpoint:</label> {utxo.outPoint}</span>
-                                                    <span><label>Address:</label> {utxo.address}</span>
-                                                </td>
-                                                <td class={style.right}>
-                                                    <table class={style.amountTable} align="right">
-                                                        <tr>
-                                                            <td>{utxo.amount.amount}</td>
-                                                            <td>{utxo.amount.unit}</td>
-                                                        </tr>
-                                                        <FiatConversion amount={utxo.amount} tableRow unstyled />
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    }
-                                </table>
-                            )
-                        }
-                    </div>
                 </div>
             </div>
         );
