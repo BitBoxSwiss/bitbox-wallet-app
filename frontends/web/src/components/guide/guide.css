@@ -10,8 +10,8 @@
     color: white;
     background-color: var(--color-brightblue);
     overflow-y: auto;
-    transition: margin-right 0.2s ease, right 0.2s ease;
-    will-change: margin-right, right;
+    transition: margin-right 0.2s ease, opacity 0.1s ease;
+    will-change: margin-right, opacity;
 }
 
 .header {
@@ -25,19 +25,6 @@
 .header a {
     cursor: pointer;
     font-size: 20px;
-}
-
-@media screen and (max-width: 1335px) {
-    .guide {
-        position: fixed;
-        margin-right: 0;
-        right: -100%;
-        width: 100%;
-        z-index: 4002;
-    }
-    .show {
-        right: 0;
-    }
 }
 
 .guide h1 {
@@ -116,4 +103,20 @@
 
 .expanded {
     flex-basis: 0;
+}
+
+@media screen and (max-width: 1335px) {
+    .guide {
+        position: fixed;
+        margin-right: 0;
+        top: 0;
+        right: 0;
+        width: 100%;
+        opacity: 0;
+        z-index: -10;
+    }
+    .show {
+        opacity: 1;
+        z-index: 4002;
+    }
 }

@@ -45,7 +45,7 @@
     line-height: 1;
     white-space: nowrap;
     text-overflow: ellipsis;
-    overflow: hidden;
+    overflow-x: hidden;
 }
 
 .amount {
