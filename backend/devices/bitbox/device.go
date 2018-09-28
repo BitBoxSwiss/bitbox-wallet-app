@@ -1076,13 +1076,20 @@ func (dbb *Device) signBatch(
 	return reply, nil
 }
 
+// SignatureWithRecID also contains the recoverable ID, with which one can more efficiently recover
+// the public key.
+type SignatureWithRecID struct {
+	btcec.Signature
+	RecID int64
+}
+
 // Sign returns signatures for the provided hashes. The private keys used to sign them are derived
 // using the provided keyPaths.
 func (dbb *Device) Sign(
 	txProposal *maketx.TxProposal,
 	signatureHashes [][]byte,
 	keyPaths []string,
-) ([]btcec.Signature, error) {
+) ([]SignatureWithRecID, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
@@ -1103,7 +1110,7 @@ func (dbb *Device) Sign(
 		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
 	}
 
-	signatures := []btcec.Signature{}
+	signatures := []SignatureWithRecID{}
 	steps := len(signatureHashes) / signatureBatchSize
 	if len(signatureHashes)%signatureBatchSize != 0 {
 		steps++
@@ -1153,7 +1160,18 @@ func (dbb *Device) Sign(
 			if !ok {
 				return nil, errp.New("Unexpected reply: S in 'sig' must be a hex value")
 			}
-			signatures = append(signatures, btcec.Signature{R: sigR, S: sigS})
+			sigRecID, ok := sigMap["recid"].(string)
+			if !ok {
+				return nil, errp.New("Unexpected reply: field 'recid' is missing in 'sign' map")
+			}
+			sigRecIDNum, ok := big.NewInt(0).SetString(sigRecID, 16)
+			if !ok {
+				return nil, errp.New("Unexpected reply: 'recid' must be a hex value")
+			}
+			signatures = append(signatures, SignatureWithRecID{
+				Signature: btcec.Signature{R: sigR, S: sigS},
+				RecID:     sigRecIDNum.Int64(),
+			})
 		}
 	}
 	return signatures, nil

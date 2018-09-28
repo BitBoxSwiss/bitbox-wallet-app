@@ -124,7 +124,7 @@ func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) e
 	}
 	for i, signature := range signatures {
 		signature := signature
-		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature
+		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature.Signature
 	}
 	return nil
 }

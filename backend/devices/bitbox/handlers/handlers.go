@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -45,7 +44,7 @@ type Bitbox interface {
 	Random(string) (string, error)
 	Reset(string) (bool, error)
 	XPub(path string) (*hdkeychain.ExtendedKey, error)
-	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]btcec.Signature, error)
+	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]bitbox.SignatureWithRecID, error)
 	UnlockBootloader() (bool, error)
 	LockBootloader() error
 	EraseBackup(string) error

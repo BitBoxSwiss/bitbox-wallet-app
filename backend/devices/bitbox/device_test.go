@@ -226,7 +226,10 @@ func (s *dbbTestSuite) TestSignSingle() {
 		jsonArgumentMatcher(map[string]interface{}{"sign": ""}),
 		pin,
 	).
-		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature)}}}, nil).
+		Return(map[string]interface{}{"sign": []interface{}{map[string]interface{}{
+			"sig":   hex.EncodeToString(responseSignature),
+			"recid": "00",
+		}}}, nil).
 		Once()
 
 	signatures, err := s.dbb.Sign(nil, [][]byte{signatureHash}, []string{keyPath})
@@ -264,7 +267,10 @@ func (s *dbbTestSuite) TestSignFifteen() {
 	responseSignatures := []interface{}{}
 	for i := 0; i < 15; i++ {
 		responseSignature := make([]byte, 64)
-		responseSignatures = append(responseSignatures, map[string]interface{}{"sig": hex.EncodeToString(responseSignature)})
+		responseSignatures = append(responseSignatures, map[string]interface{}{
+			"sig":   hex.EncodeToString(responseSignature),
+			"recid": "00",
+		})
 	}
 	s.mockDeviceInfo()
 	s.mockCommunication.On(
@@ -309,11 +315,16 @@ func (s *dbbTestSuite) TestSignSixteen() {
 	for i := 0; i < 15; i++ {
 		responseSignature := make([]byte, 64)
 		responseSignature[63] = byte(i)
-		responseSignatures1 = append(responseSignatures1, map[string]interface{}{"sig": hex.EncodeToString(responseSignature)})
+		responseSignatures1 = append(responseSignatures1, map[string]interface{}{
+			"sig":   hex.EncodeToString(responseSignature),
+			"recid": "00",
+		})
 	}
 	responseSignature2 := make([]byte, 64)
 	responseSignature2[63] = byte(15)
-	responseSignatures2 := []interface{}{map[string]interface{}{"sig": hex.EncodeToString(responseSignature2)}}
+	responseSignatures2 := []interface{}{map[string]interface{}{
+		"sig":   hex.EncodeToString(responseSignature2),
+		"recid": "00"}}
 	s.mockDeviceInfo()
 
 	s.mockCommunication.On(
