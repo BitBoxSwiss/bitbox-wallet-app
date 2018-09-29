@@ -223,7 +223,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{}
+	var input sendTxInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -255,7 +255,7 @@ func txProposalError(err error) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{}
+	var input sendTxInput
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return txProposalError(errp.WithStack(err))
 	}
