@@ -17,14 +17,13 @@ package btc
 import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/sirupsen/logrus"
 )
 
 // FeeTargetCode models the code of a fee target. See the constants below.
 type FeeTargetCode string
 
 // NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
-func NewFeeTargetCode(code string, log *logrus.Entry) (FeeTargetCode, error) {
+func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	switch code {
 	case string(FeeTargetCodeLow):
 	case string(FeeTargetCodeEconomy):

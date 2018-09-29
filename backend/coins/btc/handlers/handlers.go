@@ -176,7 +176,6 @@ type sendTxInput struct {
 	sendAmount    btc.SendAmount
 	feeTargetCode btc.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
-	log           *logrus.Entry
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -192,7 +191,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody.FeeTarget, input.log)
+	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody.FeeTarget)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
@@ -224,7 +223,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error) {
-	input := &sendTxInput{log: handlers.log}
+	input := &sendTxInput{}
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
