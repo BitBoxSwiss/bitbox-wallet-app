@@ -20,7 +20,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
-import { Shift } from '../../../components/icon/logo';
+import { Shift, Alert } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -153,7 +153,10 @@ export default class SeedCreateNew extends Component {
                         onClick={goBack}>
                         {t('button.back')}
                     </Button>
-                    <Button primary onClick={this.handleStart}>
+                    <Button
+                        primary
+                        onClick={this.handleStart}
+                        disabled={status === STATUS.ERROR}>
                         {t('seed.info.button')}
                     </Button>
                 </div>
@@ -233,6 +236,7 @@ export default class SeedCreateNew extends Component {
                         {
                             error && (
                                 <Message type={status === STATUS.ERROR ? 'error' : undefined}>
+                                    <Alert />
                                     { error }
                                 </Message>
                             )
