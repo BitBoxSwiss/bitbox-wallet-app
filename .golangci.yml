@@ -77,3 +77,6 @@ issues:
     - G101
     # gas: Duplicated errcheck checks
     - G104
+  # Use linters in their original configuration. golangci-linter changes the default config, for
+  # example skipping the docstring comment checks of golint.
+  exclude-use-default: false
