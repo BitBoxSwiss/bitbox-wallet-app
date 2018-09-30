@@ -16,14 +16,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"math/big"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
@@ -77,7 +78,14 @@ type formattedAmount struct {
 	Unit   string `json:"unit"`
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount int64) formattedAmount {
+func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
+	return formattedAmount{
+		Amount: handlers.account.Coin().FormatAmount(coin.NewAmountFromInt64(int64(amount))),
+		Unit:   handlers.account.Coin().Unit(),
+	}
+}
+
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount {
 	return formattedAmount{
 		Amount: handlers.account.Coin().FormatAmount(amount),
 		Unit:   handlers.account.Coin().Unit(),
@@ -115,8 +123,8 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	for _, txInfo := range txs {
 		var feeString, feeRatePerKb formattedAmount
 		if txInfo.Fee != nil {
-			feeString = handlers.formatAmountAsJSON(int64(*txInfo.Fee))
-			feeRatePerKb = handlers.formatAmountAsJSON(int64(*txInfo.FeeRatePerKb()))
+			feeString = handlers.formatBTCAmountAsJSON(*txInfo.Fee)
+			feeRatePerKb = handlers.formatBTCAmountAsJSON(*txInfo.FeeRatePerKb())
 		}
 		var formattedTime *string
 		if txInfo.Timestamp != nil {
@@ -135,7 +143,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 				transactions.TxTypeSend:     "send",
 				transactions.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type],
-			Amount:       handlers.formatAmountAsJSON(int64(txInfo.Amount)),
+			Amount:       handlers.formatBTCAmountAsJSON(txInfo.Amount),
 			Fee:          feeString,
 			FeeRatePerKb: feeRatePerKb,
 			Time:         formattedTime,
@@ -155,7 +163,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
-				"amount":   handlers.formatAmountAsJSON(output.TxOut.Value),
+				"amount":   handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value)),
 				"address":  output.Address,
 			})
 	}
@@ -165,9 +173,9 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
 	return map[string]interface{}{
-		"available":   handlers.formatAmountAsJSON(int64(balance.Available)),
-		"incoming":    handlers.formatAmountAsJSON(int64(balance.Incoming)),
-		"hasIncoming": balance.Incoming != 0,
+		"available":   handlers.formatAmountAsJSON(balance.Available),
+		"incoming":    handlers.formatAmountAsJSON(balance.Incoming),
+		"hasIncoming": balance.Incoming.Int().Cmp(big.NewInt(0)) != 0,
 	}, nil
 }
 
@@ -198,18 +206,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	if jsonBody.SendAll == "yes" {
 		input.sendAmount = btc.NewSendAmountAll()
 	} else {
-		amount, err := strconv.ParseFloat(jsonBody.Amount, 64)
-		if err != nil {
-			return errp.WithStack(btc.TxValidationError("invalid amount"))
-		}
-		btcAmount, err := btcutil.NewAmount(amount)
-		if err != nil {
-			return errp.WithStack(btc.TxValidationError("invalid amount"))
-		}
-		input.sendAmount, err = btc.NewSendAmount(btcAmount)
-		if err != nil {
-			return errp.WithStack(btc.TxValidationError("invalid amount"))
-		}
+		input.sendAmount = btc.NewSendAmount(jsonBody.Amount)
 	}
 	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
@@ -227,7 +224,6 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
-
 	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode, input.selectedUTXOs)
 	if bitbox.IsErrorAbort(err) {
 		return map[string]interface{}{"success": false}, nil
@@ -270,9 +266,9 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  handlers.formatAmountAsJSON(int64(outputAmount)),
-		"fee":     handlers.formatAmountAsJSON(int64(fee)),
-		"total":   handlers.formatAmountAsJSON(int64(total)),
+		"amount":  handlers.formatAmountAsJSON(outputAmount),
+		"fee":     handlers.formatAmountAsJSON(fee),
+		"total":   handlers.formatAmountAsJSON(total),
 	}, nil
 }
 
@@ -286,7 +282,7 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	for _, feeTarget := range feeTargets {
 		var feeRatePerKb formattedAmount
 		if feeTarget.FeeRatePerKb != nil {
-			feeRatePerKb = handlers.formatAmountAsJSON(int64(*feeTarget.FeeRatePerKb))
+			feeRatePerKb = handlers.formatBTCAmountAsJSON(*feeTarget.FeeRatePerKb)
 		}
 		result = append(result,
 			map[string]interface{}{

@@ -128,8 +128,8 @@ func (coin *Coin) Unit() string {
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount int64) string {
-	float := btcutil.Amount(amount).ToUnit(btcutil.AmountBTC)
+func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
+	float := btcutil.Amount(amount.Int64()).ToUnit(btcutil.AmountBTC)
 	return strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64)
 }
 

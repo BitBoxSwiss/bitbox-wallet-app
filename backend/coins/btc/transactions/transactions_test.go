@@ -28,6 +28,7 @@ import (
 	headersMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/db/transactionsdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
@@ -200,6 +201,13 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	require.True(s.T(), syncFinished)
 }
 
+func newBalance(available, incoming btcutil.Amount) *transactions.Balance {
+	return &transactions.Balance{
+		Available: coin.NewAmountFromInt64(int64(available)),
+		Incoming:  coin.NewAmountFromInt64(int64(incoming)),
+	}
+}
+
 // TestUpdateAddressHistorySingleTxReceive receives a single confirmed tx for a single address.
 func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	addresses := s.addressChain.EnsureAddresses()
@@ -213,7 +221,7 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: expectedHeight},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: expectedAmount, Incoming: 0},
+		newBalance(expectedAmount, 0),
 		s.transactions.Balance(),
 	)
 	utxo := &transactions.SpendableOutput{
@@ -252,7 +260,7 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
 	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 0, Incoming: 0},
+		newBalance(0, 0),
 		s.transactions.Balance(),
 	)
 }
@@ -320,7 +328,7 @@ func (s *transactionsSuite) TestSpendableOutputs() {
 }
 
 func (s *transactionsSuite) TestBalance() {
-	require.Equal(s.T(), &transactions.Balance{Available: 0, Incoming: 0}, s.transactions.Balance())
+	require.Equal(s.T(), newBalance(0, 0), s.transactions.Balance())
 	addresses := s.addressChain.EnsureAddresses()
 	address1 := addresses[0]
 	otherAddress := addresses[2]
@@ -336,7 +344,7 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 0, Incoming: expectedAmount},
+		newBalance(0, expectedAmount),
 		s.transactions.Balance())
 	// Confirm it, plus another one incoming.
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
@@ -345,7 +353,7 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: expectedAmount, Incoming: expectedAmount2},
+		newBalance(expectedAmount, expectedAmount2),
 		s.transactions.Balance())
 	// Spend funds that came from tx1, first unconfirmed. Available balance decreases.
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
@@ -354,7 +362,7 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
+		newBalance(0, expectedAmount2),
 		s.transactions.Balance())
 	// Confirm it.
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
@@ -364,7 +372,7 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx1Spend.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 0, Incoming: expectedAmount2},
+		newBalance(0, expectedAmount2),
 		s.transactions.Balance())
 	// Spend the unconfirmed incoming tx to an internal address, unconfirmed (can't confirm until
 	// the first one is). The funds are still available as we own the unconfirmed output.
@@ -375,7 +383,7 @@ func (s *transactionsSuite) TestBalance() {
 		{TXHash: blockchainpkg.TXHash(tx2Spend.TxHash()), Height: 0},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: expectedAmount2, Incoming: 0},
+		newBalance(expectedAmount2, 0),
 		s.transactions.Balance())
 }
 
@@ -400,7 +408,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		{TXHash: blockchainpkg.TXHash(tx3.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
+		newBalance(2+10+34, 0),
 		s.transactions.Balance())
 	// Remove tx3 from the history of address1. It is still referenced by address2, so the index
 	// does not change.
@@ -408,7 +416,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 2 + 10 + 34, Incoming: 0},
+		newBalance(2+10+34, 0),
 		s.transactions.Balance())
 	require.Len(s.T(),
 		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }),
@@ -418,7 +426,7 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
 	})
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 12 + 34, Incoming: 0},
+		newBalance(12+34, 0),
 		s.transactions.Balance())
 	require.Len(s.T(),
 		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }),
@@ -439,7 +447,7 @@ func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
 	// Process the tx now. It should not be indexed anymore.
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 	require.Equal(s.T(),
-		&transactions.Balance{Available: 0, Incoming: 0},
+		newBalance(0, 0),
 		s.transactions.Balance())
 	require.Empty(s.T(),
 		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }))

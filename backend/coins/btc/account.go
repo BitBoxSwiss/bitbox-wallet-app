@@ -63,7 +63,7 @@ type Interface interface {
 	SendTx(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
-		btcutil.Amount, btcutil.Amount, btcutil.Amount, error)
+		coin.Amount, coin.Amount, coin.Amount, error)
 	GetUnusedReceiveAddresses() []coin.Address
 	VerifyAddress(addressID string) (bool, error)
 	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)

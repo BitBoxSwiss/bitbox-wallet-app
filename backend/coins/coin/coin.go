@@ -14,7 +14,9 @@
 
 package coin
 
-import "github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+import (
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+)
 
 // Coin models the currency of a blockchain.
 type Coin interface {
@@ -35,7 +37,7 @@ type Coin interface {
 	Unit() string
 
 	// FormatAmount formats the given amount as a number.
-	FormatAmount(int64) string
+	FormatAmount(Amount) string
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

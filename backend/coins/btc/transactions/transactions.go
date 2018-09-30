@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
@@ -371,9 +372,9 @@ func (transactions *Transactions) doForTransaction(
 type Balance struct {
 	// Available funds are all confirmed funds which are not spent by any tx. Exception: unconfirmed
 	// transactions that spend from the wallet are available.
-	Available btcutil.Amount
+	Available coin.Amount
 	// Incoming balance are unconfirmed funds coming into the wallet.
-	Incoming btcutil.Amount
+	Incoming coin.Amount
 }
 
 // Balance computes the confirmed and unconfirmed balance of the wallet.
@@ -407,8 +408,8 @@ func (transactions *Transactions) Balance() *Balance {
 		}
 	}
 	return &Balance{
-		Available: btcutil.Amount(available),
-		Incoming:  btcutil.Amount(incoming),
+		Available: coin.NewAmountFromInt64(available),
+		Incoming:  coin.NewAmountFromInt64(incoming),
 	}
 }
 
