@@ -32,58 +32,13 @@ import (
 // unitSatoshi is 1 BTC (default unit) in Satoshi.
 const unitSatoshi = 1e8
 
-// TxValidationError represents errors in the tx proposal input data.
-type TxValidationError string
-
-func (err TxValidationError) Error() string {
-	return string(err)
-}
-
-// SendAmount is either a concrete amount, or "all"/"max". The concrete amount is user input and is
-// parsed/validated in Amount().
-type SendAmount struct {
-	amount  string
-	sendAll bool
-}
-
-// NewSendAmount creates a new SendAmount based on a concrete amount.
-func NewSendAmount(amount string) SendAmount {
-	return SendAmount{amount: amount, sendAll: false}
-}
-
-// NewSendAmountAll creates a new Sendall-amount.
-func NewSendAmountAll() SendAmount {
-	return SendAmount{amount: "", sendAll: true}
-}
-
-// Amount parses the amount and converts it from the default unit to the smallest unit (e.g. satoshi
-// = 1e8). Returns an error if the amount is not positive.
-func (sendAmount *SendAmount) Amount(unit *big.Int) (coin.Amount, error) {
-	if sendAmount.sendAll {
-		panic("can only be called if SendAll is false")
-	}
-	amount, err := coin.NewAmountFromString(sendAmount.amount, unit)
-	if err != nil {
-		return coin.Amount{}, errp.WithStack(TxValidationError("invalid amount"))
-	}
-	if amount.BigInt().Sign() <= 0 {
-		return coin.Amount{}, errp.WithStack(TxValidationError("invalid amount"))
-	}
-	return amount, nil
-}
-
-// SendAll returns if this represents a send-all input.
-func (sendAmount *SendAmount) SendAll() bool {
-	return sendAmount.sendAll
-}
-
 // newTx creates a new tx to the given recipient address. It also returns a set of used account
 // outputs, which contains all outputs that spent in the tx. Those are needed to be able to sign the
 // transaction. selectedUTXOs restricts the available coins; if empty, no restriction is applied and
 // all unspent coins can be used.
 func (account *Account) newTx(
 	recipientAddress string,
-	amount SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (
@@ -93,10 +48,10 @@ func (account *Account) newTx(
 
 	address, err := btcutil.DecodeAddress(recipientAddress, account.coin.Net())
 	if err != nil {
-		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
+		return nil, nil, errp.WithStack(coin.ErrInvalidAddress)
 	}
 	if !address.IsForNet(account.coin.Net()) {
-		return nil, nil, errp.WithStack(TxValidationError("invalid address"))
+		return nil, nil, errp.WithStack(coin.ErrInvalidAddress)
 	}
 
 	var feeTarget *FeeTarget
@@ -126,7 +81,7 @@ func (account *Account) newTx(
 		wireUTXO[outPoint] = txOut.TxOut
 	}
 	var txProposal *maketx.TxProposal
-	if amount.sendAll {
+	if amount.SendAll() {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			account.signingConfiguration,
@@ -145,7 +100,7 @@ func (account *Account) newTx(
 		}
 		parsedAmountInt64, err := parsedAmount.Int64()
 		if err != nil {
-			return nil, nil, errp.WithStack(TxValidationError("invalid amount"))
+			return nil, nil, errp.WithStack(coin.ErrInvalidAmount)
 		}
 		txProposal, err = maketx.NewTx(
 			account.coin,
@@ -170,7 +125,7 @@ func (account *Account) newTx(
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
 func (account *Account) SendTx(
 	recipientAddress string,
-	amount SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) error {
@@ -204,7 +159,7 @@ func (account *Account) SendTx(
 // the UI (the output amount and the fee). At the same time, it validates the input.
 func (account *Account) TxProposal(
 	recipientAddress string,
-	amount SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (

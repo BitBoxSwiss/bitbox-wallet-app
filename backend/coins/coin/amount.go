@@ -67,3 +67,41 @@ func (amount Amount) Int64() (int64, error) {
 func (amount Amount) BigInt() *big.Int {
 	return new(big.Int).Set(amount.n)
 }
+
+// SendAmount is either a concrete amount, or "all"/"max". The concrete amount is user input and is
+// parsed/validated in Amount().
+type SendAmount struct {
+	amount  string
+	sendAll bool
+}
+
+// NewSendAmount creates a new SendAmount based on a concrete amount.
+func NewSendAmount(amount string) SendAmount {
+	return SendAmount{amount: amount, sendAll: false}
+}
+
+// NewSendAmountAll creates a new Sendall-amount.
+func NewSendAmountAll() SendAmount {
+	return SendAmount{amount: "", sendAll: true}
+}
+
+// Amount parses the amount and converts it from the default unit to the smallest unit (e.g. satoshi
+// = 1e8). Returns an error if the amount is not positive.
+func (sendAmount *SendAmount) Amount(unit *big.Int) (Amount, error) {
+	if sendAmount.sendAll {
+		panic("can only be called if SendAll is false")
+	}
+	amount, err := NewAmountFromString(sendAmount.amount, unit)
+	if err != nil {
+		return Amount{}, errp.WithStack(ErrInvalidAmount)
+	}
+	if amount.BigInt().Sign() <= 0 {
+		return Amount{}, errp.WithStack(ErrInvalidAmount)
+	}
+	return amount, nil
+}
+
+// SendAll returns if this represents a send-all input.
+func (sendAmount *SendAmount) SendAll() bool {
+	return sendAmount.sendAll
+}

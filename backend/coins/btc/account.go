@@ -60,9 +60,9 @@ type Interface interface {
 	Close()
 	Transactions() []*transactions.TxInfo
 	Balance() *transactions.Balance
-	SendTx(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
+	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
+	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
 		coin.Amount, coin.Amount, coin.Amount, error)
 	GetUnusedReceiveAddresses() []coin.Address
 	VerifyAddress(addressID string) (bool, error)

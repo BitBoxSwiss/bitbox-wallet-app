@@ -180,7 +180,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 
 type sendTxInput struct {
 	address       string
-	sendAmount    btc.SendAmount
+	sendAmount    coin.SendAmount
 	feeTargetCode btc.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 }
@@ -203,9 +203,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = btc.NewSendAmountAll()
+		input.sendAmount = coin.NewSendAmountAll()
 	} else {
-		input.sendAmount = btc.NewSendAmount(jsonBody.Amount)
+		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
 	}
 	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
@@ -240,7 +240,7 @@ func txProposalError(err error) (interface{}, error) {
 			"errMsg":  "insufficient funds",
 		}, nil
 	}
-	if validationErr, ok := errp.Cause(err).(btc.TxValidationError); ok {
+	if validationErr, ok := errp.Cause(err).(coin.TxValidationError); ok {
 		return map[string]interface{}{
 			"success": false,
 			"errMsg":  validationErr.Error(),
