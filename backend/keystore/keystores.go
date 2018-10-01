@@ -39,7 +39,8 @@ type Keystores interface {
 	// keystores that have a secure output.
 	OutputAddress(*signing.Configuration, coin.Coin) error
 
-	// SignTransaction signs the given proposed transaction on all keystores.
+	// SignTransaction signs the given proposed transaction on all keystores. Returns
+	// ErrSigningAborted if the user aborts.
 	SignTransaction(coin.ProposedTransaction) error
 
 	// Configuration returns the configuration at the given path with the given signing threshold.

@@ -60,6 +60,8 @@ type Interface interface {
 	Close()
 	Transactions() []*transactions.TxInfo
 	Balance() *transactions.Balance
+	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
+	// abort.
 	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
 	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (

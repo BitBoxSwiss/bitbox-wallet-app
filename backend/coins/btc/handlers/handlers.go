@@ -24,7 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
 	"github.com/btcsuite/btcd/wire"
@@ -224,7 +224,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode, input.selectedUTXOs)
-	if bitbox.IsErrorAbort(err) {
+	if errp.Cause(err) == keystore.ErrSigningAborted {
 		return map[string]interface{}{"success": false}, nil
 	}
 	if err != nil {

@@ -671,7 +671,7 @@ func (dbb *Device) SetHiddenPassword(hiddenPIN string, hiddenBackupPassword stri
 			},
 		},
 		dbb.pin)
-	if IsErrorAbort(err) {
+	if isErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {
@@ -683,8 +683,8 @@ func (dbb *Device) SetHiddenPassword(hiddenPIN string, hiddenBackupPassword stri
 	return true, nil
 }
 
-// IsErrorAbort returns whether the user aborted the operation.
-func IsErrorAbort(err error) bool {
+// isErrorAbort returns whether the user aborted the operation.
+func isErrorAbort(err error) bool {
 	dbbErr, ok := errp.Cause(err).(*Error)
 	return ok && (dbbErr.Code == ErrTouchAbort || dbbErr.Code == ErrTouchTimeout)
 }
@@ -703,7 +703,7 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 	}
 	dbb.log.WithField("filename", filename).Info("Restore backup")
 	err := dbb.seed(dbb.pin, backupPassword, "backup", filename)
-	if IsErrorAbort(err) {
+	if isErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {
@@ -761,7 +761,7 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 		return false, errp.New("PIN incorrect")
 	}
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
-	if IsErrorAbort(err) {
+	if isErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {
@@ -934,7 +934,7 @@ func (dbb *Device) UnlockBootloader() (bool, error) {
 		return false, errp.WithStack(errNoBootloader)
 	}
 	reply, err := dbb.sendKV("bootloader", "unlock", dbb.pin)
-	if IsErrorAbort(err) {
+	if isErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {
@@ -1361,7 +1361,7 @@ func (dbb *Device) KeystoreForConfiguration(
 // Lock locks the device for 2FA. Returns true if successful and false if aborted by the user.
 func (dbb *Device) Lock() (bool, error) {
 	reply, err := dbb.sendKV("device", "lock", dbb.pin)
-	if IsErrorAbort(err) {
+	if isErrorAbort(err) {
 		return false, nil
 	}
 	if err != nil {

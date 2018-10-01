@@ -15,10 +15,15 @@
 package keystore
 
 import (
+	"errors"
+
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
+
+// ErrSigningAborted is used when the user aborts a signing in process (e.g. abort on HW wallet).
+var ErrSigningAborted = errors.New("signing aborted by user")
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
 //go:generate mockery -name Keystore
@@ -47,6 +52,7 @@ type Keystore interface {
 
 	// SignMessage(string, *signing.AbsoluteKeypath, coin.Coin) (*big.Int, error)
 
-	// SignTransaction signs the given transaction proposal.
+	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
+	// aborts.
 	SignTransaction(coin.ProposedTransaction) error
 }
