@@ -16,11 +16,11 @@ package btc
 
 import (
 	"fmt"
+	"math/big"
 	"path"
-	"strconv"
+	"strings"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcutil"
 	"github.com/sirupsen/logrus"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
@@ -129,8 +129,10 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
-	float := btcutil.Amount(amount.Int64()).ToUnit(btcutil.AmountBTC)
-	return strconv.FormatFloat(float, 'f', -int(btcutil.AmountBTC+8), 64)
+	return strings.TrimRight(
+		new(big.Rat).SetFrac(amount.Int(), big.NewInt(unitSatoshi)).FloatString(8),
+		"0.",
+	)
 }
 
 // RatesUpdater returns current exchange rates.

@@ -16,6 +16,7 @@ package coin_test
 
 import (
 	"fmt"
+	"math"
 	"math/big"
 	"testing"
 	"testing/quick"
@@ -32,7 +33,9 @@ func TestNewAmountFromString(t *testing.T) {
 				formatted := new(big.Rat).SetFrac(big.NewInt(amount), unit).FloatString(decimals)
 				parsedAmount, err := coin.NewAmountFromString(formatted, unit)
 				require.NoError(t, err)
-				return parsedAmount.Int64() == amount
+				amountInt64, err := parsedAmount.Int64()
+				require.NoError(t, err)
+				return amountInt64 == amount
 			}, nil))
 		})
 	}
@@ -62,4 +65,20 @@ func TestAmountCopy(t *testing.T) {
 	// Modify copy, check that original does not change.
 	amount.Int().SetInt64(2)
 	require.Equal(t, big.NewInt(1), amount.Int())
+}
+
+func TestAmountInt64(t *testing.T) {
+	amount, err := coin.NewAmount(big.NewInt(math.MaxInt64)).Int64()
+	require.NoError(t, err)
+	require.Equal(t, int64(math.MaxInt64), amount)
+
+	amount, err = coin.NewAmount(big.NewInt(math.MinInt64)).Int64()
+	require.NoError(t, err)
+	require.Equal(t, int64(math.MinInt64), amount)
+
+	_, err = coin.NewAmount(new(big.Int).Add(big.NewInt(math.MaxInt64), big.NewInt(1))).Int64()
+	require.Error(t, err)
+
+	_, err = coin.NewAmount(new(big.Int).Sub(big.NewInt(math.MinInt64), big.NewInt(1))).Int64()
+	require.Error(t, err)
 }

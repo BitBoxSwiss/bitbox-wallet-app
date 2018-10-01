@@ -143,11 +143,15 @@ func (account *Account) newTx(
 		if err != nil {
 			return nil, nil, err
 		}
+		parsedAmountInt64, err := parsedAmount.Int64()
+		if err != nil {
+			return nil, nil, errp.WithStack(TxValidationError("invalid amount"))
+		}
 		txProposal, err = maketx.NewTx(
 			account.coin,
 			account.signingConfiguration,
 			wireUTXO,
-			wire.NewTxOut(parsedAmount.Int64(), pkScript),
+			wire.NewTxOut(parsedAmountInt64, pkScript),
 			*feeTarget.FeeRatePerKb,
 			func() *addresses.AccountAddress {
 				return account.changeAddresses.GetUnused()[0]

@@ -15,6 +15,7 @@
 package coin
 
 import (
+	"math"
 	"math/big"
 	"strings"
 
@@ -54,13 +55,16 @@ func NewAmountFromString(s string, unit *big.Int) (Amount, error) {
 	return Amount{amount: rat.Num()}, nil
 }
 
-// Int64 returns the int64 representation of amount.
-// If x cannot be represented in an int64, the result is undefined.
-func (amount *Amount) Int64() int64 {
-	return amount.amount.Int64()
+// Int64 returns the int64 representation of amount. If x cannot be represented in an int64, an
+// error is returned.
+func (amount Amount) Int64() (int64, error) {
+	if amount.amount.Cmp(big.NewInt(math.MaxInt64)) == 1 || amount.amount.Cmp(big.NewInt(math.MinInt64)) == -1 {
+		return 0, errp.Newf("%s overflows int64", amount.amount)
+	}
+	return amount.amount.Int64(), nil
 }
 
 // Int returns a copy of the underlying big integer.
-func (amount *Amount) Int() *big.Int {
+func (amount Amount) Int() *big.Int {
 	return new(big.Int).Set(amount.amount)
 }
