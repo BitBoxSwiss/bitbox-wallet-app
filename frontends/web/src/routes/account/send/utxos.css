@@ -89,16 +89,6 @@
 }
 
 @media (max-width: 885px) {
-    .table > tr > td label {
-        /*display: block;
-        font-size: var(--size-small);
-        margin-bottom: 3px;*/
-    }
-
-    .table > tr > td > span:last-child {
-        /*margin-top: 5px;*/
-    }
-
     .table > tr > td:last-child {
         vertical-align: bottom;
     }

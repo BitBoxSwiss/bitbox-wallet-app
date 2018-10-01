@@ -33,7 +33,7 @@ export default function Transactions({
                         {...props} />
                 )) : (
                     <div class="flex flex-row flex-center">
-                        <p class="text-bold text-gray">
+                        <p class="text-gray">
                             {i18n.t('transactions.placeholder')}
                         </p>
                     </div>

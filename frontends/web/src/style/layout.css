@@ -154,6 +154,7 @@
     min-height: 36px;
     width: 100%;
     max-width: var(--content-width);
+    margin: 0 auto;
 }
 
 .tabs .tab {

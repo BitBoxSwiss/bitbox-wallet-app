@@ -21,6 +21,7 @@
     justify-content: space-between;
     align-items: center;
     flex: none;
+    margin: 0 auto;
 }
 
 .header.children {
@@ -31,6 +32,9 @@
 
 .children {
     padding: 0 var(--spacing-large) var(--spacing-large) var(--spacing-large);
+    max-width: var(--content-width);
+    width: 100%;
+    margin: 0 auto;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
