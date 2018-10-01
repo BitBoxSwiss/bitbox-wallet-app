@@ -130,7 +130,7 @@ func (coin *Coin) Unit() string {
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 	return strings.TrimRight(
-		new(big.Rat).SetFrac(amount.Int(), big.NewInt(unitSatoshi)).FloatString(8),
+		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
 		"0.",
 	)
 }

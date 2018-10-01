@@ -16,7 +16,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"math/big"
 	"net/http"
 	"time"
 
@@ -175,7 +174,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 	return map[string]interface{}{
 		"available":   handlers.formatAmountAsJSON(balance.Available),
 		"incoming":    handlers.formatAmountAsJSON(balance.Incoming),
-		"hasIncoming": balance.Incoming.Int().Cmp(big.NewInt(0)) != 0,
+		"hasIncoming": balance.Incoming.BigInt().Sign() > 0,
 	}, nil
 }
 

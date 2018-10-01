@@ -15,7 +15,6 @@
 package coin
 
 import (
-	"math"
 	"math/big"
 	"strings"
 
@@ -24,17 +23,17 @@ import (
 
 // Amount represents an amount in the smallest coin unit (e.g. satoshi).
 type Amount struct {
-	amount *big.Int
+	n *big.Int
 }
 
 // NewAmount creates a new amount.
 func NewAmount(amount *big.Int) Amount {
-	return Amount{amount: amount}
+	return Amount{n: amount}
 }
 
 // NewAmountFromInt64 creates a new amount.
 func NewAmountFromInt64(amount int64) Amount {
-	return Amount{amount: big.NewInt(amount)}
+	return Amount{n: big.NewInt(amount)}
 }
 
 // NewAmountFromString parses a user given coin amount, converting it from the default coin unit to
@@ -52,19 +51,19 @@ func NewAmountFromString(s string, unit *big.Int) (Amount, error) {
 	if rat.Denom().Cmp(big.NewInt(1)) != 0 {
 		return Amount{}, errp.Newf("invalid amount %q", s)
 	}
-	return Amount{amount: rat.Num()}, nil
+	return Amount{n: rat.Num()}, nil
 }
 
 // Int64 returns the int64 representation of amount. If x cannot be represented in an int64, an
 // error is returned.
 func (amount Amount) Int64() (int64, error) {
-	if amount.amount.Cmp(big.NewInt(math.MaxInt64)) == 1 || amount.amount.Cmp(big.NewInt(math.MinInt64)) == -1 {
-		return 0, errp.Newf("%s overflows int64", amount.amount)
+	if !amount.n.IsInt64() {
+		return 0, errp.Newf("%s overflows int64", amount.n)
 	}
-	return amount.amount.Int64(), nil
+	return amount.n.Int64(), nil
 }
 
-// Int returns a copy of the underlying big integer.
-func (amount Amount) Int() *big.Int {
-	return new(big.Int).Set(amount.amount)
+// BigInt returns a copy of the underlying big integer.
+func (amount Amount) BigInt() *big.Int {
+	return new(big.Int).Set(amount.n)
 }

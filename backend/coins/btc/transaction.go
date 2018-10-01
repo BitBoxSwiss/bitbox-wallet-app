@@ -66,7 +66,7 @@ func (sendAmount *SendAmount) Amount(unit *big.Int) (coin.Amount, error) {
 	if err != nil {
 		return coin.Amount{}, errp.WithStack(TxValidationError("invalid amount"))
 	}
-	if amount.Int().Sign() <= 0 {
+	if amount.BigInt().Sign() <= 0 {
 		return coin.Amount{}, errp.WithStack(TxValidationError("invalid amount"))
 	}
 	return amount, nil

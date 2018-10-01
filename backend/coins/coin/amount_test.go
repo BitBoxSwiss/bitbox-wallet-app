@@ -55,16 +55,16 @@ func TestNewAmountFromString(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t,
 		new(big.Int).Exp(big.NewInt(2), big.NewInt(78), nil),
-		veryBig.Int(),
+		veryBig.BigInt(),
 	)
 }
 
 func TestAmountCopy(t *testing.T) {
 	amount := coin.NewAmountFromInt64(1)
-	require.Equal(t, big.NewInt(1), amount.Int())
+	require.Equal(t, big.NewInt(1), amount.BigInt())
 	// Modify copy, check that original does not change.
-	amount.Int().SetInt64(2)
-	require.Equal(t, big.NewInt(1), amount.Int())
+	amount.BigInt().SetInt64(2)
+	require.Equal(t, big.NewInt(1), amount.BigInt())
 }
 
 func TestAmountInt64(t *testing.T) {
