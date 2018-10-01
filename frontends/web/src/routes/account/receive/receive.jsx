@@ -65,9 +65,9 @@ export default class Receive extends Component {
     }
 
     verifyAddress = () => {
-        this.setState({ verifying: true });
         const { receiveAddresses, activeIndex } = this.state;
-        if (receiveAddresses && activeIndex) {
+        if (receiveAddresses !== null && activeIndex !== null) {
+            this.setState({ verifying: true });
             apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(hasSecureOutput => {
                 this.setState({ verifying: false });
                 if (!hasSecureOutput) {
@@ -91,7 +91,7 @@ export default class Receive extends Component {
 
     ltcConvertToLegacy = () => {
         const { receiveAddresses, activeIndex } = this.state;
-        if (receiveAddresses && activeIndex) {
+        if (receiveAddresses !== null && activeIndex !== null) {
             apiPost('account/' + this.props.code + '/convert-to-legacy-address',
                 receiveAddresses[activeIndex].addressID)
                 .then(legacyAddress => {
