@@ -120,3 +120,13 @@
         z-index: 4002;
     }
 }
+
+@media screen and (max-width: 640px) {
+    .guide {
+        padding: var(--spacing-default);
+    }
+
+    .guide h2 {
+        font-size: 1.05em;
+    }
+}
