@@ -111,7 +111,7 @@ export default class Info extends Component {
                                     signingConfiguration={info.signingConfiguration} />
                             </div>
                         </div>
-                        <div class="flex flex-row flex-between" style="margin: 0 2rem 2rem 2rem;">
+                        <div class={style.bottomButtons}>
                             <ButtonLink
                                 secondary
                                 href={`/account/${code}`}>

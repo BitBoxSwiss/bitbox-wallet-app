@@ -65,39 +65,19 @@
     color: white;
     cursor: default;
     padding: var(--spacing-default) 0;
+    margin: 10px 10px 0 10px;
     text-decoration: none;
     overflow: hidden;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    border-radius: 2px;
 }
 
 a.sidebar-active {
     text-decoration: none;
     background-color: rgba(255, 255, 255, 0.1);
-}
-
-.sidebar a::after {
-    content: '';
-    position: absolute;
-    display: none;
-    border-right: 6px solid var(--color-white);
-    border-top: var(--spacing-half) solid transparent;
-    border-bottom: var(--spacing-half) solid transparent;
-    height: calc(100% - var(--spacing-default));
-    width: 0;
-    top: 50%;
-    right: -6px;
-    transform: translateY(-50%);
-}
-
-.sidebarContainer.withGuide .sidebar a::after {
-    display: none;
-}
-
-.sidebar a.sidebar-active::after {
-    right: 0;
 }
 
 .sidebar .stacked,

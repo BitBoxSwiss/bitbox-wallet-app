@@ -3,7 +3,7 @@
 }
 
 .guide {
-    margin-right: -350px;
+    margin-right: calc(var(--guide-width) * -1);
     height: 100vh;
     padding: var(--spacing-large);
     width: var(--guide-width);

@@ -24,6 +24,9 @@
     flex-direction: row;
     justify-content: space-between;
     padding: 0 var(--spacing-large) var(--spacing-default) var(--spacing-large);
+    max-width: var(--content-width);
+    width: 100%;
+    margin: 0 auto;
 }
 
 .button {

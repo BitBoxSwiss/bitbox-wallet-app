@@ -9,3 +9,28 @@
     margin-top: -1rem;
     text-align: center;
 }
+
+.bottomButtons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0 var(--spacing-large) var(--spacing-default) var(--spacing-large);
+    max-width: var(--content-width);
+    width: 100%;
+    margin: 0 auto;
+}
+
+.button {
+    min-width: 70px;
+    margin: 0 var(--spacing-half);
+}
+
+@media (max-width: 640px) {
+    .addressField input {
+        font-size: var(--size-small);
+    }
+
+    .bottomButtons {
+        padding: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
+    }
+}
