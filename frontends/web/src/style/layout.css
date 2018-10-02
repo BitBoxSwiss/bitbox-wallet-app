@@ -148,6 +148,10 @@
     .subHeaderContainer .subHeader h3 {
         font-size: var(--size-medium);
     }
+
+    .bottom {
+        padding: var(--spacing-default) 0 0 0 !important;
+    }
 }
 
 .tabs {

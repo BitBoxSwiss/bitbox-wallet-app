@@ -1,11 +1,12 @@
 .manageBackups {
     margin-top: var(--spacing-default);
     padding: 0 var(--spacing-large);
-    overflow: auto;
+    display: flex;
 }
 
 @media (max-width: 640px) {
     .manageBackups {
+        margin-top: 0;
         padding: 0 var(--spacing-half);
     }
 }
