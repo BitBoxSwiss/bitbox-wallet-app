@@ -132,7 +132,7 @@ export default class Unlock extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <Header title={<h2>Welcome</h2>} {...this.props} />
+                    <Header title={<h2>{t('welcome.title')}</h2>} {...this.props} />
                     <div className={style.content}>
                         <div className="flex-1 flex flex-column flex-center">
                             <BitBox />
