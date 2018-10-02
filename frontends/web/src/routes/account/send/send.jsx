@@ -165,6 +165,8 @@ export default class Send extends Component {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
+                    addressError: null,
+                    amountError: null,
                     proposedFee: result.fee,
                     proposedAmount: result.amount,
                     proposedTotal: result.total,
