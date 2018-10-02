@@ -49,7 +49,7 @@ type Bitbox interface {
 	LockBootloader() error
 	EraseBackup(string) error
 	RestoreBackup(string, string) (bool, error)
-	CreateBackup(string, string) error
+	CreateBackup(string, string) (bool, error)
 	BackupList() ([]map[string]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	DisplayAddress(keyPath string, typ string) error
@@ -232,6 +232,7 @@ func (handlers *Handlers) postCreateWalletHandler(r *http.Request) (interface{},
 	backupPassword := jsonBody["backupPassword"]
 
 	handlers.log.WithField("walletName", walletName).Debug("Create wallet")
+
 	if err := handlers.bitbox.CreateWallet(walletName, backupPassword); err != nil {
 		handlers.log.WithFields(logrus.Fields{"walletName": walletName, "error": err}).
 			Error("Failed to create wallet")
@@ -296,10 +297,11 @@ func (handlers *Handlers) postBackupsCreateHandler(r *http.Request) (interface{}
 	backupName := jsonBody["backupName"]
 	recoveryPassword := jsonBody["recoveryPassword"]
 	handlers.log.WithField("backupName", backupName).Debug("Create backup")
-	if err := handlers.bitbox.CreateBackup(backupName, recoveryPassword); err != nil {
+	verification, err := handlers.bitbox.CreateBackup(backupName, recoveryPassword)
+	if err != nil {
 		return maybeDBBErr(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": true}, nil
+	return map[string]interface{}{"success": true, "verification": verification}, nil
 }
 
 func (handlers *Handlers) postPairingStartHandler(r *http.Request) (interface{}, error) {

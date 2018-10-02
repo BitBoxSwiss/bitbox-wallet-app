@@ -421,7 +421,9 @@
             "password": {
                 "label": "Recovery Password",
                 "placeholder": "Please enter your recovery password"
-            }
+            },
+            "info": "Please enter the recovery password of the current wallet for verification.",
+            "verificationFailed": "The recovery password does NOT MATCH the current wallet. The backup has been created. Please use 'Check Backup' to verify your recovery password again."
         },
         "restore": {
             "title": "Restore",
@@ -440,7 +442,7 @@
             "confirmTitle": "Check Backup",
             "checking": "Checking backup…",
             "password": {
-                "label": "Recovery password or hidden recovery password",
+                "label": "Recovery password",
                 "placeholder": "Recovery password",
                 "showLabel": "Recovery password"
             },

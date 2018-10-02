@@ -714,10 +714,12 @@ func (dbb *Device) RestoreBackup(backupPassword, filename string) (bool, error) 
 	return true, nil
 }
 
-// CreateBackup creates a new backup of the current device seed on the SD card.
-func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) error {
+// CreateBackup creates a new backup of the current device seed on the SD card. The recoveryPassword
+// is used as a sanity check (does the backed up seed + recoveryPassword dervive the current keys in
+// the BitBox?). Returns false if this check fails.
+func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) (bool, error) {
 	if dbb.bootloaderStatus != nil {
-		return errp.WithStack(errNoBootloader)
+		return false, errp.WithStack(errNoBootloader)
 	}
 	dbb.log.WithField("backup-name", backupName).Info("Create backup")
 	reply, err := dbb.send(
@@ -728,13 +730,17 @@ func (dbb *Device) CreateBackup(backupName string, recoveryPassword string) erro
 			},
 		},
 		dbb.pin)
+	// Backup verification failed -> backup was still created.
+	if dbbErr, ok := errp.Cause(err).(*Error); ok && dbbErr.Code == ErrSDNoMatch {
+		return false, nil
+	}
 	if err != nil {
-		return errp.WithMessage(err, "Failed to create backup")
+		return false, errp.WithMessage(err, "Failed to create backup")
 	}
 	if reply["backup"] != responseSuccess {
-		return errp.New("Unexpected result: backup != success")
+		return false, errp.New("Unexpected result: backup != success")
 	}
-	return nil
+	return true, nil
 }
 
 // Blink flashes the LED.

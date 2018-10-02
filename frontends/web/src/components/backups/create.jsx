@@ -74,6 +74,9 @@ export default class Create extends Component {
                 alert(data.errorMessage); // eslint-disable-line no-alert
             } else {
                 this.props.onCreate();
+                if (!data.verification) {
+                    alert(this.props.t('backup.create.verificationFailed'));
+                }
             }
         });
     }
@@ -104,6 +107,7 @@ export default class Create extends Component {
                                     placeholder={t('backup.create.name.placeholder')}
                                     onInput={this.handleFormChange}
                                     value={backupName} />
+                                <p>{t('backup.create.info')}</p>
                                 <PasswordInput
                                     ref={ref => this.passwordInput = ref}
                                     id="recoveryPassword"
