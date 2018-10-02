@@ -5,6 +5,7 @@
     padding: 0 0 var(--spacing-default) 0;
     position: relative;
     text-align: left;
+    flex: 1;
 }
 
 .agreements {
