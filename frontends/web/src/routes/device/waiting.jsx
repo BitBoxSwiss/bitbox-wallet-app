@@ -23,19 +23,21 @@ import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Message } from '../../components/message/message';
+import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import InnerHTMLHelper from '../../utils/innerHTML';
 import * as style from './device.css';
 
-export default function Waiting({ testing }) {
+export default function Waiting(props) {
+    const { testing } = props;
     const title = i18n.t('welcome.title');
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
+                <Header title={<h2>{title}</h2>} {...props} />
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
-                        {title && (<h1 style="text-align: center;">{title}</h1>)}
                         <h3 style="text-align: center;">{i18n.t('welcome.insertDevice')}</h3>
                         {i18n.t('welcome.paragraph')}
                         <Message type="warning" style="max-width: 400px; align-self: center;">

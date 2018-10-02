@@ -104,7 +104,11 @@ export default class SeedRestore extends Component {
                         {
                             showInfo ? (
                                 <div class={style.block}>
-                                    <h2>{t('seedRestore.info.title')}</h2>
+                                    <div class="subHeaderContainer first">
+                                        <div class="subHeader">
+                                            <h3>{t('seedRestore.info.title')}</h3>
+                                        </div>
+                                    </div>
                                     <p>{t('seedRestore.info.description')}</p>
                                     <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button

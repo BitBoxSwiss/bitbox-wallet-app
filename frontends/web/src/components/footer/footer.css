@@ -14,3 +14,9 @@
     max-width: 120px;
     margin: 0 auto 0 0;
 }
+
+@media (max-width: 640px) {
+    .footer {
+        padding: var(--spacing-half);
+    }
+}
