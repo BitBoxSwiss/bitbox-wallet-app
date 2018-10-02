@@ -18,6 +18,5 @@
 /frontends/web/yarn-error.log
 **/*/output.log
 .vscode/
-log/
 
 .DS_Store
