@@ -42,6 +42,8 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    padding-bottom: var(--size-medium);
+    margin-bottom: calc(var(--size-medium) * -1);
 }
 
 .amount {
@@ -320,6 +322,8 @@
     .address {
         position: relative;
         font-size: var(--size-button);
+        padding-bottom: var(--size-button);
+        margin-bottom: calc(var(--size-button) * -1);
     }
 
     .externalLabel {
