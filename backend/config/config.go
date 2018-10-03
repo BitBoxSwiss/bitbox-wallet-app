@@ -36,6 +36,7 @@ type Backend struct {
 	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
 	LitecoinP2WPKHP2SHActive bool `json:"litecoinP2WPKHP2SHActive"`
 	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
+	EthereumActive           bool `json:"ethereumActive"`
 
 	BTC  CoinConfig `json:"btc"`
 	TBTC CoinConfig `json:"tbtc"`
@@ -56,6 +57,8 @@ func (backend Backend) AccountActive(code string) bool {
 		return backend.LitecoinP2WPKHP2SHActive
 	case "tltc-p2wpkh", "ltc-p2wpkh":
 		return backend.LitecoinP2WPKHActive
+	case "eth", "teth":
+		return backend.EthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
 	}
@@ -114,6 +117,7 @@ func NewDefaultConfig() AppConfig {
 			BitcoinP2WPKHActive:      false,
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     false,
+			EthereumActive:           true,
 			BTC: CoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{

@@ -44,6 +44,8 @@ const logoMap = {
     'ltc-p2wpkh': [LTC, LTC_GREY],
     'tltc-p2wpkh-p2sh': [LTC, LTC_GREY],
     'tltc-p2wpkh': [LTC, LTC_GREY],
+    'eth': [LTC, LTC],
+    'teth': [LTC, LTC],
 };
 
 export default function Logo({ code, ...props }) {

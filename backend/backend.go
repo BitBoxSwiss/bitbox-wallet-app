@@ -24,6 +24,7 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
@@ -31,6 +32,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
@@ -50,6 +52,8 @@ const (
 	coinTBTC = "tbtc"
 	coinLTC  = "ltc"
 	coinTLTC = "tltc"
+	coinETH  = "eth"
+	coinTETH = "teth"
 )
 
 type backendEvent struct {
@@ -127,11 +131,6 @@ func (backend *Backend) addAccount(
 		return
 	}
 	backend.log.WithField("code", code).WithField("name", name).Info("init account")
-	onEvent := func(code string) func(btc.Event) {
-		return func(event btc.Event) {
-			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-		}
-	}
 	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
 		panic(err)
@@ -144,8 +143,21 @@ func (backend *Backend) addAccount(
 	}
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
+		onEvent := func(code string) func(btc.Event) {
+			return func(event btc.Event) {
+				backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+			}
+		}
 		account := btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
+		backend.accounts = append(backend.accounts, account)
+	case *eth.Coin:
+		onEvent := func(event eth.Event) {
+			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+		}
+		account := eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(),
+			code, name,
+			getSigningConfiguration, backend.keystores, onEvent, backend.log)
 		backend.accounts = append(backend.accounts, account)
 	default:
 		panic("unknown coin type")
@@ -267,6 +279,10 @@ func (backend *Backend) Coin(code string) coin.Coin {
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/", backend.ratesUpdater)
+	case coinETH:
+		coin = eth.NewCoin(code, params.MainnetChainConfig, "https://etherscan.io/address/")
+	case coinTETH:
+		coin = eth.NewCoin(code, params.TestnetChainConfig, "https://ropsten.etherscan.io/address/")
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
@@ -303,6 +319,11 @@ func (backend *Backend) initAccounts() {
 				signing.ScriptTypeP2WPKHP2SH)
 			backend.addAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'",
 				signing.ScriptTypeP2WPKH)
+
+			if backend.arguments.DevMode() {
+				teth := backend.Coin(coinTETH)
+				backend.addAccount(teth, "teth", "Ethereum Testnet", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			}
 		}
 	} else {
 		BTC := backend.Coin(coinBTC)
@@ -318,6 +339,11 @@ func (backend *Backend) initAccounts() {
 			signing.ScriptTypeP2WPKHP2SH)
 		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
 			signing.ScriptTypeP2WPKH)
+
+		if backend.arguments.DevMode() {
+			eth := backend.Coin(coinETH)
+			backend.addAccount(eth, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+		}
 	}
 	for _, account := range backend.accounts {
 		backend.onAccountInit(account)

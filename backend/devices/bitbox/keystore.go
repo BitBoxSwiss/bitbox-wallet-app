@@ -21,9 +21,11 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/sirupsen/logrus"
 )
 
@@ -72,14 +74,8 @@ func (keystore *keystore) ExtendedPublicKey(
 	keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 	return keystore.dbb.XPub(keyPath.Encode())
 }
-
-// SignTransaction implements keystore.Keystore.
-func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) error {
-	btcProposedTx, ok := proposedTx.(*btc.ProposedTransaction)
-	if !ok {
-		panic("only btc")
-	}
-	keystore.log.Info("Sign transaction")
+func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
+	keystore.log.Info("Sign btc transaction")
 	signatureHashes := [][]byte{}
 	keyPaths := []string{}
 	transaction := btcProposedTx.TXProposal.Transaction
@@ -131,4 +127,44 @@ func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) e
 		btcProposedTx.Signatures[i][keystore.CosignerIndex()] = &signature.Signature
 	}
 	return nil
+}
+
+func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
+	signatureHashes := [][]byte{
+		txProposal.Signer.Hash(txProposal.Tx).Bytes(),
+	}
+	_ = signatureHashes
+	signatures, err := keystore.dbb.Sign(nil, signatureHashes, []string{txProposal.Keypath.Encode()})
+	if err != nil {
+		return err
+	}
+	if len(signatures) != 1 {
+		panic("expecting one signature")
+	}
+	signature := signatures[0]
+	// We serialize the sig (including the recid at the last byte) so we can use WithSignature()
+	// without modifications, even though it deserializes it again immediately. We do this because
+	// it also modifies the `V` value according to EIP155.
+	sig := make([]byte, 65)
+	copy(sig[:32], math.PaddedBigBytes(signature.R, 32))
+	copy(sig[32:64], math.PaddedBigBytes(signature.S, 32))
+	sig[64] = byte(signature.RecID)
+	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer, sig)
+	if err != nil {
+		return err
+	}
+	txProposal.Tx = signedTx
+	return nil
+}
+
+// SignTransaction implements keystore.Keystore.
+func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) error {
+	switch specificProposedTx := proposedTx.(type) {
+	case *btc.ProposedTransaction:
+		return keystore.signBTCTransaction(specificProposedTx)
+	case *eth.TxProposal:
+		return keystore.signETHTransaction(specificProposedTx)
+	default:
+		panic("unknown proposal type")
+	}
 }

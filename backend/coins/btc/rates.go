@@ -30,7 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 )
 
-var coins = []string{"BTC", "LTC"}
+var coins = []string{"BTC", "LTC", "ETH"}
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB"}
 
 const interval = time.Minute
