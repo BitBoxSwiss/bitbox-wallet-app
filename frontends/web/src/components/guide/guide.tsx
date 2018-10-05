@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import i18n from 'i18next';
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
@@ -61,6 +62,17 @@ interface ProvidedProps {
 
 type Props = ProvidedProps & SharedProps & TranslateProp;
 
+// Guide entries are fetched from the translation files. Manual fallback to the reference language
+// is implemented in case an array element is undefined in the current language (can be null if not
+// translated in order, for example).
+function getGuideEntries(t, screen): ImplicitEntry[] {
+    const key = 'guide.' + screen;
+    // For now, fallback to the main fallback language, not cascading.
+    const entriesFallbackLanguage = i18n.getFixedT(i18n.languages[i18n.languages.length - 1])(key, { defaultValue: [] });
+    const entriesCurrentLanguage = t(key, { defaultValue: [] });
+    return entriesFallbackLanguage.map((entry, index) => entriesCurrentLanguage[index] || entry);
+}
+
 function Guide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={style.wrapper}>
@@ -68,7 +80,7 @@ function Guide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Elem
                 <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
                     <h1>{t('guide.title')}</h1>
                 </div>
-                {screen && t('guide.' + screen, { defaultValue: [] }).map((entry: ImplicitEntry, i: number) => (
+                {screen && getGuideEntries(t, screen).map((entry: ImplicitEntry, i: number) => (
                     <Entry key={screen + i} entry={entry} />
                 ))}
                 {children}
