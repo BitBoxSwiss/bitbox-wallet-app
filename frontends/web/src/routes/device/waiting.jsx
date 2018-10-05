@@ -15,7 +15,7 @@
  */
 
 import { Component, h } from 'preact';
-import i18n from '../../i18n/i18n';
+import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
@@ -23,41 +23,47 @@ import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Message } from '../../components/message/message';
+import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
 import InnerHTMLHelper from '../../utils/innerHTML';
 import * as style from './device.css';
 
-export default function Waiting({ testing }) {
-    const title = i18n.t('welcome.title');
-    return (
-        <div class="contentWithGuide">
-            <div className={style.container}>
-                <div className={style.content}>
-                    <div className="flex-1 flex flex-column flex-center">
-                        {title && (<h1 style="text-align: center;">{title}</h1>)}
-                        <h3 style="text-align: center;">{i18n.t('welcome.insertDevice')}</h3>
-                        {i18n.t('welcome.paragraph')}
-                        <Message type="warning" style="max-width: 400px; align-self: center;">
-                            <Alert />
-                            <InnerHTMLHelper tagName="p" html={i18n.t('deviceTampered')} style="margin-top: 0;" />
-                        </Message>
-                        <SkipForTestingButton show={debug && testing} />
+@translate()
+export default class Waiting extends Component {
+    render({
+        t,
+        testing,
+    }) {
+        return (
+            <div class="contentWithGuide">
+                <div className={style.container}>
+                    <Header title={<h2>{t('welcome.title')}</h2>} {...this.props} />
+                    <div className={style.content}>
+                        <div className="flex-1 flex flex-column flex-center">
+                            <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
+                            {t('welcome.paragraph')}
+                            <Message type="warning" style="max-width: 400px; align-self: center;">
+                                <Alert />
+                                <InnerHTMLHelper tagName="p" html={t('deviceTampered')} style="margin-top: 0;" />
+                            </Message>
+                            <SkipForTestingButton show={debug && testing} />
+                        </div>
+                        <hr />
+                        <Footer>
+                            <Shift />
+                        </Footer>
                     </div>
-                    <hr />
-                    <Footer>
-                        <Shift />
-                    </Footer>
                 </div>
+                <Guide screen="waiting">
+                    <Entry key="waitingWithoutDevice" title={t('guide.waitingWithoutDevice.title')}>
+                        {!(debug && testing) && <p>{t('guide.waitingWithoutDevice.text.0')}</p>}
+                        {debug && testing && <p>{t('guide.waitingWithoutDevice.text.1')}</p>}
+                    </Entry>
+                </Guide>
             </div>
-            <Guide screen="waiting">
-                <Entry key="waitingWithoutDevice" title={i18n.t('guide.waitingWithoutDevice.title')}>
-                    {!(debug && testing) && <p>{i18n.t('guide.waitingWithoutDevice.text.0')}</p>}
-                    {debug && testing && <p>{i18n.t('guide.waitingWithoutDevice.text.1')}</p>}
-                </Entry>
-            </Guide>
-        </div>
-    );
+        );
+    }
 }
 
 class SkipForTestingButton extends Component {

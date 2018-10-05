@@ -3,7 +3,6 @@ import i18n from '../../../i18n/i18n';
 import { Button } from '../../../components/forms';
 import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
-// import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
 
 export default function Goal({

@@ -28,7 +28,7 @@
         }
     },
     "welcome": {
-        "title": "",
+        "title": "Welcome",
         "paragraph": "",
         "insertDevice": "Please connect your device to get started"
     },

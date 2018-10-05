@@ -108,7 +108,7 @@
 }
 
 .subHeaderContainer.first {
-
+    margin-top: 0;
 }
 
 .subHeaderContainer .subHeader h3 {
