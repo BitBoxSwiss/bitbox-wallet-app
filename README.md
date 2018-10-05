@@ -58,8 +58,12 @@ Only the first time, call `make envinit` to install the required go utilities (l
 
 ## Build the Bitbox Wallet
 
-Please consult `BUILD.md` for platform specific instructions and further
+Please consult `docs/BUILD.md` for platform specific instructions and further
 information.
+
+## I18N Translation Workflow
+
+Please consult `docs/i18n.md`.
 
 ## ElectrumX Backend
 

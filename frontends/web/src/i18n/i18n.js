@@ -18,31 +18,62 @@ import i18n from 'i18next';
 import appTranslationsEN from '../locales/en/app.json';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
+import Backend from 'i18next-locize-backend';
+import locizeEditor from 'locize-editor';
 
-i18n
-    .use(languageFromConfig)
-    .init({
-        // lng: userLanguage,
-        fallbackLng: 'en',
+// if a language is not officially added yet, add it through this env var to make it available.
+export const extraLanguage = process.env.PREACT_APP_I18N_ADDLANGUAGE;
+export const i18nEditorActive = process.env.PREACT_APP_I18NEDITOR === '1';
 
-        // have a common namespace used around the full app
-        ns: ['app', 'wallet'],
-        defaultNS: 'app',
+const locizeProjectID = 'fe4e5a24-e4a2-4903-96fc-3d62c11fc502';
 
-        debug: false,
-        returnObjects: true,
+let i18Init = i18n
+    .use(languageFromConfig);
+if (i18nEditorActive) {
+    i18Init = i18Init
+        .use(Backend)
+        .use(locizeEditor);
+}
+i18Init.init({
+    fallbackLng: 'en',
 
-        interpolation: {
-            escapeValue: false // not needed for react
-        },
+    // have a common namespace used around the full app
+    ns: ['app', 'wallet'],
+    defaultNS: 'app',
 
-        react: {
-            wait: true
+    debug: false,
+    returnObjects: true,
+
+    interpolation: {
+        escapeValue: false // not needed for react
+    },
+
+    react: {
+        wait: true
+    },
+
+    backend: {
+        projectId: locizeProjectID,
+        referenceLng: 'en'
+    },
+    editor: {
+        enabled: i18nEditorActive,
+        autoOpen: true,
+        mode: 'iframe', // 'window',
+        projectId: locizeProjectID,
+
+        /* iframeContainerStyle: 'z-index: 2000; position: fixed; bottom: 0; right: 0; left: 0; height: 300px; box-shadow: -3px 0 5px 0 rgba(0,0,0,0.5);',
+         * iframeStyle: 'width: 100%; height: 300px; border: none;',
+         * bodyStyle: 'margin-bottom: 205px;', */
+        onEditorSaved: (lng, ns) => {
+            i18n.reloadResources(lng, ns);
         }
-    });
+    },
+});
 
-
-i18n.addResourceBundle('en', 'app', appTranslationsEN);
+if (!i18nEditorActive) {
+    i18n.addResourceBundle('en', 'app', appTranslationsEN);
+}
 
 i18n.on('languageChanged', (lng) => {
     apiGet('config').then((config = {}) => {

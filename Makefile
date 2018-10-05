@@ -50,6 +50,8 @@ buildweb:
 	yarn --cwd=${WEBROOT} run build
 webdev:
 	make -C frontends/web dev
+webdev-i18n:
+	PREACT_APP_I18NEDITOR=1 make webdev
 weblint:
 	make -C frontends/web lint
 webtest:
@@ -75,3 +77,7 @@ dockerinit:
 	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:
 	./scripts/dockerdev.sh
+locize-push:
+	cd frontends/web/src/locales && locize sync
+locize-pull:
+	cd frontends/web/src/locales && locize download

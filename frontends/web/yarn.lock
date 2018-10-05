@@ -2894,6 +2894,11 @@ dot-prop@^4.1.0:
   dependencies:
     is-obj "^1.0.0"
 
+dotenv@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-4.0.0.tgz#864ef1379aced55ce6f95debecdce179f7a0cd1d"
+  integrity sha1-hk7xN5rO1Vzm+V3r7NzhefegzR0=
+
 download@^4.0.0, download@^4.1.2:
   version "4.4.3"
   resolved "https://registry.yarnpkg.com/download/-/download-4.4.3.tgz#aa55fdad392d95d4b68e8c2be03e0c2aa21ba9ac"
@@ -4523,6 +4528,11 @@ https-browserify@^1.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-1.0.0.tgz#ec06c10e0a34c0f2faf199f7fd7fc78fffd03c73"
   integrity sha1-7AbBDgo0wPL68Zn3/X/Hj//QPHM=
 
+i18next-locize-backend@1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/i18next-locize-backend/-/i18next-locize-backend-1.6.0.tgz#4a95c19fa2bee623c1d61ce5a80a76a123f7ff92"
+  integrity sha512-3+hlwM7eC8MclWIfZ89hXwir4HC5YKUxrx+aLWWPC1H1hrB9dFh4uxve1o2HqJnravOrg247xHvW8xGv9h/Asg==
+
 i18next@11.3.6:
   version "11.3.6"
   resolved "https://registry.yarnpkg.com/i18next/-/i18next-11.3.6.tgz#a8e5aff413f5440b3526ebb38e1b7dc605f50faf"
@@ -5858,6 +5868,11 @@ locate-path@^2.0.0:
   dependencies:
     p-locate "^2.0.0"
     path-exists "^3.0.0"
+
+locize-editor@1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/locize-editor/-/locize-editor-1.7.0.tgz#3c14abb93f6d7c4e197511221f8c4a3954e63502"
+  integrity sha512-KdxAlwViz3KjGDEH3WIgaaUDw8XS8GNPpUDNAXM/vnRUryJgkA3n6DrDAeKJ99nixlx7G7+SZ9FZx2ZV9mIv8w==
 
 lodash._basecopy@^3.0.0:
   version "3.0.1"
@@ -7476,6 +7491,14 @@ postcss@^6.0.0, postcss@^6.0.1, postcss@^6.0.17, postcss@^6.0.2:
     source-map "^0.6.1"
     supports-color "^5.4.0"
 
+preact-cli-plugin-env-vars@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/preact-cli-plugin-env-vars/-/preact-cli-plugin-env-vars-1.2.1.tgz#ba8b20966746c3f7dbcbd99a8ae49328111a3f19"
+  integrity sha512-2JANOlTwdQjZPLT4LwzChcVSIQwLS1it4rgyR0QgMJ7GPtffmeHbtD3RGg5qSTJAAFvxxw7E/88ll24wOwu1WQ==
+  dependencies:
+    dotenv "^4.0.0"
+    resolve-env-vars "^1.0.0"
+
 preact-cli-plugin-typescript@0.2.2:
   version "0.2.2"
   resolved "https://registry.yarnpkg.com/preact-cli-plugin-typescript/-/preact-cli-plugin-typescript-0.2.2.tgz#02d1e0f629000268005aef6c2b03751c4da43223"
@@ -8232,6 +8255,11 @@ resolve-cwd@^2.0.0:
   integrity sha1-AKn3OHVW4nA46uIyyqNypqWbZlo=
   dependencies:
     resolve-from "^3.0.0"
+
+resolve-env-vars@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/resolve-env-vars/-/resolve-env-vars-1.0.0.tgz#ddce53ceee7590dfbab445f8b43ec6c0159200dc"
+  integrity sha512-L5i1zTJC2QaVKiYTofGuyUJAYMMSlrZCJfSWMVfa+F9oV+AJm3JAD8mVIPS4hPC+IKCFZRDHGSgYI6NW+TnK7A==
 
 resolve-from@^1.0.0:
   version "1.0.1"

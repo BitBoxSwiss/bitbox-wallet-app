@@ -50,6 +50,9 @@
     flex: 1 1 auto;
     min-height: 100vh;
 }
+.app.i18nEditor {
+    margin-right: 605px;
+}
 
 @media (max-width: 900px) {
     .appContent {

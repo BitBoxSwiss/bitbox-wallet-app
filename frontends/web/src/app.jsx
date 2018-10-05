@@ -16,6 +16,8 @@
 
 // @ts-nocheck
 
+import { i18nEditorActive } from './i18n/i18n';
+import TranslationHelper from './components/translationhelper/translationhelper';
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { apiGet } from './utils/request';
@@ -124,7 +126,8 @@ export class App extends Component {
         activeSidebar,
     }) {
         return (
-            <div className="app">
+            <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
+                <TranslationHelper />
                 <Sidebar
                     accounts={accounts}
                     deviceIDs={deviceIDs}

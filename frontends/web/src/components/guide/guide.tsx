@@ -69,6 +69,21 @@ function getGuideEntries(t, screen): ImplicitEntry[] {
     const key = 'guide.' + screen;
     // For now, fallback to the main fallback language, not cascading.
     const entriesFallbackLanguage = i18n.getFixedT(i18n.languages[i18n.languages.length - 1])(key, { defaultValue: [] });
+    // cimode returns the translation keys directly to make them visible to translators. In case of
+    // arrays/nested objects, we manually map the children to keys, so that the translator can also see the subkeys.
+    if (i18n.language === 'cimode') {
+        return entriesFallbackLanguage.map((entry, index) => {
+            const keyPrefix = key + '.' + index.toString();
+            return {
+                title: keyPrefix + '.title',
+                text: entry.text.map((txt, txtIndex) => keyPrefix + '.text.' + txtIndex.toString()),
+                link: entry.link ? {
+                    url: keyPrefix + '.link',
+                    text: keyPrefix + '.text',
+                } : null,
+            };
+        });
+    }
     const entriesCurrentLanguage = t(key, { defaultValue: [] });
     return entriesFallbackLanguage.map((entry, index) => entriesCurrentLanguage[index] || entry);
 }

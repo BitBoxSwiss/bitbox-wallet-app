@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import { /* i18nEditorActive, */ extraLanguage } from '../../i18n/i18n';
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
@@ -24,22 +25,58 @@ import * as style from './language.css';
 export default class LanguageSwitcher extends Component {
     constructor(props) {
         super(props);
-        this.languages = [
+        const languages = [
             { code: 'en', display: 'English' },
-            { code: 'de', display: 'Deutsch' },
         ];
-        const inverse = {};
-        this.languages.forEach((obj, index) => {
-            inverse[obj.code] = index;
-        });
+        if (extraLanguage) {
+            languages.push({
+                code: extraLanguage,
+                display: extraLanguage,
+            });
+        }
         this.state = {
-            selectedIndex: inverse[props.i18n.language] || 0,
+            selectedIndex: this.getSelectedIndex(languages),
             activeDialog: false,
+            languages,
         };
     }
 
     abort = () => {
         this.setState({ activeDialog: false });
+    }
+
+    getSelectedIndex = (languages) => {
+        const index = languages.findIndex(({ code }) => code === this.props.i18n.language);
+        if (index === -1) {
+            return 0;
+        }
+        return index;
+    }
+
+    componentWillMount() {
+
+        /* if (i18nEditorActive) {
+         *     // Get languages from backend instead when translating,
+         *     // as new languages won't be shown otherwise.
+         *     this.context.
+         *         i18n.
+         *         services.
+         *         backendConnector.
+         *         backend.
+         *         getLanguages((err, data) => {
+         *             if (err) {
+         *                 alert(err);
+         *                 return;
+         *             }
+         *             const languages = Object.entries(data).map(([key, value]) => {
+         *                 return {
+         *                     code: key,
+         *                     display: value.nativeName,
+         *                 };
+         *             });
+         *             this.setState({ languages, selectedIndex: this.getSelectedIndex(languages) });
+         *         });
+         * } */
     }
 
     changeLanguage = ({ target }) => {
@@ -57,21 +94,24 @@ export default class LanguageSwitcher extends Component {
     }, {
         selectedIndex,
         activeDialog,
+        languages,
     }) {
-        // TODO: remove when we have more languages.
+        if (languages.length === 1) {
+            return null;
+        }
         return (
             <div>
                 <Button
                     type="button"
                     transparent
                     onClick={() => this.setState({ activeDialog: true })}>
-                    {this.languages[selectedIndex].display}
+                    {languages[selectedIndex].display}
                 </Button>
                 {
                     activeDialog && (
                         <Dialog small title={t('language.title')} onClose={this.abort}>
                             {
-                                this.languages.map((language, i) => {
+                                languages.map((language, i) => {
                                     const selected = selectedIndex === i;
                                     return (
                                         <button
