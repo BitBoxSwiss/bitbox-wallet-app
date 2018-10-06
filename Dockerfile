@@ -28,7 +28,7 @@ RUN make -C /tmp/ envinit
 RUN apt-get -y install --no-install-recommends fuse && \
     cd /opt && \
     wget https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage && \
-    echo "c068b019a2bdb616df84775054d4149ea1832ace5db1f95e0e417ef27e01f980 /opt/linuxdeployqt-continuous-x86_64.AppImage" | sha256sum -c - && \
+    echo "daea8dc870379b70fac23847feb4ca2b87e8d8e1ea31ab6439ec4f8e55da6b27 /opt/linuxdeployqt-continuous-x86_64.AppImage" | sha256sum -c - && \
     chmod +x /opt/linuxdeployqt-continuous-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
