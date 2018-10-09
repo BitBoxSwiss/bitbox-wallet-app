@@ -48,24 +48,20 @@ export default class Dialog extends Component {
 
     addTabIndex = currentTab => {
         let next = currentTab + 1;
-        if (next >= this.focusableChildren.length) {
-            next = 0;
-        }
+        if (next >= this.focusableChildren.length) next = 0;
         this.setState({ currentTab: next });
     }
 
     subtractTabIndex = currentTab => {
         let previous = currentTab - 1;
-        if (previous < 0) {
-            previous = this.focusableChildren.length - 1;
-        }
+        if (previous < 0) previous = this.focusableChildren.length - 1;
         this.setState({ currentTab: previous });
     }
 
     controlKeys = e => {
         const { currentTab } = this.state;
         const isTab = e.keyCode === 9;
-        if (isTab) { e.preventDefault(); }
+        if (isTab) e.preventDefault();
         if (isTab && e.shiftKey) {
             this.focusableChildren[currentTab].focus();
             this.subtractTabIndex(currentTab);

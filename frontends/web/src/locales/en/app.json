@@ -503,6 +503,10 @@
         "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage Device' in the sidebar.",
         "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage Device' in the sidebar."
     },
+    "dialog": {
+        "confirm": "Confirm",
+        "cancel": "Cancel"
+    },
     "button": {
         "unlock": "Unlock",
         "send": "Send",
