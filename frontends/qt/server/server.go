@@ -29,10 +29,6 @@ typedef void (*responseCallback) (int, const char*);
 static void respond(responseCallback f, int queryID, const char* msg) {
     f(queryID, msg);
 }
-
-typedef struct ConnectionData {
-    char* token;
-} ConnectionData;
 #endif
 */
 import "C"
@@ -40,12 +36,10 @@ import "C"
 import (
 	"bytes"
 	"flag"
-	"net"
 	"net/http"
 	"runtime"
 	"runtime/debug"
 	"strings"
-	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -61,27 +55,6 @@ import (
 var handlers *backendHandlers.Handlers
 var responseCallback C.responseCallback
 var token string
-
-// Copied and adapted from package http server.go.
-//
-// tcpKeepAliveListener sets TCP keep-alive timeouts on accepted
-// connections. It's used by ListenAndServe and ListenAndServeTLS so
-// dead TCP connections (e.g. closing laptop mid-download) eventually
-// go away.
-type tcpKeepAliveListener struct {
-	*net.TCPListener
-}
-
-// accept enables TCP keep alive and sets the period to 3 minutes.
-func (ln tcpKeepAliveListener) Accept() (net.Conn, error) {
-	tc, err := ln.AcceptTCP()
-	if err != nil {
-		return nil, err
-	}
-	_ = tc.SetKeepAlive(true)
-	_ = tc.SetKeepAlivePeriod(3 * time.Minute)
-	return tc, nil
-}
 
 type response struct {
 	Body bytes.Buffer
@@ -132,7 +105,7 @@ func backendCall(queryID C.int, s *C.char) {
 }
 
 //export serve
-func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) C.struct_ConnectionData {
+func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) {
 	responseCallback = theResponseCallback
 
 	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
@@ -148,12 +121,6 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	if err != nil {
 		log.WithError(err).Fatal("Failed to generate random string")
 	}
-	cWrappedConnectionData := C.struct_ConnectionData{
-		token: C.CString(token),
-	}
-	// the port is unused in the Qt app, as we bridge directly without a server.
-	const port = -1
-	connectionData := backendHandlers.NewConnectionData(port, token)
 	theBackend := backend.NewBackend(arguments.NewArguments(
 		config.AppDir(), *testnet, false, false, false))
 	events := theBackend.Events()
@@ -162,8 +129,9 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 			C.pushNotify(pushNotificationsCallback, C.CString(string(jsonp.MustMarshal(<-events))))
 		}
 	}()
-	handlers = backendHandlers.NewHandlers(theBackend, connectionData)
-	return cWrappedConnectionData
+	// the port is unused in the Qt app, as we bridge directly without a server.
+	const port = -1
+	handlers = backendHandlers.NewHandlers(theBackend, backendHandlers.NewConnectionData(port, token))
 }
 
 // Don't remove - needed for the C compilation.

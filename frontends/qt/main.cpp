@@ -22,13 +22,8 @@ static QMutex webClassMutex;
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
-    explicit RequestInterceptor(const char* _token) : QWebEngineUrlRequestInterceptor(), token(_token) { }
-    void interceptRequest(QWebEngineUrlRequestInfo& info) override {
-        std::string header = std::string("Basic ") + token;
-        info.setHttpHeader("Authorization", QByteArray(header.c_str()));
-    };
-private:
-    std::string token;
+    explicit RequestInterceptor() : QWebEngineUrlRequestInterceptor() { }
+    void interceptRequest(QWebEngineUrlRequestInfo&) override { };
 };
 
 class WebEngineView : public QWebEngineView {
@@ -96,26 +91,25 @@ int main(int argc, char *argv[])
     webClass->moveToThread(&workerThread);
     workerThread.start();
 
-    ConnectionData serveData = serve(
-                                     [](const char* msg) {
-                                         if (!pageLoaded) return;
-                                         webClassMutex.lock();
-                                         if (webClass != nullptr) {
-                                             webClass->pushNotify(QString(msg));
-                                         }
-                                         webClassMutex.unlock();
-                                     },
-                                     [](int queryID, const char* msg) {
-                                         if (!pageLoaded) return;
-                                         webClassMutex.lock();
-                                         if (webClass != nullptr) {
-                                             webClass->gotResponse(queryID, QString(msg));
-                                         }
-                                         webClassMutex.unlock();
-                                     }
-                                     );
+    serve([](const char* msg) {
+            if (!pageLoaded) return;
+            webClassMutex.lock();
+            if (webClass != nullptr) {
+                webClass->pushNotify(QString(msg));
+            }
+            webClassMutex.unlock();
+        },
+        [](int queryID, const char* msg) {
+            if (!pageLoaded) return;
+            webClassMutex.lock();
+            if (webClass != nullptr) {
+                webClass->gotResponse(queryID, QString(msg));
+            }
+            webClassMutex.unlock();
+        }
+        );
 
-    RequestInterceptor interceptor(serveData.token);
+    RequestInterceptor interceptor;
     view->page()->profile()->setRequestInterceptor(&interceptor);
     QWebChannel channel;
     channel.registerObject("backend", webClass);
