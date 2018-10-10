@@ -85,7 +85,7 @@ func (updater *RatesUpdater) update() {
 	updater.last = rates
 	updater.log.WithField("data", spew.Sprintf("%v", rates)).Debug("Exchange rates changed.")
 	updater.Notify(observable.Event{
-		Subject: "coins/rates",
+		Subject: "rates",
 		Action:  action.Replace,
 		Object:  rates,
 	})

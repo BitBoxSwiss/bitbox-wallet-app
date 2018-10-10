@@ -106,17 +106,20 @@ type Backend struct {
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
-	return &Backend{
+	backend := &Backend{
 		arguments: arguments,
 		config:    config.NewConfig(arguments.ConfigFilename()),
 		events:    make(chan interface{}, 1000),
 
-		devices:      map[string]device.Interface{},
-		keystores:    keystore.NewKeystores(),
-		coins:        map[string]coin.Coin{},
-		ratesUpdater: btc.NewRatesUpdater(),
-		log:          log,
+		devices:   map[string]device.Interface{},
+		keystores: keystore.NewKeystores(),
+		coins:     map[string]coin.Coin{},
+		log:       log,
 	}
+	ratesUpdater := btc.NewRatesUpdater()
+	ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
+	backend.ratesUpdater = ratesUpdater
+	return backend
 }
 
 func (backend *Backend) addAccount(
@@ -262,23 +265,23 @@ func (backend *Backend) Coin(code string) coin.Coin {
 	switch code {
 	case "rbtc":
 		servers := []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
-		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", nil)
+		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "")
 	case coinTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://testnet.blockchain.info/tx/", backend.ratesUpdater)
+			"https://testnet.blockchain.info/tx/")
 	case coinBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockchain.info/tx/", backend.ratesUpdater)
+			"https://blockchain.info/tx/")
 	case coinTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
-			"http://explorer.litecointools.com/tx/", backend.ratesUpdater)
+			"http://explorer.litecointools.com/tx/")
 	case coinLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
-			"https://insight.litecore.io/tx/", backend.ratesUpdater)
+			"https://insight.litecore.io/tx/")
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig, "https://etherscan.io/address/")
 	case coinTETH:
@@ -287,7 +290,6 @@ func (backend *Backend) Coin(code string) coin.Coin {
 		panic(errp.Newf("unknown coin code %s", code))
 	}
 	coin.Init()
-	coin.Observe(func(event observable.Event) { backend.events <- event })
 	backend.coins[code] = coin
 	return coin
 }

@@ -43,7 +43,6 @@ type Coin struct {
 	servers               []*rpc.ServerInfo
 	blockExplorerTxPrefix string
 
-	ratesUpdater coinpkg.RatesUpdater
 	observable.Implementation
 
 	blockchain blockchain.Interface
@@ -60,7 +59,6 @@ func NewCoin(
 	dbFolder string,
 	servers []*rpc.ServerInfo,
 	blockExplorerTxPrefix string,
-	ratesUpdater coinpkg.RatesUpdater,
 ) *Coin {
 	coin := &Coin{
 		code:                  code,
@@ -69,7 +67,6 @@ func NewCoin(
 		dbFolder:              dbFolder,
 		servers:               servers,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
-		ratesUpdater:          ratesUpdater,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -106,10 +103,6 @@ func (coin *Coin) Init() {
 			})
 		}
 	})
-
-	if coin.ratesUpdater != nil {
-		coin.ratesUpdater.Observe(coin.Notify)
-	}
 }
 
 // Code implements coin.Coin.
@@ -133,11 +126,6 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
 		"0.",
 	)
-}
-
-// RatesUpdater returns current exchange rates.
-func (coin *Coin) RatesUpdater() coinpkg.RatesUpdater {
-	return coin.ratesUpdater
 }
 
 // Blockchain connects to a blockchain backend.
