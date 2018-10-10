@@ -96,7 +96,9 @@ export default class Create extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('backup.create.title')}>
+                        <Dialog
+                            title={t('backup.create.title')}
+                            onClose={this.abort}>
                             <form onSubmit={this.create}>
                                 <Input
                                     autoFocus

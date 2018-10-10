@@ -69,7 +69,8 @@ class Confirm extends Component<Props, State> {
 
     public render({ t }, { message, active }) {
         return active ? (
-            <Dialog>
+            <Dialog
+                onClose={this.decline}>
                 <p class="first">{message}</p>
                 <div class="buttons flex flex-row flex-between">
                     <Button secondary onClick={this.decline}>{t('dialog.cancel')}</Button>

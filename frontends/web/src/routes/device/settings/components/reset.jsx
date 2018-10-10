@@ -98,7 +98,9 @@ export default class Reset extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('reset.title')}>
+                        <Dialog
+                            title={t('reset.title')}
+                            onClose={this.abort}>
                             <p>
                                 {t('reset.description')}
                             </p>

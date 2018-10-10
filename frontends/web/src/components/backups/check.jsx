@@ -105,7 +105,9 @@ export default class Check extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('backup.check.title')}>
+                        <Dialog
+                            title={t('backup.check.title')}
+                            onClose={this.abort}>
                             { message ? (
                                 <div>
                                     <p style="min-height: 3rem;">{message}</p>

@@ -107,7 +107,9 @@ export default class ChangePIN extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('button.changepin')}>
+                        <Dialog
+                            title={t('button.changepin')}
+                            onClose={this.abort}>
                             <form onSubmit={this.changePin}>
                                 <PasswordInput
                                     idPrefix="oldPIN"

@@ -21,13 +21,13 @@ import { Button } from '../forms';
 
 let alertUser: (message: string) => void;
 
-interface State {
-    message: string;
-    active: boolean;
-}
-
 interface Props {
     t: () => void;
+}
+
+interface State {
+    active: boolean;
+    message?: string;
 }
 
 @translate()
@@ -38,7 +38,6 @@ class Alert extends Component<Props, State> {
         super(props);
         alertUser = this.alerted;
         this.state = {
-            message: '',
             active: false,
         };
     }
@@ -58,7 +57,7 @@ class Alert extends Component<Props, State> {
     private handleClose = e => {
         this.setState({
             active: false,
-            message: '',
+            message: undefined,
         });
     }
 
@@ -79,7 +78,9 @@ class Alert extends Component<Props, State> {
 
     public render({ t }, { message, active }) {
         return active ? (
-            <Dialog>
+            <Dialog
+                onClose={this.handleClose}
+                disableEscape>
                 {
                     message.split('\n').map((line, i) => (
                         <p

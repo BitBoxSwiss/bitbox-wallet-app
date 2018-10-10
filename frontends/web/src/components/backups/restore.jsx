@@ -139,7 +139,9 @@ export default class Restore extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('backup.restore.title')}>
+                        <Dialog
+                            title={t('backup.restore.title')}
+                            onClose={this.abort}>
                             <form onSubmit={this.restore}>
                                 <PasswordRepeatInput
                                     label={t('backup.restore.password.label')}

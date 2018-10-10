@@ -17,7 +17,23 @@
 import { Component, h } from 'preact';
 import * as style from './dialog.css';
 
-export default class Dialog extends Component {
+interface Props {
+    children: JSX.Element[] | JSX.Element;
+    title?: string;
+    small?: boolean;
+    disableEscape?: boolean;
+    onClose: (e: any) => void;
+}
+
+interface State {
+    active: boolean;
+    currentTab: number;
+}
+
+class Dialog extends Component<Props, State> {
+    private modalContent!: HTMLElement;
+    private focusableChildren!: NodeListOf<HTMLElement>;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -26,64 +42,79 @@ export default class Dialog extends Component {
         };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         setTimeout(this.activate, 10);
     }
 
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.controlKeys);
-        this.setState({
-            active: false,
-            currentTab: 0,
-        });
+    public componentWillUnmount() {
+        this.deactivate();
     }
 
-    focusWithin = () => {
+    private setModalContent = element => {
+        this.modalContent = element;
+    }
+
+    private focusWithin = () => {
         this.focusableChildren = this.modalContent.querySelectorAll('a, button, input, textarea');
-        for (let c of this.focusableChildren) {
+        for (const c of this.focusableChildren) {
             c.classList.add('tabbable');
         }
         document.addEventListener('keydown', this.controlKeys);
     }
 
-    addTabIndex = currentTab => {
+    private addTabIndex = currentTab => {
         let next = currentTab + 1;
-        if (next >= this.focusableChildren.length) next = 0;
+        if (next >= this.focusableChildren.length) {
+            next = 0;
+        }
         this.setState({ currentTab: next });
     }
 
-    subtractTabIndex = currentTab => {
+    private subtractTabIndex = currentTab => {
         let previous = currentTab - 1;
-        if (previous < 0) previous = this.focusableChildren.length - 1;
+        if (previous < 0) {
+            previous = this.focusableChildren.length - 1;
+        }
         this.setState({ currentTab: previous });
     }
 
-    controlKeys = e => {
+    private controlKeys = e => {
         const { currentTab } = this.state;
+        const { disableEscape, onClose } = this.props;
+        const focusables = this.focusableChildren;
+        const isEsc = e.keyCode === 27;
         const isTab = e.keyCode === 9;
-        if (isTab) e.preventDefault();
+        if (!disableEscape && isEsc) {
+            if (onClose) {
+                onClose(e);
+            }
+        } else if (isTab) {
+            e.preventDefault();
+        }
         if (isTab && e.shiftKey) {
-            this.focusableChildren[currentTab].focus();
+            focusables[currentTab].focus();
             this.subtractTabIndex(currentTab);
         } else if (isTab) {
-            this.focusableChildren[currentTab].focus();
+            focusables[currentTab].focus();
             this.addTabIndex(currentTab);
         }
     }
 
-    activate = () => {
+    private deactivate = () => {
+        this.setState({
+            active: false,
+            currentTab: 0,
+        });
+        document.removeEventListener('keydown', this.controlKeys);
+    }
+
+    private activate = () => {
         this.setState({ active: true }, () => {
             this.focusWithin();
         });
     }
 
-    render({
-        title = null,
-        small = false,
-        children,
-    },{
-        active,
-    }) {
+    public render({ title, small, children, onClose }, { active, currentTab }) {
         const activeClass = active ? style.active : '';
         return (
             <div class={[style.overlay, activeClass].join(' ')}>
@@ -93,7 +124,7 @@ export default class Dialog extends Component {
                             <h3 class={style.modalHeader}>{title}</h3>
                         )
                     }
-                    <div class={[style.modalContent, title ? '' : 'first'].join(' ')} ref={el => this.modalContent = el}>
+                    <div class={[style.modalContent, title ? '' : 'first'].join(' ')} ref={this.setModalContent}>
                         {children}
                     </div>
                 </div>
@@ -101,3 +132,5 @@ export default class Dialog extends Component {
         );
     }
 }
+
+export default Dialog;

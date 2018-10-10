@@ -113,10 +113,10 @@ export default class HiddenWallet extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('button.hiddenwallet')}>
+                        <Dialog title={t('button.hiddenwallet')}
+                            onClose={this.abort}>
                             <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
                             <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
-
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
                                     idPrefix="pin"
