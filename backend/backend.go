@@ -116,7 +116,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 		coins:     map[string]coin.Coin{},
 		log:       log,
 	}
-	ratesUpdater := btc.NewRatesUpdater()
+	ratesUpdater := NewRatesUpdater()
 	ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
 	backend.ratesUpdater = ratesUpdater
 	return backend
