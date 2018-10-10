@@ -588,11 +588,16 @@
   },
   "seedRestore": {
     "info": {
-      "button": "Continue",
-      "description": "To continue please insert the micro SD card in to the BitBox.",
-      "title": "How to restore a wallet from a backup"
+      "title": "Restore a wallet",
+      "description_1": "Insert the micro SD card in to the BitBox and click “Continue”",
+      "description_2": "Choose a backup on the and click “Restore”",
+      "description_3": "Enter the recovery password",
+      "description_4": "You need to confirm to understand that an incorrect password will create a different wallet.",
+      "button": "Continue"
     },
-    "title": "Restore wallet"
+    "error": {
+      "e200": "Restoring a wallet from a backup requires the micro SD card."
+    }
   },
   "send": {
     "abort": "The transaction has been aborted.",
