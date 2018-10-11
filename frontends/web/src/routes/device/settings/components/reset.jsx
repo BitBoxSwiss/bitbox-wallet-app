@@ -18,10 +18,11 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../../../../components/forms';
-import Dialog from '../../../../components/dialog/dialog';
+import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
+import { alertUser } from '../../../../components/alert/Alert';
 import * as style from '../../device.css';
 
 @translate()
@@ -63,7 +64,7 @@ export default class Reset extends Component {
                     route('/', true);
                 }
             } else if (data.errorMessage) {
-                alert(this.props.t(`bitbox.error.e${data.code}`, {
+                alertUser(this.props.t(`bitbox.error.e${data.code}`, {
                     defaultValue: data.errorMessage,
                 }));
             }

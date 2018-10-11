@@ -31,8 +31,8 @@ import Info from './routes/account/info/info';
 import Settings from './routes/settings/settings';
 import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
-import Alert from './components/alert/Alert';
-import Confirm from './components/confirm/Confirm';
+import { Alert } from './components/alert/Alert';
+import { Confirm } from './components/confirm/Confirm';
 
 export class App extends Component {
     state = {

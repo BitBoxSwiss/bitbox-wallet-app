@@ -17,7 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
-import Dialog from '../dialog/dialog';
+import { Dialog } from '../dialog/dialog';
 import { PasswordSingleInput } from '../password';
 import { apiPost } from '../../utils/request';
 

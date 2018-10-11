@@ -20,6 +20,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import { alertUser } from '../../../components/alert/Alert';
 import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
@@ -50,10 +51,18 @@ export default class Receive extends Component {
     }
 
     componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
+        this.registerEvents();
     }
 
     componentWillUnmount() {
+        this.unregisterEvents();
+    }
+
+    registerEvents = () => {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    unregisterEvents = () => {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
@@ -71,7 +80,8 @@ export default class Receive extends Component {
             apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(hasSecureOutput => {
                 this.setState({ verifying: false });
                 if (!hasSecureOutput) {
-                    alert(this.props.t('receive.warning.secureOutput')); // eslint-disable-line no-alert
+                    this.unregisterEvents();
+                    alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
                 }
             });
         }
@@ -96,9 +106,10 @@ export default class Receive extends Component {
                 receiveAddresses[activeIndex].addressID)
                 .then(legacyAddress => {
                     const address = receiveAddresses[activeIndex].address;
-                    alert(this.props.t('receive.ltcLegacy.result', {
+                    this.unregisterEvents();
+                    alertUser(this.props.t('receive.ltcLegacy.result', {
                         address, legacyAddress
-                    }));
+                    }), this.registerEvents);
                 });
         }
     }

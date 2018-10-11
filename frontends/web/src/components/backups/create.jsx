@@ -18,8 +18,9 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button, Input } from '../forms';
 import { PasswordInput } from '../password';
+import { alertUser } from '../alert/Alert';
 import { apiPost } from '../../utils/request';
-import Dialog from '../dialog/dialog';
+import { Dialog } from '../dialog/dialog';
 
 @translate()
 export default class Create extends Component {
@@ -71,11 +72,11 @@ export default class Create extends Component {
         }).then(data => {
             this.abort();
             if (!data.success) {
-                alert(data.errorMessage); // eslint-disable-line no-alert
+                alertUser(data.errorMessage);
             } else {
                 this.props.onCreate();
                 if (!data.verification) {
-                    alert(this.props.t('backup.create.verificationFailed'));
+                    alertUser(this.props.t('backup.create.verificationFailed'));
                 }
             }
         });

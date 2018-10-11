@@ -18,12 +18,13 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { apiPost } from '../../../../utils/request';
+import { alertUser } from '../../../../components/alert/Alert';
 
 @translate()
 export default class RandomNumber extends Component {
     getRandomNumber = () => {
         apiPost('devices/' + this.props.deviceID + '/random-number').then(num => {
-            alert(this.props.t('random.description') + '\n' + num); // eslint-disable-line no-alert
+            alertUser(this.props.t('random.description') + '\n' + num);
         });
     };
 

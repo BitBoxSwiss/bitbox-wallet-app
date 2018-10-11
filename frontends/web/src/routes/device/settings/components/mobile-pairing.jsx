@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import QRCode from '../../../../components/qrcode/qrcode';
 import { apiPost } from '../../../../utils/request';
-import Dialog from '../../../../components/dialog/dialog';
+import { Dialog } from '../../../../components/dialog/dialog';
 import { apiWebsocket } from '../../../../utils/websocket';
 
 @translate()

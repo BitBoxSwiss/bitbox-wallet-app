@@ -14,48 +14,41 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import Dialog from '../dialog/dialog';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProp } from '../../decorators/translate';
+import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
 let confirmation: (message: string, callback: () => void) => void;
 
 interface State {
-    message: string;
     active: boolean;
+    message?: string;
 }
 
-interface Props {
-    t: () => void;
-}
+class Confirm extends Component<TranslateProp, State> {
+    private callback!: (input: boolean) => void; // Set within confirmation
 
-@translate()
-class Confirm extends Component<Props, State> {
-    private callback!: (input: boolean) => void;
-
-    constructor(props) {
+    constructor(props: TranslateProp) {
         super(props);
         confirmation = this.confirmation;
         this.state = {
             active: false,
-            message: '',
         };
     }
 
-    private confirmation = (message, callback) => {
+    private confirmation = (message: string, callback: () => void) => {
+        this.callback = callback;
         this.setState({
             active: true,
             message,
         });
-        this.callback = callback;
     }
 
-    private respond = input => {
+    private respond = (input: boolean) => {
         this.callback(input);
         this.setState({
             active: false,
-            message: '',
         });
     }
 
@@ -67,7 +60,7 @@ class Confirm extends Component<Props, State> {
         this.respond(true);
     }
 
-    public render({ t }, { message, active }) {
+    public render({ t }: RenderableProps<TranslateProp>, { message, active }: State) {
         return active ? (
             <Dialog
                 onClose={this.decline}>
@@ -81,5 +74,7 @@ class Confirm extends Component<Props, State> {
     }
 }
 
+const TranslatedConfirm = translate()(Confirm);
+
 export { confirmation };
-export default Confirm;
+export { TranslatedConfirm as Confirm };

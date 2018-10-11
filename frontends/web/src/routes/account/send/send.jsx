@@ -23,6 +23,7 @@ import { debug } from '../../../utils/env';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { store as fiat } from '../../../components/rates/rates';
+import { alertUser } from '../../../components/alert/Alert';
 import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
@@ -89,13 +90,21 @@ export default class Send extends Component {
     }
 
     componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
+        this.registerEvents();
     }
 
     componentWillUnmount() {
+        this.unregisterEvents();
         if (this.unsubscribe) {
             this.unsubscribe();
         }
+    }
+
+    registerEvents = () => {
+        document.addEventListener('keydown', this.handleKeyDown);
+    }
+
+    unregisterEvents = () => {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
@@ -187,7 +196,8 @@ export default class Send extends Component {
                 default:
                     this.setState({ proposedFee: null });
                     if (errorCode) {
-                        alert(errorCode);
+                        this.unregisterEvents();
+                        alertUser(errorCode, this.registerEvents);
                     }
                 }
             }

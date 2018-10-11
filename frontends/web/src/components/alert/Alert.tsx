@@ -14,81 +14,66 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import Dialog from '../dialog/dialog';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProp } from '../../decorators/translate';
+import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
-let alertUser: (message: string) => void;
-
-interface Props {
-    t: () => void;
-}
+let alertUser: (message: string, callback?: () => void) => void;
 
 interface State {
     active: boolean;
     message?: string;
 }
 
-@translate()
-class Alert extends Component<Props, State> {
-    private button!: Component;
+class Alert extends Component<TranslateProp, State> {
+    private button!: JSX.ElementClass; // Initialized after render().
+    private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
-    constructor(props) {
+    constructor(props: TranslateProp) {
         super(props);
-        alertUser = this.alerted;
+        alertUser = this.alertUser;
         this.state = {
             active: false,
         };
     }
 
-    public componentDidMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
-
-    private setButtonRef = element => {
+    private setButtonRef = (element: JSX.ElementClass) => {
         this.button = element;
     }
 
-    private handleClose = e => {
+    private handleClose = () => {
+        if (this.callback) {
+            this.callback();
+        }
         this.setState({
             active: false,
-            message: undefined,
         });
     }
 
-    private handleKeyDown = e => {
-        if (e.keyCode === 13 && this.state.active) {
-            this.setState({ active: false });
-        }
-    }
-
-    private alerted = message => {
+    private alertUser = (message: string, callback?: () => void) => {
+        this.callback = callback;
         this.setState({
-            message,
             active: true,
+            message,
         }, () => {
             this.button.base!.focus();
         });
     }
 
-    public render({ t }, { message, active }) {
+    public render({ t }: RenderableProps<TranslateProp>, { message, active }: State) {
         return active ? (
             <Dialog
                 onClose={this.handleClose}
                 disableEscape>
                 {
-                    message.split('\n').map((line, i) => (
+                    message ? message.split('\n').map((line, i) => (
                         <p
                             key={i}
                             class={ i === 0 ? 'first' : '' }>
                             {line}
                         </p>
-                    ))
+                    )) : null
                 }
                 <div class="buttons flex flex-row flex-end">
                     <Button
@@ -103,5 +88,7 @@ class Alert extends Component<Props, State> {
     }
 }
 
+const TranslatedAlert = translate()(Alert);
+
 export { alertUser };
-export default Alert;
+export { TranslatedAlert as Alert };

@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Input, Checkbox, Field } from './forms';
+import { alertUser } from './alert/Alert';
 import * as style from './password.css';
 
 export function PasswordInput (props) {
@@ -58,7 +59,7 @@ export class PasswordSingleInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert(this.props.t('password.warning.paste', { // eslint-disable-line no-alert
+            alertUser(this.props.t('password.warning.paste', {
                 label: this.props.label
             }));
         }
@@ -179,7 +180,7 @@ export class PasswordRepeatInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert(this.props.t('password.warning.paste', { // eslint-disable-line no-alert
+            alertUser(this.props.t('password.warning.paste', {
                 label: this.props.label
             }));
         }

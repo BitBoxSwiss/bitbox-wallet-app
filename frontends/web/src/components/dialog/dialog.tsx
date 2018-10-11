@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import * as style from './dialog.css';
 
 interface Props {
-    children: JSX.Element[] | JSX.Element;
     title?: string;
     small?: boolean;
     disableEscape?: boolean;
-    onClose: (e: any) => void;
+    onClose: (e: Event) => void;
 }
 
 interface State {
@@ -34,7 +33,7 @@ class Dialog extends Component<Props, State> {
     private modalContent!: HTMLElement;
     private focusableChildren!: NodeListOf<HTMLElement>;
 
-    constructor(props) {
+    constructor(props: Props) {
         super(props);
         this.state = {
             active: false,
@@ -50,7 +49,7 @@ class Dialog extends Component<Props, State> {
         this.deactivate();
     }
 
-    private setModalContent = element => {
+    private setModalContent = (element: HTMLElement) => {
         this.modalContent = element;
     }
 
@@ -62,7 +61,7 @@ class Dialog extends Component<Props, State> {
         document.addEventListener('keydown', this.controlKeys);
     }
 
-    private addTabIndex = currentTab => {
+    private addTabIndex = (currentTab: number) => {
         let next = currentTab + 1;
         if (next >= this.focusableChildren.length) {
             next = 0;
@@ -70,7 +69,7 @@ class Dialog extends Component<Props, State> {
         this.setState({ currentTab: next });
     }
 
-    private subtractTabIndex = currentTab => {
+    private subtractTabIndex = (currentTab: number) => {
         let previous = currentTab - 1;
         if (previous < 0) {
             previous = this.focusableChildren.length - 1;
@@ -78,7 +77,7 @@ class Dialog extends Component<Props, State> {
         this.setState({ currentTab: previous });
     }
 
-    private controlKeys = e => {
+    private controlKeys = (e: KeyboardEvent) => {
         const { currentTab } = this.state;
         const { disableEscape, onClose } = this.props;
         const focusables = this.focusableChildren;
@@ -114,7 +113,7 @@ class Dialog extends Component<Props, State> {
         });
     }
 
-    public render({ title, small, children, onClose }, { active, currentTab }) {
+    public render({ title, small, children }: RenderableProps<Props>, { active }: State) {
         const activeClass = active ? style.active : '';
         return (
             <div class={[style.overlay, activeClass].join(' ')}>
@@ -133,4 +132,4 @@ class Dialog extends Component<Props, State> {
     }
 }
 
-export default Dialog;
+export { Dialog };

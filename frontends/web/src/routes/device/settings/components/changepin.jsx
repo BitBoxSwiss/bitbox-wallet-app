@@ -17,7 +17,8 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import Dialog from '../../../../components/dialog/dialog';
+import { alertUser } from '../../../../components/alert/Alert';
+import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput, PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
@@ -72,9 +73,8 @@ export default class ChangePIN extends Component {
             newPIN: this.state.newPIN,
         }).catch(() => {}).then(data => {
             this.abort();
-
             if (!data.success) {
-                alert(this.props.t(`bitbox.error.e${data.code}`, {
+                alertUser(this.props.t(`bitbox.error.e${data.code}`, {
                     defaultValue: data.errorMessage,
                 }));
             }
