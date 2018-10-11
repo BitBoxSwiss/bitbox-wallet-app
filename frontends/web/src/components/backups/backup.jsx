@@ -14,37 +14,40 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import i18n from '../../i18n/i18n';
+import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import { Radio } from '../forms';
 
-/** @param {{ backup: any; selectedBackup: any; handleChange: any; onFocus: any; key: any }} props */
-export default function BackupsListItem({
-    backup,
-    selectedBackup,
-    handleChange,
-    onFocus,
-}) {
-    let date = '';
-    if (backup.date && backup.date !== '') {
-        const months = i18n.t('months');
-        const days = i18n.t('days');
-        const dt = new Date(backup.date);
-        date = `${days[dt.getDay()]}, ${dt.getDate()}${i18n.t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${i18n.t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
-    } else {
-        date = 'unknown';
+@translate()
+export default class BackupsListItem extends Component {
+    render({
+        t,
+        backup,
+        selectedBackup,
+        handleChange,
+        onFocus,
+    }, { }) {
+        let date = '';
+        if (backup.date && backup.date !== '') {
+            const months = t('months');
+            const days = t('days');
+            const dt = new Date(backup.date);
+            date = `${days[dt.getDay()]}, ${dt.getDate()}${t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        } else {
+            date = 'unknown';
+        }
+        let name = backup.name && backup.name !== '' ? backup.name : backup.id;
+        return (
+            <Radio
+                checked={selectedBackup === backup.id}
+                onChange={event => handleChange(event.target.value)}
+                id={backup.id}
+                label={name}
+                value={backup.id}
+                onFocus={onFocus}
+                sizeMedium>
+                <span className="text-small text-gray">{date}</span>
+            </Radio>
+        );
     }
-    let name = backup.name && backup.name !== '' ? backup.name : backup.id;
-    return (
-        <Radio
-            checked={selectedBackup === backup.id}
-            onChange={handleChange}
-            id={backup.id}
-            label={name}
-            value={backup.id}
-            onFocus={onFocus}
-            sizeMedium>
-            <span className="text-small text-gray">{date}</span>
-        </Radio>
-    );
 }

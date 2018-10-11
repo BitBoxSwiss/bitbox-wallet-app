@@ -52,8 +52,8 @@ export default class Backups extends Component {
         });
     }
 
-    handleBackuplistChange = event => {
-        this.setState({ selectedBackup: event.target.value });
+    handleBackuplistChange = backupID => {
+        this.setState({ selectedBackup: backupID });
     }
 
     scrollIntoView = ({ target }) => {
