@@ -101,7 +101,6 @@ export default class Create extends Component {
                                 <Input
                                     autoFocus
                                     autoComplete="off"
-                                    ref={pwf => this.pwf = pwf}
                                     id="backupName"
                                     label={t('backup.create.name.label')}
                                     placeholder={t('backup.create.name.placeholder')}
@@ -109,7 +108,6 @@ export default class Create extends Component {
                                     value={backupName} />
                                 <p>{t('backup.create.info')}</p>
                                 <PasswordInput
-                                    ref={ref => this.passwordInput = ref}
                                     id="recoveryPassword"
                                     label={t('backup.create.password.label')}
                                     placeholder={t('backup.create.password.placeholder')}

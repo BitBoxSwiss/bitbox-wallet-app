@@ -15,10 +15,11 @@
  */
 
 import { Component, h } from 'preact';
-import i18n from '../../i18n/i18n';
+import { translate } from 'react-i18next';
 import { Button } from '../forms';
 import * as style from './Alert.css';
 
+@translate()
 export default class Alert extends Component {
     state = {
         context: '',
@@ -51,7 +52,7 @@ export default class Alert extends Component {
         });
     }
 
-    render({}, {
+    render({ t }, {
         context,
         active,
     }) {
@@ -65,7 +66,7 @@ export default class Alert extends Component {
                             primary
                             ref={ref => this.button = ref}
                             onClick={this.handleClose}>
-                            {i18n.t('button.ok')}
+                            {t('button.ok')}
                         </Button>
                     </div>
                 </div>

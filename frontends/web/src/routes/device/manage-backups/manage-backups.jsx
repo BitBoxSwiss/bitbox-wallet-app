@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
+import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
@@ -23,7 +23,7 @@ import Header from '../../../components/header/Header';
 import * as styles from './manage-backups.css';
 
 @translate()
-export default class ManageBackups {
+export default class ManageBackups extends Component {
     render({ t, deviceID }, { }) {
         return (
             <div class="contentWithGuide">

@@ -62,9 +62,6 @@ export default class Restore extends Component {
             activeDialog: false,
             understand: false,
         });
-        if (this.passwordInput) {
-            this.passwordInput.clear();
-        }
     }
 
     handleFormChange = event => {
@@ -139,7 +136,6 @@ export default class Restore extends Component {
                         <Dialog title={t('backup.restore.title')}>
                             <form onSubmit={this.restore}>
                                 <PasswordRepeatInput
-                                    ref={ref => this.passwordInput = ref}
                                     label={t('backup.restore.password.label')}
                                     placeholder={t('backup.restore.password.placeholder')}
                                     repeatPlaceholder={t('backup.restore.password.repeatPlaceholder')}

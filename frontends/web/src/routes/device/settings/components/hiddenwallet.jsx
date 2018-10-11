@@ -53,9 +53,6 @@ export default class HiddenWallet extends Component {
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.passwordInput) {
-            this.passwordInput.clear();
-        }
     }
 
     handleFormChange = event => {
@@ -127,11 +124,9 @@ export default class HiddenWallet extends Component {
                                     label={t('hiddenWallet.pinLabel')}
                                     repeatLabel={t('hiddenWallet.pinRepeatLabel')}
                                     repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}
-                                    ref={ref => this.pinInput = ref}
                                     onValidPassword={this.setValidPIN} />
                                 <PasswordRepeatInput
                                     idPrefix="password"
-                                    ref={ref => this.passwordInput = ref}
                                     label={t('hiddenWallet.passwordLabel')}
                                     repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
                                     onValidPassword={this.setValidPassword}
