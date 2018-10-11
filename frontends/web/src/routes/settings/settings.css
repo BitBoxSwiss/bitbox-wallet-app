@@ -1,5 +1,7 @@
 .title {
     margin: var(--spacing-default) 0;
+    font-size: var(--size-subheader);
+    font-weight: normal;
 }
 
 .serversContainer {
@@ -7,8 +9,24 @@
 }
 
 .servers {
-    list-style-type: decimal;
-    padding-left: 20px;
+    list-style: none;
+    padding-left: calc(var(--spacing-half) + 16px);
+    margin-bottom: var(--spacing-large);
+    counter-reset: li;
+}
+
+.servers li {
+    counter-increment: li;
+}
+
+.servers li::before {
+    content: counter(li);
+    display: inline-block;
+    width: 16px;
+    margin-left: calc(-16px - var(--spacing-half));
+    padding-right: var(--spacing-half);
+    color: var(--color-secondary);
+    text-align: center;
 }
 
 .servers li:not(:last-child) {
@@ -16,7 +34,8 @@
 }
 
 .servers li .server {
-    display: flex;
+    display: inline-flex;
+    width: 100%;
     align-items: center;
     flex-wrap: wrap;
 }
@@ -78,13 +97,29 @@
 
 .addServer p {
     font-size: var(--size-medium);
-    margin-top:var(--spacing-default);
-    margin-bottom: var(--spacing-half);
+    margin-top:var(--spacing-large);
+    margin-bottom: var(--spacing-default);
+}
+
+.addServer > div:first-child p {
+    margin-top: var(--spacing-default);
+}
+
+.badge {
+    color: var(--color-secondary);
+    border-radius: 2px;
+    margin-right: var(--spacing-half);
+    width: 16px;
+    text-align: center;
+}
+
+.badge::after {
+    content: '.';
 }
 
 .miniSpinnerContainer {
     position: relative;
-    left: -5px;
+    margin-right: 4px;
     display: inline-block;
 }
 
@@ -94,7 +129,6 @@
 
 .miniSpinner:after {
     position: relative;
-    top: 2px;
     animation: changeContent .8s linear infinite;
     display: block;
     content: "⠋";
@@ -110,4 +144,10 @@
     70% { content: "⠧"; }
     80% { content: "⠇"; }
     90% { content: "⠏"; }
+}
+
+@media screen and (max-width: 640px) {
+    .title {
+        font-size: var(--size-subheader-mobile);
+    }
 }

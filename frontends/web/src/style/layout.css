@@ -146,7 +146,7 @@
     }
 
     .subHeaderContainer .subHeader h3 {
-        font-size: var(--size-medium);
+        font-size: var(--size-subheader-mobile);
     }
 
     .bottom {
@@ -155,7 +155,7 @@
 }
 
 .tabs {
-    min-height: 36px;
+    min-height: 48px;
     width: 100%;
     max-width: var(--content-width);
     margin: 0 auto;
@@ -163,7 +163,7 @@
 
 .tabs .tab {
     width: 50%;
-    height: 36px;
+    height: 48px;
     border-bottom: solid 1px var(--color-lightgray);
     transition: all .2s ease-out;
 }
@@ -177,7 +177,7 @@
     height: 100%;
     display: block;
     text-align: center;
-    line-height: 36px;
+    line-height: 48px;
     text-decoration: none;
     color: var(--color-secondary);
     transition: all .2s ease-out;
@@ -186,7 +186,6 @@
 .tabs .tab.active a {
     color: var(--color-brightblue);
     background-color: var(--color-white);
-    font-weight: bold;
 }
 
 .withFixedContent .content {
