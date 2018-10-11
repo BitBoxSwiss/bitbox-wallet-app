@@ -15,34 +15,35 @@
  */
 
 import { h } from 'preact';
-import i18n from '../../../i18n/i18n';
+import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import Backups from '../../../components/backups/backups';
 import Header from '../../../components/header/Header';
 import * as styles from './manage-backups.css';
 
-const ManageBackups = (props) => {
-    return (
-        <div class="contentWithGuide">
-            <div class="container">
-                <Header title={<h2>{i18n.t('backup.title')}</h2>} {...props} />
-                <div className={styles.manageBackups}>
-                    <Backups
-                        deviceID={props.deviceID}
-                        showCreate={true}
-                        showRestore={false}>
-                        <ButtonLink
-                            secondary
-                            href={`/device/${props.deviceID}`}>
-                            {i18n.t('button.back')}
-                        </ButtonLink>
-                    </Backups>
+@translate()
+export default class ManageBackups {
+    render({ t, deviceID }, { }) {
+        return (
+            <div class="contentWithGuide">
+                <div class="container">
+                    <Header title={<h2>{t('backup.title')}</h2>} />
+                    <div className={styles.manageBackups}>
+                        <Backups
+                            deviceID={deviceID}
+                            showCreate={true}
+                            showRestore={false}>
+                            <ButtonLink
+                                secondary
+                                href={`/device/${deviceID}`}>
+                                {t('button.back')}
+                            </ButtonLink>
+                        </Backups>
+                    </div>
                 </div>
+                <Guide screen="backups" />
             </div>
-            <Guide screen="backups" />
-        </div>
-    );
-};
-
-export default ManageBackups;
+        );
+    }
+}
