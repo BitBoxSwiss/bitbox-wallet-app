@@ -15,7 +15,7 @@
  */
 
 import { Component, h } from 'preact';
-import i18n from '../i18n/i18n';
+import { translate } from 'react-i18next';
 import { Input, Checkbox, Field } from './forms';
 import * as style from './password.css';
 
@@ -29,6 +29,7 @@ export function PasswordInput (props) {
     );
 }
 
+@translate(null, { withRef: true })
 export class PasswordSingleInput extends Component {
     state = {
         password: '',
@@ -57,7 +58,7 @@ export class PasswordSingleInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert(i18n.t('password.warning.paste', { // eslint-disable-line no-alert
+            alert(this.props.t('password.warning.paste', { // eslint-disable-line no-alert
                 label: this.props.label
             }));
         }
@@ -114,7 +115,7 @@ export class PasswordSingleInput extends Component {
     }) {
         const warning = (capsLock && !seePlaintext) && (
             <span className={style.capsWarning}
-                title={i18n.t('password.warning.caps')}>⇪</span>
+                title={t('password.warning.caps')}>⇪</span>
         );
         return (
             <div>
@@ -138,7 +139,7 @@ export class PasswordSingleInput extends Component {
                         id={this.idPrefix() + 'seePlaintext'}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
-                        label={i18n.t('password.show', {
+                        label={t('password.show', {
                             label: showLabel || label
                         })} />
                 </Field>
@@ -148,7 +149,7 @@ export class PasswordSingleInput extends Component {
 
 }
 
-
+@translate(null, { withRef: true })
 export class PasswordRepeatInput extends Component {
     state = {
         password: '',
@@ -178,7 +179,7 @@ export class PasswordRepeatInput extends Component {
     tryPaste = event => {
         if (event.target.type === 'password') {
             event.preventDefault();
-            alert(i18n.t('password.warning.paste', { // eslint-disable-line no-alert
+            alert(this.props.t('password.warning.paste', { // eslint-disable-line no-alert
                 label: this.props.label
             }));
         }
@@ -239,7 +240,7 @@ export class PasswordRepeatInput extends Component {
     }) {
         const warning = (capsLock && !seePlaintext) && (
             <span className={style.capsWarning}
-                title={i18n.t('password.warning.caps')}>⇪</span>
+                title={t('password.warning.caps')}>⇪</span>
         );
         return (
             <div>
@@ -285,7 +286,7 @@ export class PasswordRepeatInput extends Component {
                         id={this.idPrefix() + 'seePlaintext'}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
-                        label={i18n.t('password.show', {
+                        label={t('password.show', {
                             label: showLabel || label
                         })} />
                 </Field>

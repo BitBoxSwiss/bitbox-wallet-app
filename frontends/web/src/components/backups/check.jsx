@@ -49,9 +49,6 @@ export default class Check extends Component {
             activeDialog: false,
             message: null,
         });
-        if (this.passwordInput) {
-            this.passwordInput.clear();
-        }
     }
 
     handleFormChange = event => {
@@ -121,7 +118,6 @@ export default class Check extends Component {
                             ) : (
                                 <form onSubmit={this.check}>
                                     <PasswordSingleInput
-                                        ref={ref => this.passwordInput = ref}
                                         label={t('backup.check.password.label')}
                                         placeholder={t('backup.check.password.placeholder')}
                                         showLabel={t('backup.check.password.showLabel')}

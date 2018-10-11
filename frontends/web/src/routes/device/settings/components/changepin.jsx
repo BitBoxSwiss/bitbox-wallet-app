@@ -54,9 +54,6 @@ export default class ChangePIN extends Component {
             isConfirming: false,
             activeDialog: false,
         });
-        if (this.newPINInput) {
-            this.newPINInput.clear();
-        }
     }
 
     validate = () => {
@@ -126,7 +123,6 @@ export default class ChangePIN extends Component {
                                     label={t('initialize.input.label')}
                                     repeatLabel={t('initialize.input.labelRepeat')}
                                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                                    ref={ref => this.newPINInput = ref}
                                     onValidPassword={this.setValidNewPIN} />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                     <Button secondary onClick={this.abort} disabled={isConfirming}>

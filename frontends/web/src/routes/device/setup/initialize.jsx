@@ -66,7 +66,7 @@ export default class Initialize extends Component {
                 });
             }
             if (this.passwordInput) {
-                this.passwordInput.clear();
+                this.passwordInput.getWrappedInstance().clear();
             }
         });
     };
