@@ -14,31 +14,35 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import i18n from '../../i18n/i18n';
+import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import Transaction from './transaction';
 
-export default function Transactions({
-    explorerURL,
-    transactions,
-    className,
-}) {
-    return (
-        <div className={className} style="flex-grow: 1;">
-            {
-                transactions.length > 0 ? transactions.map(props => (
-                    <Transaction
-                        key={props.id}
-                        explorerURL={explorerURL}
-                        {...props} />
-                )) : (
-                    <div class="flex flex-row flex-center">
-                        <p class="text-gray">
-                            {i18n.t('transactions.placeholder')}
-                        </p>
-                    </div>
-                )
-            }
-        </div>
-    );
+@translate()
+export default class Transactions extends Component {
+    render({
+        t,
+        explorerURL,
+        transactions,
+        className,
+    }) {
+        return (
+            <div className={className} style="flex-grow: 1;">
+                {
+                    transactions.length > 0 ? transactions.map(props => (
+                        <Transaction
+                            key={props.id}
+                            explorerURL={explorerURL}
+                            {...props} />
+                    )) : (
+                        <div class="flex flex-row flex-center">
+                            <p class="text-gray">
+                                {t('transactions.placeholder')}
+                            </p>
+                        </div>
+                    )
+                }
+            </div>
+        );
+    }
 }
