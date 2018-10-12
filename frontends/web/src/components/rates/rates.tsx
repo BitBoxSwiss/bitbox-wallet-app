@@ -129,11 +129,14 @@ function Conversion({
     } else {
         mainnetCoin = coin as MainnetCoin;
     }
-    const value = rates[mainnetCoin][active] * Number(amount.amount);
+    let formattedValue = '';
+    if (rates[mainnetCoin]) {
+        formattedValue = formatAsCurrency(rates[mainnetCoin][active] * Number(amount.amount));
+    }
     if (tableRow) {
         return (
             <tr className={unstyled ? '' : style.fiatRow}>
-                <td className={unstyled ? '' : style.availableFiatAmount}>{formatAsCurrency(value)}</td>
+                <td className={unstyled ? '' : style.availableFiatAmount}>{formattedValue}</td>
                 <td className={unstyled ? '' : style.availableFiatUnit} onClick={rotateFiat}>{active}</td>
             </tr>
         );
@@ -141,7 +144,7 @@ function Conversion({
     return (
         <span className={style.rates}>
             {children}
-            {formatAsCurrency(value)}
+            {formattedValue}
             {' '}
             <span className={style.unit} onClick={rotateFiat}>{active}</span>
         </span>

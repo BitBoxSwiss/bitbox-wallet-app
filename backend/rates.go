@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package btc
+package backend
 
 import (
 	"encoding/json"
@@ -85,7 +85,7 @@ func (updater *RatesUpdater) update() {
 	updater.last = rates
 	updater.log.WithField("data", spew.Sprintf("%v", rates)).Debug("Exchange rates changed.")
 	updater.Notify(observable.Event{
-		Subject: "coins/rates",
+		Subject: "rates",
 		Action:  action.Replace,
 		Object:  rates,
 	})
