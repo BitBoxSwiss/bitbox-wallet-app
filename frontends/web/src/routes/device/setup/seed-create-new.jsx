@@ -29,7 +29,8 @@ import * as style from '../device.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',
-    WAITING: 'waiting',
+    CREATING: 'creating',
+    CHECKING: 'checking',
     ERROR: 'error',
 });
 
@@ -37,7 +38,7 @@ const STATUS = Object.freeze({
 export default class SeedCreateNew extends Component {
     state = {
         showInfo: true,
-        status: STATUS.DEFAULT,
+        status: STATUS.CHECKING,
         walletName: '',
         backupPassword: '',
         error: '',
@@ -68,10 +69,7 @@ export default class SeedCreateNew extends Component {
         if (!this.validate()) {
             return;
         }
-        this.setState({
-            status: STATUS.WAITING,
-            error: '',
-        });
+        this.setState({ status: STATUS.CREATING, error: '' });
         apiPost('devices/' + this.props.deviceID + '/create-wallet', {
             walletName: this.state.walletName,
             backupPassword: this.state.backupPassword
@@ -128,6 +126,17 @@ export default class SeedCreateNew extends Component {
         this.checkSDcard();
     }
 
+    renderSpinner() {
+        switch (this.state.status) {
+        case STATUS.CHECKING:
+            return (<Spinner text={'checking micro SD card'} showLogo />);
+        case STATUS.CREATING:
+            return (<Spinner text={this.props.t('seed.creating')} showLogo />);
+        default:
+            return null;
+        }
+    }
+
     render({
         t,
         deviceID,
@@ -156,7 +165,7 @@ export default class SeedCreateNew extends Component {
                     <Button
                         primary
                         onClick={this.handleStart}
-                        disabled={status === STATUS.ERROR}>
+                        disabled={status !== STATUS.DEFAULT}>
                         {t('seed.info.button')}
                     </Button>
                 </div>
@@ -170,7 +179,7 @@ export default class SeedCreateNew extends Component {
                         id="walletName"
                         label={t('seed.walletName.label')}
                         placeholder={t('seed.walletName.placeholder')}
-                        disabled={status === STATUS.WAITING}
+                        disabled={status === STATUS.CREATING}
                         onInput={this.handleFormChange}
                         getRef={ref => this.walletNameInput = ref}
                         value={walletName} />
@@ -179,7 +188,7 @@ export default class SeedCreateNew extends Component {
                         repeatPlaceholder={t('seed.password.repeatPlaceholder')}
                         showLabel="Password"
                         ref={ref => this.backupPasswordInput = ref}
-                        disabled={status === STATUS.WAITING}
+                        disabled={status === STATUS.CREATING}
                         onValidPassword={this.setValidBackupPassword} />
                 </div>
                 <div class={style.agreements}>
@@ -212,7 +221,7 @@ export default class SeedCreateNew extends Component {
                     <Button
                         type="submit"
                         primary
-                        disabled={!this.validate() || status === STATUS.WAITING}>
+                        disabled={!this.validate() || status === STATUS.CREATING}>
                         {t('seed.create')}
                     </Button>
                 </div>
@@ -248,11 +257,7 @@ export default class SeedCreateNew extends Component {
                             <Shift />
                         </Footer>
                     </div>
-                    {
-                        status === STATUS.WAITING && (
-                            <Spinner text={t('seed.creating')} showLogo />
-                        )
-                    }
+                    { this.renderSpinner() }
                 </div>
             </div>
         );
