@@ -12,10 +12,6 @@ typedef void (*responseCallback) (int, const char*);
 static void respond(responseCallback f, int queryID, const char* msg) {
     f(queryID, msg);
 }
-
-typedef struct ConnectionData {
-    char* token;
-} ConnectionData;
 #endif
 
 #ifdef __cplusplus
@@ -25,7 +21,7 @@ extern "C" {
 
 extern void backendCall(int p0, char* p1);
 
-extern struct ConnectionData serve(pushNotificationsCallback p0, responseCallback p1);
+extern void serve(pushNotificationsCallback p0, responseCallback p1);
 
 #ifdef __cplusplus
 }
