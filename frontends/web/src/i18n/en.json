@@ -147,7 +147,6 @@
         "success": "Hidden wallet created successfully. Replug your BitBox to unlock it.",
         "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> device password + recovery password combination.",
         "info2HTML": "Define the device password and recovery password you want to associate with your hidden wallet below. The device password and recovery password must be <strong>different</strong> from the ones you defined for your primary wallet.",
-        "info3HTML": "<!-- TODO -->",
         "pinLabel": "Hidden device password",
         "pinRepeatLabel": "Repeat hidden device password",
         "pinRepeatPlaceholder": "Please confirm hidden device password",

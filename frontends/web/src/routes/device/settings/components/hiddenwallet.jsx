@@ -114,7 +114,6 @@ export default class HiddenWallet extends Component {
                         <Dialog title={t('button.hiddenwallet')}>
                             <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info1HTML')} />
                             <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info2HTML')} />
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info3HTML')} />
 
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput

@@ -84,10 +84,10 @@ export default class SecurityInformation extends Component {
                             ) : (
                                 <div class={style.block}>
                                     <ul class={[style.list, 'first'].join(' ')}>
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_1')} />
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_2')} />
+                                        <li>{t('securityInformation.restore.description_1')}</li>
+                                        <li>{t('securityInformation.restore.description_2')}</li>
                                     </ul>
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_3')} />
+                                    <p>{t('securityInformation.restore.description_3')}</p>
                                     <Message type="warning">
                                         <Alert />
                                         <InnerHTMLHelper tagName="p" class="first" html={t('deviceTampered')} />
