@@ -9,6 +9,12 @@
     "app": {
         "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
     },
+    "bitbox": {
+        "error": {
+            "102": "The password must consist of at least 8 characters.",
+            "112": "Hidden device password cannot be the same as the main device password."
+        }
+    },
     "sidebar": {
         "device": "Manage Device",
         "settings": "Settings",

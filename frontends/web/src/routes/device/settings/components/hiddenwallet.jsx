@@ -73,14 +73,16 @@ export default class HiddenWallet extends Component {
         apiPost('devices/' + this.props.deviceID + '/set-hidden-password', {
             pin: this.state.pin,
             backupPassword: this.state.password,
-        }).catch(() => {}).then(({ success, didCreate, errorMessage }) => {
+        }).catch(() => {}).then(({ success, didCreate, errorMessage, code }) => {
             this.abort();
             if (success) {
                 if (didCreate) {
-                    alert(this.props.t('hiddenWallet.success')); // eslint-disable-line no-alert
+                    alert(this.props.t('hiddenWallet.success'));
                 }
             } else {
-                alert(errorMessage); // eslint-disable-line no-alert
+                alert(this.props.t(`bitbox.error.${code}`, {
+                    defaultValue: errorMessage
+                }));
             }
         });
     }
