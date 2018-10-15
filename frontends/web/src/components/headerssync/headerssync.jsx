@@ -63,7 +63,7 @@ export default class HeadersSync extends Component {
             <div class={style.syncContainer}>
                 <div class={style.syncMessage}>
                     <div class={style.syncText}>
-                        {formatted} {t('headerssync.blocksSynced')} { !loaded && `(${Math.ceil(value)}%)` }
+                        {t('headerssync.blocksSynced', { blocks: formatted })} { !loaded && `(${Math.ceil(value)}%)` }
                     </div>
                     {
                         !loaded && (

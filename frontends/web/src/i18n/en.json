@@ -249,7 +249,7 @@
         }
     },
     "headerssync": {
-        "blocksSynced": "blocks synced"
+        "blocksSynced": "{{blocks}} blocks synced"
     },
     "transactions": {
         "placeholder": "No transactions yet."
