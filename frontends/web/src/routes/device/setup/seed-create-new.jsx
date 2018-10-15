@@ -85,7 +85,7 @@ export default class SeedCreateNew extends Component {
                 this.props.onSuccess();
             }
             if (this.backupPasswordInput) {
-                this.backupPasswordInput.clear();
+                this.backupPasswordInput.getWrappedInstance().clear();
             }
             this.setState({ backupPassword: '' });
         });
