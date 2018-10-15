@@ -21,7 +21,7 @@ import Dialog from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
-import InnerHTMLHelper from '../../../../utils/innerHTML';
+import SimpleMarkup from '../../../../utils/simplemarkup';
 
 
 @translate()
@@ -112,8 +112,8 @@ export default class HiddenWallet extends Component {
                 {
                     activeDialog && (
                         <Dialog title={t('button.hiddenwallet')}>
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info1HTML')} />
-                            <InnerHTMLHelper tagName="p" html={t('hiddenWallet.info2HTML')} />
+                            <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
+                            <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
 
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
