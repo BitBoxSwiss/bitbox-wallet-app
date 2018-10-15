@@ -41,7 +41,6 @@ export default class Waiting extends Component {
                     <div className={style.content}>
                         <div className="flex-1 flex flex-column flex-center">
                             <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
-                            {t('welcome.paragraph')}
                             <Message type="warning" style="max-width: 400px; align-self: center;">
                                 <Alert />
                                 <p class="first">{t('deviceTampered')}</p>

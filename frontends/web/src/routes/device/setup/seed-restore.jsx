@@ -84,13 +84,13 @@ export default class SeedRestore extends Component {
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <div className={style.content}>
                         <Steps current={2}>
-                            <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step title={t('goal.step.1.title')} />
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
                             <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_restore.title`)} description={t(`goal.step.4_restore.description`)} />
+                            <Step title={t(`goal.step.4_restore.title`)} />
                         </Steps>
                         <hr />
                         {

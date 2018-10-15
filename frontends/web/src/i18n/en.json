@@ -31,25 +31,23 @@
     },
     "welcome": {
         "title": "Welcome",
-        "paragraph": "",
         "insertDevice": "Please connect your device to get started"
     },
     "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
     "setup": "Setup device",
     "goal": {
-        "title": "",
         "paragraph": "Please select one of the following options:",
         "buttons": {
             "create": "Create a new wallet",
             "restore": "Restore a wallet from a backup"
         },
         "step": {
-            "1": { "title": "Security Information", "description": "" },
+            "1": { "title": "Security Information" },
             "2": { "title": "Device", "description": "Set a device password" },
             "3_create": { "title": "Wallet", "description": "Create a new wallet" },
             "3_restore": { "title": "Restore", "description": "from a backup" },
-            "4_create": { "title": "Summary", "description": "" },
-            "4_restore": { "title": "Summary", "description": "" }
+            "4_create": { "title": "Summary" },
+            "4_restore": { "title": "Summary" }
         }
     },
     "device": {
@@ -234,13 +232,9 @@
             "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
             "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the Bitcoin Legacy account, which you can enable in the settings. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
             "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
-            "ltc-p2wpkh": "",
-            "ltc-p2wpkh-p2sh": "",
             "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
             "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)",
-            "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
-            "tltc-p2wpkh": "",
-            "tltc-p2wpkh-p2sh": ""
+            "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)"
         }
     },
     "headerssync": {
@@ -304,8 +298,7 @@
                 "economy": "24 blocks (around 4 hours for Bitcoin, 1 hour for Litecoin)",
                 "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
                 "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)",
-                "high": "2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)",
-                "loading": ""
+                "high": "2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)"
             }
         },
         "customFee": {
@@ -336,8 +329,7 @@
         },
         "createDescription": "Initialize the wallet and automatically create a backup on the micro SD card.",
         "walletName": {
-            "label": "Wallet Name",
-            "placeholder": ""
+            "label": "Wallet Name"
         },
         "password": {
             "label": "Recovery password",
@@ -397,8 +389,7 @@
         "input": {
             "label": "Device password",
             "labelRepeat": "Repeat device password",
-            "placeholderRepeat": "Please confirm device password",
-            "invalid": ""
+            "placeholderRepeat": "Please confirm device password"
         },
         "create": "Set device password",
         "creating": "Setting device password…",
@@ -407,9 +398,7 @@
         }
     },
     "changePin": {
-        "oldTitle": "",
         "oldLabel": "Current device password",
-        "oldPlaceholder": "",
         "newTitle": "New device password"
     },
     "backup": {

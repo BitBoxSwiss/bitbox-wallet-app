@@ -157,7 +157,7 @@ export default class Account extends Component {
         hasCard,
     }) {
         if (!accounts) return null;
-        const account = accounts.find(({ code }) => code === this.props.code);
+        const account = accounts.find(account => account.code === code);
         if (!account) return null;
         const noTransactions = (initialized && transactions.length <= 0);
         return (
@@ -217,8 +217,8 @@ export default class Account extends Component {
                                 />
                             )
                         }
-                        <Status dismissable keyName={`info-${this.props.code}`} type="info">
-                            {t(`account.info.${this.props.code}`)}
+                        <Status dismissable keyName={`info-${code}`} type="info">
+                            {t(`account.info.${code}`, { defaultValue: '' })}
                         </Status>
                     </div>
                 </div>

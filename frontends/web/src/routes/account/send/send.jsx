@@ -417,7 +417,7 @@ export default class Send extends Component {
                                     />
                                     */}
                                 </div>
-                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + (feeTarget || 'loading'))}</p>
+                                <p class={style.feeDescription}>{feeTarget && t('send.feeTarget.description.' + feeTarget) || ''}</p>
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
                                 <ButtonLink

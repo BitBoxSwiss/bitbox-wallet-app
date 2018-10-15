@@ -12,18 +12,12 @@ export default class Goal extends Component {
         onCreate,
         onRestore,
     }) {
-        const title = t('goal.title');
         return (
             <div class="contentWithGuide">
                 <div className={[style.container].join(' ')}>
                     <div className={style.content} style="text-align: center;">
                         <div className="flex-1 flex flex-column flex-center">
                             <h1 className={style.title}>{t('setup')}</h1>
-                            {
-                                title && (
-                                    <h2>{title}</h2>
-                                )
-                            }
                             <p class="first">{t('goal.paragraph')}</p>
                             <div class={style.verticalButtons}>
                                 <Button primary onClick={onCreate}>

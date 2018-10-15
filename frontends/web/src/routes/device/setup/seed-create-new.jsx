@@ -178,7 +178,6 @@ export default class SeedCreateNew extends Component {
                         autoFocus
                         id="walletName"
                         label={t('seed.walletName.label')}
-                        placeholder={t('seed.walletName.placeholder')}
                         disabled={status === STATUS.CREATING}
                         onInput={this.handleFormChange}
                         getRef={ref => this.walletNameInput = ref}
@@ -239,7 +238,7 @@ export default class SeedCreateNew extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.3_create.title`)} description={t(`goal.step.3_create.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_create.title`)} description={t(`goal.step.4_create.description`)} />
+                            <Step title={t(`goal.step.4_create.title`)} />
                         </Steps>
                         <hr />
                         {

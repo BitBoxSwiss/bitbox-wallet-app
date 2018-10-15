@@ -136,7 +136,6 @@ export default class Initialize extends Component {
             <form onSubmit={this.handleSubmit} class="flex-1">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
-                    title={t('initialize.input.invalid')}
                     label={t('initialize.input.label')}
                     repeatLabel={t('initialize.input.labelRepeat')}
                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
