@@ -2,10 +2,6 @@
     "appName": "BitBox App",
     "appNameWithDefiniteArticle": "the BitBox App",
     "genericError": "An error occurred. If you notice any issues, please restart the application.",
-    "months": [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-    "days": [ "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ],
-    "dayPeriod": "",
-    "atTime": "at",
     "app": {
         "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
     },

@@ -29,10 +29,15 @@ export default class BackupsListItem extends Component {
     }, { }) {
         let date = '';
         if (backup.date && backup.date !== '') {
-            const months = t('months');
-            const days = t('days');
-            const dt = new Date(backup.date);
-            date = `${days[dt.getDay()]}, ${dt.getDate()}${t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+            };
+            date = new Date(backup.date).toLocaleString(this.context.i18n.language, options);
         } else {
             date = 'unknown';
         }

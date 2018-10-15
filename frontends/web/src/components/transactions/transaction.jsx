@@ -35,15 +35,26 @@ export default class Transaction extends Component {
     }
 
     parseTime = time => {
-        const months = this.props.t('months');
-        const days = this.props.t('days');
-        const dt = new Date(Date.parse(time));
-        return `${days[dt.getDay()]}, ${dt.getDate()}${this.props.t('dayPeriod')} ${months[dt.getMonth()]} ${dt.getFullYear()}, ${this.props.t('atTime')} ${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        const options = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+        return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
     }
 
     parseTimeShort = time => {
-        const dt = new Date(Date.parse(time));
-        return `${dt.getMonth() + 1}/${dt.getDate()}/${dt.getFullYear()} @${dt.getHours()}:${(dt.getMinutes() < 10 ? '0' : '') + dt.getMinutes()}`;
+        const options = {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        };
+        return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
     }
 
     render({
