@@ -350,12 +350,12 @@
         },
         "create": "Create Wallet",
         "creating": "Creating wallet",
-        "creating2": "Backing up wallet to micro SD Card",
+        "creating2": "Backing up wallet to micro SD card",
         "backup": "Or restore a Backup…",
         "backToCreate": "Or create a new wallet…",
         "error" : {
             "102": "The password must consist of at least 8 characters.",
-            "200": "Wallet creation requires an micro SD card for automatic backup."
+            "200": "You need to insert a micro SD card into your BitBox in order to create a wallet, so a backup can be created automatically."
         }
     },
     "seedRestore": {
