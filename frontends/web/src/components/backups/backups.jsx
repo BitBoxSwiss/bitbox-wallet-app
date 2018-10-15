@@ -23,7 +23,7 @@ import Check from './check';
 import Create from './create';
 import BackupsListItem from './backup';
 // import Erase from './erase';
-import InnerHTMLHelper from '../../utils/innerHTML';
+import SimpleMarkup from '../../utils/simplemarkup';
 import * as style from './backups.css';
 
 @translate()
@@ -100,7 +100,7 @@ export default class Backups extends Component {
 
         return (
             <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
-                <InnerHTMLHelper tagName="p" html={t('backup.description')} />
+                <SimpleMarkup tagName="p" markup={t('backup.description')} />
                 <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
                     {
                         backupList.map(backup => (

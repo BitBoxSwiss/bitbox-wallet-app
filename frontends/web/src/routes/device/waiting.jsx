@@ -26,7 +26,6 @@ import { Message } from '../../components/message/message';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
-import InnerHTMLHelper from '../../utils/innerHTML';
 import * as style from './device.css';
 
 @translate()
@@ -45,7 +44,7 @@ export default class Waiting extends Component {
                             {t('welcome.paragraph')}
                             <Message type="warning" style="max-width: 400px; align-self: center;">
                                 <Alert />
-                                <InnerHTMLHelper tagName="p" html={t('deviceTampered')} style="margin-top: 0;" />
+                                <p class="first">{t('deviceTampered')}</p>
                             </Message>
                             <SkipForTestingButton show={debug && testing} />
                         </div>

@@ -16,6 +16,16 @@
 
 import { h } from 'preact';
 
-export default function InnerHTMLHelper({ tagName, html, ...props }) {
-    return h(tagName, { dangerouslySetInnerHTML: { __html: html }, ...props });
+// SimpleMarkup renders `foo <strong>bar</strong> baz` safely as `foo <strong>bar</strong> baz`. Anything else is rendered as sanitized text.
+// Only <strong> is supported to keep it simple.
+export default function SimpleMarkup({ tagName, markup }) {
+    if (typeof markup !== 'string') {
+        return null;
+    }
+    let simpleMarkupChunks = /^(.*)<strong>(.*)<\/strong>(.*)$/.exec(markup);
+    if (simpleMarkupChunks === null || simpleMarkupChunks.length !== 4) {
+        return h(tagName, null, markup);
+    }
+    return h(tagName, null, simpleMarkupChunks[1], h('strong', null, simpleMarkupChunks[2]), simpleMarkupChunks[3]);
+
 }

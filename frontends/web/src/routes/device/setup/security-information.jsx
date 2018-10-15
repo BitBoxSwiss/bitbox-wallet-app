@@ -20,7 +20,7 @@ import { Button } from '../../../components/forms';
 import { Shift, Alert } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
-import InnerHTMLHelper from '../../../utils/innerHTML';
+import SimpleMarkup from '../../../utils/simplemarkup';
 import { Message } from '../../../components/message/message';
 import * as style from '../device.css';
 
@@ -63,13 +63,13 @@ export default class SecurityInformation extends Component {
                         {
                             goal === 'create' ? (
                                 <div class={style.block}>
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_1')} />
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_2')} />
+                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description_1')} />
+                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description_2')} />
                                     <ul class={[style.list, 'first'].join(' ')}>
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.create.description_3')} />
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.create.description_4')} />
+                                        <SimpleMarkup tagName="li" markup={t('securityInformation.create.description_3')} />
+                                        <SimpleMarkup tagName="li" markup={t('securityInformation.create.description_4')} />
                                     </ul>
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.create.description_5')} />
+                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description_5')} />
                                     <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button
                                             secondary
@@ -84,13 +84,13 @@ export default class SecurityInformation extends Component {
                             ) : (
                                 <div class={style.block}>
                                     <ul class={[style.list, 'first'].join(' ')}>
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_1')} />
-                                        <InnerHTMLHelper tagName="li" html={t('securityInformation.restore.description_2')} />
+                                        <li>{t('securityInformation.restore.description_1')}</li>
+                                        <li>{t('securityInformation.restore.description_2')}</li>
                                     </ul>
-                                    <InnerHTMLHelper tagName="p" html={t('securityInformation.restore.description_3')} />
+                                    <p>{t('securityInformation.restore.description_3')}</p>
                                     <Message type="warning">
                                         <Alert />
-                                        <InnerHTMLHelper tagName="p" class="first" html={t('deviceTampered')} />
+                                        <p class="first">{t('deviceTampered')}</p>
                                     </Message>
                                     <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button

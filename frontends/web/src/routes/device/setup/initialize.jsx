@@ -24,7 +24,6 @@ import { Shift } from '../../../components/icon/logo';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
-import InnerHTMLHelper from '../../../utils/innerHTML';
 import * as style from '../device.css';
 
 const stateEnum = Object.freeze({
@@ -118,10 +117,10 @@ export default class Initialize extends Component {
                     </div>
                 </div>
                 <ul>
-                    <InnerHTMLHelper tagName="li" html={t('initialize.info.description_1')} />
-                    <InnerHTMLHelper tagName="li" html={t('initialize.info.description_2')} />
+                    <li>{t('initialize.info.description_1')}</li>
+                    <li>{t('initialize.info.description_2')}</li>
                 </ul>
-                <InnerHTMLHelper tagName="p" html={t('initialize.info.description_3')} />
+                <p>{t('initialize.info.description_3')}</p>
                 <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
                         secondary
