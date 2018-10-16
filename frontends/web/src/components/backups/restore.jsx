@@ -102,7 +102,7 @@ export default class Restore extends Component {
                     route('/', true);
                 }
             } else {
-                alert(this.props.t(`backup.restore.error.${code}`, {
+                alert(this.props.t(`backup.restore.error.e${code}`, {
                     defaultValue: errorMessage,
                 }));
             }

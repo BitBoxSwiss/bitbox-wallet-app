@@ -74,7 +74,7 @@ export default class ChangePIN extends Component {
             this.abort();
 
             if (!data.success) {
-                alert(this.props.t(`bitbox.error.${data.code}`, {
+                alert(this.props.t(`bitbox.error.e${data.code}`, {
                     defaultValue: data.errorMessage,
                 }));
             }

@@ -7,10 +7,10 @@
     },
     "bitbox": {
         "error": {
-            "102": "The password must consist of at least 8 characters.",
-            "112": "Hidden device password cannot be the same as the main device password.",
-            "10000": "Current device password incorrect.",
-            "10001": "Failed to replace device password"
+            "e102": "The password must consist of at least 8 characters.",
+            "e112": "Hidden device password cannot be the same as the main device password.",
+            "e10000": "Current device password incorrect.",
+            "e10001": "Failed to replace device password"
         }
     },
     "sidebar": {
@@ -26,9 +26,9 @@
             "placeholder": "Enter your device password to unlock the device"
         },
         "error": {
-            "113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
-            "109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
-            "109_touch": "$t(unlock.error.109_normal) The next login requires holding the touch button."
+            "e113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds.",
+            "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
+            "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button."
         }
     },
     "welcome": {
@@ -376,9 +376,9 @@
         "creating2": "Backing up wallet to micro SD card",
         "backup": "Or restore a Backup…",
         "backToCreate": "Or create a new wallet…",
-        "error" : {
-            "102": "The password must consist of at least 8 characters.",
-            "200": "You need to insert a micro SD card into your BitBox in order to create a wallet, so a backup can be created automatically."
+        "error": {
+            "e102": "The password must consist of at least 8 characters.",
+            "e200": "You need to insert a micro SD card into your BitBox in order to create a wallet, so a backup can be created automatically."
         }
     },
     "seedRestore": {
@@ -423,8 +423,8 @@
         },
         "create": "Set device password",
         "creating": "Setting device password…",
-        "error" : {
-            "102": "The device password must consist of at least 4 characters."
+        "error": {
+            "e102": "The device password must consist of at least 4 characters."
         }
     },
     "changePin": {
@@ -461,7 +461,7 @@
                 "showLabel": "Recovery password"
             },
             "error": {
-                "200": "SD card not found"
+                "e200": "SD card not found"
             }
         },
         "check": {
@@ -515,7 +515,7 @@
         "next": "Next",
         "restore": "Restore",
         "create": "Create",
-        "check" : "Check Backup",
+        "check": "Check Backup",
         "abort": "Abort",
         "upgrade": "Upgrade",
         "download": "Download",

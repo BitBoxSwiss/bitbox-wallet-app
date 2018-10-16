@@ -77,7 +77,7 @@ export default class SeedCreateNew extends Component {
             if (!data.success) {
                 this.setState({
                     status: STATUS.ERROR,
-                    error: this.props.t(`seed.error.${data.code}`, {
+                    error: this.props.t(`seed.error.e${data.code}`, {
                         defaultValue: data.errorMessage
                     }),
                 });
@@ -115,7 +115,7 @@ export default class SeedCreateNew extends Component {
             }
             this.setState({
                 status: STATUS.ERROR,
-                error: this.props.t('seed.error.200'),
+                error: this.props.t('seed.error.e200'),
             });
             setTimeout(this.checkSDcard, 2500);
         });

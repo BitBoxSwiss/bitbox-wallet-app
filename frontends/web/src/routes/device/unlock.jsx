@@ -120,7 +120,7 @@ export default class Unlock extends Component {
         case stateEnum.ERROR:
             submissionState = (
                 <Message type="error">
-                    {t(`unlock.error.${errorCode}`, {
+                    {t(`unlock.error.e${errorCode}`, {
                         defaultValue: errorMessage,
                         remainingAttempts,
                         context: needsLongTouch ? 'touch' : 'normal'

@@ -80,7 +80,7 @@ export default class HiddenWallet extends Component {
                     alert(this.props.t('hiddenWallet.success'));
                 }
             } else {
-                alert(this.props.t(`bitbox.error.${code}`, {
+                alert(this.props.t(`bitbox.error.e${code}`, {
                     defaultValue: errorMessage
                 }));
             }
@@ -121,7 +121,6 @@ export default class HiddenWallet extends Component {
                                 <PasswordRepeatInput
                                     idPrefix="pin"
                                     pattern="^.{4,}$"
-                                    title={t('initialize.input.invalid')}
                                     label={t('hiddenWallet.pinLabel')}
                                     repeatLabel={t('hiddenWallet.pinRepeatLabel')}
                                     repeatPlaceholder={t('hiddenWallet.pinRepeatPlaceholder')}

@@ -63,7 +63,7 @@ export default class Reset extends Component {
                     route('/', true);
                 }
             } else if (data.errorMessage) {
-                alert(this.props.t(`bitbox.error.${data.code}`, {
+                alert(this.props.t(`bitbox.error.e${data.code}`, {
                     defaultValue: data.errorMessage,
                 }));
             }
