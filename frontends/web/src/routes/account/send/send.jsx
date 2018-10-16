@@ -319,7 +319,7 @@ export default class Send extends Component {
         const confirmPrequel = signProgress && signProgress.steps > 1 ? (
             <span>
                 {t('send.signprogress.description', {
-                     steps: signProgress.steps,
+                    steps: signProgress.steps,
                 })}<br />
                 {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
             </span>
