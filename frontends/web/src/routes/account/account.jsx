@@ -37,9 +37,15 @@ import * as componentStyle from '../../components/style.css';
 @translate()
 export default class Account extends Component {
     state = {
+        // We update the account state in componentDidUpdate(), without resetting
+        // the state, to avoid a rerender (screen flash). For a split second however, the state
+        // is old/undefined (e.g. the new account might not be initialized, but state.initialized
+        // is still true from a previous account until it is updated in onStatusChanged()).
+        // determiningStatus indicates this situation and is true during that time.
+        determiningStatus: false,
         initialized: false,
-        transactions: [],
         connected: false,
+        transactions: [],
         balance: null,
         hasCard: false,
     }
@@ -64,6 +70,12 @@ export default class Account extends Component {
         }
     }
 
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.code && nextProps.code !== this.props.code) {
+            this.setState({ determiningStatus: true });
+        }
+    }
+
     componentDidUpdate(prevProps) {
         if (!this.props.code) {
             if (this.props.accounts && this.props.accounts.length) {
@@ -74,7 +86,6 @@ export default class Account extends Component {
         }
         if (this.props.code !== prevProps.code) {
             this.onStatusChanged();
-            this.checkSDCards();
         }
         if (this.props.deviceIDs.length !== prevProps.deviceIDs.length) {
             this.checkSDCards();
@@ -120,6 +131,7 @@ export default class Account extends Component {
             let state = {
                 initialized: status.includes('accountSynced'),
                 connected: !status.includes('offlineMode'),
+                determiningStatus: false,
             };
             if (!status.initialized && !status.includes('accountDisabled')) {
                 apiPost(`account/${code}/init`);
@@ -153,6 +165,7 @@ export default class Account extends Component {
         transactions,
         initialized,
         connected,
+        determiningStatus,
         balance,
         hasCard,
     }) {
@@ -213,7 +226,7 @@ export default class Account extends Component {
                         </div>
                     </Header>
                     <div class={['innerContainer', ''].join(' ')}>
-                        <HeadersSync coinCode={account.coinCode} />
+                        { initialized && !determiningStatus && <HeadersSync coinCode={account.coinCode} /> }
                         {
                             !initialized || !connected ? (
                                 <Spinner text={
