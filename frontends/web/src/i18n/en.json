@@ -284,6 +284,7 @@
         "fiatAmount": {
             "placeholder": "Enter amount"
         },
+        "toggleCoinControl": "Toggle Coin Control",
         "maximum": "Send all",
         "toSelf": "Send to self",
         "fee": {
@@ -299,6 +300,12 @@
                 "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
                 "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)",
                 "high": "2 blocks (around 20 minutes for Bitcoin, 5 minutes for Litecoin)"
+            },
+            "label": {
+                "economy": "economy",
+                "low": "low",
+                "normal": "normal",
+                "high": "high"
             }
         },
         "customFee": {

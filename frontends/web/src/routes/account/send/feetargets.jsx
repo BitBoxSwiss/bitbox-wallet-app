@@ -15,9 +15,11 @@
  */
 
 import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { Select, Input } from '../../../components/forms';
 
+@translate()
 export default class FeeTargets extends Component {
     state = {
         feeTargets: null,
@@ -55,6 +57,7 @@ export default class FeeTargets extends Component {
     }
 
     render({
+        t,
         disabled,
         label,
         placeholder,
@@ -79,7 +82,12 @@ export default class FeeTargets extends Component {
                 disabled={disabled}
                 onChange={this.handleFeeTargetChange}
                 selected={feeTarget}
-                options={feeTargets} />
+                options={feeTargets.map(({ code }) => {
+                    return {
+                        value: code,
+                        text: t(`send.feeTarget.label.${code}`),
+                    };
+                })} />
         );
     }
 }
