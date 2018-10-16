@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -234,16 +233,10 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 }
 
 func txProposalError(err error) (interface{}, error) {
-	if errp.Cause(err) == maketx.ErrInsufficientFunds {
-		return map[string]interface{}{
-			"success": false,
-			"errMsg":  "insufficient funds",
-		}, nil
-	}
 	if validationErr, ok := errp.Cause(err).(coin.TxValidationError); ok {
 		return map[string]interface{}{
-			"success": false,
-			"errMsg":  validationErr.Error(),
+			"success":   false,
+			"errorCode": validationErr.Error(),
 		}, nil
 	}
 	return nil, errp.WithMessage(err, "Failed to create transaction proposal")

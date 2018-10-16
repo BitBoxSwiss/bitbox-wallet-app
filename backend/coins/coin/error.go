@@ -24,7 +24,10 @@ func (err TxValidationError) Error() string {
 var (
 	// ErrInvalidAddress is used when the recipient address is invalid or does not match the correct
 	// network.
-	ErrInvalidAddress = TxValidationError("invalid address")
+	ErrInvalidAddress = TxValidationError("invalidAddress")
 	// ErrInvalidAmount is used when the user entered amount is malformatted or not positive.
-	ErrInvalidAmount = TxValidationError("invalid amount")
+	ErrInvalidAmount = TxValidationError("invalidAmount")
+	// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount
+	// and fee.
+	ErrInsufficientFunds = TxValidationError("insufficientFunds")
 )

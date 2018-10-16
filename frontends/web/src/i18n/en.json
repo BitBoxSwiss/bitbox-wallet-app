@@ -323,7 +323,12 @@
             "total": "Total"
         },
         "success": "The transaction has been signed and sent.",
-        "abort": "The transaction has been aborted."
+        "abort": "The transaction has been aborted.",
+        "error": {
+            "invalidAddress": "invalid address",
+            "invalidAmount": "invalid amount",
+            "insufficientFunds": "insufficient funds"
+        }
     },
     "accountInfo": {
         "title": "Account Information",
