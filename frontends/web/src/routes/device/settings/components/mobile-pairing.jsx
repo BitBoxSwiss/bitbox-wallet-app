@@ -41,7 +41,7 @@ export default class MobilePairing extends Component {
 
     onDeviceStatus = ({ type, data, deviceID }) => {
         if (type === 'device' && deviceID === this.props.deviceID) {
-            switch (data){
+            switch (data) {
             case 'pairingStarted':
                 this.setState({ status: 'started' });
                 break;

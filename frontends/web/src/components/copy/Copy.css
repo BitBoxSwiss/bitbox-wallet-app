@@ -1,0 +1,51 @@
+.button {
+    border: none;
+    background-color: var(--color-brightblue);
+    width: 34px;
+    height: 34px;
+    min-width: 34px !important;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin-left: var(--spacing-default);
+    cursor: pointer;
+    transition: background-color ease 0.2s;
+    will-change: background-color;
+}
+
+.button:hover {
+    background-color: #89B2D2;
+}
+
+.button img {
+    width: 16px;
+}
+
+.button:focus {
+    outline: none;
+}
+
+.success {
+    background-color: var(--color-success) !important;
+}
+
+.container {
+    margin-bottom: var(--spacing-default);
+}
+
+.inputField {
+    margin-bottom: 0;
+}
+
+@media screen and (max-width: 640px) {
+    .button {
+        margin-left: var(--spacing-half);
+    }
+
+    .inputField input {
+        font-size: var(--size-button);
+    }
+}

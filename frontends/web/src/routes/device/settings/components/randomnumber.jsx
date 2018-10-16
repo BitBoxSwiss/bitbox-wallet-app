@@ -18,21 +18,53 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { apiPost } from '../../../../utils/request';
-import { alertUser } from '../../../../components/alert/Alert';
+import { Dialog } from '../../../../components/dialog/dialog';
+import { CopyableInput } from '../../../../components/copy/Copy';
 
 @translate()
 export default class RandomNumber extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            active: false,
+            number: 0,
+        };
+    }
+
     getRandomNumber = () => {
         apiPost('devices/' + this.props.deviceID + '/random-number').then(num => {
-            alertUser(this.props.t('random.description') + '\n' + num);
+            this.setState({
+                active: true,
+                number: num,
+            });
         });
-    };
+    }
 
-    render({ t }, {}) {
+    abort = () => {
+        this.setState({
+            active: false,
+            number: 0,
+        });
+    }
+
+    render({ t }, { number, active }) {
         return (
-            <Button primary onClick={this.getRandomNumber}>
-                {t('random.button')}
-            </Button>
+            <div>
+                <Button primary onClick={this.getRandomNumber}>
+                    {t('random.button')}
+                </Button>
+                {
+                    active ? (
+                        <Dialog onClose={this.abort}>
+                            <p>{t('random.description')}</p>
+                            <CopyableInput value={number} />
+                            <div class="flex flex-row flex-end flex-items-center">
+                                <Button primary onClick={this.abort}>{t('button.ok')}</Button>
+                            </div>
+                        </Dialog>
+                    ) : null
+                }
+            </div>
         );
     }
 }

@@ -15,7 +15,7 @@
  */
 
 import { Component, h } from 'preact';
-import { ButtonLink, Input } from '../../../components/forms';
+import { ButtonLink } from '../../../components/forms';
 import Balance from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
@@ -24,9 +24,10 @@ import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import Header from '../../../components/header/Header';
+import { CopyableInput } from '../../../components/copy/Copy';
 import * as style from './info.css';
 
-function SigningConfiguration({ t, signingConfiguration }) {
+const SigningConfiguration = ({ t, signingConfiguration }) => {
     return (
         // TODO: add info if single or multisig, and threshold.
         <div>
@@ -38,19 +39,15 @@ function SigningConfiguration({ t, signingConfiguration }) {
                                 {t('accountInfo.extendedPublicKey')}
                                 {signingConfiguration.xpubs.length > 1 && (' #' + (index+1))}
                             </strong><br />
-                            <QRCode data={xpub} /><br />
-                            <Input
-                                readOnly
-                                className={style.addressField}
-                                onFocus={focus}
-                                value={xpub} />
+                            <QRCode data={xpub} />
+                            <CopyableInput value={xpub} />
                         </div>
                     );
                 })
             }
         </div>
     );
-}
+};
 
 @translate()
 export default class Info extends Component {
@@ -127,8 +124,4 @@ export default class Info extends Component {
             </div>
         );
     }
-}
-
-function focus(e) {
-    e.target.select();
 }

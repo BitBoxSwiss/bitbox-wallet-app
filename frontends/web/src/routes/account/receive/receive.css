@@ -1,22 +1,17 @@
 .receiveContent {
-    /*height: 400px;*/
     margin: 0 auto;
     text-align: center;
 }
 
-.addressField {
-    display: block;
-    margin-top: -1rem;
-    text-align: center;
+.labels {
+    margin-top: var(--spacing-default);
 }
 
-.addressField input {
-    border: none;
-    display: inline;
-    font-size: var(--size-subheader);
-    padding: 0;
-    text-align: center;
-    /*width: 600px;*/
+.label {
+    color: var(--color-secondary);
+    font-size: var(--size-button);
+    padding: 0 var(--spacing-half);
+    margin: 0;
 }
 
 .bottomButtons {
@@ -34,7 +29,26 @@
     margin: 0 var(--spacing-half);
 }
 
+.arrowLeft,
+.arrowRight {
+    width: 16px;
+    position: relative;
+    top: 3px;
+}
+
+.arrowLeft {
+    margin-right: 3px;
+}
+
+.arrowRight {
+    margin-left: 3px;
+}
+
 @media (max-width: 640px) {
+    .addressField {
+        min-width: 0 !important;
+    }
+
     .addressField input {
         font-size: var(--size-small);
     }

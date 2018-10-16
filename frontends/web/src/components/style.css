@@ -27,7 +27,7 @@
     }
 
     .buttons > * {
-        min-width: 0;
+        min-width: 0 !important;
         width: 32px;
         padding: 0;
         line-height: 1;
