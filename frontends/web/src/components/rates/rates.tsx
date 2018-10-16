@@ -58,9 +58,9 @@ apiGet('config').then(({ frontend }) => {
     }
 });
 
-apiGet('coins/rates').then(rates => store.setState({ rates }));
+apiGet('rates').then(rates => store.setState({ rates }));
 
-apiSubscribe('coins/rates', ({ object }) => store.setState({ rates: object }));
+apiSubscribe('rates', ({ object }) => store.setState({ rates: object }));
 
 export function setActiveFiat(fiat: Fiat): void {
     if (!store.state.selected.includes(fiat)) {
