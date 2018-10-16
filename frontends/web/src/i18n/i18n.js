@@ -15,8 +15,7 @@
  */
 
 import i18n from 'i18next';
-// import appTranslationsDE from './de.json';
-import appTranslationsEN from './en.json';
+import appTranslationsEN from '../locales/en/app.json';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
 
@@ -44,7 +43,6 @@ i18n
 
 
 i18n.addResourceBundle('en', 'app', appTranslationsEN);
-//i18n.addResourceBundle('de', 'app', appTranslationsDE);
 
 i18n.on('languageChanged', (lng) => {
     apiGet('config').then((config = {}) => {
