@@ -445,6 +445,9 @@
                 "placeholder": "Recovery password",
                 "repeatPlaceholder": "Repeat recovery password",
                 "showLabel": "Recovery password"
+            },
+            "error": {
+                "200": "SD card not found"
             }
         },
         "check": {
