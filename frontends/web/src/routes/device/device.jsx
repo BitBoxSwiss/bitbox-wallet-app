@@ -169,7 +169,7 @@ export default class Device extends Component {
             return <Waiting testing={testing} />;
         }
         if (!deviceRegistered || !deviceStatus) {
-            return null; //<h3>waiting</h3>;
+            return null;
         }
         if (success) {
             return <Success goal={goal} />;

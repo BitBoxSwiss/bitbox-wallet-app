@@ -123,7 +123,7 @@ class ElectrumServer extends Component {
                                 }
                                 { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
                             </button>
-                            <button class={style.warning} onClick={onRemove}>Remove</button>
+                            <button class={style.warning} onClick={onRemove}>{t('settings.electrum.remove_server')}</button>
                         </div>
                     </div>
                 </li>
