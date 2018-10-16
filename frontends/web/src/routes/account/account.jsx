@@ -160,6 +160,17 @@ export default class Account extends Component {
         const account = accounts.find(account => account.code === code);
         if (!account) return null;
         const noTransactions = (initialized && transactions.length <= 0);
+        const transactionAttributes = () => {
+            const list = t('guide.accountTransactionAttributes.text');
+            if (typeof list === 'string') {
+                return list;
+            }
+            return (
+                <ul>
+                    { list.map(p => <li key={p}>{p}</li>) }
+                </ul>
+            );
+        };
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -251,9 +262,7 @@ export default class Account extends Component {
                     )}
                     {transactions.length > 0 && (
                         <Entry key="accountTransactionAttributes" title={t('guide.accountTransactionAttributes.title')}>
-                            <ul>
-                                {t('guide.accountTransactionAttributes.text').map(p => <li key={p}>{p}</li>)}
-                            </ul>
+                            {transactionAttributes()}
                         </Entry>
                     )}
                     {balance && balance.hasIncoming && (
