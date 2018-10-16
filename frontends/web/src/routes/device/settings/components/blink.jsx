@@ -15,17 +15,19 @@
  */
 
 import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import { apiPost } from '../../../../utils/request';
 
+@translate()
 export default class Blink extends Component {
     blinkDevice = () => {
         apiPost('devices/' + this.props.deviceID + '/blink');
     };
 
-    render({}, {}) {
+    render({ t }, {}) {
         return (
-            <Button primary onClick={this.blinkDevice}>Blink</Button>
+            <Button primary onClick={this.blinkDevice}>{t('blink.button')}</Button>
         );
     }
 }

@@ -36,12 +36,12 @@ export default class RequireUpgrade extends Component {
         });
     }
 
-    render({ deviceID }, { firmwareVersion }) {
+    render({ t, deviceID }, { firmwareVersion }) {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
                     <BitBox />
-                    <p><strong>A firmware upgrade is required for your BitBox.</strong></p>
+                    <p><strong>{t('upgradeFirmware.label')}</strong></p>
                     <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                 </div>
                 <Guide screen="require_upgrade" />

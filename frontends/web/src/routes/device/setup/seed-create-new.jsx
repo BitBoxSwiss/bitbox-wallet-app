@@ -185,7 +185,6 @@ export default class SeedCreateNew extends Component {
                     <PasswordRepeatInput
                         label={t('seed.password.label')}
                         repeatPlaceholder={t('seed.password.repeatPlaceholder')}
-                        showLabel="Password"
                         ref={ref => this.backupPasswordInput = ref}
                         disabled={status === STATUS.CREATING}
                         onValidPassword={this.setValidBackupPassword} />

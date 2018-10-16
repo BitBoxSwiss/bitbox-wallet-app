@@ -157,7 +157,11 @@
         "button": "Generate Random Number",
         "description": "Your BitBox generated the following 128 bit random number:"
     },
+    "blink": {
+        "button": "Blink"
+    },
     "upgradeFirmware": {
+        "label": "A firmware upgrade is required for your BitBox.",
         "button": "Upgrade Firmware",
         "title": "Upgrade Firmware",
         "description": "Do you want to Upgrade the Firmware from version {{currentVersion}} to {{newVersion}}?",
@@ -199,6 +203,7 @@
             "check": "Check",
             "checking": "Checking",
             "add_server": "Add",
+            "remove_server": "Remove",
             "servers": "Servers",
             "add": "Add a server",
             "step1": "1",
