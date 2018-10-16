@@ -308,6 +308,10 @@
                 "high": "high"
             }
         },
+        "coincontrol": {
+            "outpoint": "Outpoint",
+            "address": "Address"
+        },
         "customFee": {
             "label": "Converted Fee",
             "placeholder": "Converted Fee"

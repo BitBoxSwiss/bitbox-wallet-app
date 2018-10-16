@@ -15,11 +15,13 @@
  */
 
 import { Component, h } from 'preact';
+import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { Checkbox } from '../../../components/forms';
 import { FiatConversion } from '../../../components/rates/rates';
 import * as style from './utxos.css';
 
+@translate()
 export default class UTXOs extends Component {
     constructor(props) {
         super(props);
@@ -66,6 +68,7 @@ export default class UTXOs extends Component {
     }
 
     render({
+        t,
         active,
     }, {
         show,
@@ -90,8 +93,8 @@ export default class UTXOs extends Component {
                                                 />
                                             </td>
                                             <td>
-                                                <span><label>Outpoint:</label> {utxo.outPoint}</span>
-                                                <span><label>Address:</label> {utxo.address}</span>
+                                                <span><label>{t('send.coincontrol.outpoint')}:</label> {utxo.outPoint}</span>
+                                                <span><label>{t('send.coincontrol.address')}:</label> {utxo.address}</span>
                                             </td>
                                             <td class={style.right}>
                                                 <table class={style.amountTable} align="right">

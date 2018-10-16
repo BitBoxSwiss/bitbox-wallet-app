@@ -335,7 +335,7 @@ export default class Send extends Component {
                         {
                             coinControl ? (
                                 <div style="align-self: flex-end;">
-                                    <Button onClick={this.toggleCoinControl} primary>Toggle Coin Control</Button>
+                                    <Button onClick={this.toggleCoinControl} primary>{t('send.toggleCoinControl')}</Button>
                                 </div>
                             ) : null
                         }
