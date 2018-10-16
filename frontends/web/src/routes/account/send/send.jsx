@@ -175,19 +175,19 @@ export default class Send extends Component {
                     this.convertToFiat(result.amount.amount);
                 }
             } else {
-                const error = result.errMsg;
-                switch (error) {
-                case 'invalid address':
-                    this.setState({ addressError: error });
+                const errorCode = result.errorCode;
+                switch (errorCode) {
+                case 'invalidAddress':
+                    this.setState({ addressError: this.props.t('send.error.invalidAddress') });
                     break;
-                case 'invalid amount':
-                case 'insufficient funds':
-                    this.setState({ amountError: error });
+                case 'invalidAmount':
+                case 'insufficientFunds':
+                    this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
                     break;
                 default:
                     this.setState({ proposedFee: null });
-                    if (error) {
-                        alert(error); // eslint-disable-line no-alert
+                    if (errorCode) {
+                        alert(errorCode);
                     }
                 }
             }

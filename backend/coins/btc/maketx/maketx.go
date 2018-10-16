@@ -15,7 +15,6 @@
 package maketx
 
 import (
-	"errors"
 	"sort"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -23,20 +22,16 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
 
-// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount and
-// fee.
-var ErrInsufficientFunds = errors.New("insufficient funds")
-
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
 	// Coin is the coin this tx was made for.
-	Coin                 coin.Coin
+	Coin                 coinpkg.Coin
 	AccountConfiguration *signing.Configuration
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
@@ -87,14 +82,14 @@ func coinSelection(
 		outputsSum += btcutil.Amount(outputs[outPoint].Value)
 	}
 	if outputsSum < minAmount {
-		return 0, nil, errp.WithStack(ErrInsufficientFunds)
+		return 0, nil, errp.WithStack(coinpkg.ErrInsufficientFunds)
 	}
 	return outputsSum, selectedOutPoints, nil
 }
 
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
@@ -113,7 +108,7 @@ func NewTxSpendAll(
 	txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(outputPkScript), 0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
-		return nil, errp.WithStack(ErrInsufficientFunds)
+		return nil, errp.WithStack(coinpkg.ErrInsufficientFunds)
 	}
 	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{
@@ -136,7 +131,7 @@ func NewTxSpendAll(
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
 // the unspent outputs is selected to cover the needed amount. A change output is added if needed.
 func NewTx(
-	coin coin.Coin,
+	coin coinpkg.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,

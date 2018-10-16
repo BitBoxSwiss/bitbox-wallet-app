@@ -8,7 +8,6 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -199,7 +198,7 @@ func (account *Account) newTx(
 	if amount.SendAll() {
 		value = new(big.Int).Sub(account.balance.BigInt(), fee)
 		if value.Sign() <= 0 {
-			return nil, errp.WithStack(maketx.ErrInsufficientFunds)
+			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
 		parsedAmount, err := amount.Amount(big.NewInt(1e18))
@@ -209,7 +208,7 @@ func (account *Account) newTx(
 		value = parsedAmount.BigInt()
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
-			return nil, errp.WithStack(maketx.ErrInsufficientFunds)
+			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	}
 	tx := types.NewTransaction(nonce,
