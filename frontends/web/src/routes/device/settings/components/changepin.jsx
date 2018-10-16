@@ -74,7 +74,9 @@ export default class ChangePIN extends Component {
             this.abort();
 
             if (!data.success) {
-                alert(data.errorMessage); // eslint-disable-line no-alert
+                alert(this.props.t(`bitbox.error.${data.code}`, {
+                    defaultValue: data.errorMessage,
+                }));
             }
         });
     }
@@ -117,7 +119,6 @@ export default class ChangePIN extends Component {
                                 <PasswordRepeatInput
                                     idPrefix="newPIN"
                                     pattern="^.{4,}$"
-                                    title={t('initialize.input.invalid')}
                                     label={t('initialize.input.label')}
                                     repeatLabel={t('initialize.input.labelRepeat')}
                                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}

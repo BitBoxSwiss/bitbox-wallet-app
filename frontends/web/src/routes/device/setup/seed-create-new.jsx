@@ -174,7 +174,7 @@ export default class SeedCreateNew extends Component {
             <form onSubmit={this.handleSubmit}>
                 <div>
                     <Input
-                        pattern="^[0-9a-zA-Z-_.]{1,31}$"
+                        pattern="^[0-9a-zA-Z-_]{1,31}$"
                         autoFocus
                         id="walletName"
                         label={t('seed.walletName.label')}

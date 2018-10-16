@@ -268,11 +268,9 @@ func (handlers *Handlers) postBackupsRestoreHandler(r *http.Request) (interface{
 	handlers.log.WithField("filename", filename).Debug("Restore backup")
 	didRestore, err := handlers.bitbox.RestoreBackup(jsonBody["password"], filename)
 	if err != nil {
-		handlers.log.WithFields(logrus.Fields{"walletName": filename, "error": err}).
-			Error("Failed to restore wallet")
-		return map[string]interface{}{"didRestore": false, "errorMessage": err.Error()}, nil
+		return maybeDBBErr(err, handlers.log), nil
 	}
-	return map[string]interface{}{"didRestore": didRestore}, nil
+	return map[string]interface{}{"success": true, "didRestore": didRestore}, nil
 }
 
 func (handlers *Handlers) postBackupsCheckHandler(r *http.Request) (interface{}, error) {

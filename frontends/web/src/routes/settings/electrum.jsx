@@ -83,9 +83,9 @@ class ElectrumServer extends Component {
         });
         apiPost('certs/check', this.getServer()).then(({ success, errorMessage }) => {
             if (success) {
-                alert(`Successfully established a connection to ${this.state.electrumServer}`);
+                alert(this.props.t('settings.electrum.checkSuccess', { host: this.state.electrumServer }));
             } else {
-                alert('Failed:\n' + errorMessage);
+                alert(this.props.t('settings.electrum.checkFailed') + ':\n' + errorMessage);
             }
             this.setState({
                 valid: success,

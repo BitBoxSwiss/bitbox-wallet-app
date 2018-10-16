@@ -63,7 +63,9 @@ export default class Reset extends Component {
                     route('/', true);
                 }
             } else if (data.errorMessage) {
-                alert(data.errorMessage); // eslint-disable-line no-alert
+                alert(this.props.t(`bitbox.error.${data.code}`, {
+                    defaultValue: data.errorMessage,
+                }));
             }
         });
     };

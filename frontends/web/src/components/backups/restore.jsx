@@ -60,6 +60,7 @@ export default class Restore extends Component {
             password: null,
             isConfirming: false,
             activeDialog: false,
+            isLoading: false,
             understand: false,
         });
     }
@@ -89,16 +90,21 @@ export default class Restore extends Component {
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
             password: this.state.password,
             filename: this.props.selectedBackup,
-        }).catch(() => {}).then(({ didRestore, errorMessage }) => {
+        }).catch(() => {}).then((data) => {
+            let { success, didRestore, errorMessage, code } = data;
             this.abort();
-            if (didRestore) {
-                if (this.props.onRestore) {
-                    return this.props.onRestore();
+            if (success) {
+                if (didRestore) {
+                    if (this.props.onRestore) {
+                        return this.props.onRestore();
+                    }
+                    console.log('restore.jsx route to /'); // eslint-disable-line no-console
+                    route('/', true);
                 }
-                console.log('restore.jsx route to /'); // eslint-disable-line no-console
-                route('/', true);
-            } else if (errorMessage) {
-                alert(errorMessage); // eslint-disable-line no-alert
+            } else {
+                alert(this.props.t(`backup.restore.error.${code}`, {
+                    defaultValue: errorMessage,
+                }));
             }
         });
     }
