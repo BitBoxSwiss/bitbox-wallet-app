@@ -19,6 +19,7 @@ import (
 	"math/big"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/sirupsen/logrus"
@@ -36,6 +37,7 @@ import (
 
 // Coin models a Bitcoin-related coin.
 type Coin struct {
+	initOnce              sync.Once
 	code                  string
 	unit                  string
 	net                   *chaincfg.Params
@@ -75,33 +77,35 @@ func NewCoin(
 
 // Init initializes the coin - blockchain and headers.
 func (coin *Coin) Init() {
-	// Init blockchain
-	coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
+	coin.initOnce.Do(func() {
+		// Init blockchain
+		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
 
-	// Init Headers
-	db, err := headersdb.NewDB(
-		path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code)))
-	if err != nil {
-		coin.log.WithError(err).Panic("Could not open headers DB")
-	}
-	coin.headers = headers.NewHeaders(
-		coin.net,
-		db,
-		coin.blockchain,
-		coin.log)
-	coin.headers.Init()
-	coin.headers.SubscribeEvent(func(event headers.Event) {
-		if event == headers.EventSyncing || event == headers.EventSynced {
-			status, err := coin.headers.Status()
-			if err != nil {
-				coin.log.Error("Could not get headers status")
-			}
-			coin.Notify(observable.Event{
-				Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
-				Action:  action.Replace,
-				Object:  status,
-			})
+		// Init Headers
+		db, err := headersdb.NewDB(
+			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code)))
+		if err != nil {
+			coin.log.WithError(err).Panic("Could not open headers DB")
 		}
+		coin.headers = headers.NewHeaders(
+			coin.net,
+			db,
+			coin.blockchain,
+			coin.log)
+		coin.headers.Init()
+		coin.headers.SubscribeEvent(func(event headers.Event) {
+			if event == headers.EventSyncing || event == headers.EventSynced {
+				status, err := coin.headers.Status()
+				if err != nil {
+					coin.log.Error("Could not get headers status")
+				}
+				coin.Notify(observable.Event{
+					Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),
+					Action:  action.Replace,
+					Object:  status,
+				})
+			}
+		})
 	})
 }
 
