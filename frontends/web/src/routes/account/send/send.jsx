@@ -318,8 +318,10 @@ export default class Send extends Component {
 
         const confirmPrequel = signProgress && signProgress.steps > 1 ? (
             <span>
-                This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {signProgress.steps} times.<br />
-                Progress: {signProgress.step}/{signProgress.steps}
+                {t('send.signprogress.description', {
+                     steps: signProgress.steps,
+                })}<br />
+                {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
             </span>
         ) : null;
         return (
