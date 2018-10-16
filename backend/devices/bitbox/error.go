@@ -36,6 +36,11 @@ const (
 	// errSDOpenDir is returned when the digitalbitbox directory is missing on the SD card, when
 	// listing the backups.
 	errSDOpenDir = 403
+
+	// ========= Below are error codes defined locally, not by the BitBox firmware. ========
+
+	errPINIncorrect     = 10000
+	errReplacePINFailed = 10001
 )
 
 // Error wraps an error by the bitbox.

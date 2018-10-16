@@ -8,7 +8,9 @@
     "bitbox": {
         "error": {
             "102": "The password must consist of at least 8 characters.",
-            "112": "Hidden device password cannot be the same as the main device password."
+            "112": "Hidden device password cannot be the same as the main device password.",
+            "10000": "Current device password incorrect.",
+            "10001": "Failed to replace device password"
         }
     },
     "sidebar": {
@@ -198,6 +200,8 @@
             "reset": "Reset to default",
             "check": "Check",
             "checking": "Checking",
+            "checkSuccess": "Successfully established a connection to {{host}}",
+            "checkFailed": "Failed",
             "add_server": "Add",
             "servers": "Servers",
             "add": "Add a server",
@@ -268,7 +272,8 @@
         },
         "ltcLegacy": {
             "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
-            "button": "Convert to the legacy address format"
+            "button": "Convert to the legacy address format",
+            "result": "Legacy format of {{address}}:\n{{legacyAddress}}"
         }
     },
     "send": {

@@ -96,7 +96,9 @@ export default class Receive extends Component {
                 receiveAddresses[activeIndex].addressID)
                 .then(legacyAddress => {
                     const address = receiveAddresses[activeIndex].address;
-                    alert('Legacy format of ' + address + ':\n' + legacyAddress); // eslint-disable-line no-alert
+                    alert(this.props.t('receive.ltcLegacy.result', {
+                        address, legacyAddress
+                    }));
                 });
         }
     }

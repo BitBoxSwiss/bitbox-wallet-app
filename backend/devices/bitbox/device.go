@@ -430,11 +430,11 @@ func (dbb *Device) ChangePassword(oldPIN string, newPIN string) error {
 		return errp.New("device has to be initialized")
 	}
 	if dbb.pin != oldPIN {
-		return errp.New("Old PIN incorrect")
+		return errp.WithStack(NewError("Current PIN incorrect", errPINIncorrect))
 	}
 	reply, err := dbb.sendKV("password", newPIN, oldPIN)
 	if err != nil {
-		return errp.WithMessage(err, "Failed to replace pin")
+		return errp.WithStack(NewError("Failed to replace PIN", errReplacePINFailed))
 	}
 	if reply["password"] != responseSuccess {
 		return errp.New("Unexpected reply")
@@ -764,7 +764,7 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 		return false, errp.New("device has to be initialized")
 	}
 	if dbb.pin != pin {
-		return false, errp.New("PIN incorrect")
+		return false, errp.WithStack(NewError("Current PIN incorrect", errPINIncorrect))
 	}
 	reply, err := dbb.sendKV("reset", "__ERASE__", dbb.pin)
 	if isErrorAbort(err) {
