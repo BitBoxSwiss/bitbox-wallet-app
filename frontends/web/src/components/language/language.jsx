@@ -16,9 +16,9 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-// import { Button } from '../forms';
-// import Dialog from '../dialog/dialog';
-// import * as style from './language.css';
+import { Button } from '../forms';
+import { Dialog } from '../dialog/dialog';
+import * as style from './language.css';
 
 @translate()
 export default class LanguageSwitcher extends Component {
@@ -38,6 +38,10 @@ export default class LanguageSwitcher extends Component {
         };
     }
 
+    abort = () => {
+        this.setState({ activeDialog: false });
+    }
+
     changeLanguage = ({ target }) => {
         const langCode = target.dataset.code;
         const index = parseInt(target.dataset.index, 10);
@@ -54,10 +58,9 @@ export default class LanguageSwitcher extends Component {
         selectedIndex,
         activeDialog,
     }) {
-        return null; // TODO: remove when we have more languages.
-        /*
+        // TODO: remove when we have more languages.
         return (
-            <div class={style.languageSelect}>
+            <div>
                 <Button
                     type="button"
                     transparent
@@ -66,7 +69,7 @@ export default class LanguageSwitcher extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog small title={t('language.title')}>
+                        <Dialog small title={t('language.title')} onClose={this.abort}>
                             {
                                 this.languages.map((language, i) => {
                                     const selected = selectedIndex === i;
@@ -87,6 +90,5 @@ export default class LanguageSwitcher extends Component {
                 }
             </div>
         );
-        */
     }
 }
