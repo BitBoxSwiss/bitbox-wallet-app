@@ -131,7 +131,7 @@ export default class Send extends Component {
                     amount: null,
                 });
                 if (this.utxos) {
-                    this.utxos.clear();
+                    this.utxos.getWrappedInstance().clear();
                 }
                 setTimeout(() => this.setState({ isSent: false, isConfirming: false }), 5000);
             } else {

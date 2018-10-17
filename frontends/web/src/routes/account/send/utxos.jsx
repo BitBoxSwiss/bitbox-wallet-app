@@ -21,7 +21,7 @@ import { Checkbox } from '../../../components/forms';
 import { FiatConversion } from '../../../components/rates/rates';
 import * as style from './utxos.css';
 
-@translate()
+@translate(null, { withRef: true })
 export default class UTXOs extends Component {
     constructor(props) {
         super(props);
