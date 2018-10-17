@@ -289,7 +289,6 @@ func (backend *Backend) Coin(code string) coin.Coin {
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
-	coin.Init()
 	backend.coins[code] = coin
 	return coin
 }

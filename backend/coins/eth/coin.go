@@ -3,6 +3,7 @@ package eth
 import (
 	"math/big"
 	"strings"
+	"sync"
 
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -13,6 +14,7 @@ import (
 // Coin models an Ethereum coin.
 type Coin struct {
 	observable.Implementation
+	initOnce              sync.Once
 	client                *ethclient.Client
 	code                  string
 	net                   *params.ChainConfig
@@ -37,16 +39,18 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 
 // Init implements coin.Coin.
 func (coin *Coin) Init() {
-	url := `https://mainnet.infura.io`
-	if coin.code == "teth" {
-		url = `https://ropsten.infura.io`
-	}
-	client, err := ethclient.Dial(url)
-	if err != nil {
-		// TODO: init conn lazily, feed error via EventStatusChanged
-		panic(err)
-	}
-	coin.client = client
+	coin.initOnce.Do(func() {
+		url := `https://mainnet.infura.io`
+		if coin.code == "teth" {
+			url = `https://ropsten.infura.io`
+		}
+		client, err := ethclient.Dial(url)
+		if err != nil {
+			// TODO: init conn lazily, feed error via EventStatusChanged
+			panic(err)
+		}
+		coin.client = client
+	})
 }
 
 // Code implements coin.Coin.

@@ -127,6 +127,7 @@ func (account *Account) Init() error {
 	account.address = Address{
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 	}
+	account.coin.Init()
 	defer account.synchronizer.IncRequestsCounter()()
 	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
 	if err != nil {
