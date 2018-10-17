@@ -91,7 +91,7 @@ export class Entry extends Component<Props, State> {
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown ? (
                         <div class="flex-1">
-                            {isImplicitEntryProps(props) && props.entry.text.map(p => <p key={p}>{p}</p>)}
+                            {isImplicitEntryProps(props) && (props.entry.text || []).map(p => <p key={p}>{p}</p>)}
                             {isImplicitEntryProps(props) && props.entry.link && (
                                 <p><A href={props.entry.link.url}>{props.entry.link.text}</A></p>
                             )}
