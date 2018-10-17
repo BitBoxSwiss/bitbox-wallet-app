@@ -16,6 +16,7 @@
 
 import i18n from '../i18n/i18n';
 import { extConfig } from './config';
+import { alertUser } from '../components/alert/Alert';
 import { call, runningInQtWebEngine } from './qttransport';
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
@@ -40,7 +41,7 @@ function handleError(endpoint) {
                     return;
                 }
                 console.error('error from endpoint', endpoint, json);
-                alert(i18n.t('genericError')); // eslint-disable-line no-alert
+                alertUser(i18n.t('genericError'));
                 reject(json.error);
                 return;
             }

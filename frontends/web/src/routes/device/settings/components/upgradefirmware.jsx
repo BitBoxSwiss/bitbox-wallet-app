@@ -17,7 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import Dialog from '../../../../components/dialog/dialog';
+import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
 import * as style from '../../../../components/style.css';
@@ -54,6 +54,10 @@ export default class UpgradeFirmware extends Component {
         });
     }
 
+    abort = () => {
+        this.setState({ activeDialog: false });
+    }
+
     render({
         t,
         currentVersion,
@@ -79,12 +83,14 @@ export default class UpgradeFirmware extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('upgradeFirmware.title')}>
+                        <Dialog
+                            title={t('upgradeFirmware.title')}
+                            onClose={this.abort}>
                             <p>{t('upgradeFirmware.description', {
                                 currentVersion, newVersion
                             })}</p>
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>
+                                <Button secondary onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
                                 <Button primary onClick={this.upgradeFirmware}>

@@ -17,7 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import Dialog from '../../../../components/dialog/dialog';
+import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
 
@@ -44,6 +44,10 @@ export default class DeviveLock extends Component {
         });
     };
 
+    abort = () => {
+        this.setState({ activeDialog: false });
+    }
+
     render({
         t,
         disabled,
@@ -58,12 +62,14 @@ export default class DeviveLock extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('deviceLock.title')}>
+                        <Dialog
+                            title={t('deviceLock.title')}
+                            onClose={this.abort}>
                             <p>{t('deviceLock.condition1')}</p>
                             <p>{t('deviceLock.condition2')}</p>
                             <p>{t('deviceLock.condition3')}</p>
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={() => this.setState({ activeDialog: false })}>
+                                <Button secondary onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
                                 <Button danger onClick={this.resetDevice}>

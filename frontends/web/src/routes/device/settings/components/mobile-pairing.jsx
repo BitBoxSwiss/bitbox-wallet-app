@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
 import QRCode from '../../../../components/qrcode/qrcode';
 import { apiPost } from '../../../../utils/request';
-import Dialog from '../../../../components/dialog/dialog';
+import { Dialog } from '../../../../components/dialog/dialog';
 import { apiWebsocket } from '../../../../utils/websocket';
 
 @translate()
@@ -81,6 +81,10 @@ export default class MobilePairing extends Component {
         });
     }
 
+    abort = () => {
+        this.setState({ status: false });
+    }
+
     render({
         t,
         deviceLocked,
@@ -107,7 +111,9 @@ export default class MobilePairing extends Component {
                 </Button>
                 {
                     status && (
-                        <Dialog title={t(`pairing.${status}.title`)}>
+                        <Dialog
+                            title={t(`pairing.${status}.title`)}
+                            onClose={this.abort}>
                             <div class="flex flex-column flex-center flex-items-center">
                                 {
                                     channel ? (
@@ -118,7 +124,7 @@ export default class MobilePairing extends Component {
                                 }
                             </div>
                             <div class="flex flex-row flex-center" style="margin-top: var(--spacing-default)">
-                                <Button secondary onClick={() => this.setState({ status: false })}>
+                                <Button secondary onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
                             </div>

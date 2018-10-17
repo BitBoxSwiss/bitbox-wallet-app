@@ -50,10 +50,6 @@ export default class Account extends Component {
         hasCard: false,
     }
 
-    componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-
     componentDidMount() {
         this.unsubscribe = apiWebsocket(this.onEvent);
         this.checkSDCards();
@@ -64,7 +60,6 @@ export default class Account extends Component {
     }
 
     componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
         if (this.unsubscribe) {
             this.unsubscribe();
         }
@@ -99,14 +94,6 @@ export default class Account extends Component {
         }))
             .then(sdcards => sdcards.some(sdcard => sdcard))
             .then(hasCard => this.setState({ hasCard }));
-    }
-
-    handleKeyDown = e => {
-        if (e.keyCode === 27 && !this.state.isConfirming) {
-            this.setState({
-                isReceive: false,
-            });
-        }
     }
 
     onEvent = data => {

@@ -17,7 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
-import Dialog from '../dialog/dialog';
+import { Dialog } from '../dialog/dialog';
 import { PasswordSingleInput } from '../password';
 import { apiPost } from '../../utils/request';
 
@@ -105,7 +105,9 @@ export default class Check extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('backup.check.title')}>
+                        <Dialog
+                            title={t('backup.check.title')}
+                            onClose={this.abort}>
                             { message ? (
                                 <div>
                                     <p style="min-height: 3rem;">{message}</p>

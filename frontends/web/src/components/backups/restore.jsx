@@ -18,11 +18,12 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Button, Checkbox } from '../forms';
-import Dialog from '../dialog/dialog';
+import { Dialog } from '../dialog/dialog';
 import WaitDialog from '../wait-dialog/wait-dialog';
 import Spinner from '../spinner/Spinner';
 import { PasswordRepeatInput } from '../password';
 import { apiPost } from '../../utils/request';
+import { alertUser } from '../alert/Alert';
 import * as style from './backups.css';
 
 @translate()
@@ -102,7 +103,7 @@ export default class Restore extends Component {
                     route('/', true);
                 }
             } else {
-                alert(this.props.t(`backup.restore.error.e${code}`, {
+                alertUser(this.props.t(`backup.restore.error.e${code}`, {
                     defaultValue: errorMessage,
                 }));
             }
@@ -139,7 +140,9 @@ export default class Restore extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('backup.restore.title')}>
+                        <Dialog
+                            title={t('backup.restore.title')}
+                            onClose={this.abort}>
                             <form onSubmit={this.restore}>
                                 <PasswordRepeatInput
                                     label={t('backup.restore.password.label')}

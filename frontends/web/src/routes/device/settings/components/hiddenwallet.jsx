@@ -17,7 +17,8 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import Dialog from '../../../../components/dialog/dialog';
+import { alertUser } from '../../../../components/alert/Alert';
+import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
@@ -77,10 +78,10 @@ export default class HiddenWallet extends Component {
             this.abort();
             if (success) {
                 if (didCreate) {
-                    alert(this.props.t('hiddenWallet.success'));
+                    alertUser(this.props.t('hiddenWallet.success'));
                 }
             } else {
-                alert(this.props.t(`bitbox.error.e${code}`, {
+                alertUser(this.props.t(`bitbox.error.e${code}`, {
                     defaultValue: errorMessage
                 }));
             }
@@ -113,10 +114,10 @@ export default class HiddenWallet extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog title={t('button.hiddenwallet')}>
+                        <Dialog title={t('button.hiddenwallet')}
+                            onClose={this.abort}>
                             <SimpleMarkup tagName="p" markup={t('hiddenWallet.info1HTML')} />
                             <SimpleMarkup tagName="p" markup={t('hiddenWallet.info2HTML')} />
-
                             <form onSubmit={this.createHiddenWallet}>
                                 <PasswordRepeatInput
                                     idPrefix="pin"

@@ -12,7 +12,7 @@
     font-weight: 500;
     justify-content: center;
     line-height: 30px;
-    min-width: 100px;
+    min-width: 100px !important;
     height: 34px;
     padding: 0 var(--spacing-half);
     position: relative;
