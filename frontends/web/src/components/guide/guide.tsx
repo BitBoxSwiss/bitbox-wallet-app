@@ -57,7 +57,7 @@ export function hide() {
 }
 
 interface ProvidedProps {
-    screen: string;
+    screen?: string;
 }
 
 type Props = ProvidedProps & SharedProps & TranslateProp;

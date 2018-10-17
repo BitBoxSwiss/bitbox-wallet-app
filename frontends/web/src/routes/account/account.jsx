@@ -233,7 +233,7 @@ export default class Account extends Component {
                         </Status>
                     </div>
                 </div>
-                <Guide screen="account">
+                <Guide>
                     <Entry key="accountDescription" title={t('guide.accountDescription.title')}>
                         <p>{t('guide.accountDescription.text')}</p>
                     </Entry>
