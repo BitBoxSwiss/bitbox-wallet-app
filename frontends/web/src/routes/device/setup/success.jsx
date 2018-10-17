@@ -33,13 +33,13 @@ export default class Success extends Component {
                 <div className={style.container}>
                     <div className={style.content}>
                         <Steps current={3}>
-                            <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step title={t('goal.step.1.title')} />
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
                             <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_${goal}.title`)} description={t(`goal.step.4_${goal}.description`)} />
+                            <Step title={t(`goal.step.4_${goal}.title`)} />
                         </Steps>
                         <hr />
                         <h1 class={style.title}>{t(`success.${goal}.title`)}</h1>

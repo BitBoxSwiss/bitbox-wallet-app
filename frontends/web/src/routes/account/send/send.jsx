@@ -375,7 +375,7 @@ export default class Send extends Component {
                                 />
                                 { debug && (
                                     <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                                        {t('send.toSelf')}
+                                        Send to self
                                     </span>
                                 ) }
                             </div>

@@ -231,7 +231,7 @@ export default class SeedCreateNew extends Component {
                 <div className={[style.container, style.scrollable].join(' ')}>
                     <div className={style.content}>
                         <Steps current={2}>
-                            <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step title={t('goal.step.1.title')} />
                             <Step divider />
                             <Step title={t(`goal.step.2.title`)} description={t(`goal.step.2.description`)} />
                             <Step divider />

@@ -107,7 +107,6 @@ export default class Reset extends Component {
                             </p>
                             <PasswordInput
                                 idPrefix="pin"
-                                title={t('initialize.input.invalid')}
                                 label={t('initialize.input.label')}
                                 value={pin}
                                 onInput={this.setValidPIN} />

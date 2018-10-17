@@ -1,6 +1,5 @@
 {
   "account": {
-    "connect": "Connection established",
     "disconnect": "Connection lost. Retrying…",
     "incoming": "Incoming",
     "info": {
@@ -21,7 +20,6 @@
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
   },
-  "appName": "BitBox App",
   "backup": {
     "check": {
       "checking": "Checking backup…",
@@ -81,14 +79,12 @@
   },
   "bootloader": {
     "button": "Upgrade Firmware now",
-    "message": "Hello Bootloader.",
     "progress": "Upgrading: {{progress}}%",
     "success": "Upgrade successful! Please replug the device. This time, do not touch the button."
   },
   "button": {
     "abort": "Abort",
     "back": "Back",
-    "cancel": "Cancel",
     "changepin": "Change device password",
     "check": "Check Backup",
     "create": "Create",
@@ -99,7 +95,6 @@
     "previous": "Previous",
     "receive": "Receive",
     "restore": "Restore",
-    "save": "Save",
     "send": "Send",
     "unlock": "Unlock",
     "upgrade": "Upgrade"
@@ -176,7 +171,6 @@
     "confirm": "Confirm"
   },
   "fiat": {
-    "action": "Change Currency",
     "default": "default",
     "setDefault": "Set {{code}} as default",
     "title": "Currencies"
@@ -350,20 +344,6 @@
         "title": "How can I disable Two Factor Authorization (2FA)?"
       }
     ],
-    "initialize": [
-      {
-        "text": [
-          "The device password is used to authenticate access to the device and to encrypt the communication."
-        ],
-        "title": "What is the device password used for?"
-      },
-      {
-        "text": [
-          "If you forget the device password, you have to reset the device and restore the wallet from a backup."
-        ],
-        "title": "What happens if I forget the device password?"
-      }
-    ],
     "receive": [
       {
         "text": [
@@ -395,32 +375,6 @@
           "As soon as one of the addresses is used in a transaction, new addresses are added to the list such that 20 unused addresses are available again."
         ],
         "title": "When do the addresses change?"
-      }
-    ],
-    "seed": [
-      {
-        "text": [
-          "The recovery password should be strong and not easy to guess (no birthdates, names, phone numbers). We also recommend that you write it down and store it in a safe place separate from the micro SD card."
-        ],
-        "title": "Recovery password tips"
-      },
-      {
-        "text": [
-          "One of the reasons for using the BitBox is that your computer is too vulnerable to handle private keys for cryptocurrencies. Remove it from the BitBox and do not insert it into your computer."
-        ],
-        "title": "Why should I keep the micro SD card somewhere safe?"
-      },
-      {
-        "text": [
-          "You can print it, since the seed is stored in a PDF on the micro SD card. However, you should either insert the micro SD card directly into a non-networked printer or use a different computer, which ideally is never online. Alternatively, you can back up the seed on several micro SD cards instead."
-        ],
-        "title": "Can I print the backup on the micro SD card?"
-      },
-      {
-        "text": [
-          "If you enter a different recovery password, a different wallet is derived. The same recovery password will produce the same wallet."
-        ],
-        "title": "Why can't I change the recovery password later on?"
       }
     ],
     "send": [
@@ -698,12 +652,8 @@
       "password_change": "I can NOT change the recovery password later",
       "password_required": "The recovery password is required to restore a wallet from a backup"
     },
-    "backToCreate": "Or create a new wallet…",
-    "backup": "Or restore a Backup…",
     "create": "Create Wallet",
-    "createDescription": "Initialize the wallet and automatically create a backup on the micro SD card.",
     "creating": "Creating wallet",
-    "creating2": "Backing up wallet to micro SD card",
     "description": "I understand that:",
     "error": {
       "e102": "The password must consist of at least 8 characters.",
@@ -782,9 +732,6 @@
       },
       "placeholder": "Calculating fee estimation…"
     },
-    "fiatAmount": {
-      "placeholder": "Enter amount"
-    },
     "maximum": "Send all",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
@@ -792,7 +739,6 @@
     },
     "success": "The transaction has been signed and sent.",
     "title": "Send Coins",
-    "toSelf": "Send to self",
     "toggleCoinControl": "Toggle Coin Control"
   },
   "settings": {
@@ -843,16 +789,6 @@
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"
-  },
-  "success": {
-    "create": {
-      "info": "you successfully created a new wallet.",
-      "title": "Success"
-    },
-    "restore": {
-      "info": "you successfully restored a wallet from a backup.",
-      "title": "Success"
-    }
   },
   "transaction": {
     "badge": {
