@@ -39,7 +39,7 @@ export default function Balance({
             {
                 balance && balance.hasIncoming && (
                     <p class={style.pendingBalance}>
-                        {t('account.incoming')} {balance.incoming.amount} {balance.incoming.unit} /
+                        {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
                         <span className={style.incomingConversion}>
                             {' '}
                             <FiatConversion amount={balance.incoming} />
