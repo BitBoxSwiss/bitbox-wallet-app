@@ -75,7 +75,6 @@ export default class Check extends Component {
                 } else {
                     message = this.props.t('backup.check.notOK');
                 }
-                this.setState({ message: this.props.t('backup.check.success') });
             } else if (errorMessage) {
                 message = errorMessage;
             }

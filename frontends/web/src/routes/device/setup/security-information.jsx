@@ -50,13 +50,13 @@ export default class SecurityInformation extends Component {
                 <div className={[style.container, 'scrollableContainer'].join(' ')}>
                     <div className={style.content}>
                         <Steps current={0}>
-                            <Step title={t('goal.step.1.title')} description={t('goal.step.1.description')} />
+                            <Step title={t('goal.step.1.title')} />
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
                             <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_${goal}.title`)} description={t(`goal.step.4_${goal}.description`)} />
+                            <Step title={t(`goal.step.4_${goal}.title`)} />
                         </Steps>
                         <hr />
                         <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
