@@ -15,8 +15,6 @@
 package btc
 
 import (
-	"math/big"
-
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -38,7 +36,7 @@ const unitSatoshi = 1e8
 // all unspent coins can be used.
 func (account *Account) newTx(
 	recipientAddress string,
-	amount coin.SendAmount,
+	sendAmount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (
@@ -81,7 +79,7 @@ func (account *Account) newTx(
 		wireUTXO[outPoint] = txOut.TxOut
 	}
 	var txProposal *maketx.TxProposal
-	if amount.SendAll() {
+	if sendAmount.SendAll() {
 		txProposal, err = maketx.NewTxSpendAll(
 			account.coin,
 			account.signingConfiguration,
@@ -94,11 +92,7 @@ func (account *Account) newTx(
 			return nil, nil, err
 		}
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(unitSatoshi))
-		if err != nil {
-			return nil, nil, err
-		}
-		parsedAmountInt64, err := parsedAmount.Int64()
+		parsedAmount, err := sendAmount.Amount().Int64()
 		if err != nil {
 			return nil, nil, errp.WithStack(coin.ErrInvalidAmount)
 		}
@@ -106,7 +100,7 @@ func (account *Account) newTx(
 			account.coin,
 			account.signingConfiguration,
 			wireUTXO,
-			wire.NewTxOut(parsedAmountInt64, pkScript),
+			wire.NewTxOut(parsedAmount, pkScript),
 			*feeTarget.FeeRatePerKb,
 			func() *addresses.AccountAddress {
 				return account.changeAddresses.GetUnused()[0]

@@ -14,9 +14,20 @@
 
 package coin
 
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+
 // Address models a blockchain address to which coins can be sent.
 type Address interface {
+	// Coin() Coin
+	// EncodeForMachines() []byte
+	EncodeForHumans() string
+
 	// ID is an identifier for the address.
 	ID() string
-	EncodeForHumans() string
+}
+
+// AccountAddress models an address in an own account at the keypath given by the configuration.
+type AccountAddress interface {
+	Address
+	Configuration() *signing.Configuration
 }

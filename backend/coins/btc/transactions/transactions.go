@@ -368,17 +368,8 @@ func (transactions *Transactions) doForTransaction(
 	)
 }
 
-// Balance contains the available and incoming balance of the wallet.
-type Balance struct {
-	// Available funds are all confirmed funds which are not spent by any tx. Exception: unconfirmed
-	// transactions that spend from the wallet are available.
-	Available coin.Amount
-	// Incoming balance are unconfirmed funds coming into the wallet.
-	Incoming coin.Amount
-}
-
 // Balance computes the confirmed and unconfirmed balance of the wallet.
-func (transactions *Transactions) Balance() *Balance {
+func (transactions *Transactions) Balance() *coin.Balance {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
@@ -407,10 +398,7 @@ func (transactions *Transactions) Balance() *Balance {
 			incoming += txOut.Value
 		}
 	}
-	return &Balance{
-		Available: coin.NewAmountFromInt64(available),
-		Incoming:  coin.NewAmountFromInt64(incoming),
-	}
+	return coin.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their

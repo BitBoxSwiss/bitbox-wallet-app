@@ -12,14 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coin
+package fee
 
-// Input of a transaction has an amount and an account address.
-type Input interface {
-	Amount() Amount
-	Sender() AccountAddress
+// Level determines how the fee shall be estimated.
+type Level string
 
-	// Signatures has the size of Sender().Configuration().NumberOfSigners() and signatures are
-	// added at the position of the corresponding cosigner index.
-	Signatures() [][]byte
-}
+const (
+	// High aims for confirmation in the next 2 blocks.
+	High Level = "high"
+
+	// Medium aims for confirmation in the next 6 blocks.
+	Medium Level = "medium"
+
+	// Low aims for confirmation in the next 12 blocks.
+	Low Level = "low"
+
+	// Economy aims for confirmation in the next 24 blocks.
+	Economy Level = "economy"
+)

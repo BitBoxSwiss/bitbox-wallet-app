@@ -15,6 +15,8 @@
 package coin
 
 import (
+	"math/big"
+
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
@@ -22,30 +24,33 @@ import (
 type Coin interface {
 	observable.Interface
 
-	// Code returns the code used to identify the coin (should be the acronym of the coin in
-	// lowercase).
+	// Code returns the code used to identify the coin (the acronym of the coin in lowercase).
 	Code() string
 
-	// Init initializes the coin (blockchain connection, header feed, etc.).
-	Init()
-
-	// // Type returns the coin type according to BIP44:
-	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+	// Type returns the coin type according to BIP44:
+	// https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 	// Type() uint32
 
 	// Unit is the unit code of the string for formatting amounts.
 	Unit() string
 
-	// FormatAmount formats the given amount as a number.
+	// Denomination returns the factor with which the common unit has to be multiplied to get the
+	// smallest, canonical amount.
+	Denomination() *big.Int
+
+	// FormatAmount formats the given amount as a string in but without the coin unit.
 	FormatAmount(Amount) string
 
-	// // Server returns the host and port of the full node used for blockchain synchronization.
-	// Server() string
+	// FeeLevels() returns the fee levels supported by the coin.
+	// FeeLevels() []fee.Level
 
-	// // Returns whether the coin is account-based (instead of UTXO).
-	// // Account-based transactions can have only one output and need no change address.
-	// AccountBased() bool
+	// Returns whether the coin is account-based (instead of UTXO).
+	// Account-based transactions can have only one output and need no change address.
+	AccountBased() bool
 
 	// BlockExplorerTransactionURLPrefix returns the URL prefix of the block explorer.
 	BlockExplorerTransactionURLPrefix() string
+
+	// Initialize initializes the coin by connecting to a full node, downloading the headers, etc.
+	Initialize()
 }

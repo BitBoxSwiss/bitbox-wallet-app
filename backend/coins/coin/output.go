@@ -14,7 +14,8 @@
 
 package coin
 
-// type Output interface {
-// 	Amount() uint64
-// 	Payee() Address
-// }
+// Output of a transaction has an amount and a recipient address.
+type Output interface {
+	Amount() Amount
+	Recipient() Address
+}

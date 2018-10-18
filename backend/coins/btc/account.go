@@ -54,12 +54,12 @@ type Interface interface {
 	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string
-	Init() error
+	Initialize() error
 	InitialSyncDone() bool
 	Offline() bool
 	Close()
 	Transactions() []*transactions.TxInfo
-	Balance() *transactions.Balance
+	Balance() *coin.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
 	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
@@ -192,8 +192,8 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// Init initializes the account.
-func (account *Account) Init() error {
+// Initialize initializes the account.
+func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
 		if account.signingConfiguration != nil {
@@ -239,7 +239,7 @@ func (account *Account) Init() error {
 			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
-	account.coin.Init()
+	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
 	account.onEvent(EventStatusChanged)
@@ -437,7 +437,7 @@ outer:
 }
 
 // Balance wraps transaction.Transactions.Balance()
-func (account *Account) Balance() *transactions.Balance {
+func (account *Account) Balance() *coin.Balance {
 	return account.transactions.Balance()
 }
 

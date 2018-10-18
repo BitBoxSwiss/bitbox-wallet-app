@@ -14,58 +14,56 @@
 
 package coin
 
-// type PendingTransfer interface {
-// 	PendingTransaction() PendingTransaction
-// 	OutputIndex() int
-// }
+// PendingTransfer denotes a specific output in a pending transaction.
+type PendingTransfer struct {
+	pendingTransaction PendingTransaction
+	outputIndex        int
+}
 
-// type pendingTransfer struct {
-// 	pendingTransaction PendingTransaction
-// 	outputIndex        int
-// }
+// NewPendingTransfer creates a new pending transfer.
+func NewPendingTransfer(
+	pendingTransaction PendingTransaction,
+	outputIndex int,
+) PendingTransfer {
+	return PendingTransfer{
+		pendingTransaction: pendingTransaction,
+		outputIndex:        outputIndex,
+	}
+}
 
-// func NewPendingTransfer(
-// 	pendingTransaction PendingTransaction,
-// 	outputIndex int,
-// ) PendingTransfer {
-// 	return &pendingTransfer{
-// 		pendingTransaction: pendingTransaction,
-// 		outputIndex:        outputIndex,
-// 	}
-// }
+// PendingTransaction returns the pending transaction to which this pending transfer belongs.
+func (pendingTransfer PendingTransfer) PendingTransaction() PendingTransaction {
+	return pendingTransfer.pendingTransaction
+}
 
-// func (transfer *pendingTransfer) PendingTransaction() PendingTransaction {
-// 	return transfer.pendingTransaction
-// }
+// OutputIndex returns the index of the output in the pending transaction.
+func (pendingTransfer PendingTransfer) OutputIndex() int {
+	return pendingTransfer.outputIndex
+}
 
-// func (transfer *pendingTransfer) OutputIndex() int {
-// 	return transfer.outputIndex
-// }
+// ConfirmedTransfer denotes a specific output in a confirmed transaction.
+type ConfirmedTransfer struct {
+	confirmedTransaction ConfirmedTransaction
+	outputIndex          int
+}
 
-// type ConfirmedTransfer interface {
-// 	ConfirmedTransaction() ConfirmedTransaction
-// 	OutputIndex() int
-// }
+// NewConfirmedTransfer creates a new confirmed transfer.
+func NewConfirmedTransfer(
+	confirmedTransaction ConfirmedTransaction,
+	outputIndex int,
+) ConfirmedTransfer {
+	return ConfirmedTransfer{
+		confirmedTransaction: confirmedTransaction,
+		outputIndex:          outputIndex,
+	}
+}
 
-// type confirmedTransfer struct {
-// 	confirmedTransaction ConfirmedTransaction
-// 	outputIndex          int
-// }
+// ConfirmedTransaction returns the confirmed transaction to which this confirmed transfer belongs.
+func (confirmedTransfer *ConfirmedTransfer) ConfirmedTransaction() ConfirmedTransaction {
+	return confirmedTransfer.confirmedTransaction
+}
 
-// func NewConfirmedTransfer(
-// 	confirmedTransaction ConfirmedTransaction,
-// 	outputIndex int,
-// ) ConfirmedTransfer {
-// 	return &confirmedTransfer{
-// 		confirmedTransaction: confirmedTransaction,
-// 		outputIndex:          outputIndex,
-// 	}
-// }
-
-// func (transfer *confirmedTransfer) ConfirmedTransaction() ConfirmedTransaction {
-// 	return transfer.confirmedTransaction
-// }
-
-// func (transfer *confirmedTransfer) OutputIndex() int {
-// 	return transfer.outputIndex
-// }
+// OutputIndex returns the index of the output in the confirmed transaction.
+func (confirmedTransfer *ConfirmedTransfer) OutputIndex() int {
+	return confirmedTransfer.outputIndex
+}

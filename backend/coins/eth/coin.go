@@ -37,8 +37,8 @@ func NewCoin(
 // Net returns the network (mainnet, testnet, etc.).
 func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 
-// Init implements coin.Coin.
-func (coin *Coin) Init() {
+// Initialize implements coin.Coin.
+func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		url := `https://mainnet.infura.io`
 		if coin.code == "teth" {
@@ -63,13 +63,22 @@ func (coin *Coin) Unit() string {
 	return strings.ToUpper(coin.code)
 }
 
+// Denomination implements coin.Coin.
+func (coin *Coin) Denomination() *big.Int {
+	return big.NewInt(1e18)
+}
+
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
-	ether := big.NewInt(1e18)
 	return strings.TrimRight(
-		new(big.Rat).SetFrac(amount.BigInt(), ether).FloatString(18),
+		new(big.Rat).SetFrac(amount.BigInt(), coin.Denomination()).FloatString(18),
 		"0.",
 	)
+}
+
+// AccountBased implements coin.Coin.
+func (coin *Coin) AccountBased() bool {
+	return true
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.

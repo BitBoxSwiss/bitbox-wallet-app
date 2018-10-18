@@ -75,8 +75,8 @@ func NewCoin(
 	return coin
 }
 
-// Init initializes the coin - blockchain and headers.
-func (coin *Coin) Init() {
+// Initialize initializes the coin - blockchain and headers.
+func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
 		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
@@ -124,12 +124,22 @@ func (coin *Coin) Unit() string {
 	return coin.unit
 }
 
+// Denomination implements coin.Coin.
+func (coin *Coin) Denomination() *big.Int {
+	return big.NewInt(unitSatoshi)
+}
+
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 	return strings.TrimRight(
-		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
+		new(big.Rat).SetFrac(amount.BigInt(), coin.Denomination()).FloatString(8),
 		"0.",
 	)
+}
+
+// AccountBased implements coin.Coin.
+func (coin *Coin) AccountBased() bool {
+	return false
 }
 
 // Blockchain connects to a blockchain backend.

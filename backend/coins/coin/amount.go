@@ -23,85 +23,103 @@ import (
 
 // Amount represents an amount in the smallest coin unit (e.g. satoshi).
 type Amount struct {
-	n *big.Int
+	// Invariant: The number is non-negative.
+	number *big.Int
 }
 
-// NewAmount creates a new amount.
+// NewAmount creates a new amount by copying the given amount.
+// Precondition: The given amount has to be non-negative.
 func NewAmount(amount *big.Int) Amount {
-	return Amount{n: amount}
+	if amount.Sign() < 0 {
+		panic("The amount has to be non-negative.")
+	}
+	return Amount{number: new(big.Int).Set(amount)}
 }
 
 // NewAmountFromInt64 creates a new amount.
+// Precondition: The given amount has to be non-negative.
 func NewAmountFromInt64(amount int64) Amount {
-	return Amount{n: big.NewInt(amount)}
+	if amount < 0 {
+		panic("The amount has to be non-negative.")
+	}
+	return Amount{number: big.NewInt(amount)}
 }
 
-// NewAmountFromString parses a user given coin amount, converting it from the default coin unit to
-// the the smallest unit.
-func NewAmountFromString(s string, unit *big.Int) (Amount, error) {
-	// big.Rat parsing accepts rationals like "2/3". Exclude those, we only want decimals.
-	if strings.ContainsRune(s, '/') {
-		return Amount{}, errp.Newf("could not parse %q", s)
+// NewAmountFromString parses the user-given amount, converting it from the default coin unit to the
+// smallest unit.
+// Precondition: The given unit has to be positive.
+func NewAmountFromString(amount string, unit *big.Int) (Amount, error) {
+	if unit.Sign() <= 0 {
+		panic("The unit has to be positive.")
 	}
-	rat, ok := new(big.Rat).SetString(s)
+	// big.Rat parsing accepts rationals like "2/3". Exclude those, we only want decimals.
+	if strings.ContainsRune(amount, '/') {
+		return Amount{}, errp.Newf("The amount %q may not contain a fraction.", amount)
+	}
+	rat, ok := new(big.Rat).SetString(amount)
 	if !ok {
-		return Amount{}, errp.Newf("could not parse %q", s)
+		return Amount{}, errp.Newf("Could not parse the amount %q.", amount)
+	}
+	if rat.Sign() < 0 {
+		return Amount{}, errp.Newf("The amount %q may not be negative.", amount)
 	}
 	rat.Mul(rat, new(big.Rat).SetInt(unit))
 	if rat.Denom().Cmp(big.NewInt(1)) != 0 {
-		return Amount{}, errp.Newf("invalid amount %q", s)
+		return Amount{}, errp.Newf("The amount %q cannot be represented in the given unit.", amount)
 	}
-	return Amount{n: rat.Num()}, nil
+	return Amount{number: rat.Num()}, nil
 }
 
-// Int64 returns the int64 representation of amount. If x cannot be represented in an int64, an
-// error is returned.
+// Int64 returns the int64 representation of the amount.
+// If the amount cannot be represented as an int64, an error is returned.
 func (amount Amount) Int64() (int64, error) {
-	if !amount.n.IsInt64() {
-		return 0, errp.Newf("%s overflows int64", amount.n)
+	if !amount.number.IsInt64() {
+		return 0, errp.Newf("%s overflows int64", amount.number)
 	}
-	return amount.n.Int64(), nil
+	return amount.number.Int64(), nil
 }
 
 // BigInt returns a copy of the underlying big integer.
 func (amount Amount) BigInt() *big.Int {
-	return new(big.Int).Set(amount.n)
+	return new(big.Int).Set(amount.number)
 }
 
-// SendAmount is either a concrete amount, or "all"/"max". The concrete amount is user input and is
-// parsed/validated in Amount().
+// Zero returns whether the amount is zero.
+func (amount Amount) Zero() bool {
+	return amount.number.Sign() == 0
+}
+
+// SendAmount is either a concrete amount or "all"/"max".
+// This is necessary because an account cannot be emptied otherwise due to fee estimation.
 type SendAmount struct {
-	amount  string
+	amount  Amount
 	sendAll bool
 }
 
-// NewSendAmount creates a new SendAmount based on a concrete amount.
-func NewSendAmount(amount string) SendAmount {
+// NewSendAmount creates a new SendAmount with the given amount.
+// Precondition: The given amount has to be positive.
+func NewSendAmount(amount Amount) SendAmount {
+	if amount.Zero() {
+		panic("The amount has to be positive.")
+	}
 	return SendAmount{amount: amount, sendAll: false}
 }
 
-// NewSendAmountAll creates a new Sendall-amount.
-func NewSendAmountAll() SendAmount {
-	return SendAmount{amount: "", sendAll: true}
+// NewSendAllAmount creates a new send-all amount.
+func NewSendAllAmount() SendAmount {
+	return SendAmount{amount: Amount{}, sendAll: true}
 }
 
-// Amount parses the amount and converts it from the default unit to the smallest unit (e.g. satoshi
-// = 1e8). Returns an error if the amount is not positive.
-func (sendAmount *SendAmount) Amount(unit *big.Int) (Amount, error) {
+// Amount returns the amount.
+// This method may only be called for non-send-all amounts and panics otherwise.
+func (sendAmount SendAmount) Amount() Amount {
 	if sendAmount.sendAll {
 		panic("can only be called if SendAll is false")
 	}
-	amount, err := NewAmountFromString(sendAmount.amount, unit)
-	if err != nil {
-		return Amount{}, errp.WithStack(ErrInvalidAmount)
-	}
-	if amount.BigInt().Sign() <= 0 {
-		return Amount{}, errp.WithStack(ErrInvalidAmount)
-	}
-	return amount, nil
+	return sendAmount.amount
 }
 
-// SendAll returns if this represents a send-all input.
-func (sendAmount *SendAmount) SendAll() bool {
+// SendAll returns whether this represents a send-all amount.
+func (sendAmount SendAmount) SendAll() bool {
 	return sendAmount.sendAll
 }

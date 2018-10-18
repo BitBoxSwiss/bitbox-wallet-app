@@ -76,7 +76,7 @@ type AccountEvent struct {
 	Data string `json:"data"`
 }
 
-// Backend ties everything together and is the main starting point to use the BitBox wallet library.
+// Backend manages the devices, coins and accounts and exposes an API including events.
 type Backend struct {
 	arguments *arguments.Arguments
 

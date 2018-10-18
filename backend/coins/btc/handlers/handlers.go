@@ -16,6 +16,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"time"
 
@@ -171,9 +172,9 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
 	return map[string]interface{}{
-		"available":   handlers.formatAmountAsJSON(balance.Available),
-		"incoming":    handlers.formatAmountAsJSON(balance.Incoming),
-		"hasIncoming": balance.Incoming.BigInt().Sign() > 0,
+		"available":   handlers.formatAmountAsJSON(balance.Available()),
+		"incoming":    handlers.formatAmountAsJSON(balance.Incoming()),
+		"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 	}, nil
 }
 
@@ -202,9 +203,17 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = coin.NewSendAmountAll()
+		input.sendAmount = coin.NewSendAllAmount()
 	} else {
-		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
+		// TODO: Abstract this to a coin-agnostic handler that also works for Ethereum's denomination.
+		amount, err := coin.NewAmountFromString(jsonBody.Amount, big.NewInt(1e8))
+		if err != nil {
+			return coin.ErrInvalidAmount
+		}
+		if amount.Zero() {
+			return coin.ErrInvalidAmount
+		}
+		input.sendAmount = coin.NewSendAmount(amount)
 	}
 	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
@@ -292,7 +301,7 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 	if handlers.account == nil {
 		return nil, errp.New("/init called even though account was not added yet")
 	}
-	return nil, handlers.account.Init()
+	return nil, handlers.account.Initialize()
 }
 
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {

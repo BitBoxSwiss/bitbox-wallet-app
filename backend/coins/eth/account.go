@@ -102,8 +102,8 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// Init implements btc.Interface.
-func (account *Account) Init() error {
+// Initialize implements btc.Interface.
+func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
 		if account.signingConfiguration != nil {
@@ -127,7 +127,7 @@ func (account *Account) Init() error {
 	account.address = Address{
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 	}
-	account.coin.Init()
+	account.coin.Initialize()
 	defer account.synchronizer.IncRequestsCounter()()
 	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
 	if err != nil {
@@ -159,12 +159,9 @@ func (account *Account) Transactions() []*transactions.TxInfo {
 }
 
 // Balance implements btc.Interface.
-func (account *Account) Balance() *transactions.Balance {
+func (account *Account) Balance() *coin.Balance {
 	account.synchronizer.WaitSynchronized()
-	return &transactions.Balance{
-		Available: account.balance,
-		Incoming:  coin.NewAmountFromInt64(0),
-	}
+	return coin.NewBalance(account.balance, coin.NewAmountFromInt64(0))
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.
@@ -202,11 +199,7 @@ func (account *Account) newTx(
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(1e18))
-		if err != nil {
-			return nil, err
-		}
-		value = parsedAmount.BigInt()
+		value = amount.Amount().BigInt()
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
