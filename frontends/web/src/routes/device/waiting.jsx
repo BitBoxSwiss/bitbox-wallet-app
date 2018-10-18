@@ -21,7 +21,6 @@ import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
 import { Shift, Alert } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
 import { Message } from '../../components/message/message';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
@@ -53,12 +52,7 @@ export default class Waiting extends Component {
                         </Footer>
                     </div>
                 </div>
-                <Guide screen="waiting">
-                    <Entry key="waitingWithoutDevice" title={t('guide.waitingWithoutDevice.title')}>
-                        {!(debug && testing) && <p>{t('guide.waitingWithoutDevice.text.0')}</p>}
-                        {debug && testing && <p>{t('guide.waitingWithoutDevice.text.1')}</p>}
-                    </Entry>
-                </Guide>
+                <Guide screen="waiting" />
             </div>
         );
     }
