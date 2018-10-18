@@ -74,7 +74,7 @@ export default class SeedRestore extends Component {
     renderSpinner() {
         switch (this.state.status) {
         case STATUS.CHECKING:
-            return (<Spinner text={'checking micro SD card'} showLogo />);
+            return (<Spinner text={this.props.t('checkSDcard')} showLogo />);
         case STATUS.CREATING:
             return (<Spinner text={this.props.t('seed.creating')} showLogo />);
         default:
