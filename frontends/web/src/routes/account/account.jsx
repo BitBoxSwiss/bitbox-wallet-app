@@ -28,7 +28,6 @@ import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
-import A from '../../components/anchor/anchor';
 import InfoIcon from '../../assets/icons/info.svg';
 import ArrowUp from '../../assets/icons/arrow-up.svg';
 import ArrowDown from '../../assets/icons/arrow-down.svg';
@@ -223,54 +222,29 @@ export default class Account extends Component {
                     </div>
                 </div>
                 <Guide>
-                    <Entry key="accountDescription" title={t('guide.accountDescription.title')}>
-                        <p>{t('guide.accountDescription.text')}</p>
-                    </Entry>
+                    <Entry key="accountDescription" entry={t('guide.accountDescription')} />
                     {balance && balance.available.amount === '0' && (
-                        <Entry key="accountSendDisabled" title={t('guide.accountSendDisabled.title', { unit: balance.available.unit })}>
-                            <p>{t('guide.accountSendDisabled.text')}</p>
-                        </Entry>
+                        <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />
                     )}
-                    <Entry key="accountReload" title={t('guide.accountReload.title')}>
-                        <p>{t('guide.accountReload.text')}</p>
-                    </Entry>
+                    <Entry key="accountReload" entry={t('guide.accountReload')} />
                     {transactions.length > 0 && (
-                        <Entry key="accountTransactionLabel" title={t('guide.accountTransactionLabel.title')}>
-                            <p>{t('guide.accountTransactionLabel.text')}</p>
-                        </Entry>
+                        <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel')} />
                     )}
                     {transactions.length > 0 && (
-                        <Entry key="accountTransactionTime" title={t('guide.accountTransactionTime.title')}>
-                            <p>{t('guide.accountTransactionTime.text')}</p>
-                        </Entry>
+                        <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
                     )}
                     {(account.code === 'tbtc-p2pkh' || account.code === 'btc-p2pkh') && (
-                        <Entry key="accountLegacyConvert" title={t('guide.accountLegacyConvert.title')}>
-                            <p>{t('guide.accountLegacyConvert.text')}</p>
-                        </Entry>
+                        <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
                     {transactions.length > 0 && (
-                        <Entry key="accountTransactionAttributes" title={t('guide.accountTransactionAttributes.title')}>
-                            <ul>
-                                { t('guide.accountTransactionAttributes.text').trim().split('\n').map(p => <li key={p}>{p}</li>) }
-                            </ul>
-                        </Entry>
+                        <Entry key="accountTransactionAttributes" entry={t('guide.accountTransactionAttributes')} />
                     )}
                     {balance && balance.hasIncoming && (
-                        <Entry key="accountIncomingBalance" title={t('guide.accountIncomingBalance.title')}>
-                            <p>{t('guide.accountIncomingBalance.text')}</p>
-                        </Entry>
+                        <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance')} />
                     )}
-                    <Entry key="accountTransactionConfirmation" title={t('guide.accountTransactionConfirmation.title')}>
-                        <p>{t('guide.accountTransactionConfirmation.text')}</p>
-                    </Entry>
-                    <Entry key="accountFiat" title={t('guide.accountFiat.title')}>
-                        <p>{t('guide.accountFiat.text')}</p>
-                    </Entry>
-                    <Entry key="accountRates" title={t('guide.accountRates.title')}>
-                        <p>{t('guide.accountRates.text')}</p>
-                        <p><A href={t('guide.accountRates.link.url')}>{t('guide.accountRates.link.text')}</A></p>
-                    </Entry>
+                    <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
+                    <Entry key="accountFiat" entry={t('guide.accountFiat')} />
+                    <Entry key="accountRates" entry={t('guide.accountRates')} />
                 </Guide>
             </div>
         );
