@@ -28,7 +28,7 @@ export interface EntryProp {
 }
 
 interface EntryProps {
-    entry: EntryProp;
+    entry: EntryProp | string; // string could be the entry translation key in cimode, e.g. 'guide.waiting.1'.
     shown?: boolean;
     highlighted?: boolean;
 }
@@ -60,20 +60,33 @@ export class Entry extends Component<Props, State> {
         shown,
         highlighted,
     }: Readonly<State>) {
+        let entry: EntryProp;
+        if (typeof props.entry === 'string') {
+            entry = {
+                title: props.entry + '.title',
+                text: props.entry + '.text',
+                link: {
+                    url: props.entry + '.link.url',
+                    text: props.entry + '.link.text',
+                },
+            };
+        } else {
+            entry = props.entry;
+        }
         return (
             <div className={highlighted ? style.highlighted : style.entry}>
                 <div class={style.entryTitle} onClick={this.toggle}>
                     <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
                     <div class={style.entryTitleText}>
-                        <h2>{props.entry.title}</h2>
+                        <h2>{entry.title}</h2>
                     </div>
                 </div>
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown ? (
                         <div class="flex-1">
-                            {props.entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
-                            {props.entry.link && (
-                                <p><A href={props.entry.link.url}>{props.entry.link.text}</A></p>
+                            {entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+                            {entry.link && (
+                                <p><A href={entry.link.url}>{entry.link.text}</A></p>
                             )}
                             {props.children}
                         </div>

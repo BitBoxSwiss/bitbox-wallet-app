@@ -76,7 +76,7 @@ function getGuideEntries(t, screen): EntryProp[] {
             const keyPrefix = key + '.' + index.toString();
             return {
                 title: keyPrefix + '.title',
-                text: entry.text.map((txt, txtIndex) => keyPrefix + '.text.' + txtIndex.toString()),
+                text: keyPrefix + '.text',
                 link: entry.link ? {
                     url: keyPrefix + '.link',
                     text: keyPrefix + '.text',
