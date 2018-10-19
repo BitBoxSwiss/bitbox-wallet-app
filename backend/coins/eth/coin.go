@@ -66,10 +66,9 @@ func (coin *Coin) Unit() string {
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 	ether := big.NewInt(1e18)
-	return strings.TrimRight(
+	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), ether).FloatString(18),
-		"0.",
-	)
+		"0"), ".")
 }
 
 // BlockExplorerTransactionURLPrefix implements coin.Coin.

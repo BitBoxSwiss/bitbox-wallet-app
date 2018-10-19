@@ -126,10 +126,9 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
-	return strings.TrimRight(
+	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
-		"0.",
-	)
+		"0"), ".")
 }
 
 // Blockchain connects to a blockchain backend.
