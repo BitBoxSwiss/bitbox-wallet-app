@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
 import Header from '../../components/header/Header';
@@ -354,7 +355,9 @@ export default class ElectrumSettings extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide screen="settings-electrum" />
+                <Guide>
+                    <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what')} />
+                </Guide>
             </div>
         );
     }

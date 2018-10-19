@@ -22,6 +22,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { debug } from '../../../utils/env';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import { Entry } from '../../../components/guide/entry';
 import { store as fiat } from '../../../components/rates/rates';
 import { alertUser } from '../../../components/alert/Alert';
 import Header from '../../../components/header/Header';
@@ -558,7 +559,12 @@ export default class Send extends Component {
                         )
                     }
                 </div>
-                <Guide screen="send" />
+                <Guide>
+                    <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
+                    <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+                    <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                    <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
+                </Guide>
             </div>
         );
     }

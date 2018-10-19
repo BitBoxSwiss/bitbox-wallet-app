@@ -22,6 +22,7 @@ import { Button, Input } from '../../components/forms';
 import { Message } from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import Spinner from '../../components/spinner/Spinner';
@@ -168,7 +169,10 @@ export default class Unlock extends Component {
                         </Footer>
                     </div>
                 </div>
-                <Guide screen="unlock" />
+                <Guide>
+                    <Entry key="guide.unlock.forgotDevicePassword" entry={t('guide.unlock.forgotDevicePassword')} />
+                    <Entry key="guide.unlock.reset" entry={t('guide.unlock.forgotDevicePassword')} />
+                </Guide>
             </div>
         );
     }

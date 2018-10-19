@@ -22,6 +22,7 @@ import { translate } from 'react-i18next';
 import QRCode from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
+import { Entry } from '../../../components/guide/entry';
 import Header from '../../../components/header/Header';
 import * as style from './info.css';
 
@@ -120,7 +121,9 @@ export default class Info extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide screen="accountInfo" />
+                <Guide>
+                    <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} />
+                </Guide>
             </div>
         );
     }

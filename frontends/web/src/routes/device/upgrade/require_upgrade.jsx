@@ -18,7 +18,6 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import UpgradeFirmware from '../settings/components/upgradefirmware';
-import { Guide } from '../../../components/guide/guide';
 import { BitBox } from '../../../components/icon/logo';
 import * as style from '../device.css';
 
@@ -44,7 +43,6 @@ export default class RequireUpgrade extends Component {
                     <p><strong>{t('upgradeFirmware.label')}</strong></p>
                     <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
                 </div>
-                <Guide screen="require_upgrade" />
             </div>
         );
     }

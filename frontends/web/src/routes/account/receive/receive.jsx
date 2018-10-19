@@ -20,6 +20,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
 import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
@@ -198,7 +199,13 @@ export default class Receive extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide screen="receive" />
+                <Guide>
+                    <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
+                    <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />
+                    <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
+                    <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
+                    <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />
+                </Guide>
             </div>
         );
     }

@@ -20,6 +20,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Guide } from '../../../components/guide/guide';
+import { Entry } from '../../../components/guide/entry';
 import Header from '../../../components/header/Header';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
@@ -213,7 +214,14 @@ export default class Settings extends Component {
                         { spinner && <Spinner text={t('deviceSettings.loading')} /> }
                     </div>
                 </div>
-                <Guide screen="bitbox" />
+                <Guide>
+                    <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox')} />
+                    <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD')} />
+                    <Entry key="guide.bitbox.hiddenWallet" entry={t('guide.bitbox.hiddenWallet')} />
+                    <Entry key="guide.bitbox.pairing" entry={t('guide.bitbox.pairing')} />
+                    <Entry key="guide.bitbox.2FA" entry={t('guide.bitbox.2FA')} />
+                    <Entry key="guide.bitbox.disable2FA" entry={t('guide.bitbox.disable2FA')} />
+                </Guide>
             </div>
         );
     }

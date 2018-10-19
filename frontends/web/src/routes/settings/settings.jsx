@@ -20,6 +20,7 @@ import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
+import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
@@ -153,7 +154,14 @@ export default class Settings extends Component {
                         </div>
                     </div>
                 </div>
-                <Guide screen="settings" />
+                <Guide>
+                    <Entry key="guide.settings.whyMultipleAccounts" entry={t('guide.settings.whyMultipleAccounts')} />
+                    <Entry key="guide.settings.btc-p2pkh" entry={t('guide.settings.btc-p2pkh')} />
+                    <Entry key="guide.settings.btc-p2sh" entry={t('guide.settings.btc-p2sh')} />
+                    <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
+                    <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
+                    <Entry key="guide.settings.moreCoins" entry={t('guide.settings.moreCoins')} />
+                </Guide>
             </div>
         );
     }

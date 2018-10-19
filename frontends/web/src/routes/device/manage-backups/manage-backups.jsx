@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
+import { Entry } from '../../../components/guide/entry';
 import Backups from '../../../components/backups/backups';
 import Header from '../../../components/header/Header';
 import * as styles from './manage-backups.css';
@@ -42,7 +43,12 @@ export default class ManageBackups extends Component {
                         </Backups>
                     </div>
                 </div>
-                <Guide screen="backups" />
+                <Guide>
+                    <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup')} />
+                    <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt')} />
+                    <Entry key="guide.backups.check" entry={t('guide.backups.check')} />
+                    <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
+                </Guide>
             </div>
         );
     }
