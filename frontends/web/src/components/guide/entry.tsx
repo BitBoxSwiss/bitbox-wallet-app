@@ -18,16 +18,8 @@ import { Component, h, RenderableProps } from 'preact';
 import A from '../anchor/anchor';
 import * as style from './guide.css';
 
-/**
- * Typically manually written as a child of the guide component.
- */
-interface ExplicitEntryProps {
+export interface EntryProp {
     title: string;
-    shown?: boolean;
-    highlighted?: boolean;
-}
-
-export interface ImplicitEntry extends ExplicitEntryProps {
     text: string;
     link?: {
         url: string;
@@ -35,22 +27,13 @@ export interface ImplicitEntry extends ExplicitEntryProps {
     };
 }
 
-/**
- * Typically coming from the language file and inserted by the guide component.
- */
-interface ImplicitEntryProps {
-    entry: ImplicitEntry;
+interface EntryProps {
+    entry: EntryProp;
+    shown?: boolean;
+    highlighted?: boolean;
 }
 
-type Props = ExplicitEntryProps | ImplicitEntryProps;
-
-function isExplicitEntryProps(props: Props): props is ExplicitEntryProps {
-    return (props as ExplicitEntryProps).title !== undefined;
-}
-
-function isImplicitEntryProps(props: Props): props is ImplicitEntryProps {
-    return (props as ImplicitEntryProps).entry !== undefined;
-}
+type Props = EntryProps;
 
 interface State {
     shown: boolean;
@@ -61,8 +44,8 @@ export class Entry extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            shown: isExplicitEntryProps(props) && (props.shown || props.highlighted) || isImplicitEntryProps(props) && (props.entry.shown || props.entry.highlighted) || false,
-            highlighted: isExplicitEntryProps(props) && props.highlighted || isImplicitEntryProps(props) && props.entry.highlighted || false,
+            shown: props.shown || props.highlighted || false,
+            highlighted: props.highlighted || false,
         };
     }
 
@@ -82,17 +65,14 @@ export class Entry extends Component<Props, State> {
                 <div class={style.entryTitle} onClick={this.toggle}>
                     <div class={style.entryToggle}>{shown ? '–' : '+'}</div>
                     <div class={style.entryTitleText}>
-                        <h2>
-                            {isExplicitEntryProps(props) ? props.title : ''}
-                            {isImplicitEntryProps(props) ? props.entry.title : ''}
-                        </h2>
+                        <h2>{props.entry.title}</h2>
                     </div>
                 </div>
                 <div class={[style.entryContent, shown ? style.expanded : ''].join(' ')}>
                     {shown ? (
                         <div class="flex-1">
-                            {isImplicitEntryProps(props) && props.entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
-                            {isImplicitEntryProps(props) && props.entry.link && (
+                            {props.entry.text.trim().split('\n').map(p => <p key={p}>{p}</p>)}
+                            {props.entry.link && (
                                 <p><A href={props.entry.link.url}>{props.entry.link.text}</A></p>
                             )}
                             {props.children}

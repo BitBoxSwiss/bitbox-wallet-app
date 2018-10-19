@@ -22,7 +22,7 @@ import { translate, TranslateProp } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
-import { Entry, ImplicitEntry } from './entry';
+import { Entry, EntryProp } from './entry';
 import * as style from './guide.css';
 
 interface SharedProps {
@@ -65,7 +65,7 @@ type Props = ProvidedProps & SharedProps & TranslateProp;
 // Guide entries are fetched from the translation files. Manual fallback to the reference language
 // is implemented in case an array element is undefined in the current language (can be null if not
 // translated in order, for example).
-function getGuideEntries(t, screen): ImplicitEntry[] {
+function getGuideEntries(t, screen): EntryProp[] {
     const key = 'guide.' + screen;
     // For now, fallback to the main fallback language, not cascading.
     const entriesFallbackLanguage = i18n.getFixedT(i18n.languages[i18n.languages.length - 1])(key, { defaultValue: [] });
@@ -95,7 +95,7 @@ function Guide({ screen, shown, t, children }: RenderableProps<Props>): JSX.Elem
                 <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
                     <h1>{t('guide.title')}</h1>
                 </div>
-                {screen && getGuideEntries(t, screen).map((entry: ImplicitEntry, i: number) => (
+                {screen && getGuideEntries(t, screen).map((entry: EntryProp, i: number) => (
                     <Entry key={screen + i} entry={entry} />
                 ))}
                 {children}
