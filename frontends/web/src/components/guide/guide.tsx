@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import i18n from 'i18next';
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';

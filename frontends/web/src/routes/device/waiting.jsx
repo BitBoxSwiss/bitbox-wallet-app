@@ -54,7 +54,7 @@ export default class Waiting extends Component {
                     </div>
                 </div>
                 <Guide>
-                    <Entry entry={t('guide.waiting.welcome')} />
+                    <Entry entry={t('guide.waiting.welcome')} shown={true} />
                     <Entry entry={t('guide.waiting.getDevice')} />
                     <Entry entry={t('guide.waiting.lostDevice')} />
                     <Entry entry={t('guide.waiting.internet')} />
