@@ -135,7 +135,7 @@ export default class SeedRestore extends Component {
                                         <Button
                                             primary
                                             onClick={this.handleStart}
-                                            disabled={status === STATUS.ERROR}>
+                                            disabled={status !== STATUS.DEFAULT}>
                                             {t('seedRestore.info.button')}
                                         </Button>
                                     </div>
