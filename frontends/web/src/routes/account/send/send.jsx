@@ -505,7 +505,7 @@ export default class Send extends Component {
                                         this.selectedUTXOs.length !== 0 && (
                                             <div class={style.block}>
                                                 <p class={['label', style.confirmationLabel].join(' ')}>
-                                                    {t('send.confirm.selected_coins')}
+                                                    {t('send.confirm.selected-coins')}
                                                 </p>
                                                 {
                                                     Object.keys(this.selectedUTXOs).map((uxto, i) => (

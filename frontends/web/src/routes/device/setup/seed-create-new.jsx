@@ -151,11 +151,11 @@ export default class SeedCreateNew extends Component {
         const content = showInfo ? (
             <div class={style.block}>
                 <ol class="first">
-                    <li>{t('seed.info.description_1')}</li>
-                    <li>{t('seed.info.description_2')}</li>
+                    <li>{t('seed.info.description1')}</li>
+                    <li>{t('seed.info.description2')}</li>
                 </ol>
-                <p>{t('seed.info.description_3')}</p>
-                <p>{t('seed.info.description_4')}</p>
+                <p>{t('seed.info.description3')}</p>
+                <p>{t('seed.info.description4')}</p>
                 <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
                         secondary
@@ -196,17 +196,17 @@ export default class SeedCreateNew extends Component {
                     </div>
                     <Checkbox
                         id="password_change"
-                        label={t('seed.agreements.password_change')}
+                        label={t('seed.agreements.password-change')}
                         checked={agreements.password_change}
                         onChange={this.handleAgreementChange} />
                     <Checkbox
                         id="password_required"
-                        label={t('seed.agreements.password_required')}
+                        label={t('seed.agreements.password-required')}
                         checked={agreements.password_required}
                         onChange={this.handleAgreementChange} />
                     <Checkbox
                         id="funds_access"
-                        label={t('seed.agreements.funds_access')}
+                        label={t('seed.agreements.funds-access')}
                         checked={agreements.funds_access}
                         onChange={this.handleAgreementChange} />
                 </div>
@@ -235,9 +235,9 @@ export default class SeedCreateNew extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.2.title`)} description={t(`goal.step.2.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.3_create.title`)} description={t(`goal.step.3_create.description`)} />
+                            <Step title={t(`goal.step.3-create.title`)} description={t(`goal.step.3-create.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_create.title`)} />
+                            <Step title={t(`goal.step.4-create.title`)} />
                         </Steps>
                         <hr />
                         {

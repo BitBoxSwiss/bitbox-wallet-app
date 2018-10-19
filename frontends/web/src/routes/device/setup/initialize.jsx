@@ -117,10 +117,10 @@ export default class Initialize extends Component {
                     </div>
                 </div>
                 <ul>
-                    <li>{t('initialize.info.description_1')}</li>
-                    <li>{t('initialize.info.description_2')}</li>
+                    <li>{t('initialize.info.description1')}</li>
+                    <li>{t('initialize.info.description2')}</li>
                 </ul>
-                <p>{t('initialize.info.description_3')}</p>
+                <p>{t('initialize.info.description3')}</p>
                 <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
                         secondary
@@ -167,9 +167,9 @@ export default class Initialize extends Component {
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
-                            <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
+                            <Step title={t(`goal.step.3-${goal}.title`)} description={t(`goal.step.3-${goal}.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_${goal}.title`)} />
+                            <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
                         <hr />
                         {formSubmissionState}

@@ -101,9 +101,9 @@ export default class SeedRestore extends Component {
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
-                            <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)} />
+                            <Step title={t(`goal.step.3-restore.title`)} description={t(`goal.step.3-restore.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_restore.title`)} />
+                            <Step title={t(`goal.step.4-restore.title`)} />
                         </Steps>
                         <hr />
                         {
@@ -121,11 +121,11 @@ export default class SeedRestore extends Component {
                             showInfo ? (
                                 <div class={style.block}>
                                     <ol class="first">
-                                        <li>{t('seedRestore.info.description_1')}</li>
-                                        <li>{t('seedRestore.info.description_2')}</li>
-                                        <li>{t('seedRestore.info.description_3')}</li>
+                                        <li>{t('seedRestore.info.description1')}</li>
+                                        <li>{t('seedRestore.info.description2')}</li>
+                                        <li>{t('seedRestore.info.description3')}</li>
                                     </ol>
-                                    <p>{t('seedRestore.info.description_4')}</p>
+                                    <p>{t('seedRestore.info.description4')}</p>
                                     <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button
                                             secondary
