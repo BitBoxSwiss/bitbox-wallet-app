@@ -53,34 +53,66 @@ class Dialog extends Component<Props, State> {
         this.modalContent = element;
     }
 
+    private handleFocus = (e: FocusEvent) => {
+        const input = e.target as HTMLElement;
+        const index = input.getAttribute('index');
+        this.setState({ currentTab: Number(index) });
+    }
+
     private focusWithin = () => {
         this.focusableChildren = this.modalContent.querySelectorAll('a, button, input, textarea');
-        for (const c of this.focusableChildren) {
+        const focusables = Array.from(this.focusableChildren);
+        for (const c of focusables) {
             c.classList.add('tabbable');
+            c.setAttribute('index', focusables.indexOf(c).toString());
+            c.addEventListener('focus', this.handleFocus);
         }
-        document.addEventListener('keydown', this.controlKeys);
+        document.addEventListener('keydown', this.handleKeyDown);
     }
 
     private addTabIndex = (currentTab: number) => {
+        const focusables = this.focusableChildren;
         let next = currentTab + 1;
-        if (next >= this.focusableChildren.length) {
+        if (next >= focusables.length) {
             next = 0;
         }
-        this.setState({ currentTab: next });
+        this.setState({ currentTab: next }, () => {
+            focusables[next].focus();
+        });
     }
 
     private subtractTabIndex = (currentTab: number) => {
+        const focusables = this.focusableChildren;
         let previous = currentTab - 1;
         if (previous < 0) {
-            previous = this.focusableChildren.length - 1;
+            previous = focusables.length - 1;
         }
-        this.setState({ currentTab: previous });
+        this.setState({ currentTab: previous }, () => {
+            focusables[previous].focus();
+        });
     }
 
-    private controlKeys = (e: KeyboardEvent) => {
+    private updateIndex = (isNext: boolean) => {
+        const target = this.getNextIndex(isNext);
+        this.setState({ currentTab: target }, () => {
+            this.focusableChildren[target].focus();
+        });
+    }
+
+    private getNextIndex(isNext: boolean) {
+        const { currentTab } = this.state;
+        const focusables = Array.from(this.focusableChildren);
+        const arr = isNext ? focusables : focusables.reverse();
+        const current = isNext ? currentTab : (arr.length - 1) - currentTab;
+        let next = isNext ? currentTab + 1 : arr.length - currentTab;
+        next = arr.findIndex((item, i) => (i >= next && !item.hasAttribute('disabled')));
+        next = next < 0 ? arr.findIndex((item, i) => (i <= current && !item.hasAttribute('disabled'))) : next;
+        return isNext ? next : (arr.length - 1) - next;
+    }
+
+    private handleKeyDown = (e: KeyboardEvent) => {
         const { currentTab } = this.state;
         const { disableEscape, onClose } = this.props;
-        const focusables = this.focusableChildren;
         const isEsc = e.keyCode === 27;
         const isTab = e.keyCode === 9;
         if (!disableEscape && isEsc) {
@@ -91,11 +123,11 @@ class Dialog extends Component<Props, State> {
             e.preventDefault();
         }
         if (isTab && e.shiftKey) {
-            focusables[currentTab].focus();
-            this.subtractTabIndex(currentTab);
+            const next = currentTab <= 0 ? length - 1 : currentTab - 1;
+            this.updateIndex(false);
         } else if (isTab) {
-            focusables[currentTab].focus();
-            this.addTabIndex(currentTab);
+            const previous = currentTab === length - 1 ? 0 : currentTab + 1;
+            this.updateIndex(true);
         }
     }
 
@@ -104,7 +136,7 @@ class Dialog extends Component<Props, State> {
             active: false,
             currentTab: 0,
         });
-        document.removeEventListener('keydown', this.controlKeys);
+        document.removeEventListener('keydown', this.handleKeyDown);
     }
 
     private activate = () => {
