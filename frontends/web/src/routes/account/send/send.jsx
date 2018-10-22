@@ -240,7 +240,7 @@ export default class Send extends Component {
                     if (data.success) {
                         this.setState({ fiatAmount: data.fiatAmount });
                     } else {
-                        this.setState({ amountError: 'invalid amount' });
+                        this.setState({ amountError: this.props.t(`send.error.invalidAmount`) });
                     }
                 });
         } else {
@@ -260,7 +260,7 @@ export default class Send extends Component {
                         this.setState({ amount: data.amount });
                         this.validateAndDisplayFee(false);
                     } else {
-                        this.setState({ amountError: 'invalid amount' });
+                        this.setState({ amountError: this.props.t(`send.error.invalidAmount`) });
                     }
                 });
         } else {
