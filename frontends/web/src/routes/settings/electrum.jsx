@@ -122,7 +122,7 @@ class ElectrumServer extends Component {
                                 }
                                 { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
                             </button>
-                            <button class={style.warning} onClick={onRemove}>{t('settings.electrum.remove_server')}</button>
+                            <button class={style.warning} onClick={onRemove}>{t('settings.electrum.remove-server')}</button>
                         </div>
                     </div>
                 </li>
@@ -133,7 +133,7 @@ class ElectrumServer extends Component {
                 <div class="flex flex-row flex-start flex-wrap">
                     <p class={style.badge}>{t('settings.electrum.step1')}</p>
                     <div class="flex-1">
-                        <p>{t('settings.electrum.step1_text')}</p>
+                        <p>{t('settings.electrum.step1-text')}</p>
                     </div>
                 </div>
                 <Input
@@ -145,7 +145,7 @@ class ElectrumServer extends Component {
                 <div class="flex flex-row flex-start flex-wrap">
                     <p class={style.badge}>{t('settings.electrum.step2')}</p>
                     <div class="flex-1">
-                        <p>{t('settings.electrum.step2_text')}</p>
+                        <p>{t('settings.electrum.step2-text')}</p>
                     </div>
                 </div>
                 <textarea
@@ -166,13 +166,13 @@ class ElectrumServer extends Component {
                                 </div>
                             )
                         }
-                        {t('settings.electrum.download_cert')}
+                        {t('settings.electrum.download-cert')}
                     </Button>
                 </div>
                 <div class="flex flex-row flex-start flex-wrap">
                     <p class={style.badge}>{t('settings.electrum.step3')}</p>
                     <div class="flex-1">
-                        <p>{t('settings.electrum.step3_text')}</p>
+                        <p>{t('settings.electrum.step3-text')}</p>
                     </div>
                 </div>
                 <div class="buttons flex flex-row flex-end">
@@ -186,12 +186,12 @@ class ElectrumServer extends Component {
                         }
                         { loadingCheck ? t('settings.electrum.checking') : t('settings.electrum.check') }
                     </Button>
-                    <Button primary disabled={!valid} onClick={this.add}>{t('settings.electrum.add_server')}</Button>
+                    <Button primary disabled={!valid} onClick={this.add}>{t('settings.electrum.add-server')}</Button>
                 </div>
                 <div class="flex flex-row flex-start flex-wrap">
                     <p class={style.badge}>{t('settings.electrum.step4')}</p>
                     <div class="flex-1">
-                        <p>{t('settings.electrum.step4_text')}</p>
+                        <p>{t('settings.electrum.step4-text')}</p>
                     </div>
                 </div>
             </div>

@@ -66,6 +66,7 @@
     },
     "title": "Manage Backups"
   },
+  "checkSDcard": "checking micro SD card",
   "bitbox": {
     "error": {
       "e10000": "Current device password incorrect.",
@@ -193,18 +194,18 @@
         "description": "Set a device password",
         "title": "Device"
       },
-      "3_create": {
+      "3-create": {
         "description": "Create a new wallet",
         "title": "Wallet"
       },
-      "3_restore": {
+      "3-restore": {
         "description": "from a backup",
         "title": "Restore"
       },
-      "4_create": {
+      "4-create": {
         "title": "Summary"
       },
-      "4_restore": {
+      "4-restore": {
         "title": "Summary"
       }
     }
@@ -460,9 +461,9 @@
     },
     "info": {
       "button": "Continue",
-      "description_1": "Choose your device password. This will be used to unlock your BitBox.",
-      "description_2": "You can use numbers, letters & symbols. Longer passwords offer higher security.",
-      "description_3": "If you lose the device password you will have to reset your device and restore your wallet backup.",
+      "description1": "Choose your device password. This will be used to unlock your BitBox.",
+      "description2": "You can use numbers, letters & symbols. Longer passwords offer higher security.",
+      "description3": "If you lose the device password you will have to reset your device and restore your wallet backup.",
       "subtitle": "Now you will set your device password",
       "title": "Initialising your device"
     },
@@ -542,26 +543,26 @@
   "securityInformation": {
     "create": {
       "button": "Continue",
-      "description_1": "Before setting up your device it is recommended that you do so in a secure environment.",
-      "description_2": "You will be asked to create two passwords.",
-      "description_3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
-      "description_4": "The second is the <strong>recovery password</strong> which unlocks your wallet. This password cannot be changed later.",
-      "description_5": "The wallet you create will be backed up to a file on the micro SD card provided. This can be used in an emergency to recover your funds using your <strong>recovery password</strong>.",
+      "description1": "Before setting up your device it is recommended that you do so in a secure environment.",
+      "description2": "You will be asked to create two passwords.",
+      "description3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
+      "description4": "The second is the <strong>recovery password</strong> which unlocks your wallet. This password cannot be changed later.",
+      "description5": "The wallet you create will be backed up to a file on the micro SD card provided. This can be used in an emergency to recover your funds using your <strong>recovery password</strong>.",
       "title": "Security Information"
     },
     "restore": {
       "button": "Continue",
-      "description_1": "You will be asked to insert the micro SD card you used to store you backup.",
-      "description_2": "To restore your device you will need your recovery password. ",
-      "description_3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect (learn more).",
+      "description1": "You will be asked to insert the micro SD card you used to store you backup.",
+      "description2": "To restore your device you will need your recovery password. ",
+      "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect (learn more).",
       "title": "Security Information"
     }
   },
   "seed": {
     "agreements": {
-      "funds_access": "I will NOT be able to access my funds if I forget my recovery password",
-      "password_change": "I can NOT change the recovery password later",
-      "password_required": "The recovery password is required to restore a wallet from a backup"
+      "funds-access": "I will NOT be able to access my funds if I forget my recovery password",
+      "password-change": "I can NOT change the recovery password later",
+      "password-required": "The recovery password is required to restore a wallet from a backup"
     },
     "create": "Create Wallet",
     "creating": "Creating wallet",
@@ -572,10 +573,10 @@
     },
     "info": {
       "button": "Set recovery password now",
-      "description_1": "Insert the micro SD card in to the BitBox",
-      "description_2": "Choose a recovery password for the wallet and select “Set recovery password now”",
-      "description_3": "The back up to micro SD card and your recovery password is the only method to recover your funds in case of lost or stolen BitBox device.",
-      "description_4": "You cannot change your recovery password later on without transferring your funds.",
+      "description1": "Insert the micro SD card in to the BitBox",
+      "description2": "Choose a recovery password for the wallet and select “Set recovery password now”",
+      "description3": "The back up to micro SD card and your recovery password is the only method to recover your funds in case of lost or stolen BitBox device.",
+      "description4": "You cannot change your recovery password later on without transferring your funds.",
       "title": "Create a new wallet"
     },
     "password": {
@@ -588,11 +589,16 @@
   },
   "seedRestore": {
     "info": {
-      "button": "Continue",
-      "description": "To continue please insert the micro SD card in to the BitBox.",
-      "title": "How to restore a wallet from a backup"
+      "title": "Restore a wallet",
+      "description1": "Insert the micro SD card in to the BitBox and click “Continue”",
+      "description2": "Choose a backup on the and click “Restore”",
+      "description3": "Enter the recovery password",
+      "description4": "You need to confirm to understand that an incorrect password will create a different wallet.",
+      "button": "Continue"
     },
-    "title": "Restore wallet"
+    "error": {
+      "e200": "Restoring a wallet from a backup requires the micro SD card."
+    }
   },
   "send": {
     "abort": "The transaction has been aborted.",
@@ -610,7 +616,7 @@
       "outpoint": "Outpoint"
     },
     "confirm": {
-      "selected_coins": "Selected Coins",
+      "selected-coins": "Selected Coins",
       "title": "Confirm Transaction",
       "total": "Total"
     },
@@ -663,23 +669,23 @@
     },
     "electrum": {
       "add": "Add a server",
-      "add_server": "Add",
+      "add-server": "Add",
       "check": "Check",
       "checkFailed": "Failed",
       "checkSuccess": "Successfully established a connection to {{host}}",
       "checking": "Checking",
-      "download_cert": "Download remote certificate",
-      "remove_server": "Remove",
+      "download-cert": "Download remote certificate",
+      "remove-server": "Remove",
       "reset": "Reset to default",
       "servers": "Servers",
       "step1": "1",
-      "step1_text": "Enter the endpoint.",
+      "step1-text": "Enter the endpoint.",
       "step2": "2",
-      "step2_text": "Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
+      "step2-text": "Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
       "step3": "3",
-      "step3_text": "Check the connection and add the server.",
+      "step3-text": "Check the connection and add the server.",
       "step4": "4",
-      "step4_text": "Restart the wallet. If you do not remove the default servers, your own node will be added as a redundancy.",
+      "step4-text": "Restart the wallet. If you do not remove the default servers, your own node will be added as a redundancy.",
       "title-btc": "Bitcoin Electrum Servers",
       "title-ltc": "Litecoin Electrum Servers",
       "title-tbtc": "Bitcoin Testnet Electrum Servers",

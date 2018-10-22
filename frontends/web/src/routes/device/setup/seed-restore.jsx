@@ -20,7 +20,8 @@ import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
-import { Shift } from '../../../components/icon/logo';
+import { Shift, Alert } from '../../../components/icon';
+import { Tampered } from './components/tampered';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -28,7 +29,8 @@ import * as style from '../device.css';
 
 const STATUS = Object.freeze({
     DEFAULT: 'default',
-    WAITING: 'waiting',
+    CREATING: 'creating',
+    CHECKING: 'checking',
     ERROR: 'error',
 });
 
@@ -36,7 +38,7 @@ const STATUS = Object.freeze({
 export default class SeedRestore extends Component {
     state = {
         showInfo: true,
-        status: STATUS.DEFAULT,
+        status: STATUS.CHECKING,
         error: '',
     }
 
@@ -58,7 +60,7 @@ export default class SeedRestore extends Component {
             }
             this.setState({
                 status: STATUS.ERROR,
-                error: this.props.t('seed.error.e200'),
+                error: this.props.t('seedRestore.error.e200'),
             });
             setTimeout(this.checkSDcard, 2500);
         });
@@ -67,6 +69,17 @@ export default class SeedRestore extends Component {
     handleStart = () => {
         this.setState({ showInfo: false });
         this.checkSDcard();
+    }
+
+    renderSpinner() {
+        switch (this.state.status) {
+        case STATUS.CHECKING:
+            return (<Spinner text={this.props.t('checkSDcard')} showLogo />);
+        case STATUS.CREATING:
+            return (<Spinner text={this.props.t('seed.creating')} showLogo />);
+        default:
+            return null;
+        }
     }
 
     render({
@@ -88,35 +101,41 @@ export default class SeedRestore extends Component {
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
-                            <Step title={t(`goal.step.3_restore.title`)} description={t(`goal.step.3_restore.description`)} />
+                            <Step title={t(`goal.step.3-restore.title`)} description={t(`goal.step.3-restore.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_restore.title`)} />
+                            <Step title={t(`goal.step.4-restore.title`)} />
                         </Steps>
                         <hr />
                         {
-                            error && (
+                            error ? (
                                 <Message type={status === STATUS.ERROR ? 'error' : undefined}>
+                                    <Alert />
                                     { error }
                                 </Message>
+                            ) : (
+                                <Tampered />
                             )
                         }
-                        <h1 className={style.title}>{t('seedRestore.title')}</h1>
+                        <h1 className={style.title}>{t('seedRestore.info.title')}</h1>
                         {
                             showInfo ? (
                                 <div class={style.block}>
-                                    <div class="subHeaderContainer first">
-                                        <div class="subHeader">
-                                            <h3>{t('seedRestore.info.title')}</h3>
-                                        </div>
-                                    </div>
-                                    <p>{t('seedRestore.info.description')}</p>
+                                    <ol class="first">
+                                        <li>{t('seedRestore.info.description1')}</li>
+                                        <li>{t('seedRestore.info.description2')}</li>
+                                        <li>{t('seedRestore.info.description3')}</li>
+                                    </ol>
+                                    <p>{t('seedRestore.info.description4')}</p>
                                     <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                                         <Button
                                             secondary
                                             onClick={goBack}>
                                             {t('button.back')}
                                         </Button>
-                                        <Button primary onClick={this.handleStart}>
+                                        <Button
+                                            primary
+                                            onClick={this.handleStart}
+                                            disabled={status !== STATUS.DEFAULT}>
                                             {t('seedRestore.info.button')}
                                         </Button>
                                     </div>
@@ -142,11 +161,7 @@ export default class SeedRestore extends Component {
                             <Shift />
                         </Footer>
                     </div>
-                    {
-                        status === STATUS.WAITING && (
-                            <Spinner text={t('seed.creating')} showLogo />
-                        )
-                    }
+                    { this.renderSpinner() }
                 </div>
             </div>
         );

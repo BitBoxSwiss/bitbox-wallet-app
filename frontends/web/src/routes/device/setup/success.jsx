@@ -37,9 +37,9 @@ export default class Success extends Component {
                             <Step divider />
                             <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
                             <Step divider />
-                            <Step title={t(`goal.step.3_${goal}.title`)} description={t(`goal.step.3_${goal}.description`)} />
+                            <Step title={t(`goal.step.3-${goal}.title`)} description={t(`goal.step.3-${goal}.description`)} />
                             <Step divider />
-                            <Step title={t(`goal.step.4_${goal}.title`)} />
+                            <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
                         <hr />
                         <h1 class={style.title}>{t(`success.${goal}.title`)}</h1>

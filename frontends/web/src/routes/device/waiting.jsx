@@ -19,10 +19,10 @@ import { translate } from 'react-i18next';
 import { apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
-import { Shift, Alert } from '../../components/icon';
+import { Shift } from '../../components/icon';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import { Message } from '../../components/message/message';
+import { Tampered } from './setup/components/tampered';
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import { debug } from '../../utils/env';
@@ -41,10 +41,7 @@ export default class Waiting extends Component {
                     <div className={style.content}>
                         <div className="flex-1 flex flex-column flex-center">
                             <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
-                            <Message type="warning" style="max-width: 400px; align-self: center;">
-                                <Alert />
-                                <p class="first">{t('deviceTampered')}</p>
-                            </Message>
+                            <Tampered style="max-width: 400px; align-self: center;" />
                             <SkipForTestingButton show={debug && testing} />
                         </div>
                         <hr />
