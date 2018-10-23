@@ -70,6 +70,13 @@ class Dialog extends Component<Props, State> {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
+    private focusFirst = () => {
+        const focusables = this.focusableChildren;
+        if (focusables.length) {
+            focusables[0].focus();
+        }
+    }
+
     private addTabIndex = (currentTab: number) => {
         const focusables = this.focusableChildren;
         let next = currentTab + 1;
@@ -142,6 +149,7 @@ class Dialog extends Component<Props, State> {
     private activate = () => {
         this.setState({ active: true }, () => {
             this.focusWithin();
+            this.focusFirst();
         });
     }
 
