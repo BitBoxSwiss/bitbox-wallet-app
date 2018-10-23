@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )

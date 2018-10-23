@@ -21,14 +21,13 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/karalabe/hid"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/karalabe/hid"
+	"github.com/sirupsen/logrus"
 )
 
 const (

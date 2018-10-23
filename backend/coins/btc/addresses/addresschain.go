@@ -15,11 +15,10 @@
 package addresses
 
 import (
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/sirupsen/logrus"
-
-	"github.com/btcsuite/btcd/chaincfg"
 )
 
 // AddressChain manages a chain of addresses derived from a configuration.

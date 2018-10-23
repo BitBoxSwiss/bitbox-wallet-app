@@ -23,11 +23,10 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/sirupsen/logrus"
 )
 
 var coins = []string{"BTC", "LTC", "ETH"}

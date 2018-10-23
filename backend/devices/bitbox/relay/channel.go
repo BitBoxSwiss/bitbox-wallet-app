@@ -18,15 +18,13 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-
 	"github.com/btcsuite/btcutil/base58"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 	"github.com/sirupsen/logrus"
-
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 const (

@@ -32,9 +32,6 @@ import (
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/sirupsen/logrus"
-	"golang.org/x/crypto/pbkdf2"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
@@ -44,6 +41,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 var (

@@ -19,9 +19,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // Logger adds a method to the logrus logger.

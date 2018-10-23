@@ -17,10 +17,9 @@ package observable_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestObservable(t *testing.T) {

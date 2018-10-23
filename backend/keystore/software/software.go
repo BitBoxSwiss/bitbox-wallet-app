@@ -18,19 +18,17 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 
-	"golang.org/x/crypto/pbkdf2"
-
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/crypto/pbkdf2"
 )
 
 // Keystore implements a keystore in software.

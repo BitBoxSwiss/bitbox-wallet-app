@@ -17,9 +17,8 @@ package logging
 import (
 	"encoding/json"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 // Configuration serializes and deserializes the logging parameters.

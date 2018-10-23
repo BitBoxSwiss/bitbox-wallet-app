@@ -20,13 +20,8 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 
-	"golang.org/x/text/language"
-
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/ethereum/go-ethereum/params"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
@@ -45,6 +40,9 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/ethereum/go-ethereum/params"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/text/language"
 )
 
 const (

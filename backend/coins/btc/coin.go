@@ -22,8 +22,6 @@ import (
 	"sync"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
@@ -33,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/sirupsen/logrus"
 )
 
 // Coin models a Bitcoin-related coin.

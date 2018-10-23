@@ -23,12 +23,6 @@ import (
 	"runtime/debug"
 	"strconv"
 
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
-	qrcode "github.com/skip2/go-qrcode"
-	"golang.org/x/text/language"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
@@ -44,6 +38,11 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
+	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
+	"github.com/sirupsen/logrus"
+	qrcode "github.com/skip2/go-qrcode"
+	"golang.org/x/text/language"
 )
 
 // Backend models the API of the backend.

@@ -19,12 +19,11 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/sirupsen/logrus"
 )
 
 const (

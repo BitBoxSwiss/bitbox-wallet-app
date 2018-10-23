@@ -19,14 +19,13 @@ import (
 	"net/http"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 // Bitbox models the API of a Bitbox.

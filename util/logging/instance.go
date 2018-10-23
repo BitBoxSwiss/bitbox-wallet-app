@@ -19,10 +19,9 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/sirupsen/logrus"
 )
 
 const (
