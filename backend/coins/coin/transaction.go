@@ -16,6 +16,43 @@ package coin
 
 import "time"
 
+// TxType is a type of transaction. See the TxType* constants.
+type TxType string
+
+const (
+	// TxTypeReceive is a tx which sends funds to our account.
+	TxTypeReceive TxType = "receive"
+	// TxTypeSend is a tx which sends funds out of our account.
+	TxTypeSend TxType = "send"
+	// TxTypeSendSelf is a tx from out account to our account.
+	TxTypeSendSelf TxType = "sendSelf"
+)
+
+// Transaction models a transaction with common transaction info.
+type Transaction interface {
+	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
+	// from the wallet.
+	Fee() *Amount
+
+	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
+	Timestamp() *time.Time
+
+	// ID is the tx ID.
+	ID() string
+
+	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
+	NumConfirmations() int
+
+	// Type returns the type of the transaction.
+	Type() TxType
+
+	// Amount is always >0 and is the amount received or sent (not including the fee).
+	Amount() Amount
+
+	// Addresses money was sent to / received on.
+	Addresses() []string
+}
+
 // ProposedTransaction models a proposed but not yet fully signed transaction of the given coin.
 type ProposedTransaction interface {
 	// Coin() Coin
@@ -35,23 +72,4 @@ type ProposedTransaction interface {
 	// // MakeSignedTransaction makes a signed transaction from the fully signed proposed transaction.
 	// // Please note that this does not work for off-chain transactions.
 	// MakeSignedTransaction() (SignedTransaction, error)
-}
-
-// SignedTransaction models a signed but not yet broadcasted transaction of the given coin.
-type SignedTransaction interface {
-	ProposedTransaction
-	Valid() bool
-	Broadcast() error // TODO: Not desirable here (because also present in types below)?
-}
-
-// PendingTransaction models a broadcasted but not yet confirmed transaction of the given coin.
-type PendingTransaction interface {
-	ProposedTransaction
-	BroadcastTime() time.Time
-}
-
-// ConfirmedTransaction models a confirmed transaction of the given coin.
-type ConfirmedTransaction interface {
-	PendingTransaction
-	ConfirmationTime() time.Time
 }

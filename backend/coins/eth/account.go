@@ -154,7 +154,7 @@ func (account *Account) Close() {
 }
 
 // Transactions implements btc.Interface.
-func (account *Account) Transactions() []*transactions.TxInfo {
+func (account *Account) Transactions() []coin.Transaction {
 	return nil
 }
 

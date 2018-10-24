@@ -56,7 +56,7 @@ type Interface interface {
 	InitialSyncDone() bool
 	Offline() bool
 	Close()
-	Transactions() []*transactions.TxInfo
+	Transactions() []coin.Transaction
 	Balance() *transactions.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
@@ -534,11 +534,16 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (account *Account) Transactions() []*transactions.TxInfo {
-	return account.transactions.Transactions(
+func (account *Account) Transactions() []coin.Transaction {
+	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
+	cast := make([]coin.Transaction, len(transactions))
+	for index, transaction := range transactions {
+		cast[index] = transaction
+	}
+	return cast
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
