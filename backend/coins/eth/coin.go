@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
@@ -19,6 +20,7 @@ type Coin struct {
 	code                  string
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
+	etherScan             *etherscan.EtherScan
 }
 
 // NewCoin creates a new coin with the given parameters.
@@ -41,8 +43,10 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 func (coin *Coin) Init() {
 	coin.initOnce.Do(func() {
 		url := `https://mainnet.infura.io`
+		etherScanURL := "https://api.etherscan.io/api"
 		if coin.code == "teth" {
 			url = `https://rinkeby.infura.io`
+			etherScanURL = "https://api-rinkeby.etherscan.io/api"
 		}
 		client, err := ethclient.Dial(url)
 		if err != nil {
@@ -50,6 +54,8 @@ func (coin *Coin) Init() {
 			panic(err)
 		}
 		coin.client = client
+
+		coin.etherScan = etherscan.NewEtherScan(etherScanURL)
 	})
 }
 
@@ -74,4 +80,9 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 // BlockExplorerTransactionURLPrefix implements coin.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
+}
+
+// EtherScan returns an instance of EtherScan.
+func (coin *Coin) EtherScan() *etherscan.EtherScan {
+	return coin.etherScan
 }

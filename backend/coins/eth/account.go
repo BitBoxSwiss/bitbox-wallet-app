@@ -19,6 +19,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
 
@@ -41,9 +42,10 @@ type Account struct {
 
 	initialSyncDone bool
 
-	address     Address
-	balance     coin.Amount
-	blockNumber *big.Int
+	address      Address
+	balance      coin.Amount
+	blockNumber  *big.Int
+	transactions []coin.Transaction
 
 	log *logrus.Entry
 }
@@ -138,13 +140,11 @@ func (account *Account) Init() error {
 func (account *Account) poll() {
 	timer := time.After(0)
 	for {
-		select {
-		case <-timer:
-			if err := account.update(); err != nil {
-				account.log.WithError(err).Error("error updating account")
-			}
-			timer = time.After(pollInterval)
+		<-timer
+		if err := account.update(); err != nil {
+			account.log.WithError(err).Error("error updating account")
 		}
+		timer = time.After(pollInterval)
 	}
 }
 
@@ -161,6 +161,13 @@ func (account *Account) update() error {
 		return errp.WithStack(err)
 	}
 	account.blockNumber = header.Number
+
+	transactions, err := account.coin.EtherScan().Transactions(
+		account.address.Address, account.blockNumber)
+	if err != nil {
+		return err
+	}
+	account.transactions = transactions
 	return nil
 }
 
@@ -181,7 +188,7 @@ func (account *Account) Close() {
 
 // Transactions implements btc.Interface.
 func (account *Account) Transactions() []coin.Transaction {
-	return nil
+	return account.transactions
 }
 
 // Balance implements btc.Interface.
@@ -228,7 +235,7 @@ func (account *Account) newTx(
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(1e18))
+		parsedAmount, err := amount.Amount(big.NewInt(params.Ether))
 		if err != nil {
 			return nil, err
 		}
