@@ -283,7 +283,7 @@ func (backend *Backend) Coin(code string) coin.Coin {
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig, "https://etherscan.io/address/")
 	case coinTETH:
-		coin = eth.NewCoin(code, params.TestnetChainConfig, "https://ropsten.etherscan.io/address/")
+		coin = eth.NewCoin(code, params.RinkebyChainConfig, "https://rinkeby.etherscan.io/address/")
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
@@ -321,7 +321,7 @@ func (backend *Backend) initAccounts() {
 
 			if backend.arguments.DevMode() {
 				teth := backend.Coin(coinTETH)
-				backend.addAccount(teth, "teth", "Ethereum Testnet", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				backend.addAccount(teth, "teth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	} else {

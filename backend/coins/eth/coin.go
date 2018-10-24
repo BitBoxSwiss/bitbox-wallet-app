@@ -42,7 +42,7 @@ func (coin *Coin) Init() {
 	coin.initOnce.Do(func() {
 		url := `https://mainnet.infura.io`
 		if coin.code == "teth" {
-			url = `https://ropsten.infura.io`
+			url = `https://rinkeby.infura.io`
 		}
 		client, err := ethclient.Dial(url)
 		if err != nil {
