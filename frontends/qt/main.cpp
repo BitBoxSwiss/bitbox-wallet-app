@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     qputenv("QV4_FORCE_INTERPRETER", "1");
     qputenv("DRAW_USE_LLVM", "0");
 #endif
-#if QT_VERSION >= QT_VERSION_CHECK(5,9,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5,11,0)
     qputenv("QMLSCENE_DEVICE", "softwarecontext");
     qputenv("QT_QUICK_BACKEND", "software");
 #endif
