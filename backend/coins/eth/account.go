@@ -3,6 +3,7 @@ package eth
 import (
 	"context"
 	"math/big"
+	"time"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -20,6 +21,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/sirupsen/logrus"
 )
+
+var pollInterval = 10 * time.Second
 
 // Event instances are sent to the onEvent callback of the wallet.
 type Event string
@@ -128,13 +131,36 @@ func (account *Account) Init() error {
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 	}
 	account.coin.Init()
+	go account.poll()
+	return nil
+}
+
+func (account *Account) poll() {
+	timer := time.After(0)
+	for {
+		select {
+		case <-timer:
+			if err := account.update(); err != nil {
+				account.log.WithError(err).Error("error updating account")
+			}
+			timer = time.After(pollInterval)
+		}
+	}
+}
+
+func (account *Account) update() error {
 	defer account.synchronizer.IncRequestsCounter()()
 	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
 	if err != nil {
-		return err
+		return errp.WithStack(err)
 	}
 	account.balance = coin.NewAmount(balance)
-	account.blockNumber = big.NewInt(6000000) // TODO fetch
+
+	header, err := account.coin.client.HeaderByNumber(context.TODO(), nil)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	account.blockNumber = header.Number
 	return nil
 }
 
@@ -229,7 +255,7 @@ func (account *Account) SendTx(
 	amount coin.SendAmount,
 	feeTargetCode btc.FeeTargetCode,
 	_ map[wire.OutPoint]struct{}) error {
-
+	account.log.Info("Signing and sending transaction")
 	txProposal, err := account.newTx(recipientAddress, amount)
 	if err != nil {
 		return err
