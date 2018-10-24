@@ -96,7 +96,6 @@ type Transaction struct {
 	Size             int64           `json:"size"`
 	Weight           int64           `json:"weight"`
 	NumConfirmations int             `json:"numConfirmations"`
-	Height           int             `json:"height"`
 	Type             string          `json:"type"`
 	Amount           formattedAmount `json:"amount"`
 	Fee              formattedAmount `json:"fee"`
@@ -134,7 +133,6 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			VSize:            txInfo.VSize,
 			Size:             txInfo.Size,
 			Weight:           txInfo.Weight,
-			Height:           txInfo.Height,
 			Type: map[transactions.TxType]string{
 				transactions.TxTypeReceive:  "receive",
 				transactions.TxTypeSend:     "send",
