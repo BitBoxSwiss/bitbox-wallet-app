@@ -18,13 +18,16 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
-import { Button, ButtonLink, Input } from '../../../components/forms';
+import { Button, ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
 import Header from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import QRCode from '../../../components/qrcode/qrcode';
+import { CopyableInput } from '../../../components/copy/Copy';
+import ArrowLeft from '../../../assets/icons/arrow-left-gray.svg';
+import ArrowRight from '../../../assets/icons/arrow-right-gray.svg';
 import * as style from './receive.css';
 
 @translate()
@@ -132,40 +135,38 @@ export default class Receive extends Component {
         const content = receiveAddresses ? (
             <div>
                 <QRCode data={uriPrefix + receiveAddresses[activeIndex].address} />
-                <Input
-                    readOnly
-                    className={style.addressField}
-                    onFocus={focus}
-                    value={receiveAddresses[activeIndex].address} />
-                <p class="label">
+                <CopyableInput value={receiveAddresses[activeIndex].address} />
+                <div class={['flex flex-row flex-center flex-items-center', style.labels].join(' ')}>
                     <Button
                         transparent
                         disabled={verifying}
                         onClick={this.previous}>
+                        <img src={ArrowLeft} class={style.arrowLeft} />
                         {t('button.previous')}
                     </Button>
-                    {t('receive.label')}
-                    {' '}
-                    ({activeIndex + 1}/{receiveAddresses.length})
+                    <p class={style.label}>{`${t('receive.label')} (${activeIndex + 1}/${receiveAddresses.length})`}</p>
                     <Button
                         transparent
                         disabled={verifying}
                         onClick={this.next}
                         className={style.button}>
                         {t('button.next')}
+                        <img src={ArrowRight} class={style.arrowRight} />
                     </Button>
-                </p>
-                { code === 'ltc-p2wpkh-p2sh' && (
-                    <div>
-                        <p>{t('receive.ltcLegacy.info')}</p>
-                        <Button
-                            primary
-                            onClick={this.ltcConvertToLegacy}
-                            className={style.button}>
-                            {t('receive.ltcLegacy.button')}
-                        </Button>
-                    </div>
-                ) }
+                </div>
+                {
+                    code === 'ltc-p2wpkh-p2sh' && (
+                        <div>
+                            <p>{t('receive.ltcLegacy.info')}</p>
+                            <Button
+                                primary
+                                onClick={this.ltcConvertToLegacy}
+                                className={style.button}>
+                                {t('receive.ltcLegacy.button')}
+                            </Button>
+                        </div>
+                    )
+                }
             </div>
         ) : (
             t('loading')
@@ -209,8 +210,4 @@ export default class Receive extends Component {
             </div>
         );
     }
-}
-
-function focus(e) {
-    e.target.select();
 }

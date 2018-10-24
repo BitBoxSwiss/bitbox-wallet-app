@@ -3,12 +3,10 @@
 }
 
 .status {
-    /*border-bottom: 1px solid rgba(0, 0, 0, 0.05);*/
     margin: 0 auto;
     max-width: var(--content-width);
     padding: var(--spacing-half) var(--spacing-large);
     font-size: var(--size-medium);
-    /*text-align: center;*/
 }
 
 .success {
@@ -41,5 +39,6 @@
 @media (max-width: 640px) {
     .status {
         padding: var(--spacing-half);
+        font-size: var(--size-button);
     }
 }
