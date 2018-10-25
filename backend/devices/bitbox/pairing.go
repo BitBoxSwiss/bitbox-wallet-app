@@ -63,7 +63,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 		device.fireEvent(EventPairingTimedout, nil)
 		return
 	}
-	bitboxECDHPKhash, err := device.ECDHPKhash(mobileECDHPKhash)
+	bitboxECDHPKhash, err := device.ecdhPKhash(mobileECDHPKhash)
 	if err != nil {
 		device.log.WithError(err).Error("Failed to get the hash of the ECDH public key " +
 			"from the BitBox.")
@@ -82,7 +82,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 		device.fireEvent(EventPairingTimedout, nil)
 		return
 	}
-	bitboxECDHPK, err := device.ECDHPK(mobileECDHPK)
+	bitboxECDHPK, err := device.ecdhPK(mobileECDHPK)
 	if err != nil {
 		device.log.WithError(err).Error("Failed to get the ECDH public key" +
 			"from the BitBox.")
@@ -99,7 +99,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	challenge, err := channel.WaitForCommand(2 * time.Minute)
 	for err == nil && challenge == "challenge" {
 		device.log.Debug("Forwarded challenge cmd to device")
-		errDevice := device.ECDHchallenge()
+		errDevice := device.ecdhChallenge()
 		if errDevice != nil {
 			device.log.WithError(errDevice).Error("Failed to forward challenge request to device.")
 			device.fireEvent(EventPairingError, nil)

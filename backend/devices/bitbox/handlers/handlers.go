@@ -18,11 +18,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -30,7 +27,6 @@ import (
 
 // Bitbox models the API of a Bitbox.
 type Bitbox interface {
-	device.Interface
 	Status() bitbox.Status
 	BootloaderStatus() (*bitbox.BootloaderStatus, error)
 	DeviceInfo() (*bitbox.DeviceInfo, error)
@@ -42,8 +38,6 @@ type Bitbox interface {
 	Blink() error
 	Random(string) (string, error)
 	Reset(string) (bool, error)
-	XPub(path string) (*hdkeychain.ExtendedKey, error)
-	Sign(tx *maketx.TxProposal, hashes [][]byte, keyPaths []string) ([]bitbox.SignatureWithRecID, error)
 	UnlockBootloader() (bool, error)
 	LockBootloader() error
 	EraseBackup(string) error
@@ -51,10 +45,6 @@ type Bitbox interface {
 	CreateBackup(string, string) (bool, error)
 	BackupList() ([]map[string]string, error)
 	BootloaderUpgradeFirmware([]byte) error
-	DisplayAddress(keyPath string, typ string) error
-	ECDHPKhash(string) (interface{}, error)
-	ECDHPK(string) (interface{}, error)
-	ECDHchallenge() error
 	StartPairing() (*relay.Channel, error)
 	Paired() bool
 	Lock() (bool, error)

@@ -66,13 +66,13 @@ func (keystore *keystore) OutputAddress(
 	if !keystore.HasSecureOutput() {
 		panic("HasSecureOutput must be true")
 	}
-	return keystore.dbb.DisplayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(scriptType)))
+	return keystore.dbb.displayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(scriptType)))
 }
 
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *keystore) ExtendedPublicKey(
 	keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
-	return keystore.dbb.XPub(keyPath.Encode())
+	return keystore.dbb.xpub(keyPath.Encode())
 }
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign btc transaction")

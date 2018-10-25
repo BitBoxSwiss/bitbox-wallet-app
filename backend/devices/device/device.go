@@ -15,7 +15,6 @@
 package device
 
 import (
-	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
@@ -37,7 +36,7 @@ const (
 type Interface interface {
 	Init(testing bool)
 	// ProductName returns the product name of the device in lowercase.
-	ProductName() string
+	// ProductName() string
 
 	// Identifier returns the hash of the type and the serial number.
 	Identifier() string
@@ -47,7 +46,7 @@ type Interface interface {
 	// UserChosenName() string
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
-	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
+	// ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
 	// Keystore returns the keystore provided by the device (or an nil if not seeded).
 	KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystore.Keystore

@@ -782,8 +782,8 @@ func (dbb *Device) Reset(pin string) (bool, error) {
 	return true, nil
 }
 
-// XPub returns the extended publickey at the path.
-func (dbb *Device) XPub(path string) (*hdkeychain.ExtendedKey, error) {
+// xpub returns the extended publickey at the path.
+func (dbb *Device) xpub(path string) (*hdkeychain.ExtendedKey, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
@@ -1182,8 +1182,8 @@ func (dbb *Device) Sign(
 	return signatures, nil
 }
 
-// DisplayAddress triggers the display of the address at the given key path.
-func (dbb *Device) DisplayAddress(keyPath string, typ string) error {
+// displayAddress triggers the display of the address at the given key path.
+func (dbb *Device) displayAddress(keyPath string, typ string) error {
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)
 	}
@@ -1208,8 +1208,8 @@ func (dbb *Device) DisplayAddress(keyPath string, typ string) error {
 	return nil
 }
 
-// ECDHPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
-func (dbb *Device) ECDHPKhash(mobileECDHPKhash string) (interface{}, error) {
+// ecdhPKhash passes the hash of the ECDH public key of the mobile to the device and returns its response.
+func (dbb *Device) ecdhPKhash(mobileECDHPKhash string) (interface{}, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
@@ -1225,8 +1225,8 @@ func (dbb *Device) ECDHPKhash(mobileECDHPKhash string) (interface{}, error) {
 	return reply["ecdh"], nil
 }
 
-// ECDHPK passes the ECDH public key of the mobile to the device and returns its response.
-func (dbb *Device) ECDHPK(mobileECDHPK string) (interface{}, error) {
+// ecdhPK passes the ECDH public key of the mobile to the device and returns its response.
+func (dbb *Device) ecdhPK(mobileECDHPK string) (interface{}, error) {
 	if dbb.bootloaderStatus != nil {
 		return nil, errp.WithStack(errNoBootloader)
 	}
@@ -1242,8 +1242,8 @@ func (dbb *Device) ECDHPK(mobileECDHPK string) (interface{}, error) {
 	return reply["ecdh"], nil
 }
 
-// ECDHchallenge forwards a ecdh challenge command to the Bitbox
-func (dbb *Device) ECDHchallenge() error {
+// ecdhChallenge forwards a ecdh challenge command to the Bitbox
+func (dbb *Device) ecdhChallenge() error {
 	if dbb.bootloaderStatus != nil {
 		return errp.WithStack(errNoBootloader)
 	}
@@ -1344,7 +1344,7 @@ func (dbb *Device) Identifier() string {
 
 // ExtendedPublicKey implements device.Interface.
 func (dbb *Device) ExtendedPublicKey(keypath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
-	return dbb.XPub(keypath.Encode())
+	return dbb.xpub(keypath.Encode())
 }
 
 // KeystoreForConfiguration implements device.Interface.
