@@ -281,9 +281,9 @@ func (backend *Backend) Coin(code string) coin.Coin {
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/")
 	case coinETH:
-		coin = eth.NewCoin(code, params.MainnetChainConfig, "https://etherscan.io/address/")
+		coin = eth.NewCoin(code, params.MainnetChainConfig, "https://etherscan.io/tx/")
 	case coinTETH:
-		coin = eth.NewCoin(code, params.RinkebyChainConfig, "https://rinkeby.etherscan.io/address/")
+		coin = eth.NewCoin(code, params.RinkebyChainConfig, "https://rinkeby.etherscan.io/tx/")
 	default:
 		panic(errp.Newf("unknown coin code %s", code))
 	}
