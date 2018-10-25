@@ -46,15 +46,6 @@ func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
 }
 
-// Identifier implements keystore.Keystore.
-func (keystore *keystore) Identifier() (string, error) {
-	deviceInfo, err := keystore.dbb.DeviceInfo()
-	if err != nil {
-		return "", err
-	}
-	return deviceInfo.ID, nil
-}
-
 // HasSecureOutput implements keystore.Keystore.
 func (keystore *keystore) HasSecureOutput() bool {
 	return keystore.dbb.channel != nil
@@ -74,6 +65,7 @@ func (keystore *keystore) ExtendedPublicKey(
 	keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 	return keystore.dbb.xpub(keyPath.Encode())
 }
+
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
 	keystore.log.Info("Sign btc transaction")
 	signatureHashes := [][]byte{}

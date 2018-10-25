@@ -191,7 +191,10 @@ func NewHandlers(
 		return deviceHandlersMap[deviceID]
 	}
 	backend.OnDeviceInit(func(device device.Interface) {
-		getDeviceHandlers(device.Identifier()).Init(device.(*bitbox.Device))
+		switch specificDevice := device.(type) {
+		case *bitbox.Device:
+			getDeviceHandlers(device.Identifier()).Init(specificDevice)
+		}
 	})
 	backend.OnDeviceUninit(func(deviceID string) {
 		getDeviceHandlers(deviceID).Uninit()

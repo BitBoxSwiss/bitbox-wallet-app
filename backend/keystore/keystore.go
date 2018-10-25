@@ -36,9 +36,6 @@ type Keystore interface {
 	// The returned value is always zero for a singlesig configuration.
 	CosignerIndex() int
 
-	// Identifier returns the SHA256 hash of the master extended public key.
-	Identifier() (string, error)
-
 	// HasSecureOutput returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	HasSecureOutput() bool
