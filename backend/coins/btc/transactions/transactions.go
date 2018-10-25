@@ -429,18 +429,6 @@ func (s byHeight) Less(i, j int) bool {
 }
 func (s byHeight) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
-// TxType is a type of transaction. See the TxType* constants.
-type TxType string
-
-const (
-	// TxTypeReceive is a tx which sends funds to our wallet.
-	TxTypeReceive TxType = "receive"
-	// TxTypeSend is a tx which sends funds out of our wallet.
-	TxTypeSend TxType = "send"
-	// TxTypeSendSelf is a tx from out wallet to our wallet.
-	TxTypeSendSelf TxType = "sendSelf"
-)
-
 // TxInfo contains additional tx information to display to the user.
 type TxInfo struct {
 	Tx *wire.MsgTx
@@ -452,28 +440,63 @@ type TxInfo struct {
 	// Weight is the tx weight.
 	Weight int64
 	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
-	Height int
-	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
-	NumConfirmations int
-	Type             TxType
-	// Amount is always >0 and is the amount received or sent (not including the fee).
-	Amount btcutil.Amount
-	// Fee is nil if for a receiving tx (TxTypeReceive). The fee is only displayed (and relevant)
-	// when sending funds from the wallet.
-	Fee *btcutil.Amount
+	Height           int
+	numConfirmations int
+	txType           coin.TxType
+	amount           btcutil.Amount
+	fee              *btcutil.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
-	Timestamp *time.Time
-	// Addresses money was sent to / received on (without change addresses).
-	Addresses []string
+	timestamp *time.Time
+	// addresses money was sent to / received on (without change addresses).
+	addresses []string
+}
+
+// Fee implements coin.Transaction.
+func (txInfo *TxInfo) Fee() *coin.Amount {
+	if txInfo.fee == nil {
+		return nil
+	}
+	fee := coin.NewAmountFromInt64(int64(*txInfo.fee))
+	return &fee
+}
+
+// ID implements coin.Transaction.
+func (txInfo *TxInfo) ID() string {
+	return txInfo.Tx.TxHash().String()
+}
+
+// Timestamp implements coin.Transaction.
+func (txInfo *TxInfo) Timestamp() *time.Time {
+	return txInfo.timestamp
 }
 
 // FeeRatePerKb returns the fee rate of the tx (fee / tx size).
 func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
-	if txInfo.Fee == nil {
+	if txInfo.fee == nil {
 		return nil
 	}
-	feeRatePerKb := *txInfo.Fee * 1000 / btcutil.Amount(txInfo.VSize)
+	feeRatePerKb := *txInfo.fee * 1000 / btcutil.Amount(txInfo.VSize)
 	return &feeRatePerKb
+}
+
+// NumConfirmations implements coin.Transaction.
+func (txInfo *TxInfo) NumConfirmations() int {
+	return txInfo.numConfirmations
+}
+
+// Type implements coin.Transaction.
+func (txInfo *TxInfo) Type() coin.TxType {
+	return txInfo.txType
+}
+
+// Amount implements coin.Transaction.
+func (txInfo *TxInfo) Amount() coin.Amount {
+	return coin.NewAmountFromInt64(int64(txInfo.amount))
+}
+
+// Addresses implements coin.Transaction.
+func (txInfo *TxInfo) Addresses() []string {
+	return txInfo.addresses
 }
 
 func (transactions *Transactions) outputToAddress(pkScript []byte) string {
@@ -537,24 +560,24 @@ func (transactions *Transactions) txInfo(
 		}
 	}
 	var addresses []string
-	var txType TxType
+	var txType coin.TxType
 	var feeP *btcutil.Amount
 	if allInputsOurs {
 		fee := sumOurInputs - sumAllOutputs
 		feeP = &fee
 		addresses = sendAddresses
 		if allOutputsOurs {
-			txType = TxTypeSendSelf
+			txType = coin.TxTypeSendSelf
 			// Money sent from our wallet to our wallet
 			result = sumOurReceive
 		} else {
 			// Money sent from our wallet to external address.
-			txType = TxTypeSend
+			txType = coin.TxTypeSend
 			result = sumAllOutputs - sumOurReceive - sumOurChange
 		}
 	} else {
 		// Money sent from external to our wallet
-		txType = TxTypeReceive
+		txType = coin.TxTypeReceive
 		addresses = receiveAddresses
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}
@@ -568,13 +591,13 @@ func (transactions *Transactions) txInfo(
 		VSize:            mempool.GetTxVirtualSize(btcutilTx),
 		Size:             int64(tx.SerializeSize()),
 		Weight:           btcdBlockchain.GetTransactionWeight(btcutilTx),
-		NumConfirmations: numConfirmations,
+		numConfirmations: numConfirmations,
 		Height:           height,
-		Type:             txType,
-		Amount:           result,
-		Fee:              feeP,
-		Timestamp:        timestamp,
-		Addresses:        addresses,
+		txType:           txType,
+		amount:           result,
+		fee:              feeP,
+		timestamp:        timestamp,
+		addresses:        addresses,
 	}
 }
 

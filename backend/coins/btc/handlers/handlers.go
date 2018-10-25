@@ -92,17 +92,18 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
 	ID               string          `json:"id"`
-	VSize            int64           `json:"vsize"`
-	Size             int64           `json:"size"`
-	Weight           int64           `json:"weight"`
 	NumConfirmations int             `json:"numConfirmations"`
-	Height           int             `json:"height"`
 	Type             string          `json:"type"`
 	Amount           formattedAmount `json:"amount"`
 	Fee              formattedAmount `json:"fee"`
-	FeeRatePerKb     formattedAmount `json:"feeRatePerKb"`
 	Time             *string         `json:"time"`
 	Addresses        []string        `json:"addresses"`
+
+	// BTC specific fields.
+	VSize        int64           `json:"vsize"`
+	Size         int64           `json:"size"`
+	Weight       int64           `json:"weight"`
+	FeeRatePerKb formattedAmount `json:"feeRatePerKb"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -118,34 +119,41 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString, feeRatePerKb formattedAmount
-		if txInfo.Fee != nil {
-			feeString = handlers.formatBTCAmountAsJSON(*txInfo.Fee)
-			feeRatePerKb = handlers.formatBTCAmountAsJSON(*txInfo.FeeRatePerKb())
+		var feeString formattedAmount
+		fee := txInfo.Fee()
+		if fee != nil {
+			feeString = handlers.formatAmountAsJSON(*fee)
 		}
 		var formattedTime *string
-		if txInfo.Timestamp != nil {
-			t := txInfo.Timestamp.Format(time.RFC3339)
+		timestamp := txInfo.Timestamp()
+		if timestamp != nil {
+			t := timestamp.Format(time.RFC3339)
 			formattedTime = &t
 		}
-		result = append(result, Transaction{
-			ID:               txInfo.Tx.TxHash().String(),
-			NumConfirmations: txInfo.NumConfirmations,
-			VSize:            txInfo.VSize,
-			Size:             txInfo.Size,
-			Weight:           txInfo.Weight,
-			Height:           txInfo.Height,
-			Type: map[transactions.TxType]string{
-				transactions.TxTypeReceive:  "receive",
-				transactions.TxTypeSend:     "send",
-				transactions.TxTypeSendSelf: "send_to_self",
-			}[txInfo.Type],
-			Amount:       handlers.formatBTCAmountAsJSON(txInfo.Amount),
-			Fee:          feeString,
-			FeeRatePerKb: feeRatePerKb,
-			Time:         formattedTime,
-			Addresses:    txInfo.Addresses,
-		})
+		txInfoJSON := Transaction{
+			ID:               txInfo.ID(),
+			NumConfirmations: txInfo.NumConfirmations(),
+			Type: map[coin.TxType]string{
+				coin.TxTypeReceive:  "receive",
+				coin.TxTypeSend:     "send",
+				coin.TxTypeSendSelf: "send_to_self",
+			}[txInfo.Type()],
+			Amount:    handlers.formatAmountAsJSON(txInfo.Amount()),
+			Fee:       feeString,
+			Time:      formattedTime,
+			Addresses: txInfo.Addresses(),
+		}
+		switch specificInfo := txInfo.(type) {
+		case *transactions.TxInfo:
+			txInfoJSON.VSize = specificInfo.VSize
+			txInfoJSON.Size = specificInfo.Size
+			txInfoJSON.Weight = specificInfo.Weight
+			feeRatePerKb := specificInfo.FeeRatePerKb()
+			if feeRatePerKb != nil {
+				txInfoJSON.FeeRatePerKb = handlers.formatBTCAmountAsJSON(*feeRatePerKb)
+			}
+		}
+		result = append(result, txInfoJSON)
 	}
 	return result, nil
 }

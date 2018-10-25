@@ -128,7 +128,7 @@ func (account *Account) SendTx(
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) error {
-	account.log.Info("Sending transaction")
+	account.log.Info("Signing and sending transaction")
 	utxo, txProposal, err := account.newTx(
 		recipientAddress,
 		amount,
