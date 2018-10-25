@@ -135,6 +135,9 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	}
 	_ = signatureHashes
 	signatures, err := keystore.dbb.Sign(nil, signatureHashes, []string{txProposal.Keypath.Encode()})
+	if isErrorAbort(err) {
+		return errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
 	if err != nil {
 		return err
 	}
