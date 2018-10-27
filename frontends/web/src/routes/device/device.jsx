@@ -18,7 +18,6 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
-import { debug } from '../../utils/env';
 import { apiWebsocket } from '../../utils/websocket';
 import Waiting from './waiting';
 import Unlock from './unlock';
@@ -56,7 +55,6 @@ export default class Device extends Component {
         deviceRegistered: false,
         deviceStatus: null,
         accountsStatus: null,
-        testing: false,
         goal: null,
         success: null,
     }
@@ -76,10 +74,6 @@ export default class Device extends Component {
                 this.onDeviceStatusChanged();
             }
         });
-
-        if (debug) {
-            apiGet('testing').then(testing => this.setState({ testing }));
-        }
     }
 
     componentWillUnmount() {
@@ -163,10 +157,9 @@ export default class Device extends Component {
         accountsStatus,
         goal,
         success,
-        testing,
     }) {
         if (!deviceIDs.length && !accountsStatus) {
-            return <Waiting testing={testing} />;
+            return <Waiting />;
         }
         if (!deviceRegistered || !deviceStatus) {
             return null;

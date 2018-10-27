@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { apiPost } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
 import { Shift } from '../../components/icon';
@@ -30,8 +30,20 @@ import * as style from './device.css';
 
 @translate()
 export default class Waiting extends Component {
+    state = {
+        testing: false,
+    }
+
+    componentDidMount() {
+        if (debug) {
+            apiGet('testing').then(testing => this.setState({ testing }));
+        }
+    }
+
+
     render({
         t,
+    }, {
         testing,
     }) {
         return (
@@ -42,7 +54,7 @@ export default class Waiting extends Component {
                         <div className="flex-1 flex flex-column flex-center">
                             <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
                             <Tampered style="max-width: 400px; align-self: center;" />
-                            <SkipForTestingButton show={debug && testing} />
+                            <SkipForTestingButton show={testing} />
                         </div>
                         <hr />
                         <Footer>

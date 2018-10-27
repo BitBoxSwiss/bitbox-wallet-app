@@ -155,8 +155,7 @@ export class App extends Component {
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings
-                            path="/settings"
-                            deviceIDs={deviceIDs} />
+                            path="/settings" />
                         {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                         <ManageBackups
                             path="/manage-backups/:deviceID"
