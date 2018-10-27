@@ -16,7 +16,6 @@ package usb
 
 import (
 	"encoding/hex"
-	"fmt"
 	"os"
 	"regexp"
 	"time"
@@ -31,23 +30,26 @@ import (
 )
 
 const (
-	vendorID  = 0x03eb
-	productID = 0x2402
+	bitboxVendorID  = 0x03eb
+	bitboxProductID = 0x2402
 )
+
+func isBitBox(deviceInfo hid.DeviceInfo) bool {
+	return deviceInfo.VendorID == bitboxVendorID && deviceInfo.ProductID == bitboxProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+}
 
 // DeviceInfos returns a slice of all found bitbox devices.
 func DeviceInfos() []hid.DeviceInfo {
 	deviceInfos := []hid.DeviceInfo{}
-	for _, deviceInfo := range hid.Enumerate(vendorID, productID) {
-		if deviceInfo.Interface != 0 && deviceInfo.UsagePage != 0xffff {
-			continue
-		}
+	for _, deviceInfo := range hid.Enumerate(0, 0) {
 		// If Enumerate() is called too quickly after a device is inserted, the HID device input
 		// report is not yet ready.
 		if deviceInfo.Serial == "" || deviceInfo.Product == "" {
 			continue
 		}
-		deviceInfos = append(deviceInfos, deviceInfo)
+		if isBitBox(deviceInfo) {
+			deviceInfos = append(deviceInfos, deviceInfo)
+		}
 	}
 	return deviceInfos
 }
@@ -78,36 +80,33 @@ func NewManager(
 		channelConfigDir: channelConfigDir,
 		onRegister:       onRegister,
 		onUnregister:     onUnregister,
-		log:              logging.Get().WithGroup("manager"),
+
+		log: logging.Get().WithGroup("manager"),
 	}
 }
 
-func deviceIdentifier(productName string, path string) string {
-	return hex.EncodeToString([]byte(fmt.Sprintf("%s%s", productName, path)))
+func deviceIdentifier(deviceInfo hid.DeviceInfo) string {
+	return hex.EncodeToString([]byte(deviceInfo.Path))
 }
 
-func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
-	deviceID := deviceIdentifier(bitbox.ProductName, deviceInfo.Path)
-	// Skip if already registered.
-	if _, ok := manager.devices[deviceID]; ok {
-		return nil
-	}
-	manager.log.WithField("device-id", deviceID).Info("Registering device")
+func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, error) {
+	deviceID := deviceIdentifier(deviceInfo)
+	manager.log.WithField("device-id", deviceID).Info("Registering BitBox")
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
 		manager.log.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
-		return errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
+		return nil, errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
 	}
 	firmwareVersion, err := semver.NewSemVerFromString(match[1])
 	if err != nil {
-		return errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
+		return nil, errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
 			errp.Context{"serial": deviceInfo.Serial})
 	}
 
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
-		return errp.WithMessage(err, "Failed to open device")
+		return nil, errp.WithMessage(err, "Failed to open device")
 	}
 
 	usbWriteReportSize := 64
@@ -128,23 +127,19 @@ func (manager *Manager) register(deviceInfo hid.DeviceInfo) error {
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize),
 	)
 	if err != nil {
-		return errp.WithMessage(err, "Failed to establish communication to device")
+		return nil, errp.WithMessage(err, "Failed to establish communication to device")
 	}
-	if err := manager.onRegister(device); err != nil {
-		return errp.WithMessage(err, "Failed to execute on-register")
-	}
-	manager.devices[deviceID] = device
 
 	// Unlock the device automatically if the user set the PIN as an environment variable.
 	pin := os.Getenv("BITBOX_PIN")
 	if pin != "" {
 		if _, _, err := device.Login(pin); err != nil {
-			return errp.WithMessage(err, "Failed to unlock the BitBox with the provided PIN.")
+			return nil, errp.WithMessage(err, "Failed to unlock the BitBox with the provided PIN.")
 		}
 		manager.log.Info("Successfully unlocked the device with the PIN from the environment.")
 	}
 
-	return nil
+	return device, nil
 }
 
 // checkIfRemoved returns true if a device was plugged in, but is not plugged in anymore.
@@ -154,7 +149,7 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	// multiple times.
 	for i := 0; i < 5; i++ {
 		for _, deviceInfo := range DeviceInfos() {
-			if deviceIdentifier(bitbox.ProductName, deviceInfo.Path) == deviceID {
+			if deviceIdentifier(deviceInfo) == deviceID {
 				return false
 			}
 		}
@@ -163,8 +158,7 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	return true
 }
 
-// ListenHID listens for inserted/removed devices forever. Run this in a goroutine.
-func (manager *Manager) ListenHID() {
+func (manager *Manager) listen() {
 	for {
 		for deviceID, device := range manager.devices {
 			// Check if device was removed.
@@ -179,10 +173,32 @@ func (manager *Manager) ListenHID() {
 		// Check if device was inserted.
 		deviceInfos := DeviceInfos()
 		for _, deviceInfo := range deviceInfos {
-			if err := manager.register(deviceInfo); err != nil {
-				manager.log.WithError(err).Error("Failed to register device")
+			deviceID := deviceIdentifier(deviceInfo)
+			// Skip if already registered.
+			if _, ok := manager.devices[deviceID]; ok {
+				continue
+			}
+			var device device.Interface
+			if isBitBox(deviceInfo) {
+				var err error
+				device, err = manager.makeBitBox(deviceInfo)
+				if err != nil {
+					manager.log.WithError(err).Error("Failed to register bitbox")
+					continue
+				}
+			} else {
+				panic("unrecognized device")
+			}
+			manager.devices[deviceID] = device
+			if err := manager.onRegister(device); err != nil {
+				manager.log.WithError(err).Error("Failed to execute on-register")
 			}
 		}
 		time.Sleep(time.Second)
 	}
+}
+
+// Start listens for inserted/removed devices forever. Run this in a goroutine.
+func (manager *Manager) Start() {
+	go manager.listen()
 }

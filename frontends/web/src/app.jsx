@@ -19,13 +19,12 @@
 import { i18nEditorActive } from './i18n/i18n';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Component, h } from 'preact';
-import { route } from 'preact-router';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { Update } from './components/update/update';
 import Sidebar from './components/sidebar/sidebar';
 import Container from './components/container/Container';
-import Device from './routes/device/device';
+import { DeviceSwitch } from './routes/device/deviceswitch';
 import Account from './routes/account/account';
 import Send from './routes/account/send/send';
 import Receive from './routes/account/receive/receive';
@@ -38,9 +37,10 @@ import { Confirm } from './components/confirm/Confirm';
 
 export class App extends Component {
     state = {
-        accounts: [],
+        accounts: null,
         accountsInitialized: false,
         deviceIDs: [],
+        devices: {},
         activeSidebar: false,
     }
 
@@ -95,22 +95,16 @@ export class App extends Component {
     }
 
     onDevicesRegisteredChanged = () => {
-        apiGet('devices/registered').then(deviceIDs => {
-            this.setState({ deviceIDs });
+        apiGet('devices/registered').then(devices => {
+            const deviceIDs = Object.keys(devices);
+            this.setState({ devices, deviceIDs });
         });
     }
 
     onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
             const accountsInitialized = status === 'initialized';
-            this.setState({
-                accountsInitialized
-            });
-            if (!accountsInitialized) {
-                console.log('app.jsx route /'); // eslint-disable-line no-console
-                route('/', true);
-            }
-
+            this.setState({ accountsInitialized });
             apiGet('accounts').then(accounts => this.setState({ accounts }));
         });
     }
@@ -121,6 +115,7 @@ export class App extends Component {
 
     render({}, {
         accounts,
+        devices,
         deviceIDs,
         accountsInitialized,
         activeSidebar,
@@ -143,8 +138,7 @@ export class App extends Component {
                             accounts={accounts} />
                         <Receive
                             path="/account/:code/receive"
-                            deviceIDs={deviceIDs}
-                            accounts={accounts} />
+                            deviceIDs={deviceIDs} />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts} />
@@ -162,13 +156,15 @@ export class App extends Component {
                             // showCreate={true} // Does not exist!
                             // deviceIDs={deviceIDs} // Does not exist!
                         />
-                        <Device
+                        <DeviceSwitch
                             path="/device/:deviceID"
-                            deviceIDs={deviceIDs} />
-                        <Device
+                            key={devices}
+                            devices={devices} />
+                        <DeviceSwitch
                             default
-                            deviceID={deviceIDs[0]}
-                            deviceIDs={deviceIDs} />
+                            key={devices}
+                            deviceID={null}
+                            devices={devices} />
                     </Container>
                 </div>
                 <Alert />

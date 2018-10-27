@@ -15,11 +15,9 @@
  */
 
 import { Component, h } from 'preact';
-import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
-import Waiting from './waiting';
 import Unlock from './unlock';
 import Bootloader from './upgrade/bootloader';
 import RequireUpgrade from './upgrade/require_upgrade';
@@ -54,7 +52,6 @@ export default class Device extends Component {
         firmwareVersion: null,
         deviceRegistered: false,
         deviceStatus: null,
-        accountsStatus: null,
         goal: null,
         success: null,
     }
@@ -62,11 +59,7 @@ export default class Device extends Component {
     componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onDeviceStatusChanged();
-        this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
-            if (type === 'backend' && data === 'accountsStatusChanged') {
-                this.onAccountsStatusChanged();
-            }
             if (type === 'devices' && data === 'registeredChanged') {
                 this.onDevicesRegisteredChanged();
             }
@@ -88,26 +81,11 @@ export default class Device extends Component {
         }
     }
 
-    onAccountsStatusChanged = () => {
-        apiGet('accounts-status').then(status => {
-            if (status === 'initialized' && this.props.default) {
-                console.log('device.jsx route to /account'); // eslint-disable-line no-console
-                route('/account', true);
-            }
-            this.setState({
-                accountsStatus: status === 'initialized'
-            });
-        });
-    }
-
     onDevicesRegisteredChanged = () => {
-        apiGet('devices/registered').then(deviceIDs => {
+        apiGet('devices/registered').then(devices => {
+            const deviceIDs = Object.keys(devices);
             const deviceRegistered = deviceIDs.includes(this.getDeviceID());
 
-            if (this.props.default && deviceIDs.length === 1) {
-                console.log('device.jsx route to', '/device/' + deviceIDs[0]); // eslint-disable-line no-console
-                route('/device/' + deviceIDs[0], true);
-            }
             this.setState({
                 deviceRegistered,
                 deviceStatus: null
@@ -128,7 +106,7 @@ export default class Device extends Component {
     }
 
     getDeviceID() {
-        return this.props.deviceID || this.props.deviceIDs[0] || null;
+        return this.props.deviceID || null;
     }
 
     handleCreate = () => {
@@ -150,17 +128,12 @@ export default class Device extends Component {
     render({
         t,
         deviceID,
-        deviceIDs,
     }, {
         deviceRegistered,
         deviceStatus,
-        accountsStatus,
         goal,
         success,
     }) {
-        if (!deviceIDs.length && !accountsStatus) {
-            return <Waiting />;
-        }
         if (!deviceRegistered || !deviceStatus) {
             return null;
         }

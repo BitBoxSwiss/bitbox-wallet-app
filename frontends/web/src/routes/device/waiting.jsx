@@ -40,7 +40,6 @@ export default class Waiting extends Component {
         }
     }
 
-
     render({
         t,
     }, {

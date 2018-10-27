@@ -58,7 +58,7 @@ type Backend interface {
 	OnAccountUninit(f func(btc.Interface))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
-	DevicesRegistered() []string
+	DevicesRegistered() map[string]device.Interface
 	Start() <-chan interface{}
 	Keystores() keystore.Keystores
 	RegisterKeystore(keystore.Keystore)
@@ -286,7 +286,11 @@ func (handlers *Handlers) getAccountsStatusHandler(_ *http.Request) (interface{}
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.DevicesRegistered(), nil
+	jsonDevices := map[string]string{}
+	for deviceID, device := range handlers.backend.DevicesRegistered() {
+		jsonDevices[deviceID] = device.ProductName()
+	}
+	return jsonDevices, nil
 }
 
 func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {

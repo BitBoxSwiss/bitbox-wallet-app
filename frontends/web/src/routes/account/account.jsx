@@ -71,6 +71,10 @@ export default class Account extends Component {
     }
 
     componentDidUpdate(prevProps) {
+        if (this.props.code && (!this.props.accounts || this.props.accounts.length === 0)) {
+            console.log('account.jsx route /'); // eslint-disable-line no-console
+            route('/', true);
+        }
         if (!this.props.code) {
             if (this.props.accounts && this.props.accounts.length) {
                 console.log('route', `/account/${this.props.accounts[0].code}`); // eslint-disable-line no-console

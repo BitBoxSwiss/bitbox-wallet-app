@@ -405,7 +405,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
 func (backend *Backend) Start() <-chan interface{} {
-	go backend.listenHID()
+	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).Start()
 	return backend.events
 }
 
@@ -414,13 +414,9 @@ func (backend *Backend) Events() <-chan interface{} {
 	return backend.events
 }
 
-// DevicesRegistered returns a slice of device IDs of registered devices.
-func (backend *Backend) DevicesRegistered() []string {
-	deviceIDs := []string{}
-	for deviceID := range backend.devices {
-		deviceIDs = append(deviceIDs, deviceID)
-	}
-	return deviceIDs
+// DevicesRegistered returns a map of device IDs to device of registered devices.
+func (backend *Backend) DevicesRegistered() map[string]device.Interface {
+	return backend.devices
 }
 
 func (backend *Backend) uninitAccounts() {
@@ -514,10 +510,6 @@ func (backend *Backend) Deregister(deviceID string) {
 		backend.DeregisterKeystore()
 		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
 	}
-}
-
-func (backend *Backend) listenHID() {
-	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).ListenHID()
 }
 
 // Rates return the latest rates.

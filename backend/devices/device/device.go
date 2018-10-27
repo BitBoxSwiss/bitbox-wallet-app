@@ -36,7 +36,7 @@ const (
 type Interface interface {
 	Init(testing bool)
 	// ProductName returns the product name of the device in lowercase.
-	// ProductName() string
+	ProductName() string
 
 	// Identifier returns the hash of the type and the serial number.
 	Identifier() string
