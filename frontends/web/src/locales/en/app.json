@@ -4,8 +4,8 @@
     "incoming": "Incoming",
     "info": {
       "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
-      "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32-style addresses, which are not yet widely supported. Use this only if you want to try bleeding edge technology.",
-      "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the Bitcoin Legacy account, which you can enable in the settings. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses Bech32-style addresses.",
+      "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32 address format, which is not yet widely supported. Use this only if you want to try bleeding edge technology.",
+      "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the Bitcoin Legacy account, which you can enable in the settings. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses the Bech32 address format.",
       "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
       "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
@@ -66,7 +66,6 @@
     },
     "title": "Manage Backups"
   },
-  "checkSDcard": "checking micro SD card",
   "bitbox": {
     "error": {
       "e10000": "Current device password incorrect.",
@@ -104,6 +103,7 @@
     "newTitle": "New device password",
     "oldLabel": "Current device password"
   },
+  "checkSDcard": "checking micro SD card",
   "confirm": {
     "abortInfo": "Tap to ",
     "abortInfoRedText": "abort",
@@ -113,7 +113,7 @@
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
   },
   "device": {
-    "appUpradeRequired": "Your BitBox is not compatible with this desktop app. Please download and install the latest version."
+    "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version."
   },
   "deviceLock": {
     "button": "Enable Two Factor Authorization (2FA)",
@@ -216,7 +216,7 @@
       "title": "What is displayed here?"
     },
     "accountFiat": {
-      "text": "Yes, you can click on any ticker to rotate through several fiat currencies. Moreover, you can change the list of currencies in the settings.",
+      "text": "Yes, you can click on any ticker to rotate through several fiat currencies. You can also change the list of currencies in the settings.",
       "title": "Can I display other conversion rates?"
     },
     "accountIncomingBalance": {
@@ -250,8 +250,8 @@
       "title": "Why can't I send any {{unit}}?"
     },
     "accountTransactionAttributes": {
-      "text": "Confirmations: Number of blocks that have been added to the block that contains the transaction. We recommend to wait for at least three confirmations before you consider a payment as settled.\nTransaction ID: Used to look up a transaction in an external block explorer.\nVirtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.\nFee: Amount the miner received that included the transaction in a block. To learn more, click on the send button.",
-      "title": "What is the info shown in the transaction details?"
+      "text": "Confirmations: When your transaction is first broadcast it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nVirtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
+      "title": "What is the information shown in the transaction details?"
     },
     "accountTransactionConfirmation": {
       "text": "This is a transaction that has been broadcasted to the network and is waiting to be confirmed.",
@@ -272,7 +272,7 @@
     },
     "backups": {
       "check": {
-        "text": "Check backup allows you to verify that you indeed have a working backup corresponding to your current wallet. It can also be used to verify that you still have the correct recovery password.",
+        "text": "'Check Backup' allows you to verify that you have a working backup corresponding to your current wallet. It can also be used to verify that you still have the correct recovery password.",
         "title": "What is 'Check Backup'?"
       },
       "encrypt": {
@@ -280,7 +280,7 @@
         "title": "Can I encrypt the backup?"
       },
       "howOften": {
-        "text": "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your micro SD card is lost or damaged, or if you want to use multiple micro SD cards as backups.\nYou do not need to create new backups after any transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you.",
+        "text": "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your micro SD card is lost or damaged, or if you want to use multiple micro SD cards as backups.\nYou do not need to create new backups after transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you.",
         "title": "How often do I have to make a backup?"
       },
       "whatIsABackup": {
@@ -290,7 +290,7 @@
     },
     "bitbox": {
       "2FA": {
-        "text": "When 2FA is enabled, all transactions have to be approved on the paired mobile phone in order to spend coins. Under the hood, an encrypted single-use number is sent to the mobile app, decrypted there, and returned to the BitBox when pressing the Accept button. This communication with the device is done via the channel between the mobile phone and this desktop app established during pairing.\nBe sure to backup your wallet and pair the mobile app before enabling 2FA. Once enabled, the micro SD slot, necessary for backups, and mobile app pairing is disabled. These are re-enabled only after resetting, and thus erasing the BitBox.",
+        "text": "When 2FA is enabled, all transactions have to be approved on the paired mobile phone in order to spend coins. Under the hood, an encrypted single-use number is sent to the mobile app, decrypted there, and returned to the BitBox when pressing the Accept button. This communication with the device is done via the channel between the mobile phone and this desktop app established during pairing.\n\nBe sure to backup your wallet and pair the mobile app before enabling 2FA. Once enabled, the micro SD slot and mobile app pairing are disabled. They can be re-enabled by resetting the BitBox, which erases the device.",
         "title": "How does Two Factor Authorization (2FA) work?"
       },
       "disable2FA": {
@@ -320,11 +320,11 @@
         "title": "What do I do with an address?"
       },
       "addressChange": {
-        "text": "As soon as one of the addresses is used in a transaction, new addresses are added to the list such that 20 unused addresses are available again.",
+        "text": "As soon as an address is used in a transaction a new address is added to the list to replace it. There will always be 20 unused addresses available in the list.",
         "title": "When do the addresses change?"
       },
       "howVerify": {
-        "text": "Click on the BitBox icon in the sidebar on the left and see the Pairing section. Continue reading the guide over there.",
+        "text": "Click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.",
         "title": "How can I verify an address securely?"
       },
       "whyMany": {
@@ -370,7 +370,7 @@
           "text": "Segregated Witness Benefits",
           "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
         },
-        "text": "This is a backwards-compatible segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
+        "text": "This is a backwards compatible segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
         "title": "What is the Bitcoin account?"
       },
       "btc-p2wpkh": {
@@ -435,7 +435,7 @@
         "title": "Can I use the app without a device?"
       },
       "welcome": {
-        "text": "Thanks for using this app built by Shift Cryptosecurity in Switzerland. It is still in beta and we appreciate your inputs. Please give feedback using the link at the bottom.",
+        "text": "Thanks for using this app built by Shift Cryptosecurity in Switzerland. It is still in beta and we appreciate any input you have to share. Please give feedback using the link at the bottom.",
         "title": "Welcome to the BitBox app!"
       }
     }
@@ -488,7 +488,7 @@
       "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'"
     },
     "error": {
-      "text": "Something went wrong. Please start anew.",
+      "text": "Something went wrong. Please start again.",
       "title": "Error"
     },
     "reconnectOnly": {
@@ -506,7 +506,7 @@
       "title": "Success"
     },
     "timeout": {
-      "text": "The pairing timed out after two minutes. Start anew if you still want to pair the mobile app.",
+      "text": "The pairing timed out after two minutes. Start again if you still want to pair the mobile app.",
       "title": "Timeout"
     }
   },
@@ -588,16 +588,16 @@
     }
   },
   "seedRestore": {
+    "error": {
+      "e200": "Restoring a wallet from a backup requires the micro SD card."
+    },
     "info": {
-      "title": "Restore a wallet",
+      "button": "Continue",
       "description1": "Insert the micro SD card in to the BitBox and click “Continue”",
       "description2": "Choose a backup on the and click “Restore”",
       "description3": "Enter the recovery password",
       "description4": "You need to confirm to understand that an incorrect password will create a different wallet.",
-      "button": "Continue"
-    },
-    "error": {
-      "e200": "Restoring a wallet from a backup requires the micro SD card."
+      "title": "How to restore a wallet from a backup"
     }
   },
   "send": {
