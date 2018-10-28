@@ -19,7 +19,7 @@
 import { i18nEditorActive } from './i18n/i18n';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Component, h } from 'preact';
-import { route } from 'preact-router';
+import { getCurrentUrl, route } from 'preact-router';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 import { Update } from './components/update/update';
@@ -105,7 +105,7 @@ export class App extends Component {
     onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
             const accountsInitialized = status === 'initialized';
-            if (!accountsInitialized) {
+            if (!accountsInitialized && getCurrentUrl().match(/^\/account\//)) {
                 console.log('app.jsx route /'); // eslint-disable-line no-console
                 route('/', true);
             }
