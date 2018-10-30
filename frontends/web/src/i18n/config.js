@@ -28,10 +28,6 @@ export default {
             cb(frontend.userLanguage);
         });
     },
-    init: (a) => {
-        // console.log('languageDetector init', a)
-    },
-    cacheUserLanguage: (a) => {
-        // console.log('cacheUserLanguage', a);
-    }
+    init: () => {},
+    cacheUserLanguage: () => {}
 };

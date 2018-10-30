@@ -18,6 +18,7 @@
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
         "noUnusedLocals": true,
+        "noUnusedParameters": true,
     },
     "include": [
         "./src/**/*.tsx",

@@ -46,7 +46,7 @@ export default class Settings extends Component {
             .then(config => this.setState({ config, accountSuccess: true }));
     }
 
-    handleDismissMessage = event => {
+    handleDismissMessage = () => {
         this.setState({ accountSuccess: false });
     }
 

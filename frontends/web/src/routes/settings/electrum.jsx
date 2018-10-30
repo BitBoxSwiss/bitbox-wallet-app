@@ -95,10 +95,8 @@ class ElectrumServer extends Component {
 
     render({
         t,
-        server,
         onAdd,
         onRemove,
-        index,
     }, {
         valid,
         electrumServer,

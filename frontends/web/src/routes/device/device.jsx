@@ -75,7 +75,7 @@ export default class Device extends Component {
         }
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         if (this.props.deviceID !== prevProps.deviceID) {
             this.onDevicesRegisteredChanged();
         }

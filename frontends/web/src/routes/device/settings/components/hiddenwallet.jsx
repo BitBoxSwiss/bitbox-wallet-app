@@ -100,7 +100,6 @@ export default class HiddenWallet extends Component {
         t,
         disabled,
     }, {
-        password,
         isConfirming,
         activeDialog,
     }) {

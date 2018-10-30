@@ -30,7 +30,7 @@ export default class Transaction extends Component {
         collapsed: true,
     }
 
-    onUncollapse = e => {
+    onUncollapse = () => {
         this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
     }
 

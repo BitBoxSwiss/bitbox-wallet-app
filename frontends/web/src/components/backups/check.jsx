@@ -90,7 +90,6 @@ export default class Check extends Component {
         t,
         selectedBackup,
     }, {
-        password,
         activeDialog,
         message,
     }) {

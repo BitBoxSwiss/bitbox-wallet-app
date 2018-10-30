@@ -28,7 +28,7 @@ export function apiWebsocket(msgCallback) {
     if (!socket) {
         socket = new WebSocket((isTLS() ? 'wss://' : 'ws://') + 'localhost:' + apiPort + '/api/events');
 
-        socket.onopen = function(event) {
+        socket.onopen = function() {
             socket.send('Authorization: Basic ' + apiToken);
         };
 
@@ -42,7 +42,7 @@ export function apiWebsocket(msgCallback) {
             currentListeners.forEach(listener => listener(payload));
         };
 
-        socket.onclose = function(event) {
+        socket.onclose = function() {
             currentListeners.forEach(listener => listener({ subject: 'backend/connected', action: 'replace', object: false }));
         };
     }

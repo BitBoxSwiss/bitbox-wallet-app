@@ -123,7 +123,6 @@ export default class Restore extends Component {
         selectedBackup,
         requireConfirmation,
     }, {
-        password,
         isConfirming,
         activeDialog,
         isLoading,

@@ -139,7 +139,6 @@ export default class SeedCreateNew extends Component {
 
     render({
         t,
-        deviceID,
         goBack,
     }, {
         showInfo,

@@ -18,10 +18,9 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Radio } from '../forms';
 
-@translate()
+@translate() // Leaving this here to ensure that the component re-renders when the language changes.
 export default class BackupsListItem extends Component {
     render({
-        t,
         backup,
         selectedBackup,
         handleChange,

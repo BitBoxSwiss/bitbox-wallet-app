@@ -41,7 +41,7 @@ export default class UpgradeFirmware extends Component {
                 unlocked: success,
                 isConfirming: success,
             });
-        }).catch(e => {
+        }).catch(() => {
             this.setState({
                 isConfirming: false,
             });

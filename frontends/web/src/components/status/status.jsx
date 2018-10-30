@@ -29,7 +29,7 @@ export default class Status extends Component {
         this.checkConfig();
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         if (this.props.keyName !== prevProps.keyName) {
             this.checkConfig();
         }
@@ -45,7 +45,7 @@ export default class Status extends Component {
         }
     }
 
-    dismiss = e => {
+    dismiss = () => {
         apiGet('config').then(config => {
             const newConf = {
                 ...config,

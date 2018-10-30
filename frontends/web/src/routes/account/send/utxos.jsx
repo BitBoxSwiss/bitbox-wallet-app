@@ -71,7 +71,6 @@ export default class UTXOs extends Component {
         t,
         active,
     }, {
-        show,
         utxos,
         selectedUTXOs,
     }) {
