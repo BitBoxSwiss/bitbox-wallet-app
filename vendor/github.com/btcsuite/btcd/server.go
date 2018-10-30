@@ -1,5 +1,5 @@
 // Copyright (c) 2013-2017 The btcsuite developers
-// Copyright (c) 2015-2017 The Decred developers
+// Copyright (c) 2015-2018 The Decred developers
 // Use of this source code is governed by an ISC
 // license that can be found in the LICENSE file.
 
@@ -94,7 +94,7 @@ func (oa *onionAddr) Network() string {
 // Ensure onionAddr implements the net.Addr interface.
 var _ net.Addr = (*onionAddr)(nil)
 
-// onionAddr implements the net.Addr interface with two struct fields
+// simpleAddr implements the net.Addr interface with two struct fields
 type simpleAddr struct {
 	net, addr string
 }
@@ -385,10 +385,99 @@ func (sp *serverPeer) addBanScore(persistent, transient uint32, reason string) {
 	}
 }
 
+// hasServices returns whether or not the provided advertised service flags have
+// all of the provided desired service flags set.
+func hasServices(advertised, desired wire.ServiceFlag) bool {
+	return advertised&desired == desired
+}
+
 // OnVersion is invoked when a peer receives a version bitcoin message
 // and is used to negotiate the protocol version details as well as kick start
 // the communications.
-func (sp *serverPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) {
+func (sp *serverPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) *wire.MsgReject {
+	// Update the address manager with the advertised services for outbound
+	// connections in case they have changed.  This is not done for inbound
+	// connections to help prevent malicious behavior and is skipped when
+	// running on the simulation test network since it is only intended to
+	// connect to specified peers and actively avoids advertising and
+	// connecting to discovered peers.
+	//
+	// NOTE: This is done before rejecting peers that are too old to ensure
+	// it is updated regardless in the case a new minimum protocol version is
+	// enforced and the remote node has not upgraded yet.
+	isInbound := sp.Inbound()
+	remoteAddr := sp.NA()
+	addrManager := sp.server.addrManager
+	if !cfg.SimNet && !isInbound {
+		addrManager.SetServices(remoteAddr, msg.Services)
+	}
+
+	// Ignore peers that have a protcol version that is too old.  The peer
+	// negotiation logic will disconnect it after this callback returns.
+	if msg.ProtocolVersion < int32(peer.MinAcceptableProtocolVersion) {
+		return nil
+	}
+
+	// Reject outbound peers that are not full nodes.
+	wantServices := wire.SFNodeNetwork
+	if !isInbound && !hasServices(msg.Services, wantServices) {
+		missingServices := wantServices & ^msg.Services
+		srvrLog.Debugf("Rejecting peer %s with services %v due to not "+
+			"providing desired services %v", sp.Peer, msg.Services,
+			missingServices)
+		reason := fmt.Sprintf("required services %#x not offered",
+			uint64(missingServices))
+		return wire.NewMsgReject(msg.Command(), wire.RejectNonstandard, reason)
+	}
+
+	// Update the address manager and request known addresses from the
+	// remote peer for outbound connections.  This is skipped when running
+	// on the simulation test network since it is only intended to connect
+	// to specified peers and actively avoids advertising and connecting to
+	// discovered peers.
+	if !cfg.SimNet && !isInbound {
+		// After soft-fork activation, only make outbound
+		// connection to peers if they flag that they're segwit
+		// enabled.
+		chain := sp.server.chain
+		segwitActive, err := chain.IsDeploymentActive(chaincfg.DeploymentSegwit)
+		if err != nil {
+			peerLog.Errorf("Unable to query for segwit soft-fork state: %v",
+				err)
+			return nil
+		}
+
+		if segwitActive && !sp.IsWitnessEnabled() {
+			peerLog.Infof("Disconnecting non-segwit peer %v, isn't segwit "+
+				"enabled and we need more segwit enabled peers", sp)
+			sp.Disconnect()
+			return nil
+		}
+
+		// Advertise the local address when the server accepts incoming
+		// connections and it believes itself to be close to the best known tip.
+		if !cfg.DisableListen && sp.server.syncManager.IsCurrent() {
+			// Get address that best matches.
+			lna := addrManager.GetBestLocalAddress(remoteAddr)
+			if addrmgr.IsRoutable(lna) {
+				// Filter addresses the peer already knows about.
+				addresses := []*wire.NetAddress{lna}
+				sp.pushAddrMsg(addresses)
+			}
+		}
+
+		// Request known addresses if the server address manager needs
+		// more and the peer has a protocol version new enough to
+		// include a timestamp with addresses.
+		hasTimestamp := sp.ProtocolVersion() >= wire.NetAddressTimeVersion
+		if addrManager.NeedMoreAddresses() && hasTimestamp {
+			sp.QueueMessage(wire.NewMsgGetAddr(), nil)
+		}
+
+		// Mark the address as a known good address.
+		addrManager.Good(remoteAddr)
+	}
+
 	// Add the remote peer time as a sample for creating an offset against
 	// the local clock to keep the network time in sync.
 	sp.server.timeSource.AddTimeSample(sp.Addr(), msg.Timestamp)
@@ -400,63 +489,9 @@ func (sp *serverPeer) OnVersion(_ *peer.Peer, msg *wire.MsgVersion) {
 	// is received.
 	sp.setDisableRelayTx(msg.DisableRelayTx)
 
-	// Update the address manager and request known addresses from the
-	// remote peer for outbound connections.  This is skipped when running
-	// on the simulation test network since it is only intended to connect
-	// to specified peers and actively avoids advertising and connecting to
-	// discovered peers.
-	if !cfg.SimNet {
-		addrManager := sp.server.addrManager
-
-		// Outbound connections.
-		if !sp.Inbound() {
-			// After soft-fork activation, only make outbound
-			// connection to peers if they flag that they're segwit
-			// enabled.
-			chain := sp.server.chain
-			segwitActive, err := chain.IsDeploymentActive(chaincfg.DeploymentSegwit)
-			if err != nil {
-				peerLog.Errorf("Unable to query for segwit "+
-					"soft-fork state: %v", err)
-				return
-			}
-
-			if segwitActive && !sp.IsWitnessEnabled() {
-				peerLog.Infof("Disconnecting non-segwit "+
-					"peer %v, isn't segwit enabled and "+
-					"we need more segwit enabled peers", sp)
-				sp.Disconnect()
-				return
-			}
-
-			// TODO(davec): Only do this if not doing the initial block
-			// download and the local address is routable.
-			if !cfg.DisableListen /* && isCurrent? */ {
-				// Get address that best matches.
-				lna := addrManager.GetBestLocalAddress(sp.NA())
-				if addrmgr.IsRoutable(lna) {
-					// Filter addresses the peer already knows about.
-					addresses := []*wire.NetAddress{lna}
-					sp.pushAddrMsg(addresses)
-				}
-			}
-
-			// Request known addresses if the server address manager needs
-			// more and the peer has a protocol version new enough to
-			// include a timestamp with addresses.
-			hasTimestamp := sp.ProtocolVersion() >=
-				wire.NetAddressTimeVersion
-			if addrManager.NeedMoreAddresses() && hasTimestamp {
-				sp.QueueMessage(wire.NewMsgGetAddr(), nil)
-			}
-
-			// Mark the address as a known good address.
-			addrManager.Good(sp.NA())
-		}
-	}
-
 	// Add valid peer to the server.
 	sp.server.AddPeer(sp)
+	return nil
 }
 
 // OnMemPool is invoked when a peer receives a mempool bitcoin message.
@@ -742,10 +777,6 @@ func (sp *serverPeer) OnGetHeaders(_ *peer.Peer, msg *wire.MsgGetHeaders) {
 	// This mirrors the behavior in the reference implementation.
 	chain := sp.server.chain
 	headers := chain.LocateHeaders(msg.BlockLocatorHashes, &msg.HashStop)
-	if len(headers) == 0 {
-		// Nothing to send.
-		return
-	}
 
 	// Send found headers to the requesting peer.
 	blockHeaders := make([]*wire.BlockHeader, len(headers))
@@ -762,8 +793,21 @@ func (sp *serverPeer) OnGetCFilters(_ *peer.Peer, msg *wire.MsgGetCFilters) {
 		return
 	}
 
-	hashes, err := sp.server.chain.HeightToHashRange(int32(msg.StartHeight),
-		&msg.StopHash, wire.MaxGetCFiltersReqRange)
+	// We'll also ensure that the remote party is requesting a set of
+	// filters that we actually currently maintain.
+	switch msg.FilterType {
+	case wire.GCSFilterRegular:
+		break
+
+	default:
+		peerLog.Debug("Filter request for unknown filter: %v",
+			msg.FilterType)
+		return
+	}
+
+	hashes, err := sp.server.chain.HeightToHashRange(
+		int32(msg.StartHeight), &msg.StopHash, wire.MaxGetCFiltersReqRange,
+	)
 	if err != nil {
 		peerLog.Debugf("Invalid getcfilters request: %v", err)
 		return
@@ -776,8 +820,9 @@ func (sp *serverPeer) OnGetCFilters(_ *peer.Peer, msg *wire.MsgGetCFilters) {
 		hashPtrs[i] = &hashes[i]
 	}
 
-	filters, err := sp.server.cfIndex.FiltersByBlockHashes(hashPtrs,
-		msg.FilterType)
+	filters, err := sp.server.cfIndex.FiltersByBlockHashes(
+		hashPtrs, msg.FilterType,
+	)
 	if err != nil {
 		peerLog.Errorf("Error retrieving cfilters: %v", err)
 		return
@@ -785,10 +830,14 @@ func (sp *serverPeer) OnGetCFilters(_ *peer.Peer, msg *wire.MsgGetCFilters) {
 
 	for i, filterBytes := range filters {
 		if len(filterBytes) == 0 {
-			peerLog.Warnf("Could not obtain cfilter for %v", hashes[i])
+			peerLog.Warnf("Could not obtain cfilter for %v",
+				hashes[i])
 			return
 		}
-		filterMsg := wire.NewMsgCFilter(msg.FilterType, &hashes[i], filterBytes)
+
+		filterMsg := wire.NewMsgCFilter(
+			msg.FilterType, &hashes[i], filterBytes,
+		)
 		sp.QueueMessage(filterMsg, nil)
 	}
 }
@@ -800,19 +849,32 @@ func (sp *serverPeer) OnGetCFHeaders(_ *peer.Peer, msg *wire.MsgGetCFHeaders) {
 		return
 	}
 
+	// We'll also ensure that the remote party is requesting a set of
+	// headers for filters that we actually currently maintain.
+	switch msg.FilterType {
+	case wire.GCSFilterRegular:
+		break
+
+	default:
+		peerLog.Debug("Filter request for unknown headers for "+
+			"filter: %v", msg.FilterType)
+		return
+	}
+
 	startHeight := int32(msg.StartHeight)
 	maxResults := wire.MaxCFHeadersPerMsg
 
-	// If StartHeight is positive, fetch the predecessor block hash so we can
-	// populate the PrevFilterHeader field.
+	// If StartHeight is positive, fetch the predecessor block hash so we
+	// can populate the PrevFilterHeader field.
 	if msg.StartHeight > 0 {
 		startHeight--
 		maxResults++
 	}
 
 	// Fetch the hashes from the block index.
-	hashList, err := sp.server.chain.HeightToHashRange(startHeight,
-		&msg.StopHash, maxResults)
+	hashList, err := sp.server.chain.HeightToHashRange(
+		startHeight, &msg.StopHash, maxResults,
+	)
 	if err != nil {
 		peerLog.Debugf("Invalid getcfheaders request: %v", err)
 	}
@@ -833,8 +895,9 @@ func (sp *serverPeer) OnGetCFHeaders(_ *peer.Peer, msg *wire.MsgGetCFHeaders) {
 	}
 
 	// Fetch the raw filter hash bytes from the database for all blocks.
-	filterHashes, err := sp.server.cfIndex.FilterHashesByBlockHashes(hashPtrs,
-		msg.FilterType)
+	filterHashes, err := sp.server.cfIndex.FilterHashesByBlockHashes(
+		hashPtrs, msg.FilterType,
+	)
 	if err != nil {
 		peerLog.Errorf("Error retrieving cfilter hashes: %v", err)
 		return
@@ -892,6 +955,7 @@ func (sp *serverPeer) OnGetCFHeaders(_ *peer.Peer, msg *wire.MsgGetCFHeaders) {
 
 	headersMsg.FilterType = msg.FilterType
 	headersMsg.StopHash = msg.StopHash
+
 	sp.QueueMessage(headersMsg, nil)
 }
 
@@ -902,72 +966,119 @@ func (sp *serverPeer) OnGetCFCheckpt(_ *peer.Peer, msg *wire.MsgGetCFCheckpt) {
 		return
 	}
 
-	blockHashes, err := sp.server.chain.IntervalBlockHashes(&msg.StopHash,
-		wire.CFCheckptInterval)
+	// We'll also ensure that the remote party is requesting a set of
+	// checkpoints for filters that we actually currently maintain.
+	switch msg.FilterType {
+	case wire.GCSFilterRegular:
+		break
+
+	default:
+		peerLog.Debug("Filter request for unknown checkpoints for "+
+			"filter: %v", msg.FilterType)
+		return
+	}
+
+	// Now that we know the client is fetching a filter that we know of,
+	// we'll fetch the block hashes et each check point interval so we can
+	// compare against our cache, and create new check points if necessary.
+	blockHashes, err := sp.server.chain.IntervalBlockHashes(
+		&msg.StopHash, wire.CFCheckptInterval,
+	)
 	if err != nil {
 		peerLog.Debugf("Invalid getcfilters request: %v", err)
 		return
 	}
 
+	checkptMsg := wire.NewMsgCFCheckpt(
+		msg.FilterType, &msg.StopHash, len(blockHashes),
+	)
+
+	// Fetch the current existing cache so we can decide if we need to
+	// extend it or if its adequate as is.
+	sp.server.cfCheckptCachesMtx.RLock()
+	checkptCache := sp.server.cfCheckptCaches[msg.FilterType]
+
+	// If the set of block hashes is beyond the current size of the cache,
+	// then we'll expand the size of the cache and also retain the write
+	// lock.
 	var updateCache bool
-	var checkptCache []cfHeaderKV
-
 	if len(blockHashes) > len(checkptCache) {
-		// Update the cache if the checkpoint chain is longer than the cached
-		// one. This ensures that the cache is relatively stable and mostly
-		// overlaps with the best chain, since it follows the longest chain
-		// heuristic.
-		updateCache = true
+		// Now that we know we'll need to modify the size of the cache,
+		// we'll release the read lock and grab the write lock to
+		// possibly expand the cache size.
+		sp.server.cfCheckptCachesMtx.RUnlock()
 
-		// Take write lock because we are going to update cache.
 		sp.server.cfCheckptCachesMtx.Lock()
 		defer sp.server.cfCheckptCachesMtx.Unlock()
 
-		// Grow the checkptCache to be the length of blockHashes.
-		additionalLength := len(blockHashes) - len(checkptCache)
-		checkptCache = append(sp.server.cfCheckptCaches[msg.FilterType],
-			make([]cfHeaderKV, additionalLength)...)
-	} else {
-		updateCache = false
+		// Now that we have the write lock, we'll check again as it's
+		// possible that the cache has already been expanded.
+		checkptCache = sp.server.cfCheckptCaches[msg.FilterType]
 
-		// Take reader lock because we are not going to update cache.
-		sp.server.cfCheckptCachesMtx.RLock()
+		// If we still need to expand the cache, then We'll mark that
+		// we need to update the cache for below and also expand the
+		// size of the cache in place.
+		if len(blockHashes) > len(checkptCache) {
+			updateCache = true
+
+			additionalLength := len(blockHashes) - len(checkptCache)
+			newEntries := make([]cfHeaderKV, additionalLength)
+
+			peerLog.Infof("Growing size of checkpoint cache from %v to %v "+
+				"block hashes", len(checkptCache), len(blockHashes))
+
+			checkptCache = append(
+				sp.server.cfCheckptCaches[msg.FilterType],
+				newEntries...,
+			)
+		}
+	} else {
+		// Otherwise, we'll hold onto the read lock for the remainder
+		// of this method.
 		defer sp.server.cfCheckptCachesMtx.RUnlock()
 
-		checkptCache = sp.server.cfCheckptCaches[msg.FilterType]
+		peerLog.Tracef("Serving stale cache of size %v",
+			len(checkptCache))
 	}
 
-	// Iterate backwards until the block hash is found in the cache.
+	// Now that we know the cache is of an appropriate size, we'll iterate
+	// backwards until the find the block hash. We do this as it's possible
+	// a re-org has occurred so items in the db are now in the main china
+	// while the cache has been partially invalidated.
 	var forkIdx int
-	for forkIdx = len(checkptCache); forkIdx > 0; forkIdx-- {
+	for forkIdx = len(blockHashes); forkIdx > 0; forkIdx-- {
 		if checkptCache[forkIdx-1].blockHash == blockHashes[forkIdx-1] {
 			break
 		}
 	}
 
-	// Populate results with cached checkpoints.
-	checkptMsg := wire.NewMsgCFCheckpt(msg.FilterType, &msg.StopHash,
-		len(blockHashes))
+	// Now that we know the how much of the cache is relevant for this
+	// query, we'll populate our check point message with the cache as is.
+	// Shortly below, we'll populate the new elements of the cache.
 	for i := 0; i < forkIdx; i++ {
 		checkptMsg.AddCFHeader(&checkptCache[i].filterHeader)
 	}
 
-	// Look up any filter headers that aren't cached.
+	// We'll now collect the set of hashes that are beyond our cache so we
+	// can look up the filter headers to populate the final cache.
 	blockHashPtrs := make([]*chainhash.Hash, 0, len(blockHashes)-forkIdx)
 	for i := forkIdx; i < len(blockHashes); i++ {
 		blockHashPtrs = append(blockHashPtrs, &blockHashes[i])
 	}
-
-	filterHeaders, err := sp.server.cfIndex.FilterHeadersByBlockHashes(blockHashPtrs,
-		msg.FilterType)
+	filterHeaders, err := sp.server.cfIndex.FilterHeadersByBlockHashes(
+		blockHashPtrs, msg.FilterType,
+	)
 	if err != nil {
 		peerLog.Errorf("Error retrieving cfilter headers: %v", err)
 		return
 	}
 
+	// Now that we have the full set of filter headers, we'll add them to
+	// the checkpoint message, and also update our cache in line.
 	for i, filterHeaderBytes := range filterHeaders {
 		if len(filterHeaderBytes) == 0 {
-			peerLog.Warnf("Could not obtain CF header for %v", blockHashPtrs[i])
+			peerLog.Warnf("Could not obtain CF header for %v",
+				blockHashPtrs[i])
 			return
 		}
 
@@ -979,6 +1090,9 @@ func (sp *serverPeer) OnGetCFCheckpt(_ *peer.Peer, msg *wire.MsgGetCFCheckpt) {
 		}
 
 		checkptMsg.AddCFHeader(filterHeader)
+
+		// If the new main chain is longer than what's in the cache,
+		// then we'll override it beyond the fork point.
 		if updateCache {
 			checkptCache[forkIdx+i] = cfHeaderKV{
 				blockHash:    blockHashes[forkIdx+i],
@@ -987,6 +1101,8 @@ func (sp *serverPeer) OnGetCFCheckpt(_ *peer.Peer, msg *wire.MsgGetCFCheckpt) {
 		}
 	}
 
+	// Finally, we'll update the cache if we need to, and send the final
+	// message back to the requesting peer.
 	if updateCache {
 		sp.server.cfCheckptCaches[msg.FilterType] = checkptCache
 	}
@@ -1056,7 +1172,7 @@ func (sp *serverPeer) OnFilterAdd(_ *peer.Peer, msg *wire.MsgFilterAdd) {
 		return
 	}
 
-	if sp.filter.IsLoaded() {
+	if !sp.filter.IsLoaded() {
 		peerLog.Debugf("%s sent a filteradd request with no filter "+
 			"loaded -- disconnecting", sp)
 		sp.Disconnect()
@@ -1869,6 +1985,7 @@ func newPeerConfig(sp *serverPeer) *peer.Config {
 		Services:          sp.server.services,
 		DisableRelayTx:    cfg.BlocksOnly,
 		ProtocolVersion:   peer.MaxProtocolVersion,
+		TrickleInterval:   cfg.TrickleInterval,
 	}
 }
 
@@ -2493,7 +2610,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		indexes = append(indexes, s.addrIndex)
 	}
 	if !cfg.NoCFilters {
-		indxLog.Info("cf index is enabled")
+		indxLog.Info("Committed filter index is enabled")
 		s.cfIndex = indexers.NewCfIndex(db, chainParams)
 		indexes = append(indexes, s.cfIndex)
 	}

@@ -2,7 +2,7 @@ package: github.com/btcsuite/btcd
 import:
 - package: github.com/btcsuite/btclog
 - package: github.com/btcsuite/btcutil
-  version: d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4
+  version: ab6388e0c60ae4834a1f57511e20c17b5f78be4b
   subpackages:
   - bloom
   - hdkeychain
@@ -33,3 +33,5 @@ import:
 - package: github.com/jessevdk/go-flags
   version: 1679536dcc895411a9f5848d9a0250be7856448c
 - package: github.com/jrick/logrotate
+- package: github.com/aead/siphash
+  version: 83563a290f60225eb120d724600b9690c3fb536f

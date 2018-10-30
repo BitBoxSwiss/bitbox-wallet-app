@@ -7,7 +7,8 @@ package builder
 
 import (
 	"crypto/rand"
-	"encoding/binary"
+	"fmt"
+	"math"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
@@ -15,12 +16,20 @@ import (
 	"github.com/btcsuite/btcutil/gcs"
 )
 
-// DefaultP is the default collision probability (2^-20)
-const DefaultP = 20
+const (
+	// DefaultP is the default collision probability (2^-19)
+	DefaultP = 19
+
+	// DefaultM is the default value used for the hash range.
+	DefaultM uint64 = 784931
+)
 
 // GCSBuilder is a utility class that makes building GCS filters convenient.
 type GCSBuilder struct {
-	p   uint8
+	p uint8
+
+	m uint64
+
 	key [gcs.KeySize]byte
 
 	// data is a set of entries represented as strings. This is done to
@@ -55,17 +64,6 @@ func DeriveKey(keyHash *chainhash.Hash) [gcs.KeySize]byte {
 	var key [gcs.KeySize]byte
 	copy(key[:], keyHash.CloneBytes()[:])
 	return key
-}
-
-// OutPointToFilterEntry is a utility function that derives a filter entry from
-// a wire.OutPoint in a standardized way for use with both building and
-// querying filters.
-func OutPointToFilterEntry(outpoint wire.OutPoint) []byte {
-	// Size of the hash plus size of int32 index
-	data := make([]byte, chainhash.HashSize+4)
-	copy(data[:], outpoint.Hash.CloneBytes()[:])
-	binary.LittleEndian.PutUint32(data[chainhash.HashSize:], outpoint.Index)
-	return data
 }
 
 // Key retrieves the key with which the builder will build a filter. This is
@@ -119,6 +117,23 @@ func (b *GCSBuilder) SetP(p uint8) *GCSBuilder {
 	return b
 }
 
+// SetM sets the filter's modulous value after calling Builder().
+func (b *GCSBuilder) SetM(m uint64) *GCSBuilder {
+	// Do nothing if the builder's already errored out.
+	if b.err != nil {
+		return b
+	}
+
+	// Basic sanity check.
+	if m > uint64(math.MaxUint32) {
+		b.err = gcs.ErrPTooBig
+		return b
+	}
+
+	b.m = m
+	return b
+}
+
 // Preallocate sets the estimated filter size after calling Builder() to reduce
 // the probability of memory reallocations. If the builder has already had data
 // added to it, Preallocate has no effect.
@@ -161,17 +176,6 @@ func (b *GCSBuilder) AddEntries(data [][]byte) *GCSBuilder {
 	return b
 }
 
-// AddOutPoint adds a wire.OutPoint to the list of entries to be included in
-// the GCS filter when it's built.
-func (b *GCSBuilder) AddOutPoint(outpoint wire.OutPoint) *GCSBuilder {
-	// Do nothing if the builder's already errored out.
-	if b.err != nil {
-		return b
-	}
-
-	return b.AddEntry(OutPointToFilterEntry(outpoint))
-}
-
 // AddHash adds a chainhash.Hash to the list of entries to be included in the
 // GCS filter when it's built.
 func (b *GCSBuilder) AddHash(hash *chainhash.Hash) *GCSBuilder {
@@ -181,24 +185,6 @@ func (b *GCSBuilder) AddHash(hash *chainhash.Hash) *GCSBuilder {
 	}
 
 	return b.AddEntry(hash.CloneBytes())
-}
-
-// AddScript adds all the data pushed in the script serialized as the passed
-// []byte to the list of entries to be included in the GCS filter when it's
-// built.
-func (b *GCSBuilder) AddScript(script []byte) *GCSBuilder {
-	// Do nothing if the builder's already errored out.
-	if b.err != nil {
-		return b
-	}
-
-	// Ignore errors and add pushed data, if any
-	data, _ := txscript.PushedData(script)
-	if len(data) == 0 {
-		return b
-	}
-
-	return b.AddEntries(data)
 }
 
 // AddWitness adds each item of the passed filter stack to the filter, and then
@@ -220,46 +206,57 @@ func (b *GCSBuilder) Build() (*gcs.Filter, error) {
 		return nil, b.err
 	}
 
+	// We'll ensure that all the parmaters we need to actually build the
+	// filter properly are set.
+	if b.p == 0 {
+		return nil, fmt.Errorf("p value is not set, cannot build")
+	}
+	if b.m == 0 {
+		return nil, fmt.Errorf("m value is not set, cannot build")
+	}
+
 	dataSlice := make([][]byte, 0, len(b.data))
 	for item := range b.data {
 		dataSlice = append(dataSlice, []byte(item))
 	}
 
-	return gcs.BuildGCSFilter(b.p, b.key, dataSlice)
+	return gcs.BuildGCSFilter(b.p, b.m, b.key, dataSlice)
 }
 
-// WithKeyPN creates a GCSBuilder with specified key and the passed probability
-// and estimated filter size.
-func WithKeyPN(key [gcs.KeySize]byte, p uint8, n uint32) *GCSBuilder {
+// WithKeyPNM creates a GCSBuilder with specified key and the passed
+// probability, modulus and estimated filter size.
+func WithKeyPNM(key [gcs.KeySize]byte, p uint8, n uint32, m uint64) *GCSBuilder {
 	b := GCSBuilder{}
-	return b.SetKey(key).SetP(p).Preallocate(n)
+	return b.SetKey(key).SetP(p).SetM(m).Preallocate(n)
 }
 
-// WithKeyP creates a GCSBuilder with specified key and the passed probability.
-// Estimated filter size is set to zero, which means more reallocations are
-// done when building the filter.
-func WithKeyP(key [gcs.KeySize]byte, p uint8) *GCSBuilder {
-	return WithKeyPN(key, p, 0)
+// WithKeyPM creates a GCSBuilder with specified key and the passed
+// probability.  Estimated filter size is set to zero, which means more
+// reallocations are done when building the filter.
+func WithKeyPM(key [gcs.KeySize]byte, p uint8, m uint64) *GCSBuilder {
+	return WithKeyPNM(key, p, 0, m)
 }
 
-// WithKey creates a GCSBuilder with specified key. Probability is set to
-// 20 (2^-20 collision probability). Estimated filter size is set to zero, which
+// WithKey creates a GCSBuilder with specified key. Probability is set to 19
+// (2^-19 collision probability). Estimated filter size is set to zero, which
 // means more reallocations are done when building the filter.
 func WithKey(key [gcs.KeySize]byte) *GCSBuilder {
-	return WithKeyPN(key, DefaultP, 0)
+	return WithKeyPNM(key, DefaultP, 0, DefaultM)
 }
 
-// WithKeyHashPN creates a GCSBuilder with key derived from the specified
+// WithKeyHashPNM creates a GCSBuilder with key derived from the specified
 // chainhash.Hash and the passed probability and estimated filter size.
-func WithKeyHashPN(keyHash *chainhash.Hash, p uint8, n uint32) *GCSBuilder {
-	return WithKeyPN(DeriveKey(keyHash), p, n)
+func WithKeyHashPNM(keyHash *chainhash.Hash, p uint8, n uint32,
+	m uint64) *GCSBuilder {
+
+	return WithKeyPNM(DeriveKey(keyHash), p, n, m)
 }
 
-// WithKeyHashP creates a GCSBuilder with key derived from the specified
+// WithKeyHashPM creates a GCSBuilder with key derived from the specified
 // chainhash.Hash and the passed probability. Estimated filter size is set to
 // zero, which means more reallocations are done when building the filter.
-func WithKeyHashP(keyHash *chainhash.Hash, p uint8) *GCSBuilder {
-	return WithKeyHashPN(keyHash, p, 0)
+func WithKeyHashPM(keyHash *chainhash.Hash, p uint8, m uint64) *GCSBuilder {
+	return WithKeyHashPNM(keyHash, p, 0, m)
 }
 
 // WithKeyHash creates a GCSBuilder with key derived from the specified
@@ -267,25 +264,25 @@ func WithKeyHashP(keyHash *chainhash.Hash, p uint8) *GCSBuilder {
 // Estimated filter size is set to zero, which means more reallocations are
 // done when building the filter.
 func WithKeyHash(keyHash *chainhash.Hash) *GCSBuilder {
-	return WithKeyHashPN(keyHash, DefaultP, 0)
+	return WithKeyHashPNM(keyHash, DefaultP, 0, DefaultM)
 }
 
-// WithRandomKeyPN creates a GCSBuilder with a cryptographically random key and
+// WithRandomKeyPNM creates a GCSBuilder with a cryptographically random key and
 // the passed probability and estimated filter size.
-func WithRandomKeyPN(p uint8, n uint32) *GCSBuilder {
+func WithRandomKeyPNM(p uint8, n uint32, m uint64) *GCSBuilder {
 	key, err := RandomKey()
 	if err != nil {
 		b := GCSBuilder{err: err}
 		return &b
 	}
-	return WithKeyPN(key, p, n)
+	return WithKeyPNM(key, p, n, m)
 }
 
-// WithRandomKeyP creates a GCSBuilder with a cryptographically random key and
+// WithRandomKeyPM creates a GCSBuilder with a cryptographically random key and
 // the passed probability. Estimated filter size is set to zero, which means
 // more reallocations are done when building the filter.
-func WithRandomKeyP(p uint8) *GCSBuilder {
-	return WithRandomKeyPN(p, 0)
+func WithRandomKeyPM(p uint8, m uint64) *GCSBuilder {
+	return WithRandomKeyPNM(p, 0, m)
 }
 
 // WithRandomKey creates a GCSBuilder with a cryptographically random key.
@@ -293,13 +290,13 @@ func WithRandomKeyP(p uint8) *GCSBuilder {
 // size is set to zero, which means more reallocations are done when
 // building the filter.
 func WithRandomKey() *GCSBuilder {
-	return WithRandomKeyPN(DefaultP, 0)
+	return WithRandomKeyPNM(DefaultP, 0, DefaultM)
 }
 
 // BuildBasicFilter builds a basic GCS filter from a block. A basic GCS filter
-// will contain all the previous outpoints spent within a block, as well as the
-// data pushes within all the outputs created within a block.
-func BuildBasicFilter(block *wire.MsgBlock) (*gcs.Filter, error) {
+// will contain all the previous output scripts spent by inputs within a block,
+// as well as the data pushes within all the outputs created within a block.
+func BuildBasicFilter(block *wire.MsgBlock, prevOutScripts [][]byte) (*gcs.Filter, error) {
 	blockHash := block.BlockHash()
 	b := WithKeyHash(&blockHash)
 
@@ -311,68 +308,35 @@ func BuildBasicFilter(block *wire.MsgBlock) (*gcs.Filter, error) {
 	}
 
 	// In order to build a basic filter, we'll range over the entire block,
-	// adding the outpoint data as well as the data pushes within the
-	// pkScript.
-	for i, tx := range block.Transactions {
-		// First we'll compute the bash of the transaction and add that
-		// directly to the filter.
-		txHash := tx.TxHash()
-		b.AddHash(&txHash)
-
-		// Skip the inputs for the coinbase transaction
-		if i != 0 {
-			// Each each txin, we'll add a serialized version of
-			// the txid:index to the filters data slices.
-			for _, txIn := range tx.TxIn {
-				b.AddOutPoint(txIn.PreviousOutPoint)
-			}
-		}
-
+	// adding each whole script itself.
+	for _, tx := range block.Transactions {
 		// For each output in a transaction, we'll add each of the
 		// individual data pushes within the script.
 		for _, txOut := range tx.TxOut {
+			if len(txOut.PkScript) == 0 {
+				continue
+			}
+
+			// In order to allow the filters to later be committed
+			// to within an OP_RETURN output, we ignore all
+			// OP_RETURNs to avoid a circular dependency.
+			if txOut.PkScript[0] == txscript.OP_RETURN &&
+				txscript.IsPushOnlyScript(txOut.PkScript[1:]) {
+				continue
+			}
+
 			b.AddEntry(txOut.PkScript)
 		}
 	}
 
-	return b.Build()
-}
-
-// BuildExtFilter builds an extended GCS filter from a block. An extended
-// filter supplements a regular basic filter by include all the _witness_ data
-// found within a block. This includes all the data pushes within any signature
-// scripts as well as each element of an input's witness stack. Additionally,
-// the _hashes_ of each transaction are also inserted into the filter.
-func BuildExtFilter(block *wire.MsgBlock) (*gcs.Filter, error) {
-	blockHash := block.BlockHash()
-	b := WithKeyHash(&blockHash)
-
-	// If the filter had an issue with the specified key, then we force it
-	// to bubble up here by calling the Key() function.
-	_, err := b.Key()
-	if err != nil {
-		return nil, err
-	}
-
-	// In order to build an extended filter, we add the hash of each
-	// transaction as well as each piece of witness data included in both
-	// the sigScript and the witness stack of an input.
-	for i, tx := range block.Transactions {
-		// Skip the inputs for the coinbase transaction
-		if i != 0 {
-			// Next, for each input, we'll add the sigScript (if
-			// it's present), and also the witness stack (if it's
-			// present)
-			for _, txIn := range tx.TxIn {
-				if txIn.SignatureScript != nil {
-					b.AddScript(txIn.SignatureScript)
-				}
-
-				if len(txIn.Witness) != 0 {
-					b.AddWitness(txIn.Witness)
-				}
-			}
+	// In the second pass, we'll also add all the prevOutScripts
+	// individually as elements.
+	for _, prevScript := range prevOutScripts {
+		if len(prevScript) == 0 {
+			continue
 		}
+
+		b.AddEntry(prevScript)
 	}
 
 	return b.Build()

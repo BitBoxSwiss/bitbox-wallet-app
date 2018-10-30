@@ -105,7 +105,7 @@ func TestUseBlockHash(t *testing.T) {
 	BuilderTest(b, hash, builder.DefaultP, outPoint, addrBytes, witness, t)
 
 	// Create a GCSBuilder with a key hash and non-default P and test it.
-	b = builder.WithKeyHashP(hash, 30)
+	b = builder.WithKeyHashPM(hash, 30, 90)
 	BuilderTest(b, hash, 30, outPoint, addrBytes, witness, t)
 
 	// Create a GCSBuilder with a random key, set the key from a hash
@@ -135,7 +135,7 @@ func TestUseBlockHash(t *testing.T) {
 	BuilderTest(b, hash, builder.DefaultP, outPoint, addrBytes, witness, t)
 
 	// Create a GCSBuilder with a random key and non-default P and test it.
-	b = builder.WithRandomKeyP(30)
+	b = builder.WithRandomKeyPM(30, 90)
 	key2, err := b.Key()
 	if err != nil {
 		t.Fatalf("Builder instantiation with random key failed: %s",
@@ -162,7 +162,7 @@ func TestUseBlockHash(t *testing.T) {
 	BuilderTest(b, hash, builder.DefaultP, outPoint, addrBytes, witness, t)
 
 	// Create a GCSBuilder with a known key and non-default P and test it.
-	b = builder.WithKeyP(testKey, 30)
+	b = builder.WithKeyPM(testKey, 30, 90)
 	key, err = b.Key()
 	if err != nil {
 		t.Fatalf("Builder instantiation with known key failed: %s",
@@ -177,9 +177,9 @@ func TestUseBlockHash(t *testing.T) {
 
 	// Create a GCSBuilder with a known key and too-high P and ensure error
 	// works throughout all functions that use it.
-	b = builder.WithRandomKeyP(33).SetKeyFromHash(hash).SetKey(testKey)
-	b.SetP(30).AddEntry(hash.CloneBytes()).AddEntries(contents)
-	b.AddOutPoint(outPoint).AddHash(hash).AddScript(addrBytes)
+	b = builder.WithRandomKeyPM(33, 99).SetKeyFromHash(hash).SetKey(testKey)
+	b.SetP(30).AddEntry(hash.CloneBytes()).AddEntries(contents).
+		AddHash(hash).AddEntry(addrBytes)
 	_, err = b.Key()
 	if err != gcs.ErrPTooBig {
 		t.Fatalf("No error on P too big!")
@@ -239,32 +239,13 @@ func BuilderTest(b *builder.GCSBuilder, hash *chainhash.Hash, p uint8,
 		t.Fatal("Filter didn't match when it should have!")
 	}
 
-	// Add a wire.OutPoint, build a filter, and test matches
-	b.AddOutPoint(outPoint)
-	f, err = b.Build()
-	if err != nil {
-		t.Fatalf("Filter build failed: %s", err.Error())
-	}
-	match, err = f.Match(key, hash.CloneBytes())
-	if err != nil {
-		t.Fatalf("Filter match failed: %s", err)
-	}
-	if !match {
-		t.Fatal("Filter didn't match when it should have!")
-	}
-
 	// Add a script, build a filter, and test matches
-	b.AddScript(addrBytes)
+	b.AddEntry(addrBytes)
 	f, err = b.Build()
 	if err != nil {
 		t.Fatalf("Filter build failed: %s", err.Error())
 	}
-	pushedData, err := txscript.PushedData(addrBytes)
-	if err != nil {
-		t.Fatalf("Couldn't extract pushed data from addrBytes script: %s",
-			err.Error())
-	}
-	match, err = f.MatchAny(key, pushedData)
+	match, err = f.MatchAny(key, [][]byte{addrBytes})
 	if err != nil {
 		t.Fatalf("Filter match any failed: %s", err)
 	}
@@ -289,7 +270,7 @@ func BuilderTest(b *builder.GCSBuilder, hash *chainhash.Hash, p uint8,
 
 	// Check that adding duplicate items does not increase filter size.
 	originalSize := f.N()
-	b.AddScript(addrBytes)
+	b.AddEntry(addrBytes)
 	b.AddWitness(witness)
 	f, err = b.Build()
 	if err != nil {
