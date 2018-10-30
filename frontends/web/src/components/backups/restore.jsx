@@ -29,12 +29,13 @@ import * as style from './backups.css';
 @translate()
 export default class Restore extends Component {
     state = {
-        password: null,
         isConfirming: false,
         activeDialog: false,
         isLoading: false,
         understand: false,
     }
+
+    password = undefined;
 
     componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
@@ -58,12 +59,12 @@ export default class Restore extends Component {
 
     abort = () => {
         this.setState({
-            password: null,
             isConfirming: false,
             activeDialog: false,
             isLoading: false,
             understand: false,
         });
+        this.password = undefined;
     }
 
     handleFormChange = event => {
@@ -71,7 +72,7 @@ export default class Restore extends Component {
     }
 
     validate = () => {
-        return this.props.selectedBackup && this.state.password;
+        return this.props.selectedBackup && this.password;
     }
 
     restore = event => {
@@ -89,7 +90,7 @@ export default class Restore extends Component {
             });
         }
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
-            password: this.state.password,
+            password: this.password,
             filename: this.props.selectedBackup,
         }).catch(() => {}).then((data) => {
             let { success, didRestore, errorMessage, code } = data;
@@ -115,7 +116,7 @@ export default class Restore extends Component {
     }
 
     setValidPassword = password => {
-        this.setState({ password });
+        this.password = password;
     }
 
     render({
