@@ -26,7 +26,6 @@ export default class UTXOs extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            show: false,
             utxos: [],
             selectedUTXOs: [],
         };
@@ -39,7 +38,7 @@ export default class UTXOs extends Component {
     }
 
     clear = () => {
-        this.setState({ show: false, selectedUTXOs: [] });
+        this.setState({ selectedUTXOs: [] });
         this.props.onChange(this.state.selectedUTXOs);
     }
 
@@ -53,18 +52,6 @@ export default class UTXOs extends Component {
         }
         this.setState({ selectedUTXOs });
         this.props.onChange(this.state.selectedUTXOs);
-    }
-
-    hide = () =>  {
-        this.setState({
-            show: false,
-            selectedUTXOs: []
-        });
-        this.props.onChange(this.state.selectedUTXOs);
-    }
-
-    show = () => {
-        this.setState({ show: true });
     }
 
     render({

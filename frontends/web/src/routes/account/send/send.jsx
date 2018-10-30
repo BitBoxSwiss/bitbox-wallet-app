@@ -295,7 +295,12 @@ export default class Send extends Component {
     }
 
     toggleCoinControl = () => {
-        this.setState(({ activeCoinControl }) => ({ activeCoinControl: !activeCoinControl }));
+        this.setState(({ activeCoinControl }) => {
+            if (activeCoinControl && this.utxos) {
+                this.utxos.getWrappedInstance().clear();
+            }
+            return { activeCoinControl: !activeCoinControl };
+        });
     }
 
     render({
