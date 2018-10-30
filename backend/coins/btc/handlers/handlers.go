@@ -307,7 +307,7 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 	if handlers.account == nil {
 		status = append(status, btc.AccountDisabled)
 	} else {
-		if handlers.account.InitialSyncDone() {
+		if handlers.account.Initialized() {
 			status = append(status, btc.AccountSynced)
 		}
 

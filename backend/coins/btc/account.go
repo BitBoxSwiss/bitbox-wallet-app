@@ -52,8 +52,9 @@ type Interface interface {
 	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string
+	// Initialize only starts the initialization, the account is not initialized right afterwards.
 	Initialize() error
-	InitialSyncDone() bool
+	Initialized() bool
 	Offline() bool
 	Close()
 	Transactions() []coin.Transaction
@@ -96,10 +97,10 @@ type Account struct {
 
 	feeTargets []*FeeTarget
 
-	initialSyncDone bool
-	offline         bool
-	onEvent         func(Event)
-	log             *logrus.Entry
+	initialized bool
+	offline     bool
+	onEvent     func(Event)
+	log         *logrus.Entry
 }
 
 // Status indicates the connection and initialization status.
@@ -151,16 +152,16 @@ func NewAccount(
 			{Blocks: 2, Code: FeeTargetCodeHigh},
 		},
 		// initializing to false, to prevent flashing of offline notification in the frontend
-		offline:         false,
-		initialSyncDone: false,
-		onEvent:         onEvent,
-		log:             log,
+		offline:     false,
+		initialized: false,
+		onEvent:     onEvent,
+		log:         log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(EventSyncStarted) },
 		func() {
-			if !account.initialSyncDone {
-				account.initialSyncDone = true
+			if !account.initialized {
+				account.initialized = true
 				onEvent(EventStatusChanged)
 			}
 			onEvent(EventSyncDone)
@@ -229,7 +230,7 @@ func (account *Account) Initialize() error {
 		} else if status == blockchain.CONNECTED {
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
-			account.initialSyncDone = false
+			account.initialized = false
 			account.offline = false
 			account.onEvent(EventStatusChanged)
 			account.log.Debug("Connection to blockchain backend established")
@@ -347,10 +348,10 @@ func (account *Account) Offline() bool {
 	return account.offline
 }
 
-// InitialSyncDone indicates whether the account has loaded and finished the initial sync of the
+// Initialized indicates whether the account has loaded and finished the initial sync of the
 // addresses.
-func (account *Account) InitialSyncDone() bool {
-	return account.initialSyncDone
+func (account *Account) Initialized() bool {
+	return account.initialized
 }
 
 // Close stops the account.
@@ -364,7 +365,7 @@ func (account *Account) Close() {
 	}
 	// TODO: deregister from json RPC client. The client can be closed when no account uses
 	// the client any longer.
-	account.initialSyncDone = false
+	account.initialized = false
 	if account.transactions != nil {
 		account.transactions.Close()
 	}

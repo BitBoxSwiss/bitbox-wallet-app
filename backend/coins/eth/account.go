@@ -39,7 +39,7 @@ type Account struct {
 	signingConfiguration    *signing.Configuration
 	keystores               keystore.Keystores
 
-	initialSyncDone bool
+	initialized bool
 
 	address      Address
 	balance      coin.Amount
@@ -68,15 +68,15 @@ func NewAccount(
 		signingConfiguration:    nil,
 		keystores:               keystores,
 
-		initialSyncDone: false,
+		initialized: false,
 
 		log: log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(Event(btc.EventSyncStarted)) },
 		func() {
-			if !account.initialSyncDone {
-				account.initialSyncDone = true
+			if !account.initialized {
+				account.initialized = true
 				onEvent(Event(btc.EventStatusChanged))
 			}
 			onEvent(Event(btc.EventSyncDone))
@@ -170,9 +170,9 @@ func (account *Account) update() error {
 	return nil
 }
 
-// InitialSyncDone implements btc.Interface.
-func (account *Account) InitialSyncDone() bool {
-	return account.initialSyncDone
+// Initialized implements btc.Interface.
+func (account *Account) Initialized() bool {
+	return account.initialized
 }
 
 // Offline implements btc.Interface.
