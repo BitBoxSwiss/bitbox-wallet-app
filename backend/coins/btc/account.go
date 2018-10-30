@@ -237,7 +237,7 @@ func (account *Account) Initialize() error {
 			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
-	account.coin.Init()
+	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
 	account.onEvent(EventStatusChanged)

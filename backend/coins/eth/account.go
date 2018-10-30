@@ -131,7 +131,7 @@ func (account *Account) Initialize() error {
 	account.address = Address{
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 	}
-	account.coin.Init()
+	account.coin.Initialize()
 	go account.poll()
 	return nil
 }

@@ -74,8 +74,8 @@ func NewCoin(
 	return coin
 }
 
-// Init initializes the coin - blockchain and headers.
-func (coin *Coin) Init() {
+// Initialize implements coin.Coin.
+func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
 		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
