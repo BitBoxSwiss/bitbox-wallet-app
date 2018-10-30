@@ -269,7 +269,6 @@ class ElectrumServers extends Component {
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
-                                    index={index + 1}
                                     key={server.server}
                                     server={server}
                                     onRemove={onRemove(server, index)}
