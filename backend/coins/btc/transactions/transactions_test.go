@@ -201,11 +201,11 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	require.True(s.T(), syncFinished)
 }
 
-func newBalance(available, incoming btcutil.Amount) *transactions.Balance {
-	return &transactions.Balance{
-		Available: coin.NewAmountFromInt64(int64(available)),
-		Incoming:  coin.NewAmountFromInt64(int64(incoming)),
-	}
+func newBalance(available, incoming btcutil.Amount) *coin.Balance {
+	return coin.NewBalance(
+		coin.NewAmountFromInt64(int64(available)),
+		coin.NewAmountFromInt64(int64(incoming)),
+	)
 }
 
 // TestUpdateAddressHistorySingleTxReceive receives a single confirmed tx for a single address.

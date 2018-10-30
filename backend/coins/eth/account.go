@@ -10,7 +10,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -192,12 +191,9 @@ func (account *Account) Transactions() []coin.Transaction {
 }
 
 // Balance implements btc.Interface.
-func (account *Account) Balance() *transactions.Balance {
+func (account *Account) Balance() *coin.Balance {
 	account.synchronizer.WaitSynchronized()
-	return &transactions.Balance{
-		Available: account.balance,
-		Incoming:  coin.NewAmountFromInt64(0),
-	}
+	return coin.NewBalance(account.balance, coin.NewAmountFromInt64(0))
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.

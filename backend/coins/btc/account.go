@@ -57,7 +57,7 @@ type Interface interface {
 	Offline() bool
 	Close()
 	Transactions() []coin.Transaction
-	Balance() *transactions.Balance
+	Balance() *coin.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
 	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
@@ -434,8 +434,8 @@ outer:
 	return feeTargets, defaultFee
 }
 
-// Balance wraps transaction.Transactions.Balance()
-func (account *Account) Balance() *transactions.Balance {
+// Balance implements the interface.
+func (account *Account) Balance() *coin.Balance {
 	return account.transactions.Balance()
 }
 

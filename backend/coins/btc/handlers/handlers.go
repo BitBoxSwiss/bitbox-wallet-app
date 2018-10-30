@@ -178,9 +178,9 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
 	balance := handlers.account.Balance()
 	return map[string]interface{}{
-		"available":   handlers.formatAmountAsJSON(balance.Available),
-		"incoming":    handlers.formatAmountAsJSON(balance.Incoming),
-		"hasIncoming": balance.Incoming.BigInt().Sign() > 0,
+		"available":   handlers.formatAmountAsJSON(balance.Available()),
+		"incoming":    handlers.formatAmountAsJSON(balance.Incoming()),
+		"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 	}, nil
 }
 
