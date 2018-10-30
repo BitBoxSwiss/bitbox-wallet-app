@@ -198,7 +198,7 @@ func (manager *Manager) listen() {
 	}
 }
 
-// Start listens for inserted/removed devices forever. Run this in a goroutine.
+// Start listens for inserted/removed devices forever.
 func (manager *Manager) Start() {
 	go manager.listen()
 }
