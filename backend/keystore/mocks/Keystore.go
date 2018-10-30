@@ -64,27 +64,6 @@ func (_m *Keystore) HasSecureOutput() bool {
 	return r0
 }
 
-// Identifier provides a mock function with given fields:
-func (_m *Keystore) Identifier() (string, error) {
-	ret := _m.Called()
-
-	var r0 string
-	if rf, ok := ret.Get(0).(func() string); ok {
-		r0 = rf()
-	} else {
-		r0 = ret.Get(0).(string)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // OutputAddress provides a mock function with given fields: _a0, _a1, _a2
 func (_m *Keystore) OutputAddress(_a0 signing.AbsoluteKeypath, _a1 signing.ScriptType, _a2 coin.Coin) error {
 	ret := _m.Called(_a0, _a1, _a2)

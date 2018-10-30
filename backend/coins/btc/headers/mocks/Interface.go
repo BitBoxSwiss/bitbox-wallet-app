@@ -34,8 +34,8 @@ func (_m *Interface) HeaderByHeight(_a0 int) (*wire.BlockHeader, error) {
 	return r0, r1
 }
 
-// Init provides a mock function with given fields:
-func (_m *Interface) Init() {
+// Initialize provides a mock function with given fields:
+func (_m *Interface) Initialize() {
 	_m.Called()
 }
 
