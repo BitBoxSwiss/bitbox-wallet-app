@@ -26,9 +26,6 @@ type Coin interface {
 	// lowercase).
 	Code() string
 
-	// Init initializes the coin (blockchain connection, header feed, etc.).
-	Init()
-
 	// // Type returns the coin type according to BIP44:
 	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 	// Type() uint32
@@ -48,4 +45,7 @@ type Coin interface {
 
 	// BlockExplorerTransactionURLPrefix returns the URL prefix of the block explorer.
 	BlockExplorerTransactionURLPrefix() string
+
+	// Initialize initializes the coin by connecting to a full node, downloading the headers, etc.
+	Initialize()
 }

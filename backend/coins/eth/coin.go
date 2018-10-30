@@ -39,8 +39,8 @@ func NewCoin(
 // Net returns the network (mainnet, testnet, etc.).
 func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 
-// Init implements coin.Coin.
-func (coin *Coin) Init() {
+// Initialize implements coin.Coin.
+func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		url := `https://mainnet.infura.io`
 		etherScanURL := "https://api.etherscan.io/api"
