@@ -51,7 +51,7 @@ const (
 // Interface represents the public API of this package.
 //go:generate mockery -name Interface
 type Interface interface {
-	Init()
+	Initialize()
 	SubscribeEvent(f func(Event)) func()
 	HeaderByHeight(int) (*wire.BlockHeader, error)
 	TipHeight() int
@@ -127,8 +127,8 @@ func (headers *Headers) TipHeight() int {
 	return headers.targetHeight
 }
 
-// Init starts the syncing process.
-func (headers *Headers) Init() {
+// Initialize starts the syncing process.
+func (headers *Headers) Initialize() {
 	headers.tipAtInitTime = headers.tip()
 	headers.log.Infof("last tip loaded: %d", headers.tipAtInitTime)
 	go headers.download()

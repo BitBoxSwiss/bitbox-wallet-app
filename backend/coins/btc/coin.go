@@ -91,7 +91,7 @@ func (coin *Coin) Init() {
 			db,
 			coin.blockchain,
 			coin.log)
-		coin.headers.Init()
+		coin.headers.Initialize()
 		coin.headers.SubscribeEvent(func(event headers.Event) {
 			if event == headers.EventSyncing || event == headers.EventSynced {
 				status, err := coin.headers.Status()
