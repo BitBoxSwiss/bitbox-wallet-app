@@ -600,16 +600,6 @@
       "title": "How to restore a wallet from a backup"
     }
   },
-  "success": {
-    "create": {
-      "title": "Success",
-      "info": "You successfully created a new wallet."
-    },
-    "restore": {
-      "title": "Success",
-      "info": "You successfully restored a wallet from a backup."
-    }
-  },
   "send": {
     "abort": "The transaction has been aborted.",
     "address": {
@@ -716,6 +706,16 @@
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"
+  },
+  "success": {
+    "create": {
+      "info": "You successfully created a new wallet.",
+      "title": "Success"
+    },
+    "restore": {
+      "info": "You successfully restored a wallet from a backup.",
+      "title": "Success"
+    }
   },
   "transaction": {
     "badge": {

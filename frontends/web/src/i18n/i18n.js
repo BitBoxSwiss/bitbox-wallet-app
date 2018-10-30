@@ -16,6 +16,7 @@
 
 import i18n from 'i18next';
 import appTranslationsEN from '../locales/en/app.json';
+import appTranslationsJA from '../locales/ja/app.json';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
 import Backend from 'i18next-locize-backend';
@@ -73,6 +74,7 @@ i18Init.init({
 
 if (!i18nEditorActive) {
     i18n.addResourceBundle('en', 'app', appTranslationsEN);
+    i18n.addResourceBundle('ja', 'app', appTranslationsJA);
 }
 
 i18n.on('languageChanged', (lng) => {
