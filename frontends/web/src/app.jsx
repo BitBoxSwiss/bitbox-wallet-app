@@ -161,6 +161,7 @@ export class App extends Component {
                             // showCreate={true} // Does not exist!
                             // deviceIDs={deviceIDs} // Does not exist!
                         />
+                        {/* DeviceSwitch needs a key to trigger ComponentDidMount when devices change, to handle routing */}
                         <DeviceSwitch
                             path="/device/:deviceID"
                             key={devices}
