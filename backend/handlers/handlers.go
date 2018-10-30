@@ -294,6 +294,9 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 }
 
 func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+	if !handlers.backend.Testing() {
+		return nil, errp.New("Test keystore not available")
+	}
 	jsonBody := map[string]string{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)
