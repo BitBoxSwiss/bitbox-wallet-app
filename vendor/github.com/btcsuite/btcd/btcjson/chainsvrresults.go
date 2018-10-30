@@ -11,7 +11,7 @@ import "encoding/json"
 // returns a hex-encoded string.
 type GetBlockHeaderVerboseResult struct {
 	Hash          string  `json:"hash"`
-	Confirmations uint64  `json:"confirmations"`
+	Confirmations int64   `json:"confirmations"`
 	Height        int32   `json:"height"`
 	Version       int32   `json:"version"`
 	VersionHex    string  `json:"versionHex"`
@@ -29,7 +29,7 @@ type GetBlockHeaderVerboseResult struct {
 // hex-encoded string.
 type GetBlockVerboseResult struct {
 	Hash          string        `json:"hash"`
-	Confirmations uint64        `json:"confirmations"`
+	Confirmations int64         `json:"confirmations"`
 	StrippedSize  int32         `json:"strippedsize"`
 	Size          int32         `json:"size"`
 	Weight        int32         `json:"weight"`
@@ -289,7 +289,6 @@ type GetTxOutResult struct {
 	Confirmations int64              `json:"confirmations"`
 	Value         float64            `json:"value"`
 	ScriptPubKey  ScriptPubKeyResult `json:"scriptPubKey"`
-	Version       int32              `json:"version"`
 	Coinbase      bool               `json:"coinbase"`
 }
 

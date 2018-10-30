@@ -1126,7 +1126,7 @@ func handleGetBlock(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 		PreviousHash:  blockHeader.PrevBlock.String(),
 		Nonce:         blockHeader.Nonce,
 		Time:          blockHeader.Timestamp.Unix(),
-		Confirmations: uint64(1 + best.Height - blockHeight),
+		Confirmations: int64(1 + best.Height - blockHeight),
 		Height:        int64(blockHeight),
 		Size:          int32(len(blkBytes)),
 		StrippedSize:  int32(blk.MsgBlock().SerializeSizeStripped()),
@@ -1320,7 +1320,7 @@ func handleGetBlockHeader(s *rpcServer, cmd interface{}, closeChan <-chan struct
 	if err != nil {
 		return nil, rpcDecodeHexError(c.Hash)
 	}
-	blockHeader, err := s.cfg.Chain.FetchHeader(hash)
+	blockHeader, err := s.cfg.Chain.HeaderByHash(hash)
 	if err != nil {
 		return nil, &btcjson.RPCError{
 			Code:    btcjson.ErrRPCBlockNotFound,
@@ -1364,7 +1364,7 @@ func handleGetBlockHeader(s *rpcServer, cmd interface{}, closeChan <-chan struct
 	params := s.cfg.ChainParams
 	blockHeaderReply := btcjson.GetBlockHeaderVerboseResult{
 		Hash:          c.Hash,
-		Confirmations: uint64(1 + best.Height - blockHeight),
+		Confirmations: int64(1 + best.Height - blockHeight),
 		Height:        blockHeight,
 		Version:       blockHeader.Version,
 		VersionHex:    fmt.Sprintf("%08x", blockHeader.Version),
@@ -2442,7 +2442,7 @@ func handleGetNetworkHashPS(s *rpcServer, cmd interface{}, closeChan <-chan stru
 		}
 
 		// Fetch the header from chain.
-		header, err := s.cfg.Chain.FetchHeader(hash)
+		header, err := s.cfg.Chain.HeaderByHash(hash)
 		if err != nil {
 			context := "Failed to fetch block header"
 			return nil, internalRPCError(err.Error(), context)
@@ -2634,7 +2634,7 @@ func handleGetRawTransaction(s *rpcServer, cmd interface{}, closeChan <-chan str
 	var chainHeight int32
 	if blkHash != nil {
 		// Fetch the header from chain.
-		header, err := s.cfg.Chain.FetchHeader(blkHash)
+		header, err := s.cfg.Chain.HeaderByHash(blkHash)
 		if err != nil {
 			context := "Failed to fetch block header"
 			return nil, internalRPCError(err.Error(), context)
@@ -2667,7 +2667,6 @@ func handleGetTxOut(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 	// from there, otherwise attempt to fetch from the block database.
 	var bestBlockHash string
 	var confirmations int32
-	var txVersion int32
 	var value int64
 	var pkScript []byte
 	var isCoinbase bool
@@ -2702,12 +2701,12 @@ func handleGetTxOut(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 		best := s.cfg.Chain.BestSnapshot()
 		bestBlockHash = best.Hash.String()
 		confirmations = 0
-		txVersion = mtx.Version
 		value = txOut.Value
 		pkScript = txOut.PkScript
 		isCoinbase = blockchain.IsCoinBaseTx(mtx)
 	} else {
-		entry, err := s.cfg.Chain.FetchUtxoEntry(txHash)
+		out := wire.OutPoint{Hash: *txHash, Index: c.Vout}
+		entry, err := s.cfg.Chain.FetchUtxoEntry(out)
 		if err != nil {
 			return nil, rpcNoTxInfoError(txHash)
 		}
@@ -2717,16 +2716,15 @@ func handleGetTxOut(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 		// transaction already in the main chain.  Mined transactions
 		// that are spent by a mempool transaction are not affected by
 		// this.
-		if entry == nil || entry.IsOutputSpent(c.Vout) {
+		if entry == nil || entry.IsSpent() {
 			return nil, nil
 		}
 
 		best := s.cfg.Chain.BestSnapshot()
 		bestBlockHash = best.Hash.String()
 		confirmations = 1 + best.Height - entry.BlockHeight()
-		txVersion = entry.Version()
-		value = entry.AmountByIndex(c.Vout)
-		pkScript = entry.PkScriptByIndex(c.Vout)
+		value = entry.Amount()
+		pkScript = entry.PkScript()
 		isCoinbase = entry.IsCoinBase()
 	}
 
@@ -2749,7 +2747,6 @@ func handleGetTxOut(s *rpcServer, cmd interface{}, closeChan <-chan struct{}) (i
 		BestBlock:     bestBlockHash,
 		Confirmations: int64(confirmations),
 		Value:         btcutil.Amount(value).ToBTC(),
-		Version:       txVersion,
 		ScriptPubKey: btcjson.ScriptPubKeyResult{
 			Asm:       disbuf,
 			Hex:       hex.EncodeToString(pkScript),
@@ -3265,7 +3262,7 @@ func handleSearchRawTransactions(s *rpcServer, cmd interface{}, closeChan <-chan
 		var blkHeight int32
 		if blkHash := rtx.blkHash; blkHash != nil {
 			// Fetch the header from chain.
-			header, err := s.cfg.Chain.FetchHeader(blkHash)
+			header, err := s.cfg.Chain.HeaderByHash(blkHash)
 			if err != nil {
 				return nil, &btcjson.RPCError{
 					Code:    btcjson.ErrRPCBlockNotFound,

@@ -11,7 +11,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a73b964f99e5336c48a778c700d7df9caae3a4e238aec59298d78e042178ea90"
+  digest = "1:83160035e81a0d248a1379f71b12e94c26b0cc8dab22994663af7e2e9ff9611b"
   name = "github.com/btcsuite/btcd"
   packages = [
     "blockchain",
@@ -27,7 +27,7 @@
     "wire",
   ]
   pruneopts = ""
-  revision = "bc0944904505aab55e089371a892be2f87883161"
+  revision = "67e573d211ace594f1366b4ce9d39726c4b19bd0"
   source = "https://github.com/btcsuite/btcd.git"
 
 [[projects]]
@@ -40,7 +40,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b0f4d2431c167d7127a029210c1a7cdc33c9114c1b3fd3582347baad5e832588"
+  digest = "1:56b87c786a316d6e9b9c7ba8f3dd64e3199ca3b33a55cc596c633023bed20264"
   name = "github.com/btcsuite/btcutil"
   packages = [
     ".",
@@ -52,7 +52,7 @@
     "txsort",
   ]
   pruneopts = ""
-  revision = "d4cc87b860166d00d6b5b9e0d3b3d71d6088d4d4"
+  revision = "ab6388e0c60ae4834a1f57511e20c17b5f78be4b"
 
 [[projects]]
   branch = "master"
