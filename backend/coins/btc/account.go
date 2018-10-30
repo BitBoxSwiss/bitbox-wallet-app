@@ -119,7 +119,7 @@ const (
 	OfflineMode Status = "offlineMode"
 )
 
-// NewAccount creats a new Account.
+// NewAccount creates a new account.
 func NewAccount(
 	coin *Coin,
 	dbFolder string,
