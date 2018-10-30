@@ -17,7 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import Device from './device';
-import Waiting from './waiting';
+import { Waiting } from './waiting';
 
 interface Props {
     devices: {
