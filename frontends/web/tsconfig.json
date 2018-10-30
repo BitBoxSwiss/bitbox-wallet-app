@@ -17,6 +17,7 @@
         "strictPropertyInitialization": true,
         "forceConsistentCasingInFileNames": true,
         "removeComments": true,
+        "noUnusedLocals": true,
     },
     "include": [
         "./src/**/*.tsx",

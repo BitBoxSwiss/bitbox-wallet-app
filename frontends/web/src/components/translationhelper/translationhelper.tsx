@@ -1,4 +1,4 @@
-import { Component, h } from 'preact';
+import { Component } from 'preact';
 import { i18nEditorActive } from '../../i18n/i18n';
 
 export default class TranslationHelper extends Component<{}, {}> {

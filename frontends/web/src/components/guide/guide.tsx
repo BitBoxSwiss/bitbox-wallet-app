@@ -21,7 +21,6 @@ import { translate, TranslateProp } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
-import { Entry, EntryProp } from './entry';
 import * as style from './guide.css';
 
 interface SharedProps {

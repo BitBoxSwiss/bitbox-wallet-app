@@ -77,28 +77,6 @@ class Dialog extends Component<Props, State> {
         }
     }
 
-    private addTabIndex = (currentTab: number) => {
-        const focusables = this.focusableChildren;
-        let next = currentTab + 1;
-        if (next >= focusables.length) {
-            next = 0;
-        }
-        this.setState({ currentTab: next }, () => {
-            focusables[next].focus();
-        });
-    }
-
-    private subtractTabIndex = (currentTab: number) => {
-        const focusables = this.focusableChildren;
-        let previous = currentTab - 1;
-        if (previous < 0) {
-            previous = focusables.length - 1;
-        }
-        this.setState({ currentTab: previous }, () => {
-            focusables[previous].focus();
-        });
-    }
-
     private updateIndex = (isNext: boolean) => {
         const target = this.getNextIndex(isNext);
         this.setState({ currentTab: target }, () => {
@@ -118,7 +96,6 @@ class Dialog extends Component<Props, State> {
     }
 
     private handleKeyDown = (e: KeyboardEvent) => {
-        const { currentTab } = this.state;
         const { disableEscape, onClose } = this.props;
         const isEsc = e.keyCode === 27;
         const isTab = e.keyCode === 9;
@@ -130,10 +107,8 @@ class Dialog extends Component<Props, State> {
             e.preventDefault();
         }
         if (isTab && e.shiftKey) {
-            const next = currentTab <= 0 ? length - 1 : currentTab - 1;
             this.updateIndex(false);
         } else if (isTab) {
-            const previous = currentTab === length - 1 ? 0 : currentTab + 1;
             this.updateIndex(true);
         }
     }
