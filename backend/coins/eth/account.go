@@ -107,8 +107,8 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// Init implements btc.Interface.
-func (account *Account) Init() error {
+// Initialize implements btc.Interface.
+func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
 		if account.signingConfiguration != nil {

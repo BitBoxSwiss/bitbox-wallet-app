@@ -299,7 +299,7 @@ func (handlers *Handlers) postInit(_ *http.Request) (interface{}, error) {
 	if handlers.account == nil {
 		return nil, errp.New("/init called even though account was not added yet")
 	}
-	return nil, handlers.account.Init()
+	return nil, handlers.account.Initialize()
 }
 
 func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error) {

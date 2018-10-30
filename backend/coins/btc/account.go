@@ -52,7 +52,7 @@ type Interface interface {
 	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string
-	Init() error
+	Initialize() error
 	InitialSyncDone() bool
 	Offline() bool
 	Close()
@@ -190,8 +190,8 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// Init initializes the account.
-func (account *Account) Init() error {
+// Initialize initializes the account.
+func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
 		if account.signingConfiguration != nil {
