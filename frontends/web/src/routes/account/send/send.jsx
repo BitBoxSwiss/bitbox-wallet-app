@@ -66,6 +66,22 @@ export default class Send extends Component {
         this.selectedUTXOs = [];
     }
 
+    coinSupportsCoinControl = () => {
+        const account = this.getAccount();
+        if (!account) {
+            return false;
+        }
+        switch (account.coinCode) {
+        case 'btc':
+        case 'tbtc':
+        case 'ltc':
+        case 'tltc':
+            return true;
+        default:
+            return false;
+        }
+    }
+
     componentDidMount() {
         apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
@@ -73,7 +89,9 @@ export default class Send extends Component {
                 this.setState({ paired });
             });
         }
-        apiGet('config').then(config => this.setState({ coinControl: !!(config.frontend || {}).coinControl }));
+        if (this.coinSupportsCoinControl()) {
+            apiGet('config').then(config => this.setState({ coinControl: !!(config.frontend || {}).coinControl }));
+        }
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'device':
