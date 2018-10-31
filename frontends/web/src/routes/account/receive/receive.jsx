@@ -120,7 +120,6 @@ export default class Receive extends Component {
 
     render({
         t,
-        coinCode,
         code,
     }, {
         verifying,
@@ -129,8 +128,10 @@ export default class Receive extends Component {
         paired,
     }) {
         let uriPrefix = 'bitcoin:';
-        if (coinCode === 'ltc' || coinCode === 'tltc') {
+        if (code.startsWith('ltc') || code.startsWith('tltc')) {
             uriPrefix = 'litecoin:';
+        } else if (code.startsWith('eth') || code.startsWith('teth')) {
+            uriPrefix = '';
         }
         const content = receiveAddresses ? (
             <div>
