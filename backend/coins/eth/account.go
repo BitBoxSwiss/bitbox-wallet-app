@@ -199,11 +199,6 @@ func (account *Account) pendingOutgoingTransactions(confirmedTxs []coin.Transact
 
 func (account *Account) update() error {
 	defer account.synchronizer.IncRequestsCounter()()
-	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
-	if err != nil {
-		return errp.WithStack(err)
-	}
-	account.balance = coin.NewAmount(balance)
 
 	header, err := account.coin.client.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
@@ -232,9 +227,8 @@ func (account *Account) update() error {
 	}
 	account.nextNonce = nodeNonce
 
-	// Usually, our locally stored last nonce is used to compute the next noce. Edge case: if a user
-	// has pending tx but there is no database (restore, use different computer, ...), the nonce
-	// fetched from the node will do.
+	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
+	// next nonce.
 	if len(pendingOutgoingTransactions) > 0 {
 		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(wrappedTransaction).tx.Nonce() + 1
 		if localNonce > account.nextNonce {
@@ -242,6 +236,14 @@ func (account *Account) update() error {
 		}
 	}
 	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
+
+	balance, err := account.coin.client.BalanceAt(context.TODO(),
+		account.address.Address, account.blockNumber)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	account.balance = coin.NewAmount(balance)
+
 	return nil
 }
 
