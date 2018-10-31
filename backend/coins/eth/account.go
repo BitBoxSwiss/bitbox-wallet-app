@@ -2,7 +2,9 @@ package eth
 
 import (
 	"context"
+	"fmt"
 	"math/big"
+	"path"
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
@@ -11,6 +13,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -33,8 +36,10 @@ type Account struct {
 
 	synchronizer            *synchronizer.Synchronizer
 	coin                    *Coin
+	dbFolder                string
 	code                    string
 	name                    string
+	db                      db.DBInterface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               keystore.Keystores
@@ -62,6 +67,7 @@ func NewAccount(
 ) *Account {
 	account := &Account{
 		coin:                    coin,
+		dbFolder:                dbFolder,
 		code:                    code,
 		name:                    name,
 		getSigningConfiguration: getSigningConfiguration,
@@ -128,6 +134,17 @@ func (account *Account) Initialize() error {
 		account.log.Debug("Account has already been initialized")
 		return nil
 	}
+
+	dbName := fmt.Sprintf("account-%s-%s.db", account.signingConfiguration.Hash(), account.code)
+	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
+	db, err := db.NewDB(path.Join(account.dbFolder, dbName))
+	if err != nil {
+		return err
+	}
+	account.db = db
+
+	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
+
 	account.address = Address{
 		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 	}
@@ -266,6 +283,7 @@ func (account *Account) SendTx(
 	if err := account.keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
+
 	return account.coin.client.SendTransaction(context.TODO(), txProposal.Tx)
 }
 
