@@ -93,7 +93,7 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
                         this.subscribeEndpoint(key, newEndpoints[key]);
                     }
                 }
-                if (oldEndpoints != null) {
+                if (oldEndpoints !== undefined) {
                     // Remove endpoints that no longer exist from the state.
                     for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
                         if (newEndpoints[key] === undefined) {

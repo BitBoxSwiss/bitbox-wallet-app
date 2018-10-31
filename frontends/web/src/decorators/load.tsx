@@ -71,7 +71,14 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
                         this.loadEndpoint(key, newEndpoints[key]);
                     }
                 }
-                if (oldEndpoints != null) {
+                if (oldEndpoints === undefined) {
+                    // Ensure that the component is rendered again even if there are no endpoints.
+                    // Otherwise, 'allEndpointsLoaded' is only called when 'endpoints' is undefined,
+                    // which would never render 'WrappedComponent' in case of 'renderOnlyOnceLoaded'.
+                    if (renderOnlyOnceLoaded && Object.keys(newEndpoints).length === 0) {
+                        this.setState({});
+                    }
+                } else {
                     // Remove endpoints that no longer exist from the state.
                     for (const key of Object.keys(oldEndpoints) as KeysOf<LoadedProps>) {
                         if (newEndpoints[key] === undefined) {
@@ -91,7 +98,7 @@ export function load<LoadedProps extends ObjectButNotFunction, ProvidedProps ext
             }
 
             private allEndpointsLoaded(): boolean {
-                if (this.endpoints == null) { return false; }
+                if (this.endpoints === undefined) { return false; }
                 for (const key of Object.keys(this.endpoints) as KeysOf<LoadedProps>) {
                     if (this.state[key] === undefined) {
                         return false;
