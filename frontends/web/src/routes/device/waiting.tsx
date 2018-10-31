@@ -30,7 +30,7 @@ import * as style from './device.css';
 import { Tampered } from './setup/components/tampered';
 
 interface TestingProps {
-    testing: boolean;
+    testing?: boolean;
 }
 
 type WaitingProps = TestingProps & TranslateProp;
@@ -44,7 +44,7 @@ function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
                         <Tampered style="max-width: 400px; align-self: center;" />
-                        <SkipForTestingButton show={debug && testing} />
+                        <SkipForTestingButton show={!!testing} />
                     </div>
                     <hr />
                     <Footer>
@@ -106,7 +106,7 @@ class SkipForTestingButton extends Component<SkipForTestingButtonProps, SkipForT
     }
 }
 
-const loadHOC = load<TestingProps, TranslateProp>({ testing: 'testing' })(Waiting);
+const loadHOC = load<TestingProps, TranslateProp>(() => debug ? { testing: 'testing' } : {})(Waiting);
 
 const translateHOC = translate()(loadHOC);
 
