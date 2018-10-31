@@ -39,7 +39,7 @@ type Account struct {
 	dbFolder                string
 	code                    string
 	name                    string
-	db                      db.DBInterface
+	db                      db.Interface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               keystore.Keystores
@@ -142,7 +142,6 @@ func (account *Account) Initialize() error {
 		return err
 	}
 	account.db = db
-
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	account.address = Address{
@@ -164,6 +163,38 @@ func (account *Account) poll() {
 	}
 }
 
+// pendingOutgoingTransactions gets all locally stored pending outgoing transactions. It filters out
+// already confirmed ones.
+func (account *Account) pendingOutgoingTransactions(confirmedTxs []coin.Transaction) (
+	[]coin.Transaction, error) {
+	dbTx, err := account.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer dbTx.Rollback()
+	pendingOutgoingTransactions, err := dbTx.PendingOutgoingTransactions()
+	if err != nil {
+		return nil, err
+	}
+
+	confirmedTxHashes := map[string]struct{}{}
+	for _, confirmedTx := range confirmedTxs {
+		confirmedTxHashes[confirmedTx.ID()] = struct{}{}
+	}
+
+	transactions := []coin.Transaction{}
+	for _, tx := range pendingOutgoingTransactions {
+		wrappedTx := wrappedTransaction{tx: tx}
+		// Skip already confirmed tx. TODO: remove from db if 12+ confirmations.
+		if _, ok := confirmedTxHashes[wrappedTx.ID()]; ok {
+			account.log.Infof("pending tx: skipping already confirmed tx with nonce %d", tx.Nonce())
+			continue
+		}
+		transactions = append(transactions, wrappedTx)
+	}
+	return transactions, nil
+}
+
 func (account *Account) update() error {
 	defer account.synchronizer.IncRequestsCounter()()
 	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
@@ -178,12 +209,20 @@ func (account *Account) update() error {
 	}
 	account.blockNumber = header.Number
 
-	transactions, err := account.coin.EtherScan().Transactions(
+	// Get confirmed transactions from EtherScan.
+	confirmedTansactions, err := account.coin.EtherScan().Transactions(
 		account.address.Address, account.blockNumber)
 	if err != nil {
 		return err
 	}
-	account.transactions = transactions
+
+	// Get our stored pending outgoing transactions. Filter out all confirmed transactions.
+	pendingOutgoingTransactions, err := account.pendingOutgoingTransactions(confirmedTansactions)
+	if err != nil {
+		return err
+	}
+
+	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
 	return nil
 }
 
@@ -269,6 +308,22 @@ func (account *Account) newTx(
 	}, nil
 }
 
+func (account *Account) storePendingOutgoingTransaction(transaction *types.Transaction) error {
+	dbTx, err := account.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer dbTx.Rollback()
+	if err := dbTx.PutPendingOutgoingTransaction(transaction); err != nil {
+		return err
+	}
+	if err := dbTx.Commit(); err != nil {
+		return err
+	}
+	account.log.Infof("stored pending outgoing tx with nonce: %d", transaction.Nonce())
+	return nil
+}
+
 // SendTx implements btc.Interface.
 func (account *Account) SendTx(
 	recipientAddress string,
@@ -283,7 +338,9 @@ func (account *Account) SendTx(
 	if err := account.keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
-
+	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
+		return err
+	}
 	return account.coin.client.SendTransaction(context.TODO(), txProposal.Tx)
 }
 

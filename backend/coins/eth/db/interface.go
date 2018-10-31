@@ -14,19 +14,29 @@
 
 package db
 
-// DBTxInterface needs to be implemented to persist all wallet/transaction related data.
-type DBTxInterface interface {
+import "github.com/ethereum/go-ethereum/core/types"
+
+// TxInterface needs to be implemented to persist all wallet/transaction related data.
+type TxInterface interface {
 	// Commit closes the transaction, writing the changes.
 	Commit() error
 
 	// Rollback closes the transaction without writing anything and be called safely after Commit().
 	Rollback()
+
+	// PutPendingOutgoingTransaction stores the transaction in the collection of pending outgoing
+	// transactions.
+	PutPendingOutgoingTransaction(*types.Transaction) error
+
+	// PendingOutgoingTransactions returns the stored list of pending outgoing transactions, sorted
+	// descending by the transaction nonce.
+	PendingOutgoingTransactions() ([]*types.Transaction, error)
 }
 
-// DBInterface can be implemented by database backends to open database transactions.
-type DBInterface interface {
+// Interface can be implemented by database backends to open database transactions.
+type Interface interface {
 	// Begin starts a DB transaction. Apply `defer tx.Rollback()` in any case after. Use
 	// `tx.Commit()` to commit the write operations.
-	Begin() (DBTxInterface, error)
+	Begin() (TxInterface, error)
 	Close() error
 }

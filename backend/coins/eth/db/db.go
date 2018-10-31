@@ -15,12 +15,17 @@
 package db
 
 import (
+	"bytes"
+	"sort"
+
 	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/ethereum/go-ethereum/rlp"
 )
 
 const (
-	bucketPendingTransactions = "pendingTransactions"
+	bucketPendingOutgoingTransactions = "pendingTransactions"
 )
 
 // DB is a bbolt key/value database.
@@ -38,18 +43,18 @@ func NewDB(filename string) (*DB, error) {
 }
 
 // Begin implements transactions.Begin.
-func (db *DB) Begin() (DBTxInterface, error) {
+func (db *DB) Begin() (TxInterface, error) {
 	tx, err := db.db.Begin(true)
 	if err != nil {
 		return nil, err
 	}
-	bucketPendingTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketPendingTransactions))
+	bucketPendingOutgoingTransactions, err := tx.CreateBucketIfNotExists([]byte(bucketPendingOutgoingTransactions))
 	if err != nil {
 		return nil, err
 	}
 	return &Tx{
-		tx:                        tx,
-		bucketPendingTransactions: bucketPendingTransactions,
+		tx:                                tx,
+		bucketPendingOutgoingTransactions: bucketPendingOutgoingTransactions,
 	}, nil
 }
 
@@ -62,7 +67,7 @@ func (db *DB) Close() error {
 type Tx struct {
 	tx *bbolt.Tx
 
-	bucketPendingTransactions *bbolt.Bucket
+	bucketPendingOutgoingTransactions *bbolt.Bucket
 }
 
 // Rollback implements DBTxInterface.
@@ -74,4 +79,37 @@ func (tx *Tx) Rollback() {
 // Commit implements DBTxInterface.
 func (tx *Tx) Commit() error {
 	return tx.tx.Commit()
+}
+
+// PutPendingOutgoingTransaction implements DBTxInterface.
+func (tx *Tx) PutPendingOutgoingTransaction(transaction *types.Transaction) error {
+	txSerialized, err := rlp.EncodeToBytes(transaction)
+	if err != nil {
+		return err
+	}
+	return tx.bucketPendingOutgoingTransactions.Put(transaction.Hash().Bytes(), txSerialized)
+}
+
+type byNonce []*types.Transaction
+
+func (txs byNonce) Len() int           { return len(txs) }
+func (txs byNonce) Less(i, j int) bool { return txs[i].Nonce() < txs[j].Nonce() }
+func (txs byNonce) Swap(i, j int)      { txs[i], txs[j] = txs[j], txs[i] }
+
+// PendingOutgoingTransactions implements DBTxInterface.
+func (tx *Tx) PendingOutgoingTransactions() ([]*types.Transaction, error) {
+	transactions := []*types.Transaction{}
+	cursor := tx.bucketPendingOutgoingTransactions.Cursor()
+	for txHash, txSerialized := cursor.First(); txSerialized != nil; txHash, txSerialized = cursor.Next() {
+		transaction := new(types.Transaction)
+		if err := rlp.DecodeBytes(txSerialized, transaction); err != nil {
+			return nil, errp.WithStack(err)
+		}
+		if !bytes.Equal(transaction.Hash().Bytes(), txHash) {
+			return nil, errp.Newf("deserialized tx hash does not match serialized tx hash")
+		}
+		transactions = append(transactions, transaction)
+	}
+	sort.Sort(sort.Reverse(byNonce(transactions)))
+	return transactions, nil
 }
