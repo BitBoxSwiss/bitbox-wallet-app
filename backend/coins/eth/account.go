@@ -46,9 +46,11 @@ type Account struct {
 
 	initialized bool
 
-	address      Address
-	balance      coin.Amount
-	blockNumber  *big.Int
+	address     Address
+	balance     coin.Amount
+	blockNumber *big.Int
+
+	nextNonce    uint64
 	transactions []coin.Transaction
 
 	log *logrus.Entry
@@ -222,6 +224,23 @@ func (account *Account) update() error {
 		return err
 	}
 
+	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
+	// latency, which is addressed below by using the locally stored nonce.
+	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
+	if err != nil {
+		return err
+	}
+	account.nextNonce = nodeNonce
+
+	// Usually, our locally stored last nonce is used to compute the next noce. Edge case: if a user
+	// has pending tx but there is no database (restore, use different computer, ...), the nonce
+	// fetched from the node will do.
+	if len(pendingOutgoingTransactions) > 0 {
+		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(wrappedTransaction).tx.Nonce() + 1
+		if localNonce > account.nextNonce {
+			account.nextNonce = localNonce
+		}
+	}
 	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
 	return nil
 }
@@ -270,10 +289,6 @@ func (account *Account) newTx(
 	}
 	const gasLimit = 21000 // simple transaction gas cost
 
-	nonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
-	if err != nil {
-		return nil, err
-	}
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		return nil, err
@@ -297,7 +312,7 @@ func (account *Account) newTx(
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	}
-	tx := types.NewTransaction(nonce,
+	tx := types.NewTransaction(account.nextNonce,
 		common.HexToAddress(recipientAddress),
 		value, gasLimit, suggestedGasPrice, nil)
 	return &TxProposal{
