@@ -46,9 +46,11 @@ type Account struct {
 
 	initialized bool
 
-	address      Address
-	balance      coin.Amount
-	blockNumber  *big.Int
+	address     Address
+	balance     coin.Amount
+	blockNumber *big.Int
+
+	nextNonce    uint64
 	transactions []coin.Transaction
 
 	log *logrus.Entry
@@ -197,11 +199,6 @@ func (account *Account) pendingOutgoingTransactions(confirmedTxs []coin.Transact
 
 func (account *Account) update() error {
 	defer account.synchronizer.IncRequestsCounter()()
-	balance, err := account.coin.client.BalanceAt(context.TODO(), account.address.Address, nil)
-	if err != nil {
-		return errp.WithStack(err)
-	}
-	account.balance = coin.NewAmount(balance)
 
 	header, err := account.coin.client.HeaderByNumber(context.TODO(), nil)
 	if err != nil {
@@ -222,7 +219,31 @@ func (account *Account) update() error {
 		return err
 	}
 
+	// Nonce to be used for the next tx, fetched from the ETH node. It might be out of date due to
+	// latency, which is addressed below by using the locally stored nonce.
+	nodeNonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
+	if err != nil {
+		return err
+	}
+	account.nextNonce = nodeNonce
+
+	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
+	// next nonce.
+	if len(pendingOutgoingTransactions) > 0 {
+		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(wrappedTransaction).tx.Nonce() + 1
+		if localNonce > account.nextNonce {
+			account.nextNonce = localNonce
+		}
+	}
 	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
+
+	balance, err := account.coin.client.BalanceAt(context.TODO(),
+		account.address.Address, account.blockNumber)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	account.balance = coin.NewAmount(balance)
+
 	return nil
 }
 
@@ -270,10 +291,6 @@ func (account *Account) newTx(
 	}
 	const gasLimit = 21000 // simple transaction gas cost
 
-	nonce, err := account.coin.client.PendingNonceAt(context.TODO(), account.address.Address)
-	if err != nil {
-		return nil, err
-	}
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		return nil, err
@@ -297,7 +314,7 @@ func (account *Account) newTx(
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	}
-	tx := types.NewTransaction(nonce,
+	tx := types.NewTransaction(account.nextNonce,
 		common.HexToAddress(recipientAddress),
 		value, gasLimit, suggestedGasPrice, nil)
 	return &TxProposal{
