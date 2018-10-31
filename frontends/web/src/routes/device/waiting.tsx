@@ -44,7 +44,7 @@ function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
                         <Tampered style="max-width: 400px; align-self: center;" />
-                        <SkipForTestingButton show={!!testing} />
+                        <SkipForTesting show={!!testing} />
                     </div>
                     <hr />
                     <Footer>
@@ -64,15 +64,15 @@ function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
     );
 }
 
-interface SkipForTestingButtonProps {
+interface SkipForTestingProps {
     show: boolean;
 }
 
-interface SkipForTestingButtonState {
+interface SkipForTestingState {
     testPIN: string;
 }
 
-class SkipForTestingButton extends Component<SkipForTestingButtonProps, SkipForTestingButtonState> {
+class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState> {
     public state = {
         testPIN: '',
     };
@@ -86,7 +86,7 @@ class SkipForTestingButton extends Component<SkipForTestingButtonProps, SkipForT
         this.setState({ testPIN: value });
     }
 
-    public render({ show }: RenderableProps<SkipForTestingButtonProps>, { testPIN }: SkipForTestingButtonState) {
+    public render({ show }: RenderableProps<SkipForTestingProps>, { testPIN }: SkipForTestingState) {
         if (!show) {
             return null;
         }
