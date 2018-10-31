@@ -151,14 +151,14 @@ export default class Send extends Component {
     txInput = () => ({
         address: this.state.recipientAddress,
         amount: this.state.amount,
-        feeTarget: this.state.feeTarget,
+        feeTarget: this.state.feeTarget || '',
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
     })
 
     sendDisabled = () => {
         const txInput = this.txInput();
-        return !txInput.address || !txInput.feeTarget || (txInput.sendAll === 'no' && !txInput.amount);
+        return !txInput.address || this.state.feeTarget === null || (txInput.sendAll === 'no' && !txInput.amount);
     }
 
     validateAndDisplayFee = updateFiat => {

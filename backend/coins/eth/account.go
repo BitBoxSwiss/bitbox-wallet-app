@@ -271,7 +271,7 @@ func (account *Account) SendTx(
 
 // FeeTargets implements btc.Interface.
 func (account *Account) FeeTargets() ([]*btc.FeeTarget, btc.FeeTargetCode) {
-	return []*btc.FeeTarget{{Blocks: 2, Code: "low"}}, "low"
+	return nil, ""
 }
 
 // TxProposal implements btc.Interface.

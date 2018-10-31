@@ -25,6 +25,8 @@ type FeeTargetCode string
 // NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
 func NewFeeTargetCode(code string) (FeeTargetCode, error) {
 	switch code {
+	case "":
+		return defaultFeeTarget, nil
 	case string(FeeTargetCodeLow):
 	case string(FeeTargetCodeEconomy):
 	case string(FeeTargetCodeNormal):
