@@ -65,7 +65,7 @@ export default class FeeTargets extends Component {
         feeTargets,
         feeTarget,
     }) {
-        if (!feeTargets) {
+        if (feeTargets === null) {
             return (
                 <Input
                     label={label}
@@ -73,6 +73,9 @@ export default class FeeTargets extends Component {
                     disabled
                     transparent />
             );
+        }
+        if (feeTargets.length === 0) {
+            return null;
         }
 
         return (
