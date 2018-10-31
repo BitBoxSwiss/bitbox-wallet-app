@@ -59,13 +59,30 @@
 }
 
 .confirmationLabel {
-    line-height: var(--size-label);
+    position: relative;
+    line-height: 1.3;
     margin-top: var(--spacing-default);
-    text-align: center;
+    padding-left: 24px;
+}
+
+.confirmationLabelNumber {
+    display: inline-block;
+    position: absolute;
+    left: 0;
+}
+
+.disabledLabel,
+.disabledLabel span {
+    color: var(--color-brightgray) !important;
+}
+
+.noStep {
+    padding-left: 0;
 }
 
 .confirmationInstructions {
-    margin-top: 0;
+    margin: 0;
+    padding: var(--spacing-default) 0 var(--spacing-half) 0;
 }
 
 .confirmationInstructions > div {
@@ -83,10 +100,6 @@
 }
 
 @media (max-width: 640px) {
-    .modal .modalHeader {
-        /*font-weight: 300;*/
-    }
-
     .modal {
         padding: var(--spacing-default);
     }

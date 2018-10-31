@@ -68,27 +68,44 @@ export default class WaitDialog extends Component {
                         <p>{prequel}</p>
                     )
                 }
-                <p class={['label', style.confirmationLabel].join(' ')}>
-                    {paired ? t('confirm.infoWhenPaired') : t('confirm.info')}
-                </p>
-                { touchConfirm && (
-                    <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
-                        <div class="flex flex-column flex-center flex-items-center">
-                            <img class={style.image} src={reject} alt="Reject" />
-                            <p class="text-bold">
-                                {t('confirm.abortInfo')}
-                                <span class="text-red">{t('confirm.abortInfoRedText')}</span>
+                {
+                    paired ? (
+                        <div>
+                            <p class={[style.confirmationLabel, touchConfirm ? style.disabledLabel : ''].join(' ')}>
+                                <span class={style.confirmationLabelNumber}>1.</span>
+                                {t('confirm.infoWhenPaired')}
+                            </p>
+                            <p class={[style.confirmationLabel, !touchConfirm ? style.disabledLabel : ''].join(' ')}>
+                                <span class={style.confirmationLabelNumber}>2.</span>
+                                {t('confirm.info')}
                             </p>
                         </div>
-                        <div class="flex flex-column flex-center flex-items-center">
-                            <img class={style.image} src={approve} alt="Approve" />
-                            <p class="text-bold">
-                                {t('confirm.approveInfo')}
-                                <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
-                            </p>
+                    ) : (
+                        <p class={[style.confirmationLabel, style.noStep].join(' ')}>
+                            {t('confirm.info')}
+                        </p>
+                    )
+                }
+                {
+                    touchConfirm && (
+                        <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
+                            <div class="flex flex-column flex-center flex-items-center">
+                                <img class={style.image} src={reject} alt="Reject" />
+                                <p class="text-bold">
+                                    {t('confirm.abortInfo')}
+                                    <span class="text-red">{t('confirm.abortInfoRedText')}</span>
+                                </p>
+                            </div>
+                            <div class="flex flex-column flex-center flex-items-center">
+                                <img class={style.image} src={approve} alt="Approve" />
+                                <p class="text-bold">
+                                    {t('confirm.approveInfo')}
+                                    <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
             </div>
         );
         return (

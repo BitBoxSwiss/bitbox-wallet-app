@@ -35,8 +35,7 @@
 
 .confirmationBox {
     border-radius: 2px;
-    border: solid 1px var(--color-brightgray);
-    /* margin-top: var(--spacing-half); */
+    border: solid 1px var(--color-lightgray);
 }
 
 .confirmationBox .block {
@@ -49,7 +48,7 @@
 }
 
 .confirmationBox .block:not(:last-child) {
-    border-bottom: solid 0.5px var(--color-brightgray);
+    border-bottom: solid 0.5px var(--color-lightgray);
 }
 
 .confirmationBox .block:last-child {
@@ -67,7 +66,7 @@
 }
 
 .confirmationBox .block .half:first-child {
-    border-right: solid 0.5px var(--color-brightgray);
+    border-right: solid 0.5px var(--color-lightgray);
 }
 
 .confirmationBox .block .confirmationLabel {
@@ -80,6 +79,7 @@
 
 .confirmationValueTable td {
     line-height: 1;
+    vertical-align: bottom;
 }
 
 .confirmationValueTable td:first-child {
@@ -87,19 +87,24 @@
     padding-right: var(--spacing-half);
 }
 
-.confirmationValueTable td:last-child {
+.confirmationValueTable tr > td:last-child {
     color: var(--color-secondary);
+    font-size: var(--size-label);
+    font-weight: normal;
 }
 
 .confirmationValueTable.total td {
-    font-weight: bold;
-    font-size: 1.2rem;
+    font-weight: 300;
+    font-size: var(--size-large);
 }
 
 .confirmationValue {
     font-size: var(--size-medium);
     line-height: 1;
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    direction: rtl;
 }
 
 .maxAmount {
