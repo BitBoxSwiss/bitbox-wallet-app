@@ -138,22 +138,30 @@ export default class Receive extends Component {
                 <QRCode data={uriPrefix + receiveAddresses[activeIndex].address} />
                 <CopyableInput value={receiveAddresses[activeIndex].address} />
                 <div class={['flex flex-row flex-center flex-items-center', style.labels].join(' ')}>
-                    <Button
-                        transparent
-                        disabled={verifying}
-                        onClick={this.previous}>
-                        <img src={ArrowLeft} class={style.arrowLeft} />
-                        {t('button.previous')}
-                    </Button>
-                    <p class={style.label}>{`${t('receive.label')} (${activeIndex + 1}/${receiveAddresses.length})`}</p>
-                    <Button
-                        transparent
-                        disabled={verifying}
-                        onClick={this.next}
-                        className={style.button}>
-                        {t('button.next')}
-                        <img src={ArrowRight} class={style.arrowRight} />
-                    </Button>
+                    {
+                        receiveAddresses.length > 1 && (
+                            <Button
+                                transparent
+                                disabled={verifying}
+                                onClick={this.previous}>
+                                <img src={ArrowLeft} class={style.arrowLeft} />
+                                {t('button.previous')}
+                            </Button>
+                        )
+                    }
+                    <p class={style.label}>{t('receive.label')} { receiveAddresses.length > 1 ? `(${activeIndex + 1}/${receiveAddresses.length})` : ''}</p>
+                    {
+                        receiveAddresses.length > 1 && (
+                            <Button
+                                transparent
+                                disabled={verifying}
+                                onClick={this.next}
+                                className={style.button}>
+                                {t('button.next')}
+                                <img src={ArrowRight} class={style.arrowRight} />
+                            </Button>
+                        )
+                    }
                 </div>
                 {
                     code === 'ltc-p2wpkh-p2sh' && (
@@ -203,10 +211,10 @@ export default class Receive extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
-                    <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />
+                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} /> }
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-                    <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />
+                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} /> }
                 </Guide>
             </div>
         );
