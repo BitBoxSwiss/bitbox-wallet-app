@@ -16,7 +16,7 @@
 
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { Checkbox } from '../forms';
 import { Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
 import * as style from './fiat.css';
@@ -36,7 +36,7 @@ function setDefault(event: Event): void {
     event.preventDefault();
 }
 
-type Props = SharedProps & TranslateProp;
+type Props = SharedProps & TranslateProps;
 
 function Selection({
     t,
@@ -89,4 +89,4 @@ function Selection({
     );
 }
 
-export const FiatSelection = translate()(share<SharedProps, TranslateProp>(store)(Selection));
+export const FiatSelection = translate()(share<SharedProps, TranslateProps>(store)(Selection));

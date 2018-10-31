@@ -15,7 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
@@ -26,11 +26,11 @@ interface State {
     message?: string;
 }
 
-class Alert extends Component<TranslateProp, State> {
+class Alert extends Component<TranslateProps, State> {
     private button!: JSX.ElementClass; // Initialized after render().
     private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
-    constructor(props: TranslateProp) {
+    constructor(props: TranslateProps) {
         super(props);
         alertUser = this.alertUser;
         this.state = {
@@ -61,7 +61,7 @@ class Alert extends Component<TranslateProp, State> {
         });
     }
 
-    public render({ t }: RenderableProps<TranslateProp>, { message, active }: State) {
+    public render({ t }: RenderableProps<TranslateProps>, { message, active }: State) {
         return active ? (
             <Dialog
                 onClose={this.handleClose}

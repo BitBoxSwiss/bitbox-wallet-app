@@ -17,7 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import CheckIcon from '../../assets/icons/check.svg';
 import CopyIcon from '../../assets/icons/copy.svg';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { Input } from '../forms';
 import * as style from './Copy.css';
 
@@ -26,7 +26,7 @@ interface CopyableInputProps {
     className?: string;
 }
 
-type Props = CopyableInputProps & TranslateProp;
+type Props = CopyableInputProps & TranslateProps;
 
 interface State {
     success: boolean;

@@ -23,7 +23,7 @@ import Header from '../../components/header/Header';
 import { Shift } from '../../components/icon';
 import { PasswordSingleInput } from '../../components/password';
 import { load } from '../../decorators/load';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import * as style from './device.css';
@@ -33,7 +33,7 @@ interface TestingProps {
     testing?: boolean;
 }
 
-type WaitingProps = TestingProps & TranslateProp;
+type WaitingProps = TestingProps & TranslateProps;
 
 function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
     return (
@@ -106,7 +106,7 @@ class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState>
     }
 }
 
-const loadHOC = load<TestingProps, TranslateProp>(() => debug ? { testing: 'testing' } : {})(Waiting);
+const loadHOC = load<TestingProps, TranslateProps>(() => debug ? { testing: 'testing' } : {})(Waiting);
 
 const translateHOC = translate()(loadHOC);
 

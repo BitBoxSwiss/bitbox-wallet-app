@@ -16,7 +16,7 @@
 
 import { h, RenderableProps } from 'preact';
 import { load } from '../../decorators/load';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import A from '../anchor/anchor';
 import Status from '../status/status';
 
@@ -33,7 +33,7 @@ interface LoadedProps {
     file: File | null;
 }
 
-type Props = LoadedProps & TranslateProp;
+type Props = LoadedProps & TranslateProps;
 
 function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
     return file && (
@@ -51,6 +51,6 @@ function Update({ file, t }: RenderableProps<Props>): JSX.Element | null {
     );
 }
 
-const HOC = translate()(load<LoadedProps, TranslateProp>({ file: 'update' })(Update));
+const HOC = translate()(load<LoadedProps, TranslateProps>({ file: 'update' })(Update));
 
 export { HOC as Update };

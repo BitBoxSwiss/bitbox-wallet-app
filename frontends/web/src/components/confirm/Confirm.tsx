@@ -15,7 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
@@ -26,10 +26,10 @@ interface State {
     message?: string;
 }
 
-class Confirm extends Component<TranslateProp, State> {
+class Confirm extends Component<TranslateProps, State> {
     private callback!: (input: boolean) => void; // Set within confirmation
 
-    constructor(props: TranslateProp) {
+    constructor(props: TranslateProps) {
         super(props);
         confirmation = this.confirmation;
         this.state = {
@@ -60,7 +60,7 @@ class Confirm extends Component<TranslateProp, State> {
         this.respond(true);
     }
 
-    public render({ t }: RenderableProps<TranslateProp>, { message, active }: State) {
+    public render({ t }: RenderableProps<TranslateProps>, { message, active }: State) {
         return active ? (
             <Dialog
                 onClose={this.decline}>

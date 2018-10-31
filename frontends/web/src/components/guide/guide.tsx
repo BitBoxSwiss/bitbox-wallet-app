@@ -17,7 +17,7 @@
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
-import { translate, TranslateProp } from '../../decorators/translate';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { setConfig } from '../../utils/config';
 import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
@@ -54,7 +54,7 @@ export function hide() {
     setShown(false);
 }
 
-type Props = SharedProps & TranslateProp;
+type Props = SharedProps & TranslateProps;
 
 function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
@@ -72,6 +72,6 @@ function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
     );
 }
 
-const HOC = translate()(share<SharedProps, TranslateProp>(store)(Guide));
+const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));
 
 export { HOC as Guide };

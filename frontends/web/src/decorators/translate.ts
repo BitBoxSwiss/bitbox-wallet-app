@@ -50,7 +50,7 @@ export type Translate = (i18nKey: string, values?: TranslateOptions) => any;
 /**
  * This interface makes it easier to declare properties with intersection types.
  */
-export interface TranslateProp {
+export interface TranslateProps {
     t: Translate;
 }
 
@@ -67,7 +67,7 @@ export function translate<ProvidedProps extends ObjectButNotFunction = {}>(
     options?: NamespaceOptions<ProvidedProps>,
 ) {
     return function decorator(
-        WrappedComponent: ComponentFactory<TranslateProp & ProvidedProps>,
+        WrappedComponent: ComponentFactory<TranslateProps & ProvidedProps>,
     ): ComponentFactory<ProvidedProps> {
         return originalTranslate(options)(WrappedComponent);
     };
