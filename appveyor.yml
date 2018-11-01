@@ -17,7 +17,7 @@ before_build:
 
 build_script:
   - echo on
-  - choco install make
+  - copy c:\MinGW\bin\mingw32-make.exe c:\MinGW\bin\make.exe
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - mkdir %GOPATH%\src\github.com\digitalbitbox
   - cd ..
