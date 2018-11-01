@@ -24,8 +24,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
-// CoinConfig holds configurations specific to a coin.
-type CoinConfig struct {
+// btcCoinConfig holds configurations specific to a btc-based coin.
+type btcCoinConfig struct {
 	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
 }
 
@@ -38,10 +38,10 @@ type Backend struct {
 	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
 	EthereumActive           bool `json:"ethereumActive"`
 
-	BTC  CoinConfig `json:"btc"`
-	TBTC CoinConfig `json:"tbtc"`
-	LTC  CoinConfig `json:"ltc"`
-	TLTC CoinConfig `json:"tltc"`
+	BTC  btcCoinConfig `json:"btc"`
+	TBTC btcCoinConfig `json:"tbtc"`
+	LTC  btcCoinConfig `json:"ltc"`
+	TLTC btcCoinConfig `json:"tltc"`
 }
 
 // AccountActive returns the Active setting for a coin by code.
@@ -118,7 +118,7 @@ func NewDefaultConfig() AppConfig {
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     false,
 			EthereumActive:           true,
-			BTC: CoinConfig{
+			BTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{
 						Server:  "btc.shiftcrypto.ch:443",
@@ -132,7 +132,7 @@ func NewDefaultConfig() AppConfig {
 					},
 				},
 			},
-			TBTC: CoinConfig{
+			TBTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{
 						Server:  "btc.shiftcrypto.ch:51002",
@@ -146,7 +146,7 @@ func NewDefaultConfig() AppConfig {
 					},
 				},
 			},
-			LTC: CoinConfig{
+			LTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{
 						Server:  "ltc.shiftcrypto.ch:443",
@@ -160,7 +160,7 @@ func NewDefaultConfig() AppConfig {
 					},
 				},
 			},
-			TLTC: CoinConfig{
+			TLTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{
 						Server:  "ltc.shiftcrypto.ch:51004",
