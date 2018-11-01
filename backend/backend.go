@@ -288,6 +288,7 @@ func (backend *Backend) Coin(code string) coin.Coin {
 		panic(errp.Newf("unknown coin code %s", code))
 	}
 	backend.coins[code] = coin
+	coin.Observe(func(event observable.Event) { backend.events <- event })
 	return coin
 }
 

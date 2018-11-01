@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
+import { isBitcoinBased } from '../utils';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { debug } from '../../../utils/env';
@@ -72,15 +73,7 @@ export default class Send extends Component {
         if (!account) {
             return false;
         }
-        switch (account.coinCode) {
-        case 'btc':
-        case 'tbtc':
-        case 'ltc':
-        case 'tltc':
-            return true;
-        default:
-            return false;
-        }
+        return isBitcoinBased(account.coinCode);
     }
 
     componentDidMount() {

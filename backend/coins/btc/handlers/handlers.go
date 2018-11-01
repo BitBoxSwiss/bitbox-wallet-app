@@ -51,7 +51,6 @@ func NewHandlers(
 	handleFunc("/sendtx", handlers.ensureAccountInitialized(handlers.postAccountSendTx)).Methods("POST")
 	handleFunc("/fee-targets", handlers.ensureAccountInitialized(handlers.getAccountFeeTargets)).Methods("GET")
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
-	handleFunc("/headers/status", handlers.ensureAccountInitialized(handlers.getHeadersStatus)).Methods("GET")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
@@ -269,10 +268,6 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 		"fee":     handlers.formatAmountAsJSON(fee),
 		"total":   handlers.formatAmountAsJSON(total),
 	}, nil
-}
-
-func (handlers *Handlers) getHeadersStatus(r *http.Request) (interface{}, error) {
-	return handlers.account.HeadersStatus()
 }
 
 func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, error) {
