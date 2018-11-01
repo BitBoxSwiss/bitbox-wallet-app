@@ -10,7 +10,6 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
@@ -401,11 +400,6 @@ func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) 
 // Keystores implements btc.Interface.
 func (account *Account) Keystores() keystore.Keystores {
 	return account.keystores
-}
-
-// HeadersStatus implements btc.Interface.
-func (account *Account) HeadersStatus() (*headers.Status, error) {
-	return nil, nil
 }
 
 // SpendableOutputs implements btc.Interface.

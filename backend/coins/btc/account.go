@@ -69,7 +69,6 @@ type Interface interface {
 	VerifyAddress(addressID string) (bool, error)
 	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
 	Keystores() keystore.Keystores
-	HeadersStatus() (*headers.Status, error)
 	SpendableOutputs() []*SpendableOutput
 }
 
@@ -91,7 +90,6 @@ type Account struct {
 	changeAddresses  *addresses.AddressChain
 
 	transactions *transactions.Transactions
-	headers      headers.Interface
 
 	synchronizer *synchronizer.Synchronizer
 
@@ -245,14 +243,13 @@ func (account *Account) Initialize() error {
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
-	account.headers = theHeaders
-	account.headers.SubscribeEvent(func(event headers.Event) {
+	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
 			account.onEvent(EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
-		account.coin.Net(), account.db, account.headers, account.synchronizer,
+		account.coin.Net(), account.db, theHeaders, account.synchronizer,
 		account.blockchain, account.log)
 
 	fixGapLimit := gapLimit
@@ -596,11 +593,6 @@ func (account *Account) ConvertToLegacyAddress(addressID string) (btcutil.Addres
 // Keystores returns the keystores of the account.
 func (account *Account) Keystores() keystore.Keystores {
 	return account.keystores
-}
-
-// HeadersStatus returns the status of the headers.
-func (account *Account) HeadersStatus() (*headers.Status, error) {
-	return account.headers.Status()
 }
 
 type byValue struct {
