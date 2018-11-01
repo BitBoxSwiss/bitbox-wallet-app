@@ -42,9 +42,20 @@ export default class Success extends Component {
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
                         <hr />
-                        <h1 class={style.title}>{t(`success.${goal}.title`)}</h1>
-                        <div class={style.block}>
-                            {t(`success.${goal}.info`)}
+                        <h1 className={style.title} style="text-align: center;">
+                            {t(`success.${goal}.title`)}
+                        </h1>
+                        <div className={style.block}>
+                            <p style="text-align: center;">
+                                {t(`success.${goal}.summary`)}
+                            </p>
+                            { goal === 'create' ? (
+                                <ul class={style.summary}>
+                                    <li>{t(`success.${goal}.info1`)}</li>
+                                    <li>{t(`success.${goal}.info2`)}</li>
+                                    <li>{t(`success.${goal}.info3`)}</li>
+                                </ul>
+                            ) : null}
                         </div>
                         <hr />
                         <Footer>
