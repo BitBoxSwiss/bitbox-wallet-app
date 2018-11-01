@@ -61,9 +61,9 @@ type Interface interface {
 	Balance() *coin.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
-	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) error
+	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}) (
+	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
 		coin.Amount, coin.Amount, coin.Amount, error)
 	GetUnusedReceiveAddresses() []coin.Address
 	VerifyAddress(addressID string) (bool, error)

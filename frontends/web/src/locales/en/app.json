@@ -626,10 +626,15 @@
       "label": "Converted Fee",
       "placeholder": "Converted Fee"
     },
+    "data": {
+      "label": "Optional Data",
+      "placeholder": "Enter hexadecimal data"
+    },
     "error": {
       "insufficientFunds": "insufficient funds",
       "invalidAddress": "invalid address",
-      "invalidAmount": "invalid amount"
+      "invalidAmount": "invalid amount",
+      "invalidData": "invalid data"
     },
     "fee": {
       "customPlaceholder": "Enter amount",

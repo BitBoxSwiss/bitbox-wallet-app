@@ -52,6 +52,7 @@ export default class Send extends Component {
             valid: false,
             addressError: null,
             amountError: null,
+            dataError: null,
             sendAll: false,
             isConfirming: false,
             isSent: false,
@@ -144,6 +145,7 @@ export default class Send extends Component {
                     proposedTotal: null,
                     fiatAmount: null,
                     amount: null,
+                    data: null,
                 });
                 if (this.utxos) {
                     this.utxos.getWrappedInstance().clear();
@@ -170,6 +172,7 @@ export default class Send extends Component {
         feeTarget: this.state.feeTarget || '',
         sendAll: this.state.sendAll ? 'yes' : 'no',
         selectedUTXOs: Object.keys(this.selectedUTXOs),
+        data: this.state.data,
     })
 
     sendDisabled = () => {
@@ -182,6 +185,7 @@ export default class Send extends Component {
             proposedTotal: null,
             addressError: null,
             amountError: null,
+            dataError: null,
         });
         if (this.sendDisabled()) {
             return;
@@ -193,6 +197,7 @@ export default class Send extends Component {
                 this.setState({
                     addressError: null,
                     amountError: null,
+                    dataError: null,
                     proposedFee: result.fee,
                     proposedAmount: result.amount,
                     proposedTotal: result.total,
@@ -209,6 +214,9 @@ export default class Send extends Component {
                 case 'invalidAmount':
                 case 'insufficientFunds':
                     this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
+                    break;
+                case 'invalidData':
+                    this.setState({ dataError: this.props.t(`send.error.invalidData`) });
                     break;
                 default:
                     this.setState({ proposedFee: null });
@@ -330,6 +338,7 @@ export default class Send extends Component {
         proposedAmount,
         valid,
         amount,
+        data,
         fiatAmount,
         fiatUnit,
         sendAll,
@@ -339,6 +348,7 @@ export default class Send extends Component {
         isAborted,
         addressError,
         amountError,
+        dataError,
         paired,
         lock,
         signProgress,
@@ -452,8 +462,20 @@ export default class Send extends Component {
                                     />
                                     */}
                                 </div>
-                                <p class={style.feeDescription}>{feeTarget && t('send.feeTarget.description.' + feeTarget) || ''}</p>
+                                {feeTarget && <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>}
                             </div>
+                            {
+                                (account.coinCode === 'ETH' || account.coinCode === 'TETH') && <div class="row">
+                                    <Input
+                                        label={t('send.data.label')}
+                                        placeholder={t('send.data.placeholder')}
+                                        id="data"
+                                        error={dataError}
+                                        onInput={this.handleFormChange}
+                                        value={data}
+                                    />
+                                </div>
+                            }
                             <div class="row buttons flex flex-row flex-between flex-start">
                                 <ButtonLink
                                     secondary

@@ -127,6 +127,7 @@ func (account *Account) SendTx(
 	amount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
+	_ []byte,
 ) error {
 	account.log.Info("Signing and sending transaction")
 	utxo, txProposal, err := account.newTx(
@@ -161,6 +162,7 @@ func (account *Account) TxProposal(
 	amount coin.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
+	_ []byte,
 ) (
 	coin.Amount, coin.Amount, coin.Amount, error) {
 

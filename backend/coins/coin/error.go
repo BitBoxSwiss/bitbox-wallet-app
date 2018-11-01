@@ -27,6 +27,8 @@ var (
 	ErrInvalidAddress = TxValidationError("invalidAddress")
 	// ErrInvalidAmount is used when the user entered amount is malformatted or not positive.
 	ErrInvalidAmount = TxValidationError("invalidAmount")
+	// ErrInvalidData is used when the user entered data is not hexadecimal.
+	ErrInvalidData = TxValidationError("invalidData")
 	// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount
 	// and fee.
 	ErrInsufficientFunds = TxValidationError("insufficientFunds")

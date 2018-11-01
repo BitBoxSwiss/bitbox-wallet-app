@@ -7,6 +7,8 @@ import (
 	"path"
 	"time"
 
+	"github.com/ethereum/go-ethereum"
+
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -305,30 +307,55 @@ type TxProposal struct {
 
 func (account *Account) newTx(
 	recipientAddress string,
-	amount coin.SendAmount) (*TxProposal, error) {
+	amount coin.SendAmount,
+	data []byte,
+) (*TxProposal, error) {
 	if !common.IsHexAddress(recipientAddress) {
 		return nil, errp.WithStack(coin.ErrInvalidAddress)
 	}
-	const gasLimit = 21000 // simple transaction gas cost
 
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
 	if err != nil {
 		return nil, err
 	}
-	fee := new(big.Int).Mul(big.NewInt(gasLimit), suggestedGasPrice)
 
 	var value *big.Int
+	var gasLimit uint64
 	if amount.SendAll() {
-		value = new(big.Int).Sub(account.balance.BigInt(), fee)
-		if value.Sign() <= 0 {
-			return nil, errp.WithStack(coin.ErrInsufficientFunds)
-		}
+		// The value is set below after determining the fee.
+		gasLimit = 21000 // Hardcoded to prevent cyclic gas estimation.
 	} else {
 		parsedAmount, err := amount.Amount(big.NewInt(params.Ether))
 		if err != nil {
 			return nil, err
 		}
 		value = parsedAmount.BigInt()
+
+		address := common.HexToAddress(recipientAddress)
+		message := ethereum.CallMsg{
+			From:     account.address.Address,
+			To:       &address,
+			Gas:      0,
+			GasPrice: suggestedGasPrice,
+			Value:    value,
+			Data:     data,
+		}
+
+		gasLimit, err = account.coin.client.EstimateGas(context.TODO(), message)
+		if err != nil {
+			account.log.WithError(err).Error("Could not estimate the gas limit.")
+			return nil, errp.WithStack(coin.ErrInvalidData)
+		}
+	}
+
+	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
+
+	if amount.SendAll() {
+		value = new(big.Int).Sub(account.balance.BigInt(), fee)
+		if value.Sign() <= 0 {
+			return nil, errp.WithStack(coin.ErrInsufficientFunds)
+		}
+	} else {
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
@@ -336,7 +363,7 @@ func (account *Account) newTx(
 	}
 	tx := types.NewTransaction(account.nextNonce,
 		common.HexToAddress(recipientAddress),
-		value, gasLimit, suggestedGasPrice, nil)
+		value, gasLimit, suggestedGasPrice, data)
 	return &TxProposal{
 		Tx:      tx,
 		Fee:     fee,
@@ -365,10 +392,11 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 func (account *Account) SendTx(
 	recipientAddress string,
 	amount coin.SendAmount,
-	feeTargetCode btc.FeeTargetCode,
-	_ map[wire.OutPoint]struct{}) error {
+	_ btc.FeeTargetCode,
+	_ map[wire.OutPoint]struct{},
+	data []byte) error {
 	account.log.Info("Signing and sending transaction")
-	txProposal, err := account.newTx(recipientAddress, amount)
+	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
 		return err
 	}
@@ -394,10 +422,11 @@ func (account *Account) FeeTargets() ([]*btc.FeeTarget, btc.FeeTargetCode) {
 func (account *Account) TxProposal(
 	recipientAddress string,
 	amount coin.SendAmount,
-	feeTargetCode btc.FeeTargetCode,
-	_ map[wire.OutPoint]struct{}) (coin.Amount, coin.Amount, coin.Amount, error) {
+	_ btc.FeeTargetCode,
+	_ map[wire.OutPoint]struct{},
+	data []byte) (coin.Amount, coin.Amount, coin.Amount, error) {
 
-	txProposal, err := account.newTx(recipientAddress, amount)
+	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}

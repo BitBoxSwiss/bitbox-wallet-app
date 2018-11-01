@@ -15,8 +15,10 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
@@ -188,6 +190,7 @@ type sendTxInput struct {
 	sendAmount    coin.SendAmount
 	feeTargetCode btc.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
+	data          []byte
 }
 
 func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
@@ -197,6 +200,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		FeeTarget     string   `json:"feeTarget"`
 		Amount        string   `json:"amount"`
 		SelectedUTXOS []string `json:"selectedUTXOS"`
+		Data          string   `json:"data"`
 	}{}
 	if err := json.Unmarshal(jsonBytes, &jsonBody); err != nil {
 		return errp.WithStack(err)
@@ -220,6 +224,10 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		}
 		input.selectedUTXOs[*outPoint] = struct{}{}
 	}
+	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
+	if err != nil {
+		return errp.WithStack(coin.ErrInvalidData)
+	}
 	return nil
 }
 
@@ -228,7 +236,13 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode, input.selectedUTXOs)
+	err := handlers.account.SendTx(
+		input.address,
+		input.sendAmount,
+		input.feeTargetCode,
+		input.selectedUTXOs,
+		input.data,
+	)
 	if errp.Cause(err) == keystore.ErrSigningAborted {
 		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
@@ -258,6 +272,7 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 		input.sendAmount,
 		input.feeTargetCode,
 		input.selectedUTXOs,
+		input.data,
 	)
 	if err != nil {
 		return txProposalError(err)
