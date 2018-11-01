@@ -23,10 +23,10 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
