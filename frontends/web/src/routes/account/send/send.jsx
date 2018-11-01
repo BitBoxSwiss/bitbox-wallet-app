@@ -56,6 +56,7 @@ export default class Send extends Component {
             isSent: false,
             isAborted: false,
             paired: null,
+            lock: null,
             fiatAmount: null,
             fiatUnit: fiat.state.active,
             signProgress: null,
@@ -86,7 +87,9 @@ export default class Send extends Component {
         apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
             apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
-                this.setState({ paired });
+                apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ lock }) => {
+                    this.setState({ paired, lock });
+                });
             });
         }
         if (this.coinSupportsCoinControl()) {
@@ -342,6 +345,7 @@ export default class Send extends Component {
         addressError,
         amountError,
         paired,
+        lock,
         signProgress,
         signConfirm,
         coinControl,
@@ -473,6 +477,7 @@ export default class Send extends Component {
                                 title={t('send.confirm.title')}
                                 prequel={confirmPrequel}
                                 paired={paired}
+                                lock={lock}
                                 touchConfirm={signConfirm}
                                 includeDefault>
                                 <div class={style.confirmationBox}>
