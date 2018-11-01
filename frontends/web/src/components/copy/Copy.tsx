@@ -18,7 +18,6 @@ import { Component, h, RenderableProps } from 'preact';
 import CheckIcon from '../../assets/icons/check.svg';
 import CopyIcon from '../../assets/icons/copy.svg';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Input } from '../forms';
 import * as style from './Copy.css';
 
 interface CopyableInputProps {
@@ -42,6 +41,22 @@ class CopyableInput extends Component<Props, State> {
         };
     }
 
+    public componentDidMount() {
+        this.setHeight();
+    }
+
+    public componentDidUpdate() {
+        this.setHeight();
+    }
+
+    private setHeight() {
+        const textarea = this.inputField;
+        const fontSize = window.getComputedStyle(textarea, null).getPropertyValue('font-size');
+        const units = Number(fontSize.replace('px', '')) + 2;
+        textarea.setAttribute('rows', '1');
+        textarea.setAttribute('rows', String(Math.round((textarea.scrollHeight / units) - 2)));
+    }
+
     private setRef = (input: HTMLInputElement) => {
         this.inputField = input;
     }
@@ -62,21 +77,16 @@ class CopyableInput extends Component<Props, State> {
 
     public render({ t, value, className }: RenderableProps<Props>, { success }: State) {
         return (
-            <div class={['flex flex-row flex-start flex-items-center', style.container, className ? className : ''].join(' ')}>
-                <Input
+            <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
+                <textarea
                     readOnly
                     onFocus={this.onFocus}
                     value={value}
-                    getRef={this.setRef}
+                    ref={this.setRef}
+                    rows={1}
                     className={style.inputField} />
                 <button onClick={this.copy} class={[style.button, success ? style.success : ''].join(' ')} title={t('button.copy')}>
-                    {
-                        success ? (
-                            <img src={CheckIcon} />
-                        ) : (
-                            <img src={CopyIcon} />
-                        )
-                    }
+                    <img src={success ? CheckIcon : CopyIcon} />
                 </button>
             </div>
         );

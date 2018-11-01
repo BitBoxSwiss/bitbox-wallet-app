@@ -10,6 +10,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    margin-top: var(--spacing-half);
     margin-left: var(--spacing-default);
     cursor: pointer;
     transition: background-color ease 0.2s;
@@ -37,7 +38,15 @@
 }
 
 .inputField {
+    flex: 1;
     margin-bottom: 0;
+    font-size: var(--size-medium);
+    min-width: 200px !important;
+    width: 365px;
+    padding: var(--spacing-default);
+    border-radius: 2px;
+    border: solid 1px var(--color-lightgray);
+    resize: none;
 }
 
 @media screen and (max-width: 640px) {
@@ -45,7 +54,7 @@
         margin-left: var(--spacing-half);
     }
 
-    .inputField input {
+    .inputField {
         font-size: var(--size-button);
     }
 }
