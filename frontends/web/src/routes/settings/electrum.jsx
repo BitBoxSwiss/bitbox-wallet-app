@@ -231,7 +231,7 @@ class ElectrumServers extends Component {
     }
 
     resetToDefault = () => {
-        confirmation('Do you want to remove all servers and install the default servers?', response => {
+        confirmation(this.props.t('settings.electrum.resetConfirm'), response => {
             if (response) {
                 apiGet('config/default').then(config => {
                     this.setState({ electrumServers: config.backend[this.props.coin].electrumServers });
@@ -250,7 +250,7 @@ class ElectrumServers extends Component {
         electrumServers,
     }) {
         let onRemove = (server, index) => (() => {
-            confirmation(`Remove ${server.server}?`, confirmed => {
+            confirmation(t('settings.electrum.removeConfirm', { server: server.server }), confirmed => {
                 if (confirmed) this.onRemove(index);
             });
         });
