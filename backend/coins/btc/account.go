@@ -570,7 +570,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	if account.Keystores().HaveSecureOutput() {
+	if account.Keystores().HaveSecureOutput(address.Configuration, account.Coin()) {
 		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
 	}
 	return false, nil

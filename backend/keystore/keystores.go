@@ -33,7 +33,7 @@ type Keystores interface {
 	Remove(Keystore) error
 
 	// HaveSecureOutput returns whether any of the keystores has a secure output.
-	HaveSecureOutput() bool
+	HaveSecureOutput(*signing.Configuration, coin.Coin) bool
 
 	// OutputAddress outputs the address for the given coin with the given configuration on all
 	// keystores that have a secure output.
@@ -89,9 +89,10 @@ func (keystores *implementation) Remove(keystore Keystore) error {
 }
 
 // HaveSecureOutput implements the above interface.
-func (keystores *implementation) HaveSecureOutput() bool {
+func (keystores *implementation) HaveSecureOutput(
+	configuration *signing.Configuration, coin coin.Coin) bool {
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput() {
+		if keystore.HasSecureOutput(configuration, coin) {
 			return true
 		}
 	}
@@ -103,11 +104,10 @@ func (keystores *implementation) OutputAddress(
 	configuration *signing.Configuration,
 	coin coin.Coin,
 ) error {
-	keypath := configuration.AbsoluteKeypath()
 	found := false
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput() && configuration.Singlesig() {
-			if err := keystore.OutputAddress(keypath, configuration.ScriptType(), coin); err != nil {
+		if keystore.HasSecureOutput(configuration, coin) {
+			if err := keystore.OutputAddress(configuration, coin); err != nil {
 				return err
 			}
 			found = true

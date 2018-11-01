@@ -47,17 +47,19 @@ func (keystore *keystore) CosignerIndex() int {
 }
 
 // HasSecureOutput implements keystore.Keystore.
-func (keystore *keystore) HasSecureOutput() bool {
-	return keystore.dbb.channel != nil
+func (keystore *keystore) HasSecureOutput(
+	configuration *signing.Configuration, coin coin.Coin) bool {
+	return keystore.dbb.channel != nil && configuration.Singlesig()
 }
 
 // OutputAddress implements keystore.Keystore.
 func (keystore *keystore) OutputAddress(
-	keyPath signing.AbsoluteKeypath, scriptType signing.ScriptType, coin coin.Coin) error {
-	if !keystore.HasSecureOutput() {
+	configuration *signing.Configuration, coin coin.Coin) error {
+	if !keystore.HasSecureOutput(configuration, coin) {
 		panic("HasSecureOutput must be true")
 	}
-	return keystore.dbb.displayAddress(keyPath.Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(scriptType)))
+	return keystore.dbb.displayAddress(
+		configuration.AbsoluteKeypath().Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(configuration.ScriptType())))
 }
 
 // ExtendedPublicKey implements keystore.Keystore.

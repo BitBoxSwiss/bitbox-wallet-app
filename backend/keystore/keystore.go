@@ -38,11 +38,11 @@ type Keystore interface {
 
 	// HasSecureOutput returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	HasSecureOutput() bool
+	HasSecureOutput(*signing.Configuration, coin.Coin) bool
 
-	// OutputAddress outputs the public key at the given absolute keypath for the given coin.
+	// OutputAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	OutputAddress(signing.AbsoluteKeypath, signing.ScriptType, coin.Coin) error
+	OutputAddress(*signing.Configuration, coin.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
