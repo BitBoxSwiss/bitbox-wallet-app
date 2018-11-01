@@ -32,6 +32,7 @@ import InfoIcon from '../../assets/icons/info.svg';
 import ArrowUp from '../../assets/icons/arrow-up.svg';
 import ArrowDown from '../../assets/icons/arrow-down.svg';
 import * as componentStyle from '../../components/style.css';
+import { isBitcoinBased } from './utils';
 
 @translate()
 export default class Account extends Component {
@@ -201,7 +202,7 @@ export default class Account extends Component {
                         </div>
                     </Header>
                     <div class={['innerContainer', ''].join(' ')}>
-                        { initialized && !determiningStatus && <HeadersSync coinCode={account.coinCode} /> }
+                        { initialized && !determiningStatus && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} /> }
                         {
                             !initialized || !connected ? (
                                 <Spinner text={
