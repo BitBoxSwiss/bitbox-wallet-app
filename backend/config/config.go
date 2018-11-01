@@ -29,6 +29,11 @@ type btcCoinConfig struct {
 	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
 }
 
+// ethCoinConfig holds configurations for ethereum coins.
+type ethCoinConfig struct {
+	NodeURL string `json:"nodeURL"`
+}
+
 // Backend holds the backend specific configuration.
 type Backend struct {
 	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
@@ -42,6 +47,8 @@ type Backend struct {
 	TBTC btcCoinConfig `json:"tbtc"`
 	LTC  btcCoinConfig `json:"ltc"`
 	TLTC btcCoinConfig `json:"tltc"`
+	ETH  ethCoinConfig `json:"eth"`
+	TETH ethCoinConfig `json:"teth"`
 }
 
 // AccountActive returns the Active setting for a coin by code.
@@ -173,6 +180,12 @@ func NewDefaultConfig() AppConfig {
 						PEMCert: shiftRootCA,
 					},
 				},
+			},
+			ETH: ethCoinConfig{
+				NodeURL: "https://mainnet.infura.io",
+			},
+			TETH: ethCoinConfig{
+				NodeURL: "https://rinkeby.infura.io",
 			},
 		},
 	}

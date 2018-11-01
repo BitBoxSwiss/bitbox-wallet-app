@@ -7,9 +7,11 @@ import (
 
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/sirupsen/logrus"
 )
 
 // Coin models an Ethereum coin.
@@ -20,7 +22,10 @@ type Coin struct {
 	code                  string
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
+	nodeURL               string
 	etherScan             *etherscan.EtherScan
+
+	log *logrus.Entry
 }
 
 // NewCoin creates a new coin with the given parameters.
@@ -28,11 +33,15 @@ func NewCoin(
 	code string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
+	nodeURL string,
 ) *Coin {
 	return &Coin{
 		code:                  code,
 		net:                   net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		nodeURL:               nodeURL,
+
+		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
 }
 
@@ -42,13 +51,12 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 // Initialize implements coin.Coin.
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
-		url := `https://mainnet.infura.io`
 		etherScanURL := "https://api.etherscan.io/api"
 		if coin.code == "teth" {
-			url = `https://rinkeby.infura.io`
 			etherScanURL = "https://api-rinkeby.etherscan.io/api"
 		}
-		client, err := ethclient.Dial(url)
+		coin.log.Infof("connecting to %s", coin.nodeURL)
+		client, err := ethclient.Dial(coin.nodeURL)
 		if err != nil {
 			// TODO: init conn lazily, feed error via EventStatusChanged
 			panic(err)
