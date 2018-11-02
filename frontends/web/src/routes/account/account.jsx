@@ -177,7 +177,7 @@ export default class Account extends Component {
                         title={
                             <h2 className={componentStyle.title}>
                                 {account.name}
-                                <a href={`/account/${code}/info`}><img src={InfoIcon} /></a>
+                                { isBitcoinBased(account.coinCode) ? <a href={`/account/${code}/info`}><img src={InfoIcon} /></a> : '' }
                             </h2>
                         }
                         {...this.props}>
