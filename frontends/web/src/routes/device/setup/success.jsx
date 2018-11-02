@@ -51,9 +51,9 @@ export default class Success extends Component {
                             </p>
                             { goal === 'create' ? (
                                 <ul class={style.summary}>
-                                    <li>{t(`success.${goal}.info1`)}</li>
-                                    <li>{t(`success.${goal}.info2`)}</li>
-                                    <li>{t(`success.${goal}.info3`)}</li>
+                                    <li>{t('success.create.info1')}</li>
+                                    <li>{t('success.create.info2')}</li>
+                                    <li>{t('success.create.info3')}</li>
                                 </ul>
                             ) : null}
                         </div>
