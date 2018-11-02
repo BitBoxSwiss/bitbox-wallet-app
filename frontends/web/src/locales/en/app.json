@@ -601,6 +601,19 @@
       "title": "How to restore a wallet from a backup"
     }
   },
+  "success": {
+    "create": {
+      "title": "Your BitBox is ready to go!",
+      "summary": "Here is a summary of what you have done",
+      "info1": "Your wallet has been securely backed up to the micro SD Card. Remove it and keep it safe.",
+      "info2": "You have created a secure device password that unlocks the BitBox.",
+      "info3": "You have created a secure recovery password for your wallet that unlocks your funds and restores your backups."
+    },
+    "restore": {
+      "title": "Your BitBox is ready to go!",
+      "summary": "You have successfully restored a wallet from your backup."
+    }
+  },
   "send": {
     "abort": "The transaction has been aborted.",
     "address": {
@@ -709,16 +722,6 @@
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"
-  },
-  "success": {
-    "create": {
-      "info": "You successfully created a new wallet.",
-      "title": "Success"
-    },
-    "restore": {
-      "info": "You successfully restored a wallet from a backup.",
-      "title": "Success"
-    }
   },
   "transaction": {
     "badge": {

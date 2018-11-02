@@ -32,6 +32,15 @@
     font-weight: 300;
 }
 
+.summary {
+    margin: var(--spacing-large) auto 0;
+    max-width: 450px;
+}
+
+.summary li {
+    margin-bottom: var(--spacing-default);
+}
+
 .heading {
     margin-top: 1px;
 }
