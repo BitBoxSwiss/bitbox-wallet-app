@@ -24,7 +24,6 @@ import * as style from '../dialog/dialog.css';
 export default class WaitDialog extends Component {
     state = {
         active: false,
-        checking2FA: false,
     }
 
     componentWillMount() {
