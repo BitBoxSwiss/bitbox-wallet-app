@@ -18,7 +18,8 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { route } from 'preact-router';
 import { apiGet, apiPost } from '../../utils/request';
-import { Button, Input } from '../../components/forms';
+import { Button } from '../../components/forms';
+import { PasswordSingleInput } from '../../components/password';
 import { Message } from '../../components/message/message';
 import { BitBox, Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
@@ -59,8 +60,8 @@ export default class Unlock extends Component {
         }
     }
 
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
+    handleFormChange = password => {
+        this.setState({ password });
     };
 
     validate = () => {
@@ -113,7 +114,7 @@ export default class Unlock extends Component {
         let submissionState = null;
         switch (status) {
         case stateEnum.DEFAULT:
-            submissionState = <p style="max-width: 400px; width: 100%; align-self: center;">{t('unlock.description')}</p>;
+            submissionState = <p style="max-width: 420px; width: 100%; align-self: center;">{t('unlock.description')}</p>;
             break;
         case stateEnum.WAITING:
             submissionState = <Spinner text={t('unlock.unlocking')} showLogo />;
@@ -139,9 +140,9 @@ export default class Unlock extends Component {
                             <BitBox />
                             {submissionState}
                             {status !== stateEnum.WAITING && (
-                                <form onSubmit={this.handleSubmit} style="max-width: 400px; width: 100%; align-self: center;">
+                                <form onSubmit={this.handleSubmit} style="max-width: 420px; width: 100%; align-self: center;">
                                     <div>
-                                        <Input
+                                        <PasswordSingleInput
                                             autoFocus
                                             getRef={ref => this.passwordInput = ref}
                                             id="password"
@@ -149,7 +150,7 @@ export default class Unlock extends Component {
                                             label={t('unlock.input.label')}
                                             disabled={status === stateEnum.WAITING}
                                             placeholder={t('unlock.input.placeholder')}
-                                            onInput={this.handleFormChange}
+                                            onValidPassword={this.handleFormChange}
                                             value={password} />
                                     </div>
                                     <div>
