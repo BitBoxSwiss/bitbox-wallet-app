@@ -78,6 +78,6 @@ dockerinit:
 dockerdev:
 	./scripts/dockerdev.sh
 locize-push:
-	cd frontends/web/src/locales && locize sync
+	cd frontends/web/src/locales && locize sync --reference-language-only=false
 locize-pull:
 	cd frontends/web/src/locales && locize download
