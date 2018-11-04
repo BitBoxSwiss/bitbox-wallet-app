@@ -127,7 +127,7 @@ func (backend *Backend) addAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !backend.config.Config().Backend.AccountActive(code) {
+	if !backend.arguments.Multisig() && !backend.config.Config().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -301,7 +301,14 @@ func (backend *Backend) initAccounts() {
 
 	backend.accounts = []btc.Interface{}
 	if backend.arguments.Testing() {
-		if backend.arguments.Regtest() {
+		if backend.arguments.Multisig() {
+			TBTC := backend.Coin(coinTBTC)
+			backend.addAccount(TBTC, "tbtc-multisig", "Bitcoin Testnet", "m/48'/1'/0'",
+				signing.ScriptTypeP2PKH)
+			TLTC := backend.Coin(coinTLTC)
+			backend.addAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
+				signing.ScriptTypeP2PKH)
+		} else if backend.arguments.Regtest() {
 			RBTC := backend.Coin("rbtc")
 			backend.addAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
@@ -328,23 +335,32 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	} else {
-		BTC := backend.Coin(coinBTC)
-		backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
-			signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
-			signing.ScriptTypeP2WPKH)
-		backend.addAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
-			signing.ScriptTypeP2PKH)
+		if backend.arguments.Multisig() {
+			BTC := backend.Coin(coinBTC)
+			backend.addAccount(BTC, "btc-multisig", "Bitcoin", "m/48'/0'/0'",
+				signing.ScriptTypeP2PKH)
+			LTC := backend.Coin(coinLTC)
+			backend.addAccount(LTC, "ltc-multisig", "Litecoin", "m/48'/2'/0'",
+				signing.ScriptTypeP2PKH)
+		} else {
+			BTC := backend.Coin(coinBTC)
+			backend.addAccount(BTC, "btc-p2wpkh-p2sh", "Bitcoin", "m/49'/0'/0'",
+				signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(BTC, "btc-p2wpkh", "Bitcoin: bech32", "m/84'/0'/0'",
+				signing.ScriptTypeP2WPKH)
+			backend.addAccount(BTC, "btc-p2pkh", "Bitcoin Legacy", "m/44'/0'/0'",
+				signing.ScriptTypeP2PKH)
 
-		LTC := backend.Coin(coinLTC)
-		backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
-			signing.ScriptTypeP2WPKHP2SH)
-		backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
-			signing.ScriptTypeP2WPKH)
+			LTC := backend.Coin(coinLTC)
+			backend.addAccount(LTC, "ltc-p2wpkh-p2sh", "Litecoin", "m/49'/2'/0'",
+				signing.ScriptTypeP2WPKHP2SH)
+			backend.addAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
+				signing.ScriptTypeP2WPKH)
 
-		if backend.arguments.DevMode() {
-			eth := backend.Coin(coinETH)
-			backend.addAccount(eth, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			if backend.arguments.DevMode() {
+				eth := backend.Coin(coinETH)
+				backend.addAccount(eth, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			}
 		}
 	}
 	for _, account := range backend.accounts {

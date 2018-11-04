@@ -29,12 +29,14 @@ import { share } from '../../decorators/share';
 import { store } from '../../components/guide/guide';
 
 const labelMap = {
+    'tbtc-multisig': 'BTC',
     'btc-p2pkh': 'BTC',
     'tbtc-p2pkh': 'TBTC',
     'btc-p2wpkh-p2sh': 'BTC',
     'btc-p2wpkh': 'BTC',
     'tbtc-p2wpkh-p2sh': 'TBTC SW',
     'tbtc-p2wpkh': 'TBTC NSW',
+    'ltc-multisig': 'LTC',
     'ltc-p2wpkh-p2sh': 'LTC',
     'ltc-p2wpkh': 'LTC',
     'tltc-p2wpkh-p2sh': 'TLTC',

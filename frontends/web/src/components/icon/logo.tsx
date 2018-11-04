@@ -42,12 +42,16 @@ export const Shift = (props: GenericProps) => <img {...props} draggable={false} 
 
 const logoMap = {
     'tbtc': [BTC, BTC_GREY], // eslint-disable-line quote-props
+    'btc-multisig': [BTC, BTC_GREY],
+    'tbtc-multisig': [BTC, BTC_GREY],
     'btc-p2pkh': [BTC, BTC_GREY],
     'tbtc-p2pkh': [BTC, BTC_GREY],
     'btc-p2wpkh-p2sh': [BTC, BTC_GREY],
     'btc-p2wpkh': [BTC, BTC_GREY],
     'tbtc-p2wpkh-p2sh': [BTC, BTC_GREY],
     'tbtc-p2wpkh': [BTC, BTC_GREY],
+    'ltc-multisig': [LTC, LTC_GREY],
+    'tltc-multisig': [LTC, LTC_GREY],
     'ltc-p2wpkh-p2sh': [LTC, LTC_GREY],
     'ltc-p2wpkh': [LTC, LTC_GREY],
     'tltc-p2wpkh-p2sh': [LTC, LTC_GREY],
