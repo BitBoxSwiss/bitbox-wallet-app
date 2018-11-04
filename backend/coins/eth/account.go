@@ -44,6 +44,9 @@ type Account struct {
 	keystores               keystore.Keystores
 
 	initialized bool
+	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
+	// interval.
+	enqueueUpdateCh chan struct{}
 
 	address     Address
 	balance     coin.Amount
@@ -75,7 +78,8 @@ func NewAccount(
 		signingConfiguration:    nil,
 		keystores:               keystores,
 
-		initialized: false,
+		initialized:     false,
+		enqueueUpdateCh: make(chan struct{}),
 
 		log: log,
 	}
@@ -156,7 +160,11 @@ func (account *Account) Initialize() error {
 func (account *Account) poll() {
 	timer := time.After(0)
 	for {
-		<-timer
+		select {
+		case <-timer:
+		case <-account.enqueueUpdateCh:
+			account.log.Info("extraordinary account update invoked")
+		}
 		if err := account.update(); err != nil {
 			account.log.WithError(err).Error("error updating account")
 		}
@@ -357,6 +365,7 @@ func (account *Account) SendTx(
 	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
 		return err
 	}
+	account.enqueueUpdateCh <- struct{}{}
 	return account.coin.client.SendTransaction(context.TODO(), txProposal.Tx)
 }
 
