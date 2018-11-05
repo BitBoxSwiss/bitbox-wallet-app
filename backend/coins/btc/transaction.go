@@ -93,7 +93,8 @@ func (account *Account) newTx(
 			return nil, nil, err
 		}
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(unitSatoshi))
+		allowZero := false
+		parsedAmount, err := amount.Amount(big.NewInt(unitSatoshi), allowZero)
 		if err != nil {
 			return nil, nil, err
 		}

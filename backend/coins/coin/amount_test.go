@@ -82,3 +82,22 @@ func TestAmountInt64(t *testing.T) {
 	_, err = coin.NewAmount(new(big.Int).Sub(big.NewInt(math.MinInt64), big.NewInt(1))).Int64()
 	require.Error(t, err)
 }
+
+func TestSendAmount(t *testing.T) {
+	sendAmount := coin.NewSendAmountAll()
+	require.Panics(t, func() { _, _ = sendAmount.Amount(big.NewInt(0), false) })
+	require.True(t, sendAmount.SendAll())
+
+	for _, allowZero := range []bool{false, true} {
+		_, err := coin.NewSendAmount("-1").Amount(big.NewInt(1), allowZero)
+		require.Error(t, err)
+	}
+
+	_, err := coin.NewSendAmount("0").Amount(big.NewInt(1), false)
+	require.Error(t, err)
+
+	amount, err := coin.NewSendAmount("0").Amount(big.NewInt(1), true)
+	require.NoError(t, err)
+	require.Equal(t, int64(0), amount.BigInt().Int64())
+
+}

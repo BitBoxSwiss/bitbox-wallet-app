@@ -325,7 +325,8 @@ func (account *Account) newTx(
 		// The value is set below after determining the fee.
 		gasLimit = 21000 // Hardcoded to prevent cyclic gas estimation.
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(params.Ether))
+		allowZero := true
+		parsedAmount, err := amount.Amount(big.NewInt(params.Ether), allowZero)
 		if err != nil {
 			return nil, err
 		}
