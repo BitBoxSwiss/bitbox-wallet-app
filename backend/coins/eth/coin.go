@@ -59,7 +59,7 @@ func (coin *Coin) Initialize() {
 		client, err := ethclient.Dial(coin.nodeURL)
 		if err != nil {
 			// TODO: init conn lazily, feed error via EventStatusChanged
-			panic(err)
+			panic("LOL")
 		}
 		coin.client = client
 
