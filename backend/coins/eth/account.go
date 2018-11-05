@@ -320,10 +320,8 @@ func (account *Account) newTx(
 	}
 
 	var value *big.Int
-	var gasLimit uint64
 	if amount.SendAll() {
-		// The value is set below after determining the fee.
-		gasLimit = 21000 // Hardcoded to prevent cyclic gas estimation.
+		value = account.balance.BigInt() // set here only temporarily to estimate the gas
 	} else {
 		allowZero := true
 		parsedAmount, err := amount.Amount(big.NewInt(params.Ether), allowZero)
@@ -331,32 +329,33 @@ func (account *Account) newTx(
 			return nil, err
 		}
 		value = parsedAmount.BigInt()
+	}
 
-		address := common.HexToAddress(recipientAddress)
-		message := ethereum.CallMsg{
-			From:     account.address.Address,
-			To:       &address,
-			Gas:      0,
-			GasPrice: suggestedGasPrice,
-			Value:    value,
-			Data:     data,
-		}
-
-		gasLimit, err = account.coin.client.EstimateGas(context.TODO(), message)
-		if err != nil {
-			account.log.WithError(err).Error("Could not estimate the gas limit.")
-			return nil, errp.WithStack(coin.ErrInvalidData)
-		}
+	address := common.HexToAddress(recipientAddress)
+	message := ethereum.CallMsg{
+		From:     account.address.Address,
+		To:       &address,
+		Gas:      0,
+		GasPrice: suggestedGasPrice,
+		Value:    value,
+		Data:     data,
+	}
+	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
+	if err != nil {
+		account.log.WithError(err).Error("Could not estimate the gas limit.")
+		return nil, errp.WithStack(coin.ErrInvalidData)
 	}
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
 
 	if amount.SendAll() {
+		// Set the value correctly and check that the fee is smaller than or equal to the balance.
 		value = new(big.Int).Sub(account.balance.BigInt(), fee)
 		if value.Sign() <= 0 {
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
+		// Check that the entered value and the estimated fee are not greater than the balance.
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
