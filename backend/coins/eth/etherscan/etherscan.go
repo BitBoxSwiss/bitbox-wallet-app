@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -101,6 +102,9 @@ type Transaction struct {
 	txType          coin.TxType
 }
 
+// assertion because not implementing the interface fails silently.
+var _ ethtypes.EthereumTransaction = &Transaction{}
+
 // UnmarshalJSON implements json.Unmarshaler.
 func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 	return json.Unmarshal(jsonBytes, &tx.jsonTransaction)
@@ -142,6 +146,14 @@ func (tx *Transaction) Amount() coin.Amount {
 // Addresses implements coin.Transaction.
 func (tx *Transaction) Addresses() []string {
 	return []string{tx.jsonTransaction.To.Hex()}
+}
+
+// Gas implements ethtypes.EthereumTransaction.
+func (tx *Transaction) Gas() uint64 {
+	if !tx.jsonTransaction.GasUsed.BigInt().IsInt64() {
+		panic("gas must be int64")
+	}
+	return uint64(tx.jsonTransaction.GasUsed.BigInt().Int64())
 }
 
 // prepareTransactions casts to []coin.Transactions and removes duplicate entries. Duplicate entries

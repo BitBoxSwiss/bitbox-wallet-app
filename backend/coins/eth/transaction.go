@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
@@ -26,6 +27,9 @@ import (
 type wrappedTransaction struct {
 	tx *types.Transaction
 }
+
+// assertion because not implementing the interface fails silently.
+var _ ethtypes.EthereumTransaction = wrappedTransaction{}
 
 // Fee implements coin.Transaction.
 func (tx wrappedTransaction) Fee() *coin.Amount {
@@ -62,4 +66,9 @@ func (tx wrappedTransaction) Amount() coin.Amount {
 // Addresses implements coin.Transaction.
 func (tx wrappedTransaction) Addresses() []string {
 	return []string{tx.tx.To().Hex()}
+}
+
+// Gas implements ethtypes.EthereumTransaction.
+func (tx wrappedTransaction) Gas() uint64 {
+	return tx.tx.Gas()
 }

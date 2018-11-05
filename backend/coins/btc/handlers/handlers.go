@@ -25,6 +25,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
@@ -103,6 +104,9 @@ type Transaction struct {
 	Size         int64           `json:"size"`
 	Weight       int64           `json:"weight"`
 	FeeRatePerKb formattedAmount `json:"feeRatePerKb"`
+
+	// ETH specific fields
+	Gas uint64 `json:"gas"`
 }
 
 func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interface{}, error)) func(*http.Request) (interface{}, error) {
@@ -151,6 +155,8 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			if feeRatePerKb != nil {
 				txInfoJSON.FeeRatePerKb = handlers.formatBTCAmountAsJSON(*feeRatePerKb)
 			}
+		case types.EthereumTransaction:
+			txInfoJSON.Gas = specificInfo.Gas()
 		}
 		result = append(result, txInfoJSON)
 	}
