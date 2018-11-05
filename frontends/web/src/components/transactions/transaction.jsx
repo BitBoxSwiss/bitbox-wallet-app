@@ -65,6 +65,7 @@ export default class Transaction extends Component {
         amount,
         fee,
         feeRatePerKb,
+        gas,
         vsize,
         size,
         weight,
@@ -115,7 +116,15 @@ export default class Transaction extends Component {
                                     <div class={style.address}>{numConfirmations}</div>
                                 </div>
                                 {
-                                    vsize && vsize !== 0 ? (
+                                    gas ? (
+                                        <div>
+                                            <div class={style.transactionLabel}>{t('transaction.gas')}</div>
+                                            <div class={style.address}>{gas}</div>
+                                        </div>
+                                    ) : ''
+                                }
+                                {
+                                    vsize ? (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
                                             <div class={style.address}>{vsize} bytes</div>
@@ -123,7 +132,7 @@ export default class Transaction extends Component {
                                     ) : ''
                                 }
                                 {
-                                    size && size !== 0 ? (
+                                    size ? (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.size')}</div>
                                             <div class={style.address}>{size} bytes</div>
@@ -131,7 +140,7 @@ export default class Transaction extends Component {
                                     ) : ''
                                 }
                                 {
-                                    weight && weight !== 0 ? (
+                                    weight ? (
                                         <div>
                                             <div class={style.transactionLabel}>{t('transaction.weight')}</div>
                                             <div class={style.address}>{weight}</div>

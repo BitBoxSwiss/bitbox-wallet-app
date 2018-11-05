@@ -741,6 +741,7 @@
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "pending": "Pending Transaction",
+    "gas": "Gas",
     "size": "Size",
     "vsize": "Virtual size",
     "weight": "Weight"
