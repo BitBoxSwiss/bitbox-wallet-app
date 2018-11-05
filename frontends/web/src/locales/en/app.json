@@ -1,4 +1,5 @@
 {
+  "unknownError": "An unknown error occurred: {{errorMessage}}",
   "account": {
     "disconnect": "Connection lost. Retrying…",
     "incoming": "Incoming",

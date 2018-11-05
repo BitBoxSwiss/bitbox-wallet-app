@@ -149,16 +149,18 @@ export default class Send extends Component {
                     this.utxos.getWrappedInstance().clear();
                 }
                 setTimeout(() => this.setState({ isSent: false, isConfirming: false }), 5000);
-            } else {
+            } else if (result.aborted) {
                 this.setState({
                     isAborted: true,
                 });
                 setTimeout(() => this.setState({ isAborted: false }), 5000);
+            } else {
+                alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
             }
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false,signProgress: null, signConfirm: null });
+            this.setState({ isConfirming: false, signProgress: null, signConfirm: null });
         }).catch(() => {
-            this.setState({ isConfirming: false,signProgress: null, signConfirm: null });
+            this.setState({ isConfirming: false, signProgress: null, signConfirm: null });
         });
     }
 

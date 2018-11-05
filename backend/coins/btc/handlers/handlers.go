@@ -230,10 +230,10 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 	}
 	err := handlers.account.SendTx(input.address, input.sendAmount, input.feeTargetCode, input.selectedUTXOs)
 	if errp.Cause(err) == keystore.ErrSigningAborted {
-		return map[string]interface{}{"success": false}, nil
+		return map[string]interface{}{"success": false, "aborted": true}, nil
 	}
 	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to send transaction")
+		return map[string]interface{}{"success": false, "errorMessage": err.Error()}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }
