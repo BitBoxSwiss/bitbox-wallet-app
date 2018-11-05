@@ -238,7 +238,10 @@ export default class Account extends Component {
                         <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
                     {transactions.length > 0 && (
-                        <Entry key="accountTransactionAttributes" entry={t('guide.accountTransactionAttributes')} />
+                        <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
+                    )}
+                    {transactions.length > 0 && isBitcoinBased(account.coinCode) && (
+                        <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC')} />
                     )}
                     {balance && balance.hasIncoming && (
                         <Entry key="accountIncomingBalance" entry={t('guide.accountIncomingBalance')} />

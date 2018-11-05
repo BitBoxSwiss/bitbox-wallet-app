@@ -605,8 +605,12 @@ export default class Send extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
-                    <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
-                    <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                    {isBitcoinBased(account.coinCode) && (
+                        <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+                    )}
+                    {isBitcoinBased(account.coinCode) && (
+                        <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                    )}
                     <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
                 </Guide>
             </div>

@@ -251,9 +251,13 @@
       "text": "The ‘Send’ button is activated when your balance is more than zero.",
       "title": "Why can't I send any {{unit}}?"
     },
-    "accountTransactionAttributes": {
-      "text": "Confirmations: When your transaction is first broadcast it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nVirtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
+    "accountTransactionAttributesGeneric": {
+      "text": "Confirmations: When your transaction is first broadcast it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
       "title": "What is the information shown in the transaction details?"
+    },
+    "accountTransactionAttributesBTC": {
+      "text": "Virtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
+      "title": "Bitcoin-related transaction details"
     },
     "accountTransactionConfirmation": {
       "text": "This is a transaction that has been broadcasted to the network and is waiting to be confirmed.",
