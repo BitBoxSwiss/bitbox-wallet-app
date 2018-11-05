@@ -15,6 +15,7 @@
  */
 
 import { Component, h } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
@@ -25,7 +26,20 @@ import * as styles from './manage-backups.css';
 
 @translate()
 export default class ManageBackups extends Component {
+    hasDevice = () => {
+        return !!this.props.devices[this.props.deviceID];
+    }
+
+    componentWillMount() {
+        if (!this.hasDevice()) {
+            route('/', true);
+        }
+    }
+
     render({ t, deviceID }, { }) {
+        if (!this.hasDevice()) {
+            return null;
+        }
         return (
             <div class="contentWithGuide">
                 <div class="container">

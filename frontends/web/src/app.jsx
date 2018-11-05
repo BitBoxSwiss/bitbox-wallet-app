@@ -156,12 +156,12 @@ export class App extends Component {
                         <Settings
                             path="/settings" />
                         {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
+                        {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                         <ManageBackups
                             path="/manage-backups/:deviceID"
-                            // showCreate={true} // Does not exist!
-                            // deviceIDs={deviceIDs} // Does not exist!
+                            key={devices}
+                            devices={devices}
                         />
-                        {/* DeviceSwitch needs a key to trigger ComponentDidMount when devices change, to handle routing */}
                         <DeviceSwitch
                             path="/device/:deviceID"
                             key={devices}
