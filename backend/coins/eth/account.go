@@ -42,6 +42,8 @@ type Account struct {
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               keystore.Keystores
+	offline                 bool
+	onEvent                 func(Event)
 
 	initialized bool
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
@@ -60,7 +62,7 @@ type Account struct {
 
 // NewAccount creates a new account.
 func NewAccount(
-	coin *Coin,
+	accountCoin *Coin,
 	dbFolder string,
 	code string,
 	name string,
@@ -70,13 +72,15 @@ func NewAccount(
 	log *logrus.Entry,
 ) *Account {
 	account := &Account{
-		coin:                    coin,
+		coin:                    accountCoin,
 		dbFolder:                dbFolder,
 		code:                    code,
 		name:                    name,
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
+		onEvent:                 onEvent,
+		balance:                 coin.NewAmountFromInt64(0),
 
 		initialized:     false,
 		enqueueUpdateCh: make(chan struct{}),
@@ -167,6 +171,15 @@ func (account *Account) poll() {
 		}
 		if err := account.update(); err != nil {
 			account.log.WithError(err).Error("error updating account")
+			if !account.offline {
+				account.offline = true
+				account.onEvent(Event(btc.EventStatusChanged))
+			}
+		} else {
+			if account.offline {
+				account.offline = false
+				account.onEvent(Event(btc.EventStatusChanged))
+			}
 		}
 		timer = time.After(pollInterval)
 	}
@@ -261,7 +274,7 @@ func (account *Account) Initialized() bool {
 
 // Offline implements btc.Interface.
 func (account *Account) Offline() bool {
-	return false
+	return account.offline
 }
 
 // Close implements btc.Interface.
