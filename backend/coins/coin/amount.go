@@ -86,8 +86,8 @@ func NewSendAmountAll() SendAmount {
 }
 
 // Amount parses the amount and converts it from the default unit to the smallest unit (e.g. satoshi
-// = 1e8). Returns an error if the amount is not positive.
-func (sendAmount *SendAmount) Amount(unit *big.Int) (Amount, error) {
+// = 1e8). Returns an error if the amount is negative, or depending on allowZero, if it is zero.
+func (sendAmount SendAmount) Amount(unit *big.Int, allowZero bool) (Amount, error) {
 	if sendAmount.sendAll {
 		panic("can only be called if SendAll is false")
 	}
@@ -95,7 +95,10 @@ func (sendAmount *SendAmount) Amount(unit *big.Int) (Amount, error) {
 	if err != nil {
 		return Amount{}, errp.WithStack(ErrInvalidAmount)
 	}
-	if amount.BigInt().Sign() <= 0 {
+	if amount.BigInt().Sign() == -1 {
+		return Amount{}, errp.WithStack(ErrInvalidAmount)
+	}
+	if !allowZero && amount.BigInt().Sign() == 0 {
 		return Amount{}, errp.WithStack(ErrInvalidAmount)
 	}
 	return amount, nil

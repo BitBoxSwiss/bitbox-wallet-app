@@ -324,7 +324,8 @@ func (account *Account) newTx(
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
-		parsedAmount, err := amount.Amount(big.NewInt(params.Ether))
+		allowZero := true
+		parsedAmount, err := amount.Amount(big.NewInt(params.Ether), allowZero)
 		if err != nil {
 			return nil, err
 		}
