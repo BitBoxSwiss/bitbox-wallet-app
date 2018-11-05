@@ -362,11 +362,14 @@ func (account *Account) SendTx(
 	if err := account.keystores.SignTransaction(txProposal); err != nil {
 		return err
 	}
+	if err := account.coin.client.SendTransaction(context.TODO(), txProposal.Tx); err != nil {
+		return errp.WithStack(err)
+	}
 	if err := account.storePendingOutgoingTransaction(txProposal.Tx); err != nil {
 		return err
 	}
 	account.enqueueUpdateCh <- struct{}{}
-	return account.coin.client.SendTransaction(context.TODO(), txProposal.Tx)
+	return nil
 }
 
 // FeeTargets implements btc.Interface.
