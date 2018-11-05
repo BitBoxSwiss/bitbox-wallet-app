@@ -351,7 +351,7 @@ func (account *Account) newTx(
 	if amount.SendAll() {
 		// Set the value correctly and check that the fee is smaller than or equal to the balance.
 		value = new(big.Int).Sub(account.balance.BigInt(), fee)
-		if value.Sign() <= 0 {
+		if value.Sign() < 0 {
 			return nil, errp.WithStack(coin.ErrInsufficientFunds)
 		}
 	} else {
