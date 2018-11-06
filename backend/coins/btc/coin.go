@@ -130,6 +130,12 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 		"0"), ".")
 }
 
+// ToUnit implements coin.Coin.
+func (coin *Coin) ToUnit(amount coinpkg.Amount) float64 {
+	result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).Float64()
+	return result
+}
+
 // Blockchain connects to a blockchain backend.
 func (coin *Coin) Blockchain() blockchain.Interface {
 	return coin.blockchain

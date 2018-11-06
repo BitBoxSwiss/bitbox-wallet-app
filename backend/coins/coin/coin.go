@@ -36,6 +36,9 @@ type Coin interface {
 	// FormatAmount formats the given amount as a number.
 	FormatAmount(Amount) string
 
+	// ToUnit returns the given amount in the unit as returned above.
+	ToUnit(Amount) float64
+
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string
 

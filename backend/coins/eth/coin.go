@@ -85,6 +85,13 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 		"0"), ".")
 }
 
+// ToUnit implements coin.Coin.
+func (coin *Coin) ToUnit(amount coinpkg.Amount) float64 {
+	ether := big.NewInt(1e18)
+	result, _ := new(big.Rat).SetFrac(amount.BigInt(), ether).Float64()
+	return result
+}
+
 // BlockExplorerTransactionURLPrefix implements coin.Coin.
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix

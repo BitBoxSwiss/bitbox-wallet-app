@@ -18,11 +18,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -71,24 +73,52 @@ func (handlers *Handlers) Uninit() {
 	handlers.account = nil
 }
 
-// formattedAmount with unit.
+// formattedAmount with unit and conversions.
 type formattedAmount struct {
-	Amount string `json:"amount"`
-	Unit   string `json:"unit"`
+	Amount      string            `json:"amount"`
+	Unit        string            `json:"unit"`
+	Conversions map[string]string `json:"conversions"`
 }
 
-func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
-	return formattedAmount{
-		Amount: handlers.account.Coin().FormatAmount(coin.NewAmountFromInt64(int64(amount))),
-		Unit:   handlers.account.Coin().Unit(),
+func formatAsCurrency(amount float64) string {
+	formatted := strconv.FormatFloat(amount, 'f', 2, 64)
+	position := strings.Index(formatted, ".") - 3
+	for position > 0 {
+		formatted = formatted[:position] + "'" + formatted[position:]
+		position = position - 3
 	}
+	return formatted
+}
+
+func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
+	var conversions map[string]string
+	if backend.ExposedRatesUpdater != nil {
+		rates := backend.ExposedRatesUpdater.Last()
+		if rates != nil {
+			unit := coin.Unit()
+			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
+				unit = unit[1:]
+			}
+			float := coin.ToUnit(amount)
+			conversions = map[string]string{}
+			for key, value := range rates[unit] {
+				conversions[key] = formatAsCurrency(float * value)
+			}
+		}
+	}
+	return conversions
 }
 
 func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount {
 	return formattedAmount{
-		Amount: handlers.account.Coin().FormatAmount(amount),
-		Unit:   handlers.account.Coin().Unit(),
+		Amount:      handlers.account.Coin().FormatAmount(amount),
+		Unit:        handlers.account.Coin().Unit(),
+		Conversions: conversions(amount, handlers.account.Coin()),
 	}
+}
+
+func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
+	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)))
 }
 
 // Transaction is the info returned per transaction by the /transactions endpoint.

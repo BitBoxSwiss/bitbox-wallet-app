@@ -101,6 +101,9 @@ type Backend struct {
 	log *logrus.Entry
 }
 
+// ExposedRatesUpdater leaks the rates updater to allow the coin handler to convert to fiat.
+var ExposedRatesUpdater *RatesUpdater
+
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
@@ -117,6 +120,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 	ratesUpdater := NewRatesUpdater()
 	ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
 	backend.ratesUpdater = ratesUpdater
+	ExposedRatesUpdater = ratesUpdater
 	return backend
 }
 
