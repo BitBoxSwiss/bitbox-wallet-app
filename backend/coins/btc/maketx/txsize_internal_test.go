@@ -98,6 +98,7 @@ func TestEstimateTxSize(t *testing.T) {
 		for _, outputScriptType := range scriptTypes {
 			test(inputScriptType, outputScriptType, nil)
 			for _, changeScriptType := range scriptTypes {
+				changeScriptType := changeScriptType // avoids referencing the same variable across loop iterations
 				test(inputScriptType, outputScriptType, &changeScriptType)
 			}
 		}

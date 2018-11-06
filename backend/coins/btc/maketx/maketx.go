@@ -166,6 +166,7 @@ func NewTx(
 
 		inputs := make([]*wire.TxIn, len(selectedOutPoints))
 		for i, outPoint := range selectedOutPoints {
+			outPoint := outPoint // avoids referencing the same variable across loop iterations
 			inputs[i] = wire.NewTxIn(&outPoint, nil, nil)
 		}
 		unsignedTransaction := &wire.MsgTx{

@@ -82,6 +82,7 @@ func TestFinishPairing(t *testing.T) {
 		{"\x00", EventPairingError, false}, // assumes never writable; reconsider if flaky
 	}
 	for i, test := range tt {
+		test := test // avoids referencing the same variable across loop iterations
 		t.Run(fmt.Sprintf("%d: %s", i, test.wantEvent), func(t *testing.T) {
 			dbb := &Device{
 				closed:           true, // don't run listenForMobile

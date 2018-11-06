@@ -53,7 +53,9 @@ func TestSigScriptWitnessSize(t *testing.T) {
 
 	// Test all multisig configurations.
 	for numberOfSigners := 2; numberOfSigners <= 15; numberOfSigners++ {
+		numberOfSigners := numberOfSigners // avoids referencing the same variable across loop iterations
 		for signingThreshold := 1; signingThreshold <= numberOfSigners; signingThreshold++ {
+			signingThreshold := signingThreshold // avoids referencing the same variable across loop iterations
 			address := test.GetMultisigAddress(signingThreshold, numberOfSigners)
 			t.Run(address.Configuration.String(), func(t *testing.T) {
 				// create a slice of `n` sigs, `m` of which contain a signature, the rest being
