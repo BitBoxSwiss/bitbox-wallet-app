@@ -18,7 +18,7 @@ WEBROOT:=`pwd`/frontends/web
 catch:
 	@echo "Choose a make target."
 envinit:
-	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+	./scripts/go-get.sh v1.11 github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/stretchr/testify # needed for mockery
 	go get -u github.com/vektra/mockery/cmd/mockery
