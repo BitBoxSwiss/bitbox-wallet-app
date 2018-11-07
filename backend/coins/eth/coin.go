@@ -69,7 +69,7 @@ func (coin *Coin) Initialize() {
 
 // Code implements coin.Coin.
 func (coin *Coin) Code() string {
-	return strings.ToUpper(coin.code)
+	return coin.code
 }
 
 // Unit implements coin.Coin.
