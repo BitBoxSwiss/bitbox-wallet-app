@@ -23,6 +23,7 @@ import (
 	"runtime/debug"
 	"strconv"
 
+	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
@@ -33,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -49,10 +51,17 @@ import (
 type Backend interface {
 	Config() *config.Config
 	DefaultConfig() config.AppConfig
-	Coin(string) coin.Coin
+	Coin(string) (coin.Coin, error)
 	AccountsStatus() string
 	Testing() bool
 	Accounts() []btc.Interface
+	CreateAndAddAccount(
+		coin coin.Coin,
+		code string,
+		name string,
+		scriptType signing.ScriptType,
+		getSigningConfiguration func() (*signing.Configuration, error),
+	)
 	UserLanguage() language.Tag
 	OnAccountInit(f func(btc.Interface))
 	OnAccountUninit(f func(btc.Interface))
@@ -140,6 +149,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/account/add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
@@ -262,6 +272,38 @@ func (handlers *Handlers) getTestingHandler(_ *http.Request) (interface{}, error
 	return handlers.backend.Testing(), nil
 }
 
+func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	// The following parameters only work for watch-only singlesig accounts at the moment.
+	jsonCoin := jsonBody["coin"]
+	jsonCode := jsonBody["code"]
+	jsonName := jsonBody["name"]
+	jsonScriptType := jsonBody["scriptType"]
+	jsonXpub := jsonBody["xpub"]
+
+	coin, err := handlers.backend.Coin(jsonCoin)
+	if err != nil {
+		return nil, err
+	}
+	scriptType, err := signing.DecodeScriptType(jsonScriptType)
+	if err != nil {
+		return nil, err
+	}
+	keypath := signing.NewEmptyAbsoluteKeypath()
+	xpub, err := hdkeychain.NewKeyFromString(jsonXpub)
+	if err != nil {
+		return nil, err
+	}
+	getSigningConfiguration := func() (*signing.Configuration, error) {
+		return signing.NewSinglesigConfiguration(scriptType, keypath, xpub), nil
+	}
+	handlers.backend.CreateAndAddAccount(coin, jsonCode, jsonName, scriptType, getSigningConfiguration)
+	return true, nil
+}
+
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	type accountJSON struct {
 		CoinCode              string `json:"coinCode"`
@@ -359,7 +401,11 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 
 func (handlers *Handlers) getHeadersStatus(coinCode string) func(*http.Request) (interface{}, error) {
 	return func(_ *http.Request) (interface{}, error) {
-		return handlers.backend.Coin(coinCode).(*btc.Coin).Headers().Status()
+		coin, err := handlers.backend.Coin(coinCode)
+		if err != nil {
+			return nil, err
+		}
+		return coin.(*btc.Coin).Headers().Status()
 	}
 }
 

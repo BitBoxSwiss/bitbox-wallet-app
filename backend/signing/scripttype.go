@@ -1,0 +1,45 @@
+// Copyright 2018 Shift Devices AG
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package signing
+
+import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+
+// ScriptType indicates which type of output should be produced in case of singlesig.
+type ScriptType string
+
+const (
+	// ScriptTypeP2PKH is a PayToPubKeyHash output.
+	ScriptTypeP2PKH ScriptType = "p2pkh"
+
+	// ScriptTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
+	ScriptTypeP2WPKHP2SH ScriptType = "p2wpkh-p2sh"
+
+	// ScriptTypeP2WPKH is a segwit PayToPubKeyHash output.
+	ScriptTypeP2WPKH ScriptType = "p2wpkh"
+)
+
+// DecodeScriptType decodes the given script type or returns an error.
+func DecodeScriptType(scriptType string) (ScriptType, error) {
+	switch scriptType {
+	case "p2pkh":
+		return ScriptTypeP2PKH, nil
+	case "p2wpkh-p2sh":
+		return ScriptTypeP2WPKHP2SH, nil
+	case "p2wpkh":
+		return ScriptTypeP2WPKH, nil
+	default:
+		return "", errp.Newf("The given script type %s is unknown.", scriptType)
+	}
+}

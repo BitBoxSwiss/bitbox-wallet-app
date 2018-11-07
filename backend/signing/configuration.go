@@ -28,20 +28,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
-// ScriptType indicates which type of output should be produced in case of singlesig.
-type ScriptType string
-
-const (
-	// ScriptTypeP2PKH is a PayToPubKeyHash output.
-	ScriptTypeP2PKH ScriptType = "p2pkh"
-
-	// ScriptTypeP2WPKHP2SH is a segwit PayToPubKeyHash output wrapped in p2sh.
-	ScriptTypeP2WPKHP2SH ScriptType = "p2wpkh-p2sh"
-
-	// ScriptTypeP2WPKH is a segwit PayToPubKeyHash output.
-	ScriptTypeP2WPKH ScriptType = "p2wpkh"
-)
-
 // Configuration models a signing configuration, which can be singlesig or multisig.
 type Configuration struct {
 	scriptType         ScriptType
