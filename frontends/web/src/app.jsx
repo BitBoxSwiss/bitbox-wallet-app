@@ -35,6 +35,7 @@ import ElectrumSettings from './routes/settings/electrum';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
+import { AddAccount } from './routes/account/add/addaccount';
 
 export class App extends Component {
     state = {
@@ -151,6 +152,8 @@ export class App extends Component {
                             path="/account/:code?"
                             deviceIDs={deviceIDs}
                             accounts={accounts} />
+                        <AddAccount
+                            path="/add-account" />
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings

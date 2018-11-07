@@ -18,6 +18,14 @@
     "extendedPublicKey": "Extended Public Key",
     "title": "Account Information"
   },
+  "addAccount": {
+    "accountName": "Account Name",
+    "coin": "Coin",
+    "extendedPublicKey": "Extended Public Key",
+    "scriptType": "Script Type",
+    "submit": "Add Account",
+    "title": "Add Account"
+  },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
   },
@@ -716,6 +724,7 @@
   },
   "setup": "Setup device",
   "sidebar": {
+    "addAccount": "Add Account",
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"

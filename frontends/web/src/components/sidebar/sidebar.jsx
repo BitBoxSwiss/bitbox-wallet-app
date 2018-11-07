@@ -51,6 +51,15 @@ export default class Sidebar extends Component {
                     {
                         accounts && accounts.map(getAccountLink)
                     }
+                    <div className="sideBarItem">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/add-account`} title={t('sidebar.addAccount')}>
+                            <div className="stacked">
+                                <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.addAccount')} />
+                                <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.addAccount')} />
+                            </div>
+                            <span className="sidebar_label">{t('sidebar.addAccount')}</span>
+                        </Link>
+                    </div>
                     <div className="sidebar_drawer"></div>
                     <div className="sidebar_bottom">
                         {
