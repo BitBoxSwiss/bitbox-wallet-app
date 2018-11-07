@@ -115,6 +115,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
 		coins:     map[string]coin.Coin{},
+		accounts:  []btc.Interface{},
 		log:       log,
 	}
 	ratesUpdater := NewRatesUpdater()
@@ -122,6 +123,13 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 	backend.ratesUpdater = ratesUpdater
 	ExposedRatesUpdater = ratesUpdater
 	return backend
+}
+
+// AddAccount adds the given account to the backend.
+func (backend *Backend) AddAccount(account btc.Interface) {
+	defer backend.accountsLock.Lock()()
+	backend.accounts = append(backend.accounts, account)
+	backend.onAccountInit(account)
 }
 
 func (backend *Backend) addAccount(
@@ -155,15 +163,14 @@ func (backend *Backend) addAccount(
 		}
 		account := btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
-		backend.accounts = append(backend.accounts, account)
+		backend.AddAccount(account)
 	case *eth.Coin:
 		onEvent := func(event eth.Event) {
 			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
 		}
-		account := eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(),
-			code, name,
+		account := eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, onEvent, backend.log)
-		backend.accounts = append(backend.accounts, account)
+		backend.AddAccount(account)
 	default:
 		panic("unknown coin type")
 	}
@@ -301,9 +308,7 @@ func (backend *Backend) Coin(code string) coin.Coin {
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts()
-	defer backend.accountsLock.Lock()()
 
-	backend.accounts = []btc.Interface{}
 	if backend.arguments.Testing() {
 		if backend.arguments.Multisig() {
 			TBTC := backend.Coin(coinTBTC)
@@ -367,9 +372,6 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	}
-	for _, account := range backend.accounts {
-		backend.onAccountInit(account)
-	}
 }
 
 // AccountsStatus returns whether the accounts have been initialized.
@@ -385,7 +387,7 @@ func (backend *Backend) Testing() bool {
 	return backend.arguments.Testing()
 }
 
-// Accounts returns the supported accounts.
+// Accounts returns the current accounts of the backend.
 func (backend *Backend) Accounts() []btc.Interface {
 	return backend.accounts
 }
@@ -449,7 +451,7 @@ func (backend *Backend) uninitAccounts() {
 		backend.onAccountUninit(account)
 		account.Close()
 	}
-	backend.accounts = nil
+	backend.accounts = []btc.Interface{}
 }
 
 // Keystores returns the keystores registered at this backend.
