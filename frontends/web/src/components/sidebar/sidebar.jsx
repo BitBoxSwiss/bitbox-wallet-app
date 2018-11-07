@@ -28,21 +28,6 @@ import ejectIcon from '../../assets/icons/eject.svg';
 import { share } from '../../decorators/share';
 import { store } from '../../components/guide/guide';
 
-const labelMap = {
-    'tbtc-multisig': 'BTC',
-    'btc-p2pkh': 'BTC',
-    'tbtc-p2pkh': 'TBTC',
-    'btc-p2wpkh-p2sh': 'BTC',
-    'btc-p2wpkh': 'BTC',
-    'tbtc-p2wpkh-p2sh': 'TBTC SW',
-    'tbtc-p2wpkh': 'TBTC NSW',
-    'ltc-multisig': 'LTC',
-    'ltc-p2wpkh-p2sh': 'LTC',
-    'ltc-p2wpkh': 'LTC',
-    'tltc-p2wpkh-p2sh': 'TLTC',
-    'tltc-p2wpkh': 'TLTC NSW',
-};
-
 @translate()
 // @ts-ignore (generics need to be typed explicitly once converted to TypeScript)
 @share(store)
@@ -109,7 +94,7 @@ export default class Sidebar extends Component {
     }
 }
 
-function getAccountLink({ code, name }) {
+function getAccountLink({ coinCode, code, name }) {
     return (
         <div key={code} className="sideBarItem">
             <Match path={`/account/${code}/send`}>
@@ -117,26 +102,26 @@ function getAccountLink({ code, name }) {
                     if (!matches) {
                         return (
                             <Match path={`/account/${code}/receive`}>
-                                {({ matches }) => getBackLink(code, name, matches)}
+                                {({ matches }) => getBackLink(coinCode, code, name, matches)}
                             </Match>
                         );
                     }
-                    return getBackLink(code, name, matches);
+                    return getBackLink(coinCode, code, name, matches);
                 }}
             </Match>
         </div>
     );
 }
 
-function getBackLink(code, name, active) {
+function getBackLink(coinCode, code, name, active) {
     return (
         <Link
             activeClassName="sidebar-active"
             className={active ? 'sidebar-active' : ''}
             href={`/account/${code}`}
             title={name}>
-            <Logo code={code} className="sidebar_icon" alt={name} />
-            <span className="sidebar_label">{ name || labelMap[code] }</span>
+            <Logo coinCode={coinCode} className="sidebar_icon" alt={name} />
+            <span className="sidebar_label">{ name }</span>
         </Link>
     );
 }

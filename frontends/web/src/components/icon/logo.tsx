@@ -41,36 +41,25 @@ export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} drag
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
 
 const logoMap = {
-    'tbtc': [BTC, BTC_GREY], // eslint-disable-line quote-props
-    'btc-multisig': [BTC, BTC_GREY],
-    'tbtc-multisig': [BTC, BTC_GREY],
-    'btc-p2pkh': [BTC, BTC_GREY],
-    'tbtc-p2pkh': [BTC, BTC_GREY],
-    'btc-p2wpkh-p2sh': [BTC, BTC_GREY],
-    'btc-p2wpkh': [BTC, BTC_GREY],
-    'tbtc-p2wpkh-p2sh': [BTC, BTC_GREY],
-    'tbtc-p2wpkh': [BTC, BTC_GREY],
-    'ltc-multisig': [LTC, LTC_GREY],
-    'tltc-multisig': [LTC, LTC_GREY],
-    'ltc-p2wpkh-p2sh': [LTC, LTC_GREY],
-    'ltc-p2wpkh': [LTC, LTC_GREY],
-    'tltc-p2wpkh-p2sh': [LTC, LTC_GREY],
-    'tltc-p2wpkh': [LTC, LTC_GREY],
-    'eth': [ETH, ETH_GREY],
-    'teth': [ETH, ETH_GREY],
+    btc: [BTC, BTC_GREY],
+    tbtc: [BTC, BTC_GREY],
+    ltc: [LTC, LTC_GREY],
+    tltc: [LTC, LTC_GREY],
+    eth: [ETH, ETH_GREY],
+    teth: [ETH, ETH_GREY],
 };
 
 interface Props {
-    code: string;
+    coinCode: string;
     className?: string;
     alt?: string;
 }
 
-function Logo({ code, ...rest }: Props) {
+function Logo({ coinCode, ...rest }: Props) {
     return (
         <div class="stacked">
-            <img draggable={false} src={logoMap[code][1]} {...rest} />
-            <img draggable={false} src={logoMap[code][0]} {...rest} />
+            <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+            <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
         </div>
     );
 }
