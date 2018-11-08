@@ -45,10 +45,10 @@ class AddAccount extends Component<TranslateProps, State> {
 
     private submit = () => {
         const body = {
-            coinCode: (document.getElementById('coinCode') as HTMLSelectElement).value,
-            scriptType: (document.getElementById('scriptType') as HTMLSelectElement).value,
-            accountName: (document.getElementById('accountName') as HTMLInputElement).value,
-            extendedPublicKey: (document.getElementById('extendedPublicKey') as HTMLInputElement).value,
+            coinCode: this.state.coinCode,
+            scriptType: this.state.scriptType,
+            accountName: this.state.accountName,
+            extendedPublicKey: this.state.extendedPublicKey,
         };
         apiPost('account/add', body).then(accountCode => route('/account/' + accountCode));
     }
