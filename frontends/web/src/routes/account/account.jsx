@@ -33,6 +33,7 @@ import ArrowUp from '../../assets/icons/arrow-up.svg';
 import ArrowDown from '../../assets/icons/arrow-down.svg';
 import * as componentStyle from '../../components/style.css';
 import { isBitcoinBased } from './utils';
+import A from '../../components/anchor/anchor';
 
 @translate()
 export default class Account extends Component {
@@ -48,6 +49,7 @@ export default class Account extends Component {
         transactions: [],
         balance: null,
         hasCard: false,
+        exported: '',
     }
 
     componentDidMount() {
@@ -142,6 +144,13 @@ export default class Account extends Component {
             this.setState({ balance: null });
             this.setState({ transactions: [] });
         }
+        this.setState({ exported: '' });
+    }
+
+    export = () => {
+        apiPost(`account/${this.props.code}/export`).then(exported => {
+            this.setState({ exported });
+        });
     }
 
     render({
@@ -155,6 +164,7 @@ export default class Account extends Component {
         determiningStatus,
         balance,
         hasCard,
+        exported,
     }) {
         if (!accounts) return null;
         const account = accounts.find(account => account.code === code);
@@ -178,6 +188,10 @@ export default class Account extends Component {
                             <h2 className={componentStyle.title}>
                                 {account.name}
                                 { isBitcoinBased(account.coinCode) ? <a href={`/account/${code}/info`}><img src={InfoIcon} /></a> : '' }
+                                { exported ?
+                                    <A style="margin-left: 8px; text-decoration: none;" href={exported}>Open</A> :
+                                    <a onClick={this.export} style="margin-left: 8px; cursor: pointer;">Export</a>
+                                }
                             </h2>
                         }
                         {...this.props}>

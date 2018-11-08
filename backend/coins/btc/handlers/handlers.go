@@ -15,9 +15,12 @@
 package handlers
 
 import (
+	"encoding/csv"
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -50,6 +53,7 @@ func NewHandlers(
 	handleFunc("/init", handlers.postInit).Methods("POST")
 	handleFunc("/status", handlers.getAccountStatus).Methods("GET")
 	handleFunc("/transactions", handlers.ensureAccountInitialized(handlers.getAccountTransactions)).Methods("GET")
+	handleFunc("/export", handlers.ensureAccountInitialized(handlers.postExportTransactions)).Methods("POST")
 	handleFunc("/info", handlers.ensureAccountInitialized(handlers.getAccountInfo)).Methods("GET")
 	handleFunc("/utxos", handlers.ensureAccountInitialized(handlers.getUTXOs)).Methods("GET")
 	handleFunc("/balance", handlers.ensureAccountInitialized(handlers.getAccountBalance)).Methods("GET")
@@ -193,6 +197,63 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 		result = append(result, txInfoJSON)
 	}
 	return result, nil
+}
+
+func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
+	name := time.Now().Format("2006-01-02 at 15-04-05 ") + handlers.account.Name() + " Export.csv"
+	path := filepath.Join(os.Getenv("HOME"), "Downloads", name)
+	handlers.log.Infof("Export transactions to %s.", path)
+
+	file, err := os.Create(path)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			handlers.log.WithError(err).Error("Could not close the exported transactions file.")
+		}
+	}()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write([]string{
+		"Time",
+		"Type",
+		"Amount",
+		"Fee",
+		"Address",
+		"Transaction ID",
+	})
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	for _, transaction := range handlers.account.Transactions() {
+		transactionType := map[coin.TxType]string{
+			coin.TxTypeReceive:  "received",
+			coin.TxTypeSend:     "sent",
+			coin.TxTypeSendSelf: "sent_to_yourself",
+		}[transaction.Type()]
+		feeString := ""
+		fee := transaction.Fee()
+		if fee != nil {
+			feeString = fee.BigInt().String()
+		}
+		err := writer.Write([]string{
+			transaction.Timestamp().Format(time.RFC3339),
+			transactionType,
+			transaction.Amount().BigInt().String(),
+			feeString,
+			strings.Join(transaction.Addresses(), "; "),
+			transaction.ID(),
+		})
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+	}
+	return path, nil
 }
 
 func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {
