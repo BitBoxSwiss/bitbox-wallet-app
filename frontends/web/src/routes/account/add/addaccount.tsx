@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import linkState from 'linkstate';
+import { Component, h, RenderableProps } from 'preact';
 import { Button, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -22,70 +23,101 @@ import Header from '../../../components/header/Header';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 
-function submit() {
-    const body = {
-        coinCode: (document.getElementById('coinCode') as HTMLSelectElement).value,
-        scriptType: (document.getElementById('scriptType') as HTMLSelectElement).value,
-        accountName: (document.getElementById('accountName') as HTMLInputElement).value,
-        extendedPublicKey: (document.getElementById('extendedPublicKey') as HTMLInputElement).value,
-    };
-    apiPost('account/add', body);
+interface State {
+    coinCode: string;
+    scriptType: string;
+    accountName: string;
+    extendedPublicKey: string;
 }
 
-function AddAccount({ t }: RenderableProps<TranslateProps>): JSX.Element {
-    return (
-        <div class="contentWithGuide">
-            <div class="container">
-                <Header title={<h2>{t('addAccount.title')}</h2>} />
-                <div class="innerContainer scrollableContainer">
-                    <div class="content padded">
-                        <div class="row">
-                            <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                                <Select
-                                    label={t('addAccount.coin')}
-                                    id="coinCode"
-                                    options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
-                                        return {
-                                            value: coin,
-                                            text: coin.toUpperCase(),
-                                        };
-                                    })}
-                                />
-                                <Select
-                                    label={t('addAccount.scriptType')}
-                                    id="scriptType"
-                                    options={['p2wpkh-p2sh', 'p2wpkh', 'p2pkh'].map(scriptType => {
-                                        return {
-                                            value: scriptType,
-                                            text: scriptType.toUpperCase(),
-                                        };
-                                    })}
-                                />
+class AddAccount extends Component<TranslateProps, State> {
+    constructor(props: TranslateProps) {
+        super(props);
+
+        this.state = {
+            coinCode: 'tbtc',
+            scriptType: 'p2wpkh-p2sh',
+            accountName: '',
+            extendedPublicKey: '',
+        };
+    }
+
+    private submit = () => {
+        const body = {
+            coinCode: (document.getElementById('coinCode') as HTMLSelectElement).value,
+            scriptType: (document.getElementById('scriptType') as HTMLSelectElement).value,
+            accountName: (document.getElementById('accountName') as HTMLInputElement).value,
+            extendedPublicKey: (document.getElementById('extendedPublicKey') as HTMLInputElement).value,
+        };
+        apiPost('account/add', body);
+    }
+
+    public render(
+        { t }: RenderableProps<TranslateProps>,
+        { coinCode, scriptType, accountName, extendedPublicKey }: Readonly<State>,
+    ): JSX.Element {
+        return (
+            <div class="contentWithGuide">
+                <div class="container">
+                    <Header title={<h2>{t('addAccount.title')}</h2>} />
+                    <div class="innerContainer scrollableContainer">
+                        <div class="content padded">
+                            <div class="row">
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Select
+                                        label={t('addAccount.coin')}
+                                        options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
+                                            return {
+                                                value: coin,
+                                                text: coin.toUpperCase(),
+                                            };
+                                        })}
+                                        onInput={linkState(this, 'coinCode')}
+                                        value={coinCode}
+                                        id="coinCode"
+                                    />
+                                    <Select
+                                        label={t('addAccount.scriptType')}
+                                        options={['p2wpkh-p2sh', 'p2wpkh', 'p2pkh'].map(type => {
+                                            return {
+                                                value: type,
+                                                text: type.toUpperCase(),
+                                            };
+                                        })}
+                                        onInput={linkState(this, 'scriptType')}
+                                        value={scriptType}
+                                        id="scriptType"
+                                        />
+                                    <Input
+                                        label={t('addAccount.accountName')}
+                                        onInput={linkState(this, 'accountName')}
+                                        value={accountName}
+                                        id="accountName"
+                                    />
+                                </div>
+                            </div>
+                            <div class="row">
                                 <Input
-                                    label={t('addAccount.accountName')}
-                                    id="accountName"
+                                    label={t('addAccount.extendedPublicKey')}
+                                    onInput={linkState(this, 'extendedPublicKey')}
+                                    value={extendedPublicKey}
+                                    id="extendedPublicKey"
                                 />
                             </div>
-                        </div>
-                        <div class="row">
-                            <Input
-                                label={t('addAccount.extendedPublicKey')}
-                                id="extendedPublicKey"
-                            />
-                        </div>
-                        <div class="row buttons flex flex-row flex-between flex-start">
-                            <Button primary onClick={submit}>
-                                {t('addAccount.submit')}
-                            </Button>
+                            <div class="row buttons flex flex-row flex-between flex-start">
+                                <Button primary onClick={this.submit}>
+                                    {t('addAccount.submit')}
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <Guide>
+                    <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} />
+                </Guide>
             </div>
-            <Guide>
-                <Entry key="guide.accountInfo.xpub" entry={t('guide.accountInfo.xpub')} />
-            </Guide>
-        </div>
-    );
+        );
+    }
 }
 
 const HOC = translate()(AddAccount);
