@@ -16,6 +16,7 @@
 
 import linkState from 'linkstate';
 import { Component, h, RenderableProps } from 'preact';
+import { route } from 'preact-router';
 import { Button, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -49,7 +50,7 @@ class AddAccount extends Component<TranslateProps, State> {
             accountName: (document.getElementById('accountName') as HTMLInputElement).value,
             extendedPublicKey: (document.getElementById('extendedPublicKey') as HTMLInputElement).value,
         };
-        apiPost('account/add', body);
+        apiPost('account/add', body).then(accountCode => route('/account/' + accountCode));
     }
 
     public render(

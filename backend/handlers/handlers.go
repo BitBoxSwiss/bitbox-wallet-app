@@ -300,8 +300,9 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return configuration, nil
 	}
-	handlers.backend.CreateAndAddAccount(coin, configuration.Hash(), jsonAccountName, scriptType, getSigningConfiguration)
-	return true, nil
+	accountCode := configuration.Hash()
+	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, scriptType, getSigningConfiguration)
+	return accountCode, nil
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
