@@ -14,27 +14,49 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import { input, errorText, isTransparent } from './input.css';
+import { h, RenderableProps } from 'preact';
+import * as styles from './input.css';
+
+export interface Props {
+    autoComplete?: boolean | 'on' | 'off';
+    autoFocus?: boolean;
+    children?: any; // can be removed once preact > 8.3.1
+    className?: string;
+    disabled?: boolean;
+    error?: JSON;
+    getRef?: () => JSX.Element;
+    id?: string;
+    label?: string;
+    name?: string;
+    onInput?: (e: any) => void;
+    onPaste?: (e: any) => void;
+    pattern?: string;
+    placeholder?: string;
+    style?: string;
+    title?: string;
+    transparent?: boolean;
+    type?: 'text' | 'password';
+    value?: string | number;
+    // [property: string]: any;
+}
 
 export default function Input({
-    type = 'text',
-    disabled = false,
-    label = undefined,
-    id = undefined,
-    error = undefined,
+    id,
+    label = '',
+    error,
     className = '',
-    style = undefined,
-    children = undefined,
-    getRef = undefined,
+    style = '',
+    children,
+    getRef,
     transparent = false,
+    type = 'text',
     ...props
-}) {
+}: RenderableProps<Props>): JSX.Element {
     return (
-        <div className={[input, className, transparent ? isTransparent : ''].join(' ')} style={style}>
+        <div className={[styles.input, className, transparent ? styles.isTransparent : ''].join(' ')} style={style}>
             {
                 label && (
-                    <label for={id} class={error ? errorText : ''}>
+                    <label for={id} class={error ? styles.errorText : ''}>
                         {label}
                         {
                             error && (
@@ -50,7 +72,6 @@ export default function Input({
                 spellcheck={false}
                 type={type}
                 id={id}
-                disabled={disabled}
                 ref={getRef}
                 {...props}
             />

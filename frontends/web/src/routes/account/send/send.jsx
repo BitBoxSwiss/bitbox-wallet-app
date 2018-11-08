@@ -404,7 +404,7 @@ export default class Send extends Component {
                                     error={addressError}
                                     onInput={this.handleFormChange}
                                     value={recipientAddress}
-                                    autofocus
+                                    autoFocus
                                 />
                                 { debug && (
                                     <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
@@ -450,7 +450,13 @@ export default class Send extends Component {
                                         onFeeTargetChange={this.feeTargetChange} />
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
+                                        id="proposedFee"
+                                        value={proposedFee
+                                            ? proposedFee.amount + ' ' + proposedFee.unit
+                                                + ( proposedFee.conversions
+                                                    ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit
+                                                    : '')
+                                            : undefined}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                         transparent />

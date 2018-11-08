@@ -46,7 +46,7 @@ class ElectrumServer extends Component {
 
     handleFormChange = event => {
         this.setState({
-            [event.target.dataset.statekey]: event.target.value,
+            [event.target.name]: event.target.value,
             valid: false
         });
     }
@@ -135,7 +135,7 @@ class ElectrumServer extends Component {
                     </div>
                 </div>
                 <Input
-                    data-statekey="electrumServer"
+                    name="electrumServer"
                     onInput={this.handleFormChange}
                     value={electrumServer}
                     placeholder="host:port"
@@ -150,7 +150,7 @@ class ElectrumServer extends Component {
                     class={style.textarea}
                     rows={10}
                     cols={80}
-                    data-statekey="electrumCert"
+                    name="electrumCert"
                     onInput={this.handleFormChange}
                     value={electrumCert}
                     placeholder={'-----BEGIN CERTIFICATE-----\n...\n-----END CERTIFICATE-----'}

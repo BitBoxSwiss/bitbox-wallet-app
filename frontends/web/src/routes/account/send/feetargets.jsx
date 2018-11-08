@@ -69,6 +69,7 @@ export default class FeeTargets extends Component {
             return (
                 <Input
                     label={label}
+                    id="feetarget"
                     placeholder={placeholder}
                     disabled
                     transparent />

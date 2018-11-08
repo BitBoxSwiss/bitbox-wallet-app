@@ -106,7 +106,7 @@ export class PasswordSingleInput extends Component {
         disabled,
         label,
         placeholder,
-        pattern = false,
+        pattern,
         title,
         showLabel,
     }, {
@@ -228,7 +228,7 @@ export class PasswordRepeatInput extends Component {
         disabled,
         label,
         placeholder,
-        pattern = false,
+        pattern,
         title,
         repeatLabel,
         repeatPlaceholder,

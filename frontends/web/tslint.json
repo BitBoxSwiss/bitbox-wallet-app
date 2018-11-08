@@ -12,7 +12,15 @@
         "max-line-length": [false],
         "member-ordering": [false],
         "object-literal-sort-keys": [false],
-        "quotemark": [true, "single", "jsx-double", "avoid-escape"]
+        "quotemark": [true, "single", "jsx-double", "avoid-escape"],
+        "trailing-comma": [
+            true,
+            {
+                "multiline": "always",
+                "singleline": "never",
+                "esSpecCompliant": true
+            }
+        ]
     },
     "rulesDirectory": []
 }
