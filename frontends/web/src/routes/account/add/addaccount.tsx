@@ -24,10 +24,10 @@ import { apiPost } from '../../../utils/request';
 
 function submit() {
     const body = {
-        coin: (document.getElementById('coin') as HTMLSelectElement).value,
+        coinCode: (document.getElementById('coinCode') as HTMLSelectElement).value,
         scriptType: (document.getElementById('scriptType') as HTMLSelectElement).value,
-        name: (document.getElementById('accountName') as HTMLInputElement).value,
-        xpub: (document.getElementById('xpub') as HTMLInputElement).value,
+        accountName: (document.getElementById('accountName') as HTMLInputElement).value,
+        extendedPublicKey: (document.getElementById('extendedPublicKey') as HTMLInputElement).value,
     };
     apiPost('account/add', body);
 }
@@ -43,13 +43,14 @@ function AddAccount({ t }: RenderableProps<TranslateProps>): JSX.Element {
                             <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                 <Select
                                     label={t('addAccount.coin')}
-                                    id="coin"
+                                    id="coinCode"
                                     options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
                                         return {
                                             value: coin,
                                             text: coin.toUpperCase(),
                                         };
-                                    })} />
+                                    })}
+                                />
                                 <Select
                                     label={t('addAccount.scriptType')}
                                     id="scriptType"
@@ -58,7 +59,8 @@ function AddAccount({ t }: RenderableProps<TranslateProps>): JSX.Element {
                                             value: scriptType,
                                             text: scriptType.toUpperCase(),
                                         };
-                                    })} />
+                                    })}
+                                />
                                 <Input
                                     label={t('addAccount.accountName')}
                                     id="accountName"
@@ -68,7 +70,8 @@ function AddAccount({ t }: RenderableProps<TranslateProps>): JSX.Element {
                         <div class="row">
                             <Input
                                 label={t('addAccount.extendedPublicKey')}
-                                id="xpub" />
+                                id="extendedPublicKey"
+                            />
                         </div>
                         <div class="row buttons flex flex-row flex-between flex-start">
                             <Button primary onClick={submit}>

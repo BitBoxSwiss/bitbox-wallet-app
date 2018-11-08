@@ -278,12 +278,12 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return nil, errp.WithStack(err)
 	}
 	// The following parameters only work for watch-only singlesig accounts at the moment.
-	jsonCoin := jsonBody["coin"]
-	jsonName := jsonBody["name"]
+	jsonCoinCode := jsonBody["coinCode"]
 	jsonScriptType := jsonBody["scriptType"]
-	jsonXpub := jsonBody["xpub"]
+	jsonAccountName := jsonBody["accountName"]
+	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
 
-	coin, err := handlers.backend.Coin(jsonCoin)
+	coin, err := handlers.backend.Coin(jsonCoinCode)
 	if err != nil {
 		return nil, err
 	}
@@ -292,15 +292,15 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return nil, err
 	}
 	keypath := signing.NewEmptyAbsoluteKeypath()
-	xpub, err := hdkeychain.NewKeyFromString(jsonXpub)
+	extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
 	if err != nil {
 		return nil, err
 	}
-	configuration := signing.NewSinglesigConfiguration(scriptType, keypath, xpub)
+	configuration := signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return configuration, nil
 	}
-	handlers.backend.CreateAndAddAccount(coin, configuration.Hash(), jsonName, scriptType, getSigningConfiguration)
+	handlers.backend.CreateAndAddAccount(coin, configuration.Hash(), jsonAccountName, scriptType, getSigningConfiguration)
 	return true, nil
 }
 
