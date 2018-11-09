@@ -268,7 +268,7 @@
       "title": "Bitcoin-related transaction details"
     },
     "accountTransactionConfirmation": {
-      "text": "This is a transaction that has been broadcasted to the network and is waiting to be confirmed.",
+      "text": "This is a transaction that has been broadcast to the network and is waiting to be confirmed.",
       "title": "What is a pending transaction?"
     },
     "accountTransactionLabel": {
@@ -360,7 +360,7 @@
         "title": "What is the network priority?"
       },
       "revert": {
-        "text": "Once a transaction is signed and sent (i.e. broadcasted to the network), it can no longer be reverted. Verify the transactions (including the fee) properly before signing!\nIf you know the recipient and he or she is willing to send the same amount (minus the transaction fees) back to you, you can send them a new receiving address.",
+        "text": "Once a transaction is signed and sent (i.e. broadcast to the network), it can no longer be reverted. Verify the transactions (including the fee) properly before signing!\nIf you know the recipient and he or she is willing to send the same amount (minus the transaction fees) back to you, you can send them a new receiving address.",
         "title": "Can I revert a transaction?"
       },
       "whyFee": {
@@ -567,7 +567,7 @@
     "restore": {
       "button": "Continue",
       "description1": "You will be asked to insert the micro SD card you used to store you backup.",
-      "description2": "To restore your device you will need your recovery password. ",
+      "description2": "To restore your device you will need your recovery password.",
       "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect (learn more).",
       "title": "Security Information"
     }
