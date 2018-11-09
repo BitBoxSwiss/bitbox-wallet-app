@@ -173,6 +173,9 @@
       "title": "You're ready to go!"
     }
   },
+  "bitboxBase": {
+    "title": "BitBox Base"
+  },
   "blink": {
     "button": "Blink"
   },
@@ -854,6 +857,7 @@
   "setup": "Setup device",
   "sidebar": {
     "addAccount": "Add Account",
+    "bitboxBase": "BitBox Base",
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"

@@ -130,6 +130,10 @@ Run `make ci` to run all static analysis tools and tests.
 To statically compile the UI, run `make buildweb` again, which compiles the web ui into a compact
 bundle.
 
+### Base integration
+To test the BitBox Base integration, run the base-middleware on your local
+machine. Make sure you have bitcoind and c-lightning running as well.
+
 ## Develop using Docker
 
 The Dockerfile provides a Ubuntu container with the whole environment preconfigured. To set it up,

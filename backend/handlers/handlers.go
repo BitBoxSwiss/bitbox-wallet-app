@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime/debug"
+	"sort"
 	"strconv"
 	"time"
 
@@ -33,6 +34,8 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
+	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -82,12 +85,17 @@ type Backend interface {
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
+	OnBitBoxBaseInit(f func(bitboxbase.Interface))
+	OnBitBoxBaseUninit(f func(bitboxBaseID string))
+	BitBoxBasesRegistered() map[string]bitboxbase.Interface
 	Start() <-chan interface{}
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
 	Register(device device.Interface) error
 	Deregister(deviceID string)
+	TryMakeNewBase(ip string) (bool, error)
 	Rates() map[string]map[string]float64
+	BitBoxBaseDeregister(bitboxBaseID string)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(string, string) error
 	RegisterTestKeystore(string)
@@ -181,9 +189,13 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/bitboxbases/connectbase", handlers.postConnectBaseHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/bitboxbases/disconnectbase", handlers.postDisconnectBaseHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
+	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
+	bitboxBasesRouter("/registered", handlers.getBitBoxBasesRegisteredHandler).Methods("GET")
 
 	handlersMapLock := locker.Locker{}
 
@@ -241,6 +253,17 @@ func NewHandlers(
 		return bitbox02BootloaderHandlersMap[deviceID]
 	}
 
+	baseHandlersMap := map[string]*baseHandlers.Handlers{}
+	getBaseHandlers := func(bitboxBaseID string) *baseHandlers.Handlers {
+		defer handlersMapLock.Lock()()
+		if _, ok := baseHandlersMap[bitboxBaseID]; !ok {
+			baseHandlersMap[bitboxBaseID] = baseHandlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/bitboxbases/%s", bitboxBaseID)).Subrouter(),
+			), log)
+		}
+		return baseHandlersMap[bitboxBaseID]
+	}
+
 	backend.OnDeviceInit(func(device device.Interface) {
 		switch specificDevice := device.(type) {
 		case *bitbox.Device:
@@ -253,6 +276,13 @@ func NewHandlers(
 	})
 	backend.OnDeviceUninit(func(deviceID string) {
 		getDeviceHandlers(deviceID).Uninit()
+	})
+
+	backend.OnBitBoxBaseInit(func(baseDevice bitboxbase.Interface) {
+		getBaseHandlers(baseDevice.Identifier()).Init(baseDevice)
+	})
+	backend.OnBitBoxBaseUninit(func(bitboxBaseID string) {
+		getBaseHandlers(bitboxBaseID).Uninit()
 	})
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
@@ -488,6 +518,28 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return jsonDevices, nil
 }
 
+func (handlers *Handlers) getBitBoxBasesRegisteredHandler(_ *http.Request) (interface{}, error) {
+	mapBases := map[int64]string{}
+	//Get Base id and corresponding base register time and create a map
+	for bitboxBaseID, bitboxBase := range handlers.backend.BitBoxBasesRegistered() {
+		mapBases[bitboxBase.GetRegisterTime().Unix()] = bitboxBaseID
+	}
+	//Create a slice of all registered Timstamps
+	var registerTimes []int64
+	for k := range mapBases {
+		registerTimes = append(registerTimes, k)
+	}
+	//Sort the slice
+	sort.Slice(registerTimes, func(i, j int) bool { return registerTimes[i] < registerTimes[j] })
+	//Create another slice and populate it in the same order as the time slice with the bitboxBase IDs
+	var bitboxBaseIDs []string
+	for _, registerTime := range registerTimes {
+		//var unixRegisterTime = time.Unix(int64(registerTime), 0)
+		bitboxBaseIDs = append(bitboxBaseIDs, mapBases[registerTime])
+	}
+	return bitboxBaseIDs, nil
+}
+
 func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
@@ -598,6 +650,40 @@ func (handlers *Handlers) postCertsCheckHandler(r *http.Request) (interface{}, e
 	return map[string]interface{}{
 		"success": true,
 	}, nil
+}
+
+func (handlers *Handlers) postConnectBaseHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	ip := jsonBody["ip"]
+	handlers.log.WithField("ip", ip).Debug("Connect to middleware with the following ip:")
+
+	success, err := handlers.backend.TryMakeNewBase(ip)
+	if err != nil {
+		return map[string]interface{}{
+			"success":      success,
+			"errorMessage": err.Error(),
+		}, nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	bitboxBaseID := jsonBody["bitboxBaseID"]
+	handlers.log.WithField("BitBox Base ID", bitboxBaseID).Debug("Disconnecting from middleware with the following id:")
+
+	//Implment proper error handling for deregister
+	handlers.backend.BitBoxBaseDeregister(bitboxBaseID)
+	var success = true
+	return map[string]interface{}{"success": success}, nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
