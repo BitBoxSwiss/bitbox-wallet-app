@@ -260,7 +260,7 @@
       "title": "Why can't I send any {{unit}}?"
     },
     "accountTransactionAttributesGeneric": {
-      "text": "Confirmations: When your transaction is first broadcast it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
+      "text": "Confirmations: When your transaction is first broadcasted it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
       "title": "What is the information shown in the transaction details?"
     },
     "accountTransactionAttributesBTC": {
