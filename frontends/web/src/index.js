@@ -18,6 +18,7 @@
 // It is recommended to leave this file as 'index.js' and not rename it to 'index.jsx', 'index.ts'
 // or 'index.tsx' (see https://github.com/wub/preact-cli-plugin-typescript#changing-the-entrypoint).
 
+import { h } from 'preact';
 import { I18nextProvider } from 'react-i18next';
 import { ConnectedApp } from './connected';
 import i18n from './i18n/i18n';

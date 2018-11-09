@@ -6,6 +6,7 @@
         "sourceMap": true,
         "allowJs": true,
         "checkJs": true,
+        "outDir": "build",
         "jsx": "react",
         "jsxFactory": "h",
         "alwaysStrict": true,
@@ -21,7 +22,6 @@
         "noUnusedParameters": true,
     },
     "include": [
-        "./src/**/*.tsx",
-        "./src/**/*.ts",
+        "src/**/*",
     ],
 }
