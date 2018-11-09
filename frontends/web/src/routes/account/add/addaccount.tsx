@@ -50,7 +50,7 @@ class AddAccount extends Component<TranslateProps, State> {
             accountName: this.state.accountName,
             extendedPublicKey: this.state.extendedPublicKey,
         };
-        apiPost('account/add', body).then(accountCode => route('/account/' + accountCode));
+        apiPost('account-add', body).then(accountCode => route('/account/' + accountCode));
     }
 
     public render(

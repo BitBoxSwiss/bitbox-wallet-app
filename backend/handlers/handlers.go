@@ -149,7 +149,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/account/add", handlers.postAddAccountHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
