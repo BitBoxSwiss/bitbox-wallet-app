@@ -130,6 +130,7 @@ func (backend *Backend) addAccount(account btc.Interface) {
 	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
 	backend.onAccountInit(account)
+	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
@@ -387,7 +388,7 @@ func (backend *Backend) initAccounts() {
 
 // AccountsStatus returns whether the accounts have been initialized.
 func (backend *Backend) AccountsStatus() string {
-	if backend.keystores.Count() > 0 {
+	if len(backend.accounts) > 0 {
 		return "initialized"
 	}
 	return "uninitialized"
@@ -463,6 +464,7 @@ func (backend *Backend) uninitAccounts() {
 		account.Close()
 	}
 	backend.accounts = []btc.Interface{}
+	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // Keystores returns the keystores registered at this backend.
@@ -480,7 +482,6 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 		return
 	}
 	backend.initAccounts()
-	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // DeregisterKeystore removes the registered keystore.
@@ -488,7 +489,6 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitAccounts()
-	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // Register registers the given device at this backend.

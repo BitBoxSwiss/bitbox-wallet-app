@@ -107,7 +107,6 @@ export class App extends Component {
         apiGet('accounts-status').then(status => {
             const accountsInitialized = status === 'initialized';
             if (!accountsInitialized && getCurrentUrl().match(/^\/account\//)) {
-                console.log('app.jsx route /'); // eslint-disable-line no-console
                 route('/', true);
             }
             this.setState({ accountsInitialized });
