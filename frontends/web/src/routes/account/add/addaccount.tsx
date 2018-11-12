@@ -65,6 +65,12 @@ class AddAccount extends Component<TranslateProps, State> {
                         <div class="content padded">
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Input
+                                        label={t('addAccount.accountName')}
+                                        onInput={linkState(this, 'accountName')}
+                                        value={accountName}
+                                        id="accountName"
+                                    />
                                     <Select
                                         label={t('addAccount.coin')}
                                         options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
@@ -88,12 +94,6 @@ class AddAccount extends Component<TranslateProps, State> {
                                         onInput={linkState(this, 'scriptType')}
                                         value={scriptType}
                                         id="scriptType"
-                                        />
-                                    <Input
-                                        label={t('addAccount.accountName')}
-                                        onInput={linkState(this, 'accountName')}
-                                        value={accountName}
-                                        id="accountName"
                                     />
                                 </div>
                             </div>
