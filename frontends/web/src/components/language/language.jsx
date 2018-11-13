@@ -19,6 +19,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
 import { Dialog } from '../dialog/dialog';
+import globe from '../../assets/icons/globe.svg';
 import * as style from './language.css';
 
 @translate()
@@ -105,7 +106,9 @@ export default class LanguageSwitcher extends Component {
                 <Button
                     type="button"
                     transparent
+                    className={[style.button, 'flex flex-row flex-items-center'].join(' ')}
                     onClick={() => this.setState({ activeDialog: true })}>
+                    <img src={globe} />
                     {languages[selectedIndex].display}
                 </Button>
                 {
