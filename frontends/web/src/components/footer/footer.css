@@ -11,12 +11,21 @@
 }
 
 .footer img {
-    max-width: 120px;
+    width: 120px;
     margin: 0 auto 0 0;
 }
 
 @media (max-width: 640px) {
     .footer {
         padding: var(--spacing-half);
+    }
+
+    .footer p {
+        text-align: right;
+        font-size: 11px;
+    }
+
+    .footer img {
+        width: 60px;
     }
 }
