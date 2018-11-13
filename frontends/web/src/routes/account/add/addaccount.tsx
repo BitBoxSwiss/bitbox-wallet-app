@@ -17,7 +17,7 @@
 import linkState from 'linkstate';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { Button, Input, Select } from '../../../components/forms';
+import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import Header from '../../../components/header/Header';
@@ -106,6 +106,9 @@ class AddAccount extends Component<TranslateProps, State> {
                                 />
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
+                                <ButtonLink secondary href="/">
+                                    {t('button.back')}
+                                </ButtonLink>
                                 <Button primary onClick={this.submit}>
                                     {t('addAccount.submit')}
                                 </Button>
