@@ -70,6 +70,7 @@ class AddAccount extends Component<TranslateProps, State> {
                                         onInput={linkState(this, 'accountName')}
                                         value={accountName}
                                         id="accountName"
+                                        placeholder={t('addAccount.accountName')}
                                     />
                                     <Select
                                         label={t('addAccount.coin')}
@@ -103,6 +104,7 @@ class AddAccount extends Component<TranslateProps, State> {
                                     onInput={linkState(this, 'extendedPublicKey')}
                                     value={extendedPublicKey}
                                     id="extendedPublicKey"
+                                    placeholder={t('addAccount.extendedPublicKey')}
                                 />
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
