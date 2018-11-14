@@ -28,7 +28,8 @@ import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
 import Spinner from '../../components/spinner/Spinner';
-import InfoIcon from '../../assets/icons/info.svg';
+import checkIcon from '../../assets/icons/check.svg';
+import exportIcon from '../../assets/icons/download.svg';
 import ArrowUp from '../../assets/icons/arrow-up.svg';
 import ArrowDown from '../../assets/icons/arrow-down.svg';
 import * as componentStyle from '../../components/style.css';
@@ -186,11 +187,25 @@ export default class Account extends Component {
                     <Header
                         title={
                             <h2 className={componentStyle.title}>
-                                {account.name}
-                                { isBitcoinBased(account.coinCode) ? <a href={`/account/${code}/info`}><img src={InfoIcon} /></a> : '' }
-                                { exported ?
-                                    <A style="margin-left: 8px; text-decoration: none;" href={exported}>Open</A> :
-                                    <a onClick={this.export} style="margin-left: 8px; cursor: pointer;">Export</a>
+                                <span>{account.name}</span>
+                                {
+                                    isBitcoinBased(account.coinCode) ? (
+                                        <a href={`/account/${code}/info`} className={componentStyle.infoButton} title={t('accountInfo.title')}>i</a>
+                                    ) : ''
+                                }
+                                {
+                                    exported ? (
+                                        <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
+                                            <span className={componentStyle.exportedButton} style="margin-right: 5px;">
+                                                <img src={checkIcon} style="margin-right: 5px !important;" />
+                                                <span className={componentStyle.exportedText}>{t('account.exportCompleted')}</span>
+                                            </span>
+                                        </A>
+                                    ) : (
+                                        <a onClick={this.export} className={componentStyle.exportButton} title={t('account.export')}>
+                                            <img src={exportIcon} />
+                                        </a>
+                                    )
                                 }
                             </h2>
                         }
