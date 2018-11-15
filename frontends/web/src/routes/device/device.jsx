@@ -138,13 +138,13 @@ export default class Device extends Component {
             return null;
         }
         if (success) {
-            return <Success goal={goal} />;
+            return <Success goal={goal} {...this.props} />;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
-            return <Bootloader deviceID={deviceID} />;
+            return <Bootloader deviceID={deviceID} {...this.props} />;
         case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
-            return <RequireUpgrade deviceID={deviceID} />;
+            return <RequireUpgrade deviceID={deviceID} {...this.props} />;
         case DeviceStatus.REQUIRE_APP_UPGRADE:
             return (
                 <div class="contentWithGuide">
@@ -157,13 +157,13 @@ export default class Device extends Component {
                 </div>
             );
         case DeviceStatus.INITIALIZED:
-            return <Unlock deviceID={deviceID} />;
+            return <Unlock deviceID={deviceID} {...this.props} />;
         case DeviceStatus.UNINITIALIZED:
             if (!goal) {
-                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} {...this.props} />;
             }
             return (
-                <SecurityInformation goal={goal} goBack={this.handleBack}>
+                <SecurityInformation goal={goal} goBack={this.handleBack} {...this.props}>
                     <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} />
                 </SecurityInformation>
             );
@@ -174,17 +174,19 @@ export default class Device extends Component {
                     <SeedCreateNew
                         goBack={this.handleBack}
                         onSuccess={this.handleSuccess}
-                        deviceID={deviceID} />
+                        deviceID={deviceID}
+                        {...this.props} />
                 );
             case GOAL.RESTORE:
                 return (
                     <SeedRestore
                         goBack={this.handleBack}
                         onSuccess={this.handleSuccess}
-                        deviceID={deviceID} />
+                        deviceID={deviceID}
+                        {...this.props} />
                 );
             default:
-                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;
+                return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} {...this.props} />;
             }
         case DeviceStatus.SEEDED:
             return <Settings deviceID={deviceID} {...this.props} />;

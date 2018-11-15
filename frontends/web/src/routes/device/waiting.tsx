@@ -35,11 +35,11 @@ interface TestingProps {
 
 type WaitingProps = TestingProps & TranslateProps;
 
-function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
+function Waiting({ t, testing, ...other }: RenderableProps<WaitingProps>) {
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
-                <Header title={<h2>{t('welcome.title')}</h2>} />
+                <Header title={<h2>{t('welcome.title')}</h2>} {...other} />
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>

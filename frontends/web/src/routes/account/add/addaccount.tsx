@@ -54,13 +54,13 @@ class AddAccount extends Component<TranslateProps, State> {
     }
 
     public render(
-        { t }: RenderableProps<TranslateProps>,
+        { t, ...other }: RenderableProps<TranslateProps>,
         { coinCode, scriptType, accountName, extendedPublicKey }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('addAccount.title')}</h2>} />
+                    <Header title={<h2>{t('addAccount.title')}</h2>} {...other}  />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="row">
