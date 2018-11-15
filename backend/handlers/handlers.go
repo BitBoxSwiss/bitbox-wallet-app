@@ -300,7 +300,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return configuration, nil
 	}
-	accountCode := configuration.Hash()
+	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
 	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, scriptType, getSigningConfiguration)
 	return accountCode, nil
 }
