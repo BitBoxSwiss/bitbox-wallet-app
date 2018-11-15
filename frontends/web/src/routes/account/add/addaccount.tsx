@@ -17,6 +17,7 @@
 import linkState from 'linkstate';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import { alertUser } from '../../../components/alert/Alert';
 import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -50,7 +51,18 @@ class AddAccount extends Component<TranslateProps, State> {
             accountName: this.state.accountName,
             extendedPublicKey: this.state.extendedPublicKey,
         };
-        apiPost('account-add', body).then(accountCode => route('/account/' + accountCode));
+        interface ResponseData {
+            success: boolean;
+            errorCode?: 'xpubInvalid' | 'xpubWrongNet';
+            accountCode?: string;
+        }
+        apiPost('account-add', body).then((data: ResponseData) => {
+            if (data.success) {
+                route('/account/' + data.accountCode);
+            } else {
+                alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
+            }
+        });
     }
 
     public render(
@@ -111,7 +123,7 @@ class AddAccount extends Component<TranslateProps, State> {
                                 <ButtonLink secondary href="/">
                                     {t('button.back')}
                                 </ButtonLink>
-                                <Button primary onClick={this.submit}>
+                                <Button primary onClick={this.submit} disabled={accountName === ''}>
                                     {t('addAccount.submit')}
                                 </Button>
                             </div>

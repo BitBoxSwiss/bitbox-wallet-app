@@ -23,6 +23,7 @@ import (
 	"runtime/debug"
 	"strconv"
 
+	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -294,7 +295,18 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	keypath := signing.NewEmptyAbsoluteKeypath()
 	extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
 	if err != nil {
-		return nil, err
+		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
+	}
+	if extendedPublicKey.IsPrivate() {
+		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
+	}
+	if btcCoin, ok := coin.(*btc.Coin); ok {
+		expectedNet := &chaincfg.Params{
+			HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
+		}
+		if !extendedPublicKey.IsForNet(expectedNet) {
+			return map[string]interface{}{"success": false, "errorCode": "xpubWrongNet"}, nil
+		}
 	}
 	configuration := signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	getSigningConfiguration := func() (*signing.Configuration, error) {
@@ -302,7 +314,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
 	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, scriptType, getSigningConfiguration)
-	return accountCode, nil
+	return map[string]interface{}{"success": true, "accountCode": accountCode}, nil
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
