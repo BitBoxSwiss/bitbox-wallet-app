@@ -95,7 +95,7 @@ type Backend struct {
 	accounts     []btc.Interface
 	accountsLock locker.Locker
 
-	ratesUpdater coin.RatesUpdater
+	ratesUpdater *RatesUpdater
 
 	log *logrus.Entry
 }
