@@ -21,7 +21,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
 import { Message } from '../../components/message/message';
-import { BitBox, Shift } from '../../components/icon/logo';
+import { Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import Header from '../../components/header/Header';
@@ -137,7 +137,6 @@ export default class Unlock extends Component {
                     <Header title={<h2>{t('welcome.title')}</h2>} {...this.props} />
                     <div className={style.content}>
                         <div className="flex-1 flex flex-column flex-center">
-                            <BitBox />
                             {submissionState}
                             {status !== stateEnum.WAITING && (
                                 <form onSubmit={this.handleSubmit} style="max-width: 420px; width: 100%; align-self: center;">

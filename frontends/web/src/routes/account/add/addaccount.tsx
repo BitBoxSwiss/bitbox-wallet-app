@@ -17,7 +17,7 @@
 import linkState from 'linkstate';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { Button, Input, Select } from '../../../components/forms';
+import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import Header from '../../../components/header/Header';
@@ -65,6 +65,13 @@ class AddAccount extends Component<TranslateProps, State> {
                         <div class="content padded">
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                    <Input
+                                        label={t('addAccount.accountName')}
+                                        onInput={linkState(this, 'accountName')}
+                                        value={accountName}
+                                        id="accountName"
+                                        placeholder={t('addAccount.accountName')}
+                                    />
                                     <Select
                                         label={t('addAccount.coin')}
                                         options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
@@ -88,12 +95,6 @@ class AddAccount extends Component<TranslateProps, State> {
                                         onInput={linkState(this, 'scriptType')}
                                         value={scriptType}
                                         id="scriptType"
-                                        />
-                                    <Input
-                                        label={t('addAccount.accountName')}
-                                        onInput={linkState(this, 'accountName')}
-                                        value={accountName}
-                                        id="accountName"
                                     />
                                 </div>
                             </div>
@@ -103,9 +104,13 @@ class AddAccount extends Component<TranslateProps, State> {
                                     onInput={linkState(this, 'extendedPublicKey')}
                                     value={extendedPublicKey}
                                     id="extendedPublicKey"
+                                    placeholder={t('addAccount.extendedPublicKey')}
                                 />
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
+                                <ButtonLink secondary href="/">
+                                    {t('button.back')}
+                                </ButtonLink>
                                 <Button primary onClick={this.submit}>
                                     {t('addAccount.submit')}
                                 </Button>

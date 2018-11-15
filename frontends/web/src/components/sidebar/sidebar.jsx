@@ -24,6 +24,8 @@ import Logo, { BitBoxInverted } from '../icon/logo';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
+import plusCircle from '../../assets/icons/plus-circle.svg';
+import plusCircleDisabled from '../../assets/icons/plus-circle-disabled.svg';
 import ejectIcon from '../../assets/icons/eject.svg';
 import { share } from '../../decorators/share';
 import { store } from '../../components/guide/guide';
@@ -45,7 +47,7 @@ export default class Sidebar extends Component {
             <div className="sidebarContainer">
                 <div className={['sidebarOverlay', show ? 'active' : ''].join(' ')} onClick={toggle}></div>
                 <nav className={['sidebar', show ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
-                    <div className="sidebarLogoContainer" style={'opacity:' + (accountsInitialized ? 1 : 0)}>
+                    <div className="sidebarLogoContainer">
                         <BitBoxInverted className="sidebarLogo" />
                     </div>
                     {
@@ -55,8 +57,8 @@ export default class Sidebar extends Component {
                         <div className="sideBarItem">
                             <Link activeClassName="sidebar-active" class="settings" href={`/add-account`} title={t('sidebar.addAccount')}>
                                 <div className="stacked">
-                                    <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.addAccount')} />
-                                    <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.addAccount')} />
+                                    <img draggable={false} className="sidebar_settings" src={plusCircleDisabled} alt={t('sidebar.addAccount')} />
+                                    <img draggable={false} className="sidebar_settings" src={plusCircle} alt={t('sidebar.addAccount')} />
                                 </div>
                                 <span className="sidebar_label">{t('sidebar.addAccount')}</span>
                             </Link>
