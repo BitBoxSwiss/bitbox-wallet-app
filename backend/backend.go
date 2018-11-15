@@ -95,14 +95,10 @@ type Backend struct {
 	accounts     []btc.Interface
 	accountsLock locker.Locker
 
-	// Stored and exposed temporarily through the backend.
-	ratesUpdater coin.RatesUpdater
+	ratesUpdater *RatesUpdater
 
 	log *logrus.Entry
 }
-
-// ExposedRatesUpdater leaks the rates updater to allow the coin handler to convert to fiat.
-var ExposedRatesUpdater *RatesUpdater
 
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments) *Backend {
@@ -118,10 +114,8 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 		accounts:  []btc.Interface{},
 		log:       log,
 	}
-	ratesUpdater := NewRatesUpdater()
-	ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
-	backend.ratesUpdater = ratesUpdater
-	ExposedRatesUpdater = ratesUpdater
+	backend.ratesUpdater = GetRatesUpdaterInstance()
+	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
 	return backend
 }
 

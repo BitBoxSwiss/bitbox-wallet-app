@@ -96,8 +96,8 @@ func formatAsCurrency(amount float64) string {
 
 func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	var conversions map[string]string
-	if backend.ExposedRatesUpdater != nil {
-		rates := backend.ExposedRatesUpdater.Last()
+	if backend.GetRatesUpdaterInstance() != nil {
+		rates := backend.GetRatesUpdaterInstance().Last()
 		if rates != nil {
 			unit := coin.Unit()
 			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
