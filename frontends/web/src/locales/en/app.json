@@ -13,8 +13,8 @@
     },
     "initializing": "Getting information from the blockchain…",
     "reconnecting": "Lost connection, trying to reconnect…",
-    "export": "Export",
-    "exportCompleted": "Export complete"
+    "exportTransactions": "Export Transactions to Downloads Folder as CSV File",
+    "openFile": "Open File"
   },
   "accountInfo": {
     "extendedPublicKey": "Extended Public Key",

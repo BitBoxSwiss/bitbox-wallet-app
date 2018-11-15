@@ -198,11 +198,11 @@ export default class Account extends Component {
                                         <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
                                             <span className={componentStyle.exportedButton} style="margin-right: 5px;">
                                                 <img src={checkIcon} style="margin-right: 5px !important;" />
-                                                <span className={componentStyle.exportedText}>{t('account.exportCompleted')}</span>
+                                                <span className={componentStyle.exportedText}>{t('account.openFile')}</span>
                                             </span>
                                         </A>
                                     ) : (
-                                        <a onClick={this.export} className={componentStyle.exportButton} title={t('account.export')}>
+                                        <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
                                             <img src={exportIcon} />
                                         </a>
                                     )
