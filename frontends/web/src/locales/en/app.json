@@ -12,7 +12,9 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Getting information from the blockchain…",
-    "reconnecting": "Lost connection, trying to reconnect…"
+    "reconnecting": "Lost connection, trying to reconnect…",
+    "export": "Export",
+    "exportCompleted": "Export complete"
   },
   "accountInfo": {
     "extendedPublicKey": "Extended Public Key",
