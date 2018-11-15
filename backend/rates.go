@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -34,6 +35,19 @@ var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB"}
 
 const interval = time.Minute
 const url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
+
+var (
+	ratesUpdaterInstance     *RatesUpdater
+	ratesUpdaterInstanceOnce sync.Once
+)
+
+// GetRatesUpdaterInstance gets a singleton instance of RatesUpdater.
+func GetRatesUpdaterInstance() *RatesUpdater {
+	ratesUpdaterInstanceOnce.Do(func() {
+		ratesUpdaterInstance = NewRatesUpdater()
+	})
+	return ratesUpdaterInstance
+}
 
 // RatesUpdater implements coin.RatesUpdater.
 type RatesUpdater struct {
