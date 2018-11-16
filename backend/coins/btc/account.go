@@ -280,8 +280,9 @@ type Info struct {
 	SigningConfiguration *signing.Configuration `json:"signingConfiguration"`
 }
 
-func (account *Account) xpubVersionForScriptType(scriptType signing.ScriptType) [4]byte {
-	switch account.coin.Net().Net {
+// XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.
+func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte {
+	switch coin.Net().Net {
 	case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
 		versions := map[signing.ScriptType][4]byte{
 			signing.ScriptTypeP2PKH:      {0x04, 0x88, 0xb2, 0x1e}, // xpub
@@ -318,7 +319,8 @@ func (account *Account) Info() *Info {
 		}
 		xpubCopy.SetNet(
 			&chaincfg.Params{
-				HDPublicKeyID: account.xpubVersionForScriptType(account.signingConfiguration.ScriptType()),
+				HDPublicKeyID: XPubVersionForScriptType(account.
+					coin, account.signingConfiguration.ScriptType()),
 			},
 		)
 		xpubs = append(xpubs, xpubCopy)

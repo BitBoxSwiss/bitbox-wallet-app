@@ -26,7 +26,11 @@
     "extendedPublicKey": "Extended Public Key",
     "scriptType": "Script Type",
     "submit": "Add Account",
-    "title": "Add Account"
+    "title": "Add Account",
+      "error": {
+        "xpubInvalid": "Extended Public Key malformatted.",
+        "xpubWrongNet": "Extended Public Key not valid for the selected account."
+      }
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
