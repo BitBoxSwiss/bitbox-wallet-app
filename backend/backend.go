@@ -281,11 +281,11 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	case coinTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://testnet.blockchain.info/tx/")
+			"https://blockstream.info/testnet/tx/")
 	case coinBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockchain.info/tx/")
+			"https://blockstream.info/tx/")
 	case coinTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,

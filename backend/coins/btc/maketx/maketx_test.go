@@ -38,7 +38,7 @@ import (
 
 var noDust = btcutil.Amount(0)
 
-var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, ".", []*rpc.ServerInfo{}, "https://testnet.blockchain.info/tx/")
+var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, ".", []*rpc.ServerInfo{}, "https://blockstream.info/testnet/tx/")
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226
