@@ -95,8 +95,6 @@ type Backend struct {
 	accounts     []btc.Interface
 	accountsLock locker.Locker
 
-	ratesUpdater *RatesUpdater
-
 	log *logrus.Entry
 }
 
@@ -114,8 +112,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 		accounts:  []btc.Interface{},
 		log:       log,
 	}
-	backend.ratesUpdater = GetRatesUpdaterInstance()
-	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
+	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 	return backend
 }
 
@@ -544,7 +541,7 @@ func (backend *Backend) Deregister(deviceID string) {
 
 // Rates return the latest rates.
 func (backend *Backend) Rates() map[string]map[string]float64 {
-	return backend.ratesUpdater.Last()
+	return GetRatesUpdaterInstance().Last()
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
