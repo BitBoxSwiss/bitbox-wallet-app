@@ -31,6 +31,7 @@ export default class Header extends Component {
     render({
         title = null,
         toggleSidebar = null,
+        showable,
         children,
     }) {
         return (
@@ -40,11 +41,13 @@ export default class Header extends Component {
                         <img src={MenuIcon} />
                     </div>
                     <div className={style.title}>{title}</div>
-                    <div className={style.guideWrapper} onClick={this.toggleGuide}>
-                        <div className={style.guideToggler}>
-                            <span>{store.state.shown ? '✕' : '?'}</span>
-                        </div>
-                    </div>
+                    {
+                        showable ? (<div className={style.guideWrapper} onClick={this.toggleGuide}>
+                            <div className={style.guideToggler}>
+                                <span>{store.state.shown ? '✕' : '?'}</span>
+                            </div>
+                        </div>) : null
+                    }
                 </div>
                 {
                     children.length > 0 && (

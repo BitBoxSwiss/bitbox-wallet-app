@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -25,9 +25,13 @@ import * as style from './guide.css';
 
 interface SharedProps {
     shown: boolean;
+    showable: boolean;
 }
 
-export const store = new Store<SharedProps>({ shown: false });
+export const store = new Store<SharedProps>({
+    shown: false,
+    showable: false,
+});
 
 apiGet('config').then(({ frontend }) => {
     if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
@@ -56,20 +60,32 @@ export function hide() {
 
 type Props = SharedProps & TranslateProps;
 
-function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
-    return (
-        <div className={style.wrapper}>
-            <div className={[style.guide, shown && style.show].join(' ')}>
-                <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
-                    <h1>{t('guide.title')}</h1>
-                </div>
-                {children}
-                <div className={style.entry}>
-                    {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+class Guide extends Component<Props, {}> {
+    public componentDidMount() {
+        store.setState({ showable: true });
+    }
+
+    public componentWillUnmount() {
+        store.setState({ showable: false });
+    }
+
+    public render(
+        { shown, t, children }: RenderableProps<Props>,
+    ) {
+        return (
+            <div className={style.wrapper}>
+                <div className={[style.guide, shown && style.show].join(' ')}>
+                    <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+                        <h1>{t('guide.title')}</h1>
+                    </div>
+                    {children}
+                    <div className={style.entry}>
+                        {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
 const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));
