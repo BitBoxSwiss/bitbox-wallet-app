@@ -51,6 +51,7 @@ export default class Account extends Component {
         balance: null,
         hasCard: false,
         exported: '',
+        accountInfo: null,
     }
 
     componentDidMount() {
@@ -123,8 +124,13 @@ export default class Account extends Component {
                 connected: !status.includes('offlineMode'),
                 determiningStatus: false,
             };
-            if (!status.initialized && !status.includes('accountDisabled')) {
+            if (!state.initialized && !status.includes('accountDisabled')) {
                 apiPost(`account/${code}/init`);
+            }
+            if (state.initialized && !status.includes('accountDisabled')) {
+                apiGet(`account/${code}/info`).then(accountInfo => {
+                    this.setState({ accountInfo });
+                });
             }
 
             this.setState(state);
@@ -154,10 +160,23 @@ export default class Account extends Component {
         });
     }
 
+    getAccount() {
+        if (!this.props.accounts) return null;
+        return this.props.accounts.find(({ code }) => code === this.props.code);
+    }
+
+    isLegacy = () => {
+        const account = this.getAccount();
+        if (!account) return false;
+        const info = this.state.accountInfo;
+        if (!info || !info.signingConfiguration) return false;
+        return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
+               info.signingConfiguration.scriptType === 'p2pkh';
+    }
+
     render({
         t,
         code,
-        accounts,
     }, {
         transactions,
         initialized,
@@ -167,8 +186,8 @@ export default class Account extends Component {
         hasCard,
         exported,
     }) {
-        if (!accounts) return null;
-        const account = accounts.find(account => account.code === code);
+
+        const account = this.getAccount();
         if (!account) return null;
         const noTransactions = (initialized && transactions.length <= 0);
         return (
@@ -263,7 +282,7 @@ export default class Account extends Component {
                     {transactions.length > 0 && (
                         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
                     )}
-                    {(account.code === 'tbtc-p2pkh' || account.code === 'btc-p2pkh') && (
+                    {this.isLegacy() && (
                         <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
                     {transactions.length > 0 && (
