@@ -1,3 +1,40 @@
+.guideWrapper {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 56px;
+    height: 56px;
+    z-index: 4003;
+}
+
+.guideToggler {
+    position: relative;
+    top: -48px;
+    right: -21px;
+    color: var(--color-white);
+    background-color: var(--color-darkblue);
+    width: 96px;
+    height: 96px;
+    transform: rotate(45deg);
+    font-size: var(--size-medium);
+    transition: all ease 0.1s;
+}
+
+.guideToggler span {
+    position: absolute;
+    bottom: 5px;
+    left: 28px;
+    cursor: default;
+    display: block;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    transform: rotate(-45deg);
+    transition: all ease 0.1s;
+    user-select: none;
+}
+
 .wrapper {
     position: relative;
 }

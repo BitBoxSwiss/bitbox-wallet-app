@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -23,15 +23,9 @@ import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
 import * as style from './guide.css';
 
-interface SharedProps {
-    shown: boolean;
-    showable: boolean;
-}
+interface SharedProps { shown: boolean; }
 
-export const store = new Store<SharedProps>({
-    shown: false,
-    showable: false,
-});
+export const store = new Store<SharedProps>({ shown: false });
 
 apiGet('config').then(({ frontend }) => {
     if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
@@ -60,34 +54,26 @@ export function hide() {
 
 type Props = SharedProps & TranslateProps;
 
-class Guide extends Component<Props, {}> {
-    public componentDidMount() {
-        store.setState({ showable: true });
-    }
-
-    public componentWillUnmount() {
-        store.setState({ showable: false });
-    }
-
-    public render(
-        { shown, t, children }: RenderableProps<Props>,
-    ) {
-        return (
-            <div className={style.wrapper}>
-                <div className={[style.guide, shown && style.show].join(' ')}>
-                    <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
-                        <h1>{t('guide.title')}</h1>
-                    </div>
-                    {children}
-                    <div className={style.entry}>
-                        {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
-                    </div>
+function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
+    return (
+        <div className={style.wrapper}>
+            <div className={style.guideWrapper} onClick={toggle}>
+                <div className={style.guideToggler}>
+                    <span>{store.state.shown ? '✕' : '?'}</span>
                 </div>
             </div>
-        );
-    }
+            <div className={[style.guide, shown && style.show].join(' ')}>
+                <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
+                    <h1>{t('guide.title')}</h1>
+                </div>
+                {children}
+                <div className={style.entry}>
+                    {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                </div>
+            </div>
+        </div>
+    );
 }
 
 const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));
-
 export { HOC as Guide };

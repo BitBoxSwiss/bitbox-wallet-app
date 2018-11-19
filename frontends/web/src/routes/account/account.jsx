@@ -22,7 +22,7 @@ import { apiWebsocket } from '../../utils/websocket';
 import { ButtonLink } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import Header from '../../components/header/Header';
+import { Header } from '../../components/header/Header';
 import Balance from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';

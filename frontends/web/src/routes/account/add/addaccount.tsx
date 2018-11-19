@@ -21,7 +21,7 @@ import { alertUser } from '../../../components/alert/Alert';
 import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import Header from '../../../components/header/Header';
+import { Header } from '../../../components/header/Header';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 
