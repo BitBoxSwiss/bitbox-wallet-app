@@ -143,6 +143,7 @@ export class App extends Component {
                             accounts={accounts} />
                         <Receive
                             path="/account/:code/receive"
+                            accounts={accounts}
                             deviceIDs={deviceIDs} />
                         <Info
                             path="/account/:code/info"

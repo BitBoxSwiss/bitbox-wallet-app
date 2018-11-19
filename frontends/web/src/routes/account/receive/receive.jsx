@@ -118,6 +118,11 @@ export default class Receive extends Component {
         }
     }
 
+    getAccount() {
+        if (!this.props.accounts) return null;
+        return this.props.accounts.find(({ code }) => code === this.props.code);
+    }
+
     render({
         t,
         code,
@@ -127,10 +132,14 @@ export default class Receive extends Component {
         receiveAddresses,
         paired,
     }) {
+        const account = this.getAccount();
+        if (account === null) {
+            return null;
+        }
         let uriPrefix = 'bitcoin:';
-        if (code.startsWith('ltc') || code.startsWith('tltc')) {
+        if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
-        } else if (code.startsWith('eth') || code.startsWith('teth')) {
+        } else if (account.coinCode === 'eth' || account.coinCode === 'teth') {
             uriPrefix = '';
         }
         const content = receiveAddresses ? (
