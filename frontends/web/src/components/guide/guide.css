@@ -2,28 +2,28 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 56px;
-    height: 56px;
+    width: 48px;
+    height: 48px;
     z-index: 4003;
 }
 
 .guideToggler {
     position: relative;
-    top: -48px;
-    right: -21px;
+    top: -60px;
+    right: -12px;
     color: var(--color-white);
     background-color: var(--color-darkblue);
     width: 96px;
     height: 96px;
     transform: rotate(45deg);
     font-size: var(--size-medium);
-    transition: all ease 0.1s;
+    transition: all ease-out 0.1s;
 }
 
 .guideToggler span {
     position: absolute;
-    bottom: 5px;
-    left: 28px;
+    bottom: 4px;
+    left: 38px;
     cursor: default;
     display: block;
     width: 18px;
@@ -33,6 +33,16 @@
     transform: rotate(-45deg);
     transition: all ease 0.1s;
     user-select: none;
+}
+
+.guideWrapper:hover .guideToggler {
+    top: -48px;
+    right: 0px;
+}
+
+.guideWrapper:hover .guideToggler span {
+    bottom: 10px;
+    left: 38px;
 }
 
 .wrapper {

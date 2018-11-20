@@ -46,6 +46,15 @@
     margin-bottom: calc(var(--size-medium) * -1);
 }
 
+.address.multiline {
+    max-width: 450px;
+}
+
+.transactionContainer.expanded .multiline {
+    white-space: normal;
+    overflow: auto;
+}
+
 .amount {
     min-width: 160px !important;
     text-align: right;
@@ -131,10 +140,6 @@
 
 .transactionLabel.send {
     background-color: var(--color-softred);
-}
-
-.transactionLabel.send_to_self {
-
 }
 
 .toggleContainer {
