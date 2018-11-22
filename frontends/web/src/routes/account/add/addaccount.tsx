@@ -80,10 +80,8 @@ const COIN_AND_ACCOUNT_CODES = {
     },
 };
 
-
-
 interface State {
-    value: string;
+    coinAndAccountCode: string;
     accountName: string;
     extendedPublicKey: string;
 }
@@ -99,21 +97,20 @@ class AddAccount extends Component<Props, State> {
         super(props);
 
         this.state = {
-            value: props.testing ? 'tbtc-p2wpkh-p2sh' : 'btc-p2wpkh-p2sh',
+            coinAndAccountCode: props.testing ? 'tbtc-p2wpkh-p2sh' : 'btc-p2wpkh-p2sh',
             accountName: '',
             extendedPublicKey: '',
         };
     }
 
     private submit = () => {
-        const { coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.value];
+        const { coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
 
         interface ResponseData {
             success: boolean;
             errorCode?: 'xpubInvalid' | 'xpubWrongNet';
             accountCode?: string;
         }
-
         apiPost('account-add', {
             coinCode,
             scriptType,
@@ -131,7 +128,7 @@ class AddAccount extends Component<Props, State> {
 
     public render(
         { t, testing, ...other }: RenderableProps<Props>,
-        { value, accountName, extendedPublicKey }: Readonly<State>,
+        { coinAndAccountCode, accountName, extendedPublicKey }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
@@ -150,18 +147,18 @@ class AddAccount extends Component<Props, State> {
                                     />
                                     <Select
                                         label={t('addAccount.coin')}
-                                        options={(testing
+                                        options={
+                                            (testing
                                                 ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh']
                                                 : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh']
-                                            ).map(item => {
-                                                return {
-                                                    value: item,
-                                                    text: COIN_AND_ACCOUNT_CODES[item].name,
-                                                };
-                                        })}
-                                        onInput={linkState(this, 'value')}
-                                        value={value}
-                                        id="value"
+                                            ).map(item => ({
+                                                value: item,
+                                                text: COIN_AND_ACCOUNT_CODES[item].name,
+                                            }))
+                                        }
+                                        onInput={linkState(this, 'coinAndAccountCode')}
+                                        value={coinAndAccountCode}
+                                        id="coinAndAccountCode"
                                     />
                                 </div>
                             </div>
