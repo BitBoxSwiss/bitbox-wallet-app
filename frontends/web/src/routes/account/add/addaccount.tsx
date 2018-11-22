@@ -81,7 +81,7 @@ const COIN_AND_ACCOUNT_CODES = {
 };
 
 interface State {
-    coinAndAccountCode: string;
+    coinAndAccountCode: keyof typeof COIN_AND_ACCOUNT_CODES;
     accountName: string;
     extendedPublicKey: string;
 }
@@ -104,7 +104,7 @@ class AddAccount extends Component<Props, State> {
     }
 
     private submit = () => {
-        const { coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
+        const {coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
 
         interface ResponseData {
             success: boolean;
