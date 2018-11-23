@@ -5,6 +5,7 @@
 #include <QWebChannel>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QContextMenuEvent>
+#include <QWebEngineSettings>
 #include <QMenu>
 #include <QThread>
 #include <QMutex>
@@ -102,6 +103,10 @@ int main(int argc, char *argv[])
     } else {
         view->adjustSize();
     }
+
+    // Enable support for document.execCommand('paste')
+    QWebEngineSettings::defaultSettings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
+    QWebEngineSettings::defaultSettings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, true);
 
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
