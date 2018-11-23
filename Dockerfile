@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM shiftcrypto/qt5
+FROM shiftcrypto/qt5:16.04
 
 ADD scripts/docker_install.sh /tmp/
 RUN /tmp/docker_install.sh
