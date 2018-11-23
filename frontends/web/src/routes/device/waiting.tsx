@@ -19,7 +19,7 @@ import Footer from '../../components/footer/footer';
 import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import Header from '../../components/header/Header';
+import { Header } from '../../components/header/Header';
 import { Shift } from '../../components/icon';
 import { PasswordSingleInput } from '../../components/password';
 import { load } from '../../decorators/load';

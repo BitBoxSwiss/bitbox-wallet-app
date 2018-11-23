@@ -23,7 +23,7 @@ import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
-import Header from '../../components/header/Header';
+import { Header } from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 

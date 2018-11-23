@@ -23,7 +23,7 @@ import QRCode from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import Header from '../../../components/header/Header';
+import { Header } from '../../../components/header/Header';
 import { CopyableInput } from '../../../components/copy/Copy';
 import * as style from './info.css';
 

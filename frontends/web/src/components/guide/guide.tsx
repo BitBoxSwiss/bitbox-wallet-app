@@ -23,9 +23,7 @@ import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
 import * as style from './guide.css';
 
-interface SharedProps {
-    shown: boolean;
-}
+interface SharedProps { shown: boolean; }
 
 export const store = new Store<SharedProps>({ shown: false });
 
@@ -59,6 +57,11 @@ type Props = SharedProps & TranslateProps;
 function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={style.wrapper}>
+            <div className={style.guideWrapper} onClick={toggle}>
+                <div className={style.guideToggler}>
+                    <span>{store.state.shown ? '✕' : '?'}</span>
+                </div>
+            </div>
             <div className={[style.guide, shown && style.show].join(' ')}>
                 <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
                     <h1>{t('guide.title')}</h1>
@@ -73,5 +76,4 @@ function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
 }
 
 const HOC = translate()(share<SharedProps, TranslateProps>(store)(Guide));
-
 export { HOC as Guide };

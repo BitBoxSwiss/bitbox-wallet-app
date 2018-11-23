@@ -20,7 +20,7 @@ import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
-import Header from '../../components/header/Header';
+import { Header } from '../../components/header/Header';
 import { confirmation } from '../../components/confirm/Confirm';
 import { alertUser } from '../../components/alert/Alert';
 import * as style from './settings.css';
