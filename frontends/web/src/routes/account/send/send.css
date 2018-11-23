@@ -113,15 +113,23 @@
 }
 
 .action {
+    position: relative;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
     color: var(--color-primary);
     font-size: var(--size-small);
-    font-weight: bold;
-    text-transform: uppercase;
     top: -.5rem;
-    position: relative;
     margin-bottom: calc(var(--spacing-half) / 2);
+    margin-right: var(--spacing-default);
     cursor: pointer;
     user-select: none;
+}
+
+.action img {
+    margin-right: 4px;
+    height: 14px;
 }
 
 .feeDescription {

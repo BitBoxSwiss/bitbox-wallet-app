@@ -24,6 +24,7 @@ import { debug } from '../../../utils/env';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
+import { Paste } from '../../../components/paste/paste';
 import { store as fiat } from '../../../components/rates/rates';
 import { alertUser } from '../../../components/alert/Alert';
 import { Header } from '../../../components/header/Header';
@@ -32,6 +33,7 @@ import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import Balance from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import UTXOs from './utxos';
+import selfIcon from '../../../assets/icons/toself.svg';
 import approve from '../../../assets/icons/checked.svg';
 import reject from '../../../assets/icons/cancel.svg';
 import * as style from './send.css';
@@ -327,6 +329,10 @@ export default class Send extends Component {
         });
     }
 
+    setAddressRef = ref => {
+        this.addressField = ref;
+    }
+
     render({
         t,
         code,
@@ -404,13 +410,17 @@ export default class Send extends Component {
                                     error={addressError}
                                     onInput={this.handleFormChange}
                                     value={recipientAddress}
-                                    autofocus
-                                />
-                                { debug && (
-                                    <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                                        Send to self
-                                    </span>
-                                ) }
+                                    getRef={this.setAddressRef}
+                                    autofocus />
+                                {
+                                    debug && (
+                                        <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
+                                            <img src={selfIcon} />
+                                            Send to self
+                                        </span>
+                                    )
+                                }
+                                <Paste target={this.addressField} />
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
