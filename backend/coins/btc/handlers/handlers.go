@@ -241,8 +241,12 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		if fee != nil {
 			feeString = fee.BigInt().String()
 		}
+		timeString := ""
+		if transaction.Timestamp() != nil {
+			timeString = transaction.Timestamp().Format(time.RFC3339)
+		}
 		err := writer.Write([]string{
-			transaction.Timestamp().Format(time.RFC3339),
+			timeString,
 			transactionType,
 			transaction.Amount().BigInt().String(),
 			feeString,
