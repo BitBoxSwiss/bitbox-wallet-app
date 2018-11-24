@@ -22,41 +22,102 @@ import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/header/Header';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 
+const COIN_AND_ACCOUNT_CODES = {
+    'btc-p2wpkh-p2sh': {
+        name: 'Bitcoin',
+        coinCode: 'btc',
+        scriptType: 'p2wpkh-p2sh',
+    },
+    'btc-p2wpkh': {
+        name: 'Bitcoin: bech32',
+        coinCode: 'btc',
+        scriptType: 'p2wpkh',
+    },
+    'btc-p2pkh': {
+        name: 'Bitcoin Legacy',
+        coinCode: 'btc',
+        scriptType: 'p2pkh',
+    },
+    'ltc-p2wpkh-p2sh': {
+        name: 'Litecoin',
+        coinCode: 'ltc',
+        scriptType: 'p2wpkh-p2sh',
+    },
+    'ltc-p2wpkh': {
+        name: 'Litecoin: bech32',
+        coinCode: 'ltc',
+        scriptType: 'p2wpkh',
+    },
+    // Testnet
+    'tbtc-p2wpkh-p2sh': {
+        name: 'Bitcoin Testnet',
+        coinCode: 'tbtc',
+        scriptType: 'p2wpkh-p2sh',
+    },
+    'tbtc-p2wpkh': {
+        name: 'Bitcoin Testnet: bech32',
+        coinCode: 'tbtc',
+        scriptType: 'p2wpkh',
+    },
+    'tbtc-p2pkh': {
+        name: 'Bitcoin Testnet Legacy',
+        coinCode: 'tbtc',
+        scriptType: 'p2pkh',
+    },
+    'tltc-p2wpkh-p2sh': {
+        name: 'Litecoin Testnet',
+        coinCode: 'tltc',
+        scriptType: 'p2wpkh-p2sh',
+    },
+    'tltc-p2wpkh': {
+        name: 'Litecoin Testnet: bech32',
+        coinCode: 'tltc',
+        scriptType: 'p2wpkh',
+    },
+};
+
 interface State {
-    coinCode: string;
-    scriptType: string;
+    coinAndAccountCode: keyof typeof COIN_AND_ACCOUNT_CODES;
     accountName: string;
     extendedPublicKey: string;
 }
 
-class AddAccount extends Component<TranslateProps, State> {
-    constructor(props: TranslateProps) {
+interface TestingProps {
+    testing?: boolean;
+}
+
+type Props = TestingProps & TranslateProps;
+
+class AddAccount extends Component<Props, State> {
+    constructor(props: Props) {
         super(props);
 
         this.state = {
-            coinCode: 'tbtc',
-            scriptType: 'p2wpkh-p2sh',
+            coinAndAccountCode: props.testing ? 'tbtc-p2wpkh-p2sh' : 'btc-p2wpkh-p2sh',
             accountName: '',
             extendedPublicKey: '',
         };
     }
 
     private submit = () => {
-        const body = {
-            coinCode: this.state.coinCode,
-            scriptType: this.state.scriptType,
-            accountName: this.state.accountName,
-            extendedPublicKey: this.state.extendedPublicKey,
-        };
+        const {coinCode, scriptType } = COIN_AND_ACCOUNT_CODES[this.state.coinAndAccountCode];
+
         interface ResponseData {
             success: boolean;
             errorCode?: 'xpubInvalid' | 'xpubWrongNet';
             accountCode?: string;
         }
-        apiPost('account-add', body).then((data: ResponseData) => {
+        apiPost('account-add', {
+            coinCode,
+            scriptType,
+            accountName: this.state.accountName,
+            extendedPublicKey: this.state.extendedPublicKey,
+        })
+        .then((data: ResponseData) => {
             if (data.success) {
                 route('/account/' + data.accountCode);
             } else {
@@ -66,8 +127,8 @@ class AddAccount extends Component<TranslateProps, State> {
     }
 
     public render(
-        { t, ...other }: RenderableProps<TranslateProps>,
-        { coinCode, scriptType, accountName, extendedPublicKey }: Readonly<State>,
+        { t, testing, ...other }: RenderableProps<Props>,
+        { coinAndAccountCode, accountName, extendedPublicKey }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
@@ -86,27 +147,18 @@ class AddAccount extends Component<TranslateProps, State> {
                                     />
                                     <Select
                                         label={t('addAccount.coin')}
-                                        options={['btc', 'tbtc', 'ltc', 'tltc', 'eth', 'teth'].map(coin => {
-                                            return {
-                                                value: coin,
-                                                text: coin.toUpperCase(),
-                                            };
-                                        })}
-                                        onInput={linkState(this, 'coinCode')}
-                                        value={coinCode}
-                                        id="coinCode"
-                                    />
-                                    <Select
-                                        label={t('addAccount.scriptType')}
-                                        options={['p2wpkh-p2sh', 'p2wpkh', 'p2pkh'].map(type => {
-                                            return {
-                                                value: type,
-                                                text: type.toUpperCase(),
-                                            };
-                                        })}
-                                        onInput={linkState(this, 'scriptType')}
-                                        value={scriptType}
-                                        id="scriptType"
+                                        options={
+                                            (testing
+                                                ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh']
+                                                : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh']
+                                            ).map(item => ({
+                                                value: item,
+                                                text: COIN_AND_ACCOUNT_CODES[item].name,
+                                            }))
+                                        }
+                                        onInput={linkState(this, 'coinAndAccountCode')}
+                                        value={coinAndAccountCode}
+                                        id="coinAndAccountCode"
                                     />
                                 </div>
                             </div>
@@ -138,6 +190,8 @@ class AddAccount extends Component<TranslateProps, State> {
     }
 }
 
-const HOC = translate()(AddAccount);
+const loadHOC = load<TestingProps, TranslateProps>({ testing: 'testing' })(AddAccount);
+
+const HOC = translate()(loadHOC);
 
 export { HOC as AddAccount };
