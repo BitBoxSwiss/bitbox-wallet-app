@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM ubuntu:14.04 as qt5base
+FROM ubuntu:16.04 as qt5base
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -81,9 +81,9 @@ RUN apt-get -y install --no-install-recommends \
 
 # Get the source code
 RUN cd /tmp && \
-    wget https://download.qt.io/archive/qt/5.8/5.8.0/single/qt-everywhere-opensource-src-5.8.0.tar.gz && \
-    tar -xf qt-everywhere-opensource-src-5.8.0.tar.gz && \
-    mv qt-everywhere-opensource-src-5.8.0 qt5
+    wget https://download.qt.io/archive/qt/5.11/5.11.2/single/qt-everywhere-src-5.11.2.tar.xz && \
+    tar -xf qt-everywhere-src-5.11.2.tar.xz && \
+    mv qt-everywhere-src-5.11.2 qt5
 
 RUN cd /tmp/qt5 && \
     ./configure \
@@ -104,7 +104,7 @@ RUN cd /tmp/qt5 && make -j1
 
 RUN cd /tmp/qt5 && make install
 
-FROM ubuntu:14.04
+FROM ubuntu:16.04
 
 COPY --from=qt5base /opt/qt5 /opt/qt5
 

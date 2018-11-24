@@ -4,6 +4,9 @@
 #include <QWebEnginePage>
 #include <QWebChannel>
 #include <QWebEngineUrlRequestInterceptor>
+#include <QContextMenuEvent>
+#include <QWebEngineSettings>
+#include <QMenu>
 #include <QThread>
 #include <QMutex>
 #include <QResource>
@@ -11,6 +14,7 @@
 #include <QSettings>
 #include <iostream>
 #include <string>
+#include <set>
 
 #include "libserver.h"
 #include "webclass.h"
@@ -36,6 +40,28 @@ public:
     QSize sizeHint() const override {
         // Default initial window size.
         return QSize(1160, 675);
+    }
+
+    void contextMenuEvent(QContextMenuEvent *event) override {
+        std::set<QAction*> whitelist = {
+            page()->action(QWebEnginePage::Cut),
+            page()->action(QWebEnginePage::Copy),
+            page()->action(QWebEnginePage::Paste),
+            page()->action(QWebEnginePage::Undo),
+            page()->action(QWebEnginePage::Redo),
+            page()->action(QWebEnginePage::SelectAll),
+            page()->action(QWebEnginePage::CopyLinkToClipboard),
+            page()->action(QWebEnginePage::Unselect),
+        };
+        QMenu *menu = page()->createStandardContextMenu();
+        for (const auto action : menu->actions()) {
+            if (whitelist.find(action) == whitelist.cend()) {
+                menu->removeAction(action);
+            }
+        }
+        if (!menu->isEmpty()) {
+            menu->popup(event->globalPos());
+        }
     }
 };
 
@@ -78,7 +104,9 @@ int main(int argc, char *argv[])
         view->adjustSize();
     }
 
-    view->setContextMenuPolicy(Qt::NoContextMenu);
+    // Enable support for document.execCommand('paste')
+    QWebEngineSettings::defaultSettings()->setAttribute(QWebEngineSettings::JavascriptCanAccessClipboard, true);
+    QWebEngineSettings::defaultSettings()->setAttribute(QWebEngineSettings::JavascriptCanPaste, true);
 
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });
