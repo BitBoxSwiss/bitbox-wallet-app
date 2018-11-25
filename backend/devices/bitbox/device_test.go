@@ -37,7 +37,7 @@ import (
 )
 
 var (
-	firmVer400 = semver.NewSemVer(4, 0, 0)
+	firmVer400 = semver.NewSemVer(4, 0, 1)
 )
 
 const (

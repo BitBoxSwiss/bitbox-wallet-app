@@ -46,7 +46,7 @@ import (
 )
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(4, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(4, 0, 1)
 	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
 
 	pinPolicyProd              = NewPasswordPolicy("^[[:print:]]{4,}$")
