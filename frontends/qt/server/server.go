@@ -41,15 +41,14 @@ import (
 	"runtime/debug"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
-
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 )
 
 var handlers *backendHandlers.Handlers
@@ -110,7 +109,7 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 
 	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
 	// unrecognized flags
-	_ = flag.Int("remote-debugging-port", 0, "")
+	// _ = flag.Int("remote-debugging-port", 0, "")
 	testnet := flag.Bool("testnet", false, "activate testnets")
 	flag.Parse()
 	log := logging.Get().WithGroup("server")
