@@ -6,7 +6,8 @@
 }
 
 .unit {
-    color: var(--color-secondary);
+	color: var(--color-secondary);
+	position: relative;
 }
 
 .fiatRow {
@@ -21,6 +22,17 @@
 .availableFiatUnit {
 	color: var(--color-secondary);
 	cursor: default;
+	position: relative;
+}
+
+.unit::after,
+.availableFiatUnit::after {
+	border-bottom: dotted 1px var(--color-softblack);
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 2px;
+	right: 2px;
 }
 
 @media (max-width: 880px) {
