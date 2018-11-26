@@ -3,12 +3,11 @@
 }
 
 .steps {
-    display: flex;
+    display: inline-flex;
     flex-shrink: 0;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
-    /*margin-bottom: var(--spacing-default);*/
     width: 100%;
 }
 
@@ -23,14 +22,11 @@
     justify-content: center;
     align-items: flex-start;
     position: relative;
+    text-align: left;
 }
 
 .step:first-child {
     border-radius: 2px 0 0 2px;
-}
-
-.step:not(:last-child) {
-
 }
 
 .stepIcon {
@@ -77,11 +73,6 @@
 .description {
     display: block;
     white-space: normal;
-}
-
-.padding {
-    /*display: inline-block;
-    padding-left: var(--spacing-half);*/
 }
 
 .finish .stepIcon {

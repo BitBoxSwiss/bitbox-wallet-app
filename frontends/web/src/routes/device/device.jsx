@@ -164,7 +164,7 @@ export default class Device extends Component {
             }
             return (
                 <SecurityInformation goal={goal} goBack={this.handleBack} {...this.props}>
-                    <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} />
+                    <Initialize goal={goal} goBack={this.handleBack} deviceID={deviceID} {...this.props} />
                 </SecurityInformation>
             );
         case DeviceStatus.LOGGED_IN:

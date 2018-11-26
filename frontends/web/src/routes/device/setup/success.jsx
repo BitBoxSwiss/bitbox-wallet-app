@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Shift } from '../../../components/icon';
+import { Header } from '../../../components/header/Header';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
@@ -31,7 +32,7 @@ export default class Success extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <div className={style.content}>
+                    <Header title={
                         <Steps current={3}>
                             <Step title={t('goal.step.1.title')} />
                             <Step divider />
@@ -41,7 +42,8 @@ export default class Success extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                        <hr />
+                    } narrow={true} {...this.props} />
+                    <div className={style.content}>
                         <h1 className={style.title} style="text-align: center;">
                             {t(`success.${goal}.title`)}
                         </h1>
