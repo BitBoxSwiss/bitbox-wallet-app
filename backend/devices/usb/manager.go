@@ -118,13 +118,14 @@ func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, e
 		usbWriteReportSize = 4098
 		usbReadReportSize = 256
 	}
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
+	hmac := firmwareVersion.AtLeast(semver.NewSemVer(5, 0, 0))
+	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d, hmac=%v", usbWriteReportSize, usbReadReportSize, hmac)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
 		firmwareVersion,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, hmac),
 	)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to establish communication to device")

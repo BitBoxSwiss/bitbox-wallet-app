@@ -16,6 +16,7 @@ package usb
 
 import (
 	"bytes"
+	"crypto/sha512"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/json"
@@ -50,19 +51,22 @@ type Communication struct {
 	log                *logrus.Entry
 	usbWriteReportSize int
 	usbReadReportSize  int
+	hmac               bool
 }
 
 // CommunicationErr is returned if there was an error with the device IO.
 type CommunicationErr error
 
 // NewCommunication creates a new Communication.
-func NewCommunication(device io.ReadWriteCloser, usbWriteReportSize, usbReadReportSize int) *Communication {
+func NewCommunication(
+	device io.ReadWriteCloser, usbWriteReportSize, usbReadReportSize int, hmac bool) *Communication {
 	return &Communication{
 		device:             device,
 		mutex:              sync.Mutex{},
 		log:                logging.Get().WithGroup("usb"),
 		usbWriteReportSize: usbWriteReportSize,
 		usbReadReportSize:  usbReadReportSize,
+		hmac:               hmac,
 	}
 }
 
@@ -288,9 +292,21 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		return nil, errp.WithMessage(err, "Invalid JSON passed. Continuing anyway")
 	}
 	secret := chainhash.DoubleHashB([]byte(password))
-	cipherText, err := crypto.Encrypt([]byte(msg), secret)
-	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to encrypt command")
+	h := sha512.Sum512(secret)
+	encKey, authKey := h[:32], h[32:]
+	var cipherText []byte
+	if communication.hmac {
+		var err error
+		cipherText, err = crypto.EncryptThenMAC([]byte(msg), encKey, authKey)
+		if err != nil {
+			return nil, errp.WithMessage(err, "Failed to encrypt command")
+		}
+	} else {
+		var err error
+		cipherText, err = crypto.Encrypt([]byte(msg), secret)
+		if err != nil {
+			return nil, errp.WithMessage(err, "Failed to encrypt command")
+		}
 	}
 	jsonResult, err := communication.SendPlain(base64.StdEncoding.EncodeToString(cipherText))
 	if err != nil {
@@ -301,9 +317,19 @@ func (communication *Communication) SendEncrypt(msg, password string) (map[strin
 		if err != nil {
 			return nil, errp.WithMessage(err, "Failed to decode reply")
 		}
-		plainText, err := crypto.Decrypt(decodedMsg, secret)
-		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to decrypt reply")
+		var plainText []byte
+		if communication.hmac {
+			var err error
+			plainText, err = crypto.MACThenDecrypt(decodedMsg, encKey, authKey)
+			if err != nil {
+				return nil, errp.WithMessage(err, "Failed to decrypt reply")
+			}
+		} else {
+			var err error
+			plainText, err = crypto.Decrypt(decodedMsg, secret)
+			if err != nil {
+				return nil, errp.WithMessage(err, "Failed to decrypt reply")
+			}
 		}
 		err = logCensoredCmd(communication.log, string(plainText), true)
 		if err != nil {
