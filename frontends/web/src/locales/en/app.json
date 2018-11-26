@@ -484,7 +484,7 @@
       "description2": "You can use numbers, letters & symbols. Longer passwords offer higher security.",
       "description3": "If you lose the device password you will have to reset your device and restore your wallet backup.",
       "subtitle": "Now you will set your device password",
-      "title": "Initialising your device"
+      "title": "Initializing your device"
     },
     "input": {
       "label": "Device password",
@@ -573,7 +573,7 @@
       "button": "Continue",
       "description1": "You will be asked to insert the micro SD card you used to store you backup.",
       "description2": "To restore your device you will need your recovery password. ",
-      "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect (learn more).",
+      "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect.",
       "title": "Security Information"
     }
   },
