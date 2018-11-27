@@ -19,6 +19,8 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // appFolder is what AppDir always returns. It is initialized only once
@@ -70,4 +72,16 @@ var initAppFolderOnce sync.Once
 func AppDir() string {
 	initAppFolderOnce.Do(initAppFolder)
 	return appFolder
+}
+
+// DownloadsDir returns the absolute path to the Downloads folder in the home folder.
+func DownloadsDir() (string, error) {
+	homeFolder := os.Getenv("HOME")
+	if runtime.GOOS == "windows" && homeFolder == "" {
+		homeFolder = os.Getenv("USERPROFILE")
+	}
+	if homeFolder == "" {
+		return "", errp.New("can't find home directory")
+	}
+	return filepath.Join(homeFolder, "Downloads"), nil
 }

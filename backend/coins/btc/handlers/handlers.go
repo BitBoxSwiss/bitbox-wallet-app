@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -35,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -202,14 +202,11 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
 	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Code() + "-export.csv"
-	homeFolder := os.Getenv("HOME")
-	if runtime.GOOS == "windows" && homeFolder == "" {
-		homeFolder = os.Getenv("USERPROFILE")
-		if homeFolder == "" {
-			return nil, errp.New("can't find home directory")
-		}
+	downloadsDir, err := config.DownloadsDir()
+	if err != nil {
+		return nil, err
 	}
-	path := filepath.Join(homeFolder, "Downloads", name)
+	path := filepath.Join(downloadsDir, name)
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	file, err := os.Create(path)
