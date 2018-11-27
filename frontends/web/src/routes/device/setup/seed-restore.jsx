@@ -21,7 +21,6 @@ import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
-import { Tampered } from './components/tampered';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -112,9 +111,7 @@ export default class SeedRestore extends Component {
                                     <Alert />
                                     { error }
                                 </Message>
-                            ) : (
-                                <Tampered />
-                            )
+                            ) : null
                         }
                         <h1 className={style.title}>{t('seedRestore.info.title')}</h1>
                         {
