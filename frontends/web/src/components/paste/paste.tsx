@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h, RenderableProps } from 'preact';
+import { Component, h } from 'preact';
 import PasteIcon from '../../assets/icons/clipboard.svg';
 import * as style from './paste.css';
 
@@ -24,20 +24,12 @@ interface Props {
 
 class Paste extends Component<Props> {
     private paste = (e: Event) => {
-      e.preventDefault();
-      this.props.target.focus();
-      // @ts-ignore
-      navigator.clipboard.readText().then(text => {
-        this.props.target.value = text;
-      });
-      this.setState({ pasted: true }, () => {
-          setTimeout(() => {
-              this.setState({ pasted: false });
-          }, 1500);
-      });
+        e.preventDefault();
+        this.props.target.focus();
+        document.execCommand('paste');
     }
 
-    public render({}: RenderableProps<Props>) {
+    public render() {
         return (
             <span className={style.button} onClick={this.paste}>
                 <img src={PasteIcon} />
