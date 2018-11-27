@@ -15,7 +15,9 @@
 package system
 
 import (
+	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 )
 
@@ -27,8 +29,8 @@ func Open(url string) error {
 	case "darwin":
 		cmd = "open"
 	case "windows":
-		cmd = "cmd"
-		args = []string{"/c", "start"}
+		cmd = filepath.Join(os.Getenv("SYSTEMROOT"), "System32", "rundll32.exe")
+		args = []string{"url.dll,FileProtocolHandler"}
 	default: // "linux", "freebsd", "openbsd", "netbsd"
 		cmd = "xdg-open"
 	}

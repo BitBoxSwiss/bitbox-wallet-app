@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -200,8 +201,15 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 }
 
 func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, error) {
-	name := time.Now().Format("2006-01-02 at 15-04-05 ") + handlers.account.Name() + " Export.csv"
-	path := filepath.Join(os.Getenv("HOME"), "Downloads", name)
+	name := time.Now().Format("2006-01-02-at-15-04-05-") + handlers.account.Code() + "-export.csv"
+	homeFolder := os.Getenv("HOME")
+	if runtime.GOOS == "windows" && homeFolder == "" {
+		homeFolder = os.Getenv("USERPROFILE")
+		if homeFolder == "" {
+			return nil, errp.New("can't find home directory")
+		}
+	}
+	path := filepath.Join(homeFolder, "Downloads", name)
 	handlers.log.Infof("Export transactions to %s.", path)
 
 	file, err := os.Create(path)
