@@ -26,7 +26,11 @@ static QMutex webClassMutex;
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
     explicit RequestInterceptor() : QWebEngineUrlRequestInterceptor() { }
-    void interceptRequest(QWebEngineUrlRequestInfo&) override { };
+    void interceptRequest(QWebEngineUrlRequestInfo& info) override {
+        if (info.requestUrl().scheme() != "qrc" && info.requestUrl().scheme() != "blob") {
+            info.block(true);
+        }
+    };
 };
 
 class WebEngineView : public QWebEngineView {
