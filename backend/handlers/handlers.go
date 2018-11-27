@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"runtime/debug"
 	"strconv"
 
@@ -36,6 +37,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -257,6 +259,49 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	var url string
 	if err := json.NewDecoder(r.Body).Decode(&url); err != nil {
 		return nil, errp.WithStack(err)
+	}
+
+	blocked := true
+
+	for _, whitelistedURL := range []string{
+		"https://shiftcrypto.ch/contact",
+		"https://shiftcrypto.ch/shop",
+		"https://shiftcrypto.ch/backup",
+		"https://www.cryptocompare.com",
+		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
+		"https://en.bitcoin.it/wiki/Bech32_adoption",
+	} {
+		if url == whitelistedURL {
+			blocked = false
+			break
+		}
+	}
+
+	whitelistedPatterns := []string{
+		"^https://blockstream\\.info/(testnet/)?tx/",
+		"^http://explorer\\.litecointools\\.com/tx/",
+		"^https://insight\\.litecore\\.io/tx/",
+		"^https://etherscan\\.io/tx/",
+		"https://rinkeby\\.etherscan\\.io/tx/",
+	}
+
+	// Whitelist csv export.
+	downloadDir, err := utilConfig.DownloadsDir()
+	if err != nil {
+		return nil, err
+	}
+	whitelistedPatterns = append(whitelistedPatterns,
+		fmt.Sprintf("^%s", regexp.QuoteMeta(downloadDir)),
+	)
+
+	for _, pattern := range whitelistedPatterns {
+		if regexp.MustCompile(pattern).MatchString(url) {
+			blocked = false
+			break
+		}
+	}
+	if blocked {
+		return nil, errp.Newf("Blocked /open with url: %s", url)
 	}
 	return nil, system.Open(url)
 }
