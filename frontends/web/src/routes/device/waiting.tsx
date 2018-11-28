@@ -27,7 +27,6 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import * as style from './device.css';
-import { Tampered } from './setup/components/tampered';
 
 interface TestingProps {
     testing?: boolean;
@@ -43,7 +42,6 @@ function Waiting({ t, testing, ...other }: RenderableProps<WaitingProps>) {
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
-                        <Tampered style="max-width: 400px; align-self: center;" />
                         <SkipForTesting show={!!testing} />
                     </div>
                     <hr />
