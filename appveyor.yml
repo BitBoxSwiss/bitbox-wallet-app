@@ -18,6 +18,7 @@ before_build:
 build_script:
   - echo on
   - choco install make
+  - choco install nsis -pre
   - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - mkdir %GOPATH%\src\github.com\digitalbitbox
   - cd ..
