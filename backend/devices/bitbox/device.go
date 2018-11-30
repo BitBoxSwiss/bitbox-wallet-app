@@ -89,17 +89,18 @@ type CommunicationInterface interface {
 
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
-	Version   string `json:"version"`
-	Serial    string `json:"serial"`
-	ID        string `json:"id"`
-	TFA       string `json:"TFA"`
-	Bootlock  bool   `json:"bootlock"`
-	Name      string `json:"name"`
-	SDCard    bool   `json:"sdcard"`
-	Lock      bool   `json:"lock"`
-	U2F       bool   `json:"U2F"`
-	U2FHijack bool   `json:"U2F_hijack"`
-	Seeded    bool   `json:"seeded"`
+	Version         string `json:"version"`
+	Serial          string `json:"serial"`
+	ID              string `json:"id"`
+	TFA             string `json:"TFA"`
+	Bootlock        bool   `json:"bootlock"`
+	Name            string `json:"name"`
+	SDCard          bool   `json:"sdcard"`
+	Lock            bool   `json:"lock"`
+	U2F             bool   `json:"U2F"`
+	U2FHijack       bool   `json:"U2F_hijack"`
+	Seeded          bool   `json:"seeded"`
+	NewHiddenWallet bool   `json:"new_hidden_wallet"`
 }
 
 // Device provides the API to communicate with the digital bitbox.
@@ -364,6 +365,11 @@ func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
 	if deviceInfo.Seeded, ok = device["seeded"].(bool); !ok {
 		dbb.log = dbb.log.WithField("seeded", deviceInfo.Seeded)
 		return nil, errp.New("version")
+	}
+	if dbb.version.AtLeast(semver.NewSemVer(5, 0, 0)) {
+		if deviceInfo.NewHiddenWallet, ok = device["new_hidden_wallet"].(bool); !ok {
+			return nil, errp.New("new_hidden_wallet")
+		}
 	}
 	dbb.log.Debug("Device info")
 	return deviceInfo, nil
@@ -1380,4 +1386,23 @@ func (dbb *Device) Lock() (bool, error) {
 		return false, errp.New("unexpected reply")
 	}
 	return true, nil
+}
+
+// FeatureSet are the device features one can modify with FeatureSet().
+type FeatureSet struct {
+	NewHiddenWallet bool `json:"new_hidden_wallet"`
+}
+
+// FeatureSet modifies device features.
+func (dbb *Device) FeatureSet(featureSet *FeatureSet) error {
+	reply, err := dbb.send(map[string]interface{}{
+		"feature_set": featureSet,
+	}, dbb.pin)
+	if err != nil {
+		return errp.WithMessage(err, "Failed to set features")
+	}
+	if reply["feature_set"] != responseSuccess {
+		return errp.New("Unexpected result: feature_set != success")
+	}
+	return nil
 }

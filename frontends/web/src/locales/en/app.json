@@ -328,6 +328,10 @@
         "text": "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required.",
         "title": "What is a hidden wallet?"
       },
+      "legacyHiddenWallet": {
+        "text": "First click the button below (available if the BitBox is unlocked with the main device password and 2FA is disabled), then replug your Bitbox and unlock it with your hidden device password.",
+        "title": "How do I access the legacy hidden wallet?"
+      },
       "pairing": {
         "text": "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app.",
         "title": "How to securely pair with your phone"
@@ -461,6 +465,12 @@
   },
   "headerssync": {
     "blocksSynced": "{{blocks}} blocks synced"
+  },
+  "legacyhiddenwallet": {
+    "enable": "Enable Legacy Hidden Wallet",
+    "disable": "Disable Legacy Hidden Wallet",
+    "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet.",
+    "successDisable": "Successfully disabled the legacy hidden wallet."
   },
   "hiddenWallet": {
     "info1HTML": "For plausible deniability purposes, a hidden wallet can be created based on a <strong>different</strong> device password + recovery password combination.",

@@ -24,6 +24,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Header } from '../../../components/header/Header';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
+import LegacyHiddenWallet from './components/legacyhiddenwallet';
 import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
 import ChangePIN from './components/changepin';
@@ -43,14 +44,22 @@ export default class Settings extends Component {
         sdcard: false,
         paired: false,
         connected: false,
+        newHiddenWallet: true,
     }
 
     componentDidMount() {
-        apiGet('devices/' + this.props.deviceID + '/info').then(({ version, sdcard, lock, name }) => {
+        apiGet('devices/' + this.props.deviceID + '/info').then(({
+            version,
+            sdcard,
+            lock,
+            name,
+            new_hidden_wallet, // eslint-disable-line camelcase
+        }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
                 lock, name, sdcard,
                 spinner: false,
+                newHiddenWallet: new_hidden_wallet,
             });
         });
 
@@ -100,6 +109,7 @@ export default class Settings extends Component {
         sdcard,
         paired,
         connected,
+        newHiddenWallet,
     }) {
         const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
         return (
@@ -119,7 +129,18 @@ export default class Settings extends Component {
                                         {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
                                     <ChangePIN deviceID={deviceID} />
-                                    <HiddenWallet deviceID={deviceID} disabled={lock} />
+                                    {
+                                        newHiddenWallet ? (
+                                            <HiddenWallet deviceID={deviceID} disabled={lock} />
+                                        ) : (
+                                            <LegacyHiddenWallet
+                                                deviceID={deviceID}
+                                                newHiddenWallet={newHiddenWallet}
+                                                disabled={lock}
+                                                onChange={value => this.setState({ newHiddenWallet: value })}
+                                            />
+                                        )
+                                    }
                                     <Reset deviceID={deviceID} />
                                 </div>
 
@@ -218,6 +239,17 @@ export default class Settings extends Component {
                     <Entry key="guide.bitbox.ejectBitbox" entry={t('guide.bitbox.ejectBitbox')} />
                     <Entry key="guide.bitbox.ejectSD" entry={t('guide.bitbox.ejectSD')} />
                     <Entry key="guide.bitbox.hiddenWallet" entry={t('guide.bitbox.hiddenWallet')} />
+                    { !lock && newHiddenWallet && (
+                        <Entry key="guide.bitbox.legacyHiddenWallet" entry={t('guide.bitbox.legacyHiddenWallet')}>
+                            <p>
+                                <LegacyHiddenWallet
+                                    deviceID={deviceID}
+                                    newHiddenWallet={newHiddenWallet}
+                                    onChange={value => this.setState({ newHiddenWallet: value })}
+                                />
+                            </p>
+                        </Entry>
+                    )}
                     <Entry key="guide.bitbox.pairing" entry={t('guide.bitbox.pairing')} />
                     <Entry key="guide.bitbox.2FA" entry={t('guide.bitbox.2FA')} />
                     <Entry key="guide.bitbox.disable2FA" entry={t('guide.bitbox.disable2FA')} />

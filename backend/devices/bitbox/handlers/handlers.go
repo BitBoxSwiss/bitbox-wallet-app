@@ -49,6 +49,7 @@ type Bitbox interface {
 	Paired() bool
 	Lock() (bool, error)
 	CheckBackup(string, string) (bool, error)
+	FeatureSet(*bitbox.FeatureSet) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -88,6 +89,7 @@ func NewHandlers(
 	handleFunc("/bootloader/upgrade-firmware",
 		handlers.postBootloaderUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/lock", handlers.postLockHandler).Methods("POST")
+	handleFunc("/feature-set", handlers.postFeatureSetHandler).Methods("POST")
 	return handlers
 }
 
@@ -324,4 +326,12 @@ func (handlers *Handlers) postBootloaderUpgradeFirmwareHandler(_ *http.Request) 
 
 func (handlers *Handlers) postLockHandler(_ *http.Request) (interface{}, error) {
 	return handlers.bitbox.Lock()
+}
+
+func (handlers *Handlers) postFeatureSetHandler(r *http.Request) (interface{}, error) {
+	featureSet := &bitbox.FeatureSet{}
+	if err := json.NewDecoder(r.Body).Decode(featureSet); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.bitbox.FeatureSet(featureSet)
 }
