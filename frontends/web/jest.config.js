@@ -82,7 +82,7 @@ module.exports = {
             // Need to enable --esModuleInterop so that JSX components can look up CSS styles.
             // Additionally, modules import/export needs to be set back commonjs.
             // Both requirements are due to the tests being run via ts-jest.
-            tsConfigFile: 'tsconfig.test.json'
+            tsConfig: 'tsconfig.test.json',
         }
     },
 
