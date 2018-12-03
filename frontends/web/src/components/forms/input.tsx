@@ -23,8 +23,8 @@ export interface Props {
     children?: any; // can be removed once preact > 8.3.1
     className?: string;
     disabled?: boolean;
-    error?: JSON;
-    getRef?: () => JSX.Element;
+    error?: string | object;
+    getRef?: (node: JSX.Element) => void;
     id?: string;
     label?: string;
     name?: string;
