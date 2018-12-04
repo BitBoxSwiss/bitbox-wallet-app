@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "接続が切れました。再試行中です…",
+    "exportTransactions": "取引一覧をCSV形式でダウンロードフォルダにエクスポート",
     "incoming": "受信中",
     "info": {
       "btc-p2pkh": "こちらはBitcoinのLegacyアカウントになります。より低いネットワーク手数料で取引を行うためにも、SegwitのBitcoinアカウントを使用することを推奨します。",
@@ -11,11 +12,16 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "ブロックチェーンから情報を取得中…",
+    "openFile": "ファイルを開く",
     "reconnecting": "接続が切れました。再試行中…"
   },
   "accountInfo": {
     "extendedPublicKey": "拡張パブリックキー",
     "title": "アカウント情報"
+  },
+  "addAccount": {
+    "accountName": "アカウント名",
+    "coin": "コイン"
   },
   "app": {
     "upgrade": "アプリの新しいバージョンが利用可能です！{{current}}から{{version}}にアップグレードしてください。"
