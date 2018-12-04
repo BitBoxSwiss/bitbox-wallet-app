@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { /* i18nEditorActive, */ extraLanguage } from '../../i18n/i18n';
+import { /* i18nEditorActive, */ extraLanguages } from '../../i18n/i18n';
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../forms';
@@ -30,10 +30,12 @@ export default class LanguageSwitcher extends Component {
             { code: 'en', display: 'English' },
             { code: 'ja', display: '日本語' },
         ];
-        if (extraLanguage) {
-            languages.push({
-                code: extraLanguage,
-                display: extraLanguage,
+        if (extraLanguages) {
+            extraLanguages.split(',').forEach(code => {
+                languages.push({
+                    code,
+                    display: code,
+                });
             });
         }
         this.state = {
