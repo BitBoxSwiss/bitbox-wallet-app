@@ -60,7 +60,6 @@ function Selection({
                     currencies.map((currency, index) => {
                         const main = currency === active;
                         return (
-                            // @ts-ignore
                             <Checkbox
                                 key={currency}
                                 name="fiat"
