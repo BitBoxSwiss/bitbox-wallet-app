@@ -14,37 +14,53 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { translate } from 'react-i18next';
-import { Button, Checkbox } from '../forms';
-import { Dialog } from '../dialog/dialog';
-import WaitDialog from '../wait-dialog/wait-dialog';
-import Spinner from '../spinner/Spinner';
-import { PasswordRepeatInput } from '../password';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
 import { alertUser } from '../alert/Alert';
+import { Dialog } from '../dialog/dialog';
+import { Button, Checkbox } from '../forms';
+import { PasswordRepeatInput } from '../password';
+import Spinner from '../spinner/Spinner';
+import WaitDialog from '../wait-dialog/wait-dialog';
 import * as style from './backups.css';
 
-@translate()
-export default class Restore extends Component {
-    state = {
+interface RestoreProps {
+    selectedBackup: string;
+    requireConfirmation: boolean;
+    deviceID: string;
+    onRestore: () => void;
+}
+
+type Props = RestoreProps & TranslateProps;
+
+interface State {
+    isConfirming: boolean;
+    activeDialog: boolean;
+    isLoading: boolean;
+    understand: boolean;
+    password?: string;
+}
+
+class Restore extends Component<Props, State> {
+    public state = {
         isConfirming: false,
         activeDialog: false,
         isLoading: false,
         understand: false,
-        password: null,
-    }
+        password: undefined,
+    };
 
-    componentWillMount() {
+    public componentWillMount() {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = e => {
+    private handleKeyDown = (e: KeyboardEvent) => {
         const {
             isConfirming,
             isLoading,
@@ -56,27 +72,23 @@ export default class Restore extends Component {
         }
     }
 
-    abort = () => {
+    private abort = () => {
         this.setState({
             isConfirming: false,
             activeDialog: false,
             isLoading: false,
             understand: false,
-            password: null,
+            password: undefined,
         });
     }
 
-    handleFormChange = event => {
-        this.setState({ [event.target.id]: event.target.value });
-    }
-
-    validate = () => {
+    private validate = () => {
         return this.props.selectedBackup && this.state.password;
     }
 
-    restore = event => {
+    private restore = (event: Event) => {
         event.preventDefault();
-        if (!this.validate()) return;
+        if (!this.validate()) { return; }
         if (this.props.requireConfirmation) {
             this.setState({
                 activeDialog: false,
@@ -91,15 +103,15 @@ export default class Restore extends Component {
         apiPost('devices/' + this.props.deviceID + '/backups/restore', {
             password: this.state.password,
             filename: this.props.selectedBackup,
-        }).catch(() => {}).then((data) => {
-            let { success, didRestore, errorMessage, code } = data;
+        }).then(data => {
+            const { success, didRestore, errorMessage, code } = data;
             this.abort();
             if (success) {
                 if (didRestore) {
                     if (this.props.onRestore) {
                         return this.props.onRestore();
                     }
-                    console.log('restore.jsx route to /'); // eslint-disable-line no-console
+                    console.log('restore.jsx route to /'); // tslint:disable-line:no-console
                     route('/', true);
                 }
             } else {
@@ -110,24 +122,26 @@ export default class Restore extends Component {
         });
     }
 
-    handleUnderstandChange = (e) => {
-        this.setState({ understand: e.target.checked });
+    private handleUnderstandChange = (e: Event) => {
+        this.setState({ understand: (e.target as HTMLInputElement).checked });
     }
 
-    setValidPassword = password => {
+    private setValidPassword = (password: string) => {
         this.setState({ password });
     }
 
-    render({
-        t,
-        selectedBackup,
-        requireConfirmation,
-    }, {
-        isConfirming,
-        activeDialog,
-        isLoading,
-        understand,
-    }) {
+    public render(
+        {
+            t,
+            selectedBackup,
+            requireConfirmation,
+        }: RenderableProps<Props>,
+        {
+            isConfirming,
+            activeDialog,
+            isLoading,
+            understand,
+        }: State) {
         return (
             <span>
                 <Button
@@ -189,3 +203,7 @@ export default class Restore extends Component {
         );
     }
 }
+
+const TranslatedRestore = translate<RestoreProps>()(Restore);
+
+export { TranslatedRestore as Restore };

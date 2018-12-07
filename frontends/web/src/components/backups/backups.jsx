@@ -19,7 +19,7 @@ import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { Button } from '../forms';
 import { alertUser } from '../alert/Alert';
-import Restore from './restore';
+import { Restore } from './restore';
 import Check from './check';
 import Create from './create';
 import BackupsListItem from './backup';
