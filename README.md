@@ -153,3 +153,11 @@ in your usual editor in the host and compile inside the container.
 To execute `make servewallet` and `make webdev` insider the container, but from the host, use this:
 
 `$ ./scripts/docker_exec.sh servewallet/webdev`
+
+## Testnet coins
+
+In development mode, any password entered derives a unique testnet wallet.
+
+Get Bitcoin Testnet coins here: https://coinfaucet.eu/en/btc-testnet/
+
+Get Ethereum Rinkeby coins here: http://rinkeby-faucet.com/
