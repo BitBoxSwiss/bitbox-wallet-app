@@ -121,11 +121,6 @@ Run `dep ensure` to update dependencies.
 Check outdated dependencies `cd frontends/web && yarn outdated` and `yarn upgrade
 modulename@specificversion`.
 
-### Production build
-
-To build the standalone desktop app, run `make qt-linux` inside Docker (see below) or `make qt-osx`
-on a Mac. Cross compilation is not supported yet.
-
 ### CI
 
 Run `make ci` to run all static analysis tools and tests.
