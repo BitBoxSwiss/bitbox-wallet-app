@@ -7,7 +7,7 @@ This repo contains the source code for the BitBox Wallet App and related tools.
 The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
 backend written in Go.
 
-The Desktop app is a static C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
+The Desktop app is a C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
 
 Static assets are sourced from a Qt rcc file, and the dynamic data is bridged from Go with
 WebChannels.
@@ -77,6 +77,9 @@ hosts/ports/certs of those are currently hardcoded.
 
 Run `make servewallet` and `make webdev` in seperate terminals.
 
+Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
+dependencies.
+
 #### Watch and build the UI
 
 Run `make webdev` to develop the UI inside a web browser (for quick development, automatic rebuilds
@@ -106,7 +109,8 @@ and open `coverage/lcov-report/index.html` in a browser.
 #### Run the HTTP API
 
 Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a devtool which
-serves the HTTP API.
+serves the HTTP API. Changes to the backend code are *not* automatically detected, so you need to
+restart the server after changes.
 
 #### Update go dependencies
 
@@ -116,11 +120,6 @@ Run `dep ensure` to update dependencies.
 
 Check outdated dependencies `cd frontends/web && yarn outdated` and `yarn upgrade
 modulename@specificversion`.
-
-### Production build
-
-To build the standalone desktop app, run `make qt-linux` inside Docker (see below) or `make qt-osx`
-on a Mac. Cross compilation is not supported yet.
 
 ### CI
 
@@ -138,9 +137,22 @@ run `make dockerinit`, which builds the Docker image (this takes a while).
 
 After that, `make dockerdev` enters the container (a shell inside an Ubuntu virtual machine), where
 you can perform the same steps as in the previous section (`make servewallet` and `make
-webdev`). Running `make dockerdev` multiple times shares the same container. You can edit the code
+webdev`).
+
+Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
+dependencies.
+
+Running `make dockerdev` multiple times shares the same container. You can edit the code
 in your usual editor in the host and compile inside the container.
 
 To execute `make servewallet` and `make webdev` insider the container, but from the host, use this:
 
 `$ ./scripts/docker_exec.sh servewallet/webdev`
+
+## Testnet coins
+
+In development mode, any password entered derives a unique testnet wallet.
+
+Get Bitcoin Testnet coins here: https://coinfaucet.eu/en/btc-testnet/
+
+Get Ethereum Rinkeby coins here: http://rinkeby-faucet.com/
