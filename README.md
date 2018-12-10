@@ -77,6 +77,9 @@ hosts/ports/certs of those are currently hardcoded.
 
 Run `make servewallet` and `make webdev` in seperate terminals.
 
+Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
+dependencies.
+
 #### Watch and build the UI
 
 Run `make webdev` to develop the UI inside a web browser (for quick development, automatic rebuilds
@@ -138,7 +141,12 @@ run `make dockerinit`, which builds the Docker image (this takes a while).
 
 After that, `make dockerdev` enters the container (a shell inside an Ubuntu virtual machine), where
 you can perform the same steps as in the previous section (`make servewallet` and `make
-webdev`). Running `make dockerdev` multiple times shares the same container. You can edit the code
+webdev`).
+
+Before the first use of `make webdev`, you also need to run `make buildweb`, to install the dev
+dependencies.
+
+Running `make dockerdev` multiple times shares the same container. You can edit the code
 in your usual editor in the host and compile inside the container.
 
 To execute `make servewallet` and `make webdev` insider the container, but from the host, use this:
