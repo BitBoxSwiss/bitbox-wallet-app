@@ -7,7 +7,7 @@ This repo contains the source code for the BitBox Wallet App and related tools.
 The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
 backend written in Go.
 
-The Desktop app is a static C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
+The Desktop app is a C++ Qt5 program containing only a `WebEngineView`, displaying the UI.
 
 Static assets are sourced from a Qt rcc file, and the dynamic data is bridged from Go with
 WebChannels.
