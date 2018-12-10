@@ -109,7 +109,8 @@ and open `coverage/lcov-report/index.html` in a browser.
 #### Run the HTTP API
 
 Run `make servewallet` to compile the code and run `servewallet`. `servewallet` is a devtool which
-serves the HTTP API.
+serves the HTTP API. Changes to the backend code are *not* automatically detected, so you need to
+restart the server after changes.
 
 #### Update go dependencies
 
