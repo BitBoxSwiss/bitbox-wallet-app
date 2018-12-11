@@ -24,7 +24,7 @@ import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
 import { Header } from '../../../components/header/Header';
 import Status from '../../../components/status/status';
-import QRCode from '../../../components/qrcode/qrcode';
+import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';
 import ArrowLeft from '../../../assets/icons/arrow-left-gray.svg';
 import ArrowRight from '../../../assets/icons/arrow-right-gray.svg';

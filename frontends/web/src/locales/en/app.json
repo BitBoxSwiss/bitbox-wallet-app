@@ -507,6 +507,7 @@
   },
   "loading": "loading…",
   "pairing": {
+    "title": "Mobile Pairing",
     "aborted": {
       "text": "The pairing has been aborted from the mobile app.",
       "title": "Aborted"
@@ -524,7 +525,10 @@
       "button": "Reconnect Mobile App"
     },
     "start": {
-      "title": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
+      "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
+      "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:",
+      "revealAppQRCode": "Show QR Code",
+      "hideAppQRCode": "Hide QR Code"
     },
     "started": {
       "text": "Now please follow the instructions in the mobile app.",
