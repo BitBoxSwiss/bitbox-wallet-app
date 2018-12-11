@@ -15,6 +15,7 @@
  */
 
 import i18n from 'i18next';
+import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
 import appTranslationsJA from '../locales/ja/app.json';
 import { apiGet, apiPost } from '../utils/request';
@@ -73,6 +74,7 @@ i18Init.init({
 });
 
 if (!i18nEditorActive) {
+    i18n.addResourceBundle('de', 'app', appTranslationsDE);
     i18n.addResourceBundle('en', 'app', appTranslationsEN);
     i18n.addResourceBundle('ja', 'app', appTranslationsJA);
 }
