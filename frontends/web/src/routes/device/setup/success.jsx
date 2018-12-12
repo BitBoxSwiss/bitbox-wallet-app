@@ -15,14 +15,34 @@
  */
 
 import { Component, h } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Shift } from '../../../components/icon';
 import Footer from '../../../components/footer/footer';
+import { Button } from '../../../components/forms';
 import { Steps, Step } from './components/steps';
+import { apiGet } from '../../../utils/request';
 import * as style from '../device.css';
 
 @translate()
 export default class Success extends Component {
+
+    handleGetStarted = () => {
+        apiGet('accounts-status').then(status => {
+            const accountsInitialized = status === 'initialized';
+            if (!accountsInitialized) {
+                route('/', true);
+            }
+            apiGet('accounts').then(accounts => {
+                if (accounts.length) {
+                    route(`/account/${accounts[0].code}`);
+                    return;
+                }
+                route('/add-account`');
+            });
+        });
+    }
+
     render({
         t,
         goal,
@@ -56,6 +76,11 @@ export default class Success extends Component {
                                     <li>{t('success.create.info3')}</li>
                                 </ul>
                             ) : null}
+                            <div class={style.verticalButtons}>
+                                <Button primary onClick={this.handleGetStarted}>
+                                    {t('success.getstarted')}
+                                </Button>
+                            </div>
                         </div>
                         <hr />
                         <Footer>
