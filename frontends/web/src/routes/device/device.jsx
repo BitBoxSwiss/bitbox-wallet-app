@@ -138,7 +138,7 @@ export default class Device extends Component {
             return null;
         }
         if (success) {
-            return <Success goal={goal} {...this.props} />;
+            return <Success goal={goal} handleHideSuccess={() => this.setState({ success: null })} />;
         }
         switch (deviceStatus) {
         case DeviceStatus.BOOTLOADER:
