@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../components/forms';
 import { Shift, Alert } from '../../../components/icon';
+import { Header } from '../../../components/header/Header';
 import Footer from '../../../components/footer/footer';
 import { Steps, Step } from './components/steps';
 import SimpleMarkup from '../../../utils/simplemarkup';
@@ -48,7 +49,7 @@ export default class SecurityInformation extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={[style.container, 'scrollableContainer'].join(' ')}>
-                    <div className={style.content}>
+                    <Header title={
                         <Steps current={0}>
                             <Step title={t('goal.step.1.title')} />
                             <Step divider />
@@ -58,7 +59,8 @@ export default class SecurityInformation extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                        <hr />
+                    } toggleSidebar={this.props.toggleSidebar} narrow={true} />
+                    <div className={style.content}>
                         <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
                         {
                             goal === 'create' ? (

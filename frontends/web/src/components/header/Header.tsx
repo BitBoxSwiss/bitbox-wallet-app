@@ -21,13 +21,14 @@ import * as style from './Header.css';
 interface HeaderProps {
     toggleSidebar?: () => void;
     title: JSX.Element | JSX.Element[];
+    narrow?: boolean;
 }
 
-function Header({ title, toggleSidebar, children }: RenderableProps<HeaderProps>): JSX.Element {
+function Header({ title, toggleSidebar, narrow, children }: RenderableProps<HeaderProps>): JSX.Element {
     const hasChildren = Array.isArray(children) && children.length > 0;
     return (
         <div className={style.container}>
-            <div className={[style.header, hasChildren ? style.children : ''].join(' ')}>
+            <div className={[style.header, narrow ? style.narrow : '', hasChildren ? style.children : ''].join(' ')}>
                 <div className={style.sidebarToggler} onClick={toggleSidebar}>
                     <img src={MenuIcon} />
                 </div>

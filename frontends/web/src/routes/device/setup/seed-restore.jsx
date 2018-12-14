@@ -21,6 +21,7 @@ import { Button } from '../../../components/forms';
 import Backups from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
+import { Header } from '../../../components/header/Header';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -94,7 +95,7 @@ export default class SeedRestore extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={[style.container, style.scrollable].join(' ')}>
-                    <div className={style.content}>
+                    <Header title={
                         <Steps current={2}>
                             <Step title={t('goal.step.1.title')} />
                             <Step divider />
@@ -104,7 +105,8 @@ export default class SeedRestore extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-restore.title`)} />
                         </Steps>
-                        <hr />
+                    } narrow={true} {...this.props} />
+                    <div className={style.content}>
                         {
                             error ? (
                                 <Message type={status === STATUS.ERROR ? 'error' : undefined}>

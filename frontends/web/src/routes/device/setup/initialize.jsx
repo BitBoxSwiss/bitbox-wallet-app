@@ -21,6 +21,7 @@ import { PasswordRepeatInput } from '../../../components/password';
 import { Button } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
 import { Shift } from '../../../components/icon/logo';
+import { Header } from '../../../components/header/Header';
 import Footer from '../../../components/footer/footer';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
@@ -161,7 +162,7 @@ export default class Initialize extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <div className={style.content}>
+                    <Header title={
                         <Steps current={1}>
                             <Step title={t('goal.step.1.title')} />
                             <Step divider />
@@ -171,7 +172,8 @@ export default class Initialize extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                        <hr />
+                    } narrow={true} {...this.props} />
+                    <div className={style.content}>
                         {formSubmissionState}
                         <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
                         {content}
