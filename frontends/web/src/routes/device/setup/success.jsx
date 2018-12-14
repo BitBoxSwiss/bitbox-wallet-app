@@ -15,17 +15,25 @@
  */
 
 import { Component, h } from 'preact';
+import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Shift } from '../../../components/icon';
 import { Header } from '../../../components/header/Header';
 import Footer from '../../../components/footer/footer';
+import { Button } from '../../../components/forms';
 import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
 
 @translate()
 export default class Success extends Component {
+
+    handleGetStarted = () => {
+        route('/account', true);
+    }
+
     render({
         t,
+        handleHideSuccess,
         goal,
     }, {
     }) {
@@ -58,6 +66,14 @@ export default class Success extends Component {
                                     <li>{t('success.create.info3')}</li>
                                 </ul>
                             ) : null}
+                            <div class={style.verticalButtons} style="margin-top: var(--spacing-large);">
+                                <Button primary onClick={this.handleGetStarted}>
+                                    {t('success.getstarted')}
+                                </Button>
+                                <Button secondary onClick={handleHideSuccess}>
+                                    {t('sidebar.device')}
+                                </Button>
+                            </div>
                         </div>
                         <hr />
                         <Footer>
