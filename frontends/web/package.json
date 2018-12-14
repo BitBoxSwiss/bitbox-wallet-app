@@ -18,7 +18,7 @@
     "build/*"
   ],
   "devDependencies": {
-    "@types/jest": "^23.3.10",
+    "@types/jest": "23.3.10",
     "babel-plugin-module-resolver": "3.1.1",
     "eslint": "5.1.0",
     "eslint-config-synacor": "3.0.1",
