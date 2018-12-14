@@ -55,6 +55,7 @@ export default class SeedCreateNew extends Component {
     }
 
     validate = () => {
+        // @ts-ignore
         if (!this.walletNameInput || !this.walletNameInput.validity.valid || !this.validAgreements()) {
             return false;
         }

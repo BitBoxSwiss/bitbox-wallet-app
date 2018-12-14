@@ -74,6 +74,7 @@ export class PasswordSingleInput extends Component {
     }
 
     validate = () => {
+        // @ts-ignore
         if (this.regex && (!this.password.validity.valid)) {
             return this.props.onValidPassword(null);
         }
@@ -196,6 +197,7 @@ export class PasswordRepeatInput extends Component {
     }
 
     validate = () => {
+        // @ts-ignore
         if (this.regex && (!this.password.validity.valid || !this.passwordRepeat.validity.valid)) {
             return this.props.onValidPassword(null);
         }
