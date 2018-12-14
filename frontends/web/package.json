@@ -39,7 +39,7 @@
     "i18next-locize-backend": "1.6.0",
     "linkstate": "1.1.1",
     "locize-editor": "1.7.0",
-    "preact": "8.3.1",
+    "preact": "8.4.2",
     "preact-compat": "3.18.0",
     "preact-router": "2.6.1",
     "react-i18next": "7.9.0"
