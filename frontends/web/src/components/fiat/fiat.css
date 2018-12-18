@@ -24,10 +24,23 @@
     top: 50%;
     transform: translateY(-50%);
     transition: background-color .2s ease-out;
-    display:none;
+    display: none;
     border-radius: 2px;
     line-height: 16px;
     cursor: pointer;
+}
+
+[lang="ar"] .fiatList label span,
+[lang="fa"] .fiatList label span,
+[lang="he"] .fiatList label span {
+    margin-left: 0;
+    margin-right: var(--spacing-half);
+}
+
+[lang="ar"] .fiatList,
+[lang="fa"] .fiatList,
+[lang="he"] .fiatList {
+    direction: rtl;
 }
 
 .fiatList label:focus span,

@@ -15,6 +15,9 @@ body {
 	  -webkit-app-region: drag;
 }
 
+.rtl {
+    text-align: right;
+}
 /*
 ::selection:not(textarea):not(input) {
     background-color: transparent;

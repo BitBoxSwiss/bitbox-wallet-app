@@ -92,6 +92,11 @@ i18n.on('languageChanged', (lng) => {
         apiPost('config', newConf);
     });
     document.documentElement.setAttribute('lang', lng);
+    if (['ar', 'fa', 'he'].includes(lng)) {
+        document.body.classList.add('rtl');
+    } else {
+        document.body.classList.remove('rtl');
+    }
 });
 
 export default i18n;

@@ -5,6 +5,8 @@
 
 .labels {
     margin-top: var(--spacing-default);
+    /* disallow flipping in rtl for now */
+    flex-direction: row !important;
 }
 
 .label {

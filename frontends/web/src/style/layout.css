@@ -1,5 +1,6 @@
 .flex { display: flex; }
 .flex-row { flex-direction: row; }
+.rtl .flex-row { flex-direction: row-reverse; }
 .flex-column { flex-direction: column; }
 .flex-center { justify-content: center; }
 .flex-start { justify-content: flex-start; }
@@ -42,6 +43,11 @@
 
 .spaced > *:not(:last-child) {
     margin-right: var(--spacing-large);
+}
+
+.rtl .spaced > *:not(:last-child) {
+    margin-left: var(--spacing-large);
+    margin-right: 0;
 }
 
 .app {
@@ -118,6 +124,10 @@
     margin: 0;
     font-size: var(--size-subheader);
     user-select: none;
+}
+
+.rtl .subHeaderContainer {
+    flex-direction: row-reverse;
 }
 
 .content {

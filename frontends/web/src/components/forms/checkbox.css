@@ -10,6 +10,15 @@
     position: relative;
 }
 
+[lang="ar"] .checkbox input + label,
+[lang="fa"] .checkbox input + label,
+[lang="he"] .checkbox input + label {
+    margin-left: 1.6em;
+    margin-right: 0;
+    padding-left: 0;
+    padding-right: 1.6em;
+}
+
 .checkbox input + label::before,
 .checkbox input + label::after {
     background: rgb(255, 255, 255);
@@ -44,6 +53,20 @@
     opacity: 0;
     transform: scale(2) rotate(45deg);
     transition: opacity .2s ease-out, transform .2s ease-out;
+}
+
+[lang="ar"] .checkbox input + label::before,
+[lang="fa"] .checkbox input + label::before,
+[lang="he"] .checkbox input + label::before {
+    left: auto;
+    right: 0;
+}
+
+[lang="ar"] .checkbox input + label::after,
+[lang="fa"] .checkbox input + label::after,
+[lang="he"] .checkbox input + label::after {
+    left: auto;
+    right: 0.35em;
 }
 
 /* checked */

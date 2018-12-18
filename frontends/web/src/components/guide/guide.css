@@ -122,6 +122,15 @@
     font-weight: bold;
 }
 
+[lang="ar"] .entryTitle,
+[lang="ar"] .entryToggle,
+[lang="fa"] .entryTitle,
+[lang="fa"] .entryToggle,
+[lang="he"] .entryTitle,
+[lang="he"] .entryToggle {
+    flex-direction: row-reverse;
+}
+
 .entryTitle .entryTitleText {
     flex: 1;
 }
@@ -132,6 +141,13 @@
     justify-content: flex-start;
     align-items: flex-start;
     padding-left: 16px;
+}
+
+[lang="ar"] .entryContent,
+[lang="fa"] .entryContent,
+[lang="he"] .entryContent {
+    padding-left: 0;
+    padding-right: 16px;
 }
 
 .expanded {

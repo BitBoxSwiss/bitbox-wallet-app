@@ -27,7 +27,6 @@
     border-radius: 2px;
     padding: var(--spacing-large);
     box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.4);
-    text-align: left;
     max-height: 100vh;
     overflow: auto;
 }

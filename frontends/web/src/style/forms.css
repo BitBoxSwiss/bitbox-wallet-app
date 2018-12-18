@@ -39,3 +39,9 @@ input[type="checkbox"]:focus + label::before {
     outline-style: auto;
     outline-width: 4px;
 }
+
+.rtl ::placeholder,
+.rtl input,
+.rtl textarea {
+    text-align: right;
+}
