@@ -91,6 +91,7 @@ i18n.on('languageChanged', (lng) => {
         });
         apiPost('config', newConf);
     });
+    document.documentElement.setAttribute('lang', lng);
 });
 
 export default i18n;
