@@ -115,7 +115,7 @@ export default class ChangePIN extends Component {
                                     idPrefix="oldPIN"
                                     label={t('changePin.oldLabel')}
                                     value={oldPIN}
-                                    onChange={this.setValidOldPIN} />
+                                    onInput={this.setValidOldPIN} />
                                 {t('changePin.newTitle') && <h4>{t('changePin.newTitle')}</h4>}
                                 <PasswordRepeatInput
                                     idPrefix="newPIN"
