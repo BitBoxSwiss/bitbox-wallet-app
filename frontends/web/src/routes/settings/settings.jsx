@@ -25,6 +25,7 @@ import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
 import { Header } from '../../components/header/Header';
 import Footer from '../../components/footer/footer';
+import { Shift } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 
 @translate()
@@ -161,7 +162,9 @@ export default class Settings extends Component {
                                     </div>
                                 )
                             }
-                            <Footer />
+                            <Footer>
+                                <Shift />
+                            </Footer>
                         </div>
                     </div>
                 </div>
