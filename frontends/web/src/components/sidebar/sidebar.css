@@ -66,6 +66,7 @@
     cursor: default;
     padding: var(--spacing-default) 0;
     margin: 10px 10px 0 10px;
+    text-align: left;
     text-decoration: none;
     overflow: hidden;
     display: flex;
