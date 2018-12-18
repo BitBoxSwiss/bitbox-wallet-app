@@ -16,6 +16,16 @@
     left: -32px;
 }
 
+[lang="ar"] .transactionContainer:hover .toggleContainer,
+[lang="ar"] .transactionContainer.expanded .toggleContainer,
+[lang="fa"] .transactionContainer:hover .toggleContainer,
+[lang="fa"] .transactionContainer.expanded .toggleContainer,
+[lang="he"] .transactionContainer:hover .toggleContainer,
+[lang="he"] .transactionContainer.expanded .toggleContainer {
+    left: auto;
+    right: -32px;
+}
+
 .transaction {
     margin: 0 auto;
     max-width: calc(var(--content-width) - (var(--spacing-large) * 2));
@@ -125,6 +135,13 @@
     cursor: pointer;
 }
 
+[lang="ar"] .flat,
+[lang="fa"] .flat,
+[lang="he"] .flat {
+    margin-left: var(--spacing-default);
+    margin-right: 0;
+}
+
 .transactionLabel.flat img {
     width: 14px;
 }
@@ -150,6 +167,13 @@
     height: 32px;
     cursor: pointer;
     transition: all 0.1s ease;
+}
+
+[lang="ar"] .toggleContainer,
+[lang="fa"] .toggleContainer,
+[lang="he"] .toggleContainer {
+    left: auto;
+    right: 0;
 }
 
 .toggle {
