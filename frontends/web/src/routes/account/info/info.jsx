@@ -19,7 +19,7 @@ import { ButtonLink } from '../../../components/forms';
 import Balance from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import QRCode from '../../../components/qrcode/qrcode';
+import { QRCode } from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';

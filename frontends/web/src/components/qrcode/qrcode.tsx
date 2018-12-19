@@ -14,37 +14,59 @@
  * limitations under the License.
  */
 
-import { h, Component } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { apiGet } from '../../utils/request';
 
 const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
-export default class QRCode extends Component {
-    state = {
-        src: emptyImage
+interface Props {
+    data: string;
+    size?: number;
+}
+
+interface State {
+    src: string;
+}
+
+class QRCode extends Component<Props, State> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            src: emptyImage,
+        };
     }
 
-    componentDidMount() {
+    public static defaultProps = {
+        size: 256,
+    };
+
+    public componentDidMount() {
         this.update(this.props.data);
     }
 
-    componentWillReceiveProps({ data }) {
+    public componentWillReceiveProps({ data }) {
         if (this.props.data !== data) {
             this.update(data);
         }
     }
 
-    update = (data) => {
+    private update = (data: string) => {
         this.setState({ src: emptyImage });
         apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.setState({ src }));
     }
 
-    render({}, { src }) {
+    public render(
+        { size }: RenderableProps<Props>,
+        { src }: State,
+    ) {
         return (
             <img
-                width={256}
-                height={256}
-                src={src} />
+                width={size}
+                height={size}
+                src={src}
+            />
         );
     }
 }
+
+export { QRCode };

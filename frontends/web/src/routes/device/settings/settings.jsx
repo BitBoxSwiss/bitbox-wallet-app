@@ -29,7 +29,7 @@ import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
-import MobilePairing from './components/mobile-pairing';
+import { MobilePairing } from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
 
