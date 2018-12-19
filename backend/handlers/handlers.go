@@ -343,7 +343,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
 	}
 	if extendedPublicKey.IsPrivate() {
-		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
+		return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
 	}
 	if btcCoin, ok := coin.(*btc.Coin); ok {
 		expectedNet := &chaincfg.Params{
