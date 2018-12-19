@@ -756,11 +756,11 @@
       "summary": "Here is a summary of what you have done",
       "title": "Success"
     },
+    "getstarted": "Get Started",
     "restore": {
       "summary": "You have successfully restored a wallet from your backup.",
       "title": "Success"
-    },
-    "getstarted": "Get Started"
+    }
   },
   "transaction": {
     "badge": {
