@@ -20,3 +20,11 @@
 .vscode/
 
 .DS_Store
+
+# Ignore unfinished locales
+/frontends/web/src/locales/
+# Except en, de, ja
+!/frontends/web/src/locales/en/
+!/frontends/web/src/locales/de/
+!/frontends/web/src/locales/ja/
+
