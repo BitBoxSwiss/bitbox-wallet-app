@@ -24,7 +24,8 @@
     "coin": "Coin",
     "error": {
       "xpubInvalid": "Extended Public Key malformatted.",
-      "xpubWrongNet": "Extended Public Key not valid for the selected account."
+      "xpubWrongNet": "Extended Public Key not valid for the selected account.",
+      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe."
     },
     "extendedPublicKey": "Extended Public Key",
     "scriptType": "Script Type",
