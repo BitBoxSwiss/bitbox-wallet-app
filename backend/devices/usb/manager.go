@@ -89,9 +89,26 @@ func deviceIdentifier(deviceInfo hid.DeviceInfo) string {
 	return hex.EncodeToString([]byte(deviceInfo.Path))
 }
 
+func deviceInfoLogFields(deviceInfo hid.DeviceInfo) logrus.Fields {
+	return logrus.Fields{
+		"path":         deviceInfo.Path,
+		"vendorID":     deviceInfo.VendorID,
+		"productID":    deviceInfo.ProductID,
+		"release":      deviceInfo.Release,
+		"serial":       deviceInfo.Serial,
+		"manufacturer": deviceInfo.Manufacturer,
+		"product":      deviceInfo.Product,
+		"usagePage":    deviceInfo.UsagePage,
+		"usage":        deviceInfo.Usage,
+	}
+}
+
 func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, error) {
 	deviceID := deviceIdentifier(deviceInfo)
-	manager.log.WithField("device-id", deviceID).Info("Registering BitBox")
+	manager.log.
+		WithField("device-id", deviceID).
+		WithFields(deviceInfoLogFields(deviceInfo)).
+		Info("Registering BitBox")
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
 	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
 	if len(match) != 2 {
@@ -108,7 +125,6 @@ func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, e
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-
 	usbWriteReportSize := 64
 	usbReadReportSize := 64
 	if bootloader && !firmwareVersion.AtLeast(semver.NewSemVer(3, 0, 0)) {
