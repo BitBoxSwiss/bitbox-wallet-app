@@ -33,6 +33,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
@@ -587,4 +588,12 @@ func (backend *Backend) CheckElectrumServer(server string, pemCert string) error
 	defer electrumClient.Close()
 	_, err = electrumClient.ServerVersion()
 	return err
+}
+
+// RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
+// devmode.
+func (backend *Backend) RegisterTestKeystore(pin string) {
+	softwareBasedKeystore := software.NewKeystoreFromPIN(
+		backend.keystores.Count(), pin)
+	backend.RegisterKeystore(softwareBasedKeystore)
 }
