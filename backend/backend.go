@@ -53,6 +53,7 @@ const (
 	coinTLTC = "tltc"
 	coinETH  = "eth"
 	coinTETH = "teth"
+	coinRETH = "reth"
 )
 
 type backendEvent struct {
@@ -298,9 +299,12 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig,
 			"https://etherscan.io/tx/", backend.config.Config().Backend.ETH.NodeURL)
-	case coinTETH:
+	case coinRETH:
 		coin = eth.NewCoin(code, params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/", backend.config.Config().Backend.TETH.NodeURL)
+			"https://rinkeby.etherscan.io/tx/", backend.config.Config().Backend.RETH.NodeURL)
+	case coinTETH:
+		coin = eth.NewCoin(code, params.TestnetChainConfig,
+			"https://ropsten.etherscan.io/tx/", backend.config.Config().Backend.TETH.NodeURL)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
 	}
@@ -344,7 +348,9 @@ func (backend *Backend) initAccounts() {
 
 			if backend.arguments.DevMode() {
 				TETH, _ := backend.Coin(coinTETH)
-				backend.createAndAddAccount(TETH, "teth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				RETH, _ := backend.Coin(coinRETH)
+				backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	} else {

@@ -49,6 +49,7 @@ type Backend struct {
 	TLTC btcCoinConfig `json:"tltc"`
 	ETH  ethCoinConfig `json:"eth"`
 	TETH ethCoinConfig `json:"teth"`
+	RETH ethCoinConfig `json:"reth"`
 }
 
 // AccountActive returns the Active setting for a coin by code.
@@ -64,7 +65,7 @@ func (backend Backend) AccountActive(code string) bool {
 		return backend.LitecoinP2WPKHP2SHActive
 	case "tltc-p2wpkh", "ltc-p2wpkh":
 		return backend.LitecoinP2WPKHActive
-	case "eth", "teth":
+	case "eth", "teth", "reth":
 		return backend.EthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))
@@ -185,6 +186,9 @@ func NewDefaultConfig() AppConfig {
 				NodeURL: "https://mainnet.infura.io",
 			},
 			TETH: ethCoinConfig{
+				NodeURL: "https://ropsten.infura.io",
+			},
+			RETH: ethCoinConfig{
 				NodeURL: "https://rinkeby.infura.io",
 			},
 		},

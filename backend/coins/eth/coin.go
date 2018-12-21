@@ -52,8 +52,11 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		etherScanURL := "https://api.etherscan.io/api"
-		if coin.code == "teth" {
+		if coin.code == "reth" {
 			etherScanURL = "https://api-rinkeby.etherscan.io/api"
+		}
+		if coin.code == "teth" {
+			etherScanURL = "https://api-ropsten.etherscan.io/api"
 		}
 		coin.log.Infof("connecting to %s", coin.nodeURL)
 		client, err := ethclient.Dial(coin.nodeURL)
