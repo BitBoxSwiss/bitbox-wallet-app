@@ -14,37 +14,47 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import { Button } from '../../../components/forms';
-import { Shift, Alert } from '../../../components/icon';
-import { Header } from '../../../components/header/Header';
+import { Component, h, RenderableProps } from 'preact';
 import Footer from '../../../components/footer/footer';
-import { Steps, Step } from './components/steps';
-import SimpleMarkup from '../../../utils/simplemarkup';
+import { Button } from '../../../components/forms';
+import { Header } from '../../../components/header/Header';
+import { Alert, Shift } from '../../../components/icon';
 import { Message } from '../../../components/message/message';
+import { translate,  TranslateProps } from '../../../decorators/translate';
+import SimpleMarkup from '../../../utils/simplemarkup';
 import * as style from '../device.css';
+import { Step, Steps } from './components/steps';
 
-@translate()
-export default class SecurityInformation extends Component {
-    state = {
-        showInfo: true,
+interface SecurityInformationProps {
+    goBack: () => void;
+    goal: string | null;
+    toggleSidebar?: () => void;
+}
+
+type Props = SecurityInformationProps & TranslateProps;
+
+interface State {
+    showInfo: boolean;
+}
+
+class SecurityInformation extends Component<Props, State> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            showInfo: true,
+        };
     }
 
-    handleStart = () => {
+    private handleStart = () => {
         this.setState({ showInfo: false });
     }
 
-    render({
-        t,
-        goBack,
-        goal,
-        children,
-    }, {
-        showInfo,
-    }) {
+    public render(
+        { t, goBack, goal, toggleSidebar, children }: RenderableProps<Props>,
+        { showInfo }: State,
+    ) {
         if (!showInfo) {
-            return children[0];
+            return children![0];
         }
         return (
             <div class="contentWithGuide">
@@ -59,7 +69,7 @@ export default class SecurityInformation extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } toggleSidebar={this.props.toggleSidebar} narrow={true} />
+                    } toggleSidebar={toggleSidebar} narrow={true} />
                     <div className={style.content}>
                         <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
                         {
@@ -117,3 +127,6 @@ export default class SecurityInformation extends Component {
         );
     }
 }
+
+const translatedSecutiryInformation = translate<SecurityInformationProps>()(SecurityInformation);
+export { translatedSecutiryInformation as  SecurityInformation };
