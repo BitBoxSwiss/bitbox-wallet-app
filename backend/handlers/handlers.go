@@ -155,8 +155,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeyStoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
@@ -393,7 +393,7 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return jsonDevices, nil
 }
 
-func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRegisterTestKeyStoreHandler(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
@@ -408,7 +408,7 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 	return true, nil
 }
 
-func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDeregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.DeregisterKeystore()
 	return true, nil
 }
