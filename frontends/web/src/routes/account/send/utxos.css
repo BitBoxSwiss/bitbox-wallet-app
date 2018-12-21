@@ -38,6 +38,7 @@
 
 .table > tr > td > span {
     display: block;
+    min-width: 1rem;
     white-space: nowrap;
 }
 
