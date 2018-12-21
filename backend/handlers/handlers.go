@@ -283,6 +283,7 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 		"^https://insight\\.litecore\\.io/tx/",
 		"^https://etherscan\\.io/tx/",
 		"^https://rinkeby\\.etherscan\\.io/tx/",
+		"^https://ropsten\\.etherscan\\.io/tx/",
 	}
 
 	// Whitelist csv export.

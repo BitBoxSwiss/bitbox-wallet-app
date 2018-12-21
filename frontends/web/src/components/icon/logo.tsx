@@ -47,6 +47,7 @@ const logoMap = {
     tltc: [LTC, LTC_GREY],
     eth: [ETH, ETH_GREY],
     teth: [ETH, ETH_GREY],
+    reth: [ETH, ETH_GREY],
 };
 
 interface Props {
