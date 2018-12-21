@@ -139,7 +139,7 @@ export default class Receive extends Component {
         let uriPrefix = 'bitcoin:';
         if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
-        } else if (account.coinCode === 'eth' || account.coinCode === 'teth') {
+        } else if (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') {
             uriPrefix = '';
         }
         const content = receiveAddresses ? (

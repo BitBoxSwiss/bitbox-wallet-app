@@ -348,6 +348,8 @@ func (backend *Backend) initAccounts() {
 			if backend.arguments.DevMode() {
 				TETH, _ := backend.Coin(coinTETH)
 				backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				RETH, _ := backend.Coin(coinRETH)
+				backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	} else {

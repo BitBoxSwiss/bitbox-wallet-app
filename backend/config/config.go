@@ -188,6 +188,9 @@ func NewDefaultConfig() AppConfig {
 			TETH: ethCoinConfig{
 				NodeURL: "https://ropsten.infura.io",
 			},
+			RETH: ethCoinConfig{
+				NodeURL: "https://rinkeby.infura.io",
+			},
 		},
 	}
 }

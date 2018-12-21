@@ -465,7 +465,7 @@ export default class Send extends Component {
                                 {feeTarget && <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>}
                             </div>
                             {
-                                (account.coinCode === 'eth' || account.coinCode === 'teth') && <div class="row">
+                                (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && <div class="row">
                                     <Input
                                         label={t('send.data.label')}
                                         placeholder={t('send.data.placeholder')}
