@@ -35,7 +35,6 @@ import (
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -72,7 +71,6 @@ type Backend interface {
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
 	Start() <-chan interface{}
-	Keystores() keystore.Keystores
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
 	Register(device device.Interface) error
@@ -80,6 +78,7 @@ type Backend interface {
 	Rates() map[string]map[string]float64
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(string, string) error
+	RegisterTestKeystore(string)
 }
 
 // Handlers provides a web api to the backend.
@@ -155,8 +154,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeyStoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
@@ -393,7 +392,7 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return jsonDevices, nil
 }
 
-func (handlers *Handlers) postRegisterTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
@@ -402,13 +401,11 @@ func (handlers *Handlers) postRegisterTestKeyStoreHandler(r *http.Request) (inte
 		return nil, errp.WithStack(err)
 	}
 	pin := jsonBody["pin"]
-	softwareBasedKeystore := software.NewKeystoreFromPIN(
-		handlers.backend.Keystores().Count(), pin)
-	handlers.backend.RegisterKeystore(softwareBasedKeystore)
+	handlers.backend.RegisterTestKeystore(pin)
 	return true, nil
 }
 
-func (handlers *Handlers) postDeregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.DeregisterKeystore()
 	return true, nil
 }
