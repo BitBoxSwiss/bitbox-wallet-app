@@ -30,6 +30,14 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 		device.fireEvent(EventPairingError, nil)
 		return
 	}
+
+	truth := true
+	if err := device.FeatureSet(&FeatureSet{Pairing: &truth}); err != nil {
+		device.mu.Unlock() // fireEvent below needs read-lock
+		device.log.WithError(err).Error("Failed activate pairing.")
+		device.fireEvent(EventPairingError, nil)
+		return
+	}
 	device.channel = channel
 	// Release lock early to let the next calls proceed without being blocked.
 	device.mu.Unlock()

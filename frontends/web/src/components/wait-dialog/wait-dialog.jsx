@@ -55,7 +55,6 @@ export default class WaitDialog extends Component {
         prequel,
         title,
         paired = false,
-        lock = false,
         touchConfirm = true,
         children,
     }, {
@@ -72,11 +71,11 @@ export default class WaitDialog extends Component {
                 {
                     paired ? (
                         <div>
-                            <p class={[style.confirmationLabel, touchConfirm && lock ? style.disabledLabel : ''].join(' ')}>
+                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
                                 <span class={style.confirmationLabelNumber}>1.</span>
                                 {t('confirm.infoWhenPaired')}
                             </p>
-                            <p class={[style.confirmationLabel, !touchConfirm && lock ? style.disabledLabel : ''].join(' ')}>
+                            <p class={[style.confirmationLabel, !touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
                                 <span class={style.confirmationLabelNumber}>2.</span>
                                 {t('confirm.info')}
                             </p>

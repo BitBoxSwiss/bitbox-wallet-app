@@ -58,7 +58,7 @@ export default class Send extends Component {
             isSent: false,
             isAborted: false,
             paired: null,
-            lock: null,
+            noMobileChannelError: false,
             fiatAmount: null,
             fiatUnit: fiat.state.active,
             signProgress: null,
@@ -80,9 +80,11 @@ export default class Send extends Component {
     componentDidMount() {
         apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
-            apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
-                apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ lock }) => {
-                    this.setState({ paired, lock });
+            apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(mobileChannel => {
+                apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
+                    const account = this.getAccount();
+                    const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
+                    this.setState({ paired: mobileChannel && pairing, noMobileChannelError });
                 });
             });
         }
@@ -132,6 +134,10 @@ export default class Send extends Component {
     }
 
     send = () => {
+        if (this.state.noMobileChannelError) {
+            alertUser(this.props.t('warning.sendPairing'));
+            return;
+        }
         this.setState({ signProgress: null, isConfirming: true });
         apiPost('account/' + this.getAccount().code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
@@ -350,7 +356,6 @@ export default class Send extends Component {
         amountError,
         dataError,
         paired,
-        lock,
         signProgress,
         signConfirm,
         coinControl,
@@ -493,7 +498,6 @@ export default class Send extends Component {
                                 title={t('send.confirm.title')}
                                 prequel={confirmPrequel}
                                 paired={paired}
-                                lock={lock}
                                 touchConfirm={signConfirm}
                                 includeDefault>
                                 <div class={style.confirmationBox}>

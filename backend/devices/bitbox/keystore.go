@@ -48,14 +48,22 @@ func (keystore *keystore) CosignerIndex() int {
 
 // HasSecureOutput implements keystore.Keystore.
 func (keystore *keystore) HasSecureOutput(
-	configuration *signing.Configuration, coin coin.Coin) bool {
-	return keystore.dbb.channel != nil && configuration.Singlesig()
+	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
+	deviceInfo, err := keystore.dbb.DeviceInfo()
+	if err != nil {
+		return false, err
+	}
+	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), nil
 }
 
 // OutputAddress implements keystore.Keystore.
 func (keystore *keystore) OutputAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
-	if !keystore.HasSecureOutput(configuration, coin) {
+	hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+	if err != nil {
+		return err
+	}
+	if !hasSecureOutput {
 		panic("HasSecureOutput must be true")
 	}
 	return keystore.dbb.displayAddress(
@@ -127,7 +135,6 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 	signatureHashes := [][]byte{
 		txProposal.Signer.Hash(txProposal.Tx).Bytes(),
 	}
-	_ = signatureHashes
 	signatures, err := keystore.dbb.Sign(nil, signatureHashes, []string{txProposal.Keypath.Encode()})
 	if isErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)

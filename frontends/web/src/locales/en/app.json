@@ -514,6 +514,7 @@
       "title": "Aborted"
     },
     "button": "Pair Mobile App",
+    "confirm": "Are you sure you want to pair your BitBox? Note that after, the mobile phone is required to perform a transaction.",
     "connectOnly": {
       "button": "Connect Mobile App",
       "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'"

@@ -19,7 +19,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
-let confirmation: (message: string, callback: () => void) => void;
+let confirmation: (message: string, callback: (response: boolean) => void) => void;
 
 interface State {
     active: boolean;
@@ -37,7 +37,7 @@ class Confirm extends Component<TranslateProps, State> {
         };
     }
 
-    private confirmation = (message: string, callback: () => void) => {
+    private confirmation = (message: string, callback: (response: boolean) => void) => {
         this.callback = callback;
         this.setState({
             active: true,

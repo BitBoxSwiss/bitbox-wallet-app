@@ -66,13 +66,17 @@ func (keystores *Keystores) Remove(keystore Keystore) error {
 
 // HaveSecureOutput returns whether any of the keystores has a secure output.
 func (keystores *Keystores) HaveSecureOutput(
-	configuration *signing.Configuration, coin coin.Coin) bool {
+	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput(configuration, coin) {
-			return true
+		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		if err != nil {
+			return false, err
+		}
+		if hasSecureOutput {
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
 // OutputAddress outputs the address for the given coin with the given configuration on all
@@ -83,7 +87,11 @@ func (keystores *Keystores) OutputAddress(
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput(configuration, coin) {
+		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		if err != nil {
+			return err
+		}
+		if hasSecureOutput {
 			if err := keystore.OutputAddress(configuration, coin); err != nil {
 				return err
 			}
