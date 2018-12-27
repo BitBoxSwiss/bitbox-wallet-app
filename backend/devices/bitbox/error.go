@@ -55,6 +55,6 @@ func NewError(message string, code float64) *Error {
 }
 
 // Error implements the error interface.
-func (error *Error) Error() string {
-	return error.message
+func (err *Error) Error() string {
+	return err.message
 }

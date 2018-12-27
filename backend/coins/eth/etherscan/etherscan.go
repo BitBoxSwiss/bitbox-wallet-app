@@ -175,14 +175,14 @@ func prepareTransactions(
 		if ours != from && ours != to {
 			return nil, errp.New("transaction does not belong to our account")
 		}
-		if ours == from && ours == to {
+		switch {
+		case ours == from && ours == to:
 			transaction.txType = coin.TxTypeSendSelf
-		} else if ours == from {
+		case ours == from:
 			transaction.txType = coin.TxTypeSend
-		} else {
+		default:
 			transaction.txType = coin.TxTypeReceive
 		}
-
 		castTransactions = append(castTransactions, transaction)
 	}
 	return castTransactions, nil

@@ -29,6 +29,38 @@ output:
 
 # all available settings of specific linters
 linters-settings:
+  gocritic:
+    enabled-checks:
+      - assignOp
+      - builtinShadow
+      - busySelect
+      - caseOrder
+      - captLocal
+      - deadCodeAfterLogFatal
+      - deferInLoop
+      - dupArg
+      - dupBranchBody
+      - dupCase
+      - elseif
+      - evalOrder
+      - flagDeref
+      - floatCompare
+      - ifElseChain
+      - indexOnlyLoop
+      - namedConst
+      - nilValReturn
+      - rangeExprCopy
+      - rangeValCopy
+      - regexpMust
+      - sloppyLen
+      - switchTrue
+      - typeSwitchVar
+      - typeUnparen
+      - underef
+      - unlambda
+      - unslice
+      - rangeValCopy
+      - defaultCaseOrder
   gocyclo:
     min-complexity: 25
   maligned:
@@ -63,6 +95,8 @@ linters:
     - maligned
     - prealloc
     - lll
+    - gochecknoinits
+    - gochecknoglobals
   disable-all: false
 
 issues:

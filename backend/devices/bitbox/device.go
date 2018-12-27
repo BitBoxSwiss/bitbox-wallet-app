@@ -1126,7 +1126,7 @@ func (dbb *Device) Sign(
 	if len(signatureHashes)%signatureBatchSize != 0 {
 		steps++
 	}
-	for i := 0; i < len(signatureHashes); i = i + signatureBatchSize {
+	for i := 0; i < len(signatureHashes); i += signatureBatchSize {
 		upper := i + signatureBatchSize
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)

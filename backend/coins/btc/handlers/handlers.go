@@ -90,7 +90,7 @@ func formatAsCurrency(amount float64) string {
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
 		formatted = formatted[:position] + "'" + formatted[position:]
-		position = position - 3
+		position -= 3
 	}
 	return formatted
 }
