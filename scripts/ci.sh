@@ -20,3 +20,7 @@ golangci-lint run
 yarn --cwd=frontends/web install # needed to install the eslint dev dep.
 make weblint
 yarn --cwd=frontends/web test --ci --no-color --coverage
+# check that the i18n files are formatted correctly (avoids noisy diff when
+# pulling from locize)
+locize format frontends/web/src/locales --format json --dry true || \
+    echo "i18n files malformatted. Fix with: make locize-fix"

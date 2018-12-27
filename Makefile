@@ -81,3 +81,5 @@ locize-push:
 	cd frontends/web/src/locales && locize sync --reference-language-only=false
 locize-pull:
 	cd frontends/web/src/locales && locize download
+locize-fix:
+	locize format ${WEBROOT}/src/locales --format json

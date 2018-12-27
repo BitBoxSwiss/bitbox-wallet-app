@@ -505,9 +505,6 @@
     "reconnectOnly": {
       "button": "モバイルアプリに再接続"
     },
-    "start": {
-      "title": "スキャンを行うには、iOSとAndroidそれぞれのアプリマーケットプレースで「Digital Bitbox 2FA」で検索してモバイルアプリをダウンロードしてください。"
-    },
     "started": {
       "text": "モバイルアプリに表示されている手順に従ってください。",
       "title": "いい調子です"
