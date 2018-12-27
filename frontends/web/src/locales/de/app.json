@@ -523,9 +523,6 @@
     "reconnectOnly": {
       "button": "Mobile App erneut verbinden"
     },
-    "start": {
-      "title": "Scannen Sie den Code mit Ihrem Smartphone. Laden Sie dazu die \"Digital BitBox 2FA\" App aus dem App store (iOS oder Android) herunter:"
-    },
     "started": {
       "text": "Folgen Sie nun den Anweisungen in der mobilen App.",
       "title": "Gut gemacht!"
