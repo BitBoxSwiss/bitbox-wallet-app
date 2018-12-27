@@ -23,9 +23,9 @@
     "accountName": "Account Name",
     "coin": "Coin",
     "error": {
+      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
       "xpubInvalid": "Extended Public Key malformatted.",
-      "xpubWrongNet": "Extended Public Key not valid for the selected account.",
-      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe."
+      "xpubWrongNet": "Extended Public Key not valid for the selected account."
     },
     "extendedPublicKey": "Extended Public Key",
     "scriptType": "Script Type",
@@ -508,7 +508,6 @@
   },
   "loading": "loading…",
   "pairing": {
-    "title": "Mobile Pairing",
     "aborted": {
       "text": "The pairing has been aborted from the mobile app.",
       "title": "Aborted"
@@ -526,10 +525,10 @@
       "button": "Reconnect Mobile App"
     },
     "start": {
-      "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
-      "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:",
+      "hideAppQRCode": "Hide QR Code",
       "revealAppQRCode": "Show QR Code",
-      "hideAppQRCode": "Hide QR Code"
+      "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
+      "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
     },
     "started": {
       "text": "Now please follow the instructions in the mobile app.",
@@ -542,7 +541,8 @@
     "timeout": {
       "text": "The pairing timed out after two minutes. Start again if you still want to pair the mobile app.",
       "title": "Timeout"
-    }
+    },
+    "title": "Mobile Pairing"
   },
   "password": {
     "show": "Show {{label}}",
