@@ -7,7 +7,7 @@ import (
 	"path"
 	"time"
 
-	"github.com/ethereum/go-ethereum"
+	ethereum "github.com/ethereum/go-ethereum"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
@@ -177,11 +177,9 @@ func (account *Account) poll() {
 				account.offline = true
 				account.onEvent(Event(btc.EventStatusChanged))
 			}
-		} else {
-			if account.offline {
-				account.offline = false
-				account.onEvent(Event(btc.EventStatusChanged))
-			}
+		} else if account.offline {
+			account.offline = false
+			account.onEvent(Event(btc.EventStatusChanged))
 		}
 		timer = time.After(pollInterval)
 	}

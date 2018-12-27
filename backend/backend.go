@@ -176,7 +176,7 @@ func (backend *Backend) createAndAddAccount(
 		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
 	}
 	if backend.arguments.Multisig() {
-		name = name + " Multisig"
+		name += " Multisig"
 	}
 	backend.CreateAndAddAccount(coin, code, name, scriptType, getSigningConfiguration)
 }
@@ -318,20 +318,21 @@ func (backend *Backend) initAccounts() {
 	backend.uninitAccounts()
 
 	if backend.arguments.Testing() {
-		if backend.arguments.Multisig() {
+		switch {
+		case backend.arguments.Multisig():
 			TBTC, _ := backend.Coin(coinTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-multisig", "Bitcoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			TLTC, _ := backend.Coin(coinTLTC)
 			backend.createAndAddAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
-		} else if backend.arguments.Regtest() {
+		case backend.arguments.Regtest():
 			RBTC, _ := backend.Coin("rbtc")
 			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
-		} else {
+		default:
 			TBTC, _ := backend.Coin(coinTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)

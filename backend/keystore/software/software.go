@@ -58,7 +58,7 @@ func NewKeystore(
 // NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
 func NewKeystoreFromPIN(cosignerIndex int, pin string) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
-	master, err := hdkeychain.NewMaster(seed[:], &chaincfg.TestNet3Params)
+	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
@@ -108,10 +108,9 @@ func (keystore *Keystore) sign(
 	if len(signatureHashes) != len(keyPaths) {
 		return nil, errp.New("The number of hashes to sign has to be equal to the number of paths.")
 	}
-	len := len(keyPaths)
-	signatures := make([]btcec.Signature, len)
-	for i := 0; i < len; i++ {
-		xprv, err := keyPaths[i].Derive(keystore.master)
+	signatures := make([]btcec.Signature, len(keyPaths))
+	for i, keyPath := range keyPaths {
+		xprv, err := keyPath.Derive(keystore.master)
 		if err != nil {
 			return nil, err
 		}

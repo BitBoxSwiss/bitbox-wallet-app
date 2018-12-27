@@ -36,11 +36,12 @@ func NewLogger(configuration *Configuration) *Logger {
 	logger.AddHook(stackHook{
 		stackLevels: []logrus.Level{logrus.PanicLevel, logrus.FatalLevel, logrus.ErrorLevel, logrus.WarnLevel},
 	})
-	if configuration.Output == "STDOUT" {
+	switch configuration.Output {
+	case "STDOUT":
 		logger.Out = os.Stdout
-	} else if configuration.Output == "STDERR" {
+	case "STDERR":
 		logger.Out = os.Stderr
-	} else {
+	default:
 		if err := os.MkdirAll(filepath.Dir(configuration.Output), os.ModeDir|os.ModePerm); err != nil {
 			panic(errp.WithStack(err))
 		}

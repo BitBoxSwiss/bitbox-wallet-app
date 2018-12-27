@@ -221,18 +221,19 @@ func (account *Account) Initialize() error {
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	onConnectionStatusChanged := func(status blockchain.Status) {
-		if status == blockchain.DISCONNECTED {
+		switch status {
+		case blockchain.DISCONNECTED:
 			account.log.Warn("Connection to blockchain backend lost")
 			account.offline = true
 			account.onEvent(EventStatusChanged)
-		} else if status == blockchain.CONNECTED {
+		case blockchain.CONNECTED:
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
 			account.initialized = false
 			account.offline = false
 			account.onEvent(EventStatusChanged)
 			account.log.Debug("Connection to blockchain backend established")
-		} else {
+		default:
 			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
