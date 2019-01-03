@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coin
+package accounts
 
 // Balance contains the available and incoming balance of an account.
 type Balance struct {

@@ -21,6 +21,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	blockchainpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
@@ -29,7 +30,6 @@ import (
 	headersMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
@@ -201,10 +201,10 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	require.True(s.T(), syncFinished)
 }
 
-func newBalance(available, incoming btcutil.Amount) *coin.Balance {
-	return coin.NewBalance(
-		coin.NewAmountFromInt64(int64(available)),
-		coin.NewAmountFromInt64(int64(incoming)),
+func newBalance(available, incoming btcutil.Amount) *accounts.Balance {
+	return accounts.NewBalance(
+		accounts.NewAmountFromInt64(int64(available)),
+		accounts.NewAmountFromInt64(int64(incoming)),
 	)
 }
 

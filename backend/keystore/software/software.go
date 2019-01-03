@@ -22,8 +22,8 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -81,12 +81,12 @@ func (keystore *Keystore) Identifier() (string, error) {
 }
 
 // HasSecureOutput implements keystore.Keystore.
-func (keystore *Keystore) HasSecureOutput(*signing.Configuration, coin.Coin) bool {
+func (keystore *Keystore) HasSecureOutput(*signing.Configuration, accounts.Coin) bool {
 	return false
 }
 
 // OutputAddress implements keystore.Keystore.
-func (keystore *Keystore) OutputAddress(*signing.Configuration, coin.Coin) error {
+func (keystore *Keystore) OutputAddress(*signing.Configuration, accounts.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 

@@ -20,6 +20,7 @@
 .vscode/
 
 .DS_Store
+.idea
 
 # Ignore unfinished locales
 /frontends/web/src/locales/

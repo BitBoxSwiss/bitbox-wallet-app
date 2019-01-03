@@ -19,8 +19,8 @@ import (
 
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -48,13 +48,13 @@ func (keystore *keystore) CosignerIndex() int {
 
 // HasSecureOutput implements keystore.Keystore.
 func (keystore *keystore) HasSecureOutput(
-	configuration *signing.Configuration, coin coin.Coin) bool {
+	configuration *signing.Configuration, coin accounts.Coin) bool {
 	return keystore.dbb.channel != nil && configuration.Singlesig()
 }
 
 // OutputAddress implements keystore.Keystore.
 func (keystore *keystore) OutputAddress(
-	configuration *signing.Configuration, coin coin.Coin) error {
+	configuration *signing.Configuration, coin accounts.Coin) error {
 	if !keystore.HasSecureOutput(configuration, coin) {
 		panic("HasSecureOutput must be true")
 	}

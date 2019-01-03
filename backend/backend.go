@@ -22,11 +22,11 @@ import (
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -91,7 +91,7 @@ type Backend struct {
 	onDeviceInit    func(device.Interface)
 	onDeviceUninit  func(string)
 
-	coins     map[string]coin.Coin
+	coins     map[string]accounts.Coin
 	coinsLock locker.Locker
 
 	accounts     []btc.Interface
@@ -110,7 +110,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
-		coins:     map[string]coin.Coin{},
+		coins:     map[string]accounts.Coin{},
 		accounts:  []btc.Interface{},
 		log:       log,
 	}
@@ -128,7 +128,7 @@ func (backend *Backend) addAccount(account btc.Interface) {
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
 func (backend *Backend) CreateAndAddAccount(
-	coin coin.Coin,
+	coin accounts.Coin,
 	code string,
 	name string,
 	scriptType signing.ScriptType,
@@ -157,7 +157,7 @@ func (backend *Backend) CreateAndAddAccount(
 }
 
 func (backend *Backend) createAndAddAccount(
-	coin coin.Coin,
+	coin accounts.Coin,
 	code string,
 	name string,
 	keypath string,
@@ -269,7 +269,7 @@ func (backend *Backend) defaultElectrumXServers(code string) []*rpc.ServerInfo {
 }
 
 // Coin returns the coin with the given code or an error if no such coin exists.
-func (backend *Backend) Coin(code string) (coin.Coin, error) {
+func (backend *Backend) Coin(code string) (accounts.Coin, error) {
 	defer backend.coinsLock.Lock()()
 	coin, ok := backend.coins[code]
 	if ok {
