@@ -68,7 +68,7 @@ type Interface interface {
 	GetUnusedReceiveAddresses() []coin.Address
 	VerifyAddress(addressID string) (bool, error)
 	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
-	Keystores() keystore.Keystores
+	Keystores() *keystore.Keystores
 	SpendableOutputs() []*SpendableOutput
 }
 
@@ -83,7 +83,7 @@ type Account struct {
 	db                      transactions.DBInterface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
-	keystores               keystore.Keystores
+	keystores               *keystore.Keystores
 	blockchain              blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
@@ -125,7 +125,7 @@ func NewAccount(
 	code string,
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
-	keystores keystore.Keystores,
+	keystores *keystore.Keystores,
 	onEvent func(Event),
 	log *logrus.Entry,
 ) *Account {
@@ -594,7 +594,7 @@ func (account *Account) ConvertToLegacyAddress(addressID string) (btcutil.Addres
 }
 
 // Keystores returns the keystores of the account.
-func (account *Account) Keystores() keystore.Keystores {
+func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores
 }
 

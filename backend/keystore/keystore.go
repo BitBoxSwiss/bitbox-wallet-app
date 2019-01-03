@@ -26,7 +26,6 @@ import (
 var ErrSigningAborted = errors.New("signing aborted by user")
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
-//go:generate mockery -name Keystore
 type Keystore interface {
 	// // Configuration returns the configuration of the keystore.
 	// // The keypath is m/44' for singlesig and m/46' for multisig.
