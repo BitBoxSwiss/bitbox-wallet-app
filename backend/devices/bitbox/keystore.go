@@ -155,7 +155,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 }
 
 // SignTransaction implements keystore.Keystore.
-func (keystore *keystore) SignTransaction(proposedTx coin.ProposedTransaction) error {
+func (keystore *keystore) SignTransaction(proposedTx interface{}) error {
 	switch specificProposedTx := proposedTx.(type) {
 	case *btc.ProposedTransaction:
 		return keystore.signBTCTransaction(specificProposedTx)

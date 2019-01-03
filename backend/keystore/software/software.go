@@ -129,7 +129,7 @@ func (keystore *Keystore) sign(
 
 // SignTransaction implements keystore.Keystore.
 func (keystore *Keystore) SignTransaction(
-	proposedTransaction coin.ProposedTransaction,
+	proposedTransaction interface{},
 ) error {
 	btcProposedTx, ok := proposedTransaction.(*btc.ProposedTransaction)
 	if !ok {

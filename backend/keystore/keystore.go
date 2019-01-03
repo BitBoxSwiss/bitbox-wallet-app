@@ -50,5 +50,5 @@ type Keystore interface {
 
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
-	SignTransaction(coin.ProposedTransaction) error
+	SignTransaction(interface{}) error
 }

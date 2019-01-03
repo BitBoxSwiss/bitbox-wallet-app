@@ -98,7 +98,7 @@ func (keystores *Keystores) OutputAddress(
 
 // SignTransaction signs the given proposed transaction on all keystores. Returns ErrSigningAborted
 // if the user aborts.
-func (keystores *Keystores) SignTransaction(proposedTransaction coin.ProposedTransaction) error {
+func (keystores *Keystores) SignTransaction(proposedTransaction interface{}) error {
 	for _, keystore := range keystores.keystores {
 		if err := keystore.SignTransaction(proposedTransaction); err != nil {
 			return err
