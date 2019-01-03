@@ -123,7 +123,7 @@
   "confirm": {
     "abortInfo": "Tap to ",
     "abortInfoRedText": "abort",
-    "approveInfo": "Hold 3+ secs to ",
+    "approveInfo": "Hold 4+ secs to ",
     "approveInfoGreenText": "confirm",
     "info": "On your BitBox",
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
@@ -789,7 +789,7 @@
     "error": {
       "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
-      "e113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds."
+      "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
     },
     "input": {
       "label": "Device password",

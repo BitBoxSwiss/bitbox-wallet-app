@@ -23,6 +23,7 @@
     "accountName": "Konto Name",
     "coin": "Coin",
     "error": {
+      "xprivEntered": "WARNUNG: Sie haben einen erweiterten Private-Key eingegeben. Bitte geben Sie einen erweiterten Public-Key ein und bewahren Sie Ihren Private-Key sicher auf.",
       "xpubInvalid": "Erweiterter Public Key falsch formattiert",
       "xpubWrongNet": "Erweiterter Public Key ist für dieses Konto nicht gültig."
     },
@@ -122,7 +123,7 @@
   "confirm": {
     "abortInfo": "Tippe zum ",
     "abortInfoRedText": "abbrechen",
-    "approveInfo": "3 Sekunden lang halten um zu ",
+    "approveInfo": "4 Sekunden lang halten um zu ",
     "approveInfoGreenText": "bestätigen",
     "info": "Auf deiner BitBox ",
     "infoWhenPaired": "Zuerst auf Ihrem gepaarten Mobiltelefon und dann auf Ihrer BitBox"
@@ -523,6 +524,12 @@
     "reconnectOnly": {
       "button": "Mobile App erneut verbinden"
     },
+    "start": {
+      "hideAppQRCode": "QR Code ausblenden",
+      "revealAppQRCode": "QR Code anzeigen",
+      "step1": "Wenn Sie nicht über die Smartphone App verfügen, können Sie den QR-Code für den Apple App Store oder den Google Play Store scannen.",
+      "step2": "Scannen Sie den Code mit Smartphone App, die Sie im App Stores für iOS und Android finden, wenn Sie nach 'Digital Bitbox 2FA' suchen."
+    },
     "started": {
       "text": "Folgen Sie nun den Anweisungen in der mobilen App.",
       "title": "Gut gemacht!"
@@ -534,7 +541,8 @@
     "timeout": {
       "text": "Der Kopplungsprozess ist nach 2 Minuten abgelaufen. Bitte versuchen Sie es erneut.",
       "title": "Zeitüberschreitung"
-    }
+    },
+    "title": "Smartphone Kopplung"
   },
   "password": {
     "show": "{{label}} anzeigen",
@@ -781,7 +789,7 @@
     "error": {
       "e109_normal": "Gerätepasswort inkorrekt.  {{remainingAttempts}} Versuche verbleibend, bevor sich das Gerät auf die Werkseinstellungen zurücksetzt. ",
       "e109_touch": "$t(unlock.error.e109_normal) Beim nächsten Loginversuch müssen Sie die LED lange halten.",
-      "e113": "Aufgrund zu vieler Loginversuche müssen Sie beim nächsten Versuch die LED 3 Sekunden lang drücken."
+      "e113": "Aufgrund zu vieler Loginversuche müssen Sie beim nächsten Versuch die LED 4 Sekunden lang drücken."
     },
     "input": {
       "label": "Gerätepasswort",
