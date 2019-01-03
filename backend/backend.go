@@ -85,7 +85,7 @@ type Backend struct {
 	events chan interface{}
 
 	devices         map[string]device.Interface
-	keystores       keystore.Keystores
+	keystores       *keystore.Keystores
 	onAccountInit   func(btc.Interface)
 	onAccountUninit func(btc.Interface)
 	onDeviceInit    func(device.Interface)
@@ -467,7 +467,7 @@ func (backend *Backend) uninitAccounts() {
 }
 
 // Keystores returns the keystores registered at this backend.
-func (backend *Backend) Keystores() keystore.Keystores {
+func (backend *Backend) Keystores() *keystore.Keystores {
 	return backend.keystores
 }
 

@@ -43,7 +43,7 @@ type Account struct {
 	db                      db.Interface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
-	keystores               keystore.Keystores
+	keystores               *keystore.Keystores
 	offline                 bool
 	onEvent                 func(Event)
 
@@ -69,7 +69,7 @@ func NewAccount(
 	code string,
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
-	keystores keystore.Keystores,
+	keystores *keystore.Keystores,
 	onEvent func(Event),
 	log *logrus.Entry,
 ) *Account {
@@ -450,7 +450,7 @@ func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) 
 }
 
 // Keystores implements btc.Interface.
-func (account *Account) Keystores() keystore.Keystores {
+func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores
 }
 
