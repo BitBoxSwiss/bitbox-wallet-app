@@ -390,7 +390,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 func (account *Account) SendTx(
 	recipientAddress string,
 	amount accounts.SendAmount,
-	_ btc.FeeTargetCode,
+	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
 	data []byte) error {
 	account.log.Info("Signing and sending transaction")
@@ -412,7 +412,7 @@ func (account *Account) SendTx(
 }
 
 // FeeTargets implements btc.Interface.
-func (account *Account) FeeTargets() ([]*btc.FeeTarget, btc.FeeTargetCode) {
+func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 	return nil, ""
 }
 
@@ -420,7 +420,7 @@ func (account *Account) FeeTargets() ([]*btc.FeeTarget, btc.FeeTargetCode) {
 func (account *Account) TxProposal(
 	recipientAddress string,
 	amount accounts.SendAmount,
-	_ btc.FeeTargetCode,
+	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
 	data []byte) (accounts.Amount, accounts.Amount, accounts.Amount, error) {
 

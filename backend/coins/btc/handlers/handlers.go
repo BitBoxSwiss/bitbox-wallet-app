@@ -294,7 +294,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 type sendTxInput struct {
 	address       string
 	sendAmount    accounts.SendAmount
-	feeTargetCode btc.FeeTargetCode
+	feeTargetCode accounts.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 	data          []byte
 }
@@ -313,7 +313,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody.FeeTarget)
+	input.feeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
@@ -395,14 +395,9 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
-		var feeRatePerKb formattedAmount
-		if feeTarget.FeeRatePerKb != nil {
-			feeRatePerKb = handlers.formatBTCAmountAsJSON(*feeTarget.FeeRatePerKb)
-		}
 		result = append(result,
 			map[string]interface{}{
-				"code":         feeTarget.Code,
-				"feeRatePerKb": feeRatePerKb,
+				"code": feeTarget.Code,
 			})
 	}
 	return map[string]interface{}{
