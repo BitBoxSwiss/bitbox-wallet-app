@@ -18,7 +18,7 @@ import (
 	"errors"
 
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
@@ -37,18 +37,18 @@ type Keystore interface {
 
 	// HasSecureOutput returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	HasSecureOutput(*signing.Configuration, coin.Coin) bool
+	HasSecureOutput(*signing.Configuration, accounts.Coin) bool
 
 	// OutputAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	OutputAddress(*signing.Configuration, coin.Coin) error
+	OutputAddress(*signing.Configuration, accounts.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
-	// SignMessage(string, *signing.AbsoluteKeypath, coin.Coin) (*big.Int, error)
+	// SignMessage(string, *signing.AbsoluteKeypath, accounts.Coin) (*big.Int, error)
 
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
-	SignTransaction(coin.ProposedTransaction) error
+	SignTransaction(interface{}) error
 }

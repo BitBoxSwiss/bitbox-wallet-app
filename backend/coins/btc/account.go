@@ -24,13 +24,13 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -49,7 +49,7 @@ type Interface interface {
 	Info() *Info
 	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
 	Code() string
-	Coin() coin.Coin
+	Coin() accounts.Coin
 	// Name returns a human readable long name.
 	Name() string
 	// Initialize only starts the initialization, the account is not initialized right afterwards.
@@ -57,15 +57,15 @@ type Interface interface {
 	Initialized() bool
 	Offline() bool
 	Close()
-	Transactions() []coin.Transaction
-	Balance() *coin.Balance
+	Transactions() []accounts.Transaction
+	Balance() *accounts.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
-	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
+	SendTx(string, accounts.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
 	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
-		coin.Amount, coin.Amount, coin.Amount, error)
-	GetUnusedReceiveAddresses() []coin.Address
+	TxProposal(string, accounts.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
+		accounts.Amount, accounts.Amount, accounts.Amount, error)
+	GetUnusedReceiveAddresses() []accounts.Address
 	VerifyAddress(addressID string) (bool, error)
 	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
 	Keystores() *keystore.Keystores
@@ -185,7 +185,7 @@ func (account *Account) Name() string {
 }
 
 // Coin returns the coin of the account.
-func (account *Account) Coin() coin.Coin {
+func (account *Account) Coin() accounts.Coin {
 	return account.coin
 }
 
@@ -436,7 +436,7 @@ outer:
 }
 
 // Balance implements the interface.
-func (account *Account) Balance() *coin.Balance {
+func (account *Account) Balance() *accounts.Balance {
 	return account.transactions.Balance()
 }
 
@@ -535,12 +535,12 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (account *Account) Transactions() []coin.Transaction {
+func (account *Account) Transactions() []accounts.Transaction {
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
-	cast := make([]coin.Transaction, len(transactions))
+	cast := make([]accounts.Transaction, len(transactions))
 	for index, transaction := range transactions {
 		cast[index] = transaction
 	}
@@ -548,11 +548,11 @@ func (account *Account) Transactions() []coin.Transaction {
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
-func (account *Account) GetUnusedReceiveAddresses() []coin.Address {
+func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
-	addresses := []coin.Address{}
+	addresses := []accounts.Address{}
 	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
 	for _, address := range account.receiveAddresses.GetUnused()[:gapLimit] {
 		addresses = append(addresses, address)

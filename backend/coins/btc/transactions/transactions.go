@@ -25,10 +25,10 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
@@ -369,7 +369,7 @@ func (transactions *Transactions) doForTransaction(
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.
-func (transactions *Transactions) Balance() *coin.Balance {
+func (transactions *Transactions) Balance() *accounts.Balance {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
@@ -398,7 +398,7 @@ func (transactions *Transactions) Balance() *coin.Balance {
 			incoming += txOut.Value
 		}
 	}
-	return coin.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
+	return accounts.NewBalance(accounts.NewAmountFromInt64(available), accounts.NewAmountFromInt64(incoming))
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
@@ -430,7 +430,7 @@ type TxInfo struct {
 	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
 	Height           int
 	numConfirmations int
-	txType           coin.TxType
+	txType           accounts.TxType
 	amount           btcutil.Amount
 	fee              *btcutil.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
@@ -439,21 +439,21 @@ type TxInfo struct {
 	addresses []string
 }
 
-// Fee implements coin.Transaction.
-func (txInfo *TxInfo) Fee() *coin.Amount {
+// Fee implements accounts.Transaction.
+func (txInfo *TxInfo) Fee() *accounts.Amount {
 	if txInfo.fee == nil {
 		return nil
 	}
-	fee := coin.NewAmountFromInt64(int64(*txInfo.fee))
+	fee := accounts.NewAmountFromInt64(int64(*txInfo.fee))
 	return &fee
 }
 
-// ID implements coin.Transaction.
+// ID implements accounts.Transaction.
 func (txInfo *TxInfo) ID() string {
 	return txInfo.Tx.TxHash().String()
 }
 
-// Timestamp implements coin.Transaction.
+// Timestamp implements accounts.Transaction.
 func (txInfo *TxInfo) Timestamp() *time.Time {
 	return txInfo.timestamp
 }
@@ -467,22 +467,22 @@ func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
 	return &feeRatePerKb
 }
 
-// NumConfirmations implements coin.Transaction.
+// NumConfirmations implements accounts.Transaction.
 func (txInfo *TxInfo) NumConfirmations() int {
 	return txInfo.numConfirmations
 }
 
-// Type implements coin.Transaction.
-func (txInfo *TxInfo) Type() coin.TxType {
+// Type implements accounts.Transaction.
+func (txInfo *TxInfo) Type() accounts.TxType {
 	return txInfo.txType
 }
 
-// Amount implements coin.Transaction.
-func (txInfo *TxInfo) Amount() coin.Amount {
-	return coin.NewAmountFromInt64(int64(txInfo.amount))
+// Amount implements accounts.Transaction.
+func (txInfo *TxInfo) Amount() accounts.Amount {
+	return accounts.NewAmountFromInt64(int64(txInfo.amount))
 }
 
-// Addresses implements coin.Transaction.
+// Addresses implements accounts.Transaction.
 func (txInfo *TxInfo) Addresses() []string {
 	return txInfo.addresses
 }
@@ -548,24 +548,24 @@ func (transactions *Transactions) txInfo(
 		}
 	}
 	var addresses []string
-	var txType coin.TxType
+	var txType accounts.TxType
 	var feeP *btcutil.Amount
 	if allInputsOurs {
 		fee := sumOurInputs - sumAllOutputs
 		feeP = &fee
 		addresses = sendAddresses
 		if allOutputsOurs {
-			txType = coin.TxTypeSendSelf
+			txType = accounts.TxTypeSendSelf
 			// Money sent from our wallet to our wallet
 			result = sumOurReceive
 		} else {
 			// Money sent from our wallet to external address.
-			txType = coin.TxTypeSend
+			txType = accounts.TxTypeSend
 			result = sumAllOutputs - sumOurReceive - sumOurChange
 		}
 	} else {
 		// Money sent from external to our wallet
-		txType = coin.TxTypeReceive
+		txType = accounts.TxTypeReceive
 		addresses = receiveAddresses
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}

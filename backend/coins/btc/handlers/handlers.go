@@ -28,10 +28,10 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -95,7 +95,7 @@ func formatAsCurrency(amount float64) string {
 	return formatted
 }
 
-func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
+func conversions(amount accounts.Amount, coin accounts.Coin) map[string]string {
 	var conversions map[string]string
 	if backend.GetRatesUpdaterInstance() != nil {
 		rates := backend.GetRatesUpdaterInstance().Last()
@@ -114,7 +114,7 @@ func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	return conversions
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount accounts.Amount) formattedAmount {
 	return formattedAmount{
 		Amount:      handlers.account.Coin().FormatAmount(amount),
 		Unit:        handlers.account.Coin().Unit(),
@@ -123,7 +123,7 @@ func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount
 }
 
 func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
-	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)))
+	return handlers.formatAmountAsJSON(accounts.NewAmountFromInt64(int64(amount)))
 }
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
@@ -173,10 +173,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 		txInfoJSON := Transaction{
 			ID:               txInfo.ID(),
 			NumConfirmations: txInfo.NumConfirmations(),
-			Type: map[coin.TxType]string{
-				coin.TxTypeReceive:  "receive",
-				coin.TxTypeSend:     "send",
-				coin.TxTypeSendSelf: "send_to_self",
+			Type: map[accounts.TxType]string{
+				accounts.TxTypeReceive:  "receive",
+				accounts.TxTypeSend:     "send",
+				accounts.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type()],
 			Amount:    handlers.formatAmountAsJSON(txInfo.Amount()),
 			Fee:       feeString,
@@ -236,10 +236,10 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 	}
 
 	for _, transaction := range handlers.account.Transactions() {
-		transactionType := map[coin.TxType]string{
-			coin.TxTypeReceive:  "received",
-			coin.TxTypeSend:     "sent",
-			coin.TxTypeSendSelf: "sent_to_yourself",
+		transactionType := map[accounts.TxType]string{
+			accounts.TxTypeReceive:  "received",
+			accounts.TxTypeSend:     "sent",
+			accounts.TxTypeSendSelf: "sent_to_yourself",
 		}[transaction.Type()]
 		feeString := ""
 		fee := transaction.Fee()
@@ -293,7 +293,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 
 type sendTxInput struct {
 	address       string
-	sendAmount    coin.SendAmount
+	sendAmount    accounts.SendAmount
 	feeTargetCode btc.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 	data          []byte
@@ -318,9 +318,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = coin.NewSendAmountAll()
+		input.sendAmount = accounts.NewSendAmountAll()
 	} else {
-		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
+		input.sendAmount = accounts.NewSendAmount(jsonBody.Amount)
 	}
 	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {
@@ -332,7 +332,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
 	if err != nil {
-		return errp.WithStack(coin.ErrInvalidData)
+		return errp.WithStack(accounts.ErrInvalidData)
 	}
 	return nil
 }
@@ -359,7 +359,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 }
 
 func txProposalError(err error) (interface{}, error) {
-	if validationErr, ok := errp.Cause(err).(coin.TxValidationError); ok {
+	if validationErr, ok := errp.Cause(err).(accounts.TxValidationError); ok {
 		return map[string]interface{}{
 			"success":   false,
 			"errorCode": validationErr.Error(),

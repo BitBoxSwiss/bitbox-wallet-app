@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"

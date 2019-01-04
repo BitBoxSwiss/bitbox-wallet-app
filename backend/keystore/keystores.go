@@ -16,7 +16,7 @@ package keystore
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -66,7 +66,7 @@ func (keystores *Keystores) Remove(keystore Keystore) error {
 
 // HaveSecureOutput returns whether any of the keystores has a secure output.
 func (keystores *Keystores) HaveSecureOutput(
-	configuration *signing.Configuration, coin coin.Coin) bool {
+	configuration *signing.Configuration, coin accounts.Coin) bool {
 	for _, keystore := range keystores.keystores {
 		if keystore.HasSecureOutput(configuration, coin) {
 			return true
@@ -79,7 +79,7 @@ func (keystores *Keystores) HaveSecureOutput(
 // keystores that have a secure output.
 func (keystores *Keystores) OutputAddress(
 	configuration *signing.Configuration,
-	coin coin.Coin,
+	coin accounts.Coin,
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {
@@ -98,7 +98,7 @@ func (keystores *Keystores) OutputAddress(
 
 // SignTransaction signs the given proposed transaction on all keystores. Returns ErrSigningAborted
 // if the user aborts.
-func (keystores *Keystores) SignTransaction(proposedTransaction coin.ProposedTransaction) error {
+func (keystores *Keystores) SignTransaction(proposedTransaction interface{}) error {
 	for _, keystore := range keystores.keystores {
 		if err := keystore.SignTransaction(proposedTransaction); err != nil {
 			return err

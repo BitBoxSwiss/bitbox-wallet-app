@@ -20,11 +20,11 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -37,7 +37,7 @@ const unitSatoshi = 1e8
 // all unspent coins can be used.
 func (account *Account) newTx(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (
@@ -47,10 +47,10 @@ func (account *Account) newTx(
 
 	address, err := btcutil.DecodeAddress(recipientAddress, account.coin.Net())
 	if err != nil {
-		return nil, nil, errp.WithStack(coin.ErrInvalidAddress)
+		return nil, nil, errp.WithStack(accounts.ErrInvalidAddress)
 	}
 	if !address.IsForNet(account.coin.Net()) {
-		return nil, nil, errp.WithStack(coin.ErrInvalidAddress)
+		return nil, nil, errp.WithStack(accounts.ErrInvalidAddress)
 	}
 
 	var feeTarget *FeeTarget
@@ -100,7 +100,7 @@ func (account *Account) newTx(
 		}
 		parsedAmountInt64, err := parsedAmount.Int64()
 		if err != nil {
-			return nil, nil, errp.WithStack(coin.ErrInvalidAmount)
+			return nil, nil, errp.WithStack(accounts.ErrInvalidAmount)
 		}
 		txProposal, err = maketx.NewTx(
 			account.coin,
@@ -125,7 +125,7 @@ func (account *Account) newTx(
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
 func (account *Account) SendTx(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
@@ -160,12 +160,12 @@ func (account *Account) SendTx(
 // the UI (the output amount and the fee). At the same time, it validates the input.
 func (account *Account) TxProposal(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	feeTargetCode FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
 ) (
-	coin.Amount, coin.Amount, coin.Amount, error) {
+	accounts.Amount, accounts.Amount, accounts.Amount, error) {
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
@@ -175,11 +175,11 @@ func (account *Account) TxProposal(
 		selectedUTXOs,
 	)
 	if err != nil {
-		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
+		return accounts.Amount{}, accounts.Amount{}, accounts.Amount{}, err
 	}
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
-	return coin.NewAmountFromInt64(int64(txProposal.Amount)),
-		coin.NewAmountFromInt64(int64(txProposal.Fee)),
-		coin.NewAmountFromInt64(int64(txProposal.Total())), nil
+	return accounts.NewAmountFromInt64(int64(txProposal.Amount)),
+		accounts.NewAmountFromInt64(int64(txProposal.Fee)),
+		accounts.NewAmountFromInt64(int64(txProposal.Total())), nil
 }

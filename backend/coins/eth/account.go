@@ -11,9 +11,9 @@ import (
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -53,11 +53,11 @@ type Account struct {
 	enqueueUpdateCh chan struct{}
 
 	address     Address
-	balance     coin.Amount
+	balance     accounts.Amount
 	blockNumber *big.Int
 
 	nextNonce    uint64
-	transactions []coin.Transaction
+	transactions []accounts.Transaction
 
 	log *logrus.Entry
 }
@@ -82,7 +82,7 @@ func NewAccount(
 		signingConfiguration:    nil,
 		keystores:               keystores,
 		onEvent:                 onEvent,
-		balance:                 coin.NewAmountFromInt64(0),
+		balance:                 accounts.NewAmountFromInt64(0),
 
 		initialized:     false,
 		enqueueUpdateCh: make(chan struct{}),
@@ -119,7 +119,7 @@ func (account *Account) Name() string {
 }
 
 // Coin implements btc.Interface.
-func (account *Account) Coin() coin.Coin {
+func (account *Account) Coin() accounts.Coin {
 	return account.coin
 }
 
@@ -187,8 +187,8 @@ func (account *Account) poll() {
 
 // pendingOutgoingTransactions gets all locally stored pending outgoing transactions. It filters out
 // already confirmed ones.
-func (account *Account) pendingOutgoingTransactions(confirmedTxs []coin.Transaction) (
-	[]coin.Transaction, error) {
+func (account *Account) pendingOutgoingTransactions(confirmedTxs []accounts.Transaction) (
+	[]accounts.Transaction, error) {
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		return nil, err
@@ -204,7 +204,7 @@ func (account *Account) pendingOutgoingTransactions(confirmedTxs []coin.Transact
 		confirmedTxHashes[confirmedTx.ID()] = struct{}{}
 	}
 
-	transactions := []coin.Transaction{}
+	transactions := []accounts.Transaction{}
 	for _, tx := range pendingOutgoingTransactions {
 		wrappedTx := wrappedTransaction{tx: tx}
 		// Skip already confirmed tx. TODO: remove from db if 12+ confirmations.
@@ -262,7 +262,7 @@ func (account *Account) update() error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	account.balance = coin.NewAmount(balance)
+	account.balance = accounts.NewAmount(balance)
 
 	return nil
 }
@@ -283,14 +283,14 @@ func (account *Account) Close() {
 }
 
 // Transactions implements btc.Interface.
-func (account *Account) Transactions() []coin.Transaction {
+func (account *Account) Transactions() []accounts.Transaction {
 	return account.transactions
 }
 
 // Balance implements btc.Interface.
-func (account *Account) Balance() *coin.Balance {
+func (account *Account) Balance() *accounts.Balance {
 	account.synchronizer.WaitSynchronized()
-	return coin.NewBalance(account.balance, coin.NewAmountFromInt64(0))
+	return accounts.NewBalance(account.balance, accounts.NewAmountFromInt64(0))
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.
@@ -305,11 +305,11 @@ type TxProposal struct {
 
 func (account *Account) newTx(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	data []byte,
 ) (*TxProposal, error) {
 	if !common.IsHexAddress(recipientAddress) {
-		return nil, errp.WithStack(coin.ErrInvalidAddress)
+		return nil, errp.WithStack(accounts.ErrInvalidAddress)
 	}
 
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
@@ -341,7 +341,7 @@ func (account *Account) newTx(
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
-		return nil, errp.WithStack(coin.ErrInvalidData)
+		return nil, errp.WithStack(accounts.ErrInvalidData)
 	}
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
@@ -350,13 +350,13 @@ func (account *Account) newTx(
 		// Set the value correctly and check that the fee is smaller than or equal to the balance.
 		value = new(big.Int).Sub(account.balance.BigInt(), fee)
 		if value.Sign() < 0 {
-			return nil, errp.WithStack(coin.ErrInsufficientFunds)
+			return nil, errp.WithStack(accounts.ErrInsufficientFunds)
 		}
 	} else {
 		// Check that the entered value and the estimated fee are not greater than the balance.
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
-			return nil, errp.WithStack(coin.ErrInsufficientFunds)
+			return nil, errp.WithStack(accounts.ErrInsufficientFunds)
 		}
 	}
 	tx := types.NewTransaction(account.nextNonce,
@@ -389,7 +389,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 // SendTx implements btc.Interface.
 func (account *Account) SendTx(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	_ btc.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
 	data []byte) error {
@@ -419,24 +419,24 @@ func (account *Account) FeeTargets() ([]*btc.FeeTarget, btc.FeeTargetCode) {
 // TxProposal implements btc.Interface.
 func (account *Account) TxProposal(
 	recipientAddress string,
-	amount coin.SendAmount,
+	amount accounts.SendAmount,
 	_ btc.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
-	data []byte) (coin.Amount, coin.Amount, coin.Amount, error) {
+	data []byte) (accounts.Amount, accounts.Amount, accounts.Amount, error) {
 
 	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
-		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
+		return accounts.Amount{}, accounts.Amount{}, accounts.Amount{}, err
 	}
 
 	value := txProposal.Tx.Value()
 	total := new(big.Int).Add(value, txProposal.Fee)
-	return coin.NewAmount(value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
+	return accounts.NewAmount(value), accounts.NewAmount(txProposal.Fee), accounts.NewAmount(total), nil
 }
 
 // GetUnusedReceiveAddresses implements btc.Interface.
-func (account *Account) GetUnusedReceiveAddresses() []coin.Address {
-	return []coin.Address{account.address}
+func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
+	return []accounts.Address{account.address}
 }
 
 // VerifyAddress implements btc.Interface.

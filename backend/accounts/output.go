@@ -12,13 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coin
+package accounts
 
-// type Input interface {
+// type Output interface {
 // 	Amount() uint64
-// 	Payer() WalletAddress
-
-// 	// Signatures has the size of Payer().Configuration().NumberOfSigners() and signatures are
-// 	// added at the position of the corresponding cosigner index.
-// 	Signatures() [][]byte
+// 	Payee() Address
 // }

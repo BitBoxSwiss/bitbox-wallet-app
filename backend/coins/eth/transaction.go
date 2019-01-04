@@ -18,12 +18,12 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-// wrappedTransaction wraps an outgoing pending transaction and implements coin.Transaction.
+// wrappedTransaction wraps an outgoing pending transaction and implements accounts.Transaction.
 type wrappedTransaction struct {
 	tx *types.Transaction
 }
@@ -31,39 +31,39 @@ type wrappedTransaction struct {
 // assertion because not implementing the interface fails silently.
 var _ ethtypes.EthereumTransaction = wrappedTransaction{}
 
-// Fee implements coin.Transaction.
-func (tx wrappedTransaction) Fee() *coin.Amount {
+// Fee implements accounts.Transaction.
+func (tx wrappedTransaction) Fee() *accounts.Amount {
 	fee := new(big.Int).Mul(big.NewInt(int64(tx.tx.Gas())), tx.tx.GasPrice())
-	amount := coin.NewAmount(fee)
+	amount := accounts.NewAmount(fee)
 	return &amount
 }
 
-// Timestamp implements coin.Transaction.
+// Timestamp implements accounts.Transaction.
 func (tx wrappedTransaction) Timestamp() *time.Time {
 	return nil
 }
 
-// ID implements coin.Transaction.
+// ID implements accounts.Transaction.
 func (tx wrappedTransaction) ID() string {
 	return tx.tx.Hash().Hex()
 }
 
-// NumConfirmations implements coin.Transaction.
+// NumConfirmations implements accounts.Transaction.
 func (tx wrappedTransaction) NumConfirmations() int {
 	return 0
 }
 
-// Type implements coin.Transaction.
-func (tx wrappedTransaction) Type() coin.TxType {
-	return coin.TxTypeSend
+// Type implements accounts.Transaction.
+func (tx wrappedTransaction) Type() accounts.TxType {
+	return accounts.TxTypeSend
 }
 
-// Amount implements coin.Transaction.
-func (tx wrappedTransaction) Amount() coin.Amount {
-	return coin.NewAmount(tx.tx.Value())
+// Amount implements accounts.Transaction.
+func (tx wrappedTransaction) Amount() accounts.Amount {
+	return accounts.NewAmount(tx.tx.Value())
 }
 
-// Addresses implements coin.Transaction.
+// Addresses implements accounts.Transaction.
 func (tx wrappedTransaction) Addresses() []string {
 	return []string{tx.tx.To().Hex()}
 }
