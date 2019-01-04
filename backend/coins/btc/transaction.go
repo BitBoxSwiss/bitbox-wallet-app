@@ -38,7 +38,7 @@ const unitSatoshi = 1e8
 func (account *Account) newTx(
 	recipientAddress string,
 	amount accounts.SendAmount,
-	feeTargetCode FeeTargetCode,
+	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (
 	map[wire.OutPoint]*transactions.SpendableOutput, *maketx.TxProposal, error) {
@@ -55,12 +55,12 @@ func (account *Account) newTx(
 
 	var feeTarget *FeeTarget
 	for _, target := range account.feeTargets {
-		if target.Code == feeTargetCode {
+		if target.code == feeTargetCode {
 			feeTarget = target
 			break
 		}
 	}
-	if feeTarget == nil || feeTarget.FeeRatePerKb == nil {
+	if feeTarget == nil || feeTarget.feeRatePerKb == nil {
 		return nil, nil, errp.New("Fee could not be estimated")
 	}
 
@@ -86,7 +86,7 @@ func (account *Account) newTx(
 			account.signingConfiguration,
 			wireUTXO,
 			pkScript,
-			*feeTarget.FeeRatePerKb,
+			*feeTarget.feeRatePerKb,
 			account.log,
 		)
 		if err != nil {
@@ -107,7 +107,7 @@ func (account *Account) newTx(
 			account.signingConfiguration,
 			wireUTXO,
 			wire.NewTxOut(parsedAmountInt64, pkScript),
-			*feeTarget.FeeRatePerKb,
+			*feeTarget.feeRatePerKb,
 			func() *addresses.AccountAddress {
 				return account.changeAddresses.GetUnused()[0]
 			},
@@ -126,7 +126,7 @@ func (account *Account) newTx(
 func (account *Account) SendTx(
 	recipientAddress string,
 	amount accounts.SendAmount,
-	feeTargetCode FeeTargetCode,
+	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
 ) error {
@@ -161,7 +161,7 @@ func (account *Account) SendTx(
 func (account *Account) TxProposal(
 	recipientAddress string,
 	amount accounts.SendAmount,
-	feeTargetCode FeeTargetCode,
+	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
 ) (

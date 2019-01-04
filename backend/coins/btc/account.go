@@ -61,9 +61,9 @@ type Interface interface {
 	Balance() *accounts.Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
-	SendTx(string, accounts.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
-	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, accounts.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
+	SendTx(string, accounts.SendAmount, accounts.FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
+	FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode)
+	TxProposal(string, accounts.SendAmount, accounts.FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
 		accounts.Amount, accounts.Amount, accounts.Amount, error)
 	GetUnusedReceiveAddresses() []accounts.Address
 	VerifyAddress(addressID string) (bool, error)
@@ -144,10 +144,10 @@ func NewAccount(
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
-			{Blocks: 24, Code: FeeTargetCodeEconomy},
-			{Blocks: 12, Code: FeeTargetCodeLow},
-			{Blocks: 6, Code: FeeTargetCodeNormal},
-			{Blocks: 2, Code: FeeTargetCodeHigh},
+			{blocks: 24, code: accounts.FeeTargetCodeEconomy},
+			{blocks: 12, code: accounts.FeeTargetCodeLow},
+			{blocks: 6, code: accounts.FeeTargetCodeNormal},
+			{blocks: 2, code: accounts.FeeTargetCodeHigh},
 		},
 		// initializing to false, to prevent flashing of offline notification in the frontend
 		offline:     false,
@@ -378,19 +378,19 @@ func (account *Account) updateFeeTargets() {
 		func(feeTarget *FeeTarget) {
 			setFee := func(feeRatePerKb btcutil.Amount) error {
 				defer account.Lock()()
-				feeTarget.FeeRatePerKb = &feeRatePerKb
-				account.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+				feeTarget.feeRatePerKb = &feeRatePerKb
+				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
 				account.onEvent(EventFeeTargetsChanged)
 				return nil
 			}
 
 			account.blockchain.EstimateFee(
-				feeTarget.Blocks,
+				feeTarget.blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
 						if account.code != "tltc" {
-							account.log.WithField("fee-target", feeTarget.Blocks).
+							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
 						account.blockchain.RelayFee(setFee, func() {})
@@ -405,32 +405,32 @@ func (account *Account) updateFeeTargets() {
 }
 
 // FeeTargets returns the fee targets and the default fee target.
-func (account *Account) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
+func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
-	feeTargets := []*FeeTarget{}
+	feeTargets := []accounts.FeeTarget{}
 	defaultAvailable := false
 outer:
 	for i := len(account.feeTargets) - 1; i >= 0; i-- {
 		feeTarget := account.feeTargets[i]
-		if feeTarget.FeeRatePerKb == nil {
+		if feeTarget.feeRatePerKb == nil {
 			continue
 		}
 		for j := i - 1; j >= 0; j-- {
 			checkFeeTarget := account.feeTargets[j]
-			if checkFeeTarget.FeeRatePerKb != nil && *checkFeeTarget.FeeRatePerKb == *feeTarget.FeeRatePerKb {
+			if checkFeeTarget.feeRatePerKb != nil && *checkFeeTarget.feeRatePerKb == *feeTarget.feeRatePerKb {
 				continue outer
 			}
 		}
-		if feeTarget.Code == defaultFeeTarget {
+		if feeTarget.code == accounts.DefaultFeeTarget {
 			defaultAvailable = true
 		}
 		feeTargets = append(feeTargets, feeTarget)
 	}
 	// If the default fee level was dropped, use the cheapest.
-	defaultFee := defaultFeeTarget
+	defaultFee := accounts.DefaultFeeTarget
 	if !defaultAvailable && len(feeTargets) != 0 {
-		defaultFee = feeTargets[0].Code
+		defaultFee = feeTargets[0].Code()
 	}
 	return feeTargets, defaultFee
 }
