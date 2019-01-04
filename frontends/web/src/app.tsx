@@ -14,50 +14,63 @@
  * limitations under the License.
  */
 
-// @ts-nocheck
-
-import { i18nEditorActive } from './i18n/i18n';
-import TranslationHelper from './components/translationhelper/translationhelper';
 import { Component, h } from 'preact';
 import { getCurrentUrl, route } from 'preact-router';
-import { apiGet } from './utils/request';
-import { apiWebsocket } from './utils/websocket';
-import { Update } from './components/update/update';
-import Sidebar from './components/sidebar/sidebar';
-import Container from './components/container/Container';
-import { DeviceSwitch } from './routes/device/deviceswitch';
-import Account from './routes/account/account';
-import Send from './routes/account/send/send';
-import Receive from './routes/account/receive/receive';
-import Info from './routes/account/info/info';
-import Settings from './routes/settings/settings';
-import ElectrumSettings from './routes/settings/electrum';
-import ManageBackups from './routes/device/manage-backups/manage-backups';
 import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
+import { Container } from './components/container/container';
+import Sidebar from './components/sidebar/sidebar';
+import TranslationHelper from './components/translationhelper/translationhelper';
+import { Update } from './components/update/update';
+import { i18nEditorActive } from './i18n/i18n';
+import Account from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
+import Info from './routes/account/info/info';
+import Receive from './routes/account/receive/receive';
+import Send from './routes/account/send/send';
+import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
+import ManageBackups from './routes/device/manage-backups/manage-backups';
+import ElectrumSettings from './routes/settings/electrum';
+import Settings from './routes/settings/settings';
+import { apiGet } from './utils/request';
+import { apiWebsocket } from './utils/websocket';
 
-export class App extends Component {
-    state = {
-        accounts: null,
+interface AccountInterface {
+    coinCode: string;
+    code: string;
+    name: string;
+    blockExplorerTxPrefix: string;
+}
+
+interface State {
+    accounts: AccountInterface[];
+    accountsInitialized: boolean;
+    deviceIDs: string[];
+    devices: Devices;
+    activeSidebar: boolean;
+}
+
+export class App extends Component<{}, State> {
+    public state = {
+        accounts: [],
         accountsInitialized: false,
         deviceIDs: [],
         devices: {},
         activeSidebar: false,
-    }
+    };
+
+    private unsubscribe!: () => void;
 
     /**
      * Gets fired when the route changes.
-     * @param {Object} event "change" event from [preact-router](http://git.io/preact-router)
-     * @param {string} event.url The newly routed URL
      */
-    handleRoute = event => {
+    private handleRoute = () => {
         if (this.state.activeSidebar) {
             this.setState({ activeSidebar: !this.state.activeSidebar });
         }
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data }) => {
@@ -90,20 +103,18 @@ export class App extends Component {
         });
     }
 
-    componentWillUnmount() {
-        if (this.unsubscribe) {
-            this.unsubscribe();
-        }
+    public componentWillUnmount() {
+        this.unsubscribe();
     }
 
-    onDevicesRegisteredChanged = () => {
+    private onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(devices => {
             const deviceIDs = Object.keys(devices);
             this.setState({ devices, deviceIDs });
         });
     }
 
-    onAccountsStatusChanged = () => {
+    private onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
             const accountsInitialized = status === 'initialized';
             if (!accountsInitialized && getCurrentUrl().match(/^\/account\//)) {
@@ -114,17 +125,17 @@ export class App extends Component {
         });
     }
 
-    toggleSidebar = () => {
+    private toggleSidebar = () => {
         this.setState(({ activeSidebar }) => ({ activeSidebar: !activeSidebar }));
     }
 
-    render({}, {
+    public render({}, {
         accounts,
         devices,
         deviceIDs,
         accountsInitialized,
         activeSidebar,
-    }) {
+    }: State) {
         return (
             <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
                 <TranslationHelper />
@@ -168,6 +179,7 @@ export class App extends Component {
                         <DeviceSwitch
                             path="/device/:deviceID"
                             key={devices}
+                            deviceID={null /* dummy to satisfy TS */}
                             devices={devices} />
                         <DeviceSwitch
                             default
