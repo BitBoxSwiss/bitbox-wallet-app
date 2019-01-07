@@ -14,6 +14,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -119,7 +120,7 @@ func (account *Account) Name() string {
 }
 
 // Coin implements btc.Interface.
-func (account *Account) Coin() accounts.Coin {
+func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 

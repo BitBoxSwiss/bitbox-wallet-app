@@ -27,9 +27,9 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
@@ -53,12 +53,12 @@ import (
 type Backend interface {
 	Config() *config.Config
 	DefaultConfig() config.AppConfig
-	Coin(string) (accounts.Coin, error)
+	Coin(string) (coin.Coin, error)
 	AccountsStatus() string
 	Testing() bool
 	Accounts() []btc.Interface
 	CreateAndAddAccount(
-		coin accounts.Coin,
+		coin coin.Coin,
 		code string,
 		name string,
 		scriptType signing.ScriptType,

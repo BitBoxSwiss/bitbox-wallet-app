@@ -16,7 +16,7 @@ package keystore
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -66,7 +66,7 @@ func (keystores *Keystores) Remove(keystore Keystore) error {
 
 // HaveSecureOutput returns whether any of the keystores has a secure output.
 func (keystores *Keystores) HaveSecureOutput(
-	configuration *signing.Configuration, coin accounts.Coin) bool {
+	configuration *signing.Configuration, coin coin.Coin) bool {
 	for _, keystore := range keystores.keystores {
 		if keystore.HasSecureOutput(configuration, coin) {
 			return true
@@ -79,7 +79,7 @@ func (keystores *Keystores) HaveSecureOutput(
 // keystores that have a secure output.
 func (keystores *Keystores) OutputAddress(
 	configuration *signing.Configuration,
-	coin accounts.Coin,
+	coin coin.Coin,
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {

@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -49,7 +50,7 @@ type Interface interface {
 	Info() *Info
 	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
 	Code() string
-	Coin() accounts.Coin
+	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string
 	// Initialize only starts the initialization, the account is not initialized right afterwards.
@@ -185,7 +186,7 @@ func (account *Account) Name() string {
 }
 
 // Coin returns the coin of the account.
-func (account *Account) Coin() accounts.Coin {
+func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 

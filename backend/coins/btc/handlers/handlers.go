@@ -32,6 +32,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -95,7 +96,7 @@ func formatAsCurrency(amount float64) string {
 	return formatted
 }
 
-func conversions(amount accounts.Amount, coin accounts.Coin) map[string]string {
+func conversions(amount accounts.Amount, coin coin.Coin) map[string]string {
 	var conversions map[string]string
 	if backend.GetRatesUpdaterInstance() != nil {
 		rates := backend.GetRatesUpdaterInstance().Last()
