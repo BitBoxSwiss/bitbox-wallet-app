@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { ButtonLink } from '../../../components/forms';
-import Balance from '../../../components/balance/balance';
+import { Balance } from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { QRCode } from '../../../components/qrcode/qrcode';
@@ -98,7 +98,6 @@ export default class Info extends Component {
                 <div class="container">
                     <Header title={<h2>{t('accountInfo.title')}</h2>} {...this.props}>
                         <Balance
-                            t={t}
                             balance={balance} />
                     </Header>
                     <div class="innerContainer">

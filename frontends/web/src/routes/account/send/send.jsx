@@ -29,7 +29,7 @@ import { alertUser } from '../../../components/alert/Alert';
 import { Header } from '../../../components/header/Header';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
-import Balance from '../../../components/balance/balance';
+import { Balance } from '../../../components/balance/balance';
 import FeeTargets from './feetargets';
 import UTXOs from './utxos';
 import approve from '../../../assets/icons/checked.svg';
@@ -375,7 +375,6 @@ export default class Send extends Component {
                     </Status>
                     <Header title={<h2>{t('send.title')}</h2>} {...this.props}>
                         <Balance
-                            t={t}
                             balance={balance} />
                         {
                             coinControl ? (
