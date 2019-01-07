@@ -14,7 +14,11 @@
 
 package accounts
 
-import "time"
+import (
+	"time"
+
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+)
 
 // TxType is a type of transaction. See the TxType* constants.
 type TxType string
@@ -32,7 +36,7 @@ const (
 type Transaction interface {
 	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
 	// from the wallet.
-	Fee() *Amount
+	Fee() *coin.Amount
 
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp() *time.Time
@@ -47,7 +51,7 @@ type Transaction interface {
 	Type() TxType
 
 	// Amount is always >0 and is the amount received or sent (not including the fee).
-	Amount() Amount
+	Amount() coin.Amount
 
 	// Addresses money was sent to / received on.
 	Addresses() []string

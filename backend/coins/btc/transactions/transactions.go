@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/sirupsen/logrus"
 )
@@ -398,7 +399,7 @@ func (transactions *Transactions) Balance() *accounts.Balance {
 			incoming += txOut.Value
 		}
 	}
-	return accounts.NewBalance(accounts.NewAmountFromInt64(available), accounts.NewAmountFromInt64(incoming))
+	return accounts.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
@@ -440,11 +441,11 @@ type TxInfo struct {
 }
 
 // Fee implements accounts.Transaction.
-func (txInfo *TxInfo) Fee() *accounts.Amount {
+func (txInfo *TxInfo) Fee() *coin.Amount {
 	if txInfo.fee == nil {
 		return nil
 	}
-	fee := accounts.NewAmountFromInt64(int64(*txInfo.fee))
+	fee := coin.NewAmountFromInt64(int64(*txInfo.fee))
 	return &fee
 }
 
@@ -478,8 +479,8 @@ func (txInfo *TxInfo) Type() accounts.TxType {
 }
 
 // Amount implements accounts.Transaction.
-func (txInfo *TxInfo) Amount() accounts.Amount {
-	return accounts.NewAmountFromInt64(int64(txInfo.amount))
+func (txInfo *TxInfo) Amount() coin.Amount {
+	return coin.NewAmountFromInt64(int64(txInfo.amount))
 }
 
 // Addresses implements accounts.Transaction.

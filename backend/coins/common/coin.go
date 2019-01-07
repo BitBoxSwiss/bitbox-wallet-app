@@ -15,7 +15,6 @@
 package coin
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 )
 
@@ -35,10 +34,10 @@ type Coin interface {
 	Unit() string
 
 	// FormatAmount formats the given amount as a number.
-	FormatAmount(accounts.Amount) string
+	FormatAmount(Amount) string
 
 	// ToUnit returns the given amount in the unit as returned above.
-	ToUnit(accounts.Amount) float64
+	ToUnit(Amount) float64
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string

@@ -27,6 +27,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
@@ -56,7 +57,7 @@ type Backend interface {
 	Coin(string) (coin.Coin, error)
 	AccountsStatus() string
 	Testing() bool
-	Accounts() []btc.Interface
+	Accounts() []accounts.Interface
 	CreateAndAddAccount(
 		coin coin.Coin,
 		code string,
@@ -65,8 +66,8 @@ type Backend interface {
 		getSigningConfiguration func() (*signing.Configuration, error),
 	)
 	UserLanguage() language.Tag
-	OnAccountInit(f func(btc.Interface))
-	OnAccountUninit(f func(btc.Interface))
+	OnAccountInit(f func(accounts.Interface))
+	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
@@ -184,11 +185,11 @@ func NewHandlers(
 		return accHandlers
 	}
 
-	backend.OnAccountInit(func(account btc.Interface) {
+	backend.OnAccountInit(func(account accounts.Interface) {
 		log.WithField("code", account.Code()).Debug("Initializing account")
 		getAccountHandlers(account.Code()).Init(account)
 	})
-	backend.OnAccountUninit(func(account btc.Interface) {
+	backend.OnAccountUninit(func(account accounts.Interface) {
 		getAccountHandlers(account.Code()).Uninit()
 	})
 

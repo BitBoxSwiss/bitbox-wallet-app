@@ -43,7 +43,7 @@ import (
 
 // Handlers provides a web api to the account.
 type Handlers struct {
-	account btc.Interface
+	account accounts.Interface
 	log     *logrus.Entry
 }
 
@@ -70,7 +70,7 @@ func NewHandlers(
 
 // Init installs a account as a base for the web api. This needs to be called before any requests are
 // made.
-func (handlers *Handlers) Init(account btc.Interface) {
+func (handlers *Handlers) Init(account accounts.Interface) {
 	handlers.account = account
 }
 
@@ -96,7 +96,7 @@ func formatAsCurrency(amount float64) string {
 	return formatted
 }
 
-func conversions(amount accounts.Amount, coin coin.Coin) map[string]string {
+func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	var conversions map[string]string
 	if backend.GetRatesUpdaterInstance() != nil {
 		rates := backend.GetRatesUpdaterInstance().Last()
@@ -115,7 +115,7 @@ func conversions(amount accounts.Amount, coin coin.Coin) map[string]string {
 	return conversions
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount accounts.Amount) formattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount {
 	return formattedAmount{
 		Amount:      handlers.account.Coin().FormatAmount(amount),
 		Unit:        handlers.account.Coin().Unit(),
@@ -124,7 +124,7 @@ func (handlers *Handlers) formatAmountAsJSON(amount accounts.Amount) formattedAm
 }
 
 func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
-	return handlers.formatAmountAsJSON(accounts.NewAmountFromInt64(int64(amount)))
+	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)))
 }
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
@@ -272,7 +272,14 @@ func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {
 
 func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
-	for _, output := range handlers.account.SpendableOutputs() {
+
+	t, ok := handlers.account.(*btc.Account)
+
+	if !ok {
+		return result, errp.New("Interface must be of type btc.Account")
+	}
+
+	for _, output := range t.SpendableOutputs() {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
@@ -280,6 +287,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 				"address":  output.Address,
 			})
 	}
+
 	return result, nil
 }
 
@@ -294,7 +302,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 
 type sendTxInput struct {
 	address       string
-	sendAmount    accounts.SendAmount
+	sendAmount    coin.SendAmount
 	feeTargetCode accounts.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 	data          []byte
@@ -319,9 +327,9 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
 	if jsonBody.SendAll == "yes" {
-		input.sendAmount = accounts.NewSendAmountAll()
+		input.sendAmount = coin.NewSendAmountAll()
 	} else {
-		input.sendAmount = accounts.NewSendAmount(jsonBody.Amount)
+		input.sendAmount = coin.NewSendAmount(jsonBody.Amount)
 	}
 	input.selectedUTXOs = map[wire.OutPoint]struct{}{}
 	for _, outPointString := range jsonBody.SelectedUTXOS {

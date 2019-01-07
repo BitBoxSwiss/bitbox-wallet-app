@@ -5,7 +5,7 @@ import (
 	"strings"
 	"sync"
 
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -81,7 +81,7 @@ func (coin *Coin) Unit() string {
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
+func (coin *Coin) FormatAmount(amount coin.Amount) string {
 	ether := big.NewInt(1e18)
 	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), ether).FloatString(18),
@@ -89,7 +89,7 @@ func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
 }
 
 // ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coinpkg.Amount) float64 {
+func (coin *Coin) ToUnit(amount coin.Amount) float64 {
 	ether := big.NewInt(1e18)
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), ether).Float64()
 	return result

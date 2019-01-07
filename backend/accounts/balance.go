@@ -14,14 +14,16 @@
 
 package accounts
 
+import coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+
 // Balance contains the available and incoming balance of an account.
 type Balance struct {
-	available Amount
-	incoming  Amount
+	available coin.Amount
+	incoming  coin.Amount
 }
 
 // NewBalance creates a new balance with the given amounts.
-func NewBalance(available Amount, incoming Amount) *Balance {
+func NewBalance(available coin.Amount, incoming coin.Amount) *Balance {
 	return &Balance{
 		available: available,
 		incoming:  incoming,
@@ -30,11 +32,11 @@ func NewBalance(available Amount, incoming Amount) *Balance {
 
 // Available returns the sum of all unspent coins in the account.
 // The amounts of unconfirmed outgoing transfers are no longer included (but their change is).
-func (balance *Balance) Available() Amount {
+func (balance *Balance) Available() coin.Amount {
 	return balance.available
 }
 
 // Incoming returns the sum of all unconfirmed transfers coming into the account.
-func (balance *Balance) Incoming() Amount {
+func (balance *Balance) Incoming() coin.Amount {
 	return balance.incoming
 }

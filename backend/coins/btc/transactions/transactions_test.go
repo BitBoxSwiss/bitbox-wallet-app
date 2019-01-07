@@ -30,6 +30,7 @@ import (
 	headersMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
@@ -203,8 +204,8 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 
 func newBalance(available, incoming btcutil.Amount) *accounts.Balance {
 	return accounts.NewBalance(
-		accounts.NewAmountFromInt64(int64(available)),
-		accounts.NewAmountFromInt64(int64(incoming)),
+		coin.NewAmountFromInt64(int64(available)),
+		coin.NewAmountFromInt64(int64(incoming)),
 	)
 }
 
