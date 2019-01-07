@@ -86,7 +86,7 @@ class SecurityInformation extends Component<Props, State> {
                                         <Button
                                             secondary
                                             onClick={goBack}>
-                                            {t('button.back')}
+                                            {t('button.abort')}
                                         </Button>
                                         <Button primary onClick={this.handleStart}>
                                             {t('securityInformation.create.button')}
@@ -108,7 +108,7 @@ class SecurityInformation extends Component<Props, State> {
                                         <Button
                                             secondary
                                             onClick={goBack}>
-                                            {t('button.back')}
+                                            {t('button.abort')}
                                         </Button>
                                         <Button primary onClick={this.handleStart}>
                                             {t('securityInformation.restore.button')}

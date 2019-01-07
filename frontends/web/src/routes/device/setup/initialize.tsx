@@ -141,7 +141,7 @@ class Initialize extends Component<Props, State> {
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button primary onClick={this.handleStart}>
                         {t('initialize.info.button')}
@@ -162,7 +162,7 @@ class Initialize extends Component<Props, State> {
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button
                         type="submit"
