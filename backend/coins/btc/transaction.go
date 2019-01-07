@@ -25,6 +25,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -37,7 +38,7 @@ const unitSatoshi = 1e8
 // all unspent coins can be used.
 func (account *Account) newTx(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 ) (
@@ -100,7 +101,7 @@ func (account *Account) newTx(
 		}
 		parsedAmountInt64, err := parsedAmount.Int64()
 		if err != nil {
-			return nil, nil, errp.WithStack(accounts.ErrInvalidAmount)
+			return nil, nil, errp.WithStack(coin.ErrInvalidAmount)
 		}
 		txProposal, err = maketx.NewTx(
 			account.coin,
@@ -125,7 +126,7 @@ func (account *Account) newTx(
 // SendTx creates, signs and sends tx which sends `amount` to the recipient.
 func (account *Account) SendTx(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
@@ -160,12 +161,12 @@ func (account *Account) SendTx(
 // the UI (the output amount and the fee). At the same time, it validates the input.
 func (account *Account) TxProposal(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	feeTargetCode accounts.FeeTargetCode,
 	selectedUTXOs map[wire.OutPoint]struct{},
 	_ []byte,
 ) (
-	accounts.Amount, accounts.Amount, accounts.Amount, error) {
+	coin.Amount, coin.Amount, coin.Amount, error) {
 
 	account.log.Debug("Proposing transaction")
 	_, txProposal, err := account.newTx(
@@ -175,11 +176,11 @@ func (account *Account) TxProposal(
 		selectedUTXOs,
 	)
 	if err != nil {
-		return accounts.Amount{}, accounts.Amount{}, accounts.Amount{}, err
+		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
 	account.log.WithField("fee", txProposal.Fee).Debug("Returning fee")
-	return accounts.NewAmountFromInt64(int64(txProposal.Amount)),
-		accounts.NewAmountFromInt64(int64(txProposal.Fee)),
-		accounts.NewAmountFromInt64(int64(txProposal.Total())), nil
+	return coin.NewAmountFromInt64(int64(txProposal.Amount)),
+		coin.NewAmountFromInt64(int64(txProposal.Fee)),
+		coin.NewAmountFromInt64(int64(txProposal.Total())), nil
 }

@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -43,34 +44,6 @@ const (
 	gapLimit       = 20
 	changeGapLimit = 6
 )
-
-// Interface is the API of a Account.
-type Interface interface {
-	Info() *Info
-	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
-	Code() string
-	Coin() accounts.Coin
-	// Name returns a human readable long name.
-	Name() string
-	// Initialize only starts the initialization, the account is not initialized right afterwards.
-	Initialize() error
-	Initialized() bool
-	Offline() bool
-	Close()
-	Transactions() []accounts.Transaction
-	Balance() *accounts.Balance
-	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
-	// abort.
-	SendTx(string, accounts.SendAmount, accounts.FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
-	FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode)
-	TxProposal(string, accounts.SendAmount, accounts.FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
-		accounts.Amount, accounts.Amount, accounts.Amount, error)
-	GetUnusedReceiveAddresses() []accounts.Address
-	VerifyAddress(addressID string) (bool, error)
-	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
-	Keystores() *keystore.Keystores
-	SpendableOutputs() []*SpendableOutput
-}
 
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
@@ -185,7 +158,7 @@ func (account *Account) Name() string {
 }
 
 // Coin returns the coin of the account.
-func (account *Account) Coin() accounts.Coin {
+func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
@@ -276,11 +249,6 @@ func (account *Account) Initialize() error {
 	return nil
 }
 
-// Info holds account information.
-type Info struct {
-	SigningConfiguration *signing.Configuration `json:"signingConfiguration"`
-}
-
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.
 func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte {
 	switch coin.Net().Net {
@@ -305,7 +273,7 @@ func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte
 }
 
 // Info returns account info, such as the signing configuration (xpubs).
-func (account *Account) Info() *Info {
+func (account *Account) Info() *accounts.Info {
 	// The internal extended key representation always uses he same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	xpubs := []*hdkeychain.ExtendedKey{}
@@ -326,7 +294,7 @@ func (account *Account) Info() *Info {
 		)
 		xpubs = append(xpubs, xpubCopy)
 	}
-	return &Info{
+	return &accounts.Info{
 		SigningConfiguration: signing.NewConfiguration(
 			account.signingConfiguration.ScriptType(),
 			account.signingConfiguration.AbsoluteKeypath(),

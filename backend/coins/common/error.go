@@ -12,9 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package accounts
+package coin
 
-// type Output interface {
-// 	Amount() uint64
-// 	Payee() Address
-// }
+// TxValidationError represents errors in the tx proposal input data.
+type TxValidationError string
+
+func (err TxValidationError) Error() string {
+	return string(err)
+}
+
+var (
+	// ErrInvalidAmount is used when the user entered amount is malformatted or not positive.
+	ErrInvalidAmount = TxValidationError("invalidAmount")
+)

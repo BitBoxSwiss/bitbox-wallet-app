@@ -22,11 +22,11 @@ import (
 	"sync"
 
 	"github.com/btcsuite/btcd/chaincfg"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -124,14 +124,14 @@ func (coin *Coin) Unit() string {
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coinpkg.Amount) string {
+func (coin *Coin) FormatAmount(amount coin.Amount) string {
 	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
 		"0"), ".")
 }
 
 // ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coinpkg.Amount) float64 {
+func (coin *Coin) ToUnit(amount coin.Amount) float64 {
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).Float64()
 	return result
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -53,7 +54,7 @@ type Account struct {
 	enqueueUpdateCh chan struct{}
 
 	address     Address
-	balance     accounts.Amount
+	balance     coin.Amount
 	blockNumber *big.Int
 
 	nextNonce    uint64
@@ -82,7 +83,7 @@ func NewAccount(
 		signingConfiguration:    nil,
 		keystores:               keystores,
 		onEvent:                 onEvent,
-		balance:                 accounts.NewAmountFromInt64(0),
+		balance:                 coin.NewAmountFromInt64(0),
 
 		initialized:     false,
 		enqueueUpdateCh: make(chan struct{}),
@@ -104,8 +105,8 @@ func NewAccount(
 }
 
 // Info implements btc.Interface.
-func (account *Account) Info() *btc.Info {
-	return &btc.Info{}
+func (account *Account) Info() *accounts.Info {
+	return &accounts.Info{}
 }
 
 // Code implements btc.Interface.
@@ -119,7 +120,7 @@ func (account *Account) Name() string {
 }
 
 // Coin implements btc.Interface.
-func (account *Account) Coin() accounts.Coin {
+func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
@@ -262,7 +263,7 @@ func (account *Account) update() error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	account.balance = accounts.NewAmount(balance)
+	account.balance = coin.NewAmount(balance)
 
 	return nil
 }
@@ -290,7 +291,7 @@ func (account *Account) Transactions() []accounts.Transaction {
 // Balance implements btc.Interface.
 func (account *Account) Balance() *accounts.Balance {
 	account.synchronizer.WaitSynchronized()
-	return accounts.NewBalance(account.balance, accounts.NewAmountFromInt64(0))
+	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0))
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.
@@ -305,7 +306,7 @@ type TxProposal struct {
 
 func (account *Account) newTx(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	data []byte,
 ) (*TxProposal, error) {
 	if !common.IsHexAddress(recipientAddress) {
@@ -389,7 +390,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 // SendTx implements btc.Interface.
 func (account *Account) SendTx(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
 	data []byte) error {
@@ -419,19 +420,19 @@ func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCo
 // TxProposal implements btc.Interface.
 func (account *Account) TxProposal(
 	recipientAddress string,
-	amount accounts.SendAmount,
+	amount coin.SendAmount,
 	_ accounts.FeeTargetCode,
 	_ map[wire.OutPoint]struct{},
-	data []byte) (accounts.Amount, accounts.Amount, accounts.Amount, error) {
+	data []byte) (coin.Amount, coin.Amount, coin.Amount, error) {
 
 	txProposal, err := account.newTx(recipientAddress, amount, data)
 	if err != nil {
-		return accounts.Amount{}, accounts.Amount{}, accounts.Amount{}, err
+		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
 	value := txProposal.Tx.Value()
 	total := new(big.Int).Add(value, txProposal.Fee)
-	return accounts.NewAmount(value), accounts.NewAmount(txProposal.Fee), accounts.NewAmount(total), nil
+	return coin.NewAmount(value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
 }
 
 // GetUnusedReceiveAddresses implements btc.Interface.

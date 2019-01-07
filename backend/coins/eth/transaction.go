@@ -19,6 +19,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum/core/types"
 )
@@ -32,9 +33,9 @@ type wrappedTransaction struct {
 var _ ethtypes.EthereumTransaction = wrappedTransaction{}
 
 // Fee implements accounts.Transaction.
-func (tx wrappedTransaction) Fee() *accounts.Amount {
+func (tx wrappedTransaction) Fee() *coin.Amount {
 	fee := new(big.Int).Mul(big.NewInt(int64(tx.tx.Gas())), tx.tx.GasPrice())
-	amount := accounts.NewAmount(fee)
+	amount := coin.NewAmount(fee)
 	return &amount
 }
 
@@ -59,8 +60,8 @@ func (tx wrappedTransaction) Type() accounts.TxType {
 }
 
 // Amount implements accounts.Transaction.
-func (tx wrappedTransaction) Amount() accounts.Amount {
-	return accounts.NewAmount(tx.tx.Value())
+func (tx wrappedTransaction) Amount() coin.Amount {
+	return coin.NewAmount(tx.tx.Value())
 }
 
 // Addresses implements accounts.Transaction.

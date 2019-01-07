@@ -27,6 +27,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -86,15 +87,15 @@ type Backend struct {
 
 	devices         map[string]device.Interface
 	keystores       *keystore.Keystores
-	onAccountInit   func(btc.Interface)
-	onAccountUninit func(btc.Interface)
+	onAccountInit   func(accounts.Interface)
+	onAccountUninit func(accounts.Interface)
 	onDeviceInit    func(device.Interface)
 	onDeviceUninit  func(string)
 
-	coins     map[string]accounts.Coin
+	coins     map[string]coin.Coin
 	coinsLock locker.Locker
 
-	accounts     []btc.Interface
+	accounts     []accounts.Interface
 	accountsLock locker.Locker
 
 	log *logrus.Entry
@@ -110,8 +111,8 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
-		coins:     map[string]accounts.Coin{},
-		accounts:  []btc.Interface{},
+		coins:     map[string]coin.Coin{},
+		accounts:  []accounts.Interface{},
 		log:       log,
 	}
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
@@ -119,7 +120,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 }
 
 // addAccount adds the given account to the backend.
-func (backend *Backend) addAccount(account btc.Interface) {
+func (backend *Backend) addAccount(account accounts.Interface) {
 	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
 	backend.onAccountInit(account)
@@ -128,7 +129,7 @@ func (backend *Backend) addAccount(account btc.Interface) {
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
 func (backend *Backend) CreateAndAddAccount(
-	coin accounts.Coin,
+	coin coin.Coin,
 	code string,
 	name string,
 	scriptType signing.ScriptType,
@@ -157,7 +158,7 @@ func (backend *Backend) CreateAndAddAccount(
 }
 
 func (backend *Backend) createAndAddAccount(
-	coin accounts.Coin,
+	coin coin.Coin,
 	code string,
 	name string,
 	keypath string,
@@ -269,7 +270,7 @@ func (backend *Backend) defaultElectrumXServers(code string) []*rpc.ServerInfo {
 }
 
 // Coin returns the coin with the given code or an error if no such coin exists.
-func (backend *Backend) Coin(code string) (accounts.Coin, error) {
+func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	defer backend.coinsLock.Lock()()
 	coin, ok := backend.coins[code]
 	if ok {
@@ -399,7 +400,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() []btc.Interface {
+func (backend *Backend) Accounts() []accounts.Interface {
 	return backend.accounts
 }
 
@@ -419,12 +420,12 @@ func (backend *Backend) UserLanguage() language.Tag {
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
-func (backend *Backend) OnAccountInit(f func(btc.Interface)) {
+func (backend *Backend) OnAccountInit(f func(accounts.Interface)) {
 	backend.onAccountInit = f
 }
 
 // OnAccountUninit installs a callback to be called when an account is stopped.
-func (backend *Backend) OnAccountUninit(f func(btc.Interface)) {
+func (backend *Backend) OnAccountUninit(f func(accounts.Interface)) {
 	backend.onAccountUninit = f
 }
 
@@ -462,7 +463,7 @@ func (backend *Backend) uninitAccounts() {
 		backend.onAccountUninit(account)
 		account.Close()
 	}
-	backend.accounts = []btc.Interface{}
+	backend.accounts = []accounts.Interface{}
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 

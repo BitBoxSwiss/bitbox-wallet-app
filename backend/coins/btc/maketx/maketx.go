@@ -23,6 +23,7 @@ import (
 	"github.com/btcsuite/btcutil/txsort"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ import (
 // TxProposal is the data needed for a new transaction to be able to display it and sign it.
 type TxProposal struct {
 	// Coin is the coin this tx was made for.
-	Coin                 accounts.Coin
+	Coin                 coin.Coin
 	AccountConfiguration *signing.Configuration
 	// Amount is the amount that is sent out. The fee is not included and is deducted on top.
 	Amount btcutil.Amount
@@ -89,7 +90,7 @@ func coinSelection(
 
 // NewTxSpendAll creates a transaction which spends all available unspent outputs.
 func NewTxSpendAll(
-	coin accounts.Coin,
+	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	outputPkScript []byte,
@@ -131,7 +132,7 @@ func NewTxSpendAll(
 // NewTx creates a transaction from a set of unspent outputs, targeting an output value. A subset of
 // the unspent outputs is selected to cover the needed amount. A change output is added if needed.
 func NewTx(
-	coin accounts.Coin,
+	coin coin.Coin,
 	inputConfiguration *signing.Configuration,
 	spendableOutputs map[wire.OutPoint]*wire.TxOut,
 	output *wire.TxOut,

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/ethereum/go-ethereum/common"
@@ -111,9 +112,9 @@ func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 // Fee implements accounts.Transaction.
-func (tx *Transaction) Fee() *accounts.Amount {
+func (tx *Transaction) Fee() *coin.Amount {
 	fee := new(big.Int).Mul(tx.jsonTransaction.GasUsed.BigInt(), tx.jsonTransaction.GasPrice.BigInt())
-	amount := accounts.NewAmount(fee)
+	amount := coin.NewAmount(fee)
 	return &amount
 }
 
@@ -139,8 +140,8 @@ func (tx *Transaction) Type() accounts.TxType {
 }
 
 // Amount implements accounts.Transaction.
-func (tx *Transaction) Amount() accounts.Amount {
-	return accounts.NewAmount(tx.jsonTransaction.Value.BigInt())
+func (tx *Transaction) Amount() coin.Amount {
+	return coin.NewAmount(tx.jsonTransaction.Value.BigInt())
 }
 
 // Addresses implements accounts.Transaction.
