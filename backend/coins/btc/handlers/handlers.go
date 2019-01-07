@@ -397,7 +397,7 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	for _, feeTarget := range feeTargets {
 		result = append(result,
 			map[string]interface{}{
-				"code": feeTarget.Code,
+				"code": feeTarget.Code(),
 			})
 	}
 	return map[string]interface{}{
