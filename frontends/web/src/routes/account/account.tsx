@@ -14,31 +14,65 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { translate } from 'react-i18next';
-import { apiGet, apiPost } from '../../utils/request';
-import { apiWebsocket } from '../../utils/websocket';
-import { ButtonLink } from '../../components/forms';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
-import { Header } from '../../components/header/Header';
-import { Balance } from '../../components/balance/balance';
-import HeadersSync from '../../components/headerssync/headerssync';
-import Status from '../../components/status/status';
-import Transactions from '../../components/transactions/transactions';
-import Spinner from '../../components/spinner/Spinner';
+import ArrowDown from '../../assets/icons/arrow-down.svg';
+import ArrowUp from '../../assets/icons/arrow-up.svg';
 import checkIcon from '../../assets/icons/check.svg';
 import exportIcon from '../../assets/icons/download.svg';
-import ArrowUp from '../../assets/icons/arrow-up.svg';
-import ArrowDown from '../../assets/icons/arrow-down.svg';
-import * as componentStyle from '../../components/style.css';
-import { isBitcoinBased } from './utils';
 import A from '../../components/anchor/anchor';
+import { Balance, BalanceInterface } from '../../components/balance/balance';
+import { ButtonLink } from '../../components/forms';
+import { Entry } from '../../components/guide/entry';
+import { Guide } from '../../components/guide/guide';
+import { Header } from '../../components/header/Header';
+import HeadersSync from '../../components/headerssync/headerssync';
+import Spinner from '../../components/spinner/Spinner';
+import Status from '../../components/status/status';
+import * as componentStyle from '../../components/style.css';
+import Transactions from '../../components/transactions/transactions';
+import { translate, TranslateProps } from '../../decorators/translate';
+import { apiGet, apiPost } from '../../utils/request';
+import { apiWebsocket } from '../../utils/websocket';
+import { isBitcoinBased } from './utils';
 
-@translate()
-export default class Account extends Component {
-    state = {
+export interface AccountInterface {
+    coinCode: 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+    code: string;
+    name: string;
+    blockExplorerTxPrefix: string;
+}
+
+interface AccountProps {
+    code: string;
+    deviceIDs: string[];
+    accounts: AccountInterface[];
+}
+
+interface AccountInfo {
+    signingConfiguration: {
+        scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
+        keypath: string;
+        threshold: number;
+        xpubs: string[];
+    };
+}
+
+interface State {
+    determiningStatus: boolean;
+    initialized: boolean;
+    connected: boolean;
+    transactions: any[]; // define once transaction.jsx is converted
+    balance: BalanceInterface | null;
+    hasCard: boolean;
+    exported: string;
+    accountInfo?: AccountInfo;
+}
+
+type Props = AccountProps & TranslateProps;
+
+class Account extends Component<Props, State> {
+    public state = {
         // We update the account state in componentDidUpdate(), without resetting
         // the state, to avoid a rerender (screen flash). For a split second however, the state
         // is old/undefined (e.g. the new account might not be initialized, but state.initialized
@@ -51,10 +85,12 @@ export default class Account extends Component {
         balance: null,
         hasCard: false,
         exported: '',
-        accountInfo: null,
-    }
+        accountInfo: undefined,
+    };
 
-    componentDidMount() {
+    private unsubscribe!: () => void;
+
+    public componentDidMount() {
         this.unsubscribe = apiWebsocket(this.onEvent);
         this.checkSDCards();
         if (!this.props.code) {
@@ -63,22 +99,19 @@ export default class Account extends Component {
         this.onStatusChanged();
     }
 
-    componentWillUnmount() {
-        if (this.unsubscribe) {
-            this.unsubscribe();
-        }
+    public componentWillUnmount() {
+        this.unsubscribe();
     }
 
-    componentWillReceiveProps(nextProps) {
+    public componentWillReceiveProps(nextProps) {
         if (nextProps.code && nextProps.code !== this.props.code) {
             this.setState({ determiningStatus: true });
         }
     }
 
-    componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps) {
         if (!this.props.code) {
             if (this.props.accounts && this.props.accounts.length) {
-                console.log('route', `/account/${this.props.accounts[0].code}`); // eslint-disable-line no-console
                 route(`/account/${this.props.accounts[0].code}`, true);
             }
             return;
@@ -91,7 +124,7 @@ export default class Account extends Component {
         }
     }
 
-    checkSDCards() {
+    private checkSDCards() {
         Promise.all(this.props.deviceIDs.map(deviceID => {
             return apiGet(`devices/${deviceID}/info`)
                 .then(({ sdcard }) => sdcard);
@@ -100,26 +133,30 @@ export default class Account extends Component {
             .then(hasCard => this.setState({ hasCard }));
     }
 
-    onEvent = data => {
-        if (!this.props.code) return;
+    private onEvent = data => {
+        if (!this.props.code) {
+            return;
+        }
         if (data.type !== 'account' || data.code !== this.props.code) {
             return;
         }
         switch (data.data) {
-        case 'statusChanged':
-            this.onStatusChanged();
-            break;
-        case 'syncdone':
-            this.onAccountChanged();
-            break;
+            case 'statusChanged':
+                this.onStatusChanged();
+                break;
+            case 'syncdone':
+                this.onAccountChanged();
+                break;
         }
     }
 
-    onStatusChanged() {
+    private onStatusChanged() {
         const code = this.props.code;
-        if (!code) return;
+        if (!code) {
+            return;
+        }
         apiGet(`account/${code}/status`).then(status => {
-            let state = {
+            const state = {
                 initialized: status.includes('accountSynced'),
                 connected: !status.includes('offlineMode'),
                 determiningStatus: false,
@@ -138,8 +175,10 @@ export default class Account extends Component {
         });
     }
 
-    onAccountChanged = () => {
-        if (!this.props.code) return;
+    private onAccountChanged = () => {
+        if (!this.props.code) {
+            return;
+        }
         if (this.state.initialized && this.state.connected) {
             apiGet(`account/${this.props.code}/balance`).then(balance => {
                 this.setState({ balance });
@@ -154,41 +193,41 @@ export default class Account extends Component {
         this.setState({ exported: '' });
     }
 
-    export = () => {
+    private export = () => {
         apiPost(`account/${this.props.code}/export`).then(exported => {
             this.setState({ exported });
         });
     }
 
-    getAccount() {
-        if (!this.props.accounts) return null;
-        return this.props.accounts.find(({ code }) => code === this.props.code);
-    }
-
-    isLegacy = () => {
-        const account = this.getAccount();
-        if (!account) return false;
-        const info = this.state.accountInfo;
-        if (!info || !info.signingConfiguration) return false;
+    private isLegacy = (account: AccountInterface, accountInfo?: AccountInfo): boolean => {
+        if (!accountInfo) {
+            return false;
+        }
         return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
-               info.signingConfiguration.scriptType === 'p2pkh';
+            accountInfo.signingConfiguration.scriptType === 'p2pkh';
     }
 
-    render({
-        t,
-        code,
-    }, {
-        transactions,
-        initialized,
-        connected,
-        determiningStatus,
-        balance,
-        hasCard,
-        exported,
-    }) {
-
-        const account = this.getAccount();
-        if (!account) return null;
+    public render(
+        {
+            t,
+            code,
+            accounts,
+        }: RenderableProps<Props>,
+        {
+            transactions,
+            initialized,
+            connected,
+            determiningStatus,
+            balance,
+            hasCard,
+            exported,
+            accountInfo,
+        }: State) {
+        const account = accounts &&
+                        accounts.find(acct => acct.code === code);
+        if (!account) {
+            return null;
+        }
         const noTransactions = (initialized && transactions.length <= 0);
         return (
             <div class="contentWithGuide">
@@ -221,10 +260,10 @@ export default class Account extends Component {
                                             </span>
                                         </A>
                                     ) : (
-                                        <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
-                                            <img src={exportIcon} />
-                                        </a>
-                                    )
+                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
+                                                <img src={exportIcon} />
+                                            </a>
+                                        )
                                 }
                             </h2>
                         }
@@ -249,7 +288,7 @@ export default class Account extends Component {
                         </div>
                     </Header>
                     <div class={['innerContainer', ''].join(' ')}>
-                        { initialized && !determiningStatus && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} /> }
+                        {initialized && !determiningStatus && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                         {
                             !initialized || !connected ? (
                                 <Spinner text={
@@ -257,12 +296,12 @@ export default class Account extends Component {
                                     !initialized && t('account.initializing')
                                 } />
                             ) : (
-                                <Transactions
-                                    explorerURL={account.blockExplorerTxPrefix}
-                                    transactions={transactions}
-                                    className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
-                                />
-                            )
+                                    <Transactions
+                                        explorerURL={account.blockExplorerTxPrefix}
+                                        transactions={transactions}
+                                        className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
+                                    />
+                                )
                         }
                         <Status dismissable keyName={`info-${code}`} type="info">
                             {t(`account.info.${code}`, { defaultValue: '' })}
@@ -281,7 +320,7 @@ export default class Account extends Component {
                     {transactions.length > 0 && (
                         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
                     )}
-                    {this.isLegacy() && (
+                    {this.isLegacy(account, accountInfo) && (
                         <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
                     {transactions.length > 0 && (
@@ -301,3 +340,6 @@ export default class Account extends Component {
         );
     }
 }
+
+const HOC = translate<AccountProps>()(Account);
+export { HOC as Account };
