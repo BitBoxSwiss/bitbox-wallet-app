@@ -112,7 +112,7 @@ export default class LanguageSwitcher extends Component {
                     className={[style.button, 'flex flex-row flex-items-center'].join(' ')}
                     onClick={() => this.setState({ activeDialog: true })}>
                     <img src={globe} />
-                    {languages[selectedIndex].display}
+                    {languages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
                 </Button>
                 {
                     activeDialog && (
