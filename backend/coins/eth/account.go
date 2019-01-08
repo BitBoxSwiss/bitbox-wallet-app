@@ -12,8 +12,9 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -309,7 +310,7 @@ func (account *Account) newTx(
 	data []byte,
 ) (*TxProposal, error) {
 	if !common.IsHexAddress(recipientAddress) {
-		return nil, errp.WithStack(accounts.ErrInvalidAddress)
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 
 	suggestedGasPrice, err := account.coin.client.SuggestGasPrice(context.TODO())
@@ -341,7 +342,7 @@ func (account *Account) newTx(
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
-		return nil, errp.WithStack(accounts.ErrInvalidData)
+		return nil, errp.WithStack(errors.ErrInvalidData)
 	}
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
@@ -350,13 +351,13 @@ func (account *Account) newTx(
 		// Set the value correctly and check that the fee is smaller than or equal to the balance.
 		value = new(big.Int).Sub(account.balance.BigInt(), fee)
 		if value.Sign() < 0 {
-			return nil, errp.WithStack(accounts.ErrInsufficientFunds)
+			return nil, errp.WithStack(errors.ErrInsufficientFunds)
 		}
 	} else {
 		// Check that the entered value and the estimated fee are not greater than the balance.
 		total := new(big.Int).Add(value, fee)
 		if total.Cmp(account.balance.BigInt()) == 1 {
-			return nil, errp.WithStack(accounts.ErrInsufficientFunds)
+			return nil, errp.WithStack(errors.ErrInsufficientFunds)
 		}
 	}
 	tx := types.NewTransaction(account.nextNonce,

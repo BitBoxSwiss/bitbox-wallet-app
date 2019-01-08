@@ -30,7 +30,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"

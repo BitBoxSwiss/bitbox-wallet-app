@@ -30,7 +30,7 @@ import (
 	headersMock "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"

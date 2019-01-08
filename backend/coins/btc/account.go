@@ -31,7 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"

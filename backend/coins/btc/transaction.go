@@ -21,11 +21,12 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -48,10 +49,10 @@ func (account *Account) newTx(
 
 	address, err := btcutil.DecodeAddress(recipientAddress, account.coin.Net())
 	if err != nil {
-		return nil, nil, errp.WithStack(accounts.ErrInvalidAddress)
+		return nil, nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 	if !address.IsForNet(account.coin.Net()) {
-		return nil, nil, errp.WithStack(accounts.ErrInvalidAddress)
+		return nil, nil, errp.WithStack(errors.ErrInvalidAddress)
 	}
 
 	var feeTarget *FeeTarget
@@ -101,7 +102,7 @@ func (account *Account) newTx(
 		}
 		parsedAmountInt64, err := parsedAmount.Int64()
 		if err != nil {
-			return nil, nil, errp.WithStack(coin.ErrInvalidAmount)
+			return nil, nil, errp.WithStack(errors.ErrInvalidAmount)
 		}
 		txProposal, err = maketx.NewTx(
 			account.coin,

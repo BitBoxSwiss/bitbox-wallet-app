@@ -16,7 +16,7 @@ package keystore
 
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )

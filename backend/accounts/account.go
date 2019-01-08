@@ -17,7 +17,7 @@ package accounts
 import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )

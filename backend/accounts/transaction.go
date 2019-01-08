@@ -17,7 +17,7 @@ package accounts
 import (
 	"time"
 
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 )
 
 // TxType is a type of transaction. See the TxType* constants.
