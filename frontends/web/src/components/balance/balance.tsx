@@ -14,14 +14,27 @@
  * limitations under the License.
  */
 
-import { h } from 'preact';
-import { FiatConversion } from '../../components/rates/rates';
+import { h, RenderableProps } from 'preact';
+import { Amount, FiatConversion } from '../../components/rates/rates';
+import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './balance.css';
 
-export default function Balance({
+interface BalanceInterface {
+    available: Amount;
+    incoming: Amount;
+    hasIncoming: boolean;
+}
+
+interface BalanceProps {
+    balance: BalanceInterface | null;
+}
+
+type Props = BalanceProps & TranslateProps;
+
+function Balance({
     t,
     balance,
-}) {
+}: RenderableProps<Props>) {
     if (!balance) {
         return (
             <header className={style.balance}></header>
@@ -50,3 +63,7 @@ export default function Balance({
         </header>
     );
 }
+
+const TranslatedBalance = translate<BalanceProps>()(Balance);
+
+export { TranslatedBalance as Balance };

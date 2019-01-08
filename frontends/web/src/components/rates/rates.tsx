@@ -98,7 +98,7 @@ function formatAsCurrency(amount: number): string {
     return formatted;
 }
 
-interface Amount {
+export interface Amount {
     amount: string;
     unit: Coin;
 }

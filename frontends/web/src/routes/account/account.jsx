@@ -23,7 +23,7 @@ import { ButtonLink } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Header } from '../../components/header/Header';
-import Balance from '../../components/balance/balance';
+import { Balance } from '../../components/balance/balance';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
@@ -230,7 +230,6 @@ export default class Account extends Component {
                         }
                         {...this.props}>
                         <Balance
-                            t={t}
                             balance={balance} />
                         <div class={componentStyle.buttons}>
                             <ButtonLink
