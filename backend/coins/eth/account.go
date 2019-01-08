@@ -104,27 +104,27 @@ func NewAccount(
 	return account
 }
 
-// Info implements btc.Interface.
+// Info implements accounts.Interface.
 func (account *Account) Info() *accounts.Info {
 	return &accounts.Info{}
 }
 
-// Code implements btc.Interface.
+// Code implements accounts.Interface.
 func (account *Account) Code() string {
 	return account.code
 }
 
-// Name implements btc.Interface.
+// Name implements accounts.Interface.
 func (account *Account) Name() string {
 	return account.name
 }
 
-// Coin implements btc.Interface.
+// Coin implements accounts.Interface.
 func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
-// Initialize implements btc.Interface.
+// Initialize implements accounts.Interface.
 func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
 		defer account.Lock()()
@@ -268,27 +268,27 @@ func (account *Account) update() error {
 	return nil
 }
 
-// Initialized implements btc.Interface.
+// Initialized implements accounts.Interface.
 func (account *Account) Initialized() bool {
 	return account.initialized
 }
 
-// Offline implements btc.Interface.
+// Offline implements accounts.Interface.
 func (account *Account) Offline() bool {
 	return account.offline
 }
 
-// Close implements btc.Interface.
+// Close implements accounts.Interface.
 func (account *Account) Close() {
 
 }
 
-// Transactions implements btc.Interface.
+// Transactions implements accounts.Interface.
 func (account *Account) Transactions() []accounts.Transaction {
 	return account.transactions
 }
 
-// Balance implements btc.Interface.
+// Balance implements accounts.Interface.
 func (account *Account) Balance() *accounts.Balance {
 	account.synchronizer.WaitSynchronized()
 	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0))
@@ -387,7 +387,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 	return nil
 }
 
-// SendTx implements btc.Interface.
+// SendTx implements accounts.Interface.
 func (account *Account) SendTx(
 	recipientAddress string,
 	amount coin.SendAmount,
@@ -412,12 +412,12 @@ func (account *Account) SendTx(
 	return nil
 }
 
-// FeeTargets implements btc.Interface.
+// FeeTargets implements accounts.Interface.
 func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 	return nil, ""
 }
 
-// TxProposal implements btc.Interface.
+// TxProposal implements accounts.Interface.
 func (account *Account) TxProposal(
 	recipientAddress string,
 	amount coin.SendAmount,
@@ -435,22 +435,22 @@ func (account *Account) TxProposal(
 	return coin.NewAmount(value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
 }
 
-// GetUnusedReceiveAddresses implements btc.Interface.
+// GetUnusedReceiveAddresses implements accounts.Interface.
 func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	return []accounts.Address{account.address}
 }
 
-// VerifyAddress implements btc.Interface.
+// VerifyAddress implements accounts.Interface.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	return true, nil
 }
 
-// ConvertToLegacyAddress implements btc.Interface.
+// ConvertToLegacyAddress implements accounts.Interface.
 func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) {
 	panic("not used")
 }
 
-// Keystores implements btc.Interface.
+// Keystores implements accounts.Interface.
 func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores
 }
