@@ -137,8 +137,8 @@ func (backend *Backend) CreateAndAddAccount(
 ) {
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		onEvent := func(code string) func(btc.Event) {
-			return func(event btc.Event) {
+		onEvent := func(code string) func(accounts.Event) {
+			return func(event accounts.Event) {
 				backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
 			}
 		}

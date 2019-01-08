@@ -12,7 +12,6 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
@@ -91,13 +90,13 @@ func NewAccount(
 		log: log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(Event(btc.EventSyncStarted)) },
+		func() { onEvent(Event(accounts.EventSyncStarted)) },
 		func() {
 			if !account.initialized {
 				account.initialized = true
-				onEvent(Event(btc.EventStatusChanged))
+				onEvent(Event(accounts.EventStatusChanged))
 			}
-			onEvent(Event(btc.EventSyncDone))
+			onEvent(Event(accounts.EventSyncDone))
 		},
 		log,
 	)
@@ -176,11 +175,11 @@ func (account *Account) poll() {
 			account.log.WithError(err).Error("error updating account")
 			if !account.offline {
 				account.offline = true
-				account.onEvent(Event(btc.EventStatusChanged))
+				account.onEvent(Event(accounts.EventStatusChanged))
 			}
 		} else if account.offline {
 			account.offline = false
-			account.onEvent(Event(btc.EventStatusChanged))
+			account.onEvent(Event(accounts.EventStatusChanged))
 		}
 		timer = time.After(pollInterval)
 	}
