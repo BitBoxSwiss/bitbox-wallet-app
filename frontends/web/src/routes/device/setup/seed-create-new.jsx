@@ -160,7 +160,7 @@ export default class SeedCreateNew extends Component {
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button
                         primary
@@ -214,7 +214,7 @@ export default class SeedCreateNew extends Component {
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button
                         type="submit"

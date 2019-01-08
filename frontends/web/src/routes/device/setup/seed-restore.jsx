@@ -129,7 +129,7 @@ export default class SeedRestore extends Component {
                                         <Button
                                             secondary
                                             onClick={goBack}>
-                                            {t('button.back')}
+                                            {t('button.abort')}
                                         </Button>
                                         <Button
                                             primary
@@ -150,7 +150,7 @@ export default class SeedRestore extends Component {
                                     <Button
                                         secondary
                                         onClick={goBack}>
-                                        {t('button.back')}
+                                        {t('button.abort')}
                                     </Button>
                                 </Backups>
                             )

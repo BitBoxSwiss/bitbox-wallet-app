@@ -14,36 +14,56 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import { apiPost } from '../../../utils/request';
-import { PasswordRepeatInput } from '../../../components/password';
-import { Button } from '../../../components/forms';
-import { Message } from '../../../components/message/message';
-import { Shift } from '../../../components/icon/logo';
-import { Header } from '../../../components/header/Header';
+import { Component, h, RenderableProps } from 'preact';
 import Footer from '../../../components/footer/footer';
+import { Button } from '../../../components/forms';
+import { Header } from '../../../components/header/Header';
+import { Shift } from '../../../components/icon/logo';
+import { Message } from '../../../components/message/message';
+import { PasswordRepeatInput } from '../../../components/password';
 import Spinner from '../../../components/spinner/Spinner';
-import { Steps, Step } from './components/steps';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { apiPost } from '../../../utils/request';
 import * as style from '../device.css';
+import { Step, Steps } from './components/steps';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
     WAITING: 'waiting',
-    ERROR: 'error'
+    ERROR: 'error',
 });
 
-@translate()
-export default class Initialize extends Component {
-    state = {
-        showInfo: true,
-        password: null,
-        status: stateEnum.DEFAULT,
-        errorCode: null,
-        errorMessage: '',
+interface InitializeProps {
+    goal: string;
+    goBack: () => void;
+    deviceID: string;
+}
+
+type Props = InitializeProps & TranslateProps;
+
+interface State {
+    showInfo: boolean;
+    password: string | null;
+    status: string;
+    errorCode: string | null;
+    errorMessage: string;
+}
+
+class Initialize extends Component<Props, State> {
+    private passwordInput!: HTMLInputElement;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            showInfo: true,
+            password: null,
+            status: stateEnum.DEFAULT,
+            errorCode: null,
+            errorMessage: '',
+        };
     }
 
-    handleSubmit = event => {
+    private handleSubmit = event => {
         event.preventDefault();
         if (!this.state.password) {
             return;
@@ -51,10 +71,10 @@ export default class Initialize extends Component {
         this.setState({
             status: stateEnum.WAITING,
             errorCode: null,
-            errorMessage: ''
+            errorMessage: '',
         });
         apiPost('devices/' + this.props.deviceID + '/set-password', {
-            password: this.state.password
+            password: this.state.password,
         }).then(data => {
             if (!data.success) {
                 if (data.code) {
@@ -62,37 +82,32 @@ export default class Initialize extends Component {
                 }
                 this.setState({
                     status: stateEnum.ERROR,
-                    errorMessage: data.errorMessage
+                    errorMessage: data.errorMessage,
                 });
             }
             if (this.passwordInput) {
-                this.passwordInput.getWrappedInstance().clear();
+                (this.passwordInput as any).getWrappedInstance().clear();
             }
         });
-    };
+    }
 
-    setValidPassword = password => {
+    private setPasswordInputRef = (ref: HTMLInputElement) => {
+        this.passwordInput = ref;
+    }
+
+    private setValidPassword = password => {
         this.setState({ password });
     }
 
-    handleStart = () => {
+    private handleStart = () => {
         this.setState({ showInfo: false });
     }
 
-    render({
-        t,
-        goal,
-        goBack,
-    }, {
-        showInfo,
-        password,
-        status,
-        errorCode,
-        errorMessage,
-    }) {
-
-        let formSubmissionState = null;
-
+    public render(
+        { t, goal, goBack }: RenderableProps<Props>,
+        { showInfo, password, status, errorCode, errorMessage }: State,
+    ) {
+        let formSubmissionState;
         switch (status) {
         case stateEnum.DEFAULT:
             formSubmissionState = null;
@@ -104,7 +119,7 @@ export default class Initialize extends Component {
             formSubmissionState = (
                 <Message type="error">
                     {t(`initialize.error.e${errorCode}`, {
-                        defaultValue: errorMessage
+                        defaultValue: errorMessage,
                     })}
                 </Message>
             );
@@ -126,7 +141,7 @@ export default class Initialize extends Component {
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button primary onClick={this.handleStart}>
                         {t('initialize.info.button')}
@@ -140,14 +155,14 @@ export default class Initialize extends Component {
                     label={t('initialize.input.label')}
                     repeatLabel={t('initialize.input.labelRepeat')}
                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
-                    ref={ref => this.passwordInput = ref}
+                    ref={this.setPasswordInputRef}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
                 <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
                     <Button
                         secondary
                         onClick={goBack}>
-                        {t('button.back')}
+                        {t('button.abort')}
                     </Button>
                     <Button
                         type="submit"
@@ -192,3 +207,6 @@ export default class Initialize extends Component {
         );
     }
 }
+
+const TranslatedInitialize = translate<InitializeProps>()(Initialize);
+export { TranslatedInitialize as Initialize };
