@@ -23,7 +23,7 @@ import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
 import * as style from './guide.css';
 
-interface SharedProps { shown: boolean; }
+export interface SharedProps { shown: boolean; }
 
 export const store = new Store<SharedProps>({ shown: false });
 

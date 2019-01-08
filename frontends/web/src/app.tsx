@@ -19,7 +19,7 @@ import { getCurrentUrl, route } from 'preact-router';
 import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
-import Sidebar from './components/sidebar/sidebar';
+import { AccountInterface, Sidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
 import { i18nEditorActive } from './i18n/i18n';
@@ -34,13 +34,6 @@ import ElectrumSettings from './routes/settings/electrum';
 import Settings from './routes/settings/settings';
 import { apiGet } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
-
-interface AccountInterface {
-    coinCode: string;
-    code: string;
-    name: string;
-    blockExplorerTxPrefix: string;
-}
 
 interface State {
     accounts: AccountInterface[];
