@@ -21,7 +21,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/txsort"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -83,7 +83,7 @@ func coinSelection(
 		outputsSum += btcutil.Amount(outputs[outPoint].Value)
 	}
 	if outputsSum < minAmount {
-		return 0, nil, errp.WithStack(accounts.ErrInsufficientFunds)
+		return 0, nil, errp.WithStack(errors.ErrInsufficientFunds)
 	}
 	return outputsSum, selectedOutPoints, nil
 }
@@ -109,7 +109,7 @@ func NewTxSpendAll(
 	txSize := estimateTxSize(len(selectedOutPoints), inputConfiguration, len(outputPkScript), 0)
 	maxRequiredFee := feeForSerializeSize(feePerKb, txSize, log)
 	if outputsSum < maxRequiredFee {
-		return nil, errp.WithStack(accounts.ErrInsufficientFunds)
+		return nil, errp.WithStack(errors.ErrInsufficientFunds)
 	}
 	output := wire.NewTxOut(int64(outputsSum-maxRequiredFee), outputPkScript)
 	unsignedTransaction := &wire.MsgTx{

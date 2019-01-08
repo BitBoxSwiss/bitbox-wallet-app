@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"strings"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
@@ -93,13 +94,13 @@ func (sendAmount SendAmount) Amount(unit *big.Int, allowZero bool) (Amount, erro
 	}
 	amount, err := NewAmountFromString(sendAmount.amount, unit)
 	if err != nil {
-		return Amount{}, errp.WithStack(ErrInvalidAmount)
+		return Amount{}, errp.WithStack(errors.ErrInvalidAmount)
 	}
 	if amount.BigInt().Sign() == -1 {
-		return Amount{}, errp.WithStack(ErrInvalidAmount)
+		return Amount{}, errp.WithStack(errors.ErrInvalidAmount)
 	}
 	if !allowZero && amount.BigInt().Sign() == 0 {
-		return Amount{}, errp.WithStack(ErrInvalidAmount)
+		return Amount{}, errp.WithStack(errors.ErrInvalidAmount)
 	}
 	return amount, nil
 }

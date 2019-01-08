@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package coin
+package errors
 
 // TxValidationError represents errors in the tx proposal input data.
 type TxValidationError string
@@ -22,6 +22,14 @@ func (err TxValidationError) Error() string {
 }
 
 var (
+	// ErrInvalidAddress is used when the recipient address is invalid or does not match the correct
+	// network.
+	ErrInvalidAddress = TxValidationError("invalidAddress")
 	// ErrInvalidAmount is used when the user entered amount is malformatted or not positive.
 	ErrInvalidAmount = TxValidationError("invalidAmount")
+	// ErrInvalidData is used when the user entered data is not hexadecimal.
+	ErrInvalidData = TxValidationError("invalidData")
+	// ErrInsufficientFunds is returned when there are not enough funds to cover the target amount
+	// and fee.
+	ErrInsufficientFunds = TxValidationError("insufficientFunds")
 )

@@ -29,6 +29,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -341,7 +342,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
 	if err != nil {
-		return errp.WithStack(accounts.ErrInvalidData)
+		return errp.WithStack(errors.ErrInvalidData)
 	}
 	return nil
 }
@@ -368,7 +369,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 }
 
 func txProposalError(err error) (interface{}, error) {
-	if validationErr, ok := errp.Cause(err).(accounts.TxValidationError); ok {
+	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
 		return map[string]interface{}{
 			"success":   false,
 			"errorCode": validationErr.Error(),
