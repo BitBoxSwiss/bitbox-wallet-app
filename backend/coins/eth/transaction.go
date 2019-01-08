@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/ethereum/go-ethereum/core/types"
 )

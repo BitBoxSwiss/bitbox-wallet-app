@@ -21,7 +21,7 @@ import (
 	"testing"
 	"testing/quick"
 
-	coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/stretchr/testify/require"
 )
 

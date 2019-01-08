@@ -14,7 +14,7 @@
 
 package accounts
 
-import coin "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/common"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 
 // Balance contains the available and incoming balance of an account.
 type Balance struct {
