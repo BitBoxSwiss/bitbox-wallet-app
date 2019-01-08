@@ -70,7 +70,7 @@ type Account struct {
 
 	initialized bool
 	offline     bool
-	onEvent     func(Event)
+	onEvent     func(accounts.Event)
 	log         *logrus.Entry
 }
 
@@ -99,7 +99,7 @@ func NewAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
-	onEvent func(Event),
+	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "btc").
@@ -129,13 +129,13 @@ func NewAccount(
 		log:         log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(EventSyncStarted) },
+		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
 			if !account.initialized {
 				account.initialized = true
-				onEvent(EventStatusChanged)
+				onEvent(accounts.EventStatusChanged)
 			}
-			onEvent(EventSyncDone)
+			onEvent(accounts.EventSyncDone)
 		},
 		log,
 	)
@@ -198,13 +198,13 @@ func (account *Account) Initialize() error {
 		case blockchain.DISCONNECTED:
 			account.log.Warn("Connection to blockchain backend lost")
 			account.offline = true
-			account.onEvent(EventStatusChanged)
+			account.onEvent(accounts.EventStatusChanged)
 		case blockchain.CONNECTED:
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
 			account.initialized = false
 			account.offline = false
-			account.onEvent(EventStatusChanged)
+			account.onEvent(accounts.EventStatusChanged)
 			account.log.Debug("Connection to blockchain backend established")
 		default:
 			account.log.Panicf("Status %d is unknown.", status)
@@ -213,13 +213,13 @@ func (account *Account) Initialize() error {
 	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	account.onEvent(EventStatusChanged)
+	account.onEvent(accounts.EventStatusChanged)
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.onEvent(EventHeadersSynced)
+			account.onEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
@@ -337,7 +337,7 @@ func (account *Account) Close() {
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.onEvent(EventStatusChanged)
+	account.onEvent(accounts.EventStatusChanged)
 }
 
 func (account *Account) updateFeeTargets() {
@@ -349,7 +349,7 @@ func (account *Account) updateFeeTargets() {
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.onEvent(EventFeeTargetsChanged)
+				account.onEvent(accounts.EventFeeTargetsChanged)
 				return nil
 			}
 
