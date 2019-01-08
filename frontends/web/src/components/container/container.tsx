@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-import { h, cloneElement } from 'preact';
+import { cloneElement, h, RenderableProps } from 'preact';
 import { Router } from 'preact-router';
+
+interface Props {
+    children: JSX.Element[];
+    toggleSidebar: () => void;
+    onChange: () => void;
+}
 
 const Container = ({
     children,
     toggleSidebar,
     onChange,
-}) => {
+}: RenderableProps<Props>) => {
     return (
         <Router onChange={onChange}>
             { children.map(child => cloneElement(child, { toggleSidebar })) }
@@ -29,4 +35,4 @@ const Container = ({
     );
 };
 
-export default Container;
+export { Container };

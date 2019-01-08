@@ -19,10 +19,12 @@ import { route } from 'preact-router';
 import Device from './device';
 import { Waiting } from './waiting';
 
+export interface Devices {
+    [deviceID: string]: string;
+}
+
 interface Props {
-    devices: {
-        [deviceID: string]: string,
-    };
+    devices: Devices;
     deviceID: string | null;
 }
 
