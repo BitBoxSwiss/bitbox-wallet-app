@@ -454,8 +454,3 @@ func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) 
 func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores
 }
-
-// SpendableOutputs implements btc.Interface.
-func (account *Account) SpendableOutputs() []*btc.SpendableOutput {
-	return nil
-}
