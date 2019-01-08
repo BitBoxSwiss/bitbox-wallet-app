@@ -119,26 +119,17 @@ function Sidebar({
     );
 }
 
-function getAccountLink({ coinCode, code, name }) {
+function getAccountLink({ coinCode, code, name }: AccountInterface): JSX.Element {
     return (
         <div key={code} className="sideBarItem">
-            <Match path={`/account/${code}/send`}>
-                {({ matches }) => {
-                    if (!matches) {
-                        return (
-                            <Match path={`/account/${code}/receive`}>
-                                {({ matches2 }) => getBackLink(coinCode, code, name, matches2)}
-                            </Match>
-                        );
-                    }
-                    return getBackLink(coinCode, code, name, matches);
-                }}
+            <Match>
+                {match => getBackLink(coinCode, code, name, match.url === `/account/${code}` || match.url.startsWith(`/account/${code}/`))}
             </Match>
         </div>
     );
 }
 
-function getBackLink(coinCode, code, name, active) {
+function getBackLink(coinCode: string, code: string, name: string, active: boolean): JSX.Element {
     return (
         <Link
             activeClassName="sidebar-active"
@@ -151,7 +142,7 @@ function getBackLink(coinCode, code, name, active) {
     );
 }
 
-function eject(e) {
+function eject(e: Event): void {
     apiPost('test/deregister');
     route('/', true);
     e.preventDefault();
