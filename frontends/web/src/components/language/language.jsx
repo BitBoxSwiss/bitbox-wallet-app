@@ -30,6 +30,8 @@ export default class LanguageSwitcher extends Component {
             { code: 'de', display: 'Deutsch' },
             { code: 'en', display: 'English' },
             { code: 'ja', display: '日本語' },
+            { code: 'ms', display: 'Bahasa Melayu' },
+            { code: 'ru', display: 'Русский' },
         ];
         if (extraLanguages) {
             extraLanguages.split(',').forEach(code => {
