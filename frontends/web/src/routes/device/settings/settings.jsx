@@ -120,7 +120,7 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} {...this.props} />
+                    <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="flex-1">

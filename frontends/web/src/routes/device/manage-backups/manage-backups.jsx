@@ -43,7 +43,7 @@ export default class ManageBackups extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('backup.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className={styles.manageBackups}>
                         <Backups
                             deviceID={deviceID}

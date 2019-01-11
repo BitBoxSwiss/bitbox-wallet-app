@@ -271,8 +271,7 @@ class Account extends Component<Props, State> {
                                         )
                                 }
                             </h2>
-                        }
-                        {...this.props}>
+                        }>
                         <Balance
                             balance={balance} />
                         <div class={componentStyle.buttons}>

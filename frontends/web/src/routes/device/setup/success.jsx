@@ -50,7 +50,7 @@ export default class Success extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         <h1 className={style.title} style="text-align: center;">
                             {t(`success.${goal}.title`)}

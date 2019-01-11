@@ -41,13 +41,13 @@ class DeviceSwitch extends Component<Props, {}> {
 
     public render({ deviceID, devices }: RenderableProps<Props>) {
         if (this.props.default || deviceID === null || !Object.keys(devices).includes(deviceID)) {
-            return <Waiting {...this.props} />;
+            return <Waiting />;
         }
         switch (devices[deviceID]) {
         case 'bitbox':
-            return <Device deviceID={deviceID} {...this.props} />;
+            return <Device deviceID={deviceID} />;
         default:
-            return <Waiting {...this.props} />;
+            return <Waiting />;
         }
     }
 }

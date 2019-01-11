@@ -315,7 +315,7 @@ export default class ElectrumSettings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="flex flex-row flex-between flex-items-center tabs">
                             <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>

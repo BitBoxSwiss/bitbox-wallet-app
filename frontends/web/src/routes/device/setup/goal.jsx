@@ -16,7 +16,7 @@ export default class Goal extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={[style.container].join(' ')}>
-                    <Header title={<h2>{t('setup')}</h2>} {...this.props} narrow={true} />
+                    <Header title={<h2>{t('setup')}</h2>} narrow={true} />
                     <div className={style.content} style="text-align: center;">
                         <div className="flex-1 flex flex-column flex-center">
                             <p class="first">{t('goal.paragraph')}</p>

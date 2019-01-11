@@ -196,7 +196,7 @@ export default class Receive extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.receivePairing')}
                     </Status>
-                    <Header title={<h2>{t('receive.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('receive.title')}</h2>} />
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">
                             <div class={style.receiveContent}>

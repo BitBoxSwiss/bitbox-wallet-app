@@ -187,7 +187,7 @@ class Initialize extends Component<Props, State> {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {formSubmissionState}
                         <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>

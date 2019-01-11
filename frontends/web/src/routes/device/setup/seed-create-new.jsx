@@ -239,7 +239,7 @@ export default class SeedCreateNew extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-create.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {
                             error && (

@@ -105,7 +105,7 @@ export default class SeedRestore extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-restore.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {
                             error ? (

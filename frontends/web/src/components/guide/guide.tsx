@@ -23,9 +23,15 @@ import { apiGet } from '../../utils/request';
 import A from '../anchor/anchor';
 import * as style from './guide.css';
 
-export interface SharedProps { shown: boolean; }
+export interface SharedProps {
+    shown: boolean;
+    activeSidebar: boolean;
+}
 
-export const store = new Store<SharedProps>({ shown: false });
+export const store = new Store<SharedProps>({
+    shown: false,
+    activeSidebar: false,
+});
 
 apiGet('config').then(({ frontend }) => {
     if (frontend && frontend.guideShown != null) { // eslint-disable-line eqeqeq
@@ -35,21 +41,21 @@ apiGet('config').then(({ frontend }) => {
     }
 });
 
-function setShown(shown: boolean) {
+function setGuideShown(shown: boolean) {
     store.setState({ shown });
     setConfig({ frontend: { guideShown: shown } });
 }
 
 export function toggle() {
-    setShown(!store.state.shown);
+    setGuideShown(!store.state.shown);
 }
 
 export function show() {
-    setShown(true);
+    setGuideShown(true);
 }
 
 export function hide() {
-    setShown(false);
+    setGuideShown(false);
 }
 
 type Props = SharedProps & TranslateProps;

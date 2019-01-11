@@ -147,13 +147,13 @@ class AddAccount extends Component<Props, State> {
     }
 
     public render(
-        { t, testing, ...other }: RenderableProps<Props>,
+        { t, testing }: RenderableProps<Props>,
         { coinAndAccountCode, accountName, extendedPublicKey, address }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('addAccount.title')}</h2>} {...other}  />
+                    <Header title={<h2>{t('addAccount.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="row">

@@ -35,13 +35,14 @@ import ElectrumSettings from './routes/settings/electrum';
 import Settings from './routes/settings/settings';
 import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
+import { store as panelStore } from './components/guide/guide';
+import { toggleSidebar } from './components/sidebar/sidebar';
 
 interface State {
     accounts: AccountInterface[];
     accountsInitialized: boolean;
     deviceIDs: string[];
     devices: Devices;
-    activeSidebar: boolean;
 }
 
 type Props = TranslateProps;
@@ -52,7 +53,6 @@ class App extends Component<Props, State> {
         accountsInitialized: false,
         deviceIDs: [],
         devices: {},
-        activeSidebar: false,
     };
 
     private unsubscribe!: () => void;
@@ -61,8 +61,8 @@ class App extends Component<Props, State> {
      * Gets fired when the route changes.
      */
     private handleRoute = () => {
-        if (this.state.activeSidebar) {
-            this.setState({ activeSidebar: !this.state.activeSidebar });
+        if (panelStore.state.activeSidebar) {
+            toggleSidebar();
         }
     }
 
@@ -133,22 +133,17 @@ class App extends Component<Props, State> {
         this.setState(({ activeSidebar }) => ({ activeSidebar: !activeSidebar }));
     }
 
-    public render({}: RenderableProps<Props>, {
-        accounts,
-        devices,
-        deviceIDs,
-        accountsInitialized,
-        activeSidebar,
-    }: State) {
+    public render(
+        {}: RenderableProps<Props>,
+        { accounts, devices, deviceIDs, accountsInitialized }: State,
+    ) {
         return (
             <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
                 <TranslationHelper />
                 <Sidebar
                     accounts={accounts}
                     deviceIDs={deviceIDs}
-                    accountsInitialized={accountsInitialized}
-                    toggle={this.toggleSidebar}
-                    show={activeSidebar} />
+                    accountsInitialized={accountsInitialized} />
                 <div class="appContent flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>

@@ -23,23 +23,37 @@ import plusCircle from '../../assets/icons/plus-circle.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
-import { SharedProps as SharedGuideProps, store as guideStore } from '../../components/guide/guide';
+import { SharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AccountInterface } from '../../routes/account/account';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { BitBoxInverted } from '../icon/logo';
+import { setConfig } from '../../utils/config';
+import { apiGet } from '../../utils/request';
 
 interface SidebarProps {
     deviceIDs: string[];
     accounts: AccountInterface[];
     accountsInitialized: boolean;
-    toggle: () => void;
-    show: boolean;
 }
 
-type Props = SharedGuideProps & SidebarProps & TranslateProps;
+type Props = SharedPanelProps & SidebarProps & TranslateProps;
+
+apiGet('config').then(({ frontend }) => {
+    if (frontend && frontend.sidebarShown != null) {
+        panelStore.setState({ activeSidebar: frontend.sidebarShown });
+    } else {
+        panelStore.setState({ activeSidebar: false });
+    }
+});
+
+export function toggleSidebar() {
+    const toggled = !panelStore.state.activeSidebar;
+    panelStore.setState({ activeSidebar: toggled });
+    setConfig({ frontend: { sidebarShown: toggled } });
+}
 
 function Sidebar(
     {
@@ -47,14 +61,13 @@ function Sidebar(
         deviceIDs,
         accounts,
         accountsInitialized,
-        toggle,
         shown,
-        show,
-    }: RenderableProps<Props>): JSX.Element {
+        activeSidebar,
+}: RenderableProps<Props>): JSX.Element {
     return (
         <div className="sidebarContainer">
-            <div className={['sidebarOverlay', show ? 'active' : ''].join(' ')} onClick={toggle}></div>
-            <nav className={['sidebar', show ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
+            <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
+            <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
                 <div className="sidebarLogoContainer">
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
@@ -143,6 +156,6 @@ function eject(e: Event): void {
     e.preventDefault();
 }
 
-const guideShareHOC = share<SharedGuideProps, SidebarProps & TranslateProps>(guideStore)(Sidebar);
+const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(Sidebar);
 const translateHOC = translate<SidebarProps>()(guideShareHOC);
 export { translateHOC as Sidebar };

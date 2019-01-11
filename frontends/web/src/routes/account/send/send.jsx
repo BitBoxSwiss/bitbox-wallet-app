@@ -378,7 +378,7 @@ export default class Send extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
-                    <Header title={<h2>{t('send.title')}</h2>} {...this.props}>
+                    <Header title={<h2>{t('send.title')}</h2>}>
                         <Balance
                             balance={balance} />
                         {

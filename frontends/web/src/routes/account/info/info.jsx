@@ -96,7 +96,7 @@ export default class Info extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('accountInfo.title')}</h2>} {...this.props}>
+                    <Header title={<h2>{t('accountInfo.title')}</h2>}>
                         <Balance
                             balance={balance} />
                     </Header>

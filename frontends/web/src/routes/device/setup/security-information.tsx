@@ -28,7 +28,6 @@ import { Step, Steps } from './components/steps';
 interface SecurityInformationProps {
     goBack: () => void;
     goal: string | null;
-    toggleSidebar?: () => void;
 }
 
 type Props = SecurityInformationProps & TranslateProps;
@@ -50,7 +49,7 @@ class SecurityInformation extends Component<Props, State> {
     }
 
     public render(
-        { t, goBack, goal, toggleSidebar, children }: RenderableProps<Props>,
+        { t, goBack, goal, children }: RenderableProps<Props>,
         { showInfo }: State,
     ) {
         if (!showInfo) {
@@ -69,7 +68,7 @@ class SecurityInformation extends Component<Props, State> {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } toggleSidebar={toggleSidebar} narrow={true} />
+                    } narrow={true} />
                     <div className={style.content}>
                         <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
                         {
