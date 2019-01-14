@@ -14,28 +14,32 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
 import LanguageSwitch from '../language/language';
 import * as style from './footer.css';
 
-@translate()
-export default class Footer extends Component {
-    state = {
-        version: null,
+interface State {
+    version: string | null;
+}
+
+class Footer extends Component<TranslateProps, State> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            version: null,
+        };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         apiGet('version').then(version => this.setState({ version }));
     }
 
-    render({
-        t,
-        children
-    }, {
-        version,
-    }) {
+    public render(
+        { t, children }: RenderableProps<TranslateProps>,
+        { version }: State,
+    ) {
         return (
             <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
                 {children}
@@ -45,3 +49,6 @@ export default class Footer extends Component {
         );
     }
 }
+
+const TranslatedFooter = translate()(Footer);
+export { TranslatedFooter as Footer };
