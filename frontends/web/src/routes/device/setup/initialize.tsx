@@ -16,8 +16,8 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Button } from '../../../components/forms';
-import { Header, Footer } from '../../../components/layout';
 import { Shift } from '../../../components/icon/logo';
+import { Footer, Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { PasswordRepeatInput } from '../../../components/password';
 import Spinner from '../../../components/spinner/Spinner';

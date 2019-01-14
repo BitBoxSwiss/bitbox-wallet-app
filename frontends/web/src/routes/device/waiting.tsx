@@ -15,12 +15,11 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Footer from '../../components/layout/footer';
 import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { Header } from '../../components/layout';
 import { Shift } from '../../components/icon';
+import { Footer, Header } from '../../components/layout';
 import { PasswordSingleInput } from '../../components/password';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';

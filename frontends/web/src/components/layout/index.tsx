@@ -15,4 +15,4 @@
  */
 
 export { Header } from './header';
-export { default as Footer } from './footer';
+export { Footer } from './footer';

@@ -27,11 +27,10 @@ import { SharedProps as SharedPanelProps, store as panelStore } from '../../comp
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AccountInterface } from '../../routes/account/account';
+import { setConfig } from '../../utils/config';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { BitBoxInverted } from '../icon/logo';
-import { setConfig } from '../../utils/config';
-import { apiGet } from '../../utils/request';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -40,14 +39,6 @@ interface SidebarProps {
 }
 
 type Props = SharedPanelProps & SidebarProps & TranslateProps;
-
-apiGet('config').then(({ frontend }) => {
-    if (frontend && frontend.sidebarShown != null) {
-        panelStore.setState({ activeSidebar: frontend.sidebarShown });
-    } else {
-        panelStore.setState({ activeSidebar: false });
-    }
-});
 
 export function toggleSidebar() {
     const toggled = !panelStore.state.activeSidebar;

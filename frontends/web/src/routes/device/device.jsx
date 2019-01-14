@@ -175,7 +175,7 @@ export default class Device extends Component {
                         goBack={this.handleBack}
                         onSuccess={this.handleSuccess}
                         deviceID={deviceID}
-                        />
+                    />
                 );
             case GOAL.RESTORE:
                 return (
@@ -183,7 +183,7 @@ export default class Device extends Component {
                         goBack={this.handleBack}
                         onSuccess={this.handleSuccess}
                         deviceID={deviceID}
-                        />
+                    />
                 );
             default:
                 return <Goal onCreate={this.handleCreate} onRestore={this.handleRestore} />;

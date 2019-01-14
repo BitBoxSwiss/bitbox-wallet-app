@@ -20,6 +20,8 @@ import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
 import { Sidebar } from './components/sidebar/sidebar';
+import { store as panelStore } from './components/guide/guide';
+import { toggleSidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
@@ -35,8 +37,6 @@ import ElectrumSettings from './routes/settings/electrum';
 import Settings from './routes/settings/settings';
 import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
-import { store as panelStore } from './components/guide/guide';
-import { toggleSidebar } from './components/sidebar/sidebar';
 
 interface State {
     accounts: AccountInterface[];
