@@ -25,7 +25,7 @@ import { Balance, BalanceInterface } from '../../components/balance/balance';
 import { ButtonLink } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { Header } from '../../components/header/Header';
+import { Header } from '../../components/layout';
 import HeadersSync from '../../components/headerssync/headerssync';
 import Spinner from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';

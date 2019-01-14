@@ -24,8 +24,7 @@ import { Message } from '../../components/message/message';
 import { Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import { Header } from '../../components/header/Header';
-import Footer from '../../components/footer/footer';
+import { Header, Footer } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
 import * as style from './device.css';
 

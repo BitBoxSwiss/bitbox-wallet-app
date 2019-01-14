@@ -22,7 +22,7 @@ import { Button, ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import Status from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';

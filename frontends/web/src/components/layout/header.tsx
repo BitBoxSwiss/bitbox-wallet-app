@@ -15,11 +15,11 @@
  */
 
 import { h, RenderableProps } from 'preact';
+import MenuIcon from '../../assets/icons/menu.svg';
+import { share } from '../../decorators/share';
 import { SharedProps as SharedPanelProps, store as panelStore } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
-import { share } from '../../decorators/share';
-import MenuIcon from '../../assets/icons/menu.svg';
-import * as style from './Header.css';
+import * as style from './header.css';
 
 interface HeaderProps {
     toggleSidebar?: () => void;
@@ -29,7 +29,7 @@ interface HeaderProps {
 type Props = HeaderProps & SharedPanelProps;
 
 function Header(
-    { title, narrow, children }: RenderableProps<Props>
+    { title, narrow, children }: RenderableProps<Props>,
 ): JSX.Element {
     const hasChildren = Array.isArray(children) && children.length > 0;
     return (

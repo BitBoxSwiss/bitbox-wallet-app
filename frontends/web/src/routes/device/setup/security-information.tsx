@@ -15,9 +15,9 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Footer from '../../../components/footer/footer';
+import Footer from '../../../components/layout/footer';
 import { Button } from '../../../components/forms';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import { Alert, Shift } from '../../../components/icon';
 import { Message } from '../../../components/message/message';
 import { translate,  TranslateProps } from '../../../decorators/translate';

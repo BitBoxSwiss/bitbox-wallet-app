@@ -21,7 +21,7 @@ import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import LegacyHiddenWallet from './components/legacyhiddenwallet';
