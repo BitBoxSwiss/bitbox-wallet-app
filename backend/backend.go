@@ -335,6 +335,24 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	return coin, nil
 }
 
+func (backend *Backend) initPersistedAccounts() {
+	for _, account := range backend.config.AccountsConfig().Accounts {
+		account := account
+		coin, err := backend.Coin(account.CoinCode)
+		if err != nil {
+			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
+				account.CoinCode, account.Code)
+		}
+		getSigningConfiguration := func() (*signing.Configuration, error) {
+			return account.Configuration, nil
+		}
+		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts()
@@ -405,6 +423,7 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	}
+	backend.initPersistedAccounts()
 }
 
 // AccountsStatus returns whether the accounts have been initialized.
@@ -464,6 +483,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).Start()
+	backend.initPersistedAccounts()
 	return backend.events
 }
 
@@ -510,6 +530,9 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitAccounts()
+	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
+	// keystore. For now we just remove all, then re-add the rest.
+	backend.initPersistedAccounts()
 }
 
 // Register registers the given device at this backend.
