@@ -14,58 +14,85 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
-import { apiGet } from '../../../utils/request';
+import { Component, h, RenderableProps } from 'preact';
 import { Checkbox } from '../../../components/forms';
-import { FiatConversion } from '../../../components/rates/rates';
+import { Coin, FiatConversion } from '../../../components/rates/rates';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { apiGet } from '../../../utils/request';
 import * as style from './utxos.css';
 
-@translate(null, { withRef: true })
-export default class UTXOs extends Component {
+interface UTXOsProps {
+    accountCode: string;
+    active: boolean;
+    onChange: (SelectedUTXOProps) => void;
+}
+
+interface UTXOProps {
+    outPoint: string;
+    address: string;
+    amount: UTXOAmountProps;
+}
+
+interface UTXOAmountProps {
+    amount: string;
+    unit: Coin;
+}
+
+export interface SelectedUTXOProps {
+    [key: string]: boolean;
+}
+
+type Props = UTXOsProps & TranslateProps;
+
+interface State {
+    utxos: UTXOProps[];
+    selectedUTXOs: SelectedUTXOProps;
+}
+
+class UTXOs extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
             utxos: [],
-            selectedUTXOs: [],
+            selectedUTXOs: {},
         };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         apiGet(`account/${this.props.accountCode}/utxos`).then(utxos => {
             this.setState({ utxos });
         });
     }
 
-    clear = () => {
-        this.setState({ selectedUTXOs: [] });
-        this.props.onChange(this.state.selectedUTXOs);
+    // @ts-ignore => called in parent component
+    private clear = () => {
+        this.setState({ selectedUTXOs: {} }, () => {
+            this.props.onChange(this.state.selectedUTXOs);
+        });
     }
 
-    handleUTXOChange = event => {
-        let selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
-        let outPoint = event.target.dataset.outpoint;
+    private handleUTXOChange = event => {
+        const outPoint = event.target.dataset.outpoint;
+        const selectedUTXOs = Object.assign({}, this.state.selectedUTXOs);
         if (event.target.checked) {
             selectedUTXOs[outPoint] = true;
         } else {
             delete selectedUTXOs[outPoint];
         }
-        this.setState({ selectedUTXOs });
-        this.props.onChange(this.state.selectedUTXOs);
+        this.setState({ selectedUTXOs }, () => {
+            this.props.onChange(selectedUTXOs);
+        });
     }
 
-    render({
-        t,
-        active,
-    }, {
-        utxos,
-        selectedUTXOs,
-    }) {
+    public render(
+        { t, active }: RenderableProps<Props>,
+        { utxos, selectedUTXOs }: State,
+    ) {
         return (
             <div class="row">
                 <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
                     {
-                        active && (
+                        active ? (
                             <table className={style.table}>
                                 {
                                     utxos.map(utxo => (
@@ -95,10 +122,13 @@ export default class UTXOs extends Component {
                                     ))
                                 }
                             </table>
-                        )
+                        ) : null
                     }
                 </div>
             </div>
         );
     }
 }
+
+const TranslatedUTXOs = translate<UTXOsProps>(null, { withRef: true })(UTXOs);
+export { TranslatedUTXOs as UTXOs };

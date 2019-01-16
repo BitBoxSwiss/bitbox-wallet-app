@@ -32,14 +32,14 @@ interface InterpolationValues {
 /**
  * This interface describes the default value to return if no translation was found.
  */
-interface DefaultValue {
-    defaultValue: any;
-}
+// interface DefaultValue {
+//     defaultValue: any;
+// }
 
 /**
  * This interface models the various options of the translate function.
  */
-type TranslateOptions = InterpolationValues | DefaultValue;
+type TranslateOptions = InterpolationValues;
 
 /**
  * This type describes the translate function of 'react-i18next'.
@@ -54,7 +54,11 @@ export interface TranslateProps {
     t: Translate;
 }
 
-type Namespaces = string | string[];
+interface HOCOptions {
+    withRef?: boolean;
+}
+
+type Namespaces = string | string[] | null;
 
 type NamespacesFunction<ProvidedProps extends ObjectButNotFunction> = (props: ProvidedProps) => Namespaces;
 
@@ -64,11 +68,12 @@ type NamespaceOptions<ProvidedProps extends ObjectButNotFunction> = Namespaces |
  * This function provides type safety for the 'react-i18next' translate decorator.
  */
 export function translate<ProvidedProps extends ObjectButNotFunction = {}>(
-    options?: NamespaceOptions<ProvidedProps>,
+    namespace?: NamespaceOptions<ProvidedProps>,
+    options?: HOCOptions,
 ) {
     return function decorator(
         WrappedComponent: ComponentFactory<TranslateProps & ProvidedProps>,
     ): ComponentFactory<ProvidedProps> {
-        return originalTranslate(options)(WrappedComponent);
+        return originalTranslate(namespace, options)(WrappedComponent);
     };
 }
