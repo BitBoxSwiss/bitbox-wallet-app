@@ -19,7 +19,7 @@ import { Amount, FiatConversion } from '../../components/rates/rates';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './balance.css';
 
-interface BalanceInterface {
+export interface BalanceInterface {
     available: Amount;
     incoming: Amount;
     hasIncoming: boolean;

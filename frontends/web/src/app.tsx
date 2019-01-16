@@ -19,11 +19,11 @@ import { getCurrentUrl, route } from 'preact-router';
 import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
-import { AccountInterface, Sidebar } from './components/sidebar/sidebar';
+import { Sidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
 import { i18nEditorActive } from './i18n/i18n';
-import Account from './routes/account/account';
+import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
 import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
@@ -154,6 +154,7 @@ export class App extends Component<{}, State> {
                             accounts={accounts} />
                         <Account
                             path="/account/:code?"
+                            code={'' /* dummy to satisfy TS */}
                             deviceIDs={deviceIDs}
                             accounts={accounts} />
                         <AddAccount

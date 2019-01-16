@@ -26,16 +26,10 @@ import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { SharedProps as SharedGuideProps, store as guideStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { AccountInterface } from '../../routes/account/account';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { BitBoxInverted } from '../icon/logo';
-
-export interface AccountInterface {
-    coinCode: string;
-    code: string;
-    name: string;
-    blockExplorerTxPrefix: string;
-}
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -47,7 +41,8 @@ interface SidebarProps {
 
 type Props = SharedGuideProps & SidebarProps & TranslateProps;
 
-function Sidebar({
+function Sidebar(
+    {
         t,
         deviceIDs,
         accounts,
@@ -55,7 +50,7 @@ function Sidebar({
         toggle,
         shown,
         show,
-}: RenderableProps<Props>): JSX.Element {
+    }: RenderableProps<Props>): JSX.Element {
     return (
         <div className="sidebarContainer">
             <div className={['sidebarOverlay', show ? 'active' : ''].join(' ')} onClick={toggle}></div>
@@ -67,15 +62,15 @@ function Sidebar({
                     accounts && accounts.map(getAccountLink)
                 }
                 {debug &&
-                 <div className="sideBarItem">
-                     <Link activeClassName="sidebar-active" class="settings" href={`/add-account`} title={t('sidebar.addAccount')}>
-                         <div className="stacked">
-                             <img draggable={false} className="sidebar_settings" src={plusCircleDisabled} alt={t('sidebar.addAccount')} />
-                             <img draggable={false} className="sidebar_settings" src={plusCircle} alt={t('sidebar.addAccount')} />
-                         </div>
-                         <span className="sidebar_label">{t('sidebar.addAccount')}</span>
-                     </Link>
-                 </div>
+                    <div className="sideBarItem">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/add-account`} title={t('sidebar.addAccount')}>
+                            <div className="stacked">
+                                <img draggable={false} className="sidebar_settings" src={plusCircleDisabled} alt={t('sidebar.addAccount')} />
+                                <img draggable={false} className="sidebar_settings" src={plusCircle} alt={t('sidebar.addAccount')} />
+                            </div>
+                            <span className="sidebar_label">{t('sidebar.addAccount')}</span>
+                        </Link>
+                    </div>
                 }
                 <div className="sidebar_drawer"></div>
                 <div className="sidebar_bottom">
