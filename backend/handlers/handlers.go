@@ -62,7 +62,6 @@ type Backend interface {
 		coin coin.Coin,
 		code string,
 		name string,
-		scriptType signing.ScriptType,
 		getSigningConfiguration func() (*signing.Configuration, error),
 	)
 	UserLanguage() language.Tag
@@ -359,7 +358,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return configuration, nil
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
-	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, scriptType, getSigningConfiguration)
+	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, getSigningConfiguration)
 	return map[string]interface{}{"success": true, "accountCode": accountCode}, nil
 }
 

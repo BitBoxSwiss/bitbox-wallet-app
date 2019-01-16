@@ -132,7 +132,6 @@ func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	scriptType signing.ScriptType,
 	getSigningConfiguration func() (*signing.Configuration, error),
 ) {
 	switch specificCoin := coin.(type) {
@@ -179,7 +178,7 @@ func (backend *Backend) createAndAddAccount(
 	if backend.arguments.Multisig() {
 		name += " Multisig"
 	}
-	backend.CreateAndAddAccount(coin, code, name, scriptType, getSigningConfiguration)
+	backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration)
 }
 
 // Config returns the app config.
