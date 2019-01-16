@@ -108,8 +108,9 @@ class AddAccount extends Component<Props, State> {
 
         interface ResponseData {
             success: boolean;
-            errorCode?: 'xpubInvalid' | 'xpubWrongNet';
+            errorCode?: 'xpubInvalid' | 'xpubWrongNet' | 'unknown';
             accountCode?: string;
+            errorMessage?: string;
         }
         apiPost('account-add', {
             coinCode,
@@ -121,7 +122,11 @@ class AddAccount extends Component<Props, State> {
             if (data.success) {
                 route('/account/' + data.accountCode);
             } else {
-                alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
+                if (data.errorCode === 'unknown' && data.errorMessage) {
+                    alertUser(this.props.t('unknownError', { errorMessage: data.errorMessage }));
+                } else {
+                    alertUser(this.props.t(`addAccount.error.${data.errorCode}`));
+                }
             }
         });
     }

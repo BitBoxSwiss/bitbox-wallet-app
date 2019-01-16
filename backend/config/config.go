@@ -116,8 +116,8 @@ ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
 -----END CERTIFICATE-----
 `
 
-// NewDefaultConfig returns the default app config.
-func NewDefaultConfig() AppConfig {
+// NewDefaultAppConfig returns the default app config.
+func NewDefaultAppConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
 			BitcoinP2PKHActive:       false,
@@ -197,49 +197,76 @@ func NewDefaultConfig() AppConfig {
 
 // Config manages the app configuration.
 type Config struct {
-	lock     locker.Locker
-	filename string
-	config   AppConfig
+	lock locker.Locker
+
+	appConfigFilename string
+	appConfig         AppConfig
+
+	accountsConfigFilename string
+	accountsConfig         AccountsConfig
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(filename string) *Config {
+func NewConfig(appConfigFilename string, accountsConfigFilename string) *Config {
 	config := &Config{
-		filename: filename,
-		config:   NewDefaultConfig(),
+		appConfigFilename: appConfigFilename,
+		appConfig:         NewDefaultAppConfig(),
+
+		accountsConfigFilename: accountsConfigFilename,
+		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
 	return config
 }
 
 func (config *Config) load() {
-	jsonBytes, err := ioutil.ReadFile(config.filename)
+	jsonBytes, err := ioutil.ReadFile(config.appConfigFilename)
 	if err != nil {
 		return
 	}
-	if err := json.Unmarshal(jsonBytes, &config.config); err != nil {
+	if err := json.Unmarshal(jsonBytes, &config.appConfig); err != nil {
+		return
+	}
+	jsonBytes, err = ioutil.ReadFile(config.accountsConfigFilename)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(jsonBytes, &config.accountsConfig); err != nil {
 		return
 	}
 }
 
-// Config returns the app config.
-func (config *Config) Config() AppConfig {
+// AppConfig returns the app config.
+func (config *Config) AppConfig() AppConfig {
 	defer config.lock.RLock()()
-	return config.config
+	return config.appConfig
 }
 
-// Set sets and persists the app config.
-func (config *Config) Set(appConfig AppConfig) error {
+// SetAppConfig sets and persists the app config.
+func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.lock.Lock()()
-	config.config = appConfig
-	return config.save()
+	config.appConfig = appConfig
+	return config.save(config.appConfigFilename, config.appConfig)
 }
 
-func (config *Config) save() error {
-	jsonBytes, err := json.Marshal(config.config)
+// AccountsConfig returns the accounts config.
+func (config *Config) AccountsConfig() AccountsConfig {
+	defer config.lock.RLock()()
+	return config.accountsConfig
+}
+
+// SetAccountsConfig sets and persists the accounts config.
+func (config *Config) SetAccountsConfig(accountsConfig AccountsConfig) error {
+	defer config.lock.Lock()()
+	config.accountsConfig = accountsConfig
+	return config.save(config.accountsConfigFilename, config.accountsConfig)
+}
+
+func (config *Config) save(filename string, conf interface{}) error {
+	jsonBytes, err := json.MarshalIndent(conf, "", "    ")
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(ioutil.WriteFile(config.filename, jsonBytes, 0644))
+	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644))
 }

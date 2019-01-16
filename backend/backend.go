@@ -106,7 +106,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
 		arguments: arguments,
-		config:    config.NewConfig(arguments.ConfigFilename()),
+		config:    config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
@@ -127,14 +127,31 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
-// CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
+// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
+// persist is true, the configuration is fetched and saved in the accounts configuration.
 func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	scriptType signing.ScriptType,
 	getSigningConfiguration func() (*signing.Configuration, error),
-) {
+	persist bool,
+) error {
+	if persist {
+		configuration, err := getSigningConfiguration()
+		if err != nil {
+			return err
+		}
+		accountsConfig := backend.config.AccountsConfig()
+		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
+			CoinCode:      coin.Code(),
+			Code:          code,
+			Name:          name,
+			Configuration: configuration,
+		})
+		if err := backend.config.SetAccountsConfig(accountsConfig); err != nil {
+			return err
+		}
+	}
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		onEvent := func(code string) func(accounts.Event) {
@@ -155,6 +172,7 @@ func (backend *Backend) CreateAndAddAccount(
 	default:
 		panic("unknown coin type")
 	}
+	return nil
 }
 
 func (backend *Backend) createAndAddAccount(
@@ -164,7 +182,7 @@ func (backend *Backend) createAndAddAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !backend.arguments.Multisig() && !backend.config.Config().Backend.AccountActive(code) {
+	if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -179,7 +197,10 @@ func (backend *Backend) createAndAddAccount(
 	if backend.arguments.Multisig() {
 		name += " Multisig"
 	}
-	backend.CreateAndAddAccount(coin, code, name, scriptType, getSigningConfiguration)
+	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Config returns the app config.
@@ -187,21 +208,21 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
-// DefaultConfig returns the default app config.y
-func (backend *Backend) DefaultConfig() config.AppConfig {
-	return config.NewDefaultConfig()
+// DefaultAppConfig returns the default app config.y
+func (backend *Backend) DefaultAppConfig() config.AppConfig {
+	return config.NewDefaultAppConfig()
 }
 
 func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	switch code {
 	case coinBTC:
-		return backend.config.Config().Backend.BTC.ElectrumServers
+		return backend.config.AppConfig().Backend.BTC.ElectrumServers
 	case coinTBTC:
-		return backend.config.Config().Backend.TBTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TBTC.ElectrumServers
 	case coinLTC:
-		return backend.config.Config().Backend.LTC.ElectrumServers
+		return backend.config.AppConfig().Backend.LTC.ElectrumServers
 	case coinTLTC:
-		return backend.config.Config().Backend.TLTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
@@ -299,19 +320,37 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			"https://insight.litecore.io/tx/")
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig,
-			"https://etherscan.io/tx/", backend.config.Config().Backend.ETH.NodeURL)
+			"https://etherscan.io/tx/", backend.config.AppConfig().Backend.ETH.NodeURL)
 	case coinRETH:
 		coin = eth.NewCoin(code, params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/", backend.config.Config().Backend.RETH.NodeURL)
+			"https://rinkeby.etherscan.io/tx/", backend.config.AppConfig().Backend.RETH.NodeURL)
 	case coinTETH:
 		coin = eth.NewCoin(code, params.TestnetChainConfig,
-			"https://ropsten.etherscan.io/tx/", backend.config.Config().Backend.TETH.NodeURL)
+			"https://ropsten.etherscan.io/tx/", backend.config.AppConfig().Backend.TETH.NodeURL)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
 	}
 	backend.coins[code] = coin
 	coin.Observe(func(event observable.Event) { backend.events <- event })
 	return coin, nil
+}
+
+func (backend *Backend) initPersistedAccounts() {
+	for _, account := range backend.config.AccountsConfig().Accounts {
+		account := account
+		coin, err := backend.Coin(account.CoinCode)
+		if err != nil {
+			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
+				account.CoinCode, account.Code)
+		}
+		getSigningConfiguration := func() (*signing.Configuration, error) {
+			return account.Configuration, nil
+		}
+		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false)
+		if err != nil {
+			panic(err)
+		}
+	}
 }
 
 func (backend *Backend) initAccounts() {
@@ -384,6 +423,7 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	}
+	backend.initPersistedAccounts()
 }
 
 // AccountsStatus returns whether the accounts have been initialized.
@@ -443,6 +483,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).Start()
+	backend.initPersistedAccounts()
 	return backend.events
 }
 
@@ -489,6 +530,9 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitAccounts()
+	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
+	// keystore. For now we just remove all, then re-add the rest.
+	backend.initPersistedAccounts()
 }
 
 // Register registers the given device at this backend.
