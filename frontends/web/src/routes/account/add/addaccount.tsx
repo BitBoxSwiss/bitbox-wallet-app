@@ -78,12 +78,23 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'tltc',
         scriptType: 'p2wpkh',
     },
+    'teth': {
+        name: 'Ethereum Ropsten Testnet',
+        coinCode: 'teth',
+        scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
+    },
+    'eth': {
+        name: 'Ethereum',
+        coinCode: 'eth',
+        scriptType: 'p2wpkh',
+    },
 };
 
 interface State {
     coinAndAccountCode: keyof typeof COIN_AND_ACCOUNT_CODES;
     accountName: string;
     extendedPublicKey: string;
+    address: string;
 }
 
 interface TestingProps {
@@ -100,6 +111,7 @@ class AddAccount extends Component<Props, State> {
             coinAndAccountCode: props.testing ? 'tbtc-p2wpkh-p2sh' : 'btc-p2wpkh-p2sh',
             accountName: '',
             extendedPublicKey: '',
+            address: '',
         };
     }
 
@@ -112,12 +124,15 @@ class AddAccount extends Component<Props, State> {
             accountCode?: string;
             errorMessage?: string;
         }
+
         apiPost('account-add', {
-            coinCode,
-            scriptType,
-            accountName: this.state.accountName,
-            extendedPublicKey: this.state.extendedPublicKey,
+                coinCode,
+                scriptType,
+                accountName: this.state.accountName,
+                extendedPublicKey: this.state.extendedPublicKey,
+                address: this.state.address,
         })
+
         .then((data: ResponseData) => {
             if (data.success) {
                 route('/account/' + data.accountCode);
@@ -133,7 +148,7 @@ class AddAccount extends Component<Props, State> {
 
     public render(
         { t, testing, ...other }: RenderableProps<Props>,
-        { coinAndAccountCode, accountName, extendedPublicKey }: Readonly<State>,
+        { coinAndAccountCode, accountName, extendedPublicKey, address }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
@@ -154,8 +169,8 @@ class AddAccount extends Component<Props, State> {
                                         label={t('addAccount.coin')}
                                         options={
                                             (testing
-                                                ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh']
-                                                : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh']
+                                                ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh', 'teth']
+                                                : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh', 'eth']
                                             ).map(item => ({
                                                 value: item,
                                                 text: COIN_AND_ACCOUNT_CODES[item].name,
@@ -169,11 +184,11 @@ class AddAccount extends Component<Props, State> {
                             </div>
                             <div class="row">
                                 <Input
-                                    label={t('addAccount.extendedPublicKey')}
-                                    onInput={linkState(this, 'extendedPublicKey')}
-                                    value={extendedPublicKey}
+                                    label={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
+                                    onInput={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? linkState(this, 'address') : linkState(this, 'extendedPublicKey')}
+                                    value={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? address : extendedPublicKey}
                                     id="extendedPublicKey"
-                                    placeholder={t('addAccount.extendedPublicKey')}
+                                    placeholder={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
                                 />
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">

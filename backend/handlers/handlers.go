@@ -43,6 +43,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -329,6 +330,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	jsonScriptType := jsonBody["scriptType"]
 	jsonAccountName := jsonBody["accountName"]
 	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
+	jsonAddress := jsonBody["address"]
 
 	coin, err := handlers.backend.Coin(jsonCoinCode)
 	if err != nil {
@@ -339,22 +341,35 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return nil, err
 	}
 	keypath := signing.NewEmptyAbsoluteKeypath()
-	extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
-	if err != nil {
-		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
-	}
-	if extendedPublicKey.IsPrivate() {
-		return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
-	}
-	if btcCoin, ok := coin.(*btc.Coin); ok {
-		expectedNet := &chaincfg.Params{
-			HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
+
+	var configuration *signing.Configuration
+
+	if jsonAddress != "" {
+		if jsonCoinCode == "teth" || jsonCoinCode == "eth" {
+			if !common.IsHexAddress(jsonAddress) {
+				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
+			}
+			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
 		}
-		if !extendedPublicKey.IsForNet(expectedNet) {
-			return map[string]interface{}{"success": false, "errorCode": "xpubWrongNet"}, nil
+	} else {
+		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
+		if err != nil {
+			return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
 		}
+		if extendedPublicKey.IsPrivate() {
+			return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
+		}
+		if btcCoin, ok := coin.(*btc.Coin); ok {
+			expectedNet := &chaincfg.Params{
+				HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
+			}
+			if !extendedPublicKey.IsForNet(expectedNet) {
+				return map[string]interface{}{"success": false, "errorCode": "xpubWrongNet"}, nil
+			}
+		}
+		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	}
-	configuration := signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
+
 	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return configuration, nil
 	}

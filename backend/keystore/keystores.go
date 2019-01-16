@@ -133,5 +133,5 @@ func (keystores *Keystores) Configuration(
 		extendedPublicKeys[index] = extendedPublicKey
 	}
 	return signing.NewConfiguration(
-		scriptType, absoluteKeypath, extendedPublicKeys, signingThreshold), nil
+		scriptType, absoluteKeypath, extendedPublicKeys, "", signingThreshold), nil
 }
