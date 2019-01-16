@@ -32,6 +32,6 @@ type AccountsConfig struct {
 // newDefaultAccountsonfig returns the default accounts config.
 func newDefaultAccountsonfig() AccountsConfig {
 	return AccountsConfig{
-		Accounts: []*signing.Configuration{},
+		Accounts: []Account{},
 	}
 }

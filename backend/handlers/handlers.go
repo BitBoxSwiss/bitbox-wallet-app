@@ -63,7 +63,8 @@ type Backend interface {
 		code string,
 		name string,
 		getSigningConfiguration func() (*signing.Configuration, error),
-	)
+		persist bool,
+	) error
 	UserLanguage() language.Tag
 	OnAccountInit(f func(accounts.Interface))
 	OnAccountUninit(f func(accounts.Interface))
@@ -358,7 +359,15 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return configuration, nil
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
-	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, getSigningConfiguration)
+	err = handlers.backend.CreateAndAddAccount(
+		coin, accountCode, jsonAccountName, getSigningConfiguration, true)
+	if err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorCode":    "unknown",
+			"errorMessage": err.Error(),
+		}, nil
+	}
 	return map[string]interface{}{"success": true, "accountCode": accountCode}, nil
 }
 

@@ -127,13 +127,31 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
-// CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
+// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
+// persist is true, the configuration is fetched and saved in the accounts configuration.
 func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
-) {
+	persist bool,
+) error {
+	if persist {
+		configuration, err := getSigningConfiguration()
+		if err != nil {
+			return err
+		}
+		accountsConfig := backend.config.AccountsConfig()
+		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
+			CoinCode:      coin.Code(),
+			Code:          code,
+			Name:          name,
+			Configuration: configuration,
+		})
+		if err := backend.config.SetAccountsConfig(accountsConfig); err != nil {
+			return err
+		}
+	}
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		onEvent := func(code string) func(accounts.Event) {
@@ -154,6 +172,7 @@ func (backend *Backend) CreateAndAddAccount(
 	default:
 		panic("unknown coin type")
 	}
+	return nil
 }
 
 func (backend *Backend) createAndAddAccount(
@@ -178,7 +197,10 @@ func (backend *Backend) createAndAddAccount(
 	if backend.arguments.Multisig() {
 		name += " Multisig"
 	}
-	backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration)
+	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Config returns the app config.
