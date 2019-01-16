@@ -29,8 +29,8 @@ type Arguments struct {
 	// cacheDirectoryPath stores the location where application data is stored.
 	cacheDirectoryPath string
 
-	// configFilename stores the filename of the application configuration.
-	configFilename string
+	// appConfigFilename stores the filename of the application configuration.
+	appConfigFilename string
 
 	// Testing stores whether the application is for testing only.
 	testing bool
@@ -69,7 +69,7 @@ func NewArguments(
 	arguments := &Arguments{
 		mainDirectoryPath:  mainDirectoryPath,
 		cacheDirectoryPath: cacheDirectoryPath,
-		configFilename:     path.Join(mainDirectoryPath, "config.json"),
+		appConfigFilename:  path.Join(mainDirectoryPath, "config.json"),
 		testing:            testing,
 		regtest:            regtest,
 		multisig:           multisig,
@@ -87,9 +87,9 @@ func (arguments *Arguments) MainDirectoryPath() string {
 	return arguments.mainDirectoryPath
 }
 
-// ConfigFilename returns the path to the config file of the backend.
-func (arguments *Arguments) ConfigFilename() string {
-	return arguments.configFilename
+// AppConfigFilename returns the path to the config file of the backend.
+func (arguments *Arguments) AppConfigFilename() string {
+	return arguments.appConfigFilename
 }
 
 // CacheDirectoryPath returns the path to the cache directory of the backend to store caches.

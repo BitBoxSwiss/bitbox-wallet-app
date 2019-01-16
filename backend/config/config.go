@@ -116,8 +116,8 @@ ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
 -----END CERTIFICATE-----
 `
 
-// NewDefaultConfig returns the default app config.
-func NewDefaultConfig() AppConfig {
+// NewDefaultAppConfig returns the default app config.
+func NewDefaultAppConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
 			BitcoinP2PKHActive:       false,
@@ -197,49 +197,49 @@ func NewDefaultConfig() AppConfig {
 
 // Config manages the app configuration.
 type Config struct {
-	lock     locker.Locker
-	filename string
-	config   AppConfig
+	lock              locker.Locker
+	appConfigFilename string
+	appConfig         AppConfig
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(filename string) *Config {
+func NewConfig(appConfigFilename string) *Config {
 	config := &Config{
-		filename: filename,
-		config:   NewDefaultConfig(),
+		appConfigFilename: appConfigFilename,
+		appConfig:         NewDefaultAppConfig(),
 	}
 	config.load()
 	return config
 }
 
 func (config *Config) load() {
-	jsonBytes, err := ioutil.ReadFile(config.filename)
+	jsonBytes, err := ioutil.ReadFile(config.appConfigFilename)
 	if err != nil {
 		return
 	}
-	if err := json.Unmarshal(jsonBytes, &config.config); err != nil {
+	if err := json.Unmarshal(jsonBytes, &config.appConfig); err != nil {
 		return
 	}
 }
 
-// Config returns the app config.
-func (config *Config) Config() AppConfig {
+// AppConfig returns the app config.
+func (config *Config) AppConfig() AppConfig {
 	defer config.lock.RLock()()
-	return config.config
+	return config.appConfig
 }
 
-// Set sets and persists the app config.
-func (config *Config) Set(appConfig AppConfig) error {
+// SetAppConfig sets and persists the app config.
+func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.lock.Lock()()
-	config.config = appConfig
+	config.appConfig = appConfig
 	return config.save()
 }
 
 func (config *Config) save() error {
-	jsonBytes, err := json.Marshal(config.config)
+	jsonBytes, err := json.Marshal(config.appConfig)
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(ioutil.WriteFile(config.filename, jsonBytes, 0644))
+	return errp.WithStack(ioutil.WriteFile(config.appConfigFilename, jsonBytes, 0644))
 }

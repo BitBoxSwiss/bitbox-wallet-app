@@ -106,7 +106,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
 		arguments: arguments,
-		config:    config.NewConfig(arguments.ConfigFilename()),
+		config:    config.NewConfig(arguments.AppConfigFilename()),
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
@@ -164,7 +164,7 @@ func (backend *Backend) createAndAddAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !backend.arguments.Multisig() && !backend.config.Config().Backend.AccountActive(code) {
+	if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -187,21 +187,21 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
-// DefaultConfig returns the default app config.y
-func (backend *Backend) DefaultConfig() config.AppConfig {
-	return config.NewDefaultConfig()
+// DefaultAppConfig returns the default app config.y
+func (backend *Backend) DefaultAppConfig() config.AppConfig {
+	return config.NewDefaultAppConfig()
 }
 
 func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	switch code {
 	case coinBTC:
-		return backend.config.Config().Backend.BTC.ElectrumServers
+		return backend.config.AppConfig().Backend.BTC.ElectrumServers
 	case coinTBTC:
-		return backend.config.Config().Backend.TBTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TBTC.ElectrumServers
 	case coinLTC:
-		return backend.config.Config().Backend.LTC.ElectrumServers
+		return backend.config.AppConfig().Backend.LTC.ElectrumServers
 	case coinTLTC:
-		return backend.config.Config().Backend.TLTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
@@ -299,13 +299,13 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			"https://insight.litecore.io/tx/")
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig,
-			"https://etherscan.io/tx/", backend.config.Config().Backend.ETH.NodeURL)
+			"https://etherscan.io/tx/", backend.config.AppConfig().Backend.ETH.NodeURL)
 	case coinRETH:
 		coin = eth.NewCoin(code, params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/", backend.config.Config().Backend.RETH.NodeURL)
+			"https://rinkeby.etherscan.io/tx/", backend.config.AppConfig().Backend.RETH.NodeURL)
 	case coinTETH:
 		coin = eth.NewCoin(code, params.TestnetChainConfig,
-			"https://ropsten.etherscan.io/tx/", backend.config.Config().Backend.TETH.NodeURL)
+			"https://ropsten.etherscan.io/tx/", backend.config.AppConfig().Backend.TETH.NodeURL)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
 	}

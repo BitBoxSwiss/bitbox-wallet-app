@@ -53,7 +53,7 @@ import (
 // Backend models the API of the backend.
 type Backend interface {
 	Config() *config.Config
-	DefaultConfig() config.AppConfig
+	DefaultAppConfig() config.AppConfig
 	Coin(string) (coin.Coin, error)
 	AccountsStatus() string
 	Testing() bool
@@ -145,9 +145,9 @@ func NewHandlers(
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -239,20 +239,20 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error)
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes), nil
 }
 
-func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Config().Config(), nil
+func (handlers *Handlers) getAppConfigHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Config().AppConfig(), nil
 }
 
 func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.DefaultConfig(), nil
+	return handlers.backend.DefaultAppConfig(), nil
 }
 
-func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, error) {
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return nil, handlers.backend.Config().Set(appConfig)
+	return nil, handlers.backend.Config().SetAppConfig(appConfig)
 }
 
 func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {
