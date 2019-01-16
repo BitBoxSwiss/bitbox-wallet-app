@@ -256,21 +256,26 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		if transaction.Timestamp() != nil {
 			timeString = transaction.Timestamp().Format(time.RFC3339)
 		}
-		addresses := []string{}
 		for _, addressAndAmount := range transaction.Addresses() {
-			addresses = append(addresses, addressAndAmount.Address)
+			if transactionType == "sent" && addressAndAmount.Ours {
+				transactionType = "sent_to_yourself"
+			}
+			err := writer.Write([]string{
+				timeString,
+				transactionType,
+				addressAndAmount.Amount.BigInt().String(),
+				feeString,
+				addressAndAmount.Address,
+				transaction.ID(),
+			})
+			if err != nil {
+				return nil, errp.WithStack(err)
+			}
+			// a multitx is output in one row per receive address. Show the tx fee only in the
+			// first row.
+			feeString = ""
 		}
-		err := writer.Write([]string{
-			timeString,
-			transactionType,
-			transaction.Amount().BigInt().String(),
-			feeString,
-			strings.Join(addresses, "; "),
-			transaction.ID(),
-		})
-		if err != nil {
-			return nil, errp.WithStack(err)
-		}
+
 	}
 	return path, nil
 }
