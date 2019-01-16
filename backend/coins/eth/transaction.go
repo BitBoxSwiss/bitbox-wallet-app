@@ -65,8 +65,11 @@ func (tx wrappedTransaction) Amount() coin.Amount {
 }
 
 // Addresses implements accounts.Transaction.
-func (tx wrappedTransaction) Addresses() []string {
-	return []string{tx.tx.To().Hex()}
+func (tx wrappedTransaction) Addresses() []accounts.AddressAndAmount {
+	return []accounts.AddressAndAmount{{
+		Address: tx.tx.To().Hex(),
+		Amount:  tx.Amount(),
+	}}
 }
 
 // Gas implements ethtypes.EthereumTransaction.

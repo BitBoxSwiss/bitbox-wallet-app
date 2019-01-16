@@ -172,6 +172,10 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			t := timestamp.Format(time.RFC3339)
 			formattedTime = &t
 		}
+		addresses := []string{}
+		for _, addressAndAmount := range txInfo.Addresses() {
+			addresses = append(addresses, addressAndAmount.Address)
+		}
 		txInfoJSON := Transaction{
 			ID:               txInfo.ID(),
 			NumConfirmations: txInfo.NumConfirmations(),
@@ -183,7 +187,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			Amount:    handlers.formatAmountAsJSON(txInfo.Amount()),
 			Fee:       feeString,
 			Time:      formattedTime,
-			Addresses: txInfo.Addresses(),
+			Addresses: addresses,
 		}
 		switch specificInfo := txInfo.(type) {
 		case *transactions.TxInfo:
@@ -252,12 +256,16 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		if transaction.Timestamp() != nil {
 			timeString = transaction.Timestamp().Format(time.RFC3339)
 		}
+		addresses := []string{}
+		for _, addressAndAmount := range transaction.Addresses() {
+			addresses = append(addresses, addressAndAmount.Address)
+		}
 		err := writer.Write([]string{
 			timeString,
 			transactionType,
 			transaction.Amount().BigInt().String(),
 			feeString,
-			strings.Join(transaction.Addresses(), "; "),
+			strings.Join(addresses, "; "),
 			transaction.ID(),
 		})
 		if err != nil {
