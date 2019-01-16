@@ -32,6 +32,9 @@ type Arguments struct {
 	// appConfigFilename stores the filename of the application configuration.
 	appConfigFilename string
 
+	// accountsConfigFilename stores the filename of the accounts configuration.
+	accountsConfigFilename string
+
 	// Testing stores whether the application is for testing only.
 	testing bool
 
@@ -67,14 +70,15 @@ func NewArguments(
 
 	log := logging.Get().WithGroup("arguments")
 	arguments := &Arguments{
-		mainDirectoryPath:  mainDirectoryPath,
-		cacheDirectoryPath: cacheDirectoryPath,
-		appConfigFilename:  path.Join(mainDirectoryPath, "config.json"),
-		testing:            testing,
-		regtest:            regtest,
-		multisig:           multisig,
-		devmode:            devmode,
-		log:                log,
+		mainDirectoryPath:      mainDirectoryPath,
+		cacheDirectoryPath:     cacheDirectoryPath,
+		appConfigFilename:      path.Join(mainDirectoryPath, "config.json"),
+		accountsConfigFilename: path.Join(mainDirectoryPath, "accounts.json"),
+		testing:                testing,
+		regtest:                regtest,
+		multisig:               multisig,
+		devmode:                devmode,
+		log:                    log,
 	}
 
 	log.Infof("Arguments: %+v", arguments)
@@ -87,9 +91,14 @@ func (arguments *Arguments) MainDirectoryPath() string {
 	return arguments.mainDirectoryPath
 }
 
-// AppConfigFilename returns the path to the config file of the backend.
+// AppConfigFilename returns the path to the app config file of the backend.
 func (arguments *Arguments) AppConfigFilename() string {
 	return arguments.appConfigFilename
+}
+
+// AccountsConfigFilename returns the path to the accounts config file of the backend.
+func (arguments *Arguments) AccountsConfigFilename() string {
+	return arguments.accountsConfigFilename
 }
 
 // CacheDirectoryPath returns the path to the cache directory of the backend to store caches.

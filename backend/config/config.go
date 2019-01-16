@@ -197,17 +197,24 @@ func NewDefaultAppConfig() AppConfig {
 
 // Config manages the app configuration.
 type Config struct {
-	lock              locker.Locker
+	lock locker.Locker
+
 	appConfigFilename string
 	appConfig         AppConfig
+
+	accountsConfigFilename string
+	accountsConfig         AccountsConfig
 }
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(appConfigFilename string) *Config {
+func NewConfig(appConfigFilename string, accountsConfigFilename string) *Config {
 	config := &Config{
 		appConfigFilename: appConfigFilename,
 		appConfig:         NewDefaultAppConfig(),
+
+		accountsConfigFilename: accountsConfigFilename,
+		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
 	return config
@@ -219,6 +226,13 @@ func (config *Config) load() {
 		return
 	}
 	if err := json.Unmarshal(jsonBytes, &config.appConfig); err != nil {
+		return
+	}
+	jsonBytes, err = ioutil.ReadFile(config.accountsConfigFilename)
+	if err != nil {
+		return
+	}
+	if err := json.Unmarshal(jsonBytes, &config.accountsConfig); err != nil {
 		return
 	}
 }
@@ -233,13 +247,26 @@ func (config *Config) AppConfig() AppConfig {
 func (config *Config) SetAppConfig(appConfig AppConfig) error {
 	defer config.lock.Lock()()
 	config.appConfig = appConfig
-	return config.save()
+	return config.save(config.appConfigFilename, config.appConfig)
 }
 
-func (config *Config) save() error {
-	jsonBytes, err := json.Marshal(config.appConfig)
+// AccountsConfig returns the accounts config.
+func (config *Config) AccountsConfig() AccountsConfig {
+	defer config.lock.RLock()()
+	return config.accountsConfig
+}
+
+// SetAccountsConfig sets and persists the accounts config.
+func (config *Config) SetAccountsConfig(accountsConfig AccountsConfig) error {
+	defer config.lock.Lock()()
+	config.accountsConfig = accountsConfig
+	return config.save(config.accountsConfigFilename, config.accountsConfig)
+}
+
+func (config *Config) save(filename string, conf interface{}) error {
+	jsonBytes, err := json.MarshalIndent(conf, "", "    ")
 	if err != nil {
 		return errp.WithStack(err)
 	}
-	return errp.WithStack(ioutil.WriteFile(config.appConfigFilename, jsonBytes, 0644))
+	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644))
 }

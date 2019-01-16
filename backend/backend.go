@@ -106,7 +106,7 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
 		arguments: arguments,
-		config:    config.NewConfig(arguments.AppConfigFilename()),
+		config:    config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
 		events:    make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
