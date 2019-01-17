@@ -48,7 +48,7 @@ export default class Receive extends Component {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
         if (this.props.deviceIDs.length > 0) {
-            apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+            apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(paired => {
                 this.setState({ paired });
             });
         }

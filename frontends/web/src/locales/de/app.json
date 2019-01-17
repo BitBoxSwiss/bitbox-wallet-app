@@ -513,6 +513,7 @@
       "title": "Abgebrochen"
     },
     "button": "Mit Smartphone App koppeln",
+    "confirm": "Möchten Sie Ihre BitBox wirklich koppeln? Danach wird Ihr Mobiltelefon zur Durchführung einer Transaktion unbedingt erforderlich sein.",
     "connectOnly": {
       "button": "Mobile App verbinden",
       "title": "Scannen Sie den Code mit der Smartphone App. Diese können SIe downloaden, indem suc"

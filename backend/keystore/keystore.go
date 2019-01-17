@@ -37,7 +37,7 @@ type Keystore interface {
 
 	// HasSecureOutput returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	HasSecureOutput(*signing.Configuration, coin.Coin) bool
+	HasSecureOutput(*signing.Configuration, coin.Coin) (bool, error)
 
 	// OutputAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.

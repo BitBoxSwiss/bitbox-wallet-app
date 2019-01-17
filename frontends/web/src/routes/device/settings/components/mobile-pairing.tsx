@@ -17,6 +17,8 @@
 import { Component, h, RenderableProps } from 'preact';
 import appStoreBadge from '../../../../assets/badges/app-store-badge.svg';
 import playStoreBadge from '../../../../assets/badges/google-play-badge.png';
+import { alertUser } from '../../../../components/alert/Alert';
+import { confirmation } from '../../../../components/confirm/Confirm';
 import { Dialog } from '../../../../components/dialog/dialog';
 import { Button } from '../../../../components/forms';
 import { QRCode } from '../../../../components/qrcode/qrcode';
@@ -28,7 +30,9 @@ import * as style from '../../device.css';
 interface PairingProps {
     deviceID: string;
     deviceLocked: boolean;
-    mobilePaired: boolean;
+    paired: boolean;
+    hasMobileChannel: boolean;
+    onPairingEnabled: () => void;
 }
 
 type Props = PairingProps & TranslateProps;
@@ -91,23 +95,43 @@ class MobilePairing extends Component<Props, State> {
         }
     }
 
-    private startPairing = () => {
-        this.setState({
-            channel: null,
-            status: 'loading',
-        });
-        apiPost('devices/' + this.props.deviceID + '/pairing/start').then(channel => {
-            if (this.props.deviceLocked) {
-                this.setState({
-                    channel,
-                    status: 'connectOnly',
-                });
-            } else {
-                this.setState({
-                    channel,
-                    status: 'start',
-                });
+    private reconnectUnpaired = () => {
+        // If a mobile connection exists, but the device is not marked as paired, then mark it as paired.
+        confirmation(this.props.t('pairing.confirm'), response => {
+            if (!response) {
+                return;
             }
+            apiPost('devices/' + this.props.deviceID + '/feature-set', {
+                pairing: true,
+            }).then(() => {
+                this.props.onPairingEnabled();
+                alertUser(this.props.t('pairing.success.text'));
+            });
+        });
+    }
+
+    private startPairing = () => {
+        confirmation(this.props.t('pairing.confirm'), response => {
+            if (!response) {
+                return;
+            }
+            this.setState({
+                channel: null,
+                status: 'loading',
+            });
+            apiPost('devices/' + this.props.deviceID + '/pairing/start').then(channel => {
+                if (this.props.deviceLocked) {
+                    this.setState({
+                        channel,
+                        status: 'connectOnly',
+                    });
+                } else {
+                    this.setState({
+                        channel,
+                        status: 'start',
+                    });
+                }
+            });
         });
     }
 
@@ -123,7 +147,7 @@ class MobilePairing extends Component<Props, State> {
     }
 
     public render(
-        { t, deviceLocked, mobilePaired }: RenderableProps<Props>,
+        { t, deviceLocked, paired, hasMobileChannel }: RenderableProps<Props>,
         { channel, status, showQRCode }: State,
     ) {
         let content;
@@ -177,13 +201,14 @@ class MobilePairing extends Component<Props, State> {
         } else {
             content = (<p>{t(`pairing.${status}.text`)}</p>);
         }
-
         return (
             <div>
-                <Button primary onClick={this.startPairing}>
-                    {!deviceLocked && t('pairing.button')}
-                    {deviceLocked && !mobilePaired && t(`pairing.connectOnly.button`)}
-                    {deviceLocked && mobilePaired && t(`pairing.reconnectOnly.button`)}
+                <Button primary onClick={hasMobileChannel && !paired ? this.reconnectUnpaired : this.startPairing}>
+                    { deviceLocked ? (
+                          hasMobileChannel ? t(`pairing.reconnectOnly.button`) : t(`pairing.connectOnly.button`)
+                    ) : (
+                          (hasMobileChannel && !paired) ? t(`pairing.reconnectOnly.button`) : t('pairing.button')
+                    )}
                 </Button>
                 {
                     status && (
