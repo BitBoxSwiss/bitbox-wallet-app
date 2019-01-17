@@ -22,5 +22,7 @@ make weblint
 yarn --cwd=frontends/web test --ci --no-color --coverage
 # check that the i18n files are formatted correctly (avoids noisy diff when
 # pulling from locize)
-locize format frontends/web/src/locales --format json --dry true || \
+if ! locize format frontends/web/src/locales --format json --dry true ; then
     echo "i18n files malformatted. Fix with: make locize-fix"
+    exit 1
+fi
