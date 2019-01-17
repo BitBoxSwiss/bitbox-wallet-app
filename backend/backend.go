@@ -199,9 +199,9 @@ func (backend *Backend) CreateAndAddAccount(
 	}
 
 	var account accounts.Interface
-	handleEvent := func(event string) {
-		backend.events <- AccountEvent{Type: "account", Code: code, Data: event}
-		if account != nil && event == string(accounts.EventSyncDone) {
+	onEvent := func(event accounts.Event) {
+		backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+		if account != nil && event == accounts.EventSyncDone {
 			backend.notifyNewTxs(account)
 		}
 	}
@@ -212,16 +212,10 @@ func (backend *Backend) CreateAndAddAccount(
 
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		onEvent := func(event accounts.Event) {
-			handleEvent(string(event))
-		}
 		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
 	case *eth.Coin:
-		onEvent := func(event eth.Event) {
-			handleEvent(string(event))
-		}
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
