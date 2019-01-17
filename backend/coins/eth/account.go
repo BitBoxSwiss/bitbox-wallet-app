@@ -29,9 +29,6 @@ import (
 
 var pollInterval = 10 * time.Second
 
-// Event instances are sent to the onEvent callback of the wallet.
-type Event string
-
 // Account is an Ethereum account, with one address.
 type Account struct {
 	locker.Locker
@@ -48,7 +45,7 @@ type Account struct {
 	getNotifier             func(*signing.Configuration) accounts.Notifier
 	notifier                accounts.Notifier
 	offline                 bool
-	onEvent                 func(Event)
+	onEvent                 func(accounts.Event)
 
 	initialized bool
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
@@ -74,7 +71,7 @@ func NewAccount(
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
 	getNotifier func(*signing.Configuration) accounts.Notifier,
-	onEvent func(Event),
+	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
 	account := &Account{
@@ -95,13 +92,13 @@ func NewAccount(
 		log: log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(Event(accounts.EventSyncStarted)) },
+		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
 			if !account.initialized {
 				account.initialized = true
-				onEvent(Event(accounts.EventStatusChanged))
+				onEvent(accounts.EventStatusChanged)
 			}
-			onEvent(Event(accounts.EventSyncDone))
+			onEvent(accounts.EventSyncDone)
 		},
 		log,
 	)
@@ -181,11 +178,11 @@ func (account *Account) poll() {
 			account.log.WithError(err).Error("error updating account")
 			if !account.offline {
 				account.offline = true
-				account.onEvent(Event(accounts.EventStatusChanged))
+				account.onEvent(accounts.EventStatusChanged)
 			}
 		} else if account.offline {
 			account.offline = false
-			account.onEvent(Event(accounts.EventStatusChanged))
+			account.onEvent(accounts.EventStatusChanged)
 		}
 		timer = time.After(pollInterval)
 	}
