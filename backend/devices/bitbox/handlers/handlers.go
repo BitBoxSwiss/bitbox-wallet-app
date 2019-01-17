@@ -171,7 +171,11 @@ func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface
 }
 
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
-	return handlers.bitbox.DeviceInfo()
+	info, err := handlers.bitbox.DeviceInfo()
+	if errp.Cause(err) == bitbox.ErrMustBeLoggedIn {
+		return nil, nil
+	}
+	return info, err
 }
 
 func (handlers *Handlers) getPairedHandler(_ *http.Request) (interface{}, error) {

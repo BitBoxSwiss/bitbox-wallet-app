@@ -127,7 +127,12 @@ class Account extends Component<Props, State> {
     private checkSDCards() {
         Promise.all(this.props.deviceIDs.map(deviceID => {
             return apiGet(`devices/${deviceID}/info`)
-                .then(({ sdcard }) => sdcard);
+                .then(info => {
+                    if (!info) {
+                        return false;
+                    }
+                    return info.sdcard;
+                });
         }))
             .then(sdcards => sdcards.some(sdcard => sdcard))
             .then(hasCard => this.setState({ hasCard }));

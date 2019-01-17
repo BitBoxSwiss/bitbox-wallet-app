@@ -57,6 +57,10 @@ var (
 
 var errNoBootloader = errors.New("invalid command in bootloader")
 
+// ErrMustBeLoggedIn is returned by API calls when a login is required, but the device has not beed
+// unlocked.
+var ErrMustBeLoggedIn = errors.New("must be logged in")
+
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged device.Event = "statusChanged"
@@ -377,6 +381,9 @@ func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
 
 // DeviceInfo gets device information.
 func (dbb *Device) DeviceInfo() (*DeviceInfo, error) {
+	if dbb.pin == "" {
+		return nil, errp.WithStack(ErrMustBeLoggedIn)
+	}
 	return dbb.deviceInfo(dbb.pin)
 }
 
