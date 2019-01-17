@@ -32,6 +32,15 @@ const (
 	TxTypeSendSelf TxType = "sendSelf"
 )
 
+// AddressAndAmount holds an address and the corresponding amount.
+type AddressAndAmount struct {
+	Address string
+	// Amount is the amount sent to or received on the address in a transaction.
+	Amount coin.Amount
+	// Ours is true if the address is one of our receive addresses.
+	Ours bool
+}
+
 // Transaction models a transaction with common transaction info.
 type Transaction interface {
 	// Fee is nil for a receiving tx. The fee is only displayed (and relevant) when sending funds
@@ -54,5 +63,5 @@ type Transaction interface {
 	Amount() coin.Amount
 
 	// Addresses money was sent to / received on.
-	Addresses() []string
+	Addresses() []AddressAndAmount
 }

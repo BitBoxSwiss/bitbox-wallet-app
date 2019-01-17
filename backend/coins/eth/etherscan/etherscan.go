@@ -145,8 +145,11 @@ func (tx *Transaction) Amount() coin.Amount {
 }
 
 // Addresses implements accounts.Transaction.
-func (tx *Transaction) Addresses() []string {
-	return []string{tx.jsonTransaction.To.Hex()}
+func (tx *Transaction) Addresses() []accounts.AddressAndAmount {
+	return []accounts.AddressAndAmount{{
+		Address: tx.jsonTransaction.To.Hex(),
+		Amount:  tx.Amount(),
+	}}
 }
 
 // Gas implements ethtypes.EthereumTransaction.

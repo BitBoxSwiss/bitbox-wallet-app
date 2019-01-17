@@ -437,7 +437,7 @@ type TxInfo struct {
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	timestamp *time.Time
 	// addresses money was sent to / received on (without change addresses).
-	addresses []string
+	addresses []accounts.AddressAndAmount
 }
 
 // Fee implements accounts.Transaction.
@@ -484,7 +484,7 @@ func (txInfo *TxInfo) Amount() coin.Amount {
 }
 
 // Addresses implements accounts.Transaction.
-func (txInfo *TxInfo) Addresses() []string {
+func (txInfo *TxInfo) Addresses() []accounts.AddressAndAmount {
 	return txInfo.addresses
 }
 
@@ -521,8 +521,8 @@ func (transactions *Transactions) txInfo(
 		}
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
-	receiveAddresses := []string{}
-	sendAddresses := []string{}
+	receiveAddresses := []accounts.AddressAndAmount{}
+	sendAddresses := []accounts.AddressAndAmount{}
 	allOutputsOurs := true
 	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
@@ -534,21 +534,25 @@ func (transactions *Transactions) txInfo(
 			// TODO
 			panic(err)
 		}
-		address := transactions.outputToAddress(txOut.PkScript)
+		addressAndAmount := accounts.AddressAndAmount{
+			Address: transactions.outputToAddress(txOut.PkScript),
+			Amount:  coin.NewAmountFromInt64(txOut.Value),
+			Ours:    output != nil,
+		}
 		if output != nil {
 			if isChange(getScriptHashHex(output)) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
-				receiveAddresses = append(receiveAddresses, address)
-				sendAddresses = append(sendAddresses, address)
+				receiveAddresses = append(receiveAddresses, addressAndAmount)
+				sendAddresses = append(sendAddresses, addressAndAmount)
 			}
 		} else {
 			allOutputsOurs = false
-			sendAddresses = append(sendAddresses, address)
+			sendAddresses = append(sendAddresses, addressAndAmount)
 		}
 	}
-	var addresses []string
+	var addresses []accounts.AddressAndAmount
 	var txType accounts.TxType
 	var feeP *btcutil.Amount
 	if allInputsOurs {
