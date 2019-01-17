@@ -508,6 +508,10 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
+  "notification": {
+    "newTxs": "New transaction in: {{accountName}}",
+    "newTxs_plural": "{{count}} new transactions in: {{accountName}}"
+  },
   "pairing": {
     "aborted": {
       "text": "The pairing has been aborted from the mobile app.",

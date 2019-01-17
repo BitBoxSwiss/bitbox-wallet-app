@@ -80,6 +80,7 @@ type Backend interface {
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(string, string) error
 	RegisterTestKeystore(string)
+	NotifyUser(string) error
 }
 
 // Handlers provides a web api to the backend.
@@ -148,6 +149,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -253,6 +255,16 @@ func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, er
 		return nil, errp.WithStack(err)
 	}
 	return nil, handlers.backend.Config().SetAppConfig(appConfig)
+}
+
+func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Text string `json:"text"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.backend.NotifyUser(payload.Text)
 }
 
 func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {

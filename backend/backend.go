@@ -20,7 +20,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
+	"fmt"
+	"path/filepath"
 
+	"github.com/0xAX/notificator"
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -59,8 +62,9 @@ const (
 )
 
 type backendEvent struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
+	Type string      `json:"type"`
+	Data string      `json:"data"`
+	Meta interface{} `json:"meta"`
 }
 
 type deviceEvent struct {
@@ -88,6 +92,8 @@ type Backend struct {
 	config *config.Config
 
 	events chan interface{}
+
+	notifier *Notifier
 
 	devices         map[string]device.Interface
 	keystores       *keystore.Keystores
@@ -119,7 +125,14 @@ func NewBackend(arguments *arguments.Arguments) *Backend {
 		accounts:  []accounts.Interface{},
 		log:       log,
 	}
+	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
+	if err != nil {
+		// TODO
+		panic(err)
+	}
+	backend.notifier = notifier
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
+
 	return backend
 }
 
@@ -129,6 +142,29 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	backend.accounts = append(backend.accounts, account)
 	backend.onAccountInit(account)
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
+}
+
+func (backend *Backend) notifyNewTxs(account accounts.Interface) {
+	notifier := account.Notifier()
+	if notifier == nil {
+		return
+	}
+	// Notify user of new transactions
+	unnotifiedCount, err := notifier.UnnotifiedCount()
+	if err != nil {
+		backend.log.WithError(err).Error("error getting notifier counts")
+		return
+	}
+	if unnotifiedCount != 0 {
+		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
+			"count":       unnotifiedCount,
+			"accountName": account.Name(),
+		}}
+
+		if err := notifier.MarkAllNotified(); err != nil {
+			backend.log.WithError(err).Error("error marking notified")
+		}
+	}
 }
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
@@ -161,22 +197,33 @@ func (backend *Backend) CreateAndAddAccount(
 			return err
 		}
 	}
+
+	var account accounts.Interface
+	handleEvent := func(event string) {
+		backend.events <- AccountEvent{Type: "account", Code: code, Data: event}
+		if account != nil && event == string(accounts.EventSyncDone) {
+			backend.notifyNewTxs(account)
+		}
+	}
+
+	getNotifier := func(configuration *signing.Configuration) accounts.Notifier {
+		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code()))
+	}
+
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		onEvent := func(code string) func(accounts.Event) {
-			return func(event accounts.Event) {
-				backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-			}
+		onEvent := func(event accounts.Event) {
+			handleEvent(string(event))
 		}
-		account := btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
+		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
 	case *eth.Coin:
 		onEvent := func(event eth.Event) {
-			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+			handleEvent(string(event))
 		}
-		account := eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, onEvent, backend.log)
+		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
 	default:
 		panic("unknown coin type")
@@ -657,4 +704,12 @@ func (backend *Backend) RegisterTestKeystore(pin string) {
 	softwareBasedKeystore := software.NewKeystoreFromPIN(
 		backend.keystores.Count(), pin)
 	backend.RegisterKeystore(softwareBasedKeystore)
+}
+
+// NotifyUser creates a desktop notification.
+func (backend *Backend) NotifyUser(text string) error {
+	return notificator.New(notificator.Options{
+		DefaultIcon: "icon/default.png",
+		AppName:     "My test App",
+	}).Push("BitBox Wallet", text, "", notificator.UR_NORMAL)
 }

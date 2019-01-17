@@ -3,6 +3,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:1497e076791fd52385aeec859160ce247918f6e74fa660d597bc2bc8830b200b"
+  name = "github.com/0xAX/notificator"
+  packages = ["."]
+  pruneopts = ""
+  revision = "d81462e38c2145023f9ecf5414fc84d45d5bfe82"
+
+[[projects]]
+  branch = "master"
   digest = "1:fb3e5f9347a259d297b1be14563bf928ad2dc6d2649005186a5df3a9f2935e37"
   name = "github.com/aead/siphash"
   packages = ["."]
@@ -312,6 +320,7 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
+    "github.com/0xAX/notificator",
     "github.com/btcsuite/btcd/blockchain",
     "github.com/btcsuite/btcd/btcec",
     "github.com/btcsuite/btcd/chaincfg",
@@ -326,12 +335,14 @@
     "github.com/cloudfoundry-attic/jibber_jabber",
     "github.com/coreos/bbolt",
     "github.com/davecgh/go-spew/spew",
+    "github.com/ethereum/go-ethereum",
     "github.com/ethereum/go-ethereum/common",
     "github.com/ethereum/go-ethereum/common/math",
     "github.com/ethereum/go-ethereum/core/types",
     "github.com/ethereum/go-ethereum/crypto",
     "github.com/ethereum/go-ethereum/ethclient",
     "github.com/ethereum/go-ethereum/params",
+    "github.com/ethereum/go-ethereum/rlp",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
     "github.com/karalabe/hid",
