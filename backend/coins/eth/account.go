@@ -106,7 +106,7 @@ func NewAccount(
 
 // Info implements accounts.Interface.
 func (account *Account) Info() *accounts.Info {
-	return &accounts.Info{}
+	return nil
 }
 
 // Code implements accounts.Interface.
