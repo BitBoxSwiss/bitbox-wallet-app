@@ -19,6 +19,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
@@ -76,6 +77,9 @@ type AccountEvent struct {
 	Code string `json:"code"`
 	Data string `json:"data"`
 }
+
+// ErrAccountAlreadyExists is returned if an account is being added which already exists.
+var ErrAccountAlreadyExists = errors.New("already exists")
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
@@ -142,6 +146,11 @@ func (backend *Backend) CreateAndAddAccount(
 			return err
 		}
 		accountsConfig := backend.config.AccountsConfig()
+		for _, account := range accountsConfig.Accounts {
+			if account.Configuration.Hash() == configuration.Hash() {
+				return errp.WithStack(ErrAccountAlreadyExists)
+			}
+		}
 		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
 			CoinCode:      coin.Code(),
 			Code:          code,
