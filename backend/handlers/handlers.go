@@ -264,9 +264,6 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	blocked := true
 
 	for _, whitelistedURL := range []string{
-		"https://shiftcrypto.ch/contact",
-		"https://shiftcrypto.ch/shop",
-		"https://shiftcrypto.ch/backup",
 		"https://www.cryptocompare.com",
 		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 		"https://en.bitcoin.it/wiki/Bech32_adoption",
@@ -278,6 +275,7 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	}
 
 	whitelistedPatterns := []string{
+		"^https://shiftcrypto.ch/",
 		"^https://blockstream\\.info/(testnet/)?tx/",
 		"^http://explorer\\.litecointools\\.com/tx/",
 		"^https://insight\\.litecore\\.io/tx/",
