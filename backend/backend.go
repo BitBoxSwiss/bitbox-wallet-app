@@ -667,3 +667,8 @@ func (backend *Backend) RegisterTestKeystore(pin string) {
 		backend.keystores.Count(), pin)
 	backend.RegisterKeystore(softwareBasedKeystore)
 }
+
+// NotifyUser creates a desktop notification.
+func (backend *Backend) NotifyUser(text string) {
+	backend.environment.NotifyUser(text)
+}
