@@ -24,6 +24,15 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 )
 
+// androidEnvironment implements backend.Environment
+type androidEnvironment struct {
+}
+
+// NotifyUser implements backend.Environment
+func (androidEnvironment) NotifyUser(text string) {
+	// TODO: use android notification center.
+}
+
 // Serve serves the BitBox Wallet API for use in a mobile client.
 func Serve() {
 	log := logging.Get().WithGroup("android")
@@ -32,7 +41,10 @@ func Serve() {
 		log.WithError(err).Fatal("Failed to generate random string")
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
-	backend := backend.NewBackend(arguments.NewArguments(".", false, false, false, false))
+	backend := backend.NewBackend(
+		arguments.NewArguments(".", false, false, false, false),
+		androidEnvironment{},
+	)
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	err = http.ListenAndServe("localhost:8082", handlers.Router)
 	if err != nil {

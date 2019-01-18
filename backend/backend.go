@@ -81,9 +81,17 @@ type AccountEvent struct {
 // ErrAccountAlreadyExists is returned if an account is being added which already exists.
 var ErrAccountAlreadyExists = errors.New("already exists")
 
+// Environment represents functionality where the implementation depends on the environment the app
+// runs in, e.g. Qt5/Mobile/webdev.
+type Environment interface {
+	// NotifyUser notifies the user, via desktop notifcation, mobile notification area, ...
+	NotifyUser(string)
+}
+
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
-	arguments *arguments.Arguments
+	arguments   *arguments.Arguments
+	environment Environment
 
 	config *config.Config
 
@@ -106,12 +114,13 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend with the given arguments.
-func NewBackend(arguments *arguments.Arguments) *Backend {
+func NewBackend(arguments *arguments.Arguments, environment Environment) *Backend {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
-		arguments: arguments,
-		config:    config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
-		events:    make(chan interface{}, 1000),
+		arguments:   arguments,
+		environment: environment,
+		config:      config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
+		events:      make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),

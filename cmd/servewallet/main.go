@@ -31,6 +31,15 @@ const (
 	address = "0.0.0.0"
 )
 
+// webdevEnvironment implements backend.Environment
+type webdevEnvironment struct {
+}
+
+// NotifyUser implements backend.Environment
+func (webdevEnvironment) NotifyUser(text string) {
+	logging.Get().WithGroup("servewallet").Infof("NotifyUser: %s", text)
+}
+
 func main() {
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
@@ -52,7 +61,9 @@ func main() {
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend := backend.NewBackend(
-		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode))
+		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode),
+		webdevEnvironment{},
+	)
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)

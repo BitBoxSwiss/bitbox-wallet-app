@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
 
     QThread workerThread;
     webClass = new WebClass();
-    // Run client queries in a separate to not block the UI.
+    // Run client queries in a separate thread to not block the UI.
     webClass->moveToThread(&workerThread);
     workerThread.start();
 
@@ -138,6 +138,13 @@ int main(int argc, char *argv[])
                 webClass->gotResponse(queryID, QString(msg));
             }
             webClassMutex.unlock();
+        },
+        [](const char* msg) {
+            if (trayIcon == nullptr) return;
+            QMetaObject::invokeMethod(trayIcon, "showMessage",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(QString, APPNAME),
+                                      Q_ARG(QString, msg));
         }
         );
 
