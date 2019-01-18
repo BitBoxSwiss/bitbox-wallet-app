@@ -119,7 +119,7 @@ type Backend struct {
 }
 
 // NewBackend creates a new backend with the given arguments.
-func NewBackend(arguments *arguments.Arguments, environment Environment) *Backend {
+func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
 		arguments:   arguments,
@@ -135,13 +135,12 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) *Backen
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
-		// TODO
-		panic(err)
+		return nil, err
 	}
 	backend.notifier = notifier
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
-	return backend
+	return backend, nil
 }
 
 // addAccount adds the given account to the backend.

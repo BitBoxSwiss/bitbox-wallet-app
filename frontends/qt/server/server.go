@@ -139,7 +139,7 @@ func serve(
 	if err != nil {
 		log.WithError(err).Fatal("Failed to generate random string")
 	}
-	theBackend := backend.NewBackend(arguments.NewArguments(
+	theBackend, err := backend.NewBackend(arguments.NewArguments(
 		config.AppDir(), *testnet, false, false, false),
 		&qtEnvironment{
 			notifyUser: func(text string) {
@@ -147,6 +147,9 @@ func serve(
 			},
 		},
 	)
+	if err != nil {
+		log.WithError(err).Fatal("Failed to create backend")
+	}
 	events := theBackend.Events()
 	go func() {
 		for {

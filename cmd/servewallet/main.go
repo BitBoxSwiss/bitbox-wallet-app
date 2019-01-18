@@ -60,14 +60,17 @@ func main() {
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
-	backend := backend.NewBackend(
+	backend, err := backend.NewBackend(
 		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode),
 		webdevEnvironment{},
 	)
+	if err != nil {
+		log.Fatal(err)
+	}
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {
-		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")
+		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Fatal("Failed to listen for HTTP")
 	}
 }

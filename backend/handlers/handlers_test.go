@@ -33,12 +33,15 @@ func TestListRoutes(t *testing.T) {
 		t.Skip("manual listing of handlers")
 	}
 	connectionData := handlers.NewConnectionData(8082, "")
-	backend := backend.NewBackend(arguments.NewArguments(
+	backend, err := backend.NewBackend(arguments.NewArguments(
 		test.TstTempDir("bitbox-wallet-listroutes-"), false, false, false, false),
 		nil,
 	)
+	if err != nil {
+		fmt.Println(err)
+	}
 	handlers := handlers.NewHandlers(backend, connectionData)
-	err := handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
+	err = handlers.Router.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {
 		pathTemplate, err := route.GetPathTemplate()
 		if err != nil {
 			return err
