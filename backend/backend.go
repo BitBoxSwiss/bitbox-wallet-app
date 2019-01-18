@@ -56,7 +56,15 @@ const (
 	coinETH  = "eth"
 	coinTETH = "teth"
 	coinRETH = "reth"
+	// If you add coins, don't forget to update `testnetCoins` below.
 )
+
+var testnetCoins = map[string]struct{}{
+	coinTBTC: {},
+	coinTLTC: {},
+	coinTETH: {},
+	coinRETH: {},
+}
 
 type backendEvent struct {
 	Type string `json:"type"`
@@ -347,6 +355,11 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 func (backend *Backend) initPersistedAccounts() {
 	for _, account := range backend.config.AccountsConfig().Accounts {
 		account := account
+		if _, isTestnet := testnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
+			// Don't load testnet accounts when running normally, nor mainnet accounts when running
+			// in testing mode
+			continue
+		}
 		coin, err := backend.Coin(account.CoinCode)
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
