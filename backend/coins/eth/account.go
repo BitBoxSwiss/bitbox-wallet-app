@@ -45,6 +45,8 @@ type Account struct {
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
+	getNotifier             func(*signing.Configuration) accounts.Notifier
+	notifier                accounts.Notifier
 	offline                 bool
 	onEvent                 func(Event)
 
@@ -71,6 +73,7 @@ func NewAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
+	getNotifier func(*signing.Configuration) accounts.Notifier,
 	onEvent func(Event),
 	log *logrus.Entry,
 ) *Account {
@@ -82,6 +85,7 @@ func NewAccount(
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
+		getNotifier:             getNotifier,
 		onEvent:                 onEvent,
 		balance:                 coin.NewAmountFromInt64(0),
 
@@ -137,6 +141,7 @@ func (account *Account) Initialize() error {
 			return false, err
 		}
 		account.signingConfiguration = signingConfiguration
+		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
 	}()
 	if err != nil {
@@ -257,6 +262,11 @@ func (account *Account) update() error {
 		}
 	}
 	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
+	for _, transaction := range account.transactions {
+		if err := account.notifier.Put([]byte(transaction.ID())); err != nil {
+			return err
+		}
+	}
 
 	balance, err := account.coin.client.BalanceAt(context.TODO(),
 		account.address.Address, account.blockNumber)
@@ -281,6 +291,11 @@ func (account *Account) Offline() bool {
 // Close implements accounts.Interface.
 func (account *Account) Close() {
 
+}
+
+// Notifier implements accounts.Interface.
+func (account *Account) Notifier() accounts.Notifier {
+	return account.notifier
 }
 
 // Transactions implements accounts.Interface.

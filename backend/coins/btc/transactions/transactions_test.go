@@ -22,6 +22,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	accountsMock "github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	blockchainpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
@@ -108,6 +109,7 @@ type transactionsSuite struct {
 	synchronizer   *synchronizer.Synchronizer
 	blockchainMock *BlockchainMock
 	headersMock    *headersMock.Interface
+	notifierMock   *accountsMock.Notifier
 	transactions   *transactions.Transactions
 
 	log *logrus.Entry
@@ -127,12 +129,14 @@ func (s *transactionsSuite) SetupTest() {
 	s.headersMock = &headersMock.Interface{}
 	s.headersMock.On("SubscribeEvent", mock.AnythingOfType("func(headers.Event)")).Return(func() {})
 	s.headersMock.On("TipHeight").Return(15).Once()
+	s.notifierMock = &accountsMock.Notifier{}
 	s.transactions = transactions.NewTransactions(
 		s.net,
 		db,
 		s.headersMock,
 		s.synchronizer,
 		s.blockchainMock,
+		s.notifierMock,
 		s.log,
 	)
 }
@@ -143,6 +147,10 @@ func TestTransactionsSuite(t *testing.T) {
 
 func (s *transactionsSuite) updateAddressHistory(
 	address *addresses.AccountAddress, txs []*blockchainpkg.TxInfo) {
+	for _, tx := range txs {
+		s.notifierMock.On("Put", tx.TXHash[:]).Return(nil).Once()
+	}
+
 	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
 	s.blockchainMock.CallAllTransactionGetCallbacks()
 }
@@ -170,7 +178,9 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 	address := addresses[0]
 	expectedAmount := btcutil.Amount(123)
 	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
+	tx1Hash := tx1.TxHash()
 	tx2 := newTx(chainhash.HashH(nil), 1, address, expectedAmount)
+	tx2Hash := tx2.TxHash()
 	s.blockchainMock.RegisterTxs(tx1, tx2)
 	var syncStarted, syncFinished bool
 	onSyncStarted := func() {
@@ -186,9 +196,11 @@ func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
 		syncFinished = true
 	}
 	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.log)
+	s.notifierMock.On("Put", tx1Hash[:]).Return(nil).Once()
+	s.notifierMock.On("Put", tx2Hash[:]).Return(nil).Once()
 	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
-		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
-		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx1Hash), Height: 10},
+		{TXHash: blockchainpkg.TXHash(tx2Hash), Height: 10},
 	})
 	require.True(s.T(), syncStarted)
 	require.False(s.T(), syncFinished)
@@ -250,11 +262,15 @@ func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
 	address := addresses[0]
 	address2 := addresses[1]
 	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
+	tx1Hash := tx1.TxHash()
 	tx2 := newTx(tx1.TxHash(), 0, address2, 123)
+	tx2Hash := tx2.TxHash()
 	s.blockchainMock.RegisterTxs(tx1, tx2)
+	s.notifierMock.On("Put", tx1Hash[:]).Return(nil).Once()
+	s.notifierMock.On("Put", tx2Hash[:]).Return(nil).Once()
 	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
-		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 0},
-		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 0},
+		{TXHash: blockchainpkg.TXHash(tx1Hash), Height: 0},
+		{TXHash: blockchainpkg.TXHash(tx2Hash), Height: 0},
 	})
 	// Process tx2 (the spend) before tx1 (the funding). This should result in a zero balance, as
 	// the received funds are spent.
@@ -404,6 +420,8 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		{TXHash: blockchainpkg.TXHash(tx3.TxHash()), Height: 10},
 	})
 	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
+	tx1Hash := tx1.TxHash()
+	s.notifierMock.On("Delete", tx1Hash[:]).Return(nil).Once()
 	s.updateAddressHistory(address2, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx2.TxHash()), Height: 10},
 		{TXHash: blockchainpkg.TXHash(tx3.TxHash()), Height: 10},
@@ -413,6 +431,8 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 		s.transactions.Balance())
 	// Remove tx3 from the history of address1. It is still referenced by address2, so the index
 	// does not change.
+	tx3Hash := tx3.TxHash()
+	s.notifierMock.On("Delete", tx3Hash[:]).Return(nil).Once()
 	s.updateAddressHistory(address1, []*blockchainpkg.TxInfo{
 		{TXHash: blockchainpkg.TXHash(tx1.TxHash()), Height: 10},
 	})

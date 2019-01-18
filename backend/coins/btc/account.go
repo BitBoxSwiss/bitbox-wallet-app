@@ -57,6 +57,8 @@ type Account struct {
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
+	getNotifier             func(*signing.Configuration) accounts.Notifier
+	notifier                accounts.Notifier
 	blockchain              blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
@@ -99,6 +101,7 @@ func NewAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
+	getNotifier func(*signing.Configuration) accounts.Notifier,
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
@@ -114,6 +117,7 @@ func NewAccount(
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
+		getNotifier:             getNotifier,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
@@ -175,6 +179,7 @@ func (account *Account) Initialize() error {
 			return false, err
 		}
 		account.signingConfiguration = signingConfiguration
+		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
 	}()
 	if err != nil {
@@ -224,7 +229,7 @@ func (account *Account) Initialize() error {
 	})
 	account.transactions = transactions.NewTransactions(
 		account.coin.Net(), account.db, theHeaders, account.synchronizer,
-		account.blockchain, account.log)
+		account.blockchain, account.notifier, account.log)
 
 	fixGapLimit := gapLimit
 	fixChangeGapLimit := changeGapLimit
@@ -338,6 +343,11 @@ func (account *Account) Close() {
 		account.transactions.Close()
 	}
 	account.onEvent(accounts.EventStatusChanged)
+}
+
+// Notifier implements accounts.Interface.
+func (account *Account) Notifier() accounts.Notifier {
+	return account.notifier
 }
 
 func (account *Account) updateFeeTargets() {

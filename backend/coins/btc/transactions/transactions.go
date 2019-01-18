@@ -67,6 +67,7 @@ type Transactions struct {
 
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
+	notifier     accounts.Notifier
 	log          *logrus.Entry
 }
 
@@ -77,6 +78,7 @@ func NewTransactions(
 	headers headers.Interface,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
+	notifier accounts.Notifier,
 	log *logrus.Entry,
 ) *Transactions {
 	transactions := &Transactions{
@@ -89,6 +91,7 @@ func NewTransactions(
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
+		notifier:     notifier,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
 	transactions.unsubscribeHeadersEvent = headers.SubscribeEvent(transactions.onHeadersEvent)
@@ -130,6 +133,10 @@ func (transactions *Transactions) processTxForAddress(
 
 	if err := dbTx.PutTx(txHash, tx, height); err != nil {
 		transactions.log.WithError(err).Panic("Failed to put tx")
+	}
+
+	if err := transactions.notifier.Put(txHash[:]); err != nil {
+		transactions.log.WithError(err).Error("Failed notifier.Put")
 	}
 
 	// Newly confirmed tx. Try to verify it.
@@ -276,6 +283,9 @@ func (transactions *Transactions) removeTxForAddress(
 		}
 
 		dbTx.DeleteTx(txHash)
+		if err := transactions.notifier.Delete(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		}
 	}
 }
 
