@@ -28,12 +28,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 )
 
-// Configuration models a signing configuration, which can be singlesig or multisig.
+// Configuration models a signing configuration, which can be singlesig, multisig or address based.
 type Configuration struct {
-	scriptType         ScriptType
+	scriptType         ScriptType // Only used in btc and ltc, dummy for eth
 	absoluteKeypath    AbsoluteKeypath
-	extendedPublicKeys []*hdkeychain.ExtendedKey
-	signingThreshold   int
+	extendedPublicKeys []*hdkeychain.ExtendedKey // Should be empty for address based watch only accounts
+	signingThreshold   int                       // TODO Multisig Only
+	address            string                    // For address based accounts only
 }
 
 // NewConfiguration creates a new configuration. At the moment, multisig is a predefined
@@ -43,10 +44,11 @@ func NewConfiguration(
 	scriptType ScriptType,
 	absoluteKeypath AbsoluteKeypath,
 	extendedPublicKeys []*hdkeychain.ExtendedKey,
+	address string,
 	signingThreshold int,
 ) *Configuration {
-	if len(extendedPublicKeys) == 0 {
-		panic("A configuration has to contain at least one extended public key.")
+	if len(extendedPublicKeys) == 0 && len(address) == 0 || len(extendedPublicKeys) > 0 && len(address) > 0 {
+		panic("A configuration has to contain at least one extended public key or an address, but not both.")
 	}
 	for _, extendedKey := range extendedPublicKeys {
 		if extendedKey.IsPrivate() {
@@ -57,6 +59,7 @@ func NewConfiguration(
 		scriptType:         scriptType,
 		absoluteKeypath:    absoluteKeypath,
 		extendedPublicKeys: extendedPublicKeys,
+		address:            address,
 		signingThreshold:   signingThreshold,
 	}
 }
@@ -68,7 +71,17 @@ func NewSinglesigConfiguration(
 	extendedPublicKey *hdkeychain.ExtendedKey,
 ) *Configuration {
 	return NewConfiguration(
-		scriptType, absoluteKeypath, []*hdkeychain.ExtendedKey{extendedPublicKey}, 1)
+		scriptType, absoluteKeypath, []*hdkeychain.ExtendedKey{extendedPublicKey}, "", 1)
+}
+
+// NewAddressConfiguration creates a new account address configuration
+func NewAddressConfiguration(
+	scriptType ScriptType,
+	absoluteKeypath AbsoluteKeypath,
+	address string,
+) *Configuration {
+	return NewConfiguration(
+		scriptType, absoluteKeypath, []*hdkeychain.ExtendedKey{}, address, 1)
 }
 
 // ScriptType returns the configuration's keypath.
@@ -87,6 +100,16 @@ func (configuration *Configuration) AbsoluteKeypath() AbsoluteKeypath {
 // ExtendedPublicKeys returns the configuration's extended public keys.
 func (configuration *Configuration) ExtendedPublicKeys() []*hdkeychain.ExtendedKey {
 	return configuration.extendedPublicKeys
+}
+
+// Address returns the configuration's address
+func (configuration *Configuration) Address() string {
+	return configuration.address
+}
+
+// IsAddressBased returns whether configuration is address based or not
+func (configuration *Configuration) IsAddressBased() bool {
+	return configuration.address != ""
 }
 
 // PublicKeys returns the configuration's public keys.
@@ -161,6 +184,7 @@ type configurationEncoding struct {
 	Keypath    AbsoluteKeypath `json:"keypath"`
 	Threshold  int             `json:"threshold"`
 	Xpubs      []string        `json:"xpubs"`
+	Address    string          `json:"address"`
 }
 
 // MarshalJSON implements json.Marshaler.
@@ -175,6 +199,7 @@ func (configuration Configuration) MarshalJSON() ([]byte, error) {
 		Keypath:    configuration.absoluteKeypath,
 		Threshold:  configuration.signingThreshold,
 		Xpubs:      xpubs,
+		Address:    configuration.address,
 	})
 }
 
@@ -189,6 +214,7 @@ func (configuration *Configuration) UnmarshalJSON(bytes []byte) error {
 	configuration.signingThreshold = encoding.Threshold
 	length := len(encoding.Xpubs)
 	configuration.extendedPublicKeys = make([]*hdkeychain.ExtendedKey, length)
+	configuration.address = encoding.Address
 	for i := 0; i < length; i++ {
 		var err error
 		configuration.extendedPublicKeys[i], err = hdkeychain.NewKeyFromString(encoding.Xpubs[i])

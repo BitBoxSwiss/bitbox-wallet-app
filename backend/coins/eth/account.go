@@ -156,9 +156,19 @@ func (account *Account) Initialize() error {
 	account.db = db
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
-	account.address = Address{
-		Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
+	if account.signingConfiguration.IsAddressBased() {
+		if !common.IsHexAddress(account.signingConfiguration.Address()) {
+			return errp.WithStack(errors.ErrInvalidAddress)
+		}
+		account.address = Address{
+			Address: common.HexToAddress(account.signingConfiguration.Address()),
+		}
+	} else {
+		account.address = Address{
+			Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
+		}
 	}
+
 	account.coin.Initialize()
 	go account.poll()
 	return nil

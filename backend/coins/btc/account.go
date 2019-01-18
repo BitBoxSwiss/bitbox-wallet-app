@@ -299,6 +299,7 @@ func (account *Account) Info() *accounts.Info {
 			account.signingConfiguration.ScriptType(),
 			account.signingConfiguration.AbsoluteKeypath(),
 			xpubs,
+			account.signingConfiguration.Address(),
 			account.signingConfiguration.SigningThreshold(),
 		),
 	}
