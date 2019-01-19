@@ -143,8 +143,9 @@ class Send extends Component<Props, State> {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
                 apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
                     const account = this.state.account;
+                    const paired = mobileChannel && pairing;
                     const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-                    this.setState({ paired: mobileChannel && pairing, noMobileChannelError });
+                    this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
                 });
             });
         }
@@ -311,7 +312,6 @@ class Send extends Component<Props, State> {
         } else if (target.id === 'amount') {
             this.convertToFiat(value);
         }
-        // this.setState({ [target.id]: value } as Pick<State, keyof(State)>);
         this.setState(prevState => ({
             ...prevState,
             [target.id]: value,
