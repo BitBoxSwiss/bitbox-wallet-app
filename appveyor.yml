@@ -19,19 +19,10 @@ build_script:
   - echo on
   - choco install make
   - choco install nsis -pre
-  - call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
   - mkdir %GOPATH%\src\github.com\digitalbitbox
   - cd ..
   - mv bitbox-wallet-app %GOPATH%\src\github.com\digitalbitbox\
   - cd %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\
-  - yarn --cwd=frontends/web install
-  - yarn --cwd=frontends/web run build
-  - cd frontends/qt/server/
-  - make -f Makefile.windows windows-legacy
-  - cd ..
-  - mkdir build
-  - cd build
-  - qmake ..\BitBox.pro
-  - nmake
-  - cd ..
-  - bash windows_post.sh
+  - make qt-windows
+  - cd frontends/qt
+  - makensis setup.nsi

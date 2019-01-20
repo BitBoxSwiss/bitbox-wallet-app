@@ -19,3 +19,4 @@ echo '<file alias="trayicon.png">resources/trayicon.png</file>' >> assets.qrc
 echo '</qresource></RCC>' >> assets.qrc
 mkdir -p build/
 rcc -binary assets.qrc -o build/assets.rcc
+rm assets.qrc

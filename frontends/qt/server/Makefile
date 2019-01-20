@@ -14,6 +14,8 @@ windows:
 	make -f Makefile.windows windows
 windows-cross:
 	make -f Makefile.windows windows-cross
+windows-legacy:
+	make -f Makefile.windows windows-legacy
 windows-clean:
 	-make -f Makefile.windows clean
 
