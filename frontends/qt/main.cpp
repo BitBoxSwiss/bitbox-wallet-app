@@ -11,17 +11,22 @@
 #include <QResource>
 #include <QByteArray>
 #include <QSettings>
-#include <iostream>
+#include <QMenu>
+#include <QSystemTrayIcon>
+
 #include <string>
 #include <set>
 
 #include "libserver.h"
 #include "webclass.h"
 
+#define APPNAME "BitBox Wallet"
+
 static QWebEngineView* view;
 static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
+static QSystemTrayIcon* trayIcon;
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
@@ -92,7 +97,7 @@ int main(int argc, char *argv[])
 
 
     QApplication a(argc, argv);
-    a.setApplicationName(QString("BitBox Wallet"));
+    a.setApplicationName(APPNAME);
     a.setOrganizationDomain("shiftcrypto.ch");
     a.setOrganizationName("Shift Cryptosecurity");
     view = new WebEngineView();
@@ -114,7 +119,7 @@ int main(int argc, char *argv[])
 
     QThread workerThread;
     webClass = new WebClass();
-    // Run client queries in a separate to not block the UI.
+    // Run client queries in a separate thread to not block the UI.
     webClass->moveToThread(&workerThread);
     workerThread.start();
 
@@ -133,6 +138,13 @@ int main(int argc, char *argv[])
                 webClass->gotResponse(queryID, QString(msg));
             }
             webClassMutex.unlock();
+        },
+        [](const char* msg) {
+            if (trayIcon == nullptr) return;
+            QMetaObject::invokeMethod(trayIcon, "showMessage",
+                                      Qt::QueuedConnection,
+                                      Q_ARG(QString, APPNAME),
+                                      Q_ARG(QString, msg));
         }
         );
 
@@ -144,11 +156,26 @@ int main(int argc, char *argv[])
     view->show();
     view->load(QUrl("qrc:/index.html"));
 
+    // Create TrayIcon
+    {
+        auto quitAction = new QAction("&Quit", &a);
+        QObject::connect(quitAction, &QAction::triggered, &a, &QCoreApplication::quit);
+        auto trayIconMenu = new QMenu(view);
+        trayIconMenu->addAction(quitAction);
+
+        trayIcon = new QSystemTrayIcon(QIcon(":/trayicon.png"), view);
+        trayIcon->setToolTip(APPNAME);
+        trayIcon->setContextMenu(trayIconMenu);
+        trayIcon->show();
+    }
+
     QObject::connect(&a, &QApplication::aboutToQuit, [&]() {
             webClassMutex.lock();
             channel.deregisterObject(webClass);
             delete webClass;
             webClass = nullptr;
+            delete view;
+            view = nullptr;
             webClassMutex.unlock();
             workerThread.quit();
             workerThread.wait();

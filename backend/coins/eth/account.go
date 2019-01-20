@@ -29,9 +29,6 @@ import (
 
 var pollInterval = 10 * time.Second
 
-// Event instances are sent to the onEvent callback of the wallet.
-type Event string
-
 // Account is an Ethereum account, with one address.
 type Account struct {
 	locker.Locker
@@ -45,8 +42,10 @@ type Account struct {
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
+	getNotifier             func(*signing.Configuration) accounts.Notifier
+	notifier                accounts.Notifier
 	offline                 bool
-	onEvent                 func(Event)
+	onEvent                 func(accounts.Event)
 
 	initialized bool
 	// enqueueUpdateCh is used to invoke an account update outside of the regular poll update
@@ -71,7 +70,8 @@ func NewAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
-	onEvent func(Event),
+	getNotifier func(*signing.Configuration) accounts.Notifier,
+	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
 	account := &Account{
@@ -82,6 +82,7 @@ func NewAccount(
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
+		getNotifier:             getNotifier,
 		onEvent:                 onEvent,
 		balance:                 coin.NewAmountFromInt64(0),
 
@@ -91,13 +92,13 @@ func NewAccount(
 		log: log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(Event(accounts.EventSyncStarted)) },
+		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
 			if !account.initialized {
 				account.initialized = true
-				onEvent(Event(accounts.EventStatusChanged))
+				onEvent(accounts.EventStatusChanged)
 			}
-			onEvent(Event(accounts.EventSyncDone))
+			onEvent(accounts.EventSyncDone)
 		},
 		log,
 	)
@@ -137,6 +138,7 @@ func (account *Account) Initialize() error {
 			return false, err
 		}
 		account.signingConfiguration = signingConfiguration
+		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
 	}()
 	if err != nil {
@@ -186,11 +188,11 @@ func (account *Account) poll() {
 			account.log.WithError(err).Error("error updating account")
 			if !account.offline {
 				account.offline = true
-				account.onEvent(Event(accounts.EventStatusChanged))
+				account.onEvent(accounts.EventStatusChanged)
 			}
 		} else if account.offline {
 			account.offline = false
-			account.onEvent(Event(accounts.EventStatusChanged))
+			account.onEvent(accounts.EventStatusChanged)
 		}
 		timer = time.After(pollInterval)
 	}
@@ -267,6 +269,11 @@ func (account *Account) update() error {
 		}
 	}
 	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
+	for _, transaction := range account.transactions {
+		if err := account.notifier.Put([]byte(transaction.ID())); err != nil {
+			return err
+		}
+	}
 
 	balance, err := account.coin.client.BalanceAt(context.TODO(),
 		account.address.Address, account.blockNumber)
@@ -291,6 +298,11 @@ func (account *Account) Offline() bool {
 // Close implements accounts.Interface.
 func (account *Account) Close() {
 
+}
+
+// Notifier implements accounts.Interface.
+func (account *Account) Notifier() accounts.Notifier {
+	return account.notifier
 }
 
 // Transactions implements accounts.Interface.

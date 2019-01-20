@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { getCurrentUrl, route } from 'preact-router';
 import { Alert } from './components/alert/Alert';
 import { Confirm } from './components/confirm/Confirm';
@@ -22,6 +22,7 @@ import { Container } from './components/container/container';
 import { Sidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
+import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
@@ -32,7 +33,7 @@ import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
 import Settings from './routes/settings/settings';
-import { apiGet } from './utils/request';
+import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
 interface State {
@@ -43,7 +44,9 @@ interface State {
     activeSidebar: boolean;
 }
 
-export class App extends Component<{}, State> {
+type Props = TranslateProps;
+
+class App extends Component<Props, State> {
     public state = {
         accounts: [],
         accountsInitialized: false,
@@ -66,12 +69,20 @@ export class App extends Component<{}, State> {
     public componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onAccountsStatusChanged();
-        this.unsubscribe = apiWebsocket(({ type, data }) => {
+        this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'backend':
                 switch (data) {
                 case 'accountsStatusChanged':
                     this.onAccountsStatusChanged();
+                    break;
+                case 'newTxs':
+                    apiPost('notify-user', {
+                        text: this.props.t('notification.newTxs', {
+                            count: meta.count,
+                            accountName: meta.accountName,
+                        }),
+                    });
                     break;
                 }
                 break;
@@ -122,7 +133,7 @@ export class App extends Component<{}, State> {
         this.setState(({ activeSidebar }) => ({ activeSidebar: !activeSidebar }));
     }
 
-    public render({}, {
+    public render({}: RenderableProps<Props>, {
         accounts,
         devices,
         deviceIDs,
@@ -188,3 +199,6 @@ export class App extends Component<{}, State> {
         );
     }
 }
+
+const HOC = translate()(App);
+export { HOC as App };

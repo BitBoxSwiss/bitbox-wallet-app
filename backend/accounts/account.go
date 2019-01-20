@@ -35,6 +35,7 @@ type Interface interface {
 	Initialized() bool
 	Offline() bool
 	Close()
+	Notifier() Notifier
 	Transactions() []Transaction
 	Balance() *Balance
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user

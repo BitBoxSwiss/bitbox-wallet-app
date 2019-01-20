@@ -29,6 +29,11 @@ typedef void (*responseCallback) (int, const char*);
 static void respond(responseCallback f, int queryID, const char* msg) {
     f(queryID, msg);
 }
+
+typedef void (*notifyUserCallback) (const char*);
+static void notifyUser(notifyUserCallback f, const char* msg) {
+    f(msg);
+}
 #endif
 */
 import "C"
@@ -103,8 +108,22 @@ func backendCall(queryID C.int, s *C.char) {
 	}()
 }
 
+// qtEnvironment implements backend.Environment
+type qtEnvironment struct {
+	notifyUser func(string)
+}
+
+// NotifyUser implements backend.Environment
+func (env qtEnvironment) NotifyUser(text string) {
+	env.notifyUser(text)
+}
+
 //export serve
-func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCallback C.responseCallback) {
+func serve(
+	pushNotificationsCallback C.pushNotificationsCallback,
+	theResponseCallback C.responseCallback,
+	notifyUserCallback C.notifyUserCallback,
+) {
 	responseCallback = theResponseCallback
 
 	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
@@ -120,8 +139,17 @@ func serve(pushNotificationsCallback C.pushNotificationsCallback, theResponseCal
 	if err != nil {
 		log.WithError(err).Fatal("Failed to generate random string")
 	}
-	theBackend := backend.NewBackend(arguments.NewArguments(
-		config.AppDir(), *testnet, false, false, false))
+	theBackend, err := backend.NewBackend(arguments.NewArguments(
+		config.AppDir(), *testnet, false, false, false),
+		&qtEnvironment{
+			notifyUser: func(text string) {
+				C.notifyUser(notifyUserCallback, C.CString(text))
+			},
+		},
+	)
+	if err != nil {
+		log.WithError(err).Fatal("Failed to create backend")
+	}
 	events := theBackend.Events()
 	go func() {
 		for {
