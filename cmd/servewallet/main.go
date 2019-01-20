@@ -18,6 +18,8 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os/exec"
+	"runtime"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
@@ -37,7 +39,24 @@ type webdevEnvironment struct {
 
 // NotifyUser implements backend.Environment
 func (webdevEnvironment) NotifyUser(text string) {
-	logging.Get().WithGroup("servewallet").Infof("NotifyUser: %s", text)
+	log := logging.Get().WithGroup("servewallet")
+	log.Infof("NotifyUser: %s", text)
+	// We use system notifications on unix/macOS, the primary dev environments.
+	switch runtime.GOOS {
+	case "darwin":
+		// #nosec G204
+		err := exec.Command("osascript", "-e",
+			fmt.Sprintf(`display notification "%s" with title \"BitBox Wallet DEV\"`, text))
+		if err != nil {
+			log.Error(err)
+		}
+	case "linux":
+		// #nosec G204b
+		err := exec.Command("notify-send", "BitBox Wallet DEV", text).Run()
+		if err != nil {
+			log.Error(err)
+		}
+	}
 }
 
 func main() {
