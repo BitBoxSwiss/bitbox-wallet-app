@@ -1,14 +1,9 @@
-/cache
+/appfolder.dev
 /cmd/playground/
-/config.json
-/frontends/qt/assets.qrc
 /frontends/qt/build/
-/frontends/qt/bitbox.db
 /frontends/qt/config/
 /frontends/qt/server/libserver.h
 /frontends/qt/server/libserver.so
-/frontends/qt/server/server.h
-/frontends/qt/server/server.a
 /frontends/web/.eslintcache
 /frontends/web/build/
 /frontends/web/coverage/
