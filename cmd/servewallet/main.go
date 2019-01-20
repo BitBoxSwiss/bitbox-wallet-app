@@ -80,7 +80,7 @@ func main() {
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend, err := backend.NewBackend(
-		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode),
+		arguments.NewArguments("appfolder.dev", !*mainnet, *regtest, *multisig, *devmode),
 		webdevEnvironment{},
 	)
 	if err != nil {
