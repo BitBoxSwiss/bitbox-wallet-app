@@ -1,3 +1,17 @@
+# Copyright 2018 Shift Devices AG
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 base:
 	mkdir build
 	./genassets.sh
@@ -40,6 +54,4 @@ osx:
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
 windows:
-	@echo "Open the .pro file in QT Creator in Windows, switch to Release mode on the left, then do \"Build/run qmake\" and then \"Build/Build All\", then run \"make windows_post\"".
-windows_post:
-	sh ./windows_post.sh
+	bash make_windows.sh

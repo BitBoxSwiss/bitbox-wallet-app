@@ -66,6 +66,9 @@ qt-osx: # run on OSX.
 	make buildweb
 	make -C frontends/qt osx
 	make osx-sec-check
+qt-windows:
+	make buildweb
+	make -C frontends/qt windows
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh
