@@ -657,6 +657,7 @@
     },
     "button": "Sign and Send",
     "coincontrol": {
+      "title": "Send from output",
       "address": "Address",
       "outpoint": "Outpoint"
     },
