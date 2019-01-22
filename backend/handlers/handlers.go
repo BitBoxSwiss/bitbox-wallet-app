@@ -354,6 +354,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	keypath := signing.NewEmptyAbsoluteKeypath()
 
 	var configuration *signing.Configuration
+	var warningCode string
 
 	if jsonAddress != "" {
 		if jsonCoinCode == "teth" || jsonCoinCode == "eth" {
@@ -375,7 +376,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 				HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
 			}
 			if !extendedPublicKey.IsForNet(expectedNet) {
-				return map[string]interface{}{"success": false, "errorCode": "xpubWrongNet"}, nil
+				warningCode = "xpubWrongNet"
 			}
 		}
 		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
@@ -397,7 +398,11 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 			"errorMessage": err.Error(),
 		}, nil
 	}
-	return map[string]interface{}{"success": true, "accountCode": accountCode}, nil
+	return map[string]interface{}{
+		"success":     true,
+		"accountCode": accountCode,
+		"warningCode": warningCode,
+	}, nil
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {

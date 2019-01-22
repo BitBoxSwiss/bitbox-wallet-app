@@ -120,7 +120,8 @@ class AddAccount extends Component<Props, State> {
 
         interface ResponseData {
             success: boolean;
-            errorCode?: 'xpubInvalid' | 'xpubWrongNet' | 'unknown';
+            errorCode?: 'xpubInvalid' | 'unknown';
+            warningCode?: 'xpubWrongNet' | '';
             accountCode?: string;
             errorMessage?: string;
         }
@@ -135,6 +136,9 @@ class AddAccount extends Component<Props, State> {
 
         .then((data: ResponseData) => {
             if (data.success) {
+                if (data.warningCode) {
+                    alertUser(this.props.t(`addAccount.warning.${data.warningCode}`));
+                }
                 route('/account/' + data.accountCode);
             } else {
                 if (data.errorCode === 'unknown' && data.errorMessage) {

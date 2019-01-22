@@ -27,13 +27,15 @@
       "alreadyExists": "The account already exists.",
       "invalidAddress": "Please enter a valid Ethereum address",
       "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
-      "xpubInvalid": "Extended Public Key malformatted.",
-      "xpubWrongNet": "Extended Public Key not valid for the selected account."
+      "xpubInvalid": "Extended Public Key malformatted."
     },
     "extendedPublicKey": "Extended Public Key",
     "scriptType": "Script Type",
     "submit": "Add Account",
-    "title": "Add Account"
+    "title": "Add Account",
+    "warning": {
+      "xpubWrongNet": "Warning: The extended public key format indicates that it might not be valid for the selected account type. If you do not see the expected transactions, then try to import the extended public key with another account type."
+    }
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
