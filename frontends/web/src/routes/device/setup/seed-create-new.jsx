@@ -21,8 +21,7 @@ import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
-import { Header } from '../../../components/header/Header';
-import Footer from '../../../components/footer/footer';
+import { Header, Footer } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
 import warning from '../../../assets/icons/warning.png';
@@ -239,7 +238,7 @@ export default class SeedCreateNew extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-create.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {
                             error && (

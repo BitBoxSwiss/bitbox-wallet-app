@@ -26,7 +26,7 @@
     flex-shrink: 0;
     height: 100vh;
     padding: 0 0 var(--spacing-default) 0;
-    width: 70%;
+    width: 60%;
     z-index: 4002;
     overflow-y: auto;
     transition: all 0.2s ease;
@@ -65,7 +65,6 @@
     color: white;
     cursor: default;
     padding: var(--spacing-default) 0;
-    margin: 10px 10px 0 10px;
     text-decoration: none;
     overflow: hidden;
     display: flex;
@@ -82,7 +81,7 @@ a.sidebar-active {
 
 .sidebar .stacked,
 .sidebar .single {
-    margin: 0 var(--spacing-default) 0 var(--spacing-large);
+    margin: 0 var(--spacing-half) 0 var(--spacing-default);
 }
 
 .sidebar .stacked img,
@@ -129,7 +128,9 @@ a.sidebar-active .stacked img:last-child,
     width: 26px;
     height: auto;
     -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
     -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
 }
 
 .single img {
@@ -187,11 +188,9 @@ a.sidebar-active .single img,
         display: block;
     }
 
-    .sidebar:not(.withGuide) a.sidebar-active {}
-
     .sidebar .stacked,
     .sidebar .single {
-        margin: 0 var(--spacing-half) 0 calc(var(--spacing-default) + var(--spacing-half));
+        margin: 0 var(--spacing-half) 0 var(--spacing-default);
     }
 
     .sidebar:not(.withGuide) .stacked img,

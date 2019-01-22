@@ -21,7 +21,7 @@ import { alertUser } from '../../../components/alert/Alert';
 import { Button, ButtonLink, Input, Select } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -147,13 +147,13 @@ class AddAccount extends Component<Props, State> {
     }
 
     public render(
-        { t, testing, ...other }: RenderableProps<Props>,
+        { t, testing }: RenderableProps<Props>,
         { coinAndAccountCode, accountName, extendedPublicKey, address }: Readonly<State>,
     ): JSX.Element {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('addAccount.title')}</h2>} {...other}  />
+                    <Header title={<h2>{t('addAccount.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="row">

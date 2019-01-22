@@ -25,8 +25,8 @@ import { Balance, BalanceInterface } from '../../components/balance/balance';
 import { ButtonLink } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { Header } from '../../components/header/Header';
 import HeadersSync from '../../components/headerssync/headerssync';
+import { Header } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import * as componentStyle from '../../components/style.css';
@@ -271,8 +271,7 @@ class Account extends Component<Props, State> {
                                         )
                                 }
                             </h2>
-                        }
-                        {...this.props}>
+                        }>
                         <Balance
                             balance={balance} />
                         <div class={componentStyle.buttons}>

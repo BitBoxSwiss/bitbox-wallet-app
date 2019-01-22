@@ -23,8 +23,7 @@ import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
-import { Header } from '../../components/header/Header';
-import Footer from '../../components/footer/footer';
+import { Header, Footer } from '../../components/layout';
 import { Shift } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 
@@ -70,7 +69,7 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('settings.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('settings.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {

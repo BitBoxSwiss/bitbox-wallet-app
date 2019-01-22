@@ -15,10 +15,9 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Footer from '../../../components/footer/footer';
 import { Button } from '../../../components/forms';
-import { Header } from '../../../components/header/Header';
 import { Alert, Shift } from '../../../components/icon';
+import { Footer, Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { translate,  TranslateProps } from '../../../decorators/translate';
 import SimpleMarkup from '../../../utils/simplemarkup';
@@ -28,7 +27,6 @@ import { Step, Steps } from './components/steps';
 interface SecurityInformationProps {
     goBack: () => void;
     goal: string | null;
-    toggleSidebar?: () => void;
 }
 
 type Props = SecurityInformationProps & TranslateProps;
@@ -50,7 +48,7 @@ class SecurityInformation extends Component<Props, State> {
     }
 
     public render(
-        { t, goBack, goal, toggleSidebar, children }: RenderableProps<Props>,
+        { t, goBack, goal, children }: RenderableProps<Props>,
         { showInfo }: State,
     ) {
         if (!showInfo) {
@@ -69,7 +67,7 @@ class SecurityInformation extends Component<Props, State> {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } toggleSidebar={toggleSidebar} narrow={true} />
+                    } narrow={true} />
                     <div className={style.content}>
                         <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
                         {

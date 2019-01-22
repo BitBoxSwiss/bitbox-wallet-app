@@ -15,10 +15,9 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Footer from '../../../components/footer/footer';
 import { Button } from '../../../components/forms';
-import { Header } from '../../../components/header/Header';
 import { Shift } from '../../../components/icon/logo';
+import { Footer, Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { PasswordRepeatInput } from '../../../components/password';
 import Spinner from '../../../components/spinner/Spinner';
@@ -187,7 +186,7 @@ class Initialize extends Component<Props, State> {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {formSubmissionState}
                         <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>

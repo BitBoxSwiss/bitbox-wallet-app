@@ -20,7 +20,7 @@ import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { ButtonLink, Button, Input } from '../../components/forms';
 import { apiGet, apiPost } from '../../utils/request';
-import { Header } from '../../components/header/Header';
+import { Header } from '../../components/layout';
 import { confirmation } from '../../components/confirm/Confirm';
 import { alertUser } from '../../components/alert/Alert';
 import * as style from './settings.css';
@@ -315,7 +315,7 @@ export default class ElectrumSettings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="flex flex-row flex-between flex-items-center tabs">
                             <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>

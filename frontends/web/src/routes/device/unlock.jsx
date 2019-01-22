@@ -24,8 +24,7 @@ import { Message } from '../../components/message/message';
 import { Shift } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
-import { Header } from '../../components/header/Header';
-import Footer from '../../components/footer/footer';
+import { Header, Footer } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
 import * as style from './device.css';
 
@@ -134,7 +133,7 @@ export default class Unlock extends Component {
         return (
             <div class="contentWithGuide">
                 <div className={style.container}>
-                    <Header title={<h2>{t('welcome.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className={style.content}>
                         <div className="flex-1 flex flex-column flex-center">
                             {submissionState}

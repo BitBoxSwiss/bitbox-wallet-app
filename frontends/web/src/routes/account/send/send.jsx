@@ -26,7 +26,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { store as fiat } from '../../../components/rates/rates';
 import { alertUser } from '../../../components/alert/Alert';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { Balance } from '../../../components/balance/balance';
@@ -378,7 +378,7 @@ export default class Send extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
-                    <Header title={<h2>{t('send.title')}</h2>} {...this.props}>
+                    <Header title={<h2>{t('send.title')}</h2>}>
                         <Balance
                             balance={balance} />
                         {

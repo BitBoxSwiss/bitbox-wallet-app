@@ -18,8 +18,7 @@ import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { Shift } from '../../../components/icon';
-import { Header } from '../../../components/header/Header';
-import Footer from '../../../components/footer/footer';
+import { Footer ,Header } from '../../../components/layout';
 import { Button } from '../../../components/forms';
 import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
@@ -50,7 +49,7 @@ export default class Success extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-${goal}.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         <h1 className={style.title} style="text-align: center;">
                             {t(`success.${goal}.title`)}
