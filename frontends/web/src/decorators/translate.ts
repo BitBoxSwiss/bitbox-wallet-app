@@ -32,14 +32,14 @@ interface InterpolationValues {
 /**
  * This interface describes the default value to return if no translation was found.
  */
-// interface DefaultValue {
-//     defaultValue: any;
-// }
+interface DefaultValue {
+    defaultValue: any;
+}
 
 /**
  * This interface models the various options of the translate function.
  */
-type TranslateOptions = InterpolationValues;
+type TranslateOptions = InterpolationValues | DefaultValue;
 
 /**
  * This type describes the translate function of 'react-i18next'.
