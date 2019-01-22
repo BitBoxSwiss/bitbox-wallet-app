@@ -27,7 +27,6 @@ import { SharedProps as SharedPanelProps, store as panelStore } from '../../comp
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AccountInterface } from '../../routes/account/account';
-import { setConfig } from '../../utils/config';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
 import Logo, { BitBoxInverted } from '../icon/logo';
@@ -43,7 +42,6 @@ type Props = SharedPanelProps & SidebarProps & TranslateProps;
 export function toggleSidebar() {
     const toggled = !panelStore.state.activeSidebar;
     panelStore.setState({ activeSidebar: toggled });
-    setConfig({ frontend: { sidebarShown: toggled } });
 }
 
 function Sidebar(
