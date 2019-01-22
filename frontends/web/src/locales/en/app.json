@@ -657,9 +657,9 @@
     },
     "button": "Sign and Send",
     "coincontrol": {
-      "title": "Send from output",
       "address": "Address",
-      "outpoint": "Outpoint"
+      "outpoint": "Outpoint",
+      "title": "Send from Output"
     },
     "confirm": {
       "selected-coins": "Selected Coins",

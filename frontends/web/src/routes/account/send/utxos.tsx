@@ -24,29 +24,29 @@ import * as style from './utxos.css';
 interface UTXOsProps {
     accountCode: string;
     active: boolean;
-    onChange: (SelectedUTXOProps) => void;
+    onChange: (SelectedUTXO) => void;
 }
 
-interface UTXOProps {
+interface UTXO {
     outPoint: string;
     address: string;
-    amount: UTXOAmountProps;
+    amount: UTXOAmount;
 }
 
-interface UTXOAmountProps {
+interface UTXOAmount {
     amount: string;
     unit: Coin;
 }
 
-export interface SelectedUTXOProps {
+export interface SelectedUTXO {
     [key: string]: boolean;
 }
 
 type Props = UTXOsProps & TranslateProps;
 
 interface State {
-    utxos: UTXOProps[];
-    selectedUTXOs: SelectedUTXOProps;
+    utxos: UTXO[];
+    selectedUTXOs: SelectedUTXO;
 }
 
 class UTXOs extends Component<Props, State> {
@@ -64,8 +64,7 @@ class UTXOs extends Component<Props, State> {
         });
     }
 
-    // @ts-ignore => called in parent component
-    private clear = () => {
+    public clear = () => {
         this.setState({ selectedUTXOs: {} }, () => {
             this.props.onChange(this.state.selectedUTXOs);
         });
@@ -91,7 +90,7 @@ class UTXOs extends Component<Props, State> {
         return (
             <div class="row">
                 {
-                    active ? (
+                    active && (
                         <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
                             <div class="subHeaderContainer">
                                 <div class={['subHeader', style.subHeader].join(' ')}>
@@ -130,12 +129,12 @@ class UTXOs extends Component<Props, State> {
                                 </table>
                             </div>
                         </div>
-                    ) : null
+                    )
                 }
             </div>
         );
     }
 }
 
-const TranslatedUTXOs = translate<UTXOsProps>(null, { withRef: true })(UTXOs);
+const TranslatedUTXOs = translate<UTXOsProps>(undefined, { withRef: true })(UTXOs);
 export { TranslatedUTXOs as UTXOs };

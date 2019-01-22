@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
@@ -34,30 +34,30 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
 import * as style from './send.css';
-import { SelectedUTXOProps, UTXOs } from './utxos';
+import { SelectedUTXO, UTXOs } from './utxos';
 
 interface SendProps {
-    accounts: AccountProps[];
+    accounts: Account[];
     code?: string;
     deviceIDs: string[];
 }
 
-interface AccountProps {
+interface Account {
     code: string;
     coinCode: string;
 }
 
-interface ProposedAmountProps {
-    amount: string | null;
-    unit: string | null;
-    conversions: ConversionsProps | null;
+interface ProposedAmount {
+    amount: string;
+    unit: string;
+    conversions: Conversions;
 }
 
-interface ConversionsProps {
-    [key: string]: string | null;
+interface Conversions {
+    [key: string]: string;
 }
 
-interface SignProgressProps {
+interface SignProgress {
     steps: number;
     step: number;
 }
@@ -65,12 +65,12 @@ interface SignProgressProps {
 type Props = SendProps & TranslateProps;
 
 interface State {
-    account: AccountProps | null | undefined;
+    account: Account | null | undefined;
     balance: BalanceInterface | null;
-    proposedFee: ProposedAmountProps | null;
-    proposedTotal: ProposedAmountProps | null;
+    proposedFee: ProposedAmount | null;
+    proposedTotal: ProposedAmount | null;
     recipientAddress: string | null;
-    proposedAmount: ProposedAmountProps | null;
+    proposedAmount: ProposedAmount | null;
     valid: boolean;
     amount: string | null;
     data: string | null;
@@ -86,20 +86,19 @@ interface State {
     dataError: string | null;
     paired: boolean | null;
     noMobileChannelError: boolean;
-    signProgress: SignProgressProps | null;
+    signProgress: SignProgress | null;
     signConfirm: boolean | null;
     coinControl: boolean;
     activeCoinControl: boolean;
 }
 
 class Send extends Component<Props, State> {
-    private utxos!: Element;
-    private selectedUTXOs!: SelectedUTXOProps;
+    private utxos!: JSX.Element;
+    private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
 
     constructor(props) {
         super(props);
-        this.selectedUTXOs = {};
         this.state = {
             account: this.getAccount(),
             recipientAddress: null,
@@ -214,8 +213,7 @@ class Send extends Component<Props, State> {
                     data: null,
                 });
                 if (this.utxos) {
-                    // @ts-ignore
-                    this.utxos.getWrappedInstance().clear();
+                    (this.utxos as any).getWrappedInstance().clear();
                 }
                 setTimeout(() => this.setState({
                     isSent: false,
@@ -380,7 +378,7 @@ class Send extends Component<Props, State> {
         this.validateAndDisplayFee(this.state.sendAll);
     }
 
-    private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXOProps) => {
+    private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXO) => {
         this.selectedUTXOs = selectedUTXOs;
         this.validateAndDisplayFee(true);
     }
@@ -396,19 +394,18 @@ class Send extends Component<Props, State> {
     private toggleCoinControl = () => {
         this.setState(({ activeCoinControl }) => {
             if (activeCoinControl && this.utxos) {
-                // @ts-ignore
-                this.utxos.getWrappedInstance().clear();
+                (this.utxos as any).getWrappedInstance().clear();
             }
             return { activeCoinControl: !activeCoinControl };
         });
     }
 
-    private setUTXOsRef = (ref: Element) => {
+    private setUTXOsRef = (ref: JSX.Element) => {
         this.utxos = ref;
     }
 
     public render(
-        { t, code }: Props,
+        { t, code }: RenderableProps<Props>,
         {
             account,
             balance,
@@ -439,8 +436,7 @@ class Send extends Component<Props, State> {
         if (!account) {
             return null;
         }
-
-        const confirmPrequel = signProgress && signProgress.steps > 1 ? (
+        const confirmPrequel = signProgress && signProgress.steps > 1 && (
             <span>
                 {
                     t('send.signprogress.description', {
@@ -450,34 +446,34 @@ class Send extends Component<Props, State> {
                 <br />
                 {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
             </span>
-        ) : null;
+        );
         return (
             <div class="contentWithGuide">
                 <div class="container">
                     <Status type="warning">
-                        {paired === false ? t('warning.sendPairing') : null}
+                        {paired === false && t('warning.sendPairing')}
                     </Status>
                     <Header title={<h2>{t('send.title')}</h2>}>
-                    <Balance balance={balance} />
+                        <Balance balance={balance} />
                         {
-                            coinControl ? (
+                            coinControl && (
                                 <div style="align-self: flex-end;">
                                     <Button onClick={this.toggleCoinControl} primary>{t('send.toggleCoinControl')}</Button>
                                 </div>
-                            ) : null
+                            )
                         }
                     </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {
-                                coinControl ? (
+                                coinControl && (
                                     <UTXOs
                                         accountCode={account.code}
                                         active={activeCoinControl}
                                         onChange={this.onSelectedUTXOsChange}
                                         ref={this.setUTXOsRef}
                                     />
-                                ) : null
+                                )
                             }
                             <div class="row">
                                 <Input
@@ -490,11 +486,11 @@ class Send extends Component<Props, State> {
                                     autofocus
                                 />
                                 {
-                                    debug ? (
+                                    debug && (
                                         <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
                                             Send to self
                                         </span>
-                                    ) : null
+                                    )
                                 }
                             </div>
                             <div class="row">
@@ -535,7 +531,7 @@ class Send extends Component<Props, State> {
                                         onFeeTargetChange={this.feeTargetChange} />
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
+                                        value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                         transparent />
@@ -548,13 +544,13 @@ class Send extends Component<Props, State> {
                                     */}
                                 </div>
                                 {
-                                    feeTarget ? (
+                                    feeTarget && (
                                         <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                                    ) : null
+                                    )
                                 }
                             </div>
                             {
-                                (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') ? (
+                                (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
                                     <div class="row">
                                         <Input
                                             label={t('send.data.label')}
@@ -564,7 +560,7 @@ class Send extends Component<Props, State> {
                                             onInput={this.handleFormChange}
                                             value={data} />
                                     </div>
-                                ) : null
+                                )
                             }
                             <div class="row buttons flex flex-row flex-between flex-start">
                                 <ButtonLink
@@ -624,18 +620,18 @@ class Send extends Component<Props, State> {
                                                     <td>{proposedFee && proposedFee.unit || 'N/A'}</td>
                                                 </tr>
                                                 {
-                                                    proposedFee && proposedFee.conversions ? (
+                                                    proposedFee && proposedFee.conversions && (
                                                         <tr>
                                                             <td>{proposedFee.conversions[fiatUnit]}</td>
                                                             <td>{fiatUnit}</td>
                                                         </tr>
-                                                    ) : null
+                                                    )
                                                 }
                                             </table>
                                         </div>
                                     </div>
                                     {
-                                        Object.keys(this.selectedUTXOs).length !== 0 ? (
+                                        Object.keys(this.selectedUTXOs).length !== 0 && (
                                             <div class={style.block}>
                                                 <p class={['label', style.confirmationLabel].join(' ')}>
                                                     {t('send.confirm.selected-coins')}
@@ -646,7 +642,7 @@ class Send extends Component<Props, State> {
                                                     ))
                                                 }
                                             </div>
-                                        ) : null
+                                        )
                                     }
                                     <div class={style.block}>
                                         <p class={['label', style.confirmationLabel].join(' ')}>
@@ -659,12 +655,12 @@ class Send extends Component<Props, State> {
                                                     <td>{proposedTotal && proposedTotal.unit || 'N/A'}</td>
                                                 </tr>
                                                 {
-                                                    (proposedTotal && proposedTotal.conversions) ? (
+                                                    (proposedTotal && proposedTotal.conversions) && (
                                                         <tr>
                                                             <td>{proposedTotal.conversions[fiatUnit]}</td>
                                                             <td>{fiatUnit}</td>
                                                         </tr>
-                                                    ) : null
+                                                    )
                                                 }
                                             </table>
                                         </div>
@@ -674,32 +670,36 @@ class Send extends Component<Props, State> {
                         )
                     }
                     {
-                        isSent ? (
+                        isSent && (
                             <WaitDialog>
                                 <div class="flex flex-row flex-center flex-items-center text-bold">
                                     <img src={approve} alt="Success" style="height: 40px; margin-right: 1rem;" />{t('send.success')}
                                 </div>
                             </WaitDialog>
-                        ) : null
+                        )
                     }
                     {
-                        isAborted ? (
+                        isAborted && (
                             <WaitDialog>
                                 <div class="flex flex-row flex-center flex-items-center text-bold">
                                     <img src={reject} alt="Abort" style="height: 40px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
-                        ) : null
+                        )
                     }
                 </div>
                 <Guide>
                     <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
-                    {isBitcoinBased(account.coinCode) && (
-                        <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
-                    )}
-                    {isBitcoinBased(account.coinCode) && (
-                        <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
-                    )}
+                    {
+                        isBitcoinBased(account.coinCode) && (
+                            <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+                        )
+                    }
+                    {
+                        isBitcoinBased(account.coinCode) && (
+                            <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                        )
+                    }
                     <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
                 </Guide>
             </div>
