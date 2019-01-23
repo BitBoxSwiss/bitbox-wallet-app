@@ -93,8 +93,14 @@ type jsonTransaction struct {
 	Timestamp     timestamp      `json:"timeStamp"`
 	Confirmations jsonBigInt     `json:"confirmations"`
 	From          common.Address `json:"from"`
-	To            common.Address `json:"to"`
-	Value         jsonBigInt     `json:"value"`
+
+	// One of them is an empty string / nil, the other is an address.
+	ToAsString              string `json:"to"`
+	to                      *common.Address
+	ContractAddressAsString string `json:"contractAddress"`
+	contractAddress         *common.Address
+
+	Value jsonBigInt `json:"value"`
 }
 
 // Transaction implemements accounts.Transaction (TODO).
@@ -108,7 +114,26 @@ var _ ethtypes.EthereumTransaction = &Transaction{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
-	return json.Unmarshal(jsonBytes, &tx.jsonTransaction)
+	if err := json.Unmarshal(jsonBytes, &tx.jsonTransaction); err != nil {
+		return errp.WithStack(err)
+	}
+	switch {
+	case tx.jsonTransaction.ToAsString != "":
+		if !common.IsHexAddress(tx.jsonTransaction.ToAsString) {
+			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ToAsString)
+		}
+		addr := common.HexToAddress(tx.jsonTransaction.ToAsString)
+		tx.jsonTransaction.to = &addr
+	case tx.jsonTransaction.ContractAddressAsString != "":
+		if !common.IsHexAddress(tx.jsonTransaction.ContractAddressAsString) {
+			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ContractAddressAsString)
+		}
+		addr := common.HexToAddress(tx.jsonTransaction.ContractAddressAsString)
+		tx.jsonTransaction.contractAddress = &addr
+	default:
+		return errp.New("Need one of: to, contractAddress")
+	}
+	return nil
 }
 
 // Fee implements accounts.Transaction.
@@ -146,8 +171,14 @@ func (tx *Transaction) Amount() coin.Amount {
 
 // Addresses implements accounts.Transaction.
 func (tx *Transaction) Addresses() []accounts.AddressAndAmount {
+	address := ""
+	if tx.jsonTransaction.to != nil {
+		address = tx.jsonTransaction.to.Hex()
+	} else if tx.jsonTransaction.contractAddress != nil {
+		address = tx.jsonTransaction.contractAddress.Hex()
+	}
 	return []accounts.AddressAndAmount{{
-		Address: tx.jsonTransaction.To.Hex(),
+		Address: address,
 		Amount:  tx.Amount(),
 	}}
 }
@@ -175,7 +206,15 @@ func prepareTransactions(
 		seen[transaction.ID()] = struct{}{}
 
 		from := transaction.jsonTransaction.From.Hex()
-		to := transaction.jsonTransaction.To.Hex()
+		var to string
+		switch {
+		case transaction.jsonTransaction.to != nil:
+			to = transaction.jsonTransaction.to.Hex()
+		case transaction.jsonTransaction.contractAddress != nil:
+			to = transaction.jsonTransaction.contractAddress.Hex()
+		default:
+			return nil, errp.New("must have either to address or contract address")
+		}
 		if ours != from && ours != to {
 			return nil, errp.New("transaction does not belong to our account")
 		}
