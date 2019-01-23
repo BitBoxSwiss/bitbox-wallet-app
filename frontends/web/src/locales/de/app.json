@@ -24,8 +24,7 @@
     "coin": "Coin",
     "error": {
       "xprivEntered": "WARNUNG: Sie haben einen erweiterten Private-Key eingegeben. Bitte geben Sie einen erweiterten Public-Key ein und bewahren Sie Ihren Private-Key sicher auf.",
-      "xpubInvalid": "Erweiterter Public Key falsch formattiert",
-      "xpubWrongNet": "Erweiterter Public Key ist für dieses Konto nicht gültig."
+      "xpubInvalid": "Erweiterter Public Key falsch formattiert"
     },
     "extendedPublicKey": "Erweiterter Public Key",
     "scriptType": "Script Type",
@@ -465,7 +464,7 @@
     }
   },
   "headerssync": {
-    "blocksSynced": "{{blocks}} blocks syncronisiert\n"
+    "blocksSynced": "{{blocks}} blocks synchronisiert\n"
   },
   "hiddenWallet": {
     "info1HTML": "Zur glaubhaften Abstreitbarkeit kann ein verstecktes Wallet erstellt werden, dass auf einer <strong> anderen </strong> Geräte- und Wiederherstellungspasswort Kombination basiert.",
