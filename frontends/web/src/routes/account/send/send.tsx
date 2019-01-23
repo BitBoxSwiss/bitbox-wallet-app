@@ -24,7 +24,7 @@ import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
-import { store as fiat } from '../../../components/rates/rates';
+import { Fiat, store as fiat } from '../../../components/rates/rates';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -34,7 +34,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
 import * as style from './send.css';
-import { SelectedUTXO, UTXOs } from './utxos';
+import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
 interface SendProps {
     accounts: Account[];
@@ -54,7 +54,7 @@ interface ProposedAmount {
 }
 
 interface Conversions {
-    [key: string]: string;
+    [key: string]: Fiat;
 }
 
 interface SignProgress {
@@ -93,7 +93,7 @@ interface State {
 }
 
 class Send extends Component<Props, State> {
-    private utxos!: JSX.Element;
+    private utxos!: Component<UTXOsProps>;
     private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
 
@@ -129,11 +129,10 @@ class Send extends Component<Props, State> {
     }
 
     private coinSupportsCoinControl = () => {
-        const { account } = this.state;
-        if (!account) {
+        if (!this.state.account) {
             return false;
         }
-        return isBitcoinBased(account.coinCode);
+        return isBitcoinBased(this.state.account.coinCode);
     }
 
     public componentDidMount() {
@@ -384,11 +383,10 @@ class Send extends Component<Props, State> {
     }
 
     private getAccount = () => {
-        const { accounts } = this.props;
-        if (!accounts) {
+        if (!this.props.accounts) {
             return null;
         }
-        return accounts.find(({ code }) => code === this.props.code);
+        return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
     private toggleCoinControl = () => {
@@ -400,7 +398,7 @@ class Send extends Component<Props, State> {
         });
     }
 
-    private setUTXOsRef = (ref: JSX.Element) => {
+    private setUTXOsRef = (ref: Component<UTXOsProps>) => {
         this.utxos = ref;
     }
 

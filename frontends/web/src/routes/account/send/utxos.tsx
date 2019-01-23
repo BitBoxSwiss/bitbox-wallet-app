@@ -42,7 +42,7 @@ export interface SelectedUTXO {
     [key: string]: boolean;
 }
 
-type Props = UTXOsProps & TranslateProps;
+export type Props = UTXOsProps & TranslateProps;
 
 interface State {
     utxos: UTXO[];
