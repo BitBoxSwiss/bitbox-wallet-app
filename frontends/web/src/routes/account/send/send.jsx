@@ -262,7 +262,7 @@ export default class Send extends Component {
     convertToFiat = value => {
         if (value) {
             let coinUnit = this.getAccount().coinCode.toUpperCase();
-            if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
+            if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
             apiGet(`coins/convertToFiat?from=${coinUnit}&to=${this.state.fiatUnit}&amount=${value}`)
@@ -281,7 +281,7 @@ export default class Send extends Component {
     convertFromFiat = value => {
         if (value) {
             let coinUnit = this.getAccount().coinCode.toUpperCase();
-            if (coinUnit.length === 4 && coinUnit.startsWith('T')) {
+            if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
             apiGet(`coins/convertFromFiat?from=${this.state.fiatUnit}&to=${coinUnit}&amount=${value}`)

@@ -103,7 +103,7 @@ func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 		rates := backend.GetRatesUpdaterInstance().Last()
 		if rates != nil {
 			unit := coin.Unit()
-			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
+			if len(unit) == 4 && strings.HasPrefix(unit, "T") || unit == "RETH" {
 				unit = unit[1:]
 			}
 			float := coin.ToUnit(amount)

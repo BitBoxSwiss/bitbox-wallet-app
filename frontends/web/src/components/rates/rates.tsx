@@ -23,9 +23,9 @@ import { apiSubscribe } from '../../utils/event';
 import { apiGet } from '../../utils/request';
 import * as style from './rates.css';
 
-export type MainnetCoin = 'BTC' | 'LTC';
+export type MainnetCoin = 'BTC' | 'LTC' | 'ETH';
 
-export type TestnetCoin = 'TBTC' | 'TLTC';
+export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
@@ -124,7 +124,7 @@ function Conversion({
     }
     const coin = amount.unit;
     let mainnetCoin: MainnetCoin;
-    if (coin.length === 4 && coin.startsWith('T')) {
+    if (coin.length === 4 && coin.startsWith('T') || coin === 'RETH') {
         mainnetCoin = coin.substring(1) as MainnetCoin;
     } else {
         mainnetCoin = coin as MainnetCoin;
