@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import RandomNumber from '../../../routes/device/settings/components/randomnumber'
 
 interface State {
 }
@@ -24,9 +25,12 @@ interface Props {
 }
 
 class BitBox02 extends Component<Props, {}> {
-    public render({ }: RenderableProps<Props>, { }: State) {
+    public render({ deviceID }: RenderableProps<Props>, { }: State) {
         return (
-            <span>Hello BitBox02</span>
+            <div>
+                <span>Hello BitBox02</span>
+                <RandomNumber apiPrefix={'devices/bitbox02/' + deviceID} />
+            </div>
         );
     }
 }
