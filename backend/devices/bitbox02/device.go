@@ -1,8 +1,7 @@
 package bitbox02
 
 import (
-	"encoding/hex"
-	"fmt"
+	"crypto/rand"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
@@ -13,6 +12,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/flynn/noise"
 	"github.com/golang/protobuf/proto"
 	"github.com/sirupsen/logrus"
 )
@@ -29,11 +29,12 @@ type Communication interface {
 }
 
 type Device struct {
-	deviceID      string
-	deviceLock    locker.Locker
-	communication Communication
-	onEvent       func(devicepkg.Event, interface{})
-	log           *logrus.Entry
+	deviceID                  string
+	deviceLock                locker.Locker
+	communication             Communication
+	sendCipher, receiveCipher *noise.CipherState
+	onEvent                   func(devicepkg.Event, interface{})
+	log                       *logrus.Entry
 }
 
 func NewDevice(
@@ -54,11 +55,59 @@ func NewDevice(
 // Init implements device.Device.
 func (device *Device) Init(testing bool) {
 	spew.Dump("INIT")
-	resp, err := device.Random()
+	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
+	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(hex.EncodeToString(resp), len(resp))
+	handshake, err := noise.NewHandshakeState(noise.Config{
+		CipherSuite:   cipherSuite,
+		Random:        rand.Reader,
+		Pattern:       noise.HandshakeXX,
+		StaticKeypair: keypair,
+		Prologue:      []byte("Noise_XX_25519_ChaChaPoly_SHA256"),
+		Initiator:     true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	if err := device.communication.SendFrame("I CAN HAS HANDSHAKE?"); err != nil {
+		panic(err)
+	}
+	responseBytes, err := device.communication.ReadFrame()
+	if err != nil {
+		panic(err)
+	}
+	if string(responseBytes) != "OKAY!!" {
+		panic(string(responseBytes))
+	}
+	// do handshake:
+	msg, _, _, err := handshake.WriteMessage(nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	if err := device.communication.SendFrame(string(msg)); err != nil {
+		panic(err)
+	}
+	responseBytes, err = device.communication.ReadFrame()
+	if err != nil {
+		panic(err)
+	}
+	_, _, _, err = handshake.ReadMessage(nil, responseBytes)
+	if err != nil {
+		panic(err)
+	}
+	msg, device.sendCipher, device.receiveCipher, err = handshake.WriteMessage(nil, nil)
+	if err != nil {
+		panic(err)
+	}
+	if err := device.communication.SendFrame(string(msg)); err != nil {
+		panic(err)
+	}
+	responseBytes, err = device.communication.ReadFrame()
+	if err != nil {
+		panic(err)
+	}
 }
 
 // ProductName implements device.Device.
@@ -87,19 +136,27 @@ func (device *Device) Close() {
 }
 
 func (device *Device) query(request *messages.Request) (*messages.Response, error) {
+	if device.sendCipher == nil {
+		return nil, errp.New("handshake must come first")
+	}
 	requestBytes, err := proto.Marshal(request)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := device.communication.SendFrame(string(requestBytes)); err != nil {
+	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
+	if err := device.communication.SendFrame(string(requestBytesEncrypted)); err != nil {
 		return nil, err
 	}
 	responseBytes, err := device.communication.ReadFrame()
 	if err != nil {
 		return nil, err
 	}
+	responseBytesDecrypted, err := device.receiveCipher.Decrypt(nil, nil, responseBytes)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
 	response := &messages.Response{}
-	if err := proto.Unmarshal(responseBytes, response); err != nil {
+	if err := proto.Unmarshal(responseBytesDecrypted, response); err != nil {
 		return nil, errp.WithStack(err)
 	}
 	return response, nil
