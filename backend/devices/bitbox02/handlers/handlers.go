@@ -25,6 +25,7 @@ import (
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
 	Random() ([]byte, error)
+	ChannelHash() (string, bool)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -41,6 +42,7 @@ func NewHandlers(
 	handlers := &Handlers{log: log}
 
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
+	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 
 	return handlers
 }
@@ -65,4 +67,12 @@ func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface
 		return nil, err
 	}
 	return hex.EncodeToString(randomNumber), nil
+}
+
+func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {
+	hash, verified := handlers.device.ChannelHash()
+	return map[string]interface{}{
+		"hash":     hash,
+		"verified": verified,
+	}, nil
 }

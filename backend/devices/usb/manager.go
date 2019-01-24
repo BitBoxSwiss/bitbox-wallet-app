@@ -43,7 +43,7 @@ func isBitBox(deviceInfo hid.DeviceInfo) bool {
 }
 
 func isBitBox02(deviceInfo hid.DeviceInfo) bool {
-	return deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+	return deviceInfo.Product == "BitBox" && deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
 }
 
 // DeviceInfos returns a slice of all found bitbox devices.

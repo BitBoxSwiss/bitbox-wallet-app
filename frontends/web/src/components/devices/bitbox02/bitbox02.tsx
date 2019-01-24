@@ -16,8 +16,14 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber'
+import { apiGet } from '../../../utils/request';
+import { apiWebsocket } from '../../../utils/websocket';
+import { Button } from '../../forms';
+import { Dialog } from '../../dialog/dialog';
 
 interface State {
+    hash?: string;
+    verified: boolean;
 }
 
 interface Props {
@@ -25,11 +31,45 @@ interface Props {
 }
 
 class BitBox02 extends Component<Props, {}> {
-    public render({ deviceID }: RenderableProps<Props>, { }: State) {
+    public state = {
+        hash: undefined,
+        verified: false,
+    };
+
+
+    private unsubscribe!: () => void;
+
+    public componentDidMount() {
+        this.unsubscribe = apiWebsocket(({ type, data, meta, deviceID }) => {
+            console.log(type, data, meta, deviceID);
+        });
+        apiGet('devices/bitbox02/' + this.props.deviceID + '/channel-hash').then(({ hash, verified }) => {
+            this.setState({ hash, verified });
+        });
+    }
+
+    public componentWillUnmount() {
+        this.unsubscribe();
+    }
+
+    private abort = () => {
+        this.setState({ verified: true });
+    }
+
+    public render({ deviceID }: RenderableProps<Props>, { hash, verified }: State) {
         return (
             <div>
                 <span>Hello BitBox02</span>
                 <RandomNumber apiPrefix={'devices/bitbox02/' + deviceID} />
+                {
+                    !verified ? (
+                        <Dialog onClose={this.abort}>
+                            <p>Verify your BitBox</p>
+                            <p>{hash}</p>
+                            <Button primary onClick={this.abort}>Correct</Button>
+                        </Dialog>
+                    ) : null
+                }
             </div>
         );
     }

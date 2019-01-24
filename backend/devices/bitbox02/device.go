@@ -2,8 +2,9 @@ package bitbox02
 
 import (
 	"crypto/rand"
+	"encoding/hex"
+	"sync"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -32,7 +33,10 @@ type Device struct {
 	deviceID                  string
 	deviceLock                locker.Locker
 	communication             Communication
+	channelHash               string
+	channelHashVerified       *bool
 	sendCipher, receiveCipher *noise.CipherState
+	mu                        sync.RWMutex
 	onEvent                   func(devicepkg.Event, interface{})
 	log                       *logrus.Entry
 }
@@ -54,7 +58,6 @@ func NewDevice(
 
 // Init implements device.Device.
 func (device *Device) Init(testing bool) {
-	spew.Dump("INIT")
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
 	if err != nil {
@@ -108,6 +111,7 @@ func (device *Device) Init(testing bool) {
 	if err != nil {
 		panic(err)
 	}
+	device.channelHash = hex.EncodeToString(handshake.ChannelBinding()[:8])
 }
 
 // ProductName implements device.Device.
@@ -178,4 +182,24 @@ func (device *Device) Random() ([]byte, error) {
 		return nil, errp.New("expected RandomNumberResponse response")
 	}
 	return randomResponse.RandomNumberResponse.RandomNumber, nil
+}
+
+// fireEvent calls device.onEvent callback if non-nil.
+// It blocks for the entire duration of the call.
+// The read-only lock is released before calling device.onEvent.
+func (device *Device) fireEvent(event devicepkg.Event, data interface{}) {
+	device.mu.RLock()
+	f := device.onEvent
+	device.mu.RUnlock()
+	if f != nil {
+		f(event, data)
+	}
+}
+
+func (device *Device) ChannelHash() (string, bool) {
+	return device.channelHash, device.channelHashVerified != nil
+}
+
+func (device *Device) ChannelHashVerify(ok bool) {
+	device.channelHashVerified = &ok
 }
