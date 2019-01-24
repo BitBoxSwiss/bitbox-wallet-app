@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -32,10 +33,17 @@ import (
 const (
 	bitboxVendorID  = 0x03eb
 	bitboxProductID = 0x2402
+
+	bitbox02VendorID  = 0x03eb
+	bitbox02ProductID = 0x2403
 )
 
 func isBitBox(deviceInfo hid.DeviceInfo) bool {
 	return deviceInfo.VendorID == bitboxVendorID && deviceInfo.ProductID == bitboxProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+}
+
+func isBitBox02(deviceInfo hid.DeviceInfo) bool {
+	return deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
 }
 
 // DeviceInfos returns a slice of all found bitbox devices.
@@ -47,7 +55,7 @@ func DeviceInfos() []hid.DeviceInfo {
 		if deviceInfo.Serial == "" || deviceInfo.Product == "" {
 			continue
 		}
-		if isBitBox(deviceInfo) {
+		if isBitBox(deviceInfo) || isBitBox02(deviceInfo) {
 			deviceInfos = append(deviceInfos, deviceInfo)
 		}
 	}
@@ -159,6 +167,39 @@ func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, e
 	return device, nil
 }
 
+func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Device, error) {
+	deviceID := deviceIdentifier(deviceInfo)
+	manager.log.
+		WithField("device-id", deviceID).
+		WithFields(deviceInfoLogFields(deviceInfo)).
+		Info("Registering BitBox02")
+	bootloader := deviceInfo.Product == "bootloader"
+	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
+	if len(match) != 2 {
+		manager.log.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
+		return nil, errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
+	}
+	firmwareVersion, err := semver.NewSemVerFromString(match[1])
+	if err != nil {
+		return nil, errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
+			errp.Context{"serial": deviceInfo.Serial})
+	}
+
+	hidDevice, err := deviceInfo.Open()
+	if err != nil {
+		return nil, errp.WithMessage(err, "Failed to open device")
+	}
+	usbWriteReportSize := 64
+	usbReadReportSize := 64
+	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
+	return bitbox02.NewDevice(
+		deviceID,
+		hidDevice,
+		bootloader,
+		firmwareVersion,
+	), nil
+}
+
 // checkIfRemoved returns true if a device was plugged in, but is not plugged in anymore.
 func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	// In edge cases, device enumeration hangs waiting for the device, and can be empty for a very
@@ -196,14 +237,22 @@ func (manager *Manager) listen() {
 				continue
 			}
 			var device device.Interface
-			if isBitBox(deviceInfo) {
+			switch {
+			case isBitBox(deviceInfo):
 				var err error
 				device, err = manager.makeBitBox(deviceInfo)
 				if err != nil {
 					manager.log.WithError(err).Error("Failed to register bitbox")
 					continue
 				}
-			} else {
+			case isBitBox02(deviceInfo):
+				var err error
+				device, err = manager.makeBitBox02(deviceInfo)
+				if err != nil {
+					manager.log.WithError(err).Error("Failed to register bitbox02")
+					continue
+				}
+			default:
 				panic("unrecognized device")
 			}
 			manager.devices[deviceID] = device
