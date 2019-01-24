@@ -194,9 +194,9 @@ func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Devic
 	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02.NewDevice(
 		deviceID,
-		hidDevice,
 		bootloader,
 		firmwareVersion,
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, false),
 	), nil
 }
 

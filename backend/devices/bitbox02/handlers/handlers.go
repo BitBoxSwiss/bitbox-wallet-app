@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"encoding/hex"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -23,6 +24,7 @@ import (
 
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
+	Random() ([]byte, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -38,7 +40,7 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log}
 
-	//handleFunc("/status", handlers.getStatusHandler).Methods("GET")
+	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 
 	return handlers
 }
@@ -56,6 +58,11 @@ func (handlers *Handlers) Uninit() {
 	handlers.device = nil
 }
 
-// func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
-// 	return handlers.device.Status(), nil
-// }
+func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Random Number")
+	randomNumber, err := handlers.device.Random()
+	if err != nil {
+		return nil, err
+	}
+	return hex.EncodeToString(randomNumber), nil
+}
