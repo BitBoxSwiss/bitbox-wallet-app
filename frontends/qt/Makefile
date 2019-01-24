@@ -16,14 +16,14 @@ base:
 	mkdir build
 	./genassets.sh
 	qmake -o build/Makefile
-	make -C build
+	cd build && $(MAKE)
 clean:
 	-rm -rf build
-	make -C server clean
+	cd server && $(MAKE) clean
 linux:
-	make clean
-	make -C server/ linux
-	make base
+	$(MAKE) clean
+	cd server && $(MAKE) linux
+	$(MAKE) base
 	mkdir build/linux-tmp build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
@@ -41,9 +41,9 @@ linux:
 	mv build/linux-tmp/BitBox-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
-	make clean
-	make -C server/ macosx
-	make base
+	$(MAKE) clean
+	cd server && $(MAKE) macosx
+	$(MAKE) base
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/

@@ -35,7 +35,7 @@ osx-init:
 	export CPPFLAGS="-I/usr/local/opt/qt/include"
 	export GOPATH=~/go/
 	export PATH=$PATH:~/go/bin
-	make envinit
+	$(MAKE) envinit
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
@@ -49,33 +49,33 @@ buildweb:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
 webdev:
-	make -C frontends/web dev
+	cd frontends/web && $(MAKE) dev
 webdev-i18n:
-	PREACT_APP_I18NEDITOR=1 make webdev
+	PREACT_APP_I18NEDITOR=1 $(MAKE) webdev
 weblint:
-	make -C frontends/web lint
+	cd frontends/web && $(MAKE) lint
 webtest:
-	make -C frontends/web jstest
+	cd frontends/web && $(MAKE) jstest
 qt:
-	make buildweb
-	make -C frontends/qt
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE)
 qt-linux: # run inside dockerdev
-	make buildweb
-	make -C frontends/qt linux
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) linux
 qt-osx: # run on OSX.
-	make buildweb
-	make -C frontends/qt osx
-	make osx-sec-check
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) osx
+	$(MAKE) osx-sec-check
 qt-windows:
-	make buildweb
-	make -C frontends/qt windows
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) windows
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh
 ci:
 	./scripts/ci.sh
 clean:
-	make -C frontends/qt clean
+	cd frontends/qt && $(MAKE) clean
 dockerinit:
 	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:
