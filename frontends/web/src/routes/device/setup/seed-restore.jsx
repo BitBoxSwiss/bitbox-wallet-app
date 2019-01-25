@@ -18,7 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
-import Backups from '../../../components/backups/backups';
+import { Backups } from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
 import { Header, Footer } from '../../../components/layout';

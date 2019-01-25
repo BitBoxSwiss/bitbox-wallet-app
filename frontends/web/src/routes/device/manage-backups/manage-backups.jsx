@@ -20,7 +20,7 @@ import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import Backups from '../../../components/backups/backups';
+import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
 import * as styles from './manage-backups.css';
 

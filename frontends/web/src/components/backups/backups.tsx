@@ -14,36 +14,61 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet } from '../../utils/request';
-import { Button } from '../forms';
+import SimpleMarkup from '../../utils/simplemarkup';
 import { alertUser } from '../alert/Alert';
-import { Restore } from './restore';
+import { Button } from '../forms';
+import BackupsListItem from './backup';
+import * as style from './backups.css';
 import Check from './check';
 import Create from './create';
-import BackupsListItem from './backup';
-// import Erase from './erase';
-import SimpleMarkup from '../../utils/simplemarkup';
-import * as style from './backups.css';
+import { Restore } from './restore';
 
-@translate()
-export default class Backups extends Component {
-    state = {
-        backupList: [],
-        selectedBackup: null,
-        sdCardInserted: null,
+interface BackupsProps {
+    deviceID: string;
+    showCreate?: boolean;
+    showRestore?: boolean;
+    requireConfirmation?: boolean;
+    fillSpace?: boolean;
+    displayError?: () => void;
+    onRestore?: () => void;
+}
+
+type Props = BackupsProps & TranslateProps;
+
+interface Backup {
+    id: string;
+    date: string;
+    name: string;
+}
+
+interface State {
+    backupList: Backup[];
+    selectedBackup?: string;
+    sdCardInserted: boolean | null;
+}
+
+class Backups extends Component<Props, State> {
+    private scrollableContainer!: HTMLElement;
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            backupList: [],
+            sdCardInserted: null,
+        };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         this.refresh();
     }
 
-    refresh = () => {
+    private refresh = () => {
         apiGet('devices/' + this.props.deviceID + '/backups/list').then(({ sdCardInserted, backupList, success, errorMessage }) => {
             if (success) {
                 this.setState({
-                    selectedBackup: null,
                     sdCardInserted,
                     backupList,
                 });
@@ -53,39 +78,40 @@ export default class Backups extends Component {
         });
     }
 
-    handleBackuplistChange = backupID => {
+    private handleBackuplistChange = (backupID: string) => {
         this.setState({ selectedBackup: backupID });
     }
 
-    scrollIntoView = ({ target }) => {
+    private scrollIntoView = ({ target }: { target: HTMLElement }) => {
         const offsetTop = target.offsetTop;
-        if (offsetTop > this.scrollableContainer.scrollTop + target.parentNode.offsetHeight) {
+        const offsetHeight = (target.parentNode! as HTMLElement).offsetHeight;
+        if (offsetTop > this.scrollableContainer.scrollTop + offsetHeight) {
             return;
         }
-        const top = Math.max((offsetTop + target.parentNode.offsetHeight) - this.scrollableContainer.offsetHeight, 0);
-        this.scrollableContainer.scroll({
-            top,
-            behavior: 'smooth'
-        });
+        const top = Math.max((offsetTop + offsetHeight) - this.scrollableContainer.offsetHeight, 0);
+        this.scrollableContainer.scroll({ top, behavior: 'smooth' });
     }
 
-    render({
-        t,
-        showCreate = false,
-        showRestore = true,
-        deviceID,
-        children,
-        requireConfirmation = true,
-        fillSpace,
-        onRestore,
-    }, {
-        backupList,
-        selectedBackup,
-        sdCardInserted,
-    }) {
+    private setScrollableContainerRef = (ref: HTMLElement) => {
+        this.scrollableContainer = ref;
+    }
+
+    public render(
+        {
+            t,
+            children,
+            showCreate = false,
+            showRestore = true,
+            deviceID,
+            requireConfirmation = true,
+            fillSpace,
+            onRestore,
+        }: RenderableProps<Props>,
+        { backupList, selectedBackup, sdCardInserted }: State,
+    ) {
         if (sdCardInserted === false) {
             return (
-                <div class={['content', !requireConfirmation ? 'noSpace' :''].join(' ')}>
+                <div class={['content', !requireConfirmation ? 'noSpace' : ''].join(' ')}>
                     <p class="first">{t('backup.insert')}</p>
                     <div class="buttons">
                         {children}
@@ -102,16 +128,20 @@ export default class Backups extends Component {
         return (
             <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
-                <div class={style.backupsList} ref={ref => this.scrollableContainer = ref}>
+                <div class={style.backupsList} ref={this.setScrollableContainerRef}>
                     {
-                        backupList.map(backup => (
+                        !backupList.length ? backupList.map(backup => (
                             <BackupsListItem
                                 key={backup.id}
                                 backup={backup}
                                 selectedBackup={selectedBackup}
                                 handleChange={this.handleBackuplistChange}
                                 onFocus={this.scrollIntoView} />
-                        ))
+                        )) : (
+                            <p class={style.emptyText}>
+                                {t('backup.noBackups')}
+                            </p>
+                        )
                     }
                 </div>
                 <div class="buttons bottom flex flex-row flex-between">
@@ -131,7 +161,7 @@ export default class Backups extends Component {
                         )
                     }
                     {
-                        showRestore && (
+                        showRestore && onRestore && (
                             <Restore
                                 selectedBackup={selectedBackup}
                                 deviceID={deviceID}
@@ -151,3 +181,6 @@ export default class Backups extends Component {
         );
     }
 }
+
+const TranslatedBackups = translate<BackupsProps>()(Backups);
+export { TranslatedBackups as Backups };
