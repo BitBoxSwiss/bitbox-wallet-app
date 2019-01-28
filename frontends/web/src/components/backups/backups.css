@@ -15,3 +15,9 @@
 .fillSpace {
     margin-top: calc(var(--spacing-default) * -1) !important;
 }
+
+.emptyText {
+    text-align: center;
+    color: var(--color-secondary);
+    padding: var(--spacing-large) 0;
+}

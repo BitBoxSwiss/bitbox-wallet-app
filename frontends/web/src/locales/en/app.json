@@ -69,6 +69,7 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
+    "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",
       "error": {
