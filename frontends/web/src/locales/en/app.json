@@ -67,9 +67,9 @@
       "verificationFailed": "The recovery password does NOT MATCH the current wallet. The backup has been created. Please use 'Check Backup' to verify your recovery password again."
     },
     "description": "Select <strong>wallet backup file</strong>",
-    "noBackups": "There are no backups on this microSD card.",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
+    "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",
       "error": {

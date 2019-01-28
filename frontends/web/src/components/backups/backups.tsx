@@ -20,7 +20,7 @@ import { apiGet } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { alertUser } from '../alert/Alert';
 import { Button } from '../forms';
-import BackupsListItem from './backup';
+import { Backup, BackupsListItem } from './backup';
 import * as style from './backups.css';
 import Check from './check';
 import Create from './create';
@@ -37,12 +37,6 @@ interface BackupsProps {
 }
 
 type Props = BackupsProps & TranslateProps;
-
-interface Backup {
-    id: string;
-    date: string;
-    name: string;
-}
 
 interface State {
     backupList: Backup[];
@@ -84,7 +78,7 @@ class Backups extends Component<Props, State> {
 
     private scrollIntoView = ({ target }: { target: HTMLElement }) => {
         const offsetTop = target.offsetTop;
-        const offsetHeight = (target.parentNode! as HTMLElement).offsetHeight;
+        const offsetHeight = (target.parentNode as HTMLElement).offsetHeight;
         if (offsetTop > this.scrollableContainer.scrollTop + offsetHeight) {
             return;
         }

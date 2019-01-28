@@ -14,18 +14,29 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
-import { translate } from 'react-i18next';
+import { Component, h, RenderableProps } from 'preact';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { Radio } from '../forms';
 
-@translate() // Leaving this here to ensure that the component re-renders when the language changes.
-export default class BackupsListItem extends Component {
-    render({
-        backup,
-        selectedBackup,
-        handleChange,
-        onFocus,
-    }, { }) {
+interface BackupsListItemProps {
+    backup: Backup;
+    selectedBackup: string | undefined;
+    handleChange: (value: string) => void;
+    onFocus: ({ target }: { target: HTMLElement; }) => void;
+}
+
+export interface Backup {
+    id: string;
+    date: string;
+    name: string;
+}
+
+type Props = BackupsListItemProps & TranslateProps;
+
+class BackupsListItem extends Component<Props> {
+    public render(
+        { backup, selectedBackup, handleChange, onFocus }: RenderableProps<Props>,
+    ) {
         let date = '';
         if (backup.date && backup.date !== '') {
             const options = {
@@ -40,13 +51,12 @@ export default class BackupsListItem extends Component {
         } else {
             date = 'unknown';
         }
-        let name = backup.name && backup.name !== '' ? backup.name : backup.id;
         return (
             <Radio
                 checked={selectedBackup === backup.id}
                 onChange={event => handleChange(event.target.value)}
                 id={backup.id}
-                label={name}
+                label={backup.name && backup.name !== '' ? backup.name : backup.id}
                 value={backup.id}
                 onFocus={onFocus}
                 sizeMedium>
@@ -55,3 +65,6 @@ export default class BackupsListItem extends Component {
         );
     }
 }
+
+const TranslatedBackupsListItem = translate<BackupsListItemProps>()(BackupsListItem);
+export { TranslatedBackupsListItem as BackupsListItem };
