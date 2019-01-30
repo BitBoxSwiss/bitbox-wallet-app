@@ -3,14 +3,12 @@ package bitbox02
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/flynn/noise"
@@ -23,24 +21,25 @@ import (
 // ProductName is the name of the BitBox02 product.
 const ProductName = "bitbox02"
 
+// Communication contains functions needed to communicate with the device.
 type Communication interface {
 	SendFrame(string) error
 	ReadFrame() ([]byte, error)
 	Close()
 }
 
+// Device provides the API to communicate with the BitBox02.
 type Device struct {
 	deviceID                  string
-	deviceLock                locker.Locker
 	communication             Communication
 	channelHash               string
 	channelHashVerified       *bool
 	sendCipher, receiveCipher *noise.CipherState
-	mu                        sync.RWMutex
 	onEvent                   func(devicepkg.Event, interface{})
 	log                       *logrus.Entry
 }
 
+// NewDevice creates a new instance of Device.
 func NewDevice(
 	deviceID string,
 	bootloader bool,
@@ -107,7 +106,7 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame(string(msg)); err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.communication.ReadFrame()
+	_, err = device.communication.ReadFrame()
 	if err != nil {
 		panic(err)
 	}
@@ -139,7 +138,7 @@ func (device *Device) Close() {
 	device.communication.Close()
 }
 
-func (device *Device) query(request *messages.Request) (*messages.Response, error) {
+func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if device.sendCipher == nil {
 		return nil, errp.New("handshake must come first")
 	}
@@ -166,6 +165,7 @@ func (device *Device) query(request *messages.Request) (*messages.Response, erro
 	return response, nil
 }
 
+// Random requests a random number from the device using protobuf messages
 func (device *Device) Random() ([]byte, error) {
 	request := &messages.Request{
 		Type: messages.Request_RANDOM,
@@ -184,22 +184,12 @@ func (device *Device) Random() ([]byte, error) {
 	return randomResponse.RandomNumberResponse.RandomNumber, nil
 }
 
-// fireEvent calls device.onEvent callback if non-nil.
-// It blocks for the entire duration of the call.
-// The read-only lock is released before calling device.onEvent.
-func (device *Device) fireEvent(event devicepkg.Event, data interface{}) {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		f(event, data)
-	}
-}
-
+// ChannelHash returns the hashed handshake channel binding
 func (device *Device) ChannelHash() (string, bool) {
 	return device.channelHash, device.channelHashVerified != nil
 }
 
+// ChannelHashVerify verifies the ChannelHash
 func (device *Device) ChannelHashVerify(ok bool) {
 	device.channelHashVerified = &ok
 }

@@ -15,11 +15,10 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import RandomNumber from '../../../routes/device/settings/components/randomnumber'
+import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import { apiGet } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
-import { Button } from '../../forms';
 import { Dialog } from '../../dialog/dialog';
+import { Button } from '../../forms';
 
 interface State {
     hash?: string;
@@ -36,13 +35,9 @@ class BitBox02 extends Component<Props, {}> {
         verified: false,
     };
 
-
     private unsubscribe!: () => void;
 
     public componentDidMount() {
-        this.unsubscribe = apiWebsocket(({ type, data, meta, deviceID }) => {
-            console.log(type, data, meta, deviceID);
-        });
         apiGet('devices/bitbox02/' + this.props.deviceID + '/channel-hash').then(({ hash, verified }) => {
             this.setState({ hash, verified });
         });

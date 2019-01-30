@@ -78,6 +78,7 @@ func (communication *Communication) Close() {
 	}
 }
 
+// SendFrame implements Communication to communicate with the device
 func (communication *Communication) SendFrame(msg string) error {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -130,6 +131,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	return nil
 }
 
+// ReadFrame implements Communication to communicate with the device
 func (communication *Communication) ReadFrame() ([]byte, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
