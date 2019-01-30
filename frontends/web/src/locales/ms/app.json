@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "Sambungan hilang. Mencuba lagi...",
+    "exportTransactions": "Eksport Transaksi ke Folder Muat Turun sebagai Fail CSV",
     "incoming": "Masuk",
     "info": {
       "btc-p2pkh": "Ini adalah akaun Bitcoin Legacy. Adalah disyorkan bahawa anda menggunakan akaun Segwit Bitcoin, kerana bayaran rangkaian yang lebih rendah.",
@@ -20,7 +21,16 @@
   },
   "addAccount": {
     "accountName": "Nama akaun",
-    "coin": "Syiling"
+    "address": "Alamat",
+    "coin": "Syiling",
+    "error": {
+      "alreadyExists": "Akaun ini sudah ada.",
+      "invalidAddress": "Sila masukkan alamat Ethereum yang sah",
+      "xpubInvalid": "Extended Public Key salah format."
+    },
+    "extendedPublicKey": "Extended Public Key",
+    "submit": "Tambah Akaun",
+    "title": "Tambah Akaun"
   },
   "app": {
     "upgrade": "Versi baru aplikasi ini telah didapati! Sila kemaskini dari {{current}} ke {{version}}."
@@ -486,6 +496,11 @@
   "language": {
     "title": "Pilih Bahasa"
   },
+  "legacyhiddenwallet": {
+    "disable": "Matikan Legacy Hidden Wallet",
+    "enable": "Aktifkan Legacy Hidden Wallet",
+    "successDisable": "Berjaya melumpuhkan legacy hidden wallet"
+  },
   "loading": "memuatkan ...",
   "pairing": {
     "aborted": {
@@ -504,6 +519,10 @@
     "reconnectOnly": {
       "button": "Sambung semula aplikasi mudah alih"
     },
+    "start": {
+      "hideAppQRCode": "Sembunyikan QR Code",
+      "revealAppQRCode": "Tunjukkan QR Code"
+    },
     "started": {
       "text": "Kini sila ikuti arahan dalam aplikasi mudah alih.",
       "title": "Hebat"
@@ -515,7 +534,8 @@
     "timeout": {
       "text": "Pemasanganan ini berakhir selepas dua minit. Mula semula jika anda masih mahu memasangkan aplikasi mudah alih.",
       "title": "Berakhir"
-    }
+    },
+    "title": "Memasang telefon bimbit"
   },
   "password": {
     "show": "Tunjukkan {{label}}",
@@ -717,6 +737,7 @@
   },
   "setup": "Menetapkan peranti",
   "sidebar": {
+    "addAccount": "Tambah akaun",
     "device": "Urus Peranti",
     "leave": "Tinggalkan",
     "settings": "Tetapan"
