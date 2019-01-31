@@ -168,20 +168,22 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 // Random requests a random number from the device using protobuf messages
 func (device *Device) Random() ([]byte, error) {
 	request := &messages.Request{
-		Type: messages.Request_RANDOM,
-		Request: &messages.Request_RandomNumberRequest{
-			RandomNumberRequest: &messages.RandomNumberRequest{},
+		Request: &messages.Request_RandomNumber{
+			RandomNumber: &messages.RandomNumberRequest{},
 		},
 	}
+
 	response, err := device.query(request)
 	if err != nil {
 		return nil, err
 	}
-	randomResponse, ok := response.Response.(*messages.Response_RandomNumberResponse)
-	if !ok || response.Type != messages.Response_RANDOM {
+
+	randomResponse, ok := response.Response.(*messages.Response_RandomNumber)
+	if !ok {
 		return nil, errp.New("expected RandomNumberResponse response")
 	}
-	return randomResponse.RandomNumberResponse.RandomNumber, nil
+
+	return randomResponse.RandomNumber.Number, nil
 }
 
 // ChannelHash returns the hashed handshake channel binding
