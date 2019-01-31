@@ -34,6 +34,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
+	bitbox02Handlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -206,10 +208,24 @@ func NewHandlers(
 		}
 		return deviceHandlersMap[deviceID]
 	}
+
+	bitbox02HandlersMap := map[string]*bitbox02Handlers.Handlers{}
+	getBitBox02Handlers := func(deviceID string) *bitbox02Handlers.Handlers {
+		defer handlersMapLock.Lock()()
+		if _, ok := bitbox02HandlersMap[deviceID]; !ok {
+			bitbox02HandlersMap[deviceID] = bitbox02Handlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/devices/bitbox02/%s", deviceID)).Subrouter(),
+			), log)
+		}
+		return bitbox02HandlersMap[deviceID]
+	}
+
 	backend.OnDeviceInit(func(device device.Interface) {
 		switch specificDevice := device.(type) {
 		case *bitbox.Device:
 			getDeviceHandlers(device.Identifier()).Init(specificDevice)
+		case *bitbox02.Device:
+			getBitBox02Handlers(device.Identifier()).Init(specificDevice)
 		}
 	})
 	backend.OnDeviceUninit(func(deviceID string) {

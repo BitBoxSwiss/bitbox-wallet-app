@@ -67,3 +67,7 @@ required = []
 [[constraint]]
   branch = "master"
   name = "golang.org/x/text"
+
+[[constraint]]
+  name = "github.com/golang/protobuf"
+  version = "1.2.0"

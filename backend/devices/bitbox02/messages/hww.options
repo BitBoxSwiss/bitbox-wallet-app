@@ -1,0 +1,2 @@
+RandomNumberResponse.random_number fixed_length:true max_size:16
+Error.message max_size:255

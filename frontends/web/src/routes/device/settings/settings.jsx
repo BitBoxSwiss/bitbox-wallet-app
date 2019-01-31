@@ -235,7 +235,7 @@ export default class Settings extends Component {
                                 </dl>
 
                                 <div class="buttons flex flex-row flex-start flex-wrap">
-                                    <RandomNumber deviceID={deviceID} />
+                                    <RandomNumber apiPrefix={'devices/' + deviceID} />
                                     <Blink deviceID={deviceID} />
                                 </div>
 

@@ -32,7 +32,7 @@ export default class RandomNumber extends Component {
     }
 
     getRandomNumber = () => {
-        apiPost('devices/' + this.props.deviceID + '/random-number').then(num => {
+        apiPost(this.props.apiPrefix + '/random-number').then(num => {
             this.setState({
                 active: true,
                 number: num,
