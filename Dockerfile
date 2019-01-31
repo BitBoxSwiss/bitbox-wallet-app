@@ -33,8 +33,7 @@ RUN apt-get -y install --no-install-recommends fuse && \
     chmod +x /opt/linuxdeployqt-5-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
-# (childprocess is a dependency of fpm which broke in 1.0.0, so pinning it explictly until resolved)
-RUN apt-get -y install --no-install-recommends ruby ruby-dev build-essential rpm && gem install childprocess --version 0.9.0 && gem install --no-ri --no-rdoc fpm
+RUN apt-get -y install --no-install-recommends ruby ruby-dev build-essential rpm && gem install --no-ri --no-rdoc fpm
 
 ENV PATH /opt/qt5/bin:$PATH
 
