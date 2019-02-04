@@ -26,7 +26,7 @@ export interface BalanceInterface {
 }
 
 interface BalanceProps {
-    balance: BalanceInterface | null;
+    balance?: BalanceInterface;
 }
 
 type Props = BalanceProps & TranslateProps;
@@ -50,7 +50,7 @@ function Balance({
                 <FiatConversion amount={balance.available} tableRow />
             </table>
             {
-                balance && balance.hasIncoming && (
+                balance.hasIncoming && (
                     <p class={style.pendingBalance}>
                         {t('account.incoming')} +{balance.incoming.amount} {balance.incoming.unit} /
                         <span className={style.incomingConversion}>

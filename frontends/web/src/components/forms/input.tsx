@@ -20,7 +20,6 @@ import * as styles from './input.css';
 export interface Props {
     autoComplete?: boolean | 'on' | 'off';
     autoFocus?: boolean;
-    children?: any; // can be removed once preact > 8.3.1
     className?: string;
     disabled?: boolean;
     error?: string | object;

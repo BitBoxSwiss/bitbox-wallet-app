@@ -65,29 +65,29 @@ interface SignProgress {
 type Props = SendProps & TranslateProps;
 
 interface State {
-    account: Account | null | undefined;
-    balance: BalanceInterface | null;
-    proposedFee: ProposedAmount | null;
-    proposedTotal: ProposedAmount | null;
-    recipientAddress: string | null;
-    proposedAmount: ProposedAmount | null;
+    account?: Account;
+    balance?: BalanceInterface;
+    proposedFee?: ProposedAmount;
+    proposedTotal?: ProposedAmount;
+    recipientAddress?: string;
+    proposedAmount?: ProposedAmount;
     valid: boolean;
-    amount: string | null;
-    data: string | null;
-    fiatAmount: string | null;
+    amount?: string;
+    data?: string;
+    fiatAmount?: string;
     fiatUnit: string;
     sendAll: boolean;
-    feeTarget: string | null;
+    feeTarget?: string;
     isConfirming: boolean;
     isSent: boolean;
     isAborted: boolean;
-    addressError: string | null;
-    amountError: string | null;
-    dataError: string | null;
-    paired: boolean | null;
+    addressError?: string;
+    amountError?: string;
+    dataError?: string;
+    paired?: boolean;
     noMobileChannelError: boolean;
-    signProgress: SignProgress | null;
-    signConfirm: boolean | null;
+    signProgress?: SignProgress;
+    signConfirm?: boolean; // show visual BitBox in dialog when instructed to sign.
     coinControl: boolean;
     activeCoinControl: boolean;
 }
@@ -101,30 +101,15 @@ class Send extends Component<Props, State> {
         super(props);
         this.state = {
             account: this.getAccount(),
-            recipientAddress: null,
-            balance: null,
-            amount: null,
-            feeTarget: null,
-            proposedFee: null,
-            proposedAmount: null,
-            proposedTotal: null,
             valid: false,
-            addressError: null,
-            amountError: null,
-            dataError: null,
             sendAll: false,
             isConfirming: false,
             isSent: false,
             isAborted: false,
-            paired: null,
             noMobileChannelError: false,
-            fiatAmount: null,
             fiatUnit: fiat.state.active,
-            signProgress: null,
-            signConfirm: null, // show visual BitBox in dialog when instructed to sign.
             coinControl: false,
             activeCoinControl: false,
-            data: null,
         };
     }
 
@@ -155,7 +140,7 @@ class Send extends Component<Props, State> {
             case 'device':
                 switch (data) {
                 case 'signProgress':
-                    this.setState({ signProgress: meta, signConfirm: null });
+                    this.setState({ signProgress: meta, signConfirm: undefined });
                     break;
                 case 'signConfirm':
                     this.setState({ signConfirm: true });
@@ -196,20 +181,20 @@ class Send extends Component<Props, State> {
             alertUser(this.props.t('warning.sendPairing'));
             return;
         }
-        this.setState({ signProgress: null, isConfirming: true });
+        this.setState({ signProgress: undefined, isConfirming: true });
         apiPost('account/' + this.state.account!.code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
                     isConfirming: false,
                     isSent: true,
-                    recipientAddress: null,
-                    proposedAmount: null,
-                    proposedFee: null,
-                    proposedTotal: null,
-                    fiatAmount: null,
-                    amount: null,
-                    data: null,
+                    recipientAddress: undefined,
+                    proposedAmount: undefined,
+                    proposedFee: undefined,
+                    proposedTotal: undefined,
+                    fiatAmount: undefined,
+                    amount: undefined,
+                    data: undefined,
                 });
                 if (this.utxos) {
                     (this.utxos as any).getWrappedInstance().clear();
@@ -225,9 +210,9 @@ class Send extends Component<Props, State> {
                 alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
             }
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false, signProgress: null, signConfirm: null });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
         }).catch(() => {
-            this.setState({ isConfirming: false, signProgress: null, signConfirm: null });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
         });
     }
 
@@ -242,15 +227,15 @@ class Send extends Component<Props, State> {
 
     private sendDisabled = () => {
         const txInput = this.txInput();
-        return !txInput.address || this.state.feeTarget === null || (txInput.sendAll === 'no' && !txInput.amount);
+        return !txInput.address || this.state.feeTarget === undefined || (txInput.sendAll === 'no' && !txInput.amount);
     }
 
     private validateAndDisplayFee = (updateFiat: boolean) => {
         this.setState({
-            proposedTotal: null,
-            addressError: null,
-            amountError: null,
-            dataError: null,
+            proposedTotal: undefined,
+            addressError: undefined,
+            amountError: undefined,
+            dataError: undefined,
         });
         if (this.sendDisabled()) {
             return;
@@ -260,9 +245,9 @@ class Send extends Component<Props, State> {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
-                    addressError: null,
-                    amountError: null,
-                    dataError: null,
+                    addressError: undefined,
+                    amountError: undefined,
+                    dataError: undefined,
                     proposedFee: result.fee,
                     proposedAmount: result.amount,
                     proposedTotal: result.total,
@@ -284,7 +269,7 @@ class Send extends Component<Props, State> {
                     this.setState({ dataError: this.props.t(`send.error.invalidData`) });
                     break;
                 default:
-                    this.setState({ proposedFee: null });
+                    this.setState({ proposedFee: undefined });
                     if (errorCode) {
                         this.unregisterEvents();
                         alertUser(errorCode, this.registerEvents);
@@ -322,7 +307,7 @@ class Send extends Component<Props, State> {
         this.convertFromFiat(value);
     }
 
-    private convertToFiat = (value: string | boolean | null) => {
+    private convertToFiat = (value?: string | boolean) => {
         if (value) {
             let coinUnit = this.state.account!.coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
@@ -337,7 +322,7 @@ class Send extends Component<Props, State> {
                     }
                 });
         } else {
-            this.setState({ fiatAmount: null });
+            this.setState({ fiatAmount: undefined });
         }
     }
 
@@ -357,7 +342,7 @@ class Send extends Component<Props, State> {
                     }
                 });
         } else {
-            this.setState({ amount: null });
+            this.setState({ amount: undefined });
         }
     }
 
@@ -384,7 +369,7 @@ class Send extends Component<Props, State> {
 
     private getAccount = () => {
         if (!this.props.accounts) {
-            return null;
+            return undefined;
         }
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }

@@ -63,7 +63,7 @@ interface State {
     initialized: boolean;
     connected: boolean;
     transactions: any[]; // define once transaction.jsx is converted
-    balance: BalanceInterface | null;
+    balance?: BalanceInterface;
     hasCard: boolean;
     exported: string;
     accountInfo?: AccountInfo;
@@ -82,7 +82,7 @@ class Account extends Component<Props, State> {
         initialized: false,
         connected: false,
         transactions: [],
-        balance: null,
+        balance: undefined,
         hasCard: false,
         exported: '',
         accountInfo: undefined,
@@ -192,7 +192,7 @@ class Account extends Component<Props, State> {
                 this.setState({ transactions });
             });
         } else {
-            this.setState({ balance: null });
+            this.setState({ balance: undefined });
             this.setState({ transactions: [] });
         }
         this.setState({ exported: '' });
@@ -272,8 +272,7 @@ class Account extends Component<Props, State> {
                                 }
                             </h2>
                         }>
-                        <Balance
-                            balance={balance} />
+                        <Balance balance={balance} />
                         <div class={componentStyle.buttons}>
                             <ButtonLink
                                 primary
