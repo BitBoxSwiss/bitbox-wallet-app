@@ -21,11 +21,6 @@ import { deep, shallow } from 'preact-render-spy';
 import Input, { Props } from '../../../src/components/forms/input';
 
 describe('components/forms/input', () => {
-    // it('should use type attr as CSS class', () => {
-    //     const msg = deep(<Input id="hasIdId" />);
-    //     expect(msg.find('.warning').length).toBe(1);
-    // });
-
     it('should preserve style attribute', () => {
         const input = deep<Props, {}>(<Input type="password" style="width:100%">content</Input>);
         expect(input.first<Props, {}>().attr('style')).toBe('width:100%');
@@ -38,7 +33,7 @@ describe('components/forms/input', () => {
     });
 
     it('should return the input node with getRef', () => {
-        shallow(<Input getRef={(node) => {
+        shallow(<Input getRef={node => {
             expect(node.nodeName).toEqual('INPUT');
         }} />);
     });
@@ -47,13 +42,4 @@ describe('components/forms/input', () => {
         const input = shallow(<Input label="Label" error="text too short" />);
         expect(input.text()).toBe('Label:text too short');
     });
-
-    // it('should match the snapshot', () => {
-    //     const msg = deep(
-    //         <Message type="success" style="width:100%">
-    //             <span>hello</span>
-    //         </Message>,
-    //     );
-    //     expect(msg).toMatchSnapshot();
-    // });
 });
