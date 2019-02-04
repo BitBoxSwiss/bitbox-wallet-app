@@ -14,35 +14,94 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { translate } from 'react-i18next';
-import { isBitcoinBased } from '../utils';
-import { apiGet, apiPost } from '../../../utils/request';
-import { apiWebsocket } from '../../../utils/websocket';
-import { debug } from '../../../utils/env';
-import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
-import { Guide } from '../../../components/guide/guide';
-import { Entry } from '../../../components/guide/entry';
-import { store as fiat } from '../../../components/rates/rates';
+import reject from '../../../assets/icons/cancel.svg';
+import approve from '../../../assets/icons/checked.svg';
 import { alertUser } from '../../../components/alert/Alert';
+import { Balance, BalanceInterface } from '../../../components/balance/balance';
+import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
+import { Entry } from '../../../components/guide/entry';
+import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
+import { Fiat, store as fiat } from '../../../components/rates/rates';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
-import { Balance } from '../../../components/balance/balance';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { debug } from '../../../utils/env';
+import { apiGet, apiPost } from '../../../utils/request';
+import { apiWebsocket } from '../../../utils/websocket';
+import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
-import UTXOs from './utxos';
-import approve from '../../../assets/icons/checked.svg';
-import reject from '../../../assets/icons/cancel.svg';
 import * as style from './send.css';
+import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
-@translate()
-export default class Send extends Component {
+interface SendProps {
+    accounts: Account[];
+    code?: string;
+    deviceIDs: string[];
+}
+
+interface Account {
+    code: string;
+    coinCode: string;
+}
+
+interface ProposedAmount {
+    amount: string;
+    unit: string;
+    conversions: Conversions;
+}
+
+interface Conversions {
+    [key: string]: Fiat;
+}
+
+interface SignProgress {
+    steps: number;
+    step: number;
+}
+
+type Props = SendProps & TranslateProps;
+
+interface State {
+    account: Account | null | undefined;
+    balance: BalanceInterface | null;
+    proposedFee: ProposedAmount | null;
+    proposedTotal: ProposedAmount | null;
+    recipientAddress: string | null;
+    proposedAmount: ProposedAmount | null;
+    valid: boolean;
+    amount: string | null;
+    data: string | null;
+    fiatAmount: string | null;
+    fiatUnit: string;
+    sendAll: boolean;
+    feeTarget: string | null;
+    isConfirming: boolean;
+    isSent: boolean;
+    isAborted: boolean;
+    addressError: string | null;
+    amountError: string | null;
+    dataError: string | null;
+    paired: boolean | null;
+    noMobileChannelError: boolean;
+    signProgress: SignProgress | null;
+    signConfirm: boolean | null;
+    coinControl: boolean;
+    activeCoinControl: boolean;
+}
+
+class Send extends Component<Props, State> {
+    private utxos!: Component<UTXOsProps>;
+    private selectedUTXOs: SelectedUTXO = {};
+    private unsubscribe!: () => void;
 
     constructor(props) {
         super(props);
-
         this.state = {
+            account: this.getAccount(),
+            recipientAddress: null,
             balance: null,
             amount: null,
             feeTarget: null,
@@ -65,26 +124,26 @@ export default class Send extends Component {
             signConfirm: null, // show visual BitBox in dialog when instructed to sign.
             coinControl: false,
             activeCoinControl: false,
+            data: null,
         };
-        this.selectedUTXOs = [];
     }
 
-    coinSupportsCoinControl = () => {
-        const account = this.getAccount();
-        if (!account) {
+    private coinSupportsCoinControl = () => {
+        if (!this.state.account) {
             return false;
         }
-        return isBitcoinBased(account.coinCode);
+        return isBitcoinBased(this.state.account.coinCode);
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
         if (this.props.deviceIDs.length > 0) {
-            apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(mobileChannel => {
+            apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
                 apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
-                    const account = this.getAccount();
+                    const account = this.state.account;
+                    const paired = mobileChannel && pairing;
                     const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
-                    this.setState({ paired: mobileChannel && pairing, noMobileChannelError });
+                    this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
                 });
             });
         }
@@ -107,39 +166,38 @@ export default class Send extends Component {
         });
     }
 
-    componentWillMount() {
+    public componentWillMount() {
         this.registerEvents();
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         this.unregisterEvents();
         if (this.unsubscribe) {
             this.unsubscribe();
         }
     }
 
-    registerEvents = () => {
+    private registerEvents = () => {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
-    unregisterEvents = () => {
+    private unregisterEvents = () => {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = e => {
+    private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
-            console.log('send.jsx route to /'); // eslint-disable-line no-console
             route(`/account/${this.props.code}`);
         }
     }
 
-    send = () => {
+    private send = () => {
         if (this.state.noMobileChannelError) {
             alertUser(this.props.t('warning.sendPairing'));
             return;
         }
         this.setState({ signProgress: null, isConfirming: true });
-        apiPost('account/' + this.getAccount().code + '/sendtx', this.txInput()).then(result => {
+        apiPost('account/' + this.state.account!.code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
@@ -154,13 +212,14 @@ export default class Send extends Component {
                     data: null,
                 });
                 if (this.utxos) {
-                    this.utxos.getWrappedInstance().clear();
+                    (this.utxos as any).getWrappedInstance().clear();
                 }
-                setTimeout(() => this.setState({ isSent: false, isConfirming: false }), 5000);
+                setTimeout(() => this.setState({
+                    isSent: false,
+                    isConfirming: false,
+                }), 5000);
             } else if (result.aborted) {
-                this.setState({
-                    isAborted: true,
-                });
+                this.setState({ isAborted: true });
                 setTimeout(() => this.setState({ isAborted: false }), 5000);
             } else {
                 alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
@@ -172,7 +231,7 @@ export default class Send extends Component {
         });
     }
 
-    txInput = () => ({
+    private txInput = () => ({
         address: this.state.recipientAddress,
         amount: this.state.amount,
         feeTarget: this.state.feeTarget || '',
@@ -181,12 +240,12 @@ export default class Send extends Component {
         data: this.state.data,
     })
 
-    sendDisabled = () => {
+    private sendDisabled = () => {
         const txInput = this.txInput();
         return !txInput.address || this.state.feeTarget === null || (txInput.sendAll === 'no' && !txInput.amount);
     }
 
-    validateAndDisplayFee = updateFiat => {
+    private validateAndDisplayFee = (updateFiat: boolean) => {
         this.setState({
             proposedTotal: null,
             addressError: null,
@@ -197,7 +256,7 @@ export default class Send extends Component {
             return;
         }
         const txInput = this.txInput();
-        apiPost('account/' + this.getAccount().code + '/tx-proposal', txInput).then(result => {
+        apiPost('account/' + this.state.account!.code + '/tx-proposal', txInput).then(result => {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
@@ -237,31 +296,35 @@ export default class Send extends Component {
         });
     }
 
-    handleFormChange = event => {
-        let value = event.target.value;
-        if (event.target.type === 'checkbox') {
-            value = event.target.checked;
+    private handleFormChange = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
+        let value: string | boolean = target.value;
+        if (target.type === 'checkbox') {
+            value = target.checked;
         }
-        if (event.target.id === 'sendAll') {
+        if (target.id === 'sendAll') {
             if (!value) {
                 this.convertToFiat(this.state.amount);
             }
-        } else if (event.target.id === 'amount') {
+        } else if (target.id === 'amount') {
             this.convertToFiat(value);
         }
-        this.setState({ [event.target.id]: value });
+        this.setState(prevState => ({
+            ...prevState,
+            [target.id]: value,
+        }));
         this.validateAndDisplayFee(true);
     }
 
-    handleFiatInput = event => {
-        const value = event.target.value;
+    private handleFiatInput = (event: Event) => {
+        const value = (event.target as HTMLInputElement).value;
         this.setState({ fiatAmount: value });
         this.convertFromFiat(value);
     }
 
-    convertToFiat = value => {
+    private convertToFiat = (value: string | boolean | null) => {
         if (value) {
-            let coinUnit = this.getAccount().coinCode.toUpperCase();
+            let coinUnit = this.state.account!.coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
@@ -278,9 +341,9 @@ export default class Send extends Component {
         }
     }
 
-    convertFromFiat = value => {
+    private convertFromFiat = (value: string) => {
         if (value) {
-            let coinUnit = this.getAccount().coinCode.toUpperCase();
+            let coinUnit = this.state.account!.coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
@@ -298,80 +361,90 @@ export default class Send extends Component {
         }
     }
 
-    sendAll = event => {
+    private sendAll = (event: Event) => {
         this.handleFormChange(event);
     }
 
-    sendToSelf = event => {
-        apiGet('account/' + this.getAccount().code + '/receive-addresses').then(receiveAddresses => {
+    private sendToSelf = (event: Event) => {
+        apiGet('account/' + this.state.account!.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
             this.handleFormChange(event);
         });
     }
 
-    feeTargetChange = feeTarget => {
+    private feeTargetChange = (feeTarget: string) => {
         this.setState({ feeTarget });
         this.validateAndDisplayFee(this.state.sendAll);
     }
 
-    onSelectedUTXOsChange = selectedUTXOs => {
+    private onSelectedUTXOsChange = (selectedUTXOs: SelectedUTXO) => {
         this.selectedUTXOs = selectedUTXOs;
         this.validateAndDisplayFee(true);
     }
 
-    getAccount() {
-        if (!this.props.accounts) return null;
+    private getAccount = () => {
+        if (!this.props.accounts) {
+            return null;
+        }
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
-    toggleCoinControl = () => {
+    private toggleCoinControl = () => {
         this.setState(({ activeCoinControl }) => {
             if (activeCoinControl && this.utxos) {
-                this.utxos.getWrappedInstance().clear();
+                (this.utxos as any).getWrappedInstance().clear();
             }
             return { activeCoinControl: !activeCoinControl };
         });
     }
 
-    render({
-        t,
-        code,
-    }, {
-        balance,
-        proposedFee,
-        proposedTotal,
-        recipientAddress,
-        proposedAmount,
-        valid,
-        amount,
-        data,
-        fiatAmount,
-        fiatUnit,
-        sendAll,
-        feeTarget,
-        isConfirming,
-        isSent,
-        isAborted,
-        addressError,
-        amountError,
-        dataError,
-        paired,
-        signProgress,
-        signConfirm,
-        coinControl,
-        activeCoinControl,
-    }) {
-        const account = this.getAccount();
-        if (!account) return null;
+    private setUTXOsRef = (ref: Component<UTXOsProps>) => {
+        this.utxos = ref;
+    }
 
-        const confirmPrequel = signProgress && signProgress.steps > 1 ? (
+    public render(
+        { t, code }: RenderableProps<Props>,
+        {
+            account,
+            balance,
+            proposedFee,
+            proposedTotal,
+            recipientAddress,
+            proposedAmount,
+            valid,
+            amount,
+            data,
+            fiatAmount,
+            fiatUnit,
+            sendAll,
+            feeTarget,
+            isConfirming,
+            isSent,
+            isAborted,
+            addressError,
+            amountError,
+            dataError,
+            paired,
+            signProgress,
+            signConfirm,
+            coinControl,
+            activeCoinControl,
+        }: State,
+    ) {
+        if (!account) {
+            return null;
+        }
+        const confirmPrequel = signProgress && signProgress.steps > 1 && (
             <span>
-                {t('send.signprogress.description', {
-                    steps: signProgress.steps,
-                })}<br />
+                {
+                    t('send.signprogress.description', {
+                        steps: signProgress.steps.toString(),
+                    })
+                }
+                <br />
                 {t('send.signprogress.label')}: {signProgress.step}/{signProgress.steps}
             </span>
-        ) : null;
+        );
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -379,14 +452,13 @@ export default class Send extends Component {
                         {paired === false && t('warning.sendPairing')}
                     </Status>
                     <Header title={<h2>{t('send.title')}</h2>}>
-                        <Balance
-                            balance={balance} />
+                        <Balance balance={balance} />
                         {
-                            coinControl ? (
+                            coinControl && (
                                 <div style="align-self: flex-end;">
                                     <Button onClick={this.toggleCoinControl} primary>{t('send.toggleCoinControl')}</Button>
                                 </div>
-                            ) : null
+                            )
                         }
                     </Header>
                     <div class="innerContainer scrollableContainer">
@@ -394,10 +466,11 @@ export default class Send extends Component {
                             {
                                 coinControl && (
                                     <UTXOs
-                                        active={activeCoinControl}
-                                        ref={ref => this.utxos = ref}
                                         accountCode={account.code}
-                                        onChange={this.onSelectedUTXOsChange} />
+                                        active={activeCoinControl}
+                                        onChange={this.onSelectedUTXOsChange}
+                                        ref={this.setUTXOsRef}
+                                    />
                                 )
                             }
                             <div class="row">
@@ -410,11 +483,13 @@ export default class Send extends Component {
                                     value={recipientAddress}
                                     autofocus
                                 />
-                                { debug && (
-                                    <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
-                                        Send to self
-                                    </span>
-                                ) }
+                                {
+                                    debug && (
+                                        <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
+                                            Send to self
+                                        </span>
+                                    )
+                                }
                             </div>
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
@@ -454,7 +529,7 @@ export default class Send extends Component {
                                         onFeeTargetChange={this.feeTargetChange} />
                                     <Input
                                         label={t('send.fee.label')}
-                                        value={proposedFee ? proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '') : null}
+                                        value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
                                         disabled={feeTarget !==  'custom'}
                                         transparent />
@@ -466,19 +541,24 @@ export default class Send extends Component {
                                     />
                                     */}
                                 </div>
-                                {feeTarget && <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>}
+                                {
+                                    feeTarget && (
+                                        <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                                    )
+                                }
                             </div>
                             {
-                                (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && <div class="row">
-                                    <Input
-                                        label={t('send.data.label')}
-                                        placeholder={t('send.data.placeholder')}
-                                        id="data"
-                                        error={dataError}
-                                        onInput={this.handleFormChange}
-                                        value={data}
-                                    />
-                                </div>
+                                (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
+                                    <div class="row">
+                                        <Input
+                                            label={t('send.data.label')}
+                                            placeholder={t('send.data.placeholder')}
+                                            id="data"
+                                            error={dataError}
+                                            onInput={this.handleFormChange}
+                                            value={data} />
+                                    </div>
+                                )
                             }
                             <div class="row buttons flex flex-row flex-between flex-start">
                                 <ButtonLink
@@ -549,7 +629,7 @@ export default class Send extends Component {
                                         </div>
                                     </div>
                                     {
-                                        this.selectedUTXOs.length !== 0 && (
+                                        Object.keys(this.selectedUTXOs).length !== 0 && (
                                             <div class={style.block}>
                                                 <p class={['label', style.confirmationLabel].join(' ')}>
                                                     {t('send.confirm.selected-coins')}
@@ -573,7 +653,7 @@ export default class Send extends Component {
                                                     <td>{proposedTotal && proposedTotal.unit || 'N/A'}</td>
                                                 </tr>
                                                 {
-                                                    proposedTotal && proposedTotal.conversions && (
+                                                    (proposedTotal && proposedTotal.conversions) && (
                                                         <tr>
                                                             <td>{proposedTotal.conversions[fiatUnit]}</td>
                                                             <td>{fiatUnit}</td>
@@ -608,15 +688,22 @@ export default class Send extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.send.whyFee" entry={t('guide.send.whyFee')} />
-                    {isBitcoinBased(account.coinCode) && (
-                        <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
-                    )}
-                    {isBitcoinBased(account.coinCode) && (
-                        <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
-                    )}
+                    {
+                        isBitcoinBased(account.coinCode) && (
+                            <Entry key="guide.send.priority" entry={t('guide.send.priority')} />
+                        )
+                    }
+                    {
+                        isBitcoinBased(account.coinCode) && (
+                            <Entry key="guide.send.fee" entry={t('guide.send.fee')} />
+                        )
+                    }
                     <Entry key="guide.send.revert" entry={t('guide.send.revert')} />
                 </Guide>
             </div>
         );
     }
 }
+
+const TranslatedSend = translate<SendProps>()(Send);
+export { TranslatedSend as Send };

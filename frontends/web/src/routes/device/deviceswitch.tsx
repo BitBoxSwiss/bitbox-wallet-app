@@ -24,7 +24,9 @@ export interface Devices {
     [deviceID: string]: string;
 }
 
+// Keys are typed as 'string | number' in Preact, which prevents us from using 'Devices' (object) here.
 interface Props {
+    key?: any;
     devices: Devices;
     deviceID: string | null;
 }

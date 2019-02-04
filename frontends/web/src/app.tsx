@@ -30,7 +30,7 @@ import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
 import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
-import Send from './routes/account/send/send';
+import { Send } from './routes/account/send/send';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';

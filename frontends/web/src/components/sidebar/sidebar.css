@@ -190,7 +190,7 @@ a.sidebar-active .single img,
 
     .sidebar .stacked,
     .sidebar .single {
-        margin: 0 var(--spacing-half) 0 var(--spacing-default);
+        margin: 0 var(--spacing-half) 0 calc(var(--spacing-default) + var(--spacing-half));
     }
 
     .sidebar:not(.withGuide) .stacked img,

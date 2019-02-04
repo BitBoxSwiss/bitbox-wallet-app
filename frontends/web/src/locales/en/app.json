@@ -658,7 +658,8 @@
     "button": "Sign and Send",
     "coincontrol": {
       "address": "Address",
-      "outpoint": "Outpoint"
+      "outpoint": "Outpoint",
+      "title": "Send from Output"
     },
     "confirm": {
       "selected-coins": "Selected Coins",
