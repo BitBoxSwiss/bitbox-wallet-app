@@ -18,11 +18,10 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
-import Backups from '../../../components/backups/backups';
+import { Backups } from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
-import { Header } from '../../../components/header/Header';
-import Footer from '../../../components/footer/footer';
+import { Header, Footer } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
 import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
@@ -105,7 +104,7 @@ export default class SeedRestore extends Component {
                             <Step divider />
                             <Step title={t(`goal.step.4-restore.title`)} />
                         </Steps>
-                    } narrow={true} {...this.props} />
+                    } narrow={true} />
                     <div className={style.content}>
                         {
                             error ? (
@@ -129,7 +128,7 @@ export default class SeedRestore extends Component {
                                         <Button
                                             secondary
                                             onClick={goBack}>
-                                            {t('button.back')}
+                                            {t('button.abort')}
                                         </Button>
                                         <Button
                                             primary
@@ -150,7 +149,7 @@ export default class SeedRestore extends Component {
                                     <Button
                                         secondary
                                         onClick={goBack}>
-                                        {t('button.back')}
+                                        {t('button.abort')}
                                     </Button>
                                 </Backups>
                             )

@@ -26,7 +26,6 @@ import (
 var ErrSigningAborted = errors.New("signing aborted by user")
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
-//go:generate mockery -name Keystore
 type Keystore interface {
 	// // Configuration returns the configuration of the keystore.
 	// // The keypath is m/44' for singlesig and m/46' for multisig.
@@ -38,7 +37,7 @@ type Keystore interface {
 
 	// HasSecureOutput returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	HasSecureOutput(*signing.Configuration, coin.Coin) bool
+	HasSecureOutput(*signing.Configuration, coin.Coin) (bool, error)
 
 	// OutputAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
@@ -47,9 +46,9 @@ type Keystore interface {
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
-	// SignMessage(string, *signing.AbsoluteKeypath, coin.Coin) (*big.Int, error)
+	// SignMessage(string, *signing.AbsoluteKeypath, accounts.Coin) (*big.Int, error)
 
 	// SignTransaction signs the given transaction proposal. Returns ErrSigningAborted if the user
 	// aborts.
-	SignTransaction(coin.ProposedTransaction) error
+	SignTransaction(interface{}) error
 }

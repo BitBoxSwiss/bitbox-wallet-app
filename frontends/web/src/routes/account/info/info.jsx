@@ -16,14 +16,14 @@
 
 import { Component, h } from 'preact';
 import { ButtonLink } from '../../../components/forms';
-import Balance from '../../../components/balance/balance';
+import { Balance } from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import QRCode from '../../../components/qrcode/qrcode';
+import { QRCode } from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import { CopyableInput } from '../../../components/copy/Copy';
 import * as style from './info.css';
 
@@ -96,9 +96,8 @@ export default class Info extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('accountInfo.title')}</h2>} {...this.props}>
+                    <Header title={<h2>{t('accountInfo.title')}</h2>}>
                         <Balance
-                            t={t}
                             balance={balance} />
                     </Header>
                     <div class="innerContainer">

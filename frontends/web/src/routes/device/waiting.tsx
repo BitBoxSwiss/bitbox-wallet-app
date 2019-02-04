@@ -15,12 +15,11 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Footer from '../../components/footer/footer';
 import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
-import { Header } from '../../components/header/Header';
 import { Shift } from '../../components/icon';
+import { Footer, Header } from '../../components/layout';
 import { PasswordSingleInput } from '../../components/password';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -34,11 +33,11 @@ interface TestingProps {
 
 type WaitingProps = TestingProps & TranslateProps;
 
-function Waiting({ t, testing, ...other }: RenderableProps<WaitingProps>) {
+function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
     return (
         <div class="contentWithGuide">
             <div className={style.container}>
-                <Header title={<h2>{t('welcome.title')}</h2>} {...other} />
+                <Header title={<h2>{t('welcome.title')}</h2>} />
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>

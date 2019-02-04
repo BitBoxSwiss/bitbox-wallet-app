@@ -16,13 +16,18 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import { BitBox02 } from '../../components/devices/bitbox02/bitbox02';
 import Device from './device';
 import { Waiting } from './waiting';
 
+export interface Devices {
+    [deviceID: string]: string;
+}
+
+// Keys are typed as 'string | number' in Preact, which prevents us from using 'Devices' (object) here.
 interface Props {
-    devices: {
-        [deviceID: string]: string,
-    };
+    key?: any;
+    devices: Devices;
     deviceID: string | null;
 }
 
@@ -39,13 +44,15 @@ class DeviceSwitch extends Component<Props, {}> {
 
     public render({ deviceID, devices }: RenderableProps<Props>) {
         if (this.props.default || deviceID === null || !Object.keys(devices).includes(deviceID)) {
-            return <Waiting {...this.props} />;
+            return <Waiting />;
         }
         switch (devices[deviceID]) {
         case 'bitbox':
-            return <Device deviceID={deviceID} {...this.props} />;
+            return <Device deviceID={deviceID} />;
+        case 'bitbox02':
+             return <BitBox02 deviceID={deviceID} />;
         default:
-            return <Waiting {...this.props} />;
+            return <Waiting />;
         }
     }
 }

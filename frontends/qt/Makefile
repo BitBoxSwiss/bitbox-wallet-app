@@ -1,15 +1,29 @@
+# Copyright 2018 Shift Devices AG
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 base:
 	mkdir build
 	./genassets.sh
 	qmake -o build/Makefile
-	make -C build
+	cd build && $(MAKE)
 clean:
 	-rm -rf build
-	make -C server clean
+	cd server && $(MAKE) clean
 linux:
-	make clean
-	make -C server/ linux
-	make base
+	$(MAKE) clean
+	cd server && $(MAKE) linux
+	$(MAKE) base
 	mkdir build/linux-tmp build/linux
 	mv build/BitBox build/linux-tmp
 	cp build/assets.rcc build/linux-tmp/
@@ -19,17 +33,17 @@ linux:
 	cp -aR resources/linux build/tmp-deb
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.3.0 -C ../tmp-deb/
-	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.3.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.4.0 -C ../tmp-deb/
+	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.4.0 -C ../tmp-deb/
 	# create AppImage
 	sed 's+/usr/share/pixmaps/bitbox.svg+default+' resources/linux/usr/share/applications/bitbox.desktop > build/linux-tmp/bitbox.desktop
 	cd build/linux-tmp && /opt/linuxdeployqt-5-x86_64.AppImage BitBox -appimage
 	mv build/linux-tmp/BitBox-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
-	make clean
-	make -C server/ macosx
-	make base
+	$(MAKE) clean
+	cd server && $(MAKE) macosx
+	$(MAKE) base
 	mkdir build/osx
 	mv build/BitBox.app build/osx/
 	cp resources/MacOS/Info.plist build/osx/BitBox.app/Contents/
@@ -40,6 +54,4 @@ osx:
 	install_name_tool -change libserver.so @executable_path/../Frameworks/libserver.so build/osx/BitBox.app/Contents/MacOS/BitBox
 	cp -r resources/MacOS/Testnet.app build/osx/Testnet.app
 windows:
-	@echo "Open the .pro file in QT Creator in Windows, switch to Release mode on the left, then do \"Build/run qmake\" and then \"Build/Build All\", then run \"make windows_post\"".
-windows_post:
-	sh ./windows_post.sh
+	bash make_windows.sh

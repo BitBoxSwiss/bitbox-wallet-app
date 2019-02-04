@@ -33,6 +33,10 @@ import (
 type AccountAddress struct {
 	btcutil.Address
 
+	// AccountConfiguration contains the absolute keypath and xpubs of the
+	// account. AccountConfiguration + RelativeKeypath = Configuration.
+	AccountConfiguration *signing.Configuration
+	RelativeKeypath      signing.RelativeKeypath
 	// Configuration contains the absolute keypath and the extended public keys of the address.
 	Configuration *signing.Configuration
 
@@ -49,17 +53,22 @@ type AccountAddress struct {
 
 // NewAccountAddress creates a new account address.
 func NewAccountAddress(
-	configuration *signing.Configuration,
+	accountConfiguration *signing.Configuration,
+	keyPath signing.RelativeKeypath,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
+	configuration, err := accountConfiguration.Derive(keyPath)
+	if err != nil {
+		log.WithError(err).Panic("Failed to derive the configuration.")
+	}
+
 	log = log.WithFields(logrus.Fields{
 		"key-path":      configuration.AbsoluteKeypath().Encode(),
 		"configuration": configuration.String(),
 	})
 	log.Debug("Creating new account address")
 
-	var err error
 	var redeemScript []byte
 	var address btcutil.Address
 
@@ -113,11 +122,13 @@ func NewAccountAddress(
 	}
 
 	return &AccountAddress{
-		Address:       address,
-		Configuration: configuration,
-		HistoryStatus: "",
-		redeemScript:  redeemScript,
-		log:           log,
+		Address:              address,
+		AccountConfiguration: accountConfiguration,
+		RelativeKeypath:      keyPath,
+		Configuration:        configuration,
+		HistoryStatus:        "",
+		redeemScript:         redeemScript,
+		log:                  log,
 	}
 }
 

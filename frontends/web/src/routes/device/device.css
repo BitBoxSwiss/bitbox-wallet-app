@@ -93,3 +93,29 @@
     margin-bottom: 0;
     margin-top: var(--spacing-large);
 }
+
+.stepNumber {
+    min-width: 20px !important;
+    margin-right: 20px;
+    text-align: center;
+    color: var(--color-rock);
+    font-size: var(--size-extra-large);
+    line-height: var(--size-extra-large);
+    font-weight: 300;
+}
+
+.badge {
+    max-height: 40px;
+    height: 40px;
+}
+
+@media screen and (max-width: 640px) {
+    .qrcodeContainer {
+        width: 50%;
+    }
+
+    .qrcodeContainer img {
+        width: 100%;
+        height: auto;
+    }
+}

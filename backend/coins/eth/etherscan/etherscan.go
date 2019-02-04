@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -92,14 +93,20 @@ type jsonTransaction struct {
 	Timestamp     timestamp      `json:"timeStamp"`
 	Confirmations jsonBigInt     `json:"confirmations"`
 	From          common.Address `json:"from"`
-	To            common.Address `json:"to"`
-	Value         jsonBigInt     `json:"value"`
+
+	// One of them is an empty string / nil, the other is an address.
+	ToAsString              string `json:"to"`
+	to                      *common.Address
+	ContractAddressAsString string `json:"contractAddress"`
+	contractAddress         *common.Address
+
+	Value jsonBigInt `json:"value"`
 }
 
-// Transaction implemements coin.Transaction (TODO).
+// Transaction implemements accounts.Transaction (TODO).
 type Transaction struct {
 	jsonTransaction jsonTransaction
-	txType          coin.TxType
+	txType          accounts.TxType
 }
 
 // assertion because not implementing the interface fails silently.
@@ -107,45 +114,73 @@ var _ ethtypes.EthereumTransaction = &Transaction{}
 
 // UnmarshalJSON implements json.Unmarshaler.
 func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
-	return json.Unmarshal(jsonBytes, &tx.jsonTransaction)
+	if err := json.Unmarshal(jsonBytes, &tx.jsonTransaction); err != nil {
+		return errp.WithStack(err)
+	}
+	switch {
+	case tx.jsonTransaction.ToAsString != "":
+		if !common.IsHexAddress(tx.jsonTransaction.ToAsString) {
+			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ToAsString)
+		}
+		addr := common.HexToAddress(tx.jsonTransaction.ToAsString)
+		tx.jsonTransaction.to = &addr
+	case tx.jsonTransaction.ContractAddressAsString != "":
+		if !common.IsHexAddress(tx.jsonTransaction.ContractAddressAsString) {
+			return errp.Newf("eth address expected, got %s", tx.jsonTransaction.ContractAddressAsString)
+		}
+		addr := common.HexToAddress(tx.jsonTransaction.ContractAddressAsString)
+		tx.jsonTransaction.contractAddress = &addr
+	default:
+		return errp.New("Need one of: to, contractAddress")
+	}
+	return nil
 }
 
-// Fee implements coin.Transaction.
+// Fee implements accounts.Transaction.
 func (tx *Transaction) Fee() *coin.Amount {
 	fee := new(big.Int).Mul(tx.jsonTransaction.GasUsed.BigInt(), tx.jsonTransaction.GasPrice.BigInt())
 	amount := coin.NewAmount(fee)
 	return &amount
 }
 
-// Timestamp implements coin.Transaction.
+// Timestamp implements accounts.Transaction.
 func (tx *Transaction) Timestamp() *time.Time {
 	t := time.Time(tx.jsonTransaction.Timestamp)
 	return &t
 }
 
-// ID implements coin.Transaction.
+// ID implements accounts.Transaction.
 func (tx *Transaction) ID() string {
 	return tx.jsonTransaction.Hash.Hex()
 }
 
-// NumConfirmations implements coin.Transaction.
+// NumConfirmations implements accounts.Transaction.
 func (tx *Transaction) NumConfirmations() int {
 	return int(tx.jsonTransaction.Confirmations.BigInt().Int64())
 }
 
-// Type implements coin.Transaction.
-func (tx *Transaction) Type() coin.TxType {
+// Type implements accounts.Transaction.
+func (tx *Transaction) Type() accounts.TxType {
 	return tx.txType
 }
 
-// Amount implements coin.Transaction.
+// Amount implements accounts.Transaction.
 func (tx *Transaction) Amount() coin.Amount {
 	return coin.NewAmount(tx.jsonTransaction.Value.BigInt())
 }
 
-// Addresses implements coin.Transaction.
-func (tx *Transaction) Addresses() []string {
-	return []string{tx.jsonTransaction.To.Hex()}
+// Addresses implements accounts.Transaction.
+func (tx *Transaction) Addresses() []accounts.AddressAndAmount {
+	address := ""
+	if tx.jsonTransaction.to != nil {
+		address = tx.jsonTransaction.to.Hex()
+	} else if tx.jsonTransaction.contractAddress != nil {
+		address = tx.jsonTransaction.contractAddress.Hex()
+	}
+	return []accounts.AddressAndAmount{{
+		Address: address,
+		Amount:  tx.Amount(),
+	}}
 }
 
 // Gas implements ethtypes.EthereumTransaction.
@@ -156,13 +191,13 @@ func (tx *Transaction) Gas() uint64 {
 	return uint64(tx.jsonTransaction.GasUsed.BigInt().Int64())
 }
 
-// prepareTransactions casts to []coin.Transactions and removes duplicate entries. Duplicate entries
+// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate entries
 // appear in the etherscan result if the recipient and sender are the same. It also sets the
 // transaction type (send, receive, send to self) based on the account address.
 func prepareTransactions(
-	transactions []*Transaction, address common.Address) ([]coin.Transaction, error) {
+	transactions []*Transaction, address common.Address) ([]accounts.Transaction, error) {
 	seen := map[string]struct{}{}
-	castTransactions := []coin.Transaction{}
+	castTransactions := []accounts.Transaction{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
 		if _, ok := seen[transaction.ID()]; ok {
@@ -171,18 +206,26 @@ func prepareTransactions(
 		seen[transaction.ID()] = struct{}{}
 
 		from := transaction.jsonTransaction.From.Hex()
-		to := transaction.jsonTransaction.To.Hex()
+		var to string
+		switch {
+		case transaction.jsonTransaction.to != nil:
+			to = transaction.jsonTransaction.to.Hex()
+		case transaction.jsonTransaction.contractAddress != nil:
+			to = transaction.jsonTransaction.contractAddress.Hex()
+		default:
+			return nil, errp.New("must have either to address or contract address")
+		}
 		if ours != from && ours != to {
 			return nil, errp.New("transaction does not belong to our account")
 		}
-		if ours == from && ours == to {
-			transaction.txType = coin.TxTypeSendSelf
-		} else if ours == from {
-			transaction.txType = coin.TxTypeSend
-		} else {
-			transaction.txType = coin.TxTypeReceive
+		switch {
+		case ours == from && ours == to:
+			transaction.txType = accounts.TxTypeSendSelf
+		case ours == from:
+			transaction.txType = accounts.TxTypeSend
+		default:
+			transaction.txType = accounts.TxTypeReceive
 		}
-
 		castTransactions = append(castTransactions, transaction)
 	}
 	return castTransactions, nil
@@ -190,7 +233,7 @@ func prepareTransactions(
 
 // Transactions queries EtherScan for transactions for the given account, until endBlock.
 func (etherScan *EtherScan) Transactions(address common.Address, endBlock *big.Int) (
-	[]coin.Transaction, error) {
+	[]accounts.Transaction, error) {
 	params := url.Values{}
 	params.Set("module", "account")
 	params.Set("action", "txlist")

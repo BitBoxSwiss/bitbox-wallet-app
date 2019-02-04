@@ -18,6 +18,8 @@ import i18n from 'i18next';
 import appTranslationsDE from '../locales/de/app.json';
 import appTranslationsEN from '../locales/en/app.json';
 import appTranslationsJA from '../locales/ja/app.json';
+import appTranslationsRU from '../locales/ru/app.json';
+import appTranslationsMS from '../locales/ms/app.json';
 import { apiGet, apiPost } from '../utils/request';
 import languageFromConfig from './config';
 import Backend from 'i18next-locize-backend';
@@ -77,6 +79,8 @@ if (!i18nEditorActive) {
     i18n.addResourceBundle('de', 'app', appTranslationsDE);
     i18n.addResourceBundle('en', 'app', appTranslationsEN);
     i18n.addResourceBundle('ja', 'app', appTranslationsJA);
+    i18n.addResourceBundle('ms', 'app', appTranslationsMS);
+    i18n.addResourceBundle('ru', 'app', appTranslationsRU);
 }
 
 i18n.on('languageChanged', (lng) => {

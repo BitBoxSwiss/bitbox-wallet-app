@@ -78,6 +78,13 @@ func (communication *Communication) Close() {
 	}
 }
 
+// SendFrame implements Communication to communicate with the device
+func (communication *Communication) SendFrame(msg string) error {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	return communication.sendFrame(msg)
+}
+
 func (communication *Communication) sendFrame(msg string) error {
 	dataLen := len(msg)
 	if dataLen == 0 {
@@ -122,6 +129,17 @@ func (communication *Communication) sendFrame(msg string) error {
 		}
 	}
 	return nil
+}
+
+// ReadFrame implements Communication to communicate with the device
+func (communication *Communication) ReadFrame() ([]byte, error) {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	reply, err := communication.readFrame()
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimRightFunc(reply, func(r rune) bool { return r == 0 }), nil
 }
 
 func (communication *Communication) readFrame() ([]byte, error) {

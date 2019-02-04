@@ -21,50 +21,26 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
-// Keystores models a collection of keystores that can be passed from a wallet to its accounts.
-type Keystores interface {
-	// Count returns the number of keystores in the collection.
-	Count() int
-
-	// Add adds the given keystore to the collection of keystores.
-	Add(Keystore) error
-
-	// Remove removes the given keystore from the collection of keystores.
-	Remove(Keystore) error
-
-	// HaveSecureOutput returns whether any of the keystores has a secure output.
-	HaveSecureOutput(*signing.Configuration, coin.Coin) bool
-
-	// OutputAddress outputs the address for the given coin with the given configuration on all
-	// keystores that have a secure output.
-	OutputAddress(*signing.Configuration, coin.Coin) error
-
-	// SignTransaction signs the given proposed transaction on all keystores. Returns
-	// ErrSigningAborted if the user aborts.
-	SignTransaction(coin.ProposedTransaction) error
-
-	// Configuration returns the configuration at the given path with the given signing threshold.
-	Configuration(signing.ScriptType, signing.AbsoluteKeypath, int) (*signing.Configuration, error)
-}
-
-type implementation struct {
+// Keystores models a collection of keystores that can be passed to accounts to perform signing
+// operations.
+type Keystores struct {
 	keystores []Keystore
 }
 
 // NewKeystores returns a collection of the given keystores.
-func NewKeystores(keystores ...Keystore) Keystores {
-	return &implementation{
+func NewKeystores(keystores ...Keystore) *Keystores {
+	return &Keystores{
 		keystores: keystores,
 	}
 }
 
-// Count implements the above interface.
-func (keystores *implementation) Count() int {
+// Count returns the number of keystores in the collection.
+func (keystores *Keystores) Count() int {
 	return len(keystores.keystores)
 }
 
-// Add implements the above interface.
-func (keystores *implementation) Add(keystore Keystore) error {
+// Add adds the given keystore to the collection of keystores.
+func (keystores *Keystores) Add(keystore Keystore) error {
 	for _, element := range keystores.keystores {
 		if element == keystore {
 			return errp.New("The collection already contains the given keystore.")
@@ -74,8 +50,8 @@ func (keystores *implementation) Add(keystore Keystore) error {
 	return nil
 }
 
-// Remove implements the above interface.
-func (keystores *implementation) Remove(keystore Keystore) error {
+// Remove removes the given keystore from the collection of keystores.
+func (keystores *Keystores) Remove(keystore Keystore) error {
 	for index, element := range keystores.keystores {
 		if element == keystore {
 			indexOfLastElement := len(keystores.keystores) - 1
@@ -88,25 +64,34 @@ func (keystores *implementation) Remove(keystore Keystore) error {
 	return errp.New("The collection does not contain the given keystore.")
 }
 
-// HaveSecureOutput implements the above interface.
-func (keystores *implementation) HaveSecureOutput(
-	configuration *signing.Configuration, coin coin.Coin) bool {
+// HaveSecureOutput returns whether any of the keystores has a secure output.
+func (keystores *Keystores) HaveSecureOutput(
+	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput(configuration, coin) {
-			return true
+		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		if err != nil {
+			return false, err
+		}
+		if hasSecureOutput {
+			return true, nil
 		}
 	}
-	return false
+	return false, nil
 }
 
-// OutputAddress implements the above interface.
-func (keystores *implementation) OutputAddress(
+// OutputAddress outputs the address for the given coin with the given configuration on all
+// keystores that have a secure output.
+func (keystores *Keystores) OutputAddress(
 	configuration *signing.Configuration,
 	coin coin.Coin,
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {
-		if keystore.HasSecureOutput(configuration, coin) {
+		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		if err != nil {
+			return err
+		}
+		if hasSecureOutput {
 			if err := keystore.OutputAddress(configuration, coin); err != nil {
 				return err
 			}
@@ -119,8 +104,9 @@ func (keystores *implementation) OutputAddress(
 	return nil
 }
 
-// SignTransaction implements the above interface.
-func (keystores *implementation) SignTransaction(proposedTransaction coin.ProposedTransaction) error {
+// SignTransaction signs the given proposed transaction on all keystores. Returns ErrSigningAborted
+// if the user aborts.
+func (keystores *Keystores) SignTransaction(proposedTransaction interface{}) error {
 	for _, keystore := range keystores.keystores {
 		if err := keystore.SignTransaction(proposedTransaction); err != nil {
 			return err
@@ -129,8 +115,8 @@ func (keystores *implementation) SignTransaction(proposedTransaction coin.Propos
 	return nil
 }
 
-// Configuration implements the above interface.
-func (keystores *implementation) Configuration(
+// Configuration returns the configuration at the given path with the given signing threshold.
+func (keystores *Keystores) Configuration(
 	scriptType signing.ScriptType,
 	absoluteKeypath signing.AbsoluteKeypath,
 	signingThreshold int,
@@ -147,5 +133,5 @@ func (keystores *implementation) Configuration(
 		extendedPublicKeys[index] = extendedPublicKey
 	}
 	return signing.NewConfiguration(
-		scriptType, absoluteKeypath, extendedPublicKeys, signingThreshold), nil
+		scriptType, absoluteKeypath, extendedPublicKeys, "", signingThreshold), nil
 }

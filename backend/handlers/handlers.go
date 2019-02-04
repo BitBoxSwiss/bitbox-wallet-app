@@ -27,15 +27,17 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
+	bitbox02Handlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -43,6 +45,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
@@ -53,26 +56,25 @@ import (
 // Backend models the API of the backend.
 type Backend interface {
 	Config() *config.Config
-	DefaultConfig() config.AppConfig
+	DefaultAppConfig() config.AppConfig
 	Coin(string) (coin.Coin, error)
 	AccountsStatus() string
 	Testing() bool
-	Accounts() []btc.Interface
+	Accounts() []accounts.Interface
 	CreateAndAddAccount(
 		coin coin.Coin,
 		code string,
 		name string,
-		scriptType signing.ScriptType,
 		getSigningConfiguration func() (*signing.Configuration, error),
-	)
+		persist bool,
+	) error
 	UserLanguage() language.Tag
-	OnAccountInit(f func(btc.Interface))
-	OnAccountUninit(f func(btc.Interface))
+	OnAccountInit(f func(accounts.Interface))
+	OnAccountUninit(f func(accounts.Interface))
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
 	Start() <-chan interface{}
-	Keystores() keystore.Keystores
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
 	Register(device device.Interface) error
@@ -80,6 +82,8 @@ type Backend interface {
 	Rates() map[string]map[string]float64
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(string, string) error
+	RegisterTestKeystore(string)
+	NotifyUser(string)
 }
 
 // Handlers provides a web api to the backend.
@@ -145,9 +149,10 @@ func NewHandlers(
 
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	getAPIRouter(apiRouter)("/qr", handlers.getQRCodeHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.getConfigHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/config", handlers.getAppConfigHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/config/default", handlers.getDefaultConfigHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/config", handlers.postConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/config", handlers.postAppConfigHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
@@ -155,8 +160,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
-	getAPIRouter(apiRouter)("/test/register", handlers.registerTestKeyStoreHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/test/deregister", handlers.deregisterTestKeyStoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertToFiat", handlers.getConvertToFiatHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/convertFromFiat", handlers.getConvertFromFiatHandler).Methods("GET")
@@ -185,11 +190,11 @@ func NewHandlers(
 		return accHandlers
 	}
 
-	backend.OnAccountInit(func(account btc.Interface) {
+	backend.OnAccountInit(func(account accounts.Interface) {
 		log.WithField("code", account.Code()).Debug("Initializing account")
 		getAccountHandlers(account.Code()).Init(account)
 	})
-	backend.OnAccountUninit(func(account btc.Interface) {
+	backend.OnAccountUninit(func(account accounts.Interface) {
 		getAccountHandlers(account.Code()).Uninit()
 	})
 
@@ -203,10 +208,24 @@ func NewHandlers(
 		}
 		return deviceHandlersMap[deviceID]
 	}
+
+	bitbox02HandlersMap := map[string]*bitbox02Handlers.Handlers{}
+	getBitBox02Handlers := func(deviceID string) *bitbox02Handlers.Handlers {
+		defer handlersMapLock.Lock()()
+		if _, ok := bitbox02HandlersMap[deviceID]; !ok {
+			bitbox02HandlersMap[deviceID] = bitbox02Handlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/devices/bitbox02/%s", deviceID)).Subrouter(),
+			), log)
+		}
+		return bitbox02HandlersMap[deviceID]
+	}
+
 	backend.OnDeviceInit(func(device device.Interface) {
 		switch specificDevice := device.(type) {
 		case *bitbox.Device:
 			getDeviceHandlers(device.Identifier()).Init(specificDevice)
+		case *bitbox02.Device:
+			getBitBox02Handlers(device.Identifier()).Init(specificDevice)
 		}
 	})
 	backend.OnDeviceUninit(func(deviceID string) {
@@ -239,20 +258,31 @@ func (handlers *Handlers) getQRCodeHandler(r *http.Request) (interface{}, error)
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(bytes), nil
 }
 
-func (handlers *Handlers) getConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Config().Config(), nil
+func (handlers *Handlers) getAppConfigHandler(_ *http.Request) (interface{}, error) {
+	return handlers.backend.Config().AppConfig(), nil
 }
 
 func (handlers *Handlers) getDefaultConfigHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.DefaultConfig(), nil
+	return handlers.backend.DefaultAppConfig(), nil
 }
 
-func (handlers *Handlers) postConfigHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postAppConfigHandler(r *http.Request) (interface{}, error) {
 	appConfig := config.AppConfig{}
 	if err := json.NewDecoder(r.Body).Decode(&appConfig); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return nil, handlers.backend.Config().Set(appConfig)
+	return nil, handlers.backend.Config().SetAppConfig(appConfig)
+}
+
+func (handlers *Handlers) postNotifyHandler(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Text string `json:"text"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	handlers.backend.NotifyUser(payload.Text)
+	return nil, nil
 }
 
 func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) {
@@ -264,9 +294,6 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	blocked := true
 
 	for _, whitelistedURL := range []string{
-		"https://shiftcrypto.ch/contact",
-		"https://shiftcrypto.ch/shop",
-		"https://shiftcrypto.ch/backup",
 		"https://www.cryptocompare.com",
 		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
 		"https://en.bitcoin.it/wiki/Bech32_adoption",
@@ -278,11 +305,13 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 	}
 
 	whitelistedPatterns := []string{
+		"^https://shiftcrypto.ch/",
 		"^https://blockstream\\.info/(testnet/)?tx/",
 		"^http://explorer\\.litecointools\\.com/tx/",
 		"^https://insight\\.litecore\\.io/tx/",
 		"^https://etherscan\\.io/tx/",
 		"^https://rinkeby\\.etherscan\\.io/tx/",
+		"^https://ropsten\\.etherscan\\.io/tx/",
 	}
 
 	// Whitelist csv export.
@@ -328,6 +357,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	jsonScriptType := jsonBody["scriptType"]
 	jsonAccountName := jsonBody["accountName"]
 	jsonExtendedPublicKey := jsonBody["extendedPublicKey"]
+	jsonAddress := jsonBody["address"]
 
 	coin, err := handlers.backend.Coin(jsonCoinCode)
 	if err != nil {
@@ -338,28 +368,57 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		return nil, err
 	}
 	keypath := signing.NewEmptyAbsoluteKeypath()
-	extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
-	if err != nil {
-		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
-	}
-	if extendedPublicKey.IsPrivate() {
-		return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
-	}
-	if btcCoin, ok := coin.(*btc.Coin); ok {
-		expectedNet := &chaincfg.Params{
-			HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
+
+	var configuration *signing.Configuration
+	var warningCode string
+
+	if jsonAddress != "" {
+		if jsonCoinCode == "teth" || jsonCoinCode == "eth" {
+			if !common.IsHexAddress(jsonAddress) {
+				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
+			}
+			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
 		}
-		if !extendedPublicKey.IsForNet(expectedNet) {
-			return map[string]interface{}{"success": false, "errorCode": "xpubWrongNet"}, nil
+	} else {
+		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
+		if err != nil {
+			return map[string]interface{}{"success": false, "errorCode": "xpubInvalid"}, nil
 		}
+		if extendedPublicKey.IsPrivate() {
+			return map[string]interface{}{"success": false, "errorCode": "xprivEntered"}, nil
+		}
+		if btcCoin, ok := coin.(*btc.Coin); ok {
+			expectedNet := &chaincfg.Params{
+				HDPublicKeyID: btc.XPubVersionForScriptType(btcCoin, scriptType),
+			}
+			if !extendedPublicKey.IsForNet(expectedNet) {
+				warningCode = "xpubWrongNet"
+			}
+		}
+		configuration = signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
 	}
-	configuration := signing.NewSinglesigConfiguration(scriptType, keypath, extendedPublicKey)
+
 	getSigningConfiguration := func() (*signing.Configuration, error) {
 		return configuration, nil
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
-	handlers.backend.CreateAndAddAccount(coin, accountCode, jsonAccountName, scriptType, getSigningConfiguration)
-	return map[string]interface{}{"success": true, "accountCode": accountCode}, nil
+	err = handlers.backend.CreateAndAddAccount(
+		coin, accountCode, jsonAccountName, getSigningConfiguration, true)
+	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
+		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
+	}
+	if err != nil {
+		return map[string]interface{}{
+			"success":      false,
+			"errorCode":    "unknown",
+			"errorMessage": err.Error(),
+		}, nil
+	}
+	return map[string]interface{}{
+		"success":     true,
+		"accountCode": accountCode,
+		"warningCode": warningCode,
+	}, nil
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
@@ -393,7 +452,7 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 	return jsonDevices, nil
 }
 
-func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
 	if !handlers.backend.Testing() {
 		return nil, errp.New("Test keystore not available")
 	}
@@ -402,13 +461,11 @@ func (handlers *Handlers) registerTestKeyStoreHandler(r *http.Request) (interfac
 		return nil, errp.WithStack(err)
 	}
 	pin := jsonBody["pin"]
-	softwareBasedKeystore := software.NewKeystoreFromPIN(
-		handlers.backend.Keystores().Count(), pin)
-	handlers.backend.RegisterKeystore(softwareBasedKeystore)
+	handlers.backend.RegisterTestKeystore(pin)
 	return true, nil
 }
 
-func (handlers *Handlers) deregisterTestKeyStoreHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.DeregisterKeystore()
 	return true, nil
 }

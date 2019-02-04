@@ -25,6 +25,7 @@ import (
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
@@ -66,6 +67,7 @@ type Transactions struct {
 
 	synchronizer *synchronizer.Synchronizer
 	blockchain   blockchain.Interface
+	notifier     accounts.Notifier
 	log          *logrus.Entry
 }
 
@@ -76,6 +78,7 @@ func NewTransactions(
 	headers headers.Interface,
 	synchronizer *synchronizer.Synchronizer,
 	blockchain blockchain.Interface,
+	notifier accounts.Notifier,
 	log *logrus.Entry,
 ) *Transactions {
 	transactions := &Transactions{
@@ -88,6 +91,7 @@ func NewTransactions(
 
 		synchronizer: synchronizer,
 		blockchain:   blockchain,
+		notifier:     notifier,
 		log:          log.WithFields(logrus.Fields{"group": "transactions", "net": net.Name}),
 	}
 	transactions.unsubscribeHeadersEvent = headers.SubscribeEvent(transactions.onHeadersEvent)
@@ -129,6 +133,10 @@ func (transactions *Transactions) processTxForAddress(
 
 	if err := dbTx.PutTx(txHash, tx, height); err != nil {
 		transactions.log.WithError(err).Panic("Failed to put tx")
+	}
+
+	if err := transactions.notifier.Put(txHash[:]); err != nil {
+		transactions.log.WithError(err).Error("Failed notifier.Put")
 	}
 
 	// Newly confirmed tx. Try to verify it.
@@ -275,6 +283,9 @@ func (transactions *Transactions) removeTxForAddress(
 		}
 
 		dbTx.DeleteTx(txHash)
+		if err := transactions.notifier.Delete(txHash[:]); err != nil {
+			transactions.log.WithError(err).Error("Failed notifier.Delete")
+		}
 	}
 }
 
@@ -369,7 +380,7 @@ func (transactions *Transactions) doForTransaction(
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.
-func (transactions *Transactions) Balance() *coin.Balance {
+func (transactions *Transactions) Balance() *accounts.Balance {
 	transactions.synchronizer.WaitSynchronized()
 	defer transactions.RLock()()
 	dbTx, err := transactions.db.Begin()
@@ -398,7 +409,7 @@ func (transactions *Transactions) Balance() *coin.Balance {
 			incoming += txOut.Value
 		}
 	}
-	return coin.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
+	return accounts.NewBalance(coin.NewAmountFromInt64(available), coin.NewAmountFromInt64(incoming))
 }
 
 // byHeight defines the methods needed to satisify sort.Interface to sort transactions by their
@@ -430,16 +441,16 @@ type TxInfo struct {
 	// Height is the height this tx was confirmed at. 0 (or -1) for unconfirmed.
 	Height           int
 	numConfirmations int
-	txType           coin.TxType
+	txType           accounts.TxType
 	amount           btcutil.Amount
 	fee              *btcutil.Amount
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	timestamp *time.Time
 	// addresses money was sent to / received on (without change addresses).
-	addresses []string
+	addresses []accounts.AddressAndAmount
 }
 
-// Fee implements coin.Transaction.
+// Fee implements accounts.Transaction.
 func (txInfo *TxInfo) Fee() *coin.Amount {
 	if txInfo.fee == nil {
 		return nil
@@ -448,12 +459,12 @@ func (txInfo *TxInfo) Fee() *coin.Amount {
 	return &fee
 }
 
-// ID implements coin.Transaction.
+// ID implements accounts.Transaction.
 func (txInfo *TxInfo) ID() string {
 	return txInfo.Tx.TxHash().String()
 }
 
-// Timestamp implements coin.Transaction.
+// Timestamp implements accounts.Transaction.
 func (txInfo *TxInfo) Timestamp() *time.Time {
 	return txInfo.timestamp
 }
@@ -467,23 +478,23 @@ func (txInfo *TxInfo) FeeRatePerKb() *btcutil.Amount {
 	return &feeRatePerKb
 }
 
-// NumConfirmations implements coin.Transaction.
+// NumConfirmations implements accounts.Transaction.
 func (txInfo *TxInfo) NumConfirmations() int {
 	return txInfo.numConfirmations
 }
 
-// Type implements coin.Transaction.
-func (txInfo *TxInfo) Type() coin.TxType {
+// Type implements accounts.Transaction.
+func (txInfo *TxInfo) Type() accounts.TxType {
 	return txInfo.txType
 }
 
-// Amount implements coin.Transaction.
+// Amount implements accounts.Transaction.
 func (txInfo *TxInfo) Amount() coin.Amount {
 	return coin.NewAmountFromInt64(int64(txInfo.amount))
 }
 
-// Addresses implements coin.Transaction.
-func (txInfo *TxInfo) Addresses() []string {
+// Addresses implements accounts.Transaction.
+func (txInfo *TxInfo) Addresses() []accounts.AddressAndAmount {
 	return txInfo.addresses
 }
 
@@ -520,8 +531,8 @@ func (transactions *Transactions) txInfo(
 		}
 	}
 	var sumAllOutputs, sumOurReceive, sumOurChange btcutil.Amount
-	receiveAddresses := []string{}
-	sendAddresses := []string{}
+	receiveAddresses := []accounts.AddressAndAmount{}
+	sendAddresses := []accounts.AddressAndAmount{}
 	allOutputsOurs := true
 	for index, txOut := range tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
@@ -533,39 +544,43 @@ func (transactions *Transactions) txInfo(
 			// TODO
 			panic(err)
 		}
-		address := transactions.outputToAddress(txOut.PkScript)
+		addressAndAmount := accounts.AddressAndAmount{
+			Address: transactions.outputToAddress(txOut.PkScript),
+			Amount:  coin.NewAmountFromInt64(txOut.Value),
+			Ours:    output != nil,
+		}
 		if output != nil {
 			if isChange(getScriptHashHex(output)) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
-				receiveAddresses = append(receiveAddresses, address)
-				sendAddresses = append(sendAddresses, address)
+				receiveAddresses = append(receiveAddresses, addressAndAmount)
+				sendAddresses = append(sendAddresses, addressAndAmount)
 			}
 		} else {
 			allOutputsOurs = false
-			sendAddresses = append(sendAddresses, address)
+			sendAddresses = append(sendAddresses, addressAndAmount)
 		}
 	}
-	var addresses []string
-	var txType coin.TxType
+	var addresses []accounts.AddressAndAmount
+	var txType accounts.TxType
 	var feeP *btcutil.Amount
 	if allInputsOurs {
 		fee := sumOurInputs - sumAllOutputs
 		feeP = &fee
 		addresses = sendAddresses
 		if allOutputsOurs {
-			txType = coin.TxTypeSendSelf
+			txType = accounts.TxTypeSendSelf
 			// Money sent from our wallet to our wallet
 			result = sumOurReceive
 		} else {
 			// Money sent from our wallet to external address.
-			txType = coin.TxTypeSend
+			txType = accounts.TxTypeSend
 			result = sumAllOutputs - sumOurReceive - sumOurChange
 		}
 	} else {
 		// Money sent from external to our wallet
-		txType = coin.TxTypeReceive
+		txType = accounts.TxTypeReceive
 		addresses = receiveAddresses
 		result = sumOurReceive + sumOurChange - sumOurInputs
 	}

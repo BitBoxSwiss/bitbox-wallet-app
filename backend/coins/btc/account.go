@@ -24,6 +24,7 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -44,34 +45,6 @@ const (
 	changeGapLimit = 6
 )
 
-// Interface is the API of a Account.
-type Interface interface {
-	Info() *Info
-	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
-	Code() string
-	Coin() coin.Coin
-	// Name returns a human readable long name.
-	Name() string
-	// Initialize only starts the initialization, the account is not initialized right afterwards.
-	Initialize() error
-	Initialized() bool
-	Offline() bool
-	Close()
-	Transactions() []coin.Transaction
-	Balance() *coin.Balance
-	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
-	// abort.
-	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error
-	FeeTargets() ([]*FeeTarget, FeeTargetCode)
-	TxProposal(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) (
-		coin.Amount, coin.Amount, coin.Amount, error)
-	GetUnusedReceiveAddresses() []coin.Address
-	VerifyAddress(addressID string) (bool, error)
-	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
-	Keystores() keystore.Keystores
-	SpendableOutputs() []*SpendableOutput
-}
-
 // Account is a account whose addresses are derived from an xpub.
 type Account struct {
 	locker.Locker
@@ -83,7 +56,9 @@ type Account struct {
 	db                      transactions.DBInterface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
-	keystores               keystore.Keystores
+	keystores               *keystore.Keystores
+	getNotifier             func(*signing.Configuration) accounts.Notifier
+	notifier                accounts.Notifier
 	blockchain              blockchain.Interface
 
 	receiveAddresses *addresses.AddressChain
@@ -97,7 +72,7 @@ type Account struct {
 
 	initialized bool
 	offline     bool
-	onEvent     func(Event)
+	onEvent     func(accounts.Event)
 	log         *logrus.Entry
 }
 
@@ -125,8 +100,9 @@ func NewAccount(
 	code string,
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
-	keystores keystore.Keystores,
-	onEvent func(Event),
+	keystores *keystore.Keystores,
+	getNotifier func(*signing.Configuration) accounts.Notifier,
+	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
 	log = log.WithField("group", "btc").
@@ -141,13 +117,14 @@ func NewAccount(
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
+		getNotifier:             getNotifier,
 
 		// feeTargets must be sorted by ascending priority.
 		feeTargets: []*FeeTarget{
-			{Blocks: 24, Code: FeeTargetCodeEconomy},
-			{Blocks: 12, Code: FeeTargetCodeLow},
-			{Blocks: 6, Code: FeeTargetCodeNormal},
-			{Blocks: 2, Code: FeeTargetCodeHigh},
+			{blocks: 24, code: accounts.FeeTargetCodeEconomy},
+			{blocks: 12, code: accounts.FeeTargetCodeLow},
+			{blocks: 6, code: accounts.FeeTargetCodeNormal},
+			{blocks: 2, code: accounts.FeeTargetCodeHigh},
 		},
 		// initializing to false, to prevent flashing of offline notification in the frontend
 		offline:     false,
@@ -156,13 +133,13 @@ func NewAccount(
 		log:         log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
-		func() { onEvent(EventSyncStarted) },
+		func() { onEvent(accounts.EventSyncStarted) },
 		func() {
 			if !account.initialized {
 				account.initialized = true
-				onEvent(EventStatusChanged)
+				onEvent(accounts.EventStatusChanged)
 			}
-			onEvent(EventSyncDone)
+			onEvent(accounts.EventSyncDone)
 		},
 		log,
 	)
@@ -202,6 +179,7 @@ func (account *Account) Initialize() error {
 			return false, err
 		}
 		account.signingConfiguration = signingConfiguration
+		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
 	}()
 	if err != nil {
@@ -221,36 +199,37 @@ func (account *Account) Initialize() error {
 	account.log.Debugf("Opened the database '%s' to persist the transactions.", dbName)
 
 	onConnectionStatusChanged := func(status blockchain.Status) {
-		if status == blockchain.DISCONNECTED {
+		switch status {
+		case blockchain.DISCONNECTED:
 			account.log.Warn("Connection to blockchain backend lost")
 			account.offline = true
-			account.onEvent(EventStatusChanged)
-		} else if status == blockchain.CONNECTED {
+			account.onEvent(accounts.EventStatusChanged)
+		case blockchain.CONNECTED:
 			// when we have previously been offline, the initial sync status is set back
 			// as we need to synchronize with the new backend.
 			account.initialized = false
 			account.offline = false
-			account.onEvent(EventStatusChanged)
+			account.onEvent(accounts.EventStatusChanged)
 			account.log.Debug("Connection to blockchain backend established")
-		} else {
+		default:
 			account.log.Panicf("Status %d is unknown.", status)
 		}
 	}
 	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	account.onEvent(EventStatusChanged)
+	account.onEvent(accounts.EventStatusChanged)
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
 	theHeaders.SubscribeEvent(func(event headers.Event) {
 		if event == headers.EventSynced {
-			account.onEvent(EventHeadersSynced)
+			account.onEvent(accounts.EventHeadersSynced)
 		}
 	})
 	account.transactions = transactions.NewTransactions(
 		account.coin.Net(), account.db, theHeaders, account.synchronizer,
-		account.blockchain, account.log)
+		account.blockchain, account.notifier, account.log)
 
 	fixGapLimit := gapLimit
 	fixChangeGapLimit := changeGapLimit
@@ -273,11 +252,6 @@ func (account *Account) Initialize() error {
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
 	return nil
-}
-
-// Info holds account information.
-type Info struct {
-	SigningConfiguration *signing.Configuration `json:"signingConfiguration"`
 }
 
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.
@@ -304,7 +278,7 @@ func XPubVersionForScriptType(coin *Coin, scriptType signing.ScriptType) [4]byte
 }
 
 // Info returns account info, such as the signing configuration (xpubs).
-func (account *Account) Info() *Info {
+func (account *Account) Info() *accounts.Info {
 	// The internal extended key representation always uses he same version bytes (prefix xpub). We
 	// convert it here to the account-specific version (zpub, ypub, tpub, ...).
 	xpubs := []*hdkeychain.ExtendedKey{}
@@ -325,11 +299,12 @@ func (account *Account) Info() *Info {
 		)
 		xpubs = append(xpubs, xpubCopy)
 	}
-	return &Info{
+	return &accounts.Info{
 		SigningConfiguration: signing.NewConfiguration(
 			account.signingConfiguration.ScriptType(),
 			account.signingConfiguration.AbsoluteKeypath(),
 			xpubs,
+			account.signingConfiguration.Address(),
 			account.signingConfiguration.SigningThreshold(),
 		),
 	}
@@ -368,7 +343,12 @@ func (account *Account) Close() {
 	if account.transactions != nil {
 		account.transactions.Close()
 	}
-	account.onEvent(EventStatusChanged)
+	account.onEvent(accounts.EventStatusChanged)
+}
+
+// Notifier implements accounts.Interface.
+func (account *Account) Notifier() accounts.Notifier {
+	return account.notifier
 }
 
 func (account *Account) updateFeeTargets() {
@@ -377,19 +357,19 @@ func (account *Account) updateFeeTargets() {
 		func(feeTarget *FeeTarget) {
 			setFee := func(feeRatePerKb btcutil.Amount) error {
 				defer account.Lock()()
-				feeTarget.FeeRatePerKb = &feeRatePerKb
-				account.log.WithFields(logrus.Fields{"blocks": feeTarget.Blocks,
+				feeTarget.feeRatePerKb = &feeRatePerKb
+				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
-				account.onEvent(EventFeeTargetsChanged)
+				account.onEvent(accounts.EventFeeTargetsChanged)
 				return nil
 			}
 
 			account.blockchain.EstimateFee(
-				feeTarget.Blocks,
+				feeTarget.blocks,
 				func(feeRatePerKb *btcutil.Amount) error {
 					if feeRatePerKb == nil {
 						if account.code != "tltc" {
-							account.log.WithField("fee-target", feeTarget.Blocks).
+							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
 						account.blockchain.RelayFee(setFee, func() {})
@@ -404,38 +384,38 @@ func (account *Account) updateFeeTargets() {
 }
 
 // FeeTargets returns the fee targets and the default fee target.
-func (account *Account) FeeTargets() ([]*FeeTarget, FeeTargetCode) {
+func (account *Account) FeeTargets() ([]accounts.FeeTarget, accounts.FeeTargetCode) {
 	// Return only fee targets with a valid fee rate (drop if fee could not be estimated). Also
 	// remove all duplicate fee rates.
-	feeTargets := []*FeeTarget{}
+	feeTargets := []accounts.FeeTarget{}
 	defaultAvailable := false
 outer:
 	for i := len(account.feeTargets) - 1; i >= 0; i-- {
 		feeTarget := account.feeTargets[i]
-		if feeTarget.FeeRatePerKb == nil {
+		if feeTarget.feeRatePerKb == nil {
 			continue
 		}
 		for j := i - 1; j >= 0; j-- {
 			checkFeeTarget := account.feeTargets[j]
-			if checkFeeTarget.FeeRatePerKb != nil && *checkFeeTarget.FeeRatePerKb == *feeTarget.FeeRatePerKb {
+			if checkFeeTarget.feeRatePerKb != nil && *checkFeeTarget.feeRatePerKb == *feeTarget.feeRatePerKb {
 				continue outer
 			}
 		}
-		if feeTarget.Code == defaultFeeTarget {
+		if feeTarget.code == accounts.DefaultFeeTarget {
 			defaultAvailable = true
 		}
 		feeTargets = append(feeTargets, feeTarget)
 	}
 	// If the default fee level was dropped, use the cheapest.
-	defaultFee := defaultFeeTarget
+	defaultFee := accounts.DefaultFeeTarget
 	if !defaultAvailable && len(feeTargets) != 0 {
-		defaultFee = feeTargets[0].Code
+		defaultFee = feeTargets[0].Code()
 	}
 	return feeTargets, defaultFee
 }
 
 // Balance implements the interface.
-func (account *Account) Balance() *coin.Balance {
+func (account *Account) Balance() *accounts.Balance {
 	return account.transactions.Balance()
 }
 
@@ -534,12 +514,12 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (account *Account) Transactions() []coin.Transaction {
+func (account *Account) Transactions() []accounts.Transaction {
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
 		})
-	cast := make([]coin.Transaction, len(transactions))
+	cast := make([]accounts.Transaction, len(transactions))
 	for index, transaction := range transactions {
 		cast[index] = transaction
 	}
@@ -547,11 +527,11 @@ func (account *Account) Transactions() []coin.Transaction {
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
-func (account *Account) GetUnusedReceiveAddresses() []coin.Address {
+func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
-	addresses := []coin.Address{}
+	addresses := []accounts.Address{}
 	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
 	for _, address := range account.receiveAddresses.GetUnused()[:gapLimit] {
 		addresses = append(addresses, address)
@@ -569,7 +549,11 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	if account.Keystores().HaveSecureOutput(address.Configuration, account.Coin()) {
+	hasSecureOutput, err := account.Keystores().HaveSecureOutput(address.Configuration, account.Coin())
+	if err != nil {
+		return false, err
+	}
+	if hasSecureOutput {
 		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
@@ -593,7 +577,7 @@ func (account *Account) ConvertToLegacyAddress(addressID string) (btcutil.Addres
 }
 
 // Keystores returns the keystores of the account.
-func (account *Account) Keystores() keystore.Keystores {
+func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores
 }
 

@@ -46,8 +46,8 @@ import (
 )
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(5, 0, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(6, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(6, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(7, 0, 0)
 
 	pinPolicyProd              = NewPasswordPolicy("^[[:print:]]{4,}$")
 	pinPolicyTest              = NewPasswordPolicy("^[[:print:]]{4,}$")
@@ -56,6 +56,10 @@ var (
 )
 
 var errNoBootloader = errors.New("invalid command in bootloader")
+
+// ErrMustBeLoggedIn is returned by API calls when a login is required, but the device has not beed
+// unlocked.
+var ErrMustBeLoggedIn = errors.New("must be logged in")
 
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
@@ -101,6 +105,7 @@ type DeviceInfo struct {
 	U2FHijack       bool   `json:"U2F_hijack"`
 	Seeded          bool   `json:"seeded"`
 	NewHiddenWallet bool   `json:"new_hidden_wallet"`
+	Pairing         bool   `json:"pairing"`
 }
 
 // Device provides the API to communicate with the digital bitbox.
@@ -159,7 +164,7 @@ func NewDevice(
 	channelConfigDir string,
 	communication CommunicationInterface) (*Device, error) {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
-	log.WithFields(logrus.Fields{"deviceID": deviceID, "version": version}).Info("Plugged in device")
+	log.WithField("version", version).Info("Plugged in device")
 
 	var bootloaderStatus *BootloaderStatus
 	if bootloader {
@@ -371,12 +376,20 @@ func (dbb *Device) deviceInfo(pin string) (*DeviceInfo, error) {
 			return nil, errp.New("new_hidden_wallet")
 		}
 	}
+	if dbb.version.AtLeast(semver.NewSemVer(6, 0, 0)) {
+		if deviceInfo.Pairing, ok = device["pairing"].(bool); !ok {
+			return nil, errp.New("pairing")
+		}
+	}
 	dbb.log.Debug("Device info")
 	return deviceInfo, nil
 }
 
 // DeviceInfo gets device information.
 func (dbb *Device) DeviceInfo() (*DeviceInfo, error) {
+	if dbb.pin == "" {
+		return nil, errp.WithStack(ErrMustBeLoggedIn)
+	}
 	return dbb.deviceInfo(dbb.pin)
 }
 
@@ -979,7 +992,7 @@ func (dbb *Device) signBatch(
 	txProposal *maketx.TxProposal,
 	signatureHashes [][]byte,
 	keyPaths []string,
-	locked bool,
+	paired bool,
 ) (map[string]interface{}, error) {
 	if len(signatureHashes) != len(keyPaths) {
 		dbb.log.WithFields(logrus.Fields{"signature-hashes-length": len(signatureHashes),
@@ -1035,7 +1048,7 @@ func (dbb *Device) signBatch(
 	}
 
 	mobchan := dbb.mobileChannel()
-	if txProposal != nil && txProposal.AccountConfiguration.Singlesig() && mobchan != nil {
+	if txProposal != nil && paired && txProposal.AccountConfiguration.Singlesig() && mobchan != nil {
 		signingEcho, ok := echo["echo"].(string)
 		if !ok {
 			return nil, errp.WithMessage(err, "The signing echo from the BitBox was not a string.")
@@ -1046,14 +1059,11 @@ func (dbb *Device) signBatch(
 		}
 	}
 
-	// If the device is 2FA locked, wait for up to two minutes for the signing "PIN"/nonce.
+	// If the device paired, wait for up to two minutes for the signing "PIN"/nonce.
 	var nonce string
-	if locked {
-		if txProposal == nil {
-			return nil, errp.New("No transaction was provided for the locked device to sign.")
-		}
+	if paired && txProposal != nil {
 		if dbb.channel == nil {
-			return nil, errp.New("Signing failed because the device is locked but not paired.")
+			return nil, errp.New("Signing failed because the device is paired but has no channel.")
 		}
 		nonce, err = dbb.channel.WaitForSigningPin(2 * time.Minute)
 		if err != nil {
@@ -1120,13 +1130,12 @@ func (dbb *Device) Sign(
 		dbb.log.WithError(err).Error("Failed to load the device info for signing.")
 		return nil, errp.WithMessage(err, "Failed to load the device info for signing.")
 	}
-
 	signatures := []SignatureWithRecID{}
 	steps := len(signatureHashes) / signatureBatchSize
 	if len(signatureHashes)%signatureBatchSize != 0 {
 		steps++
 	}
-	for i := 0; i < len(signatureHashes); i = i + signatureBatchSize {
+	for i := 0; i < len(signatureHashes); i += signatureBatchSize {
 		upper := i + signatureBatchSize
 		if upper > len(signatureHashes) {
 			upper = len(signatureHashes)
@@ -1142,7 +1151,7 @@ func (dbb *Device) Sign(
 			txProposal,
 			signatureHashes[i:upper],
 			keyPaths[i:upper],
-			deviceInfo.Lock,
+			deviceInfo.Pairing,
 		)
 		if err != nil {
 			return nil, err
@@ -1290,8 +1299,8 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 	return channel, nil
 }
 
-// Paired returns whether a channel to a mobile exists.
-func (dbb *Device) Paired() bool {
+// HasMobileChannel returns whether a channel to a mobile exists.
+func (dbb *Device) HasMobileChannel() bool {
 	return dbb.mobileChannel() != nil
 }
 
@@ -1390,7 +1399,8 @@ func (dbb *Device) Lock() (bool, error) {
 
 // FeatureSet are the device features one can modify with FeatureSet().
 type FeatureSet struct {
-	NewHiddenWallet bool `json:"new_hidden_wallet"`
+	NewHiddenWallet *bool `json:"new_hidden_wallet,omitempty"`
+	Pairing         *bool `json:"pairing,omitempty"`
 }
 
 // FeatureSet modifies device features.

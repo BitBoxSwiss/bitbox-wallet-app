@@ -19,9 +19,13 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
+	"fmt"
+	"path/filepath"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
@@ -33,6 +37,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
@@ -52,11 +57,21 @@ const (
 	coinTLTC = "tltc"
 	coinETH  = "eth"
 	coinTETH = "teth"
+	coinRETH = "reth"
+	// If you add coins, don't forget to update `testnetCoins` below.
 )
 
+var testnetCoins = map[string]struct{}{
+	coinTBTC: {},
+	coinTLTC: {},
+	coinTETH: {},
+	coinRETH: {},
+}
+
 type backendEvent struct {
-	Type string `json:"type"`
-	Data string `json:"data"`
+	Type string      `json:"type"`
+	Data string      `json:"data"`
+	Meta interface{} `json:"meta"`
 }
 
 type deviceEvent struct {
@@ -74,84 +89,155 @@ type AccountEvent struct {
 	Data string `json:"data"`
 }
 
+// ErrAccountAlreadyExists is returned if an account is being added which already exists.
+var ErrAccountAlreadyExists = errors.New("already exists")
+
+// Environment represents functionality where the implementation depends on the environment the app
+// runs in, e.g. Qt5/Mobile/webdev.
+type Environment interface {
+	// NotifyUser notifies the user, via desktop notifcation, mobile notification area, ...
+	NotifyUser(string)
+}
+
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
-	arguments *arguments.Arguments
+	arguments   *arguments.Arguments
+	environment Environment
 
 	config *config.Config
 
 	events chan interface{}
 
+	notifier *Notifier
+
 	devices         map[string]device.Interface
-	keystores       keystore.Keystores
-	onAccountInit   func(btc.Interface)
-	onAccountUninit func(btc.Interface)
+	keystores       *keystore.Keystores
+	onAccountInit   func(accounts.Interface)
+	onAccountUninit func(accounts.Interface)
 	onDeviceInit    func(device.Interface)
 	onDeviceUninit  func(string)
 
 	coins     map[string]coin.Coin
 	coinsLock locker.Locker
 
-	accounts     []btc.Interface
+	accounts     []accounts.Interface
 	accountsLock locker.Locker
 
 	log *logrus.Entry
 }
 
 // NewBackend creates a new backend with the given arguments.
-func NewBackend(arguments *arguments.Arguments) *Backend {
+func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
 	backend := &Backend{
-		arguments: arguments,
-		config:    config.NewConfig(arguments.ConfigFilename()),
-		events:    make(chan interface{}, 1000),
+		arguments:   arguments,
+		environment: environment,
+		config:      config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
+		events:      make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
 		keystores: keystore.NewKeystores(),
 		coins:     map[string]coin.Coin{},
-		accounts:  []btc.Interface{},
+		accounts:  []accounts.Interface{},
 		log:       log,
 	}
+	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
+	if err != nil {
+		return nil, err
+	}
+	backend.notifier = notifier
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
-	return backend
+
+	return backend, nil
 }
 
 // addAccount adds the given account to the backend.
-func (backend *Backend) addAccount(account btc.Interface) {
+func (backend *Backend) addAccount(account accounts.Interface) {
 	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
 	backend.onAccountInit(account)
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
-// CreateAndAddAccount creates an account with the given parameters and adds it to the backend.
+func (backend *Backend) notifyNewTxs(account accounts.Interface) {
+	notifier := account.Notifier()
+	if notifier == nil {
+		return
+	}
+	// Notify user of new transactions
+	unnotifiedCount, err := notifier.UnnotifiedCount()
+	if err != nil {
+		backend.log.WithError(err).Error("error getting notifier counts")
+		return
+	}
+	if unnotifiedCount != 0 {
+		backend.events <- backendEvent{Type: "backend", Data: "newTxs", Meta: map[string]interface{}{
+			"count":       unnotifiedCount,
+			"accountName": account.Name(),
+		}}
+
+		if err := notifier.MarkAllNotified(); err != nil {
+			backend.log.WithError(err).Error("error marking notified")
+		}
+	}
+}
+
+// CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
+// persist is true, the configuration is fetched and saved in the accounts configuration.
 func (backend *Backend) CreateAndAddAccount(
 	coin coin.Coin,
 	code string,
 	name string,
-	scriptType signing.ScriptType,
 	getSigningConfiguration func() (*signing.Configuration, error),
-) {
-	switch specificCoin := coin.(type) {
-	case *btc.Coin:
-		onEvent := func(code string) func(btc.Event) {
-			return func(event btc.Event) {
-				backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+	persist bool,
+) error {
+	if persist {
+		configuration, err := getSigningConfiguration()
+		if err != nil {
+			return err
+		}
+		accountsConfig := backend.config.AccountsConfig()
+		for _, account := range accountsConfig.Accounts {
+			if account.Configuration.Hash() == configuration.Hash() {
+				return errp.WithStack(ErrAccountAlreadyExists)
 			}
 		}
-		account := btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, onEvent(code), backend.log)
+		accountsConfig.Accounts = append(accountsConfig.Accounts, config.Account{
+			CoinCode:      coin.Code(),
+			Code:          code,
+			Name:          name,
+			Configuration: configuration,
+		})
+		if err := backend.config.SetAccountsConfig(accountsConfig); err != nil {
+			return err
+		}
+	}
+
+	var account accounts.Interface
+	onEvent := func(event accounts.Event) {
+		backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
+		if account != nil && event == accounts.EventSyncDone {
+			backend.notifyNewTxs(account)
+		}
+	}
+
+	getNotifier := func(configuration *signing.Configuration) accounts.Notifier {
+		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code()))
+	}
+
+	switch specificCoin := coin.(type) {
+	case *btc.Coin:
+		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
 	case *eth.Coin:
-		onEvent := func(event eth.Event) {
-			backend.events <- AccountEvent{Type: "account", Code: code, Data: string(event)}
-		}
-		account := eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, onEvent, backend.log)
+		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
 		backend.addAccount(account)
 	default:
 		panic("unknown coin type")
 	}
+	return nil
 }
 
 func (backend *Backend) createAndAddAccount(
@@ -161,7 +247,7 @@ func (backend *Backend) createAndAddAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
-	if !backend.arguments.Multisig() && !backend.config.Config().Backend.AccountActive(code) {
+	if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.AccountActive(code) {
 		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
 		return
 	}
@@ -174,9 +260,12 @@ func (backend *Backend) createAndAddAccount(
 		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
 	}
 	if backend.arguments.Multisig() {
-		name = name + " Multisig"
+		name += " Multisig"
 	}
-	backend.CreateAndAddAccount(coin, code, name, scriptType, getSigningConfiguration)
+	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false)
+	if err != nil {
+		panic(err)
+	}
 }
 
 // Config returns the app config.
@@ -184,21 +273,21 @@ func (backend *Backend) Config() *config.Config {
 	return backend.config
 }
 
-// DefaultConfig returns the default app config.y
-func (backend *Backend) DefaultConfig() config.AppConfig {
-	return config.NewDefaultConfig()
+// DefaultAppConfig returns the default app config.y
+func (backend *Backend) DefaultAppConfig() config.AppConfig {
+	return config.NewDefaultAppConfig()
 }
 
 func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	switch code {
 	case coinBTC:
-		return backend.config.Config().Backend.BTC.ElectrumServers
+		return backend.config.AppConfig().Backend.BTC.ElectrumServers
 	case coinTBTC:
-		return backend.config.Config().Backend.TBTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TBTC.ElectrumServers
 	case coinLTC:
-		return backend.config.Config().Backend.LTC.ElectrumServers
+		return backend.config.AppConfig().Backend.LTC.ElectrumServers
 	case coinTLTC:
-		return backend.config.Config().Backend.TLTC.ElectrumServers
+		return backend.config.AppConfig().Backend.TLTC.ElectrumServers
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
@@ -296,10 +385,13 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			"https://insight.litecore.io/tx/")
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig,
-			"https://etherscan.io/tx/", backend.config.Config().Backend.ETH.NodeURL)
-	case coinTETH:
+			"https://etherscan.io/tx/", backend.config.AppConfig().Backend.ETH.NodeURL)
+	case coinRETH:
 		coin = eth.NewCoin(code, params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/", backend.config.Config().Backend.TETH.NodeURL)
+			"https://rinkeby.etherscan.io/tx/", backend.config.AppConfig().Backend.RETH.NodeURL)
+	case coinTETH:
+		coin = eth.NewCoin(code, params.TestnetChainConfig,
+			"https://ropsten.etherscan.io/tx/", backend.config.AppConfig().Backend.TETH.NodeURL)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
 	}
@@ -308,25 +400,49 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	return coin, nil
 }
 
+func (backend *Backend) initPersistedAccounts() {
+	for _, account := range backend.config.AccountsConfig().Accounts {
+		account := account
+		if _, isTestnet := testnetCoins[account.CoinCode]; isTestnet != backend.Testing() {
+			// Don't load testnet accounts when running normally, nor mainnet accounts when running
+			// in testing mode
+			continue
+		}
+		coin, err := backend.Coin(account.CoinCode)
+		if err != nil {
+			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
+				account.CoinCode, account.Code)
+		}
+		getSigningConfiguration := func() (*signing.Configuration, error) {
+			return account.Configuration, nil
+		}
+		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
 func (backend *Backend) initAccounts() {
 	// Since initAccounts replaces all previous accounts, we need to properly close them first.
 	backend.uninitAccounts()
 
 	if backend.arguments.Testing() {
-		if backend.arguments.Multisig() {
+		switch {
+		case backend.arguments.Multisig():
 			TBTC, _ := backend.Coin(coinTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-multisig", "Bitcoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			TLTC, _ := backend.Coin(coinTLTC)
 			backend.createAndAddAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
-		} else if backend.arguments.Regtest() {
+		case backend.arguments.Regtest():
 			RBTC, _ := backend.Coin("rbtc")
 			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
-		} else {
+		default:
 			TBTC, _ := backend.Coin(coinTBTC)
 			backend.createAndAddAccount(TBTC, "tbtc-p2wpkh-p2sh", "Bitcoin Testnet", "m/49'/1'/0'",
 				signing.ScriptTypeP2WPKHP2SH)
@@ -343,7 +459,9 @@ func (backend *Backend) initAccounts() {
 
 			if backend.arguments.DevMode() {
 				TETH, _ := backend.Coin(coinTETH)
-				backend.createAndAddAccount(TETH, "teth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				RETH, _ := backend.Coin(coinRETH)
+				backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	} else {
@@ -375,6 +493,7 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	}
+	backend.initPersistedAccounts()
 }
 
 // AccountsStatus returns whether the accounts have been initialized.
@@ -391,7 +510,7 @@ func (backend *Backend) Testing() bool {
 }
 
 // Accounts returns the current accounts of the backend.
-func (backend *Backend) Accounts() []btc.Interface {
+func (backend *Backend) Accounts() []accounts.Interface {
 	return backend.accounts
 }
 
@@ -411,12 +530,12 @@ func (backend *Backend) UserLanguage() language.Tag {
 }
 
 // OnAccountInit installs a callback to be called when an account is initialized.
-func (backend *Backend) OnAccountInit(f func(btc.Interface)) {
+func (backend *Backend) OnAccountInit(f func(accounts.Interface)) {
 	backend.onAccountInit = f
 }
 
 // OnAccountUninit installs a callback to be called when an account is stopped.
-func (backend *Backend) OnAccountUninit(f func(btc.Interface)) {
+func (backend *Backend) OnAccountUninit(f func(accounts.Interface)) {
 	backend.onAccountUninit = f
 }
 
@@ -434,6 +553,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // client.
 func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(backend.arguments.MainDirectoryPath(), backend.Register, backend.Deregister).Start()
+	backend.initPersistedAccounts()
 	return backend.events
 }
 
@@ -454,12 +574,12 @@ func (backend *Backend) uninitAccounts() {
 		backend.onAccountUninit(account)
 		account.Close()
 	}
-	backend.accounts = []btc.Interface{}
+	backend.accounts = []accounts.Interface{}
 	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // Keystores returns the keystores registered at this backend.
-func (backend *Backend) Keystores() keystore.Keystores {
+func (backend *Backend) Keystores() *keystore.Keystores {
 	return backend.keystores
 }
 
@@ -480,11 +600,19 @@ func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
 	backend.uninitAccounts()
+	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
+	// keystore. For now we just remove all, then re-add the rest.
+	backend.initPersistedAccounts()
 }
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.devices[theDevice.Identifier()] = theDevice
+
+	if theDevice.ProductName() == "bitbox02" && !backend.arguments.DevMode() {
+		return nil
+	}
+
 	backend.onDeviceInit(theDevice)
 	theDevice.Init(backend.Testing())
 
@@ -587,4 +715,17 @@ func (backend *Backend) CheckElectrumServer(server string, pemCert string) error
 	defer electrumClient.Close()
 	_, err = electrumClient.ServerVersion()
 	return err
+}
+
+// RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
+// devmode.
+func (backend *Backend) RegisterTestKeystore(pin string) {
+	softwareBasedKeystore := software.NewKeystoreFromPIN(
+		backend.keystores.Count(), pin)
+	backend.RegisterKeystore(softwareBasedKeystore)
+}
+
+// NotifyUser creates a desktop notification.
+func (backend *Backend) NotifyUser(text string) {
+	backend.environment.NotifyUser(text)
 }

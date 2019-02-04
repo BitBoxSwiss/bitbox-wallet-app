@@ -23,36 +23,30 @@ import (
 
 // AddressChain manages a chain of addresses derived from a configuration.
 type AddressChain struct {
-	configuration *signing.Configuration
-	net           *chaincfg.Params
-	gapLimit      int
-	chainIndex    uint32
-	addresses     []*AccountAddress
-	log           *logrus.Entry
+	accountConfiguration *signing.Configuration
+	net                  *chaincfg.Params
+	gapLimit             int
+	chainIndex           uint32
+	addresses            []*AccountAddress
+	log                  *logrus.Entry
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given configuration.
 func NewAddressChain(
-	configuration *signing.Configuration,
+	accountConfiguration *signing.Configuration,
 	net *chaincfg.Params,
 	gapLimit int,
 	chainIndex uint32,
 	log *logrus.Entry,
 ) *AddressChain {
-	chainConfiguration, err := configuration.Derive(
-		signing.NewEmptyRelativeKeypath().Child(chainIndex, signing.NonHardened),
-	)
-	if err != nil {
-		log.WithError(err).Panic("Could not derive the chain configuration.")
-	}
 	return &AddressChain{
-		configuration: chainConfiguration,
-		net:           net,
-		gapLimit:      gapLimit,
-		chainIndex:    chainIndex,
-		addresses:     []*AccountAddress{},
+		accountConfiguration: accountConfiguration,
+		net:                  net,
+		gapLimit:             gapLimit,
+		chainIndex:           chainIndex,
+		addresses:            []*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
-			"gap-limit": gapLimit, "configuration": configuration.String()}),
+			"gap-limit": gapLimit, "configuration": accountConfiguration.String()}),
 	}
 }
 
@@ -70,15 +64,9 @@ func (addresses *AddressChain) GetUnused() []*AccountAddress {
 func (addresses *AddressChain) addAddress() *AccountAddress {
 	addresses.log.Debug("Add new address to chain")
 	index := uint32(len(addresses.addresses))
-	configuration, err := addresses.configuration.Derive(
-		signing.NewEmptyRelativeKeypath().Child(index, signing.NonHardened),
-	)
-	if err != nil {
-		addresses.log.WithError(err).Panic("Failed to derive the configuration.")
-	}
-
 	address := NewAccountAddress(
-		configuration,
+		addresses.accountConfiguration,
+		signing.NewEmptyRelativeKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(index, signing.NonHardened),
 		addresses.net,
 		addresses.log,
 	)

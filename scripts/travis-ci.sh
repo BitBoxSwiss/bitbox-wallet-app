@@ -9,6 +9,7 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
 fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
+    export HOMEBREW_NO_AUTO_UPDATE=1
     brew outdated go || brew upgrade go
     brew install yarn
     brew install qt

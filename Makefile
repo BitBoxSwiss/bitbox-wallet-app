@@ -18,7 +18,7 @@ WEBROOT:=`pwd`/frontends/web
 catch:
 	@echo "Choose a make target."
 envinit:
-	./scripts/go-get.sh v1.11 github.com/golangci/golangci-lint/cmd/golangci-lint
+	./scripts/go-get.sh v1.12 github.com/golangci/golangci-lint/cmd/golangci-lint
 	go get -u github.com/golang/dep/cmd/dep
 	go get -u github.com/stretchr/testify # needed for mockery
 	go get -u github.com/vektra/mockery/cmd/mockery
@@ -35,7 +35,7 @@ osx-init:
 	export CPPFLAGS="-I/usr/local/opt/qt/include"
 	export GOPATH=~/go/
 	export PATH=$PATH:~/go/bin
-	make envinit
+	$(MAKE) envinit
 servewallet:
 	go install ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
@@ -49,35 +49,40 @@ buildweb:
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
 webdev:
-	make -C frontends/web dev
+	cd frontends/web && $(MAKE) dev
 webdev-i18n:
-	PREACT_APP_I18NEDITOR=1 make webdev
+	PREACT_APP_I18NEDITOR=1 $(MAKE) webdev
 weblint:
-	make -C frontends/web lint
+	cd frontends/web && $(MAKE) lint
 webtest:
-	make -C frontends/web jstest
+	cd frontends/web && $(MAKE) jstest
 qt:
-	make buildweb
-	make -C frontends/qt
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE)
 qt-linux: # run inside dockerdev
-	make buildweb
-	make -C frontends/qt linux
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) linux
 qt-osx: # run on OSX.
-	make buildweb
-	make -C frontends/qt osx
-	make osx-sec-check
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) osx
+	$(MAKE) osx-sec-check
+qt-windows:
+	$(MAKE) buildweb
+	cd frontends/qt && $(MAKE) windows
 osx-sec-check:
 	@echo "Checking build output"
 	./scripts/osx-build-check.sh
 ci:
 	./scripts/ci.sh
 clean:
-	make -C frontends/qt clean
+	cd frontends/qt && $(MAKE) clean
 dockerinit:
 	docker build --pull --force-rm -t bitbox-wallet .
 dockerdev:
 	./scripts/dockerdev.sh
 locize-push:
-	cd frontends/web/src/locales && locize sync --reference-language-only=false
+	cd frontends/web/src/locales && locize sync
 locize-pull:
 	cd frontends/web/src/locales && locize download
+locize-fix:
+	locize format ${WEBROOT}/src/locales --format json

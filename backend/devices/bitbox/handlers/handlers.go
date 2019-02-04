@@ -46,7 +46,7 @@ type Bitbox interface {
 	BackupList() ([]map[string]string, error)
 	BootloaderUpgradeFirmware([]byte) error
 	StartPairing() (*relay.Channel, error)
-	Paired() bool
+	HasMobileChannel() bool
 	Lock() (bool, error)
 	CheckBackup(string, string) (bool, error)
 	FeatureSet(*bitbox.FeatureSet) error
@@ -68,7 +68,7 @@ func NewHandlers(
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
 	handleFunc("/bootloader-status", handlers.getBootloaderStatusHandler).Methods("GET")
 	handleFunc("/info", handlers.getDeviceInfoHandler).Methods("GET")
-	handleFunc("/paired", handlers.getPairedHandler).Methods("GET")
+	handleFunc("/has-mobile-channel", handlers.getHasMobileChannelHandler).Methods("GET")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/set-password", handlers.postSetPasswordHandler).Methods("POST")
 	handleFunc("/change-password", handlers.postChangePasswordHandler).Methods("POST")
@@ -171,11 +171,15 @@ func (handlers *Handlers) getBootloaderStatusHandler(_ *http.Request) (interface
 }
 
 func (handlers *Handlers) getDeviceInfoHandler(_ *http.Request) (interface{}, error) {
-	return handlers.bitbox.DeviceInfo()
+	info, err := handlers.bitbox.DeviceInfo()
+	if errp.Cause(err) == bitbox.ErrMustBeLoggedIn {
+		return nil, nil
+	}
+	return info, err
 }
 
-func (handlers *Handlers) getPairedHandler(_ *http.Request) (interface{}, error) {
-	return handlers.bitbox.Paired(), nil
+func (handlers *Handlers) getHasMobileChannelHandler(_ *http.Request) (interface{}, error) {
+	return handlers.bitbox.HasMobileChannel(), nil
 }
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {

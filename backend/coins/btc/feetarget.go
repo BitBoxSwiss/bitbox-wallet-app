@@ -2,6 +2,7 @@
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
+//
 // You may obtain a copy of the License at
 //
 //      http://www.apache.org/licenses/LICENSE-2.0
@@ -16,51 +17,22 @@ package btc
 
 import (
 	"github.com/btcsuite/btcutil"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-)
-
-// FeeTargetCode models the code of a fee target. See the constants below.
-type FeeTargetCode string
-
-// NewFeeTargetCode checks if the code is valid and returns a FeeTargetCode in that case.
-func NewFeeTargetCode(code string) (FeeTargetCode, error) {
-	switch code {
-	case "":
-		return defaultFeeTarget, nil
-	case string(FeeTargetCodeLow):
-	case string(FeeTargetCodeEconomy):
-	case string(FeeTargetCodeNormal):
-	case string(FeeTargetCodeHigh):
-	default:
-		return "", errp.WithStack(errp.Newf("Unrecognized fee target code %s", code))
-	}
-	return FeeTargetCode(code), nil
-}
-
-const (
-	// FeeTargetCodeLow is the low priority fee target.
-	FeeTargetCodeLow FeeTargetCode = "low"
-
-	// FeeTargetCodeEconomy is the economy priority fee target.
-	FeeTargetCodeEconomy FeeTargetCode = "economy"
-
-	// FeeTargetCodeNormal is the normal priority fee target.
-	FeeTargetCodeNormal FeeTargetCode = "normal"
-
-	// FeeTargetCodeHigh is the high priority fee target.
-	FeeTargetCodeHigh FeeTargetCode = "high"
-
-	defaultFeeTarget = FeeTargetCodeNormal
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 )
 
 // FeeTarget contains the fee rate for a specific fee target.
 type FeeTarget struct {
 	// Blocks is the target number of blocks in which the transaction should be confirmed.
-	Blocks int
+	blocks int
 
 	// Code is the identifier for the UI.
-	Code FeeTargetCode
+	code accounts.FeeTargetCode
 
 	// FeeRatePerKb is the fee rate needed for this target. Can be nil until populated.
-	FeeRatePerKb *btcutil.Amount
+	feeRatePerKb *btcutil.Amount
+}
+
+// Code returns the btc fee target
+func (feeTarget *FeeTarget) Code() accounts.FeeTargetCode {
+	return feeTarget.code
 }

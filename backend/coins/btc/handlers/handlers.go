@@ -28,6 +28,8 @@ import (
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
@@ -42,7 +44,7 @@ import (
 
 // Handlers provides a web api to the account.
 type Handlers struct {
-	account btc.Interface
+	account accounts.Interface
 	log     *logrus.Entry
 }
 
@@ -69,7 +71,7 @@ func NewHandlers(
 
 // Init installs a account as a base for the web api. This needs to be called before any requests are
 // made.
-func (handlers *Handlers) Init(account btc.Interface) {
+func (handlers *Handlers) Init(account accounts.Interface) {
 	handlers.account = account
 }
 
@@ -90,7 +92,7 @@ func formatAsCurrency(amount float64) string {
 	position := strings.Index(formatted, ".") - 3
 	for position > 0 {
 		formatted = formatted[:position] + "'" + formatted[position:]
-		position = position - 3
+		position -= 3
 	}
 	return formatted
 }
@@ -101,7 +103,7 @@ func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 		rates := backend.GetRatesUpdaterInstance().Last()
 		if rates != nil {
 			unit := coin.Unit()
-			if len(unit) == 4 && strings.HasPrefix(unit, "T") {
+			if len(unit) == 4 && strings.HasPrefix(unit, "T") || unit == "RETH" {
 				unit = unit[1:]
 			}
 			float := coin.ToUnit(amount)
@@ -170,18 +172,22 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			t := timestamp.Format(time.RFC3339)
 			formattedTime = &t
 		}
+		addresses := []string{}
+		for _, addressAndAmount := range txInfo.Addresses() {
+			addresses = append(addresses, addressAndAmount.Address)
+		}
 		txInfoJSON := Transaction{
 			ID:               txInfo.ID(),
 			NumConfirmations: txInfo.NumConfirmations(),
-			Type: map[coin.TxType]string{
-				coin.TxTypeReceive:  "receive",
-				coin.TxTypeSend:     "send",
-				coin.TxTypeSendSelf: "send_to_self",
+			Type: map[accounts.TxType]string{
+				accounts.TxTypeReceive:  "receive",
+				accounts.TxTypeSend:     "send",
+				accounts.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type()],
 			Amount:    handlers.formatAmountAsJSON(txInfo.Amount()),
 			Fee:       feeString,
 			Time:      formattedTime,
-			Addresses: txInfo.Addresses(),
+			Addresses: addresses,
 		}
 		switch specificInfo := txInfo.(type) {
 		case *transactions.TxInfo:
@@ -236,10 +242,10 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 	}
 
 	for _, transaction := range handlers.account.Transactions() {
-		transactionType := map[coin.TxType]string{
-			coin.TxTypeReceive:  "received",
-			coin.TxTypeSend:     "sent",
-			coin.TxTypeSendSelf: "sent_to_yourself",
+		transactionType := map[accounts.TxType]string{
+			accounts.TxTypeReceive:  "received",
+			accounts.TxTypeSend:     "sent",
+			accounts.TxTypeSendSelf: "sent_to_yourself",
 		}[transaction.Type()]
 		feeString := ""
 		fee := transaction.Fee()
@@ -250,17 +256,26 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		if transaction.Timestamp() != nil {
 			timeString = transaction.Timestamp().Format(time.RFC3339)
 		}
-		err := writer.Write([]string{
-			timeString,
-			transactionType,
-			transaction.Amount().BigInt().String(),
-			feeString,
-			strings.Join(transaction.Addresses(), "; "),
-			transaction.ID(),
-		})
-		if err != nil {
-			return nil, errp.WithStack(err)
+		for _, addressAndAmount := range transaction.Addresses() {
+			if transactionType == "sent" && addressAndAmount.Ours {
+				transactionType = "sent_to_yourself"
+			}
+			err := writer.Write([]string{
+				timeString,
+				transactionType,
+				addressAndAmount.Amount.BigInt().String(),
+				feeString,
+				addressAndAmount.Address,
+				transaction.ID(),
+			})
+			if err != nil {
+				return nil, errp.WithStack(err)
+			}
+			// a multitx is output in one row per receive address. Show the tx fee only in the
+			// first row.
+			feeString = ""
 		}
+
 	}
 	return path, nil
 }
@@ -271,7 +286,14 @@ func (handlers *Handlers) getAccountInfo(_ *http.Request) (interface{}, error) {
 
 func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 	result := []map[string]interface{}{}
-	for _, output := range handlers.account.SpendableOutputs() {
+
+	t, ok := handlers.account.(*btc.Account)
+
+	if !ok {
+		return result, errp.New("Interface must be of type btc.Account")
+	}
+
+	for _, output := range t.SpendableOutputs() {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
@@ -279,6 +301,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 				"address":  output.Address,
 			})
 	}
+
 	return result, nil
 }
 
@@ -294,7 +317,7 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 type sendTxInput struct {
 	address       string
 	sendAmount    coin.SendAmount
-	feeTargetCode btc.FeeTargetCode
+	feeTargetCode accounts.FeeTargetCode
 	selectedUTXOs map[wire.OutPoint]struct{}
 	data          []byte
 }
@@ -313,7 +336,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.address = jsonBody.Address
 	var err error
-	input.feeTargetCode, err = btc.NewFeeTargetCode(jsonBody.FeeTarget)
+	input.feeTargetCode, err = accounts.NewFeeTargetCode(jsonBody.FeeTarget)
 	if err != nil {
 		return errp.WithMessage(err, "Failed to retrieve fee target code")
 	}
@@ -332,7 +355,7 @@ func (input *sendTxInput) UnmarshalJSON(jsonBytes []byte) error {
 	}
 	input.data, err = hex.DecodeString(strings.TrimPrefix(jsonBody.Data, "0x"))
 	if err != nil {
-		return errp.WithStack(coin.ErrInvalidData)
+		return errp.WithStack(errors.ErrInvalidData)
 	}
 	return nil
 }
@@ -359,7 +382,7 @@ func (handlers *Handlers) postAccountSendTx(r *http.Request) (interface{}, error
 }
 
 func txProposalError(err error) (interface{}, error) {
-	if validationErr, ok := errp.Cause(err).(coin.TxValidationError); ok {
+	if validationErr, ok := errp.Cause(err).(errors.TxValidationError); ok {
 		return map[string]interface{}{
 			"success":   false,
 			"errorCode": validationErr.Error(),
@@ -395,14 +418,9 @@ func (handlers *Handlers) getAccountFeeTargets(_ *http.Request) (interface{}, er
 	feeTargets, defaultFeeTarget := handlers.account.FeeTargets()
 	result := []map[string]interface{}{}
 	for _, feeTarget := range feeTargets {
-		var feeRatePerKb formattedAmount
-		if feeTarget.FeeRatePerKb != nil {
-			feeRatePerKb = handlers.formatBTCAmountAsJSON(*feeTarget.FeeRatePerKb)
-		}
 		result = append(result,
 			map[string]interface{}{
-				"code":         feeTarget.Code,
-				"feeRatePerKb": feeRatePerKb,
+				"code": feeTarget.Code(),
 			})
 	}
 	return map[string]interface{}{

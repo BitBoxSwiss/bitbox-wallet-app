@@ -22,11 +22,11 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
-	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -121,7 +121,7 @@ func (s *newTxSuite) buildUTXO(satoshis ...int64) map[wire.OutPoint]*wire.TxOut 
 func (s *newTxSuite) TestNewTxNoCoins() {
 	feePerKb := btcutil.Amount(0)
 	_, err := s.newTx(1, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 }
 
 func (s *newTxSuite) check(
@@ -219,7 +219,7 @@ func (s *newTxSuite) TestNewTxNoFee() {
 	feePerKb := btcutil.Amount(0)
 
 	_, err := s.newTx(1, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 
 	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1), s.change(0), noDust, s.selectCoins(0))
 	s.check(btcutil.Amount(1), feePerKb, s.buildUTXO(1, 2), s.change(1), noDust, s.selectCoins(1))
@@ -249,32 +249,32 @@ func (s *newTxSuite) TestNewTxInsufficientFunds() {
 	feePerKb := btcutil.Amount(1000) // 1 sat / vbyte
 
 	_, err := s.newTx(amount, feePerKb, s.buildUTXO())
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 
 	// Using one coin.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(999*mBTC))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// exact coin not enough, as fees need to be covered.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// One satoshi short of covering the amount and fee.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC+txSizeOneInput-1))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// Just enough:
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(1000*mBTC+txSizeOneInput))
 	require.NoError(s.T(), err)
 
 	// Using two coins.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, mBTC))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// exact coin not enough, as fees need to be covered.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// One satoshi short of covering the amount and fee.
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC+txSizeTwoInputs-1))
-	require.Equal(s.T(), coinpkg.ErrInsufficientFunds, errp.Cause(err))
+	require.Equal(s.T(), errors.ErrInsufficientFunds, errp.Cause(err))
 	// Just enough:
 	_, err = s.newTx(amount, feePerKb, s.buildUTXO(mBTC, 999*mBTC+txSizeTwoInputs))
 	require.NoError(s.T(), err)

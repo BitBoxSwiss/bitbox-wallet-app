@@ -1,17 +1,25 @@
 .container {
     position: relative;
+}
+
+.subHeader h3 {
+    font-weight: 300 !important;
+}
+
+.tableContainer {
+    position: relative;
     transition: all 0.2s ease;
     border-radius: 2px;
 }
 
-.container.collapsed {
+.container.collapsed .tableContainer {
     height: 0;
     width: 100%;
     overflow: hidden;
     border: solid 1px transparent;
 }
 
-.container.expanded {
+.container.expanded .tableContainer {
     max-height: 320px;
     overflow-y: scroll;
     border: solid 1px var(--color-lightgray);
@@ -38,6 +46,7 @@
 
 .table > tr > td > span {
     display: block;
+    min-width: 1rem;
     white-space: nowrap;
 }
 

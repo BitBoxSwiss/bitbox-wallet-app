@@ -41,24 +41,19 @@ Build artifacts:
 
 ## Windows
 
-The exact steps to build are documented in `appveyor.yml` and there is no
-automated Windows build environment setup Makefile target. The Windows build
-process is currently a work in progress. The build requires `mingw-w64`,
-`bash`, `make`, `Microsoft Visual Studio 2017`, `go 1.10`, `yarn`, `QT 5.11.1`
-and possibly other tools. 
+The build requires `mingw-w64`, `bash`, `make`, `Microsoft Visual Studio 2017`, `go 1.10`, `yarn`,
+`QT 5.11.1` and possibly other tools.
 
-Build the QT frontend for Windows:
-```
-cd frontends/qt/server/
-make -f Makefile.windows windows-legacy
-cd .. && mkdir build && cd build
-qmake ..\BitBox.pro
-nmake
-cd .. && bash windows_post.sh
-```
+Add a system environment variable `MINGW_BIN` pointing to the bin directory of mingw
+(e.g. `/c/MinGW/bin`).
+
+Build the QT frontend for Windows: `make qt-windows`
 
 Build artifacts:
 * `frontends\qt\build\windows\*`
+
+To create the installer, run the NSIS UI, then: compile NSI scripts -> frontend/qt/setup.nsi, or run
+`makensis setup.nsi`.
 
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.

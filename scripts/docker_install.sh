@@ -36,6 +36,7 @@ apt-get install -y --no-install-recommends \
     gcc-mingw-w64-x86-64
 
 npm install -g yarn
+npm install -g locize-cli
 
 mkdir -p /opt/go_dist
 curl https://dl.google.com/go/go1.11.linux-amd64.tar.gz | tar -xz -C /opt/go_dist

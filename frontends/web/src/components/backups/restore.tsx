@@ -27,7 +27,7 @@ import WaitDialog from '../wait-dialog/wait-dialog';
 import * as style from './backups.css';
 
 interface RestoreProps {
-    selectedBackup: string;
+    selectedBackup?: string;
     requireConfirmation: boolean;
     deviceID: string;
     onRestore: () => void;
@@ -147,7 +147,7 @@ class Restore extends Component<Props, State> {
                 <Button
                     danger={requireConfirmation}
                     primary={!requireConfirmation}
-                    disabled={selectedBackup === null}
+                    disabled={!selectedBackup}
                     onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.restore')}
                 </Button>
@@ -205,5 +205,4 @@ class Restore extends Component<Props, State> {
 }
 
 const TranslatedRestore = translate<RestoreProps>()(Restore);
-
 export { TranslatedRestore as Restore };

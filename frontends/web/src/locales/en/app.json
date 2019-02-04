@@ -21,15 +21,21 @@
   },
   "addAccount": {
     "accountName": "Account Name",
+    "address": "Address",
     "coin": "Coin",
     "error": {
-      "xpubInvalid": "Extended Public Key malformatted.",
-      "xpubWrongNet": "Extended Public Key not valid for the selected account."
+      "alreadyExists": "The account already exists.",
+      "invalidAddress": "Please enter a valid Ethereum address",
+      "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
+      "xpubInvalid": "Extended Public Key malformatted."
     },
     "extendedPublicKey": "Extended Public Key",
     "scriptType": "Script Type",
     "submit": "Add Account",
-    "title": "Add Account"
+    "title": "Add Account",
+    "warning": {
+      "xpubWrongNet": "Warning: The extended public key format indicates that it might not be valid for the selected account type. If you do not see the expected transactions, then try to import the extended public key with another account type."
+    }
   },
   "app": {
     "upgrade": "A new version of this app is available! Please upgrade from {{current}} to {{version}}."
@@ -63,6 +69,7 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
+    "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",
       "error": {
@@ -99,7 +106,7 @@
   "button": {
     "abort": "Abort",
     "back": "Back",
-    "changepin": "Change device password",
+    "changepin": "Change Device Password",
     "check": "Check Backup",
     "copy": "Copy",
     "create": "Create",
@@ -122,7 +129,7 @@
   "confirm": {
     "abortInfo": "Tap to ",
     "abortInfoRedText": "abort",
-    "approveInfo": "Hold 3+ secs to ",
+    "approveInfo": "Hold 4+ secs to ",
     "approveInfoGreenText": "confirm",
     "info": "On your BitBox",
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
@@ -506,12 +513,17 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
+  "notification": {
+    "newTxs": "New transaction in: {{accountName}}",
+    "newTxs_plural": "{{count}} new transactions in: {{accountName}}"
+  },
   "pairing": {
     "aborted": {
       "text": "The pairing has been aborted from the mobile app.",
       "title": "Aborted"
     },
     "button": "Pair Mobile App",
+    "confirm": "Are you sure you want to pair your BitBox? Note that after, the mobile phone is required to perform a transaction.",
     "connectOnly": {
       "button": "Connect Mobile App",
       "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'"
@@ -524,7 +536,10 @@
       "button": "Reconnect Mobile App"
     },
     "start": {
-      "title": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
+      "hideAppQRCode": "Hide QR Code",
+      "revealAppQRCode": "Show QR Code",
+      "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
+      "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
     },
     "started": {
       "text": "Now please follow the instructions in the mobile app.",
@@ -537,7 +552,8 @@
     "timeout": {
       "text": "The pairing timed out after two minutes. Start again if you still want to pair the mobile app.",
       "title": "Timeout"
-    }
+    },
+    "title": "Mobile Pairing"
   },
   "password": {
     "show": "Show {{label}}",
@@ -642,7 +658,8 @@
     "button": "Sign and Send",
     "coincontrol": {
       "address": "Address",
-      "outpoint": "Outpoint"
+      "outpoint": "Outpoint",
+      "title": "Send from Output"
     },
     "confirm": {
       "selected-coins": "Selected Coins",
@@ -752,11 +769,11 @@
       "summary": "Here is a summary of what you have done",
       "title": "Success"
     },
+    "getstarted": "Get Started",
     "restore": {
       "summary": "You have successfully restored a wallet from your backup.",
       "title": "Success"
-    },
-    "getstarted": "Get Started"
+    }
   },
   "transaction": {
     "badge": {
@@ -784,7 +801,7 @@
     "error": {
       "e109_normal": "Wrong device password. {{remainingAttempts}} attempts remain before the device is reset.",
       "e109_touch": "$t(unlock.error.e109_normal) The next login requires holding the touch button.",
-      "e113": "Due to many login attempts, the next login requires holding the touch button for 3 seconds."
+      "e113": "Due to many login attempts, the next login requires holding the touch button for 4 seconds."
     },
     "input": {
       "label": "Device password",

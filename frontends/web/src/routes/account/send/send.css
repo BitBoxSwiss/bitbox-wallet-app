@@ -101,7 +101,8 @@
 .confirmationValue {
     font-size: var(--size-medium);
     line-height: 1;
-    margin: 0;
+    padding-bottom: var(--size-medium);
+    margin: 0 0 calc(var(--size-medium) * -1) 0 !important;
     overflow: hidden;
     text-overflow: ellipsis;
     direction: rtl;

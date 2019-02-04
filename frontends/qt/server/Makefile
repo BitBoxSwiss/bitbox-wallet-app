@@ -1,21 +1,23 @@
 include ../../../env.mk.inc
 
 linux:
-	make -f Makefile.linux linux
+	$(MAKE) -f Makefile.linux linux
 linux-clean:
-	-make -f Makefile.linux clean
+	-$(MAKE) -f Makefile.linux clean
 
 macosx:
-	make -f Makefile.macosx darwin
+	$(MAKE) -f Makefile.macosx darwin
 macosx-clean:
-	-make -f Makefile.macosx clean
+	-$(MAKE) -f Makefile.macosx clean
 
 windows:
-	make -f Makefile.windows windows
+	$(MAKE) -f Makefile.windows windows
 windows-cross:
-	make -f Makefile.windows windows-cross
+	$(MAKE) -f Makefile.windows windows-cross
+windows-legacy:
+	$(MAKE) -f Makefile.windows windows-legacy
 windows-clean:
-	-make -f Makefile.windows clean
+	-$(MAKE) -f Makefile.windows clean
 
 install:
 	install ${LIBNAME}.so ${DESTDIR}/usr/lib/${LIBNAME}.so

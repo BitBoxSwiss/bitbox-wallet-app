@@ -1,14 +1,9 @@
-/cache
+/appfolder.dev
 /cmd/playground/
-/config.json
-/frontends/qt/assets.qrc
 /frontends/qt/build/
-/frontends/qt/bitbox.db
 /frontends/qt/config/
 /frontends/qt/server/libserver.h
 /frontends/qt/server/libserver.so
-/frontends/qt/server/server.h
-/frontends/qt/server/server.a
 /frontends/web/.eslintcache
 /frontends/web/build/
 /frontends/web/coverage/
@@ -20,3 +15,13 @@
 .vscode/
 
 .DS_Store
+.idea
+
+# Ignore unfinished locales
+/frontends/web/src/locales/
+# Except the following:
+!/frontends/web/src/locales/en/
+!/frontends/web/src/locales/de/
+!/frontends/web/src/locales/ja/
+!/frontends/web/src/locales/ru/
+!/frontends/web/src/locales/ms/

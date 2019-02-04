@@ -22,9 +22,9 @@ import { Button, ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import Status from '../../../components/status/status';
-import QRCode from '../../../components/qrcode/qrcode';
+import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';
 import ArrowLeft from '../../../assets/icons/arrow-left-gray.svg';
 import ArrowRight from '../../../assets/icons/arrow-right-gray.svg';
@@ -48,7 +48,7 @@ export default class Receive extends Component {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
         if (this.props.deviceIDs.length > 0) {
-            apiGet('devices/' + this.props.deviceIDs[0] + '/paired').then((paired) => {
+            apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(paired => {
                 this.setState({ paired });
             });
         }
@@ -139,7 +139,7 @@ export default class Receive extends Component {
         let uriPrefix = 'bitcoin:';
         if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
-        } else if (account.coinCode === 'eth' || account.coinCode === 'teth') {
+        } else if (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') {
             uriPrefix = '';
         }
         const content = receiveAddresses ? (
@@ -196,7 +196,7 @@ export default class Receive extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.receivePairing')}
                     </Status>
-                    <Header title={<h2>{t('receive.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('receive.title')}</h2>} />
                     <div class="innerContainer">
                         <div class="content isVerticallyCentered">
                             <div class={style.receiveContent}>

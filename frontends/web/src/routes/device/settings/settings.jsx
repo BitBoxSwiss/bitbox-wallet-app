@@ -21,7 +21,7 @@ import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import { Header } from '../../../components/header/Header';
+import { Header } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
 import Blink from './components/blink';
 import LegacyHiddenWallet from './components/legacyhiddenwallet';
@@ -29,7 +29,7 @@ import RandomNumber from './components/randomnumber';
 import HiddenWallet from './components/hiddenwallet';
 import ChangePIN from './components/changepin';
 import Reset from './components/reset';
-import MobilePairing from './components/mobile-pairing';
+import { MobilePairing } from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
 
@@ -42,7 +42,8 @@ export default class Settings extends Component {
         name: null,
         spinner: true,
         sdcard: false,
-        paired: false,
+        pairing: false,
+        mobileChannel: false,
         connected: false,
         newHiddenWallet: true,
     }
@@ -53,18 +54,20 @@ export default class Settings extends Component {
             sdcard,
             lock,
             name,
-            new_hidden_wallet, // eslint-disable-line camelcase
+            new_hidden_wallet, // eslint-disable-line camelcase,
+            pairing,
         }) => {
             this.setState({
                 firmwareVersion: version.replace('v', ''),
                 lock, name, sdcard,
                 spinner: false,
                 newHiddenWallet: new_hidden_wallet,
+                pairing,
             });
         });
 
-        apiGet('devices/' + this.props.deviceID + '/paired').then((paired) => {
-            this.setState({ paired });
+        apiGet('devices/' + this.props.deviceID + '/has-mobile-channel').then(mobileChannel => {
+            this.setState({ mobileChannel });
         });
 
         apiGet('devices/' + this.props.deviceID + '/bundled-firmware-version').then(version => {
@@ -81,10 +84,10 @@ export default class Settings extends Component {
                     this.setState({ connected: true });
                     break;
                 case 'pairingSuccess':
-                    this.setState({ paired: true });
+                    this.setState({ pairing: true, mobileChannel: true });
                     break;
                 case 'pairingFalse':
-                    this.setState({ paired: false });
+                    this.setState({ mobileChannel: false });
                     break;
                 }
             }
@@ -107,15 +110,17 @@ export default class Settings extends Component {
         name,
         spinner,
         sdcard,
-        paired,
+        pairing,
+        mobileChannel,
         connected,
         newHiddenWallet,
     }) {
         const canUpgrade = firmwareVersion && newVersion !== firmwareVersion;
+        const paired = pairing && mobileChannel;
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} {...this.props} />
+                    <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="flex-1">
@@ -172,7 +177,13 @@ export default class Settings extends Component {
                                     </div>
                                 </dl>
                                 <div class="buttons flex flex-row flex-start flex-wrap">
-                                    <MobilePairing deviceID={deviceID} deviceLocked={lock} mobilePaired={paired} />
+                                    <MobilePairing
+                                        deviceID={deviceID}
+                                        deviceLocked={lock}
+                                        hasMobileChannel={mobileChannel}
+                                        paired={paired}
+                                        onPairingEnabled={() => this.setState({ pairing: true })}
+                                    />
                                     <DeviceLock
                                         deviceID={deviceID}
                                         onLock={() => this.setState({ lock: true })}
@@ -224,7 +235,7 @@ export default class Settings extends Component {
                                 </dl>
 
                                 <div class="buttons flex flex-row flex-start flex-wrap">
-                                    <RandomNumber deviceID={deviceID} />
+                                    <RandomNumber apiPrefix={'devices/' + deviceID} />
                                     <Blink deviceID={deviceID} />
                                 </div>
 

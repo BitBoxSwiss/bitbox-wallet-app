@@ -22,6 +22,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -84,7 +85,9 @@ func TestFinishPairing(t *testing.T) {
 	for i, test := range tt {
 		test := test // avoids referencing the same variable across loop iterations
 		t.Run(fmt.Sprintf("%d: %s", i, test.wantEvent), func(t *testing.T) {
+			communicationMock := &mocks.CommunicationInterface{}
 			dbb := &Device{
+				communication:    communicationMock,
 				closed:           true, // don't run listenForMobile
 				channelConfigDir: test.configDir,
 				log:              logging.Get().WithGroup("finish_pairing_test"),
@@ -94,11 +97,13 @@ func TestFinishPairing(t *testing.T) {
 				event = e
 			}
 			newChan := relay.NewChannelWithRandomKey()
+			communicationMock.On("SendEncrypt", `{"feature_set":{"pairing":true}}`, "").
+				Return(map[string]interface{}{"feature_set": "success"}, nil)
 			dbb.finishPairing(newChan)
 			if event != test.wantEvent {
 				t.Errorf("event = %q; want %q", event, test.wantEvent)
 			}
-			if paired := dbb.Paired(); paired != test.wantPaired {
+			if paired := dbb.HasMobileChannel(); paired != test.wantPaired {
 				t.Errorf("paired = %v; want %v", paired, test.wantPaired)
 			}
 

@@ -20,8 +20,8 @@ import { translate } from 'react-i18next';
 import { ButtonLink } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
-import Backups from '../../../components/backups/backups';
-import { Header } from '../../../components/header/Header';
+import { Backups } from '../../../components/backups/backups';
+import { Header } from '../../../components/layout';
 import * as styles from './manage-backups.css';
 
 @translate()
@@ -43,7 +43,7 @@ export default class ManageBackups extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('backup.title')}</h2>} {...this.props} />
+                    <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className={styles.manageBackups}>
                         <Backups
                             deviceID={deviceID}

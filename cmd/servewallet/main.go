@@ -18,6 +18,8 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os/exec"
+	"runtime"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
@@ -30,6 +32,32 @@ const (
 	port    = 8082
 	address = "0.0.0.0"
 )
+
+// webdevEnvironment implements backend.Environment
+type webdevEnvironment struct {
+}
+
+// NotifyUser implements backend.Environment
+func (webdevEnvironment) NotifyUser(text string) {
+	log := logging.Get().WithGroup("servewallet")
+	log.Infof("NotifyUser: %s", text)
+	// We use system notifications on unix/macOS, the primary dev environments.
+	switch runtime.GOOS {
+	case "darwin":
+		// #nosec G204
+		err := exec.Command("osascript", "-e",
+			fmt.Sprintf(`display notification "%s" with title \"BitBox Wallet DEV\"`, text))
+		if err != nil {
+			log.Error(err)
+		}
+	case "linux":
+		// #nosec G204b
+		err := exec.Command("notify-send", "BitBox Wallet DEV", text).Run()
+		if err != nil {
+			log.Error(err)
+		}
+	}
+}
 
 func main() {
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
@@ -51,12 +79,17 @@ func main() {
 	log.Info("--------------- Started application --------------")
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
-	backend := backend.NewBackend(
-		arguments.NewArguments(".", !*mainnet, *regtest, *multisig, *devmode))
+	backend, err := backend.NewBackend(
+		arguments.NewArguments("appfolder.dev", !*mainnet, *regtest, *multisig, *devmode),
+		webdevEnvironment{},
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")
 	fmt.Printf("Listening on: http://localhost:%d\n", port)
 	if err := http.ListenAndServe(fmt.Sprintf("%s:%d", address, port), handlers.Router); err != nil {
-		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Error("Failed to listen for HTTP")
+		log.WithFields(logrus.Fields{"address": address, "port": port, "error": err.Error()}).Fatal("Failed to listen for HTTP")
 	}
 }
