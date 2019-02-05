@@ -9,8 +9,8 @@ It is generated from these files:
 
 It has these top-level messages:
 	Error
-	RandomNumberRequest
 	RandomNumberResponse
+	RandomNumberRequest
 	Request
 	Response
 */
@@ -30,55 +30,6 @@ var _ = math.Inf
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
-
-type Request_RequestType int32
-
-const (
-	Request_SIGN       Request_RequestType = 0
-	Request_BOOTLOADER Request_RequestType = 1
-	// DON'T MOVE THE FOLLOWING ENUM
-	Request_REQUIRES_TOUCH Request_RequestType = 2
-	Request_RANDOM         Request_RequestType = 3
-)
-
-var Request_RequestType_name = map[int32]string{
-	0: "SIGN",
-	1: "BOOTLOADER",
-	2: "REQUIRES_TOUCH",
-	3: "RANDOM",
-}
-var Request_RequestType_value = map[string]int32{
-	"SIGN":           0,
-	"BOOTLOADER":     1,
-	"REQUIRES_TOUCH": 2,
-	"RANDOM":         3,
-}
-
-func (x Request_RequestType) String() string {
-	return proto.EnumName(Request_RequestType_name, int32(x))
-}
-func (Request_RequestType) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{3, 0} }
-
-type Response_ResponseType int32
-
-const (
-	Response_ERROR  Response_ResponseType = 0
-	Response_RANDOM Response_ResponseType = 1
-)
-
-var Response_ResponseType_name = map[int32]string{
-	0: "ERROR",
-	1: "RANDOM",
-}
-var Response_ResponseType_value = map[string]int32{
-	"ERROR":  0,
-	"RANDOM": 1,
-}
-
-func (x Response_ResponseType) String() string {
-	return proto.EnumName(Response_ResponseType_name, int32(x))
-}
-func (Response_ResponseType) EnumDescriptor() ([]byte, []int) { return fileDescriptor0, []int{4, 0} }
 
 type Error struct {
 	Code    int32  `protobuf:"varint,1,opt,name=code" json:"code,omitempty"`
@@ -104,35 +55,33 @@ func (m *Error) GetMessage() string {
 	return ""
 }
 
+type RandomNumberResponse struct {
+	Number []byte `protobuf:"bytes,1,opt,name=number,proto3" json:"number,omitempty"`
+}
+
+func (m *RandomNumberResponse) Reset()                    { *m = RandomNumberResponse{} }
+func (m *RandomNumberResponse) String() string            { return proto.CompactTextString(m) }
+func (*RandomNumberResponse) ProtoMessage()               {}
+func (*RandomNumberResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+
+func (m *RandomNumberResponse) GetNumber() []byte {
+	if m != nil {
+		return m.Number
+	}
+	return nil
+}
+
 type RandomNumberRequest struct {
 }
 
 func (m *RandomNumberRequest) Reset()                    { *m = RandomNumberRequest{} }
 func (m *RandomNumberRequest) String() string            { return proto.CompactTextString(m) }
 func (*RandomNumberRequest) ProtoMessage()               {}
-func (*RandomNumberRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
-
-// max. size of bytes is defined in options.
-type RandomNumberResponse struct {
-	RandomNumber []byte `protobuf:"bytes,1,opt,name=random_number,json=randomNumber,proto3" json:"random_number,omitempty"`
-}
-
-func (m *RandomNumberResponse) Reset()                    { *m = RandomNumberResponse{} }
-func (m *RandomNumberResponse) String() string            { return proto.CompactTextString(m) }
-func (*RandomNumberResponse) ProtoMessage()               {}
-func (*RandomNumberResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
-
-func (m *RandomNumberResponse) GetRandomNumber() []byte {
-	if m != nil {
-		return m.RandomNumber
-	}
-	return nil
-}
+func (*RandomNumberRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{2} }
 
 type Request struct {
-	Type Request_RequestType `protobuf:"varint,1,opt,name=type,enum=Request_RequestType" json:"type,omitempty"`
 	// Types that are valid to be assigned to Request:
-	//	*Request_RandomNumberRequest
+	//	*Request_RandomNumber
 	Request isRequest_Request `protobuf_oneof:"request"`
 }
 
@@ -143,11 +92,11 @@ func (*Request) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} 
 
 type isRequest_Request interface{ isRequest_Request() }
 
-type Request_RandomNumberRequest struct {
-	RandomNumberRequest *RandomNumberRequest `protobuf:"bytes,2,opt,name=random_number_request,json=randomNumberRequest,oneof"`
+type Request_RandomNumber struct {
+	RandomNumber *RandomNumberRequest `protobuf:"bytes,1,opt,name=random_number,json=randomNumber,oneof"`
 }
 
-func (*Request_RandomNumberRequest) isRequest_Request() {}
+func (*Request_RandomNumber) isRequest_Request() {}
 
 func (m *Request) GetRequest() isRequest_Request {
 	if m != nil {
@@ -156,16 +105,9 @@ func (m *Request) GetRequest() isRequest_Request {
 	return nil
 }
 
-func (m *Request) GetType() Request_RequestType {
-	if m != nil {
-		return m.Type
-	}
-	return Request_SIGN
-}
-
-func (m *Request) GetRandomNumberRequest() *RandomNumberRequest {
-	if x, ok := m.GetRequest().(*Request_RandomNumberRequest); ok {
-		return x.RandomNumberRequest
+func (m *Request) GetRandomNumber() *RandomNumberRequest {
+	if x, ok := m.GetRequest().(*Request_RandomNumber); ok {
+		return x.RandomNumber
 	}
 	return nil
 }
@@ -173,7 +115,7 @@ func (m *Request) GetRandomNumberRequest() *RandomNumberRequest {
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*Request) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _Request_OneofMarshaler, _Request_OneofUnmarshaler, _Request_OneofSizer, []interface{}{
-		(*Request_RandomNumberRequest)(nil),
+		(*Request_RandomNumber)(nil),
 	}
 }
 
@@ -181,9 +123,9 @@ func _Request_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	m := msg.(*Request)
 	// request
 	switch x := m.Request.(type) {
-	case *Request_RandomNumberRequest:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RandomNumberRequest); err != nil {
+	case *Request_RandomNumber:
+		b.EncodeVarint(1<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RandomNumber); err != nil {
 			return err
 		}
 	case nil:
@@ -196,13 +138,13 @@ func _Request_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 func _Request_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
 	m := msg.(*Request)
 	switch tag {
-	case 2: // request.random_number_request
+	case 1: // request.random_number
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(RandomNumberRequest)
 		err := b.DecodeMessage(msg)
-		m.Request = &Request_RandomNumberRequest{msg}
+		m.Request = &Request_RandomNumber{msg}
 		return true, err
 	default:
 		return false, nil
@@ -213,9 +155,9 @@ func _Request_OneofSizer(msg proto.Message) (n int) {
 	m := msg.(*Request)
 	// request
 	switch x := m.Request.(type) {
-	case *Request_RandomNumberRequest:
-		s := proto.Size(x.RandomNumberRequest)
-		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+	case *Request_RandomNumber:
+		s := proto.Size(x.RandomNumber)
+		n += proto.SizeVarint(1<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -226,9 +168,8 @@ func _Request_OneofSizer(msg proto.Message) (n int) {
 }
 
 type Response struct {
-	Type Response_ResponseType `protobuf:"varint,1,opt,name=type,enum=Response_ResponseType" json:"type,omitempty"`
 	// Types that are valid to be assigned to Response:
-	//	*Response_RandomNumberResponse
+	//	*Response_RandomNumber
 	//	*Response_Error
 	Response isResponse_Response `protobuf_oneof:"response"`
 }
@@ -240,15 +181,15 @@ func (*Response) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4}
 
 type isResponse_Response interface{ isResponse_Response() }
 
-type Response_RandomNumberResponse struct {
-	RandomNumberResponse *RandomNumberResponse `protobuf:"bytes,2,opt,name=random_number_response,json=randomNumberResponse,oneof"`
+type Response_RandomNumber struct {
+	RandomNumber *RandomNumberResponse `protobuf:"bytes,1,opt,name=random_number,json=randomNumber,oneof"`
 }
 type Response_Error struct {
-	Error *Error `protobuf:"bytes,3,opt,name=error,oneof"`
+	Error *Error `protobuf:"bytes,2,opt,name=error,oneof"`
 }
 
-func (*Response_RandomNumberResponse) isResponse_Response() {}
-func (*Response_Error) isResponse_Response()                {}
+func (*Response_RandomNumber) isResponse_Response() {}
+func (*Response_Error) isResponse_Response()        {}
 
 func (m *Response) GetResponse() isResponse_Response {
 	if m != nil {
@@ -257,16 +198,9 @@ func (m *Response) GetResponse() isResponse_Response {
 	return nil
 }
 
-func (m *Response) GetType() Response_ResponseType {
-	if m != nil {
-		return m.Type
-	}
-	return Response_ERROR
-}
-
-func (m *Response) GetRandomNumberResponse() *RandomNumberResponse {
-	if x, ok := m.GetResponse().(*Response_RandomNumberResponse); ok {
-		return x.RandomNumberResponse
+func (m *Response) GetRandomNumber() *RandomNumberResponse {
+	if x, ok := m.GetResponse().(*Response_RandomNumber); ok {
+		return x.RandomNumber
 	}
 	return nil
 }
@@ -281,7 +215,7 @@ func (m *Response) GetError() *Error {
 // XXX_OneofFuncs is for the internal use of the proto package.
 func (*Response) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _Response_OneofMarshaler, _Response_OneofUnmarshaler, _Response_OneofSizer, []interface{}{
-		(*Response_RandomNumberResponse)(nil),
+		(*Response_RandomNumber)(nil),
 		(*Response_Error)(nil),
 	}
 }
@@ -290,13 +224,13 @@ func _Response_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 	m := msg.(*Response)
 	// response
 	switch x := m.Response.(type) {
-	case *Response_RandomNumberResponse:
-		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.RandomNumberResponse); err != nil {
+	case *Response_RandomNumber:
+		b.EncodeVarint(1<<3 | proto.WireBytes)
+		if err := b.EncodeMessage(x.RandomNumber); err != nil {
 			return err
 		}
 	case *Response_Error:
-		b.EncodeVarint(3<<3 | proto.WireBytes)
+		b.EncodeVarint(2<<3 | proto.WireBytes)
 		if err := b.EncodeMessage(x.Error); err != nil {
 			return err
 		}
@@ -310,15 +244,15 @@ func _Response_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 func _Response_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error) {
 	m := msg.(*Response)
 	switch tag {
-	case 2: // response.random_number_response
+	case 1: // response.random_number
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(RandomNumberResponse)
 		err := b.DecodeMessage(msg)
-		m.Response = &Response_RandomNumberResponse{msg}
+		m.Response = &Response_RandomNumber{msg}
 		return true, err
-	case 3: // response.error
+	case 2: // response.error
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
@@ -335,14 +269,14 @@ func _Response_OneofSizer(msg proto.Message) (n int) {
 	m := msg.(*Response)
 	// response
 	switch x := m.Response.(type) {
-	case *Response_RandomNumberResponse:
-		s := proto.Size(x.RandomNumberResponse)
-		n += proto.SizeVarint(2<<3 | proto.WireBytes)
+	case *Response_RandomNumber:
+		s := proto.Size(x.RandomNumber)
+		n += proto.SizeVarint(1<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case *Response_Error:
 		s := proto.Size(x.Error)
-		n += proto.SizeVarint(3<<3 | proto.WireBytes)
+		n += proto.SizeVarint(2<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
 	case nil:
@@ -354,38 +288,28 @@ func _Response_OneofSizer(msg proto.Message) (n int) {
 
 func init() {
 	proto.RegisterType((*Error)(nil), "Error")
-	proto.RegisterType((*RandomNumberRequest)(nil), "RandomNumberRequest")
 	proto.RegisterType((*RandomNumberResponse)(nil), "RandomNumberResponse")
+	proto.RegisterType((*RandomNumberRequest)(nil), "RandomNumberRequest")
 	proto.RegisterType((*Request)(nil), "Request")
 	proto.RegisterType((*Response)(nil), "Response")
-	proto.RegisterEnum("Request_RequestType", Request_RequestType_name, Request_RequestType_value)
-	proto.RegisterEnum("Response_ResponseType", Response_ResponseType_name, Response_ResponseType_value)
 }
 
 func init() { proto.RegisterFile("messages/hww.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 342 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x52, 0x4f, 0x4f, 0xfa, 0x40,
-	0x10, 0xed, 0x02, 0xe5, 0xcf, 0x83, 0x1f, 0x69, 0x96, 0x3f, 0xe9, 0xe9, 0x17, 0x52, 0x63, 0x42,
-	0x3c, 0xd4, 0x44, 0xe3, 0xc9, 0x13, 0x48, 0x43, 0x31, 0x42, 0xe3, 0x00, 0x67, 0x02, 0xb2, 0xd1,
-	0x0b, 0xb4, 0x6e, 0x21, 0x84, 0xcf, 0xe9, 0xc5, 0x8f, 0x63, 0xd8, 0xb6, 0xa4, 0x68, 0x4f, 0x9d,
-	0xbe, 0x79, 0x33, 0xf3, 0xde, 0xcc, 0x82, 0x6f, 0x44, 0x18, 0x2e, 0xdf, 0x45, 0x78, 0xfb, 0x71,
-	0x38, 0xd8, 0x81, 0xf4, 0x77, 0xbe, 0xf5, 0x00, 0xdd, 0x91, 0xd2, 0x97, 0x9c, 0xa3, 0xf0, 0xe6,
-	0xaf, 0x85, 0xc9, 0x3a, 0xac, 0xab, 0x93, 0x8a, 0xb9, 0x89, 0x52, 0x5c, 0x62, 0xe6, 0x3a, 0xac,
-	0x5b, 0xa1, 0xe4, 0xd7, 0x6a, 0xa1, 0x41, 0xcb, 0xed, 0xda, 0xdf, 0x4c, 0xf6, 0x9b, 0x95, 0x90,
-	0x24, 0x3e, 0xf7, 0x22, 0xdc, 0x59, 0x8f, 0x68, 0x5e, 0xc2, 0x61, 0xe0, 0x6f, 0x43, 0xc1, 0xaf,
-	0xf0, 0x4f, 0x2a, 0x7c, 0xb1, 0x55, 0x09, 0x35, 0xa5, 0x46, 0x35, 0x99, 0x22, 0x5b, 0x5f, 0x0c,
-	0xa5, 0xb8, 0x11, 0xef, 0xa2, 0xb0, 0x3b, 0x06, 0x91, 0x9a, 0xfa, 0x5d, 0xd3, 0x8e, 0xf1, 0xe4,
-	0x3b, 0x3b, 0x06, 0x82, 0x14, 0x83, 0x3f, 0xa3, 0x75, 0xd1, 0x7a, 0x21, 0x23, 0x8a, 0x52, 0x5c,
-	0x3d, 0x95, 0xfe, 0xd5, 0xe9, 0x6a, 0xd4, 0x90, 0x19, 0xf2, 0x87, 0xa8, 0xa6, 0x06, 0xf0, 0x32,
-	0x0a, 0xd3, 0xd1, 0x70, 0x62, 0x68, 0xbc, 0x0e, 0xf4, 0x3d, 0x6f, 0xf6, 0xe2, 0xf5, 0x06, 0x0e,
-	0x19, 0x8c, 0x73, 0xd4, 0xc9, 0x79, 0x9d, 0x8f, 0xc8, 0x99, 0x2e, 0x66, 0xde, 0xfc, 0xc9, 0x35,
-	0x72, 0x1c, 0x28, 0x52, 0x6f, 0x32, 0xf0, 0xc6, 0x46, 0xbe, 0x5f, 0x41, 0x29, 0x96, 0x61, 0x7d,
-	0x33, 0x94, 0xcf, 0x7b, 0xb8, 0xb9, 0xb0, 0xd5, 0xb6, 0x93, 0xc4, 0x39, 0x48, 0x19, 0x1b, 0xa3,
-	0xfd, 0xdb, 0x58, 0xc4, 0x89, 0x9d, 0xb5, 0xec, 0xac, 0x55, 0xbb, 0x1a, 0x35, 0x65, 0xd6, 0x09,
-	0xfe, 0x43, 0x17, 0xa7, 0x43, 0x9b, 0x79, 0x55, 0x5d, 0xb4, 0xd5, 0xd9, 0x5d, 0x8d, 0x22, 0xd8,
-	0xba, 0x46, 0x2d, 0x2d, 0x82, 0x57, 0xa0, 0x3b, 0x44, 0x1e, 0x19, 0x5a, 0xca, 0x19, 0xeb, 0x03,
-	0xe5, 0x44, 0xc7, 0xaa, 0xa8, 0x9e, 0xd0, 0xfd, 0x4f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x5a, 0x12,
-	0xe6, 0xd4, 0x58, 0x02, 0x00, 0x00,
+	// 216 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x90, 0x3f, 0x6b, 0x84, 0x40,
+	0x10, 0xc5, 0x35, 0xc4, 0x7f, 0xa3, 0x69, 0x36, 0x1a, 0xac, 0x82, 0x6c, 0x65, 0xb5, 0x01, 0x43,
+	0xaa, 0xa4, 0x12, 0x02, 0x56, 0x81, 0xec, 0x17, 0x08, 0x1a, 0x87, 0xa4, 0xd1, 0x35, 0xb3, 0x8a,
+	0x5f, 0x3f, 0xdc, 0xde, 0xde, 0xe1, 0x1d, 0x76, 0x33, 0x8f, 0x79, 0x3f, 0xde, 0x3c, 0x60, 0x03,
+	0x6a, 0xdd, 0xfe, 0xa0, 0x7e, 0xfa, 0x5d, 0x57, 0x31, 0x91, 0x9a, 0x15, 0x7f, 0x01, 0xef, 0x9d,
+	0x48, 0x11, 0x63, 0x70, 0xfb, 0xad, 0x7a, 0xcc, 0xdd, 0xc2, 0x2d, 0x3d, 0x69, 0x66, 0x96, 0x43,
+	0x60, 0x2d, 0xf9, 0x4d, 0xe1, 0x96, 0x91, 0x3c, 0xad, 0x5c, 0x40, 0x2a, 0xdb, 0xb1, 0x57, 0xc3,
+	0xc7, 0x32, 0x74, 0x48, 0x12, 0xf5, 0xa4, 0x46, 0x8d, 0xec, 0x01, 0xfc, 0xd1, 0x28, 0x86, 0x93,
+	0x48, 0xbb, 0xf1, 0x0c, 0xee, 0x2f, 0xef, 0xff, 0x16, 0xd4, 0x33, 0xff, 0x84, 0xc0, 0x8e, 0xec,
+	0x15, 0xee, 0xc8, 0x5c, 0x7c, 0x6d, 0x00, 0x71, 0x95, 0x8a, 0x1d, 0x5f, 0xe3, 0xc8, 0x84, 0x36,
+	0x72, 0x1d, 0x41, 0x40, 0x16, 0x39, 0x43, 0x78, 0x4e, 0xf3, 0xb6, 0xcf, 0xcc, 0xc4, 0x5e, 0xf6,
+	0x6b, 0x28, 0x7b, 0x04, 0x0f, 0x0f, 0xd5, 0x98, 0xdf, 0xe3, 0xca, 0x17, 0xa6, 0xa8, 0xc6, 0x91,
+	0x47, 0xb9, 0x06, 0x08, 0xc9, 0x7a, 0x3b, 0xdf, 0xb4, 0xf9, 0xfc, 0x1f, 0x00, 0x00, 0xff, 0xff,
+	0x1c, 0x13, 0x53, 0xf9, 0x63, 0x01, 0x00, 0x00,
 }

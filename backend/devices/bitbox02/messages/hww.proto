@@ -7,36 +7,22 @@ message Error {
     string message = 2;
 }
 
+message RandomNumberResponse {
+    bytes number = 1;
+}
+
 message RandomNumberRequest {
 }
 
-// max. size of bytes is defined in options.
-message RandomNumberResponse {
-    bytes random_number = 1;
-}
-
 message Request {
-    enum RequestType {
-        SIGN = 0;
-        BOOTLOADER = 1;
-// DON'T MOVE THE FOLLOWING ENUM
-        REQUIRES_TOUCH = 2;
-        RANDOM = 3;
-    }
-    RequestType type = 1;
     oneof request {
-        RandomNumberRequest random_number_request = 2;
+        RandomNumberRequest random_number = 1;
     }
 }
 
 message Response {
-    enum ResponseType {
-        ERROR = 0;
-        RANDOM = 1;
-    }
-    ResponseType type = 1;
     oneof response {
-        RandomNumberResponse random_number_response = 2;
-        Error error = 3;
+        RandomNumberResponse random_number = 1;
+        Error error = 2;
     }
 }
