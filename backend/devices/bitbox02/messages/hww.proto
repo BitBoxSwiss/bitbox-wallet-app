@@ -1,10 +1,13 @@
-// Request random number
+// Device intialization and Request random number
 
 syntax = "proto3";
 
 message Error {
     int32 code = 1;
     string message = 2;
+}
+
+message Success {
 }
 
 message RandomNumberResponse {
@@ -14,15 +17,41 @@ message RandomNumberResponse {
 message RandomNumberRequest {
 }
 
+message GetInfoRequest {
+}
+
+message GetInfoResponse {
+    string name = 1;
+    bool intialized = 2;
+}
+
+message SetDeviceNameRequest {
+    string name = 1;
+}
+
+message SetTimeRequest {
+    string time = 1;
+}
+
+message SetLanguageRequest {
+    string language = 1;
+}
+
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
+        SetDeviceNameRequest set_device_name = 2;
+        SetTimeRequest device_time = 3;
+        SetLanguageRequest device_language = 4;
+        GetInfoRequest device_info = 5;
     }
 }
 
 message Response {
     oneof response {
-        RandomNumberResponse random_number = 1;
+        Success success = 1;
         Error error = 2;
+        RandomNumberResponse random_number = 3;
+        GetInfoResponse device_info = 4;
     }
 }

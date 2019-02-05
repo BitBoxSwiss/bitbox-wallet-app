@@ -470,6 +470,10 @@
       }
     }
   },
+  "deviceinfo": {
+    "get-button": "Get Device Info",
+    "description": "Your BitBox02 Device Info:"
+  },
   "headerssync": {
     "blocksSynced": "{{blocks}} blocks synced"
   },

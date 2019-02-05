@@ -26,6 +26,7 @@ import (
 type BitBox02 interface {
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
+	GetInfo() (string, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -43,6 +44,7 @@ func NewHandlers(
 
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
+	handleFunc("/get-info", handlers.getDeviceInfo).Methods("POST")
 
 	return handlers
 }
@@ -67,6 +69,15 @@ func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface
 		return nil, err
 	}
 	return hex.EncodeToString(randomNumber), nil
+}
+
+func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Get Device Info")
+	deviceInfo, err := handlers.device.GetInfo()
+	if err != nil {
+		return "", err
+	}
+	return deviceInfo, nil
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {

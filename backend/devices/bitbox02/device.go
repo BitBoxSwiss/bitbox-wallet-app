@@ -186,6 +186,27 @@ func (device *Device) Random() ([]byte, error) {
 	return randomResponse.RandomNumber.Number, nil
 }
 
+// GetInfo retrieves the current device info from the bitbox
+func (device *Device) GetInfo() (string, error) {
+	request := &messages.Request{
+		Request: &messages.Request_DeviceInfo{
+			DeviceInfo: &messages.GetInfoRequest{},
+		},
+	}
+
+	response, err := device.query(request)
+	if err != nil {
+		return "", err
+	}
+
+	deviceInfo, ok := response.Response.(*messages.Response_DeviceInfo)
+	if !ok {
+		return "", errp.New("Failed to retrieve device name")
+	}
+
+	return deviceInfo.DeviceInfo.Name, nil
+}
+
 // ChannelHash returns the hashed handshake channel binding
 func (device *Device) ChannelHash() (string, bool) {
 	return device.channelHash, device.channelHashVerified != nil

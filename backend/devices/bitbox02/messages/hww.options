@@ -1,2 +1,6 @@
 RandomNumberResponse.number fixed_length:true max_size:16
+SetDeviceNameRequest.name max_size:128
+GetInfoResponse.name max_size:128
+SetTimeRequest.device_time fixed_length:true max_size:16
+SetLanguageRequest.device_language fixed_length:true max_size:16
 Error.message max_size:255
