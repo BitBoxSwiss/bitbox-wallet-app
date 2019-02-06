@@ -17,33 +17,34 @@ message RandomNumberResponse {
 message RandomNumberRequest {
 }
 
-message GetInfoRequest {
+message DeviceInfoRequest {
 }
 
-message GetInfoResponse {
+message DeviceInfoResponse {
     string name = 1;
     bool intialized = 2;
+    string version = 3;
 }
 
 message SetDeviceNameRequest {
     string name = 1;
 }
 
-message SetTimeRequest {
+message SetDeviceTimeRequest {
     string time = 1;
 }
 
-message SetLanguageRequest {
+message SetDeviceLanguageRequest {
     string language = 1;
 }
 
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
-        SetDeviceNameRequest set_device_name = 2;
-        SetTimeRequest device_time = 3;
-        SetLanguageRequest device_language = 4;
-        GetInfoRequest device_info = 5;
+        SetDeviceNameRequest device_name = 2;
+        SetDeviceTimeRequest device_time = 3;
+        SetDeviceLanguageRequest device_language = 4;
+        DeviceInfoRequest device_info = 5;
     }
 }
 
@@ -52,6 +53,6 @@ message Response {
         Success success = 1;
         Error error = 2;
         RandomNumberResponse random_number = 3;
-        GetInfoResponse device_info = 4;
+        DeviceInfoResponse device_info = 4;
     }
 }

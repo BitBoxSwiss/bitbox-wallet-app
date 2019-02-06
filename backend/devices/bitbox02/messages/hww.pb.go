@@ -12,11 +12,11 @@ It has these top-level messages:
 	Success
 	RandomNumberResponse
 	RandomNumberRequest
-	GetInfoRequest
-	GetInfoResponse
+	DeviceInfoRequest
+	DeviceInfoResponse
 	SetDeviceNameRequest
-	SetTimeRequest
-	SetLanguageRequest
+	SetDeviceTimeRequest
+	SetDeviceLanguageRequest
 	Request
 	Response
 */
@@ -93,36 +93,44 @@ func (m *RandomNumberRequest) String() string            { return proto.CompactT
 func (*RandomNumberRequest) ProtoMessage()               {}
 func (*RandomNumberRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
 
-type GetInfoRequest struct {
+type DeviceInfoRequest struct {
 }
 
-func (m *GetInfoRequest) Reset()                    { *m = GetInfoRequest{} }
-func (m *GetInfoRequest) String() string            { return proto.CompactTextString(m) }
-func (*GetInfoRequest) ProtoMessage()               {}
-func (*GetInfoRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
+func (m *DeviceInfoRequest) Reset()                    { *m = DeviceInfoRequest{} }
+func (m *DeviceInfoRequest) String() string            { return proto.CompactTextString(m) }
+func (*DeviceInfoRequest) ProtoMessage()               {}
+func (*DeviceInfoRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{4} }
 
-type GetInfoResponse struct {
+type DeviceInfoResponse struct {
 	Name       string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Intialized bool   `protobuf:"varint,2,opt,name=intialized" json:"intialized,omitempty"`
+	Version    string `protobuf:"bytes,3,opt,name=version" json:"version,omitempty"`
 }
 
-func (m *GetInfoResponse) Reset()                    { *m = GetInfoResponse{} }
-func (m *GetInfoResponse) String() string            { return proto.CompactTextString(m) }
-func (*GetInfoResponse) ProtoMessage()               {}
-func (*GetInfoResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
+func (m *DeviceInfoResponse) Reset()                    { *m = DeviceInfoResponse{} }
+func (m *DeviceInfoResponse) String() string            { return proto.CompactTextString(m) }
+func (*DeviceInfoResponse) ProtoMessage()               {}
+func (*DeviceInfoResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{5} }
 
-func (m *GetInfoResponse) GetName() string {
+func (m *DeviceInfoResponse) GetName() string {
 	if m != nil {
 		return m.Name
 	}
 	return ""
 }
 
-func (m *GetInfoResponse) GetIntialized() bool {
+func (m *DeviceInfoResponse) GetIntialized() bool {
 	if m != nil {
 		return m.Intialized
 	}
 	return false
+}
+
+func (m *DeviceInfoResponse) GetVersion() string {
+	if m != nil {
+		return m.Version
+	}
+	return ""
 }
 
 type SetDeviceNameRequest struct {
@@ -141,32 +149,32 @@ func (m *SetDeviceNameRequest) GetName() string {
 	return ""
 }
 
-type SetTimeRequest struct {
+type SetDeviceTimeRequest struct {
 	Time string `protobuf:"bytes,1,opt,name=time" json:"time,omitempty"`
 }
 
-func (m *SetTimeRequest) Reset()                    { *m = SetTimeRequest{} }
-func (m *SetTimeRequest) String() string            { return proto.CompactTextString(m) }
-func (*SetTimeRequest) ProtoMessage()               {}
-func (*SetTimeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
+func (m *SetDeviceTimeRequest) Reset()                    { *m = SetDeviceTimeRequest{} }
+func (m *SetDeviceTimeRequest) String() string            { return proto.CompactTextString(m) }
+func (*SetDeviceTimeRequest) ProtoMessage()               {}
+func (*SetDeviceTimeRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
-func (m *SetTimeRequest) GetTime() string {
+func (m *SetDeviceTimeRequest) GetTime() string {
 	if m != nil {
 		return m.Time
 	}
 	return ""
 }
 
-type SetLanguageRequest struct {
+type SetDeviceLanguageRequest struct {
 	Language string `protobuf:"bytes,1,opt,name=language" json:"language,omitempty"`
 }
 
-func (m *SetLanguageRequest) Reset()                    { *m = SetLanguageRequest{} }
-func (m *SetLanguageRequest) String() string            { return proto.CompactTextString(m) }
-func (*SetLanguageRequest) ProtoMessage()               {}
-func (*SetLanguageRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (m *SetDeviceLanguageRequest) Reset()                    { *m = SetDeviceLanguageRequest{} }
+func (m *SetDeviceLanguageRequest) String() string            { return proto.CompactTextString(m) }
+func (*SetDeviceLanguageRequest) ProtoMessage()               {}
+func (*SetDeviceLanguageRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
-func (m *SetLanguageRequest) GetLanguage() string {
+func (m *SetDeviceLanguageRequest) GetLanguage() string {
 	if m != nil {
 		return m.Language
 	}
@@ -176,7 +184,7 @@ func (m *SetLanguageRequest) GetLanguage() string {
 type Request struct {
 	// Types that are valid to be assigned to Request:
 	//	*Request_RandomNumber
-	//	*Request_SetDeviceName
+	//	*Request_DeviceName
 	//	*Request_DeviceTime
 	//	*Request_DeviceLanguage
 	//	*Request_DeviceInfo
@@ -193,21 +201,21 @@ type isRequest_Request interface{ isRequest_Request() }
 type Request_RandomNumber struct {
 	RandomNumber *RandomNumberRequest `protobuf:"bytes,1,opt,name=random_number,json=randomNumber,oneof"`
 }
-type Request_SetDeviceName struct {
-	SetDeviceName *SetDeviceNameRequest `protobuf:"bytes,2,opt,name=set_device_name,json=setDeviceName,oneof"`
+type Request_DeviceName struct {
+	DeviceName *SetDeviceNameRequest `protobuf:"bytes,2,opt,name=device_name,json=deviceName,oneof"`
 }
 type Request_DeviceTime struct {
-	DeviceTime *SetTimeRequest `protobuf:"bytes,3,opt,name=device_time,json=deviceTime,oneof"`
+	DeviceTime *SetDeviceTimeRequest `protobuf:"bytes,3,opt,name=device_time,json=deviceTime,oneof"`
 }
 type Request_DeviceLanguage struct {
-	DeviceLanguage *SetLanguageRequest `protobuf:"bytes,4,opt,name=device_language,json=deviceLanguage,oneof"`
+	DeviceLanguage *SetDeviceLanguageRequest `protobuf:"bytes,4,opt,name=device_language,json=deviceLanguage,oneof"`
 }
 type Request_DeviceInfo struct {
-	DeviceInfo *GetInfoRequest `protobuf:"bytes,5,opt,name=device_info,json=deviceInfo,oneof"`
+	DeviceInfo *DeviceInfoRequest `protobuf:"bytes,5,opt,name=device_info,json=deviceInfo,oneof"`
 }
 
 func (*Request_RandomNumber) isRequest_Request()   {}
-func (*Request_SetDeviceName) isRequest_Request()  {}
+func (*Request_DeviceName) isRequest_Request()     {}
 func (*Request_DeviceTime) isRequest_Request()     {}
 func (*Request_DeviceLanguage) isRequest_Request() {}
 func (*Request_DeviceInfo) isRequest_Request()     {}
@@ -226,28 +234,28 @@ func (m *Request) GetRandomNumber() *RandomNumberRequest {
 	return nil
 }
 
-func (m *Request) GetSetDeviceName() *SetDeviceNameRequest {
-	if x, ok := m.GetRequest().(*Request_SetDeviceName); ok {
-		return x.SetDeviceName
+func (m *Request) GetDeviceName() *SetDeviceNameRequest {
+	if x, ok := m.GetRequest().(*Request_DeviceName); ok {
+		return x.DeviceName
 	}
 	return nil
 }
 
-func (m *Request) GetDeviceTime() *SetTimeRequest {
+func (m *Request) GetDeviceTime() *SetDeviceTimeRequest {
 	if x, ok := m.GetRequest().(*Request_DeviceTime); ok {
 		return x.DeviceTime
 	}
 	return nil
 }
 
-func (m *Request) GetDeviceLanguage() *SetLanguageRequest {
+func (m *Request) GetDeviceLanguage() *SetDeviceLanguageRequest {
 	if x, ok := m.GetRequest().(*Request_DeviceLanguage); ok {
 		return x.DeviceLanguage
 	}
 	return nil
 }
 
-func (m *Request) GetDeviceInfo() *GetInfoRequest {
+func (m *Request) GetDeviceInfo() *DeviceInfoRequest {
 	if x, ok := m.GetRequest().(*Request_DeviceInfo); ok {
 		return x.DeviceInfo
 	}
@@ -258,7 +266,7 @@ func (m *Request) GetDeviceInfo() *GetInfoRequest {
 func (*Request) XXX_OneofFuncs() (func(msg proto.Message, b *proto.Buffer) error, func(msg proto.Message, tag, wire int, b *proto.Buffer) (bool, error), func(msg proto.Message) (n int), []interface{}) {
 	return _Request_OneofMarshaler, _Request_OneofUnmarshaler, _Request_OneofSizer, []interface{}{
 		(*Request_RandomNumber)(nil),
-		(*Request_SetDeviceName)(nil),
+		(*Request_DeviceName)(nil),
 		(*Request_DeviceTime)(nil),
 		(*Request_DeviceLanguage)(nil),
 		(*Request_DeviceInfo)(nil),
@@ -274,9 +282,9 @@ func _Request_OneofMarshaler(msg proto.Message, b *proto.Buffer) error {
 		if err := b.EncodeMessage(x.RandomNumber); err != nil {
 			return err
 		}
-	case *Request_SetDeviceName:
+	case *Request_DeviceName:
 		b.EncodeVarint(2<<3 | proto.WireBytes)
-		if err := b.EncodeMessage(x.SetDeviceName); err != nil {
+		if err := b.EncodeMessage(x.DeviceName); err != nil {
 			return err
 		}
 	case *Request_DeviceTime:
@@ -312,19 +320,19 @@ func _Request_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		err := b.DecodeMessage(msg)
 		m.Request = &Request_RandomNumber{msg}
 		return true, err
-	case 2: // request.set_device_name
+	case 2: // request.device_name
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
 		msg := new(SetDeviceNameRequest)
 		err := b.DecodeMessage(msg)
-		m.Request = &Request_SetDeviceName{msg}
+		m.Request = &Request_DeviceName{msg}
 		return true, err
 	case 3: // request.device_time
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(SetTimeRequest)
+		msg := new(SetDeviceTimeRequest)
 		err := b.DecodeMessage(msg)
 		m.Request = &Request_DeviceTime{msg}
 		return true, err
@@ -332,7 +340,7 @@ func _Request_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(SetLanguageRequest)
+		msg := new(SetDeviceLanguageRequest)
 		err := b.DecodeMessage(msg)
 		m.Request = &Request_DeviceLanguage{msg}
 		return true, err
@@ -340,7 +348,7 @@ func _Request_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffer
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(GetInfoRequest)
+		msg := new(DeviceInfoRequest)
 		err := b.DecodeMessage(msg)
 		m.Request = &Request_DeviceInfo{msg}
 		return true, err
@@ -358,8 +366,8 @@ func _Request_OneofSizer(msg proto.Message) (n int) {
 		n += proto.SizeVarint(1<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
-	case *Request_SetDeviceName:
-		s := proto.Size(x.SetDeviceName)
+	case *Request_DeviceName:
+		s := proto.Size(x.DeviceName)
 		n += proto.SizeVarint(2<<3 | proto.WireBytes)
 		n += proto.SizeVarint(uint64(s))
 		n += s
@@ -411,7 +419,7 @@ type Response_RandomNumber struct {
 	RandomNumber *RandomNumberResponse `protobuf:"bytes,3,opt,name=random_number,json=randomNumber,oneof"`
 }
 type Response_DeviceInfo struct {
-	DeviceInfo *GetInfoResponse `protobuf:"bytes,4,opt,name=device_info,json=deviceInfo,oneof"`
+	DeviceInfo *DeviceInfoResponse `protobuf:"bytes,4,opt,name=device_info,json=deviceInfo,oneof"`
 }
 
 func (*Response_Success) isResponse_Response()      {}
@@ -447,7 +455,7 @@ func (m *Response) GetRandomNumber() *RandomNumberResponse {
 	return nil
 }
 
-func (m *Response) GetDeviceInfo() *GetInfoResponse {
+func (m *Response) GetDeviceInfo() *DeviceInfoResponse {
 	if x, ok := m.GetResponse().(*Response_DeviceInfo); ok {
 		return x.DeviceInfo
 	}
@@ -526,7 +534,7 @@ func _Response_OneofUnmarshaler(msg proto.Message, tag, wire int, b *proto.Buffe
 		if wire != proto.WireBytes {
 			return true, proto.ErrInternalBadWireType
 		}
-		msg := new(GetInfoResponse)
+		msg := new(DeviceInfoResponse)
 		err := b.DecodeMessage(msg)
 		m.Response = &Response_DeviceInfo{msg}
 		return true, err
@@ -571,11 +579,11 @@ func init() {
 	proto.RegisterType((*Success)(nil), "Success")
 	proto.RegisterType((*RandomNumberResponse)(nil), "RandomNumberResponse")
 	proto.RegisterType((*RandomNumberRequest)(nil), "RandomNumberRequest")
-	proto.RegisterType((*GetInfoRequest)(nil), "GetInfoRequest")
-	proto.RegisterType((*GetInfoResponse)(nil), "GetInfoResponse")
+	proto.RegisterType((*DeviceInfoRequest)(nil), "DeviceInfoRequest")
+	proto.RegisterType((*DeviceInfoResponse)(nil), "DeviceInfoResponse")
 	proto.RegisterType((*SetDeviceNameRequest)(nil), "SetDeviceNameRequest")
-	proto.RegisterType((*SetTimeRequest)(nil), "SetTimeRequest")
-	proto.RegisterType((*SetLanguageRequest)(nil), "SetLanguageRequest")
+	proto.RegisterType((*SetDeviceTimeRequest)(nil), "SetDeviceTimeRequest")
+	proto.RegisterType((*SetDeviceLanguageRequest)(nil), "SetDeviceLanguageRequest")
 	proto.RegisterType((*Request)(nil), "Request")
 	proto.RegisterType((*Response)(nil), "Response")
 }
@@ -583,33 +591,33 @@ func init() {
 func init() { proto.RegisterFile("messages/hww.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 440 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x6c, 0x53, 0xc1, 0x4e, 0xdc, 0x30,
-	0x10, 0xcd, 0x2e, 0xbb, 0x9b, 0xec, 0x00, 0x1b, 0x64, 0x96, 0x2a, 0xea, 0x01, 0x21, 0x8b, 0x03,
-	0xea, 0xc1, 0xad, 0x40, 0x3d, 0xb5, 0x6a, 0xa5, 0xaa, 0xa8, 0xa9, 0x54, 0x71, 0x70, 0x7a, 0x5f,
-	0x85, 0x64, 0xd8, 0x46, 0x22, 0x36, 0xb5, 0x9d, 0x22, 0xf5, 0xd3, 0xfa, 0x13, 0xfd, 0x25, 0x14,
-	0xc7, 0x09, 0xc9, 0x92, 0x9b, 0xfd, 0xfc, 0x66, 0xec, 0xf7, 0xe6, 0x19, 0x48, 0x89, 0x5a, 0xa7,
-	0x5b, 0xd4, 0x6f, 0x7f, 0x3d, 0x3e, 0xb2, 0x07, 0x25, 0x8d, 0xa4, 0xef, 0x61, 0x7e, 0xad, 0x94,
-	0x54, 0x84, 0xc0, 0x2c, 0x93, 0x39, 0x46, 0x93, 0xb3, 0xc9, 0xc5, 0x9c, 0xdb, 0x35, 0x89, 0xc0,
-	0x77, 0x25, 0xd1, 0xf4, 0x6c, 0x72, 0xb1, 0xe4, 0xed, 0x96, 0x2e, 0xc1, 0x4f, 0xaa, 0x2c, 0x43,
-	0xad, 0x29, 0x83, 0x35, 0x4f, 0x45, 0x2e, 0xcb, 0x9b, 0xaa, 0xbc, 0x45, 0xc5, 0x51, 0x3f, 0x48,
-	0xa1, 0x91, 0xbc, 0x82, 0x85, 0xb0, 0x88, 0x6d, 0x79, 0xc0, 0xdd, 0x8e, 0x9e, 0xc0, 0xf1, 0x90,
-	0xff, 0xbb, 0x42, 0x6d, 0xe8, 0x11, 0xac, 0xbe, 0xa1, 0xf9, 0x2e, 0xee, 0x64, 0x8b, 0x5c, 0x43,
-	0xd8, 0x21, 0xae, 0x27, 0x81, 0x99, 0x48, 0xcb, 0xe6, 0x91, 0x4b, 0x6e, 0xd7, 0xe4, 0x14, 0xa0,
-	0x10, 0xa6, 0x48, 0xef, 0x8b, 0xbf, 0x98, 0xdb, 0x77, 0x06, 0xbc, 0x87, 0xd0, 0x37, 0xb0, 0x4e,
-	0xd0, 0x7c, 0xc5, 0x3f, 0x45, 0x86, 0x37, 0x69, 0x89, 0xae, 0xfd, 0x58, 0x2f, 0x7a, 0x0e, 0xab,
-	0x04, 0xcd, 0xcf, 0x62, 0xc0, 0x32, 0xc5, 0x33, 0xab, 0x5e, 0xd3, 0x77, 0x40, 0x12, 0x34, 0x3f,
-	0x52, 0xb1, 0xad, 0xd2, 0x6d, 0xc7, 0x7c, 0x0d, 0xc1, 0xbd, 0x83, 0x1c, 0xbb, 0xdb, 0xd3, 0x7f,
-	0x53, 0xf0, 0x5b, 0xde, 0x07, 0x38, 0x54, 0x56, 0xff, 0xa6, 0x67, 0xcf, 0xfe, 0xe5, 0x9a, 0x8d,
-	0xb8, 0x12, 0x7b, 0xfc, 0x40, 0xf5, 0x60, 0xf2, 0x19, 0x42, 0x8d, 0x66, 0x93, 0x5b, 0x35, 0x1b,
-	0xfb, 0xfe, 0xa9, 0x2d, 0x3f, 0x61, 0x63, 0x22, 0x63, 0x8f, 0x1f, 0xea, 0x3e, 0x4e, 0x2e, 0x61,
-	0xdf, 0x15, 0x5b, 0x59, 0x7b, 0xb6, 0x38, 0x64, 0x43, 0xd5, 0xb1, 0xc7, 0xa1, 0x61, 0xd5, 0x20,
-	0xf9, 0x04, 0xa1, 0xab, 0xe9, 0x04, 0xce, 0x6c, 0xdd, 0x31, 0x7b, 0xe9, 0x43, 0xec, 0xf1, 0x55,
-	0xc3, 0x6e, 0x0f, 0x7a, 0x77, 0x16, 0xe2, 0x4e, 0x46, 0x73, 0x77, 0xe7, 0x70, 0xdc, 0xcf, 0x77,
-	0xd6, 0xe0, 0x97, 0x25, 0xf8, 0xca, 0xe5, 0xe0, 0xff, 0x04, 0x82, 0x2e, 0x01, 0xe7, 0xe0, 0xeb,
-	0x26, 0x78, 0xce, 0xb7, 0x80, 0xb9, 0x20, 0xc6, 0x1e, 0x6f, 0x8f, 0xc8, 0x29, 0xcc, 0xb1, 0x4e,
-	0xb5, 0x33, 0x67, 0xc1, 0x6c, 0xc6, 0x63, 0x8f, 0x37, 0x30, 0xf9, 0xb8, 0x3b, 0x83, 0x3d, 0x67,
-	0xe2, 0x58, 0x92, 0x5f, 0x0c, 0xe1, 0x6a, 0xa8, 0xa7, 0xf1, 0xe2, 0x88, 0xed, 0x84, 0x75, 0x47,
-	0x10, 0x40, 0xa0, 0xdc, 0xc9, 0xed, 0xc2, 0xfe, 0xbd, 0xab, 0xa7, 0x00, 0x00, 0x00, 0xff, 0xff,
-	0x33, 0xd0, 0x55, 0x39, 0x91, 0x03, 0x00, 0x00,
+	// 439 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x74, 0x53, 0xc1, 0x8e, 0xd3, 0x30,
+	0x14, 0x4c, 0xba, 0x4d, 0x93, 0xbc, 0x5d, 0x40, 0xb8, 0x5d, 0x14, 0x38, 0xac, 0x56, 0x16, 0x87,
+	0x15, 0x07, 0x23, 0x81, 0x76, 0x85, 0x04, 0x27, 0xb4, 0x48, 0x41, 0x42, 0x3d, 0xb8, 0xdc, 0xab,
+	0x34, 0x71, 0x8b, 0xa5, 0xc6, 0x2e, 0x76, 0xd2, 0x4a, 0x7c, 0x1e, 0x9f, 0xc0, 0x17, 0xa1, 0x38,
+	0x4e, 0x9a, 0xb4, 0xd9, 0x9b, 0xdf, 0xf8, 0x8d, 0x9f, 0x67, 0x3c, 0x06, 0x94, 0x33, 0xad, 0x93,
+	0x0d, 0xd3, 0xef, 0x7f, 0x1d, 0x0e, 0x64, 0xa7, 0x64, 0x21, 0xf1, 0x3d, 0x78, 0xdf, 0x94, 0x92,
+	0x0a, 0x21, 0x18, 0xa7, 0x32, 0x63, 0x91, 0x7b, 0xeb, 0xde, 0x79, 0xd4, 0xac, 0x51, 0x04, 0xbe,
+	0xa5, 0x44, 0xa3, 0x5b, 0xf7, 0x2e, 0xa4, 0x4d, 0x89, 0x43, 0xf0, 0x17, 0x65, 0x9a, 0x32, 0xad,
+	0x31, 0x81, 0x19, 0x4d, 0x44, 0x26, 0xf3, 0x79, 0x99, 0xaf, 0x98, 0xa2, 0x4c, 0xef, 0xa4, 0xd0,
+	0x0c, 0xbd, 0x82, 0x89, 0x30, 0x88, 0x39, 0xf2, 0x8a, 0xda, 0x0a, 0x5f, 0xc3, 0xb4, 0xdf, 0xff,
+	0xbb, 0x64, 0xba, 0xc0, 0x53, 0x78, 0xf9, 0xc8, 0xf6, 0x3c, 0x65, 0xdf, 0xc5, 0x5a, 0x36, 0xe0,
+	0x0a, 0x50, 0x17, 0xb4, 0x27, 0x23, 0x18, 0x8b, 0x24, 0xaf, 0xaf, 0x1a, 0x52, 0xb3, 0x46, 0x37,
+	0x00, 0x5c, 0x14, 0x3c, 0xd9, 0xf2, 0x3f, 0x2c, 0x33, 0xb7, 0x0d, 0x68, 0x07, 0xa9, 0xa4, 0xec,
+	0x99, 0xd2, 0x5c, 0x8a, 0xe8, 0xa2, 0x96, 0x62, 0x4b, 0xfc, 0x0e, 0x66, 0x0b, 0x56, 0xd4, 0x63,
+	0xe6, 0x49, 0xce, 0xec, 0xec, 0xa1, 0x29, 0xbd, 0xde, 0x9f, 0xbc, 0xd7, 0x5b, 0xf0, 0x63, 0x6f,
+	0xb5, 0xc6, 0x0f, 0x10, 0xb5, 0xbd, 0x3f, 0x12, 0xb1, 0x29, 0x93, 0x4d, 0xdb, 0xff, 0x06, 0x82,
+	0xad, 0x85, 0x2c, 0xa7, 0xad, 0xf1, 0xdf, 0x11, 0xf8, 0x4d, 0xdf, 0x67, 0x78, 0xa6, 0x8c, 0x57,
+	0xcb, 0x8e, 0x95, 0x97, 0x1f, 0x66, 0x64, 0xc0, 0xc1, 0xd8, 0xa1, 0x57, 0xaa, 0x03, 0xa3, 0x4f,
+	0x70, 0x99, 0x99, 0xe9, 0x4b, 0xa3, 0x63, 0x64, 0xa8, 0xd7, 0x64, 0x48, 0x6c, 0xec, 0x50, 0xc8,
+	0x5a, 0xb0, 0xc3, 0x34, 0xaa, 0x2e, 0x4e, 0x99, 0x1d, 0xe9, 0x47, 0x66, 0x05, 0xa2, 0x47, 0x78,
+	0x61, 0x99, 0xad, 0xbe, 0xb1, 0x61, 0xbf, 0x26, 0x4f, 0x99, 0x11, 0x3b, 0xf4, 0x79, 0xd6, 0xdb,
+	0x40, 0xf7, 0xed, 0x7c, 0x2e, 0xd6, 0x32, 0xf2, 0xcc, 0x09, 0x88, 0x9c, 0xe5, 0xe3, 0x38, 0xbc,
+	0x02, 0xbf, 0x86, 0xe0, 0x2b, 0x1b, 0x9c, 0x7f, 0x2e, 0x04, 0x6d, 0x5e, 0xde, 0x82, 0xaf, 0xeb,
+	0xb0, 0x5a, 0xff, 0x02, 0x62, 0xc3, 0x1b, 0x3b, 0xb4, 0xd9, 0x42, 0x37, 0xe0, 0xb1, 0xea, 0x27,
+	0x58, 0xa3, 0x26, 0xc4, 0xfc, 0x8b, 0xd8, 0xa1, 0x35, 0x8c, 0xbe, 0x9c, 0xbe, 0x45, 0x63, 0xcb,
+	0x50, 0xfa, 0xcf, 0x1e, 0xe3, 0xa1, 0x2f, 0xa9, 0x36, 0x65, 0x4a, 0xce, 0xd3, 0x7d, 0xa2, 0x09,
+	0x20, 0x50, 0x76, 0x67, 0x35, 0x31, 0x5f, 0xf6, 0xe3, 0xff, 0x00, 0x00, 0x00, 0xff, 0xff, 0xf5,
+	0x0e, 0xb1, 0xc8, 0xc8, 0x03, 0x00, 0x00,
 }

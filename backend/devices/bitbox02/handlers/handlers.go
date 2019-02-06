@@ -16,8 +16,10 @@ package handlers
 
 import (
 	"encoding/hex"
+	"encoding/json"
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -27,6 +29,7 @@ type BitBox02 interface {
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
 	GetInfo() (string, error)
+	SetName(deviceName string) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -45,6 +48,7 @@ func NewHandlers(
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/get-info", handlers.getDeviceInfo).Methods("POST")
+	handleFunc("/set-name", handlers.postSetDeviceName).Methods("POST")
 
 	return handlers
 }
@@ -78,6 +82,21 @@ func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
 		return "", err
 	}
 	return deviceInfo, nil
+}
+
+func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error) {
+	jsonBody := map[string]string{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	deviceName := jsonBody["name"]
+	err := handlers.device.SetName(deviceName)
+	// TODO: Pass error code from protobuf and wrap in go error
+	if err != nil {
+		return map[string]interface{}{"success": false}, nil
+	}
+	return map[string]interface{}{"success": true}, nil
+
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {

@@ -186,11 +186,33 @@ func (device *Device) Random() ([]byte, error) {
 	return randomResponse.RandomNumber.Number, nil
 }
 
+// SetName sends a request to the device using protobuf to set the device name
+func (device *Device) SetName(deviceName string) error {
+	request := &messages.Request{
+		Request: &messages.Request_DeviceName{
+			DeviceName: &messages.SetDeviceNameRequest{
+				Name: deviceName},
+		},
+	}
+
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("Failed to set device name")
+	}
+
+	return nil
+}
+
 // GetInfo retrieves the current device info from the bitbox
 func (device *Device) GetInfo() (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_DeviceInfo{
-			DeviceInfo: &messages.GetInfoRequest{},
+			DeviceInfo: &messages.DeviceInfoRequest{},
 		},
 	}
 

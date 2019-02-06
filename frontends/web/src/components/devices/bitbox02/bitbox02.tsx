@@ -15,8 +15,9 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import DeviceInfo from '../../../routes/device/settings/components/devicename';
+import DeviceInfo from '../../../routes/device/settings/components/deviceinfo';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
+import SetDeviceName from '../../../routes/device/settings/components/setdevicename';
 import { apiGet } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { Button } from '../../forms';
@@ -58,6 +59,7 @@ class BitBox02 extends Component<Props, {}> {
                 <span>Hello BitBox02</span>
                 <RandomNumber apiPrefix={'devices/bitbox02/' + deviceID} />
                 <DeviceInfo apiPrefix={'devices/bitbox02/' + deviceID} />
+                <SetDeviceName apiPrefix={'devices/bitbox02/' + deviceID} />
                 {
                     !verified ? (
                         <Dialog onClose={this.abort}>
