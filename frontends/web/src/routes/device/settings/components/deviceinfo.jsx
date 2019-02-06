@@ -28,7 +28,7 @@ export default class DeviceInfo extends Component {
         super(props);
         this.state = {
             active: false,
-            deviceInfo: 0,
+            deviceInfo: undefined,
         };
     }
 
@@ -36,7 +36,7 @@ export default class DeviceInfo extends Component {
         apiGet(this.props.apiPrefix + '/get-info').then(info => {
             this.setState({
                 active: true,
-                deviceInfo: info,
+                deviceInfo: info
             });
         });
     }
@@ -58,7 +58,8 @@ export default class DeviceInfo extends Component {
                     active ? (
                         <Dialog onClose={this.abort}>
                             <p>{t('deviceinfo.description')}</p>
-                            <CopyableInput value={deviceInfo} />
+                            <CopyableInput value={deviceInfo.name} />
+                            <CopyableInput value={deviceInfo.version} />
                             <div class="flex flex-row flex-end flex-items-center">
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>
                             </div>

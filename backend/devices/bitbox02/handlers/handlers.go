@@ -19,6 +19,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -28,7 +29,7 @@ import (
 type BitBox02 interface {
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
-	DeviceInfo() (string, error)
+	DeviceInfo() (*bitbox02.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 }
 

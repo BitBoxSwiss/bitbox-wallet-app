@@ -39,6 +39,12 @@ type Device struct {
 	log                       *logrus.Entry
 }
 
+// DeviceInfo is the data returned from the device info api call.
+type DeviceInfo struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	deviceID string,
@@ -209,7 +215,7 @@ func (device *Device) SetDeviceName(deviceName string) error {
 }
 
 // DeviceInfo retrieves the current device info from the bitbox
-func (device *Device) DeviceInfo() (string, error) {
+func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	request := &messages.Request{
 		Request: &messages.Request_DeviceInfo{
 			DeviceInfo: &messages.DeviceInfoRequest{},
@@ -218,15 +224,20 @@ func (device *Device) DeviceInfo() (string, error) {
 
 	response, err := device.query(request)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	deviceInfo, ok := response.Response.(*messages.Response_DeviceInfo)
+	deviceInfoResponse, ok := response.Response.(*messages.Response_DeviceInfo)
 	if !ok {
-		return "", errp.New("Failed to retrieve device name")
+		return nil, errp.New("Failed to retrieve device info")
 	}
 
-	return deviceInfo.DeviceInfo.Name, nil
+	deviceInfo := &DeviceInfo{
+		Name:    deviceInfoResponse.DeviceInfo.Name,
+		Version: deviceInfoResponse.DeviceInfo.Version,
+	}
+
+	return deviceInfo, nil
 }
 
 // ChannelHash returns the hashed handshake channel binding
