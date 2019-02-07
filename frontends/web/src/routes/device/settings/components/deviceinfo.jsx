@@ -17,7 +17,7 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../../components/forms';
-import { apiPost } from '../../../../utils/request';
+import { apiGet } from '../../../../utils/request';
 import { Dialog } from '../../../../components/dialog/dialog';
 import { CopyableInput } from '../../../../components/copy/Copy';
 
@@ -33,7 +33,7 @@ export default class DeviceInfo extends Component {
     }
 
     getDeviceInfo = () => {
-        apiPost(this.props.apiPrefix + '/get-info').then(info => {
+        apiGet(this.props.apiPrefix + '/get-info').then(info => {
             this.setState({
                 active: true,
                 deviceInfo: info,

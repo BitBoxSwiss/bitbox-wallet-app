@@ -19,6 +19,7 @@ import { translate } from 'react-i18next';
 import { Button, Input } from '../../../../components/forms';
 import { apiPost } from '../../../../utils/request';
 import { Dialog } from '../../../../components/dialog/dialog';
+import { alertUser } from '../../../../components/alert/Alert';
 
 @translate()
 export default class SetDeviceName extends Component {
@@ -31,11 +32,14 @@ export default class SetDeviceName extends Component {
     }
 
     setName = () => {
-        apiPost(this.props.apiPrefix + '/set-name', { name: this.state.deviceName }).then(result => {
+        apiPost(this.props.apiPrefix + '/set-device-name', { name: this.state.deviceName }).then(result => {
             if (result.success) {
                 this.setState({
                     active: false,
                 });
+            } else {
+                // @ts-ignore
+                alertUser('Device name could not be set');
             }
         });
     }

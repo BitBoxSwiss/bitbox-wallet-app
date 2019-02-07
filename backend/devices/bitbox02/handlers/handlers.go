@@ -28,8 +28,8 @@ import (
 type BitBox02 interface {
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
-	GetInfo() (string, error)
-	SetName(deviceName string) error
+	DeviceInfo() (string, error)
+	SetDeviceName(deviceName string) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -47,8 +47,8 @@ func NewHandlers(
 
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
-	handleFunc("/get-info", handlers.getDeviceInfo).Methods("POST")
-	handleFunc("/set-name", handlers.postSetDeviceName).Methods("POST")
+	handleFunc("/get-info", handlers.getDeviceInfo).Methods("GET")
+	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 
 	return handlers
 }
@@ -77,7 +77,7 @@ func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface
 
 func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Get Device Info")
-	deviceInfo, err := handlers.device.GetInfo()
+	deviceInfo, err := handlers.device.DeviceInfo()
 	if err != nil {
 		return "", err
 	}
@@ -90,7 +90,7 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	deviceName := jsonBody["name"]
-	err := handlers.device.SetName(deviceName)
+	err := handlers.device.SetDeviceName(deviceName)
 	// TODO: Pass error code from protobuf and wrap in go error
 	if err != nil {
 		return map[string]interface{}{"success": false}, nil
