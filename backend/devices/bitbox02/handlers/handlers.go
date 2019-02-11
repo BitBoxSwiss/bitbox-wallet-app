@@ -67,11 +67,23 @@ func (handlers *Handlers) Uninit() {
 	handlers.device = nil
 }
 
+func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
+	result := map[string]interface{}{"success": false}
+
+	if bb02Error, ok := errp.Cause(err).(*bitbox02.Error); ok {
+		result["code"] = bb02Error.Code
+		result["message"] = bb02Error.Message
+		log.WithField("bitbox02-error", bb02Error.Code).Warning("Received an error from Bitbox02")
+	}
+
+	return result
+}
+
 func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Random Number")
 	randomNumber, err := handlers.device.Random()
 	if err != nil {
-		return nil, err
+		return maybeBB02Err(err, handlers.log), nil
 	}
 	return hex.EncodeToString(randomNumber), nil
 }
@@ -80,7 +92,7 @@ func (handlers *Handlers) getDeviceInfo(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Get Device Info")
 	deviceInfo, err := handlers.device.DeviceInfo()
 	if err != nil {
-		return "", err
+		return maybeBB02Err(err, handlers.log), nil
 	}
 	return deviceInfo, nil
 }
@@ -91,10 +103,8 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	deviceName := jsonBody["name"]
-	err := handlers.device.SetDeviceName(deviceName)
-	// TODO: Pass error code from protobuf and wrap in go error
-	if err != nil {
-		return map[string]interface{}{"success": false}, nil
+	if err := handlers.device.SetDeviceName(deviceName); err != nil {
+		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
 

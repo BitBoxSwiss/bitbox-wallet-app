@@ -168,6 +168,11 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if err := proto.Unmarshal(responseBytesDecrypted, response); err != nil {
 		return nil, errp.WithStack(err)
 	}
+
+	if errorResponse, ok := response.Response.(*messages.Response_Error); ok {
+		return nil, errp.WithStack(NewError(errorResponse.Error.Code, errorResponse.Error.Message))
+	}
+
 	return response, nil
 }
 
