@@ -60,6 +60,7 @@ export default class DeviceInfo extends Component {
                             <p>{t('deviceinfo.description')}</p>
                             <CopyableInput value={deviceInfo.name} />
                             <CopyableInput value={deviceInfo.version} />
+                            <CopyableInput value={deviceInfo.initialized} />
                             <div class="flex flex-row flex-end flex-items-center">
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>
                             </div>
