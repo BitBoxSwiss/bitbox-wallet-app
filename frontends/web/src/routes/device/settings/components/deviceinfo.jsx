@@ -33,10 +33,10 @@ export default class DeviceInfo extends Component {
     }
 
     getDeviceInfo = () => {
-        apiGet(this.props.apiPrefix + '/get-info').then(info => {
+        apiGet(this.props.apiPrefix + '/device-info').then(deviceInfo => {
             this.setState({
                 active: true,
-                deviceInfo: info
+                deviceInfo,
             });
         });
     }
@@ -44,7 +44,7 @@ export default class DeviceInfo extends Component {
     abort = () => {
         this.setState({
             active: false,
-            deviceInfo: 0,
+            deviceInfo: undefined,
         });
     }
 
@@ -52,7 +52,7 @@ export default class DeviceInfo extends Component {
         return (
             <div>
                 <Button primary onClick={this.getDeviceInfo}>
-                    {t('deviceinfo.get-button')}
+                    Get Info
                 </Button>
                 {
                     active ? (

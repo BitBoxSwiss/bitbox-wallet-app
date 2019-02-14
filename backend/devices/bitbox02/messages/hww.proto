@@ -22,7 +22,7 @@ message DeviceInfoRequest {
 
 message DeviceInfoResponse {
     string name = 1;
-    bool intialized = 2;
+    bool initialized = 2;
     string version = 3;
 }
 
@@ -38,6 +38,16 @@ message SetDeviceLanguageRequest {
     string language = 1;
 }
 
+message SetPasswordRequest {
+}
+
+message CreateBackupRequest {
+  // TODO add backup creation args
+}
+
+message ShowMnemonicRequest {
+}
+
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
@@ -45,6 +55,9 @@ message Request {
         SetDeviceTimeRequest device_time = 3;
         SetDeviceLanguageRequest device_language = 4;
         DeviceInfoRequest device_info = 5;
+        SetPasswordRequest set_password = 6;
+        CreateBackupRequest create_backup = 7;
+        ShowMnemonicRequest show_mnemonic = 8;
     }
 }
 

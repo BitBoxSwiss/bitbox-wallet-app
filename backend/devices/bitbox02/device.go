@@ -3,8 +3,10 @@ package bitbox02
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -28,15 +30,28 @@ type Communication interface {
 	Close()
 }
 
+const (
+	// EventChannelHashChanged is fired when the return values of ChannelHash() change.
+	EventChannelHashChanged device.Event = "channelHashChanged"
+
+	// EventStatusChanged is fired when the status changes. Check the status using Status().
+	EventStatusChanged device.Event = "statusChanged"
+)
+
 // Device provides the API to communicate with the BitBox02.
 type Device struct {
 	deviceID                  string
 	communication             Communication
 	channelHash               string
-	channelHashVerified       *bool
+	channelHashAppVerified    bool
+	channelHashDeviceVerified bool
 	sendCipher, receiveCipher *noise.CipherState
-	onEvent                   func(devicepkg.Event, interface{})
-	log                       *logrus.Entry
+
+	status Status
+
+	mu      sync.RWMutex
+	onEvent func(devicepkg.Event, interface{})
+	log     *logrus.Entry
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -58,7 +73,8 @@ func NewDevice(
 	return &Device{
 		deviceID:      deviceID,
 		communication: communication,
-		log:           log,
+		status:        StatusUnpaired,
+		log:           log.WithField("deviceID", deviceID),
 	}
 }
 
@@ -113,11 +129,41 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame(string(msg)); err != nil {
 		panic(err)
 	}
-	_, err = device.communication.ReadFrame()
-	if err != nil {
-		panic(err)
-	}
 	device.channelHash = hex.EncodeToString(handshake.ChannelBinding()[:8])
+	go func() {
+		response, err := device.communication.ReadFrame()
+		if err != nil {
+			panic(err)
+		}
+		device.channelHashDeviceVerified = string(response) == "ACCEPTED!"
+		if device.channelHashDeviceVerified {
+			device.channelHashDeviceVerified = true
+			device.fireEvent(EventChannelHashChanged)
+		} else {
+			device.sendCipher = nil
+			device.receiveCipher = nil
+			device.channelHash = ""
+			device.channelHashDeviceVerified = false
+			device.changeStatus(StatusPairingFailed)
+		}
+	}()
+}
+
+func (device *Device) changeStatus(status Status) {
+	device.status = status
+	device.fireEvent(EventStatusChanged)
+	switch device.Status() {
+	case StatusUnlocked:
+		device.fireEvent(devicepkg.EventKeystoreAvailable)
+	case StatusUninitialized:
+		device.fireEvent(devicepkg.EventKeystoreGone)
+	}
+}
+
+// Status returns the device state. See the Status* constants.
+func (device *Device) Status() Status {
+	defer device.log.WithField("status", device.status).Debug("Device status")
+	return device.status
 }
 
 // ProductName implements device.Device.
@@ -137,7 +183,21 @@ func (device *Device) KeystoreForConfiguration(configuration *signing.Configurat
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(devicepkg.Event, interface{})) {
+	device.mu.Lock()
+	defer device.mu.Unlock()
 	device.onEvent = onEvent
+}
+
+// fireEvent calls device.onEvent callback if non-nil.
+// It blocks for the entire duration of the call.
+// The read-only lock is released before calling device.onEvent.
+func (device *Device) fireEvent(event device.Event) {
+	device.mu.RLock()
+	f := device.onEvent
+	device.mu.RUnlock()
+	if f != nil {
+		f(event, nil)
+	}
 }
 
 // Close implements device.Device.
@@ -203,7 +263,8 @@ func (device *Device) SetDeviceName(deviceName string) error {
 	request := &messages.Request{
 		Request: &messages.Request_DeviceName{
 			DeviceName: &messages.SetDeviceNameRequest{
-				Name: deviceName},
+				Name: deviceName,
+			},
 		},
 	}
 
@@ -241,18 +302,84 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	deviceInfo := &DeviceInfo{
 		Name:        deviceInfoResponse.DeviceInfo.Name,
 		Version:     deviceInfoResponse.DeviceInfo.Version,
-		Initialized: deviceInfoResponse.DeviceInfo.Intialized,
+		Initialized: deviceInfoResponse.DeviceInfo.Initialized,
 	}
 
 	return deviceInfo, nil
 }
 
+// SetPassword invokes the set password workflow on the device. Should be called only if
+// deviceInfo.Initialized is false.
+func (device *Device) SetPassword() error {
+	if device.status != StatusUninitialized {
+		return errp.New("invalid status")
+	}
+	request := &messages.Request{
+		Request: &messages.Request_SetPassword{
+			SetPassword: &messages.SetPasswordRequest{},
+		},
+	}
+
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusSeeded)
+	return nil
+}
+
+// CreateBackup is called after SetPassword() to create the backup.
+func (device *Device) CreateBackup() error {
+	if device.status != StatusSeeded {
+		return errp.New("invalid status")
+	}
+	request := &messages.Request{
+		Request: &messages.Request_CreateBackup{
+			CreateBackup: &messages.CreateBackupRequest{},
+		},
+	}
+
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusUnlocked)
+	return nil
+}
+
 // ChannelHash returns the hashed handshake channel binding
 func (device *Device) ChannelHash() (string, bool) {
-	return device.channelHash, device.channelHashVerified != nil
+	return device.channelHash, device.channelHashDeviceVerified
 }
 
 // ChannelHashVerify verifies the ChannelHash
 func (device *Device) ChannelHashVerify(ok bool) {
-	device.channelHashVerified = &ok
+	if ok && !device.channelHashDeviceVerified {
+		return
+	}
+	device.channelHashAppVerified = ok
+	if ok {
+		info, err := device.DeviceInfo()
+		if err != nil {
+			device.log.WithError(err).Error("could not get device info")
+			return
+		}
+		if info.Initialized {
+			device.changeStatus(StatusInitialized)
+		} else {
+			device.changeStatus(StatusUninitialized)
+		}
+	} else {
+		device.changeStatus(StatusPairingFailed)
+	}
 }
