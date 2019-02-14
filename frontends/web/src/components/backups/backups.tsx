@@ -124,7 +124,7 @@ class Backups extends Component<Props, State> {
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
                 <div class={style.backupsList} ref={this.setScrollableContainerRef}>
                     {
-                        !backupList.length ? backupList.map(backup => (
+                        backupList.length ? backupList.map(backup => (
                             <BackupsListItem
                                 key={backup.id}
                                 backup={backup}
