@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+import { BrowserQRCodeReader } from '@zxing/library';
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
+import qrcodeIcon from '../../../assets/icons/qrcode.png';
 import { alertUser } from '../../../components/alert/Alert';
 import { Balance, BalanceInterface } from '../../../components/balance/balance';
+import { Dialog } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
 import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
@@ -92,12 +95,15 @@ interface State {
     signConfirm: boolean | null;
     coinControl: boolean;
     activeCoinControl: boolean;
+    hasCamera: boolean;
+    activeScanQR: boolean;
 }
 
 class Send extends Component<Props, State> {
     private utxos!: Component<UTXOsProps>;
     private selectedUTXOs: SelectedUTXO = {};
     private unsubscribe!: () => void;
+    private qrCodeReader: BrowserQRCodeReader = new BrowserQRCodeReader();
 
     constructor(props) {
         super(props);
@@ -112,6 +118,8 @@ class Send extends Component<Props, State> {
             fiatUnit: fiat.state.active,
             coinControl: false,
             activeCoinControl: false,
+            hasCamera: false,
+            activeScanQR: false,
         };
     }
 
@@ -140,22 +148,27 @@ class Send extends Component<Props, State> {
         }
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
-            case 'device':
-                switch (data) {
-                case 'signProgress':
-                    this.setState({ signProgress: meta, signConfirm: null });
+                case 'device':
+                    switch (data) {
+                        case 'signProgress':
+                            this.setState({ signProgress: meta, signConfirm: null });
+                            break;
+                        case 'signConfirm':
+                            this.setState({ signConfirm: true });
+                            break;
+                    }
                     break;
-                case 'signConfirm':
-                    this.setState({ signConfirm: true });
-                    break;
-                }
-                break;
             }
         });
     }
 
     public componentWillMount() {
         this.registerEvents();
+        this.qrCodeReader
+            .getVideoInputDevices()
+            .then(videoInputDevices => {
+                this.setState({ hasCamera: videoInputDevices.length > 0 });
+            });
     }
 
     public componentWillUnmount() {
@@ -163,6 +176,7 @@ class Send extends Component<Props, State> {
         if (this.unsubscribe) {
             this.unsubscribe();
         }
+        this.qrCodeReader.reset();
     }
 
     private registerEvents = () => {
@@ -175,7 +189,11 @@ class Send extends Component<Props, State> {
 
     private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
-            route(`/account/${this.props.code}`);
+            if (this.state.activeScanQR) {
+                this.toggleScanQR();
+            } else {
+                route(`/account/${this.props.code}`);
+            }
         }
     }
 
@@ -261,22 +279,22 @@ class Send extends Component<Props, State> {
             } else {
                 const errorCode = result.errorCode;
                 switch (errorCode) {
-                case 'invalidAddress':
-                    this.setState({ addressError: this.props.t('send.error.invalidAddress') });
-                    break;
-                case 'invalidAmount':
-                case 'insufficientFunds':
-                    this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
-                    break;
-                case 'invalidData':
-                    this.setState({ dataError: this.props.t(`send.error.invalidData`) });
-                    break;
-                default:
-                    this.setState({ proposedFee: undefined });
-                    if (errorCode) {
-                        this.unregisterEvents();
-                        alertUser(errorCode, this.registerEvents);
-                    }
+                    case 'invalidAddress':
+                        this.setState({ addressError: this.props.t('send.error.invalidAddress') });
+                        break;
+                    case 'invalidAmount':
+                    case 'insufficientFunds':
+                        this.setState({ amountError: this.props.t(`send.error.${errorCode}`) });
+                        break;
+                    case 'invalidData':
+                        this.setState({ dataError: this.props.t(`send.error.invalidData`) });
+                        break;
+                    default:
+                        this.setState({ proposedFee: undefined });
+                        if (errorCode) {
+                            this.unregisterEvents();
+                            alertUser(errorCode, this.registerEvents);
+                        }
                 }
             }
         }).catch(() => {
@@ -390,6 +408,55 @@ class Send extends Component<Props, State> {
         this.utxos = ref;
     }
 
+    private parseQRResult = uri => {
+        let address;
+        let amount: string | undefined;
+        try {
+            const url = new URL(uri);
+            if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
+                throw new Error('wrong protocol');
+            }
+            address = url.pathname;
+            amount = url.searchParams.get('amount') || undefined;
+        } catch {
+            address = uri;
+        }
+        this.setState({
+            recipientAddress: address,
+            sendAll: false,
+            amount,
+            fiatAmount: undefined,
+        });
+        // TODO: similar to handleFormChange(). Refactor.
+        if (amount !== undefined) {
+            this.convertToFiat(amount);
+        }
+        this.validateAndDisplayFee(true);
+    }
+
+    private toggleScanQR = () => {
+        if (this.state.activeScanQR) {
+            // release camera; invokes the catch function below.
+            this.qrCodeReader.reset();
+            // should already be false, set by the catch function below. we do it again anyway, in
+            // case it is not called consistently on each platform.
+            this.setState({ activeScanQR: false });
+            return;
+        }
+        this.setState({ activeScanQR: true }, () => {
+            this.qrCodeReader
+                .decodeFromInputVideoDevice(undefined, 'video')
+                .then(result => {
+                    this.setState({ activeScanQR: false });
+                    this.parseQRResult(result.getText());
+                    this.qrCodeReader.reset(); // release camera
+                })
+                .catch(() => {
+                    this.setState({ activeScanQR: false });
+                });
+        });
+    }
+
     public render(
         { t, code }: RenderableProps<Props>,
         {
@@ -416,6 +483,8 @@ class Send extends Component<Props, State> {
             signConfirm,
             coinControl,
             activeCoinControl,
+            hasCamera,
+            activeScanQR,
         }: State,
     ) {
         const account = this.getAccount();
@@ -444,7 +513,11 @@ class Send extends Component<Props, State> {
                         {
                             coinControl && (
                                 <div style="align-self: flex-end;">
-                                    <Button onClick={this.toggleCoinControl} primary>{t('send.toggleCoinControl')}</Button>
+                                    <Button
+                                        primary
+                                        onClick={this.toggleCoinControl}>
+                                        {t('send.toggleCoinControl')}
+                                    </Button>
                                 </div>
                             )
                         }
@@ -471,6 +544,13 @@ class Send extends Component<Props, State> {
                                     value={recipientAddress}
                                     autoFocus
                                 />
+                                {
+                                    hasCamera && (
+                                        <button onClick={this.toggleScanQR} class={style.qrButton}>
+                                            <img src={qrcodeIcon}/>
+                                        </button>
+                                    )
+                                }
                                 {
                                     debug && (
                                         <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
@@ -520,7 +600,7 @@ class Send extends Component<Props, State> {
                                         id="proposedFee"
                                         value={proposedFee && proposedFee.amount + ' ' + proposedFee.unit + (proposedFee.conversions ? ' = ' + proposedFee.conversions[fiatUnit] + ' ' + fiatUnit : '')}
                                         placeholder={feeTarget === 'custom' ? t('send.fee.customPlaceholder') : t('send.fee.placeholder')}
-                                        disabled={feeTarget !==  'custom'}
+                                        disabled={feeTarget !== 'custom'}
                                         transparent />
                                     {/*
                                     <Input
@@ -599,7 +679,7 @@ class Send extends Component<Props, State> {
                                         <div class={style.half}>
                                             <p class={['label', style.confirmationLabel].join(' ')}>
                                                 {t('send.fee.label')}
-                                                { feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : '' }
+                                                {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
                                             </p>
                                             <table class={style.confirmationValueTable} align="right">
                                                 <tr>
@@ -672,6 +752,26 @@ class Send extends Component<Props, State> {
                                     <img src={reject} alt="Abort" style="height: 40px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
+                        )
+                    }
+                    {
+                        activeScanQR && (
+                            <Dialog
+                                title={t('send.scanQR')}
+                                onClose={this.toggleScanQR}>
+                                <video
+                                    id="video"
+                                    width={400}
+                                    height={300 /* fix height to avoid ugly resize effect after open */}
+                                ></video>
+                                <div class={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+                                    <Button
+                                        secondary
+                                        onClick={this.toggleScanQR}
+                                    >{t('button.back')}
+                                    </Button>
+                                </div>
+                            </Dialog>
                         )
                     }
                 </div>
