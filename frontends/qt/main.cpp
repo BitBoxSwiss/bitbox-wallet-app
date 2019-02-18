@@ -150,6 +150,21 @@ int main(int argc, char *argv[])
 
     RequestInterceptor interceptor;
     view->page()->profile()->setRequestInterceptor(&interceptor);
+    QObject::connect(
+        view->page(),
+        &QWebEnginePage::featurePermissionRequested,
+        [&](const QUrl& securityOrigin, QWebEnginePage::Feature feature) {
+            if (securityOrigin.toString() != "qrc://") {
+                return;
+            }
+            if (feature == QWebEnginePage::MediaVideoCapture) {
+                // Allow video capture for QR code scanning.
+                view->page()->setFeaturePermission(
+                    securityOrigin,
+                    feature,
+                    QWebEnginePage::PermissionGrantedByUser);
+            }
+        });
     QWebChannel channel;
     channel.registerObject("backend", webClass);
     view->page()->setWebChannel(&channel);

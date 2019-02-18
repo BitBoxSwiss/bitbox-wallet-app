@@ -35,6 +35,7 @@
     "typings-for-css-modules-loader": "1.7.0"
   },
   "dependencies": {
+    "@zxing/library": "0.11.0",
     "i18next": "11.3.6",
     "i18next-locize-backend": "1.6.0",
     "linkstate": "1.1.1",

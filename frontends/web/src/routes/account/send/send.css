@@ -130,3 +130,11 @@
     font-size: var(--size-small);
     color: var(--color-secondary);
 }
+
+.qrButton {
+    border: none;
+    background-color: var(--color-white);
+    width: 16px;
+    height: 16px;
+    padding: 0;
+}
