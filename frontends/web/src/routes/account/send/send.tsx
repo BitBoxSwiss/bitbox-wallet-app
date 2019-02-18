@@ -87,7 +87,9 @@ interface State {
     paired?: boolean;
     noMobileChannelError: boolean;
     signProgress?: SignProgress;
-    signConfirm?: boolean; // show visual BitBox in dialog when instructed to sign.
+    // show visual BitBox in dialog when instructed to sign.
+    // can't be undefined because of the default touchConfirm param in the wait dialog.
+    signConfirm: boolean | null;
     coinControl: boolean;
     activeCoinControl: boolean;
 }
@@ -103,6 +105,7 @@ class Send extends Component<Props, State> {
             valid: false,
             sendAll: false,
             isConfirming: false,
+            signConfirm: null,
             isSent: false,
             isAborted: false,
             noMobileChannelError: false,
@@ -140,7 +143,7 @@ class Send extends Component<Props, State> {
             case 'device':
                 switch (data) {
                 case 'signProgress':
-                    this.setState({ signProgress: meta, signConfirm: undefined });
+                    this.setState({ signProgress: meta, signConfirm: null });
                     break;
                 case 'signConfirm':
                     this.setState({ signConfirm: true });
@@ -210,9 +213,9 @@ class Send extends Component<Props, State> {
                 alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
             }
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
         }).catch(() => {
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
         });
     }
 
