@@ -27,10 +27,14 @@ import (
 
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
+	Status() bitbox02.Status
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
+	ChannelHashVerify(ok bool)
 	DeviceInfo() (*bitbox02.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
+	SetPassword() error
+	CreateBackup() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -46,10 +50,14 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log}
 
+	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
-	handleFunc("/get-info", handlers.getDeviceInfo).Methods("GET")
+	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
+	handleFunc("/device-info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
+	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
+	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
 
 	return handlers
 }
@@ -77,6 +85,10 @@ func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
 	}
 
 	return result
+}
+
+func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.Status(), nil
 }
 
 func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
@@ -107,13 +119,37 @@ func (handlers *Handlers) postSetDeviceName(r *http.Request) (interface{}, error
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSetPassword(r *http.Request) (interface{}, error) {
+	if err := handlers.device.SetPassword(); err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+
+}
+
+func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error) {
+	if err := handlers.device.CreateBackup(); err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {
-	hash, verified := handlers.device.ChannelHash()
+	hash, deviceVerified := handlers.device.ChannelHash()
 	return map[string]interface{}{
-		"hash":     hash,
-		"verified": verified,
+		"hash":           hash,
+		"deviceVerified": deviceVerified,
 	}, nil
+}
+
+func (handlers *Handlers) postChannelHashVerify(r *http.Request) (interface{}, error) {
+	var verify bool
+	if err := json.NewDecoder(r.Body).Decode(&verify); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	handlers.device.ChannelHashVerify(verify)
+	return nil, nil
 }

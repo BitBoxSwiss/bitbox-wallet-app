@@ -26,6 +26,9 @@ const (
 
 	// ErrTouchButton TODO: currently not returned anywhere
 	ErrTouchButton = 103
+
+	// ErrSetPW is returned by SetPassword() if the two user passwords did not match.
+	ErrSetPW = 104
 )
 
 // Error wraps an error from bitbox02.
