@@ -16,10 +16,10 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../../../../components/forms';
-import { apiGet } from '../../../../utils/request';
-import { Dialog } from '../../../../components/dialog/dialog';
-import { CopyableInput } from '../../../../components/copy/Copy';
+import { Button } from '../../forms';
+import { apiGet } from '../../../utils/request';
+import { Dialog } from '../../dialog/dialog';
+import { CopyableInput } from '../../copy/Copy';
 
 
 @translate()

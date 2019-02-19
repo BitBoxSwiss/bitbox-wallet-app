@@ -16,10 +16,10 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { Button, Input } from '../../../../components/forms';
-import { apiPost } from '../../../../utils/request';
-import { Dialog } from '../../../../components/dialog/dialog';
-import { alertUser } from '../../../../components/alert/Alert';
+import { Button, Input } from '../../forms';
+import { apiPost } from '../../../utils/request';
+import { Dialog } from '../../dialog/dialog';
+import { alertUser } from '../../alert/Alert';
 
 @translate()
 export default class SetDeviceName extends Component {
@@ -66,7 +66,7 @@ export default class SetDeviceName extends Component {
         return (
             <div>
                 <Button primary onClick={this.setNameDialog}>
-                    {t('deviceinfo.set-name-button')}
+                    Set Device Name
                 </Button>
                 {
                     active ? (

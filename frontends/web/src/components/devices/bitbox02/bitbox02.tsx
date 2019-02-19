@@ -15,14 +15,14 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import DeviceInfo from '../../../routes/device/settings/components/deviceinfo';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
-import SetDeviceName from '../../../routes/device/settings/components/setdevicename';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Dialog } from '../../dialog/dialog';
 import { Button } from '../../forms';
+import DeviceInfo from './deviceinfo';
+import SetDeviceName from './setdevicename';
 
 interface State {
     hash?: string;
