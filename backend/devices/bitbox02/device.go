@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"sync"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
@@ -338,9 +339,16 @@ func (device *Device) CreateBackup() error {
 	if device.status != StatusSeeded {
 		return errp.New("invalid status")
 	}
+
+	now := time.Now()
+	_, offset := now.Zone()
+
 	request := &messages.Request{
 		Request: &messages.Request_CreateBackup{
-			CreateBackup: &messages.CreateBackupRequest{},
+			CreateBackup: &messages.CreateBackupRequest{
+				Timestamp:      uint32(now.Unix()),
+				TimezoneOffset: int32(offset),
+			},
 		},
 	}
 
