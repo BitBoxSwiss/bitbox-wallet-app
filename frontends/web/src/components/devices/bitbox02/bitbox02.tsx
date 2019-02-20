@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import Checked from '../../../assets/icons/checked.svg';
 import DeviceInfo from '../../../routes/device/settings/components/deviceinfo';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import SetDeviceName from '../../../routes/device/settings/components/setdevicename';
@@ -113,6 +114,15 @@ class BitBox02 extends Component<Props, {}> {
                     <Dialog onClose={() => this.channelVerify(false)}>
                         <p>Verify your BitBox</p>
                         <p>{hash}</p>
+
+                        { !deviceVerified ?
+                            <p>First, verify the hash on your device</p>
+                        :
+                        <div className={'flex flex-1 flex-row flex-items-center spaced'}>
+                            <p>Device Hash: {hash}</p>
+                            <img src={Checked} width={20} height={20}/>
+                        </div> }
+
                         <Button primary onClick={() => this.channelVerify(true)} disabled={!deviceVerified}>Correct</Button>
                     </Dialog>
                 );
