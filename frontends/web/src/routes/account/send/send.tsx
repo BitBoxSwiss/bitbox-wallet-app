@@ -87,7 +87,9 @@ interface State {
     paired?: boolean;
     noMobileChannelError: boolean;
     signProgress?: SignProgress;
-    signConfirm?: boolean; // show visual BitBox in dialog when instructed to sign.
+    // show visual BitBox in dialog when instructed to sign.
+    // can't be undefined because of the default touchConfirm param in the wait dialog.
+    signConfirm: boolean | null;
     coinControl: boolean;
     activeCoinControl: boolean;
 }
@@ -100,10 +102,10 @@ class Send extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
-            account: this.getAccount(),
             valid: false,
             sendAll: false,
             isConfirming: false,
+            signConfirm: null,
             isSent: false,
             isAborted: false,
             noMobileChannelError: false,
@@ -114,10 +116,11 @@ class Send extends Component<Props, State> {
     }
 
     private coinSupportsCoinControl = () => {
-        if (!this.state.account) {
+        const account = this.getAccount();
+        if (!account) {
             return false;
         }
-        return isBitcoinBased(this.state.account.coinCode);
+        return isBitcoinBased(account.coinCode);
     }
 
     public componentDidMount() {
@@ -125,7 +128,7 @@ class Send extends Component<Props, State> {
         if (this.props.deviceIDs.length > 0) {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
                 apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
-                    const account = this.state.account;
+                    const account = this.getAccount();
                     const paired = mobileChannel && pairing;
                     const noMobileChannelError = pairing && !mobileChannel && account && isBitcoinBased(account.coinCode);
                     this.setState(prevState => ({ ...prevState, paired, noMobileChannelError }));
@@ -140,7 +143,7 @@ class Send extends Component<Props, State> {
             case 'device':
                 switch (data) {
                 case 'signProgress':
-                    this.setState({ signProgress: meta, signConfirm: undefined });
+                    this.setState({ signProgress: meta, signConfirm: null });
                     break;
                 case 'signConfirm':
                     this.setState({ signConfirm: true });
@@ -182,7 +185,7 @@ class Send extends Component<Props, State> {
             return;
         }
         this.setState({ signProgress: undefined, isConfirming: true });
-        apiPost('account/' + this.state.account!.code + '/sendtx', this.txInput()).then(result => {
+        apiPost('account/' + this.getAccount()!.code + '/sendtx', this.txInput()).then(result => {
             if (result.success) {
                 this.setState({
                     sendAll: false,
@@ -210,9 +213,9 @@ class Send extends Component<Props, State> {
                 alertUser(this.props.t('unknownError', { errorMessage: result.errorMessage }));
             }
             // The following method allows pressing escape again.
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
         }).catch(() => {
-            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: undefined });
+            this.setState({ isConfirming: false, signProgress: undefined, signConfirm: null });
         });
     }
 
@@ -241,7 +244,7 @@ class Send extends Component<Props, State> {
             return;
         }
         const txInput = this.txInput();
-        apiPost('account/' + this.state.account!.code + '/tx-proposal', txInput).then(result => {
+        apiPost('account/' + this.getAccount()!.code + '/tx-proposal', txInput).then(result => {
             this.setState({ valid: result.success });
             if (result.success) {
                 this.setState({
@@ -309,7 +312,7 @@ class Send extends Component<Props, State> {
 
     private convertToFiat = (value?: string | boolean) => {
         if (value) {
-            let coinUnit = this.state.account!.coinCode.toUpperCase();
+            let coinUnit = this.getAccount()!.coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
@@ -328,7 +331,7 @@ class Send extends Component<Props, State> {
 
     private convertFromFiat = (value: string) => {
         if (value) {
-            let coinUnit = this.state.account!.coinCode.toUpperCase();
+            let coinUnit = this.getAccount()!.coinCode.toUpperCase();
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
@@ -351,7 +354,7 @@ class Send extends Component<Props, State> {
     }
 
     private sendToSelf = (event: Event) => {
-        apiGet('account/' + this.state.account!.code + '/receive-addresses').then(receiveAddresses => {
+        apiGet('account/' + this.getAccount()!.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ recipientAddress: receiveAddresses[0].address });
             this.handleFormChange(event);
         });
@@ -390,7 +393,6 @@ class Send extends Component<Props, State> {
     public render(
         { t, code }: RenderableProps<Props>,
         {
-            account,
             balance,
             proposedFee,
             proposedTotal,
@@ -416,6 +418,7 @@ class Send extends Component<Props, State> {
             activeCoinControl,
         }: State,
     ) {
+        const account = this.getAccount();
         if (!account) {
             return null;
         }
