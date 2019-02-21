@@ -25,7 +25,7 @@
     "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
-      "invalidAddress": "Please enter a valid Ethereum address",
+      "invalidAddress": "Invalid address",
       "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
       "xpubInvalid": "Extended Public Key malformatted."
     },

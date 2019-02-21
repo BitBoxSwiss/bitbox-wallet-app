@@ -24,6 +24,8 @@ import (
 	"runtime/debug"
 	"strconv"
 
+	"github.com/btcsuite/btcutil"
+
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
@@ -363,6 +365,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
+
 	scriptType, err := signing.DecodeScriptType(jsonScriptType)
 	if err != nil {
 		return nil, err
@@ -373,12 +376,24 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	var warningCode string
 
 	if jsonAddress != "" {
-		if jsonCoinCode == "teth" || jsonCoinCode == "eth" {
+		switch jsonCoinCode {
+		case "btc", "ltc", "tbtc", "tltc":
+			btcCoin, ok := coin.(*btc.Coin)
+			if !ok {
+				panic("unexpected tyep, expected: *btc.Coin")
+			}
+			_, err := btcutil.DecodeAddress(jsonAddress, btcCoin.Net())
+			if err != nil {
+				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
+			}
+			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
+		case "eth", "teth":
 			if !common.IsHexAddress(jsonAddress) {
 				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
 			}
 			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
 		}
+
 	} else {
 		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
 		if err != nil {

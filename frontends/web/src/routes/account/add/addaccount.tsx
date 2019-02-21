@@ -42,6 +42,11 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'btc',
         scriptType: 'p2pkh',
     },
+    'btc-addr': {
+        name: 'Bitcoin Address',
+        coinCode: 'btc',
+        scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
+    },
     'ltc-p2wpkh-p2sh': {
         name: 'Litecoin',
         coinCode: 'ltc',
@@ -50,6 +55,16 @@ const COIN_AND_ACCOUNT_CODES = {
     'ltc-p2wpkh': {
         name: 'Litecoin: bech32',
         coinCode: 'ltc',
+        scriptType: 'p2wpkh',
+    },
+    'ltc-addr': {
+        name: 'Litecoin Address',
+        coinCode: 'ltc',
+        scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
+    },
+    'eth': {
+        name: 'Ethereum',
+        coinCode: 'eth',
         scriptType: 'p2wpkh',
     },
     // Testnet
@@ -68,6 +83,11 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'tbtc',
         scriptType: 'p2pkh',
     },
+    'tbtc-addr': {
+        name: 'Bitcoin Address',
+        coinCode: 'tbtc',
+        scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
+    },
     'tltc-p2wpkh-p2sh': {
         name: 'Litecoin Testnet',
         coinCode: 'tltc',
@@ -78,15 +98,15 @@ const COIN_AND_ACCOUNT_CODES = {
         coinCode: 'tltc',
         scriptType: 'p2wpkh',
     },
+    'tltc-addr': {
+        name: 'Litecoin Address',
+        coinCode: 'tltc',
+        scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
+    },
     'teth': {
         name: 'Ethereum Ropsten Testnet',
         coinCode: 'teth',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
-    },
-    'eth': {
-        name: 'Ethereum',
-        coinCode: 'eth',
-        scriptType: 'p2wpkh',
     },
 };
 
@@ -173,8 +193,8 @@ class AddAccount extends Component<Props, State> {
                                         label={t('addAccount.coin')}
                                         options={
                                             (testing
-                                                ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh', 'teth']
-                                                : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh', 'eth']
+                                                ? ['tbtc-p2wpkh-p2sh', 'tbtc-p2wpkh', 'tbtc-p2pkh', 'tbtc-addr', 'tltc-p2wpkh-p2sh', 'tltc-p2wpkh', 'tltc-addr', 'teth']
+                                                : ['btc-p2wpkh-p2sh', 'btc-p2wpkh', 'btc-p2pkh', 'btc-addr', 'ltc-p2wpkh-p2sh', 'ltc-p2wpkh', 'ltc-addr', 'eth']
                                             ).map(item => ({
                                                 value: item,
                                                 text: COIN_AND_ACCOUNT_CODES[item].name,
@@ -188,11 +208,11 @@ class AddAccount extends Component<Props, State> {
                             </div>
                             <div class="row">
                                 <Input
-                                    label={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
-                                    onInput={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? linkState(this, 'address') : linkState(this, 'extendedPublicKey')}
-                                    value={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? address : extendedPublicKey}
+                                    label={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' || coinAndAccountCode === 'ltc-addr' || coinAndAccountCode === 'btc-addr' || coinAndAccountCode === 'tbtc-addr' || coinAndAccountCode === 'tltc-addr' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
+                                    onInput={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' || coinAndAccountCode === 'ltc-addr' || coinAndAccountCode === 'btc-addr' || coinAndAccountCode === 'tbtc-addr' || coinAndAccountCode === 'tltc-addr' ? linkState(this, 'address') : linkState(this, 'extendedPublicKey')}
+                                    value={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' || coinAndAccountCode === 'ltc-addr' || coinAndAccountCode === 'btc-addr' || coinAndAccountCode === 'tbtc-addr' || coinAndAccountCode === 'tltc-addr' ? address : extendedPublicKey}
                                     id="extendedPublicKey"
-                                    placeholder={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
+                                    placeholder={coinAndAccountCode === 'teth' || coinAndAccountCode === 'eth' || coinAndAccountCode === 'ltc-addr' || coinAndAccountCode === 'btc-addr' || coinAndAccountCode === 'tbtc-addr' || coinAndAccountCode === 'tltc-addr' ? t('addAccount.address') : t('addAccount.extendedPublicKey')}
                                 />
                             </div>
                             <div class="row buttons flex flex-row flex-between flex-start">
