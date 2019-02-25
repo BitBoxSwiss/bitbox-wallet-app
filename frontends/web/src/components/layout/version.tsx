@@ -15,16 +15,18 @@
  */
 
 import { h, RenderableProps } from 'preact';
-import LanguageSwitch from '../language/language';
-import * as style from './footer.css';
-import { Version } from './version';
+import { load } from '../../decorators/load';
+import { translate, TranslateProps } from '../../decorators/translate';
 
-export function Footer({ children }: RenderableProps<{}>) {
-    return (
-        <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
-            {children}
-            <Version />
-            <LanguageSwitch />
-        </footer>
-    );
+interface VersionProps {
+    version: string;
 }
+
+type Props = VersionProps & TranslateProps;
+
+function Version({ t, version }: RenderableProps<Props>) {
+    return <p>{t('footer.appVersion')} {version}</p>;
+}
+
+const HOC = translate()(load<VersionProps, TranslateProps>({ version: 'version' })(Version));
+export { HOC as Version };
