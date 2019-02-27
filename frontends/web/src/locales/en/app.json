@@ -19,6 +19,14 @@
     "extendedPublicKey": "Extended Public Key",
     "title": "Account Information"
   },
+  "accountSummary": {
+    "balance": "Balance",
+    "fiatBalance": "Fiat Balance",
+    "name": "Account Name",
+    "noAccount": "There are no accounts to show.",
+    "title": "Account Summary",
+    "total": "Total"
+  },
   "addAccount": {
     "accountName": "Account Name",
     "address": "Address",
