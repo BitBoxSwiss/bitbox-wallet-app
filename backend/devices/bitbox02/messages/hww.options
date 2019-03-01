@@ -1,6 +1,0 @@
-RandomNumberResponse.number fixed_length:true max_size:32
-SetDeviceNameRequest.name max_size:64
-DeviceInfoResponse.name max_size:64
-DeviceInfoResponse.version max_size:10
-SetDeviceLanguageRequest.device_language fixed_length:true max_size:5
-Error.message max_size:255  

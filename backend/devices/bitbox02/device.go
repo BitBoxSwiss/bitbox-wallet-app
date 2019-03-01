@@ -179,7 +179,15 @@ func (device *Device) Identifier() string {
 
 // KeystoreForConfiguration implements device.Device.
 func (device *Device) KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystoreInterface.Keystore {
-	return nil
+	if device.Status() != StatusUnlocked {
+		return nil
+	}
+	return &keystore{
+		device:        device,
+		configuration: configuration,
+		cosignerIndex: cosignerIndex,
+		log:           device.log,
+	}
 }
 
 // SetOnEvent implements device.Device.
@@ -390,4 +398,33 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	} else {
 		device.changeStatus(StatusPairingFailed)
 	}
+}
+
+// BTCPub queries the device for a btc, ltc, tbtc, tltc xpub or address.
+func (device *Device) BTCPub(
+	coin messages.BTCCoin,
+	keypath []uint32,
+	outputType messages.BTCPubRequest_OutputType,
+	scriptType messages.BTCScriptType,
+	display bool) (string, error) {
+	request := &messages.Request{
+		Request: &messages.Request_BtcPub{
+			BtcPub: &messages.BTCPubRequest{
+				Coin:       coin,
+				Keypath:    keypath,
+				OutputType: outputType,
+				ScriptType: scriptType,
+				Display:    display,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return "", err
+	}
+	pubResponse, ok := response.Response.(*messages.Response_Pub)
+	if !ok {
+		return "", errp.New("unexpected response")
+	}
+	return pubResponse.Pub.Pub, nil
 }
