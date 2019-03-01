@@ -74,6 +74,10 @@ func NewAccount(
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
 ) *Account {
+	log = log.WithField("group", "eth").
+		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": code, "name": name})
+	log.Debug("Creating new account")
+
 	account := &Account{
 		coin:                    accountCoin,
 		dbFolder:                dbFolder,
@@ -297,7 +301,15 @@ func (account *Account) Offline() bool {
 
 // Close implements accounts.Interface.
 func (account *Account) Close() {
-
+	account.log.Info("Closed account")
+	if account.db != nil {
+		if err := account.db.Close(); err != nil {
+			account.log.WithError(err).Error("couldn't close db")
+		}
+		account.log.Info("Closed DB")
+	}
+	account.initialized = false
+	account.onEvent(accounts.EventStatusChanged)
 }
 
 // Notifier implements accounts.Interface.

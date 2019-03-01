@@ -104,3 +104,7 @@ func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 func (coin *Coin) EtherScan() *etherscan.EtherScan {
 	return coin.etherScan
 }
+
+func (coin *Coin) String() string {
+	return coin.code
+}
