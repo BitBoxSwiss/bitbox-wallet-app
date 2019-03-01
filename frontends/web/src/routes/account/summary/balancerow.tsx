@@ -36,4 +36,4 @@ const BalanceRow = ({ name, balance }: RenderableProps<Props>) => {
 }
 
 const HOC = translate<ProvidedProps>()(BalanceRow);
-export {HOC as BalanceRow};
+export { HOC as BalanceRow };

@@ -1,0 +1,36 @@
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-default);
+    border: solid 1px #E5E5E5;
+}
+
+.table tr td,
+.table tr th {
+    height: 52px;
+    padding: calc(var(--spacing-default) + var(--spacing-half));
+    text-align: left;
+    font-weight: 300;
+}
+
+.table tr > td:not(:first-child),
+.table tr > th:not(:first-child) {
+    text-align: right;
+}
+
+.table tr th:not(.totalCell) {
+    font-size: 12px;
+    background-color: #E5E5E5;
+    color: #999999;
+}
+
+.table tr td {
+    font-size: 14px;
+}
+
+@media (max-width: 640px) {
+    .table tr td,
+    .table tr th {
+      padding: var(--spacing-default);
+    }
+}

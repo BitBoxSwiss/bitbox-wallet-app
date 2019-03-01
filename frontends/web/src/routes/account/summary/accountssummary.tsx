@@ -38,7 +38,6 @@ interface State {
 type Props = ProvidedProps & TranslateProps;
 
 class AccountsSummary extends Component<Props, State> {
-
     private groupByCoin(accounts: AccountAndBalanceInterface[], coinCode: string) {
         return accounts.reduce((accumulator, currentValue) => {
             const key = currentValue[coinCode];
@@ -50,7 +49,9 @@ class AccountsSummary extends Component<Props, State> {
         }, {});
     }
 
-    public render({ t, accounts }: RenderableProps<Props>): JSX.Element {
+    public render(
+        { t, accounts }: RenderableProps<Props>,
+    ) {
             const pairedBalances: AccountAndBalanceInterface[] = [];
             accounts.forEach((account, index) => {
                 pairedBalances.push({...account, balance: this.props[index]});
@@ -58,17 +59,23 @@ class AccountsSummary extends Component<Props, State> {
             const groupedAccounts = this.groupByCoin(pairedBalances, 'coinCode');
             const coins = Object.keys(groupedAccounts);
             return (
-            <div>
-                <Header title={<h2>{t('accountSummary.title')}</h2>} />
-                { coins.length > 0 ?
-                    coins.map(coin => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]}/>)
-                    :
-                    <p>{t('accountSummary.noAccount')}</p>
-                }
-            </div>
+                <div className="contentWithGuide">
+                    <div className="container">
+                        <Header title={<h2>{t('accountSummary.title')}</h2>} />
+                        <div className="innerContainer scrollableContainer">
+                            <div className="content padded">
+                                {
+                                    coins.length > 0 ?
+                                    coins.map(coin => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]}/>) :
+                                    <p>{t('accountSummary.noAccount')}</p>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
             );
     }
 }
 
 const HOC = translate()(AccountsSummary);
-export {HOC as AccountsSummary};
+export { HOC as AccountsSummary };

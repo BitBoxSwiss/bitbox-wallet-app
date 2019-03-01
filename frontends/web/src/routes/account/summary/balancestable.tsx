@@ -19,6 +19,7 @@ import { Amount, FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { AccountAndBalanceInterface } from './accountssummary';
 import { BalanceRow } from './balancerow';
+import * as style from './summary.css';
 
 interface ProvidedProps {
     coinCode: string;
@@ -28,10 +29,12 @@ interface ProvidedProps {
 type Props = ProvidedProps & TranslateProps;
 
 class BalancesTable extends Component<Props> {
-    public render({ t, coinCode, accounts }: RenderableProps<Props>): JSX.Element {
+    public render(
+        { t, coinCode, accounts }: RenderableProps<Props>,
+    ) {
         let totalAmount: number = 0;
         const rows = accounts.map(account => {
-            totalAmount += +account.balance.available.amount; 
+            totalAmount += +account.balance.available.amount;
             return <BalanceRow name={account.name} balance={account.balance.available}/>;
         });
         const total: Amount = {
@@ -40,12 +43,12 @@ class BalancesTable extends Component<Props> {
         };
         return (
             <div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>{coinCode.toUpperCase()}</th>
-                        </tr>
-                    </thead>
+                <div className="subHeaderContainer">
+                    <div className="subHeader">
+                        <h3>{coinCode.toUpperCase()}</h3>
+                    </div>
+                </div>
+                <table className={style.table}>
                     <thead>
                         <tr>
                             <th>{t('accountSummary.name')}</th>
@@ -58,9 +61,9 @@ class BalancesTable extends Component<Props> {
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th>{t('accountSummary.total')}</th>
+                            <th className={style.totalCell}>{t('accountSummary.total')}</th>
                             <td>{total!.amount}</td>
-                            <td><FiatConversion amount={total!}/></td>
+                            <td><FiatConversion amount={total!} /></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -70,4 +73,4 @@ class BalancesTable extends Component<Props> {
 }
 
 const HOC = translate<ProvidedProps>()(BalancesTable);
-export {HOC as BalancesTable}
+export { HOC as BalancesTable };
