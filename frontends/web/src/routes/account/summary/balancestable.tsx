@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import Logo from '../../../components/icon/logo';
 import { Amount, FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { AccountAndBalanceInterface } from './accountssummary';
@@ -44,8 +45,11 @@ class BalancesTable extends Component<Props> {
         return (
             <div>
                 <div className="subHeaderContainer">
-                    <div className="subHeader">
-                        <h3>{coinCode.toUpperCase()}</h3>
+                    <div className="subHeader" class="row">
+                        <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                            <Logo coinCode={coinCode} className="sidebar_icon" alt={coinCode} active={true} ></Logo>
+                            <h3>{coinCode.toUpperCase()}</h3>
+                        </div>
                     </div>
                 </div>
                 <table className={style.table}>
