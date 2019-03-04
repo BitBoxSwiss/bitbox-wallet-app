@@ -550,11 +550,11 @@ func (transactions *Transactions) txInfo(
 			Ours:    output != nil,
 		}
 		if output != nil {
+			receiveAddresses = append(receiveAddresses, addressAndAmount)
 			if isChange(getScriptHashHex(output)) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
-				receiveAddresses = append(receiveAddresses, addressAndAmount)
 				sendAddresses = append(sendAddresses, addressAndAmount)
 			}
 		} else {
