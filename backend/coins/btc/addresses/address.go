@@ -53,7 +53,6 @@ type AccountAddress struct {
 
 // NewAccountAddress creates a new account address.
 func NewAccountAddress(
-	singleAddress btcutil.Address,
 	accountConfiguration *signing.Configuration,
 	keyPath signing.RelativeKeypath,
 	net *chaincfg.Params,
@@ -62,10 +61,7 @@ func NewAccountAddress(
 
 	var address btcutil.Address
 	var redeemScript []byte
-	var configuration *signing.Configuration
-	var err error
-
-	configuration, err = accountConfiguration.Derive(keyPath)
+	configuration, err := accountConfiguration.Derive(keyPath)
 	if err != nil {
 		log.WithError(err).Panic("Failed to derive the configuration.")
 	}
@@ -76,9 +72,11 @@ func NewAccountAddress(
 	log.Debug("Creating new account address")
 
 	switch {
-	case accountConfiguration.IsAddressBased():
-		configuration = accountConfiguration
-		address = singleAddress
+	case configuration.IsAddressBased():
+		address, err = btcutil.DecodeAddress(configuration.Address(), net)
+		if err != nil {
+			log.WithError(err).Panic("invalid address")
+		}
 	case configuration.Multisig():
 		sortedPublicKeys := configuration.SortedPublicKeys()
 		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
