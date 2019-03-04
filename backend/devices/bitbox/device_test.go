@@ -28,16 +28,11 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-)
-
-var (
-	firmVer400 = semver.NewSemVer(6, 0, 1)
 )
 
 const (
@@ -68,7 +63,8 @@ func (s *dbbTestSuite) SetupTest() {
 		s.mockCommClosed = true
 	})
 	s.mockCommClosed = false
-	dbb, err := NewDevice(deviceID, false /* bootloader */, firmVer400, s.configDir, s.mockCommunication)
+	dbb, err := NewDevice(deviceID, false, /* bootloader */
+		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication)
 	dbb.Init(true)
 	require.NoError(s.T(), err)
 	s.dbb = dbb
@@ -397,7 +393,8 @@ func TestNewDeviceReadsChannel(t *testing.T) {
 	comm.On("SendPlain", jsonArgumentMatcher(map[string]interface{}{"ping": ""})).
 		Return(map[string]interface{}{"ping": ""}, nil)
 	comm.On("Close")
-	dbb, err := NewDevice("test-device-id", false /* bootloader */, firmVer400, configDir, comm)
+	dbb, err := NewDevice("test-device-id", false, /* bootloader */
+		lowestSupportedFirmwareVersion, configDir, comm)
 	if err != nil {
 		t.Fatal(err)
 	}
