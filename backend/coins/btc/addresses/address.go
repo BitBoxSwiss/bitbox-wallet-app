@@ -53,26 +53,33 @@ type AccountAddress struct {
 
 // NewAccountAddress creates a new account address.
 func NewAccountAddress(
+	singleAddress btcutil.Address,
 	accountConfiguration *signing.Configuration,
 	keyPath signing.RelativeKeypath,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
-	configuration, err := accountConfiguration.Derive(keyPath)
+
+	var address btcutil.Address
+	var redeemScript []byte
+	var configuration *signing.Configuration
+	var err error
+
+	configuration, err = accountConfiguration.Derive(keyPath)
 	if err != nil {
 		log.WithError(err).Panic("Failed to derive the configuration.")
 	}
-
 	log = log.WithFields(logrus.Fields{
 		"key-path":      configuration.AbsoluteKeypath().Encode(),
 		"configuration": configuration.String(),
 	})
 	log.Debug("Creating new account address")
 
-	var redeemScript []byte
-	var address btcutil.Address
-
-	if configuration.Multisig() {
+	switch {
+	case accountConfiguration.IsAddressBased():
+		configuration = accountConfiguration
+		address = singleAddress
+	case configuration.Multisig():
 		sortedPublicKeys := configuration.SortedPublicKeys()
 		addresses := make([]*btcutil.AddressPubKey, len(sortedPublicKeys))
 		for index, publicKey := range sortedPublicKeys {
@@ -89,7 +96,7 @@ func NewAccountAddress(
 		if err != nil {
 			log.WithError(err).Panic("Failed to get a P2SH address for multisig.")
 		}
-	} else {
+	default:
 		publicKeyHash := btcutil.Hash160(configuration.PublicKeys()[0].SerializeCompressed())
 		switch configuration.ScriptType() {
 		case signing.ScriptTypeP2PKH:
@@ -120,7 +127,6 @@ func NewAccountAddress(
 			log.Panic(fmt.Sprintf("Unrecognized script type: %s", configuration.ScriptType()))
 		}
 	}
-
 	return &AccountAddress{
 		Address:              address,
 		AccountConfiguration: accountConfiguration,

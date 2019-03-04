@@ -65,6 +65,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 	addresses.log.Debug("Add new address to chain")
 	index := uint32(len(addresses.addresses))
 	address := NewAccountAddress(
+		nil,
 		addresses.accountConfiguration,
 		signing.NewEmptyRelativeKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(index, signing.NonHardened),
 		addresses.net,
