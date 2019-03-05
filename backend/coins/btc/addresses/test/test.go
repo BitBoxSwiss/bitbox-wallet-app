@@ -58,7 +58,6 @@ func GetAddress(scriptType signing.ScriptType) *addresses.AccountAddress {
 	}
 	configuration := signing.NewSinglesigConfiguration(scriptType, absoluteKeypath, extendedPublicKey)
 	return addresses.NewAccountAddress(
-		nil,
 		configuration,
 		signing.NewEmptyRelativeKeypath(),
 		net,
@@ -86,7 +85,6 @@ func GetMultisigAddress(signingThreshold, numberOfSigners int) *addresses.Accoun
 	}
 	configuration := signing.NewConfiguration(signing.ScriptTypeP2PKH, absoluteKeypath, xpubs, "", signingThreshold)
 	return addresses.NewAccountAddress(
-		nil,
 		configuration,
 		signing.NewEmptyRelativeKeypath(),
 		net,

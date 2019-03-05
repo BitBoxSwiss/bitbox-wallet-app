@@ -15,8 +15,6 @@
 package addresses
 
 import (
-	"github.com/btcsuite/btcutil"
-
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -26,24 +24,21 @@ import (
 // SingleAddress manages a chain of addresses derived from a configuration.
 type SingleAddress struct {
 	accountConfiguration *signing.Configuration
-	singleAddress        btcutil.Address
+	address              *AccountAddress
 	net                  *chaincfg.Params
-	address              []*AccountAddress
 	log                  *logrus.Entry
 }
 
 // NewSingleAddress creates as single address starting at m/<chainIndex> from the given configuration.
 func NewSingleAddress(
 	accountConfiguration *signing.Configuration,
-	singleAddress btcutil.Address,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *SingleAddress {
 	return &SingleAddress{
 		accountConfiguration: accountConfiguration,
-		singleAddress:        singleAddress,
+		address:              nil,
 		net:                  net,
-		address:              []*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
 			"configuration": accountConfiguration.String()}),
 	}
@@ -51,46 +46,32 @@ func NewSingleAddress(
 
 // GetUnused returns the address
 func (addresses *SingleAddress) GetUnused() []*AccountAddress {
-	if len(addresses.address) == 0 {
+	if addresses.address == nil {
 		addresses.log.Panic("Concurrency error: Address not synced correctly")
 	}
-	return addresses.address
-}
-
-// addAddress stores the address.
-func (addresses *SingleAddress) addAddress() *AccountAddress {
-	addresses.log.Debug("Add new address to chain")
-	address := NewAccountAddress(
-		addresses.singleAddress,
-		addresses.accountConfiguration,
-		signing.NewEmptyRelativeKeypath(),
-		addresses.net,
-		addresses.log,
-	)
-	addresses.address = append(addresses.address, address)
-	return address
+	return []*AccountAddress{addresses.address}
 }
 
 // LookupByScriptHashHex returns the address which matches the provided scriptHashHex. Returns nil
 // if not found.
 func (addresses *SingleAddress) LookupByScriptHashHex(hashHex blockchain.ScriptHashHex) *AccountAddress {
-	// todo: add map for constant time lookup
-	for _, address := range addresses.address {
-		if address.PubkeyScriptHashHex() == hashHex {
-			return address
-		}
+	if addresses.address == nil || addresses.address.PubkeyScriptHashHex() != hashHex {
+		return nil
 	}
-	return nil
+	return addresses.address
 }
 
 // EnsureAddresses returns the address
 func (addresses *SingleAddress) EnsureAddresses() []*AccountAddress {
-	singleAddress := []*AccountAddress{}
-	if len(addresses.address) == 0 {
-		singleAddress = append(singleAddress, addresses.addAddress())
-		return singleAddress
+	if addresses.address == nil {
+		addresses.address = NewAccountAddress(
+			addresses.accountConfiguration,
+			signing.NewEmptyRelativeKeypath(),
+			addresses.net,
+			addresses.log,
+		)
+		return []*AccountAddress{addresses.address}
 	}
-	addresses.log.Debug("Address already initialized.")
 	return nil
 
 }

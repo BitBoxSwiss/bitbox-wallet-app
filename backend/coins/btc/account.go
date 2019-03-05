@@ -25,7 +25,6 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/transactionsdb"
@@ -246,16 +245,11 @@ func (account *Account) Initialize() error {
 	}
 
 	if account.signingConfiguration.IsAddressBased() {
-		configurationAddress := account.signingConfiguration.Address()
-		newSingleAddress, err := btcutil.DecodeAddress(configurationAddress, account.coin.Net())
-		if err != nil {
-			return errp.WithStack(errors.ErrInvalidAddress)
-		}
 		account.receiveAddresses = addresses.NewSingleAddress(
-			account.signingConfiguration, newSingleAddress, account.coin.Net(), account.log)
+			account.signingConfiguration, account.coin.Net(), account.log)
 		account.log.Debug("creating single change address for address based account")
 		account.changeAddresses = addresses.NewSingleAddress(
-			account.signingConfiguration, newSingleAddress, account.coin.Net(), account.log)
+			account.signingConfiguration, account.coin.Net(), account.log)
 	} else {
 		account.receiveAddresses = addresses.NewAddressChain(
 			account.signingConfiguration, account.coin.Net(), fixGapLimit, 0, account.log)
