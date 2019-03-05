@@ -16,13 +16,20 @@ package handlers
 
 import (
 	"encoding/base64"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"runtime/debug"
 	"strconv"
+	"time"
+
+	"github.com/btcsuite/btcutil"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
@@ -160,6 +167,8 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
+	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/test/deregister", handlers.postDeregisterTestKeystoreHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/rates", handlers.getRatesHandler).Methods("GET")
@@ -363,6 +372,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	if err != nil {
 		return nil, err
 	}
+
 	scriptType, err := signing.DecodeScriptType(jsonScriptType)
 	if err != nil {
 		return nil, err
@@ -373,12 +383,24 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	var warningCode string
 
 	if jsonAddress != "" {
-		if jsonCoinCode == "teth" || jsonCoinCode == "eth" {
+		switch jsonCoinCode {
+		case "btc", "ltc", "tbtc", "tltc":
+			btcCoin, ok := coin.(*btc.Coin)
+			if !ok {
+				panic("unexpected tyep, expected: *btc.Coin")
+			}
+			_, err := btcutil.DecodeAddress(jsonAddress, btcCoin.Net())
+			if err != nil {
+				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
+			}
+			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
+		case "eth", "teth":
 			if !common.IsHexAddress(jsonAddress) {
 				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
 			}
 			configuration = signing.NewAddressConfiguration(scriptType, keypath, jsonAddress)
 		}
+
 	} else {
 		extendedPublicKey, err := hdkeychain.NewKeyFromString(jsonExtendedPublicKey)
 		if err != nil {
@@ -644,4 +666,114 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 		}
 		writeJSON(w, value)
 	})
+}
+
+func formatAmountAsJSON(amount coin.Amount, coin coin.Coin) accountHandlers.FormattedAmount {
+	return accountHandlers.FormattedAmount{
+		Amount:      coin.FormatAmount(amount),
+		Unit:        coin.Unit(),
+		Conversions: accountHandlers.Conversions(amount, coin),
+	}
+}
+
+func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error) {
+	type accountJSON struct {
+		CoinCode    string                 `json:"coinCode"`
+		AccountCode string                 `json:"accountCode"`
+		Name        string                 `json:"name"`
+		Balance     map[string]interface{} `json:"balance"`
+	}
+
+	jsonAccounts := []*accountJSON{}
+	totals := make(map[coin.Coin]*big.Int)
+
+	for _, account := range handlers.backend.Accounts() {
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+		balance := account.Balance()
+		jsonAccounts = append(jsonAccounts, &accountJSON{
+			CoinCode:    account.Coin().Code(),
+			AccountCode: account.Code(),
+			Name:        account.Name(),
+			Balance: map[string]interface{}{
+				"available":   formatAmountAsJSON(balance.Available(), account.Coin()),
+				"incoming":    formatAmountAsJSON(balance.Incoming(), account.Coin()),
+				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
+			},
+		})
+
+		_, ok := totals[account.Coin()]
+		if !ok {
+			totals[account.Coin()] = new(big.Int)
+		}
+
+		totals[account.Coin()] = new(big.Int).Add(totals[account.Coin()], balance.Available().BigInt())
+	}
+
+	jsonTotals := make(map[string]accountHandlers.FormattedAmount)
+	for c, total := range totals {
+		jsonTotals[c.Code()] = formatAmountAsJSON(coin.NewAmount(total), c)
+	}
+
+	return map[string]interface{}{
+		"accounts": jsonAccounts,
+		"totals":   jsonTotals,
+	}, nil
+}
+
+func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}, error) {
+	name := time.Now().Format("2006-01-02-at-15-04-05-") + "Accounts-Summary.csv"
+	downloadsDir, err := utilConfig.DownloadsDir()
+	if err != nil {
+		return nil, err
+	}
+	path := filepath.Join(downloadsDir, name)
+	handlers.log.Infof("Export account summary %s.", path)
+
+	file, err := os.Create(path)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	defer func() {
+		err := file.Close()
+		if err != nil {
+			handlers.log.WithError(err).Error("Could not close the account summary file.")
+		}
+	}()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write([]string{
+		"Coin",
+		"Name",
+		"Balance",
+		"Unit",
+	})
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	for _, account := range handlers.backend.Accounts() {
+		err := account.Initialize()
+		if err != nil {
+			return nil, err
+		}
+		coin := account.Coin().Code()
+		accountName := account.Name()
+		balance := account.Balance().Available().BigInt().String()
+		unit := account.Coin().SmallestUnit()
+		err = writer.Write([]string{
+			coin,
+			accountName,
+			balance,
+			unit,
+		})
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+	}
+	return path, nil
 }

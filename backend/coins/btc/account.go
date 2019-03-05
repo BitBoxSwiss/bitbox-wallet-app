@@ -61,8 +61,8 @@ type Account struct {
 	notifier                accounts.Notifier
 	blockchain              blockchain.Interface
 
-	receiveAddresses *addresses.AddressChain
-	changeAddresses  *addresses.AddressChain
+	receiveAddresses AddressChain
+	changeAddresses  AddressChain
 
 	transactions *transactions.Transactions
 
@@ -244,11 +244,19 @@ func (account *Account) Initialize() error {
 		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
 	}
 
-	account.receiveAddresses = addresses.NewAddressChain(
-		account.signingConfiguration, account.coin.Net(), fixGapLimit, 0, account.log)
-	account.log.Debug("creating change address chain structure")
-	account.changeAddresses = addresses.NewAddressChain(
-		account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
+	if account.signingConfiguration.IsAddressBased() {
+		account.receiveAddresses = addresses.NewSingleAddress(
+			account.signingConfiguration, account.coin.Net(), account.log)
+		account.log.Debug("creating single change address for address based account")
+		account.changeAddresses = addresses.NewSingleAddress(
+			account.signingConfiguration, account.coin.Net(), account.log)
+	} else {
+		account.receiveAddresses = addresses.NewAddressChain(
+			account.signingConfiguration, account.coin.Net(), fixGapLimit, 0, account.log)
+		account.log.Debug("creating change address chain structure")
+		account.changeAddresses = addresses.NewAddressChain(
+			account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
+	}
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
 	return nil
@@ -419,7 +427,7 @@ func (account *Account) Balance() *accounts.Balance {
 	return account.transactions.Balance()
 }
 
-func (account *Account) addresses(change bool) *addresses.AddressChain {
+func (account *Account) addresses(change bool) AddressChain {
 	if change {
 		return account.changeAddresses
 	}
@@ -532,6 +540,10 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 	defer account.RLock()()
 	account.log.Debug("Get unused receive address")
 	addresses := []accounts.Address{}
+	if account.signingConfiguration.IsAddressBased() {
+		addresses = append(addresses, account.receiveAddresses.GetUnused()[0])
+		return addresses
+	}
 	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
 	for _, address := range account.receiveAddresses.GetUnused()[:gapLimit] {
 		addresses = append(addresses, address)

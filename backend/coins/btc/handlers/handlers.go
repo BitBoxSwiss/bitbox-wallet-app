@@ -80,8 +80,8 @@ func (handlers *Handlers) Uninit() {
 	handlers.account = nil
 }
 
-// formattedAmount with unit and conversions.
-type formattedAmount struct {
+// FormattedAmount with unit and conversions.
+type FormattedAmount struct {
 	Amount      string            `json:"amount"`
 	Unit        string            `json:"unit"`
 	Conversions map[string]string `json:"conversions"`
@@ -97,7 +97,8 @@ func formatAsCurrency(amount float64) string {
 	return formatted
 }
 
-func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
+// Conversions handles fiat conversions
+func Conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	var conversions map[string]string
 	if backend.GetRatesUpdaterInstance() != nil {
 		rates := backend.GetRatesUpdaterInstance().Last()
@@ -116,15 +117,15 @@ func conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	return conversions
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) formattedAmount {
-	return formattedAmount{
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) FormattedAmount {
+	return FormattedAmount{
 		Amount:      handlers.account.Coin().FormatAmount(amount),
 		Unit:        handlers.account.Coin().Unit(),
-		Conversions: conversions(amount, handlers.account.Coin()),
+		Conversions: Conversions(amount, handlers.account.Coin()),
 	}
 }
 
-func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) formattedAmount {
+func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) FormattedAmount {
 	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)))
 }
 
@@ -133,8 +134,8 @@ type Transaction struct {
 	ID               string          `json:"id"`
 	NumConfirmations int             `json:"numConfirmations"`
 	Type             string          `json:"type"`
-	Amount           formattedAmount `json:"amount"`
-	Fee              formattedAmount `json:"fee"`
+	Amount           FormattedAmount `json:"amount"`
+	Fee              FormattedAmount `json:"fee"`
 	Time             *string         `json:"time"`
 	Addresses        []string        `json:"addresses"`
 
@@ -142,7 +143,7 @@ type Transaction struct {
 	VSize        int64           `json:"vsize"`
 	Size         int64           `json:"size"`
 	Weight       int64           `json:"weight"`
-	FeeRatePerKb formattedAmount `json:"feeRatePerKb"`
+	FeeRatePerKb FormattedAmount `json:"feeRatePerKb"`
 
 	// ETH specific fields
 	Gas uint64 `json:"gas"`
@@ -161,7 +162,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 	result := []Transaction{}
 	txs := handlers.account.Transactions()
 	for _, txInfo := range txs {
-		var feeString formattedAmount
+		var feeString FormattedAmount
 		fee := txInfo.Fee()
 		if fee != nil {
 			feeString = handlers.formatAmountAsJSON(*fee)
@@ -233,6 +234,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		"Time",
 		"Type",
 		"Amount",
+		"Unit",
 		"Fee",
 		"Address",
 		"Transaction ID",
@@ -252,6 +254,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		if fee != nil {
 			feeString = fee.BigInt().String()
 		}
+		unit := handlers.account.Coin().SmallestUnit()
 		timeString := ""
 		if transaction.Timestamp() != nil {
 			timeString = transaction.Timestamp().Format(time.RFC3339)
@@ -264,6 +267,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 				timeString,
 				transactionType,
 				addressAndAmount.Amount.BigInt().String(),
+				unit,
 				feeString,
 				addressAndAmount.Address,
 				transaction.ID(),

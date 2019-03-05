@@ -31,6 +31,7 @@ import { AddAccount } from './routes/account/add/addaccount';
 import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
+import { InitializeAllAccounts } from './routes/account/summary/initializeall';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
@@ -165,6 +166,8 @@ class App extends Component<Props, State> {
                             accounts={accounts} />
                         <AddAccount
                             path="/add-account" />
+                        <InitializeAllAccounts accounts={accounts}
+                            path="/account-summary" />
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings

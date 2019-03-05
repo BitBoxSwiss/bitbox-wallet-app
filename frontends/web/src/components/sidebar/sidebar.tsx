@@ -18,6 +18,7 @@ import { h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { Link, Match } from 'preact-router/match';
 import ejectIcon from '../../assets/icons/eject.svg';
+import info from '../../assets/icons/info.svg';
 import plusCircleDisabled from '../../assets/icons/plus-circle-disabled.svg';
 import plusCircle from '../../assets/icons/plus-circle.svg';
 import settings from '../../assets/icons/settings-alt.svg';
@@ -60,6 +61,16 @@ function Sidebar(
                 <div className="sidebarLogoContainer">
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
+                {debug &&
+                    <div className="sideBarItem">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title="Account Summary">
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                </div>
+                                <span className="sidebar_label">{t('accountSummary.title')}</span>
+                        </Link>
+                    </div>
+                }
                 {
                     accounts && accounts.map(getAccountLink)
                 }

@@ -19,13 +19,22 @@
     "extendedPublicKey": "Extended Public Key",
     "title": "Account Information"
   },
+  "accountSummary": {
+    "balance": "Balance",
+    "fiatBalance": "Fiat Balance",
+    "name": "Account Name",
+    "noAccount": "There are no accounts to show.",
+    "synchronizing": "Synchronizing all accounts...",
+    "title": "Account Summary",
+    "total": "Total"
+  },
   "addAccount": {
     "accountName": "Account Name",
     "address": "Address",
     "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
-      "invalidAddress": "Please enter a valid Ethereum address",
+      "invalidAddress": "Invalid address",
       "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
       "xpubInvalid": "Extended Public Key malformatted."
     },

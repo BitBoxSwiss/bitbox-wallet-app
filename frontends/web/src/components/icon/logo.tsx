@@ -54,13 +54,17 @@ interface Props {
     coinCode: string;
     className?: string;
     alt?: string;
+    active?: boolean;
 }
 
-function Logo({ coinCode, ...rest }: Props) {
+function Logo({ coinCode, active, ...rest }: Props) {
     return (
-        <div class="stacked">
-            <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
-            <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+        <div>
+        { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
+         : <div class="stacked">
+         <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+         <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+     </div>}
         </div>
     );
 }

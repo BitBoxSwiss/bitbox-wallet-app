@@ -1,0 +1,58 @@
+.coincode {
+    padding: 0px 0px 4px 10px;
+}
+
+.coinlogo {
+    margin-left: 10px;
+}
+
+.coinheader {
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    margin-top: 25px;
+    margin-bottom: 10px;
+    max-height: 60px;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-default);
+    border: solid 1px #E5E5E5;
+}
+
+.table tr td,
+.table tr th {
+    height: 50px;
+    padding: calc(var(--spacing-default) + var(--spacing-half));
+    text-align: left;
+    font-weight: 300;
+}
+
+.table tr > td:not(:first-child),
+.table tr > th:not(:first-child) {
+    text-align: right;
+}
+
+.table tr th {
+    font-size: 14px;
+    background-color: #E5E5E5;
+    color: #242424;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.table tr td {
+    font-size: 14px;
+    height: 0px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+    .table tr td,
+    .table tr th {
+      padding: var(--spacing-default);
+    }
+}

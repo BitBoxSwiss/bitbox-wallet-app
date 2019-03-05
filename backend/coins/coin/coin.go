@@ -51,4 +51,7 @@ type Coin interface {
 
 	// Initialize initializes the coin by connecting to a full node, downloading the headers, etc.
 	Initialize()
+
+	// SmallestUnit returns the name of the smallest unit of a given coin
+	SmallestUnit() string
 }

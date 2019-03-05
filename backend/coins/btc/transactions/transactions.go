@@ -550,11 +550,11 @@ func (transactions *Transactions) txInfo(
 			Ours:    output != nil,
 		}
 		if output != nil {
+			receiveAddresses = append(receiveAddresses, addressAndAmount)
 			if isChange(getScriptHashHex(output)) {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
-				receiveAddresses = append(receiveAddresses, addressAndAmount)
 				sendAddresses = append(sendAddresses, addressAndAmount)
 			}
 		} else {
@@ -579,10 +579,18 @@ func (transactions *Transactions) txInfo(
 			result = sumAllOutputs - sumOurReceive - sumOurChange
 		}
 	} else {
-		// Money sent from external to our wallet
-		txType = accounts.TxTypeReceive
-		addresses = receiveAddresses
+		// If none of the inputs are ours, money was sent from external to our wallet.
+		// If some input are ours, we determine the direction by whether the tx increases or
+		// decreases our balance.
 		result = sumOurReceive + sumOurChange - sumOurInputs
+		if result >= 0 {
+			txType = accounts.TxTypeReceive
+			addresses = receiveAddresses
+		} else {
+			txType = accounts.TxTypeSend
+			addresses = sendAddresses
+		}
+
 	}
 	numConfirmations := 0
 	if height > 0 && transactions.headersTipHeight > 0 {

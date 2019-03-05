@@ -172,6 +172,7 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 		derivedPublicKeys[index] = derivedPublicKey
 	}
 	return &Configuration{
+		address:            configuration.address,
 		scriptType:         configuration.scriptType,
 		absoluteKeypath:    configuration.absoluteKeypath.Append(relativeKeypath),
 		extendedPublicKeys: derivedPublicKeys,

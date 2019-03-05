@@ -108,3 +108,8 @@ func (coin *Coin) EtherScan() *etherscan.EtherScan {
 func (coin *Coin) String() string {
 	return coin.code
 }
+
+// SmallestUnit implements coin.Coin.
+func (coin *Coin) SmallestUnit() string {
+	return "wei"
+}
