@@ -16,24 +16,18 @@
 
 import { h, RenderableProps} from 'preact';
 import { Amount, FiatConversion } from '../../../components/rates/rates';
-import { translate, TranslateProps } from '../../../decorators/translate';
 
-interface ProvidedProps {
+interface Props {
     name: string;
     balance: Amount;
 }
 
-type Props = ProvidedProps & TranslateProps;
-
-const BalanceRow = ({ name, balance }: RenderableProps<Props>) => {
+export const BalanceRow = ({ name, balance }: RenderableProps<Props>) => {
     return (
         <tr>
             <td>{name}</td>
             <td>{balance.amount}</td>
             <td><FiatConversion amount={balance}/></td>
         </tr>
-    )
-}
-
-const HOC = translate<ProvidedProps>()(BalanceRow);
-export { HOC as BalanceRow };
+    );
+};

@@ -16,31 +16,51 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate } from 'react-i18next';
+import checkIcon from '../../../assets/icons/check.svg';
+import exportIcon from '../../../assets/icons/download.svg';
+import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
+import { Amount } from '../../../components/rates/rates';
+import * as componentStyle from '../../../components/style.css';
+import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
+import { apiPost } from '../../../utils/request';
 import { AccountInterface } from '../account';
 import { BalancesTable } from './balancestable';
-
-interface ProvidedProps {
-    accounts: AccountInterface[];
-    [property: number]: BalanceInterface;
-}
 
 export interface AccountAndBalanceInterface extends AccountInterface {
     balance: BalanceInterface;
 }
 
-interface State {
-    accounts: AccountAndBalanceInterface;
+interface AccountSummaryProps {
+    data: Response;
 }
 
-type Props = ProvidedProps & TranslateProps;
+interface State {
+    exported: string;
+}
+
+interface Totals {
+    [code: string]: Amount;
+}
+
+interface Response {
+    accounts: AccountAndBalanceInterface[];
+    totals: Totals;
+}
+
+type Props = TranslateProps & AccountSummaryProps;
 
 class AccountsSummary extends Component<Props, State> {
-    private groupByCoin(accounts: AccountAndBalanceInterface[], coinCode: string) {
-        return accounts.reduce((accumulator, currentValue) => {
-            const key = currentValue[coinCode];
+    constructor(props) {
+        super(props);
+        this.state = ({ exported: '' });
+    }
+
+    private groupByCoin(accounts: AccountAndBalanceInterface[]) {
+        return accounts.reduce((accumulator: {[coinCode: string]: AccountAndBalanceInterface[]}, currentValue) => {
+            const key: string = currentValue.coinCode;
             if (!accumulator[key]) {
                 accumulator[key] = [];
             }
@@ -49,24 +69,43 @@ class AccountsSummary extends Component<Props, State> {
         }, {});
     }
 
+    private export = () => {
+        apiPost(`export-account-summary`).then(exported => {
+            this.setState({ exported });
+        });
+    }
+
     public render(
-        { t, accounts }: RenderableProps<Props>,
+        { t, data }: RenderableProps<Props>, { exported }: State,
     ) {
-            const pairedBalances: AccountAndBalanceInterface[] = [];
-            accounts.forEach((account, index) => {
-                pairedBalances.push({...account, balance: this.props[index]});
-            });
-            const groupedAccounts = this.groupByCoin(pairedBalances, 'coinCode');
+            const groupedAccounts = this.groupByCoin(data.accounts);
             const coins = Object.keys(groupedAccounts);
             return (
                 <div className="contentWithGuide">
                     <div className="container">
-                        <Header title={<h2>{t('accountSummary.title')}</h2>} />
+                        <Header title={
+                            <h2>{t('accountSummary.title')}
+                                {
+                                    exported ? (
+                                        <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
+                                            <span className={componentStyle.exportedButton} style="margin-right: 5px;">
+                                                <img src={checkIcon} style="margin-right: 5px !important;" />
+                                                <span className={componentStyle.exportedText}>{t('account.openFile')}</span>
+                                            </span>
+                                        </A>
+                                    ) : (
+                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
+                                                <img src={exportIcon} />
+                                            </a>
+                                        )
+                                }
+                            </h2>
+                            } />
                         <div className="innerContainer scrollableContainer">
                             <div className="content padded">
                                 {
                                     coins.length > 0 ?
-                                    coins.map(coin => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]}/>) :
+                                    coins.map(coin => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]}/>) :
                                     <p>{t('accountSummary.noAccount')}</p>
                                 }
                             </div>
@@ -77,5 +116,5 @@ class AccountsSummary extends Component<Props, State> {
     }
 }
 
-const HOC = translate()(AccountsSummary);
+const HOC = translate()(load<AccountSummaryProps, TranslateProps>({ data: 'account-summary' })(AccountsSummary));
 export { HOC as AccountsSummary };

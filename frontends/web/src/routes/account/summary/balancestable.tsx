@@ -25,30 +25,22 @@ import * as style from './summary.css';
 interface ProvidedProps {
     coinCode: string;
     accounts: AccountAndBalanceInterface[];
+    total: Amount;
 }
 
 type Props = ProvidedProps & TranslateProps;
 
 class BalancesTable extends Component<Props> {
     public render(
-        { t, coinCode, accounts }: RenderableProps<Props>,
+        { t, coinCode, accounts, total }: RenderableProps<Props>,
     ) {
-        let totalAmount: number = 0;
-        const rows = accounts.map(account => {
-            totalAmount += +account.balance.available.amount;
-            return <BalanceRow name={account.name} balance={account.balance.available}/>;
-        });
-        const total: Amount = {
-            amount: totalAmount.toString(), // Amount type needs to be a
-            unit: accounts[0].balance.available.unit,
-        };
         return (
             <div>
-                <div className="subHeaderContainer">
+                <div className={style.coinheader}>
                     <div className="subHeader" class="row">
-                        <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                            <Logo coinCode={coinCode} className="sidebar_icon" alt={coinCode} active={true} ></Logo>
-                            <h3>{coinCode.toUpperCase()}</h3>
+                        <div class="flex flex-1 flex-row flex-between flex-items-center flex-center" height={64}>
+                            <Logo className={style.coinlogo} coinCode={coinCode} alt={coinCode} active={true} />
+                            <h3 className={style.coincode}>{coinCode.toUpperCase()}</h3>
                         </div>
                     </div>
                 </div>
@@ -61,18 +53,18 @@ class BalancesTable extends Component<Props> {
                         </tr>
                     </thead>
                     <tbody>
-                        {rows}
+                        {accounts.map(account => <BalanceRow name={account.name} balance={account.balance.available}/>)}
                     </tbody>
                     <tfoot>
                         <tr>
-                            <th className={style.totalCell}>{t('accountSummary.total')}</th>
-                            <td>{total!.amount}</td>
-                            <td><FiatConversion amount={total!} /></td>
+                            <th>{t('accountSummary.total')}</th>
+                            <th>{total.amount}</th>
+                            <th><FiatConversion amount={total} /></th>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-            );
+        );
     }
 }
 

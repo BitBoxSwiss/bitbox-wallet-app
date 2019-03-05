@@ -61,14 +61,16 @@ function Sidebar(
                 <div className="sidebarLogoContainer">
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
-                <div className="sideBarItem">
-                    <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title="Account Summary">
-                            <div className="single">
-                                <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
-                            </div>
-                            <span className="sidebar_label">{t('accountSummary.title')}</span>
-                    </Link>
-                </div>
+                {debug &&
+                    <div className="sideBarItem">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title="Account Summary">
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                </div>
+                                <span className="sidebar_label">{t('accountSummary.title')}</span>
+                        </Link>
+                    </div>
+                }
                 {
                     accounts && accounts.map(getAccountLink)
                 }

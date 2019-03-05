@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import Spinner from '../../../components/spinner/Spinner';
+import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { AccountInterface } from '../account';
-import { FetchBalances } from './fetchbalances';
+import { AccountsSummary } from './accountssummary';
 
 interface ProvidedProps {
     accounts: AccountInterface[];
@@ -33,9 +34,9 @@ interface State {
     initialized: AccountInitialized;
 }
 
-type Props = ProvidedProps;
+type Props = ProvidedProps & TranslateProps;
 
-export class InitializeAllAccounts extends Component<Props, State> {
+class InitializeAllAccounts extends Component<Props, State> {
     constructor(props) {
         super(props);
         const initialized: AccountInitialized = {};
@@ -47,18 +48,26 @@ export class InitializeAllAccounts extends Component<Props, State> {
 
     private unsubscribe!: () => void;
 
-    public componentDidMount() {
+    private checkAccounts() {
         this.props.accounts.map((account: AccountInterface) => {
             this.onStatusChanged(account.code);
         });
+    }
+
+    public componentDidMount() {
+        this.checkAccounts();
         this.unsubscribe = apiWebsocket(this.onEvent);
     }
 
-    private allInitialized() {
-        return Object.keys(this.state.initialized).every(key => this.state.initialized[key]) ? true : false;
+    public componentDidUpdate() {
+        this.checkAccounts();
     }
 
-    private onEvent = data => {
+    private allInitialized() {
+        return Object.keys(this.state.initialized).every(key => this.state.initialized[key]);
+    }
+
+    private onEvent = (data: any) => {
         switch (data.data) {
             case 'statusChanged':
                 this.onStatusChanged(data.code);
@@ -84,14 +93,17 @@ export class InitializeAllAccounts extends Component<Props, State> {
         this.unsubscribe();
     }
 
-    public render(): JSX.Element {
+    public render({ t }: RenderableProps<Props>) {
         if (this.allInitialized()) {
-            return <FetchBalances accounts={this.props.accounts}/>;
+            return <AccountsSummary />;
         }
         return (
             <div>
-                <Spinner text="Synchronizing all accounts..."/>
+                <Spinner text={t('accountSummary.synchronizing')}/>
             </div>
         );
     }
 }
+
+const HOC = translate<ProvidedProps>()(InitializeAllAccounts);
+export { HOC as InitializeAllAccounts };

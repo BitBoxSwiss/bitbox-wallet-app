@@ -154,3 +154,13 @@ func (coin *Coin) String() string {
 func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
 }
+
+// SmallestUnit implements coin.Coin.
+func (coin *Coin) SmallestUnit() string {
+	switch coin.code {
+	case "ltc", "tltc":
+		return "litoshi"
+	default:
+		return "satoshi"
+	}
+}

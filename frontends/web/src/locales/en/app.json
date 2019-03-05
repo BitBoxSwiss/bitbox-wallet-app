@@ -24,6 +24,7 @@
     "fiatBalance": "Fiat Balance",
     "name": "Account Name",
     "noAccount": "There are no accounts to show.",
+    "synchronizing": "Synchronizing all accounts...",
     "title": "Account Summary",
     "total": "Total"
   },
