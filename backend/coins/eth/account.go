@@ -59,6 +59,8 @@ type Account struct {
 	nextNonce    uint64
 	transactions []accounts.Transaction
 
+	quitChan chan struct{}
+
 	log *logrus.Entry
 }
 
@@ -92,8 +94,8 @@ func NewAccount(
 
 		initialized:     false,
 		enqueueUpdateCh: make(chan struct{}),
-
-		log: log,
+		quitChan:        make(chan struct{}),
+		log:             log,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(accounts.EventSyncStarted) },
@@ -184,21 +186,28 @@ func (account *Account) poll() {
 	timer := time.After(0)
 	for {
 		select {
-		case <-timer:
-		case <-account.enqueueUpdateCh:
-			account.log.Info("extraordinary account update invoked")
-		}
-		if err := account.update(); err != nil {
-			account.log.WithError(err).Error("error updating account")
-			if !account.offline {
-				account.offline = true
+		case <-account.quitChan:
+			return
+		default:
+			select {
+			case <-account.quitChan:
+				return
+			case <-timer:
+			case <-account.enqueueUpdateCh:
+				account.log.Info("extraordinary account update invoked")
+			}
+			if err := account.update(); err != nil {
+				account.log.WithError(err).Error("error updating account")
+				if !account.offline {
+					account.offline = true
+					account.onEvent(accounts.EventStatusChanged)
+				}
+			} else if account.offline {
+				account.offline = false
 				account.onEvent(accounts.EventStatusChanged)
 			}
-		} else if account.offline {
-			account.offline = false
-			account.onEvent(accounts.EventStatusChanged)
+			timer = time.After(pollInterval)
 		}
-		timer = time.After(pollInterval)
 	}
 }
 
