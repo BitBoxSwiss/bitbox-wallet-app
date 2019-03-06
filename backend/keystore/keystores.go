@@ -17,6 +17,7 @@ package keystore
 import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -117,6 +118,7 @@ func (keystores *Keystores) SignTransaction(proposedTransaction interface{}) err
 
 // Configuration returns the configuration at the given path with the given signing threshold.
 func (keystores *Keystores) Configuration(
+	coin coinpkg.Coin,
 	scriptType signing.ScriptType,
 	absoluteKeypath signing.AbsoluteKeypath,
 	signingThreshold int,
@@ -126,7 +128,7 @@ func (keystores *Keystores) Configuration(
 		if keystore.CosignerIndex() != index {
 			return nil, errp.New("The keystores are in the wrong order.")
 		}
-		extendedPublicKey, err := keystore.ExtendedPublicKey(absoluteKeypath)
+		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, absoluteKeypath)
 		if err != nil {
 			return nil, err
 		}

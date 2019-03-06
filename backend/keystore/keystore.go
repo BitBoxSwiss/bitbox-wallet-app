@@ -44,7 +44,7 @@ type Keystore interface {
 	OutputAddress(*signing.Configuration, coin.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
-	ExtendedPublicKey(signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
+	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 
 	// SignMessage(string, *signing.AbsoluteKeypath, accounts.Coin) (*big.Int, error)
 

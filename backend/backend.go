@@ -257,7 +257,7 @@ func (backend *Backend) createAndAddAccount(
 		panic(err)
 	}
 	getSigningConfiguration := func() (*signing.Configuration, error) {
-		return backend.keystores.Configuration(scriptType, absoluteKeypath, backend.keystores.Count())
+		return backend.keystores.Configuration(coin, scriptType, absoluteKeypath, backend.keystores.Count())
 	}
 	if backend.arguments.Multisig() {
 		name += " Multisig"

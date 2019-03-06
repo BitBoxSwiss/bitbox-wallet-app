@@ -92,7 +92,7 @@ func (keystore *Keystore) OutputAddress(*signing.Configuration, coin.Coin) error
 
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *Keystore) ExtendedPublicKey(
-	absoluteKeypath signing.AbsoluteKeypath,
+	coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
 ) (*hdkeychain.ExtendedKey, error) {
 	extendedPrivateKey, err := absoluteKeypath.Derive(keystore.master)
 	if err != nil {

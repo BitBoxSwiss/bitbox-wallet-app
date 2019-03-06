@@ -72,7 +72,7 @@ func (keystore *keystore) OutputAddress(
 
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *keystore) ExtendedPublicKey(
-	keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
+	coin coin.Coin, keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
 	return keystore.dbb.xpub(keyPath.Encode())
 }
 

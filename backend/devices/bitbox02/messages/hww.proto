@@ -46,6 +46,47 @@ message CreateBackupRequest {
 message ShowMnemonicRequest {
 }
 
+enum BTCCoin {
+  BTC = 0;
+  TBTC = 1;
+  LTC = 2;
+  TLTC = 3;
+};
+
+enum BTCScriptType {
+  SCRIPT_UNKNOWN = 0;
+  SCRIPT_P2PKH = 1;
+  SCRIPT_P2WPKH_P2SH = 2;
+  SCRIPT_P2WPKH = 3;
+}
+
+message BTCPubRequest {
+  repeated uint32 keypath = 1;
+  enum OutputType {
+    TPUB = 0;
+    XPUB = 1;
+    YPUB = 2;
+    ZPUB = 3;
+    ADDRESS = 4;
+  }
+  BTCScriptType script_type = 2; // only applies for ADDRESS
+  BTCCoin coin = 3;
+  OutputType output_type = 4;
+  bool display = 5;
+}
+
+message PubResponse {
+  string pub = 1;
+}
+
+enum BTCOutputType {
+  UNKNOWN = 0;
+  P2PKH = 1;
+  P2SH = 2;
+  P2WPKH = 3;
+  P2WSH = 4;
+}
+
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
@@ -55,6 +96,7 @@ message Request {
         SetPasswordRequest set_password = 5;
         CreateBackupRequest create_backup = 6;
         ShowMnemonicRequest show_mnemonic = 7;
+        BTCPubRequest btc_pub = 8;
     }
 }
 
@@ -64,5 +106,6 @@ message Response {
         Error error = 2;
         RandomNumberResponse random_number = 3;
         DeviceInfoResponse device_info = 4;
+        PubResponse pub = 5;
     }
 }
