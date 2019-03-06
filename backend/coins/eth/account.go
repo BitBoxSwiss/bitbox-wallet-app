@@ -319,6 +319,7 @@ func (account *Account) Notifier() accounts.Notifier {
 
 // Transactions implements accounts.Interface.
 func (account *Account) Transactions() []accounts.Transaction {
+	account.synchronizer.WaitSynchronized()
 	return account.transactions
 }
 
