@@ -59,19 +59,17 @@ class InitializeAllAccounts extends Component<Props, State> {
         this.unsubscribe = apiWebsocket(this.onEvent);
     }
 
-    public componentDidUpdate() {
-        this.checkAccounts();
-    }
-
     private allInitialized() {
         return Object.keys(this.state.initialized).every(key => this.state.initialized[key]);
     }
 
     private onEvent = (data: any) => {
-        switch (data.data) {
-            case 'statusChanged':
-                this.onStatusChanged(data.code);
-                break;
+        if (data.type === 'account') {
+            switch (data.data) {
+                case 'statusChanged':
+                    this.onStatusChanged(data.code);
+                    break;
+            }
         }
     }
 
