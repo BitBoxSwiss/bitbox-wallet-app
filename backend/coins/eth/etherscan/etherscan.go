@@ -12,16 +12,18 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// etherscan rate limits to one request per 5 seconds.
-var callInterval = 5100 * time.Millisecond
+// etherscan rate limits to one request per 0.2 seconds.
+var callInterval = 210 * time.Millisecond
 
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
 	url         string
 	rateLimiter <-chan time.Time
+	lock        locker.Locker
 }
 
 // NewEtherScan creates a new instance of EtherScan.
@@ -33,6 +35,7 @@ func NewEtherScan(url string) *EtherScan {
 }
 
 func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
+	defer etherScan.lock.Lock()()
 	<-etherScan.rateLimiter
 	defer func() {
 		etherScan.rateLimiter = time.After(callInterval)
