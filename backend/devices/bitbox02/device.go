@@ -564,3 +564,23 @@ func (device *Device) BTCSign(
 		}
 	}
 }
+
+// InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state
+func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error {
+	request := &messages.Request{
+		Request: &messages.Request_InsertRemoveSdcard{
+			InsertRemoveSdcard: &messages.InsertRemoveSDCardRequest{
+				Action: action,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}

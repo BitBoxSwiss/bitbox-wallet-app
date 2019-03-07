@@ -46,6 +46,14 @@ message CreateBackupRequest {
 message ShowMnemonicRequest {
 }
 
+message InsertRemoveSDCardRequest {
+  enum SDCardAction {
+    REMOVE_CARD = 0;
+    INSERT_CARD = 1;
+  }
+  SDCardAction action = 1;
+}
+
 enum BTCCoin {
   BTC = 0;
   TBTC = 1;
@@ -140,6 +148,7 @@ message Request {
         BTCSignInitRequest btc_sign_init = 9;
         BTCSignInputRequest btc_sign_input = 10;
         BTCSignOutputRequest btc_sign_output = 11;
+        InsertRemoveSDCardRequest insert_remove_sdcard = 12;
     }
 }
 
