@@ -14,6 +14,8 @@
 
 package bitbox02
 
+import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+
 const (
 	// 100 errors are reserved for errors coming from the device firmware
 	// Difference namespace should be used for local app errors
@@ -29,6 +31,9 @@ const (
 
 	// ErrSetPW is returned by SetPassword() if the two user passwords did not match.
 	ErrSetPW = 104
+
+	// ErrUserAbort is returned when the user aborts an action on the device.
+	ErrUserAbort = 108
 )
 
 // Error wraps an error from bitbox02.
@@ -45,4 +50,10 @@ func NewError(code int32, message string) *Error {
 // Error implements the error interface.
 func (err *Error) Error() string {
 	return err.Message
+}
+
+// isErrorAbort returns whether the user aborted the operation.
+func isErrorAbort(err error) bool {
+	deviceErr, ok := errp.Cause(err).(*Error)
+	return ok && deviceErr.Code == ErrUserAbort
 }
