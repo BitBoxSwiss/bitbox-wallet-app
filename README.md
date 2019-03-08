@@ -155,6 +155,8 @@ In development mode, any password entered derives a unique testnet wallet.
 
 Get Bitcoin Testnet coins here: https://coinfaucet.eu/en/btc-testnet/
 
+Get Litecoin Testnet coins here: https://testnet.thrasher.io/
+
 Get Ethereum Rinkeby coins here: http://rinkeby-faucet.com/
 
 Get Ethereum Ropsten coins here: https://faucet.ropsten.be/
