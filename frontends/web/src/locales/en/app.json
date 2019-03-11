@@ -34,7 +34,7 @@
     "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
-      "invalidAddress": "Invalid address",
+      "invalidAddress": "Please enter a valid address",
       "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
       "xpubInvalid": "Extended Public Key malformatted."
     },
