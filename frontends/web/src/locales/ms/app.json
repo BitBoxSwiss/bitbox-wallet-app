@@ -29,6 +29,7 @@
       "xpubInvalid": "Extended Public Key salah format."
     },
     "extendedPublicKey": "Extended Public Key",
+    "scriptType": "Jenis Skrip",
     "submit": "Tambah Akaun",
     "title": "Tambah Akaun"
   },
@@ -64,6 +65,7 @@
     "description": "Pilih <strong>fail backup wallet</strong>",
     "insert": "Sila masukkan kad micro SD untuk mengurus backup.",
     "insertButton": "Saya telah memasukkan kad micro SD",
+    "noBackups": "Tiada backup pada kad microSD ini.",
     "restore": {
       "confirmTitle": "Memulihkan Backup",
       "error": {
@@ -329,6 +331,9 @@
         "text": "Ia adalah wallet kedua pada peranti yang sama yang dilindungi oleh kata laluan peranti dan kata laluan pemulihan yang berlainan, yang boleh anda gunakan untuk tujuan penafian yang munasabah. Dikeranakan penggunaan benih backup yang sama untuk wallet biasa dan tersembunyi anda, tiada tambahan backup diperlukan.",
         "title": "Apa itu wallet tersembunyi?"
       },
+      "legacyHiddenWallet": {
+        "title": "Bagaimanakah saya dapat mengakses legacy wallet tersembunyi?"
+      },
       "pairing": {
         "text": "Selepas memuat turun aplikasi mudah alih kami untuk iOS atau Android, anda dapat menubuhkan saluran selamat antara aplikasi mudah alih dan aplikasi ini dengan mengimbas kod QR yang dipaparkan. Setelah diimbas, ikut arahan dalam aplikasi mudah alih.",
         "title": "Bagaimana memasangkan dengan selamat telefon anda"
@@ -502,6 +507,9 @@
     "successDisable": "Berjaya melumpuhkan legacy hidden wallet"
   },
   "loading": "memuatkan ...",
+  "notification": {
+    "newTxs_0": "{{count}} transaksi baru di: {{accountName}}"
+  },
   "pairing": {
     "aborted": {
       "text": "Pemasangan telah ditinggalkan oleh aplikasi mudah alih.",
@@ -640,7 +648,8 @@
     "button": "Tandatangan dan Hantar",
     "coincontrol": {
       "address": "Alamat",
-      "outpoint": "Outpoint"
+      "outpoint": "Outpoint",
+      "title": "Hantar dari Output"
     },
     "confirm": {
       "selected-coins": "Syiling yang dipilih",
@@ -750,6 +759,7 @@
       "summary": "Berikut adalah ringkasan dari apa yang telah anda lakukan",
       "title": "Berjaya"
     },
+    "getstarted": "Bermula",
     "restore": {
       "summary": "Anda telah berjaya memulihkan wallet dari backup anda.",
       "title": "Berjaya"
