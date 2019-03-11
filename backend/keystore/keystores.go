@@ -80,9 +80,9 @@ func (keystores *Keystores) HaveSecureOutput(
 	return false, nil
 }
 
-// OutputAddress outputs the address for the given coin with the given configuration on all
+// VerifyOutputAddress outputs the address for the given coin with the given configuration on all
 // keystores that have a secure output.
-func (keystores *Keystores) OutputAddress(
+func (keystores *Keystores) VerifyOutputAddress(
 	configuration *signing.Configuration,
 	coin coin.Coin,
 ) error {
@@ -93,7 +93,7 @@ func (keystores *Keystores) OutputAddress(
 			return err
 		}
 		if hasSecureOutput {
-			if err := keystore.OutputAddress(configuration, coin); err != nil {
+			if err := keystore.VerifyOutputAddress(configuration, coin); err != nil {
 				return err
 			}
 			found = true

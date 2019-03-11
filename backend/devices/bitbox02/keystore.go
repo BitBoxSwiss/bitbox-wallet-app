@@ -44,8 +44,8 @@ func (keystore *keystore) HasSecureOutput(configuration *signing.Configuration, 
 	return ok, nil
 }
 
-// OutputAddress implements keystore.Keystore.
-func (keystore *keystore) OutputAddress(
+// VerifyOutputAddress implements keystore.Keystore.
+func (keystore *keystore) VerifyOutputAddress(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
 	hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
 	if err != nil {

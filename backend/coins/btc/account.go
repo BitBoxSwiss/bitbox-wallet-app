@@ -566,7 +566,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return false, err
 	}
 	if hasSecureOutput {
-		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
+		return true, account.Keystores().VerifyOutputAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }

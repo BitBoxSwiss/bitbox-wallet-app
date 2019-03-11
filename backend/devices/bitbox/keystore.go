@@ -56,8 +56,8 @@ func (keystore *keystore) HasSecureOutput(
 	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), nil
 }
 
-// OutputAddress implements keystore.Keystore.
-func (keystore *keystore) OutputAddress(
+// VerifyOutputAddress implements keystore.Keystore.
+func (keystore *keystore) VerifyOutputAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
 	hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
 	if err != nil {

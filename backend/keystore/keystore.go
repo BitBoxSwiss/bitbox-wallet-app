@@ -39,9 +39,9 @@ type Keystore interface {
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	HasSecureOutput(*signing.Configuration, coin.Coin) (bool, error)
 
-	// OutputAddress outputs the public key at the given configuration for the given coin.
+	// VerifyOutputAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	OutputAddress(*signing.Configuration, coin.Coin) error
+	VerifyOutputAddress(*signing.Configuration, coin.Coin) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
