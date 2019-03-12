@@ -23,6 +23,7 @@ import * as style from './Copy.css';
 interface CopyableInputProps {
     value: string;
     className?: string;
+    disabled?: boolean;
 }
 
 type Props = CopyableInputProps & TranslateProps;
@@ -75,17 +76,22 @@ class CopyableInput extends Component<Props, State> {
         }
     }
 
-    public render({ t, value, className }: RenderableProps<Props>, { success }: State) {
+    public render({ t, value, className, disabled }: RenderableProps<Props>, { success }: State) {
         return (
             <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
                 <textarea
+                    disabled={disabled}
                     readOnly
                     onFocus={this.onFocus}
                     value={value}
                     ref={this.setRef}
                     rows={1}
                     className={style.inputField} />
-                <button onClick={this.copy} class={[style.button, success ? style.success : ''].join(' ')} title={t('button.copy')}>
+                <button
+                    disabled={disabled}
+                    onClick={this.copy}
+                    class={[style.button, success ? style.success : ''].join(' ')}
+                    title={t('button.copy')}>
                     <img src={success ? CheckIcon : CopyIcon} />
                 </button>
             </div>

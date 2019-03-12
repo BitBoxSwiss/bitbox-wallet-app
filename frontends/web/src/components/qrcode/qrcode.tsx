@@ -20,7 +20,7 @@ import { apiGet } from '../../utils/request';
 const emptyImage = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
 
 interface Props {
-    data: string;
+    data?: string;
     size?: number;
 }
 
@@ -50,9 +50,11 @@ class QRCode extends Component<Props, State> {
         }
     }
 
-    private update = (data: string) => {
+    private update = (data: string | undefined) => {
         this.setState({ src: emptyImage });
-        apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.setState({ src }));
+        if (data !== undefined) {
+            apiGet('qr?data=' + encodeURIComponent(data)).then(src => this.setState({ src }));
+        }
     }
 
     public render(

@@ -37,7 +37,10 @@ type Keystore interface {
 
 	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	CanVerifyAddress(*signing.Configuration, coin.Coin) (bool, error)
+	// optional is true if the user can skip verification, and false if they should be incentivized
+	// or forced to verify.
+	// The passed configuration is the account-level configuration.
+	CanVerifyAddress(*signing.Configuration, coin.Coin) (secureOutput bool, optional bool, err error)
 
 	// VerifyAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.

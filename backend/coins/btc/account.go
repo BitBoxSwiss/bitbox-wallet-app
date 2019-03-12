@@ -592,6 +592,9 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
+	if account.signingConfiguration == nil {
+		return false, errp.New("account must be initialized")
+	}
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
@@ -599,7 +602,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, err := account.Keystores().CanVerifyAddresses(address.Configuration, account.Coin())
+	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
 	if err != nil {
 		return false, err
 	}
@@ -607,6 +610,14 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
+}
+
+// CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
+func (account *Account) CanVerifyAddresses() (bool, bool, error) {
+	if account.signingConfiguration == nil {
+		return false, false, errp.New("account must be initialized")
+	}
+	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
 }
 
 // ConvertToLegacyAddress converts a ltc p2sh address to the legacy format (starting with
