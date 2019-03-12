@@ -414,8 +414,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		if info.Initialized {
 			device.changeStatus(StatusInitialized)
 		} else {
-			//device.changeStatus(StatusUninitialized)
-			device.changeStatus(StatusUnlocked)
+			device.changeStatus(StatusUninitialized)
 		}
 	} else {
 		device.changeStatus(StatusPairingFailed)
