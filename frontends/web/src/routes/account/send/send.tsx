@@ -28,6 +28,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { Fiat, store as fiat } from '../../../components/rates/rates';
+import Spinner from '../../../components/spinner/Spinner';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -97,6 +98,7 @@ interface State {
     activeCoinControl: boolean;
     hasCamera: boolean;
     activeScanQR: boolean;
+    videoLoading: boolean;
 }
 
 class Send extends Component<Props, State> {
@@ -120,6 +122,7 @@ class Send extends Component<Props, State> {
             activeCoinControl: false,
             hasCamera: false,
             activeScanQR: false,
+            videoLoading: false,
         };
     }
 
@@ -443,7 +446,10 @@ class Send extends Component<Props, State> {
             this.setState({ activeScanQR: false });
             return;
         }
-        this.setState({ activeScanQR: true }, () => {
+        this.setState({
+            activeScanQR: true,
+            videoLoading: true,
+        }, () => {
             this.qrCodeReader
                 .decodeFromInputVideoDevice(undefined, 'video')
                 .then(result => {
@@ -455,6 +461,10 @@ class Send extends Component<Props, State> {
                     this.setState({ activeScanQR: false });
                 });
         });
+    }
+
+    private handleVideoLoad = () => {
+        this.setState({ videoLoading: false });
     }
 
     public render(
@@ -485,6 +495,7 @@ class Send extends Component<Props, State> {
             activeCoinControl,
             hasCamera,
             activeScanQR,
+            videoLoading,
         }: State,
     ) {
         const account = this.getAccount();
@@ -542,15 +553,16 @@ class Send extends Component<Props, State> {
                                     error={addressError}
                                     onInput={this.handleFormChange}
                                     value={recipientAddress}
-                                    autoFocus
-                                />
-                                {
-                                    hasCamera && (
-                                        <button onClick={this.toggleScanQR} class={style.qrButton}>
-                                            <img src={qrcodeIcon}/>
-                                        </button>
-                                    )
-                                }
+                                    className={style.inputWithIcon}
+                                    autoFocus>
+                                    {
+                                        hasCamera && (
+                                            <button onClick={this.toggleScanQR} className={style.qrButton}>
+                                                <img src={qrcodeIcon}/>
+                                            </button>
+                                        )
+                                    }
+                                </Input>
                                 {
                                     debug && (
                                         <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
@@ -759,16 +771,18 @@ class Send extends Component<Props, State> {
                             <Dialog
                                 title={t('send.scanQR')}
                                 onClose={this.toggleScanQR}>
+                                {videoLoading && <Spinner />}
                                 <video
                                     id="video"
                                     width={400}
                                     height={300 /* fix height to avoid ugly resize effect after open */}
-                                ></video>
+                                    className={style.qrVideo}
+                                    onLoadedData={this.handleVideoLoad} />
                                 <div class={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
                                     <Button
                                         secondary
-                                        onClick={this.toggleScanQR}
-                                    >{t('button.back')}
+                                        onClick={this.toggleScanQR}>
+                                        {t('button.back')}
                                     </Button>
                                 </div>
                             </Dialog>
