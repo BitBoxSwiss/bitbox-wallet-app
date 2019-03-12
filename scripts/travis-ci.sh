@@ -11,6 +11,7 @@ fi
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     export HOMEBREW_NO_AUTO_UPDATE=1
     brew outdated go || brew upgrade go
+    brew outdated node || brew upgrade node
     brew install yarn
     brew install qt
     export PATH="/usr/local/opt/qt/bin:$PATH"
