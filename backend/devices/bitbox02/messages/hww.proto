@@ -79,12 +79,52 @@ message PubResponse {
   string pub = 1;
 }
 
+message BTCSignInitRequest {
+  BTCCoin coin = 1;
+  BTCScriptType script_type = 2; // script type for inputs and changes
+  uint32 bip44_account = 3;
+  uint32 version = 4; // reserved, must be 1
+  uint32 num_inputs = 5;
+  uint32 num_outputs = 6;
+  uint32 locktime = 7; // reserved, must be 0
+}
+
+message BTCSignNextResponse {
+  enum Type {
+    INPUT = 0;
+    OUTPUT = 1;
+    DONE = 2;
+  }
+  Type type = 1;
+  uint32 index = 2;
+  bool has_signature = 3; // only as a response to BTCSignInputRequest
+  // 64 bytes (32 bytes big endian R, 32 bytes big endian S). Only if has_signature is true.
+  bytes signature = 4;
+}
+
+message BTCSignInputRequest {
+  bytes prevOutHash = 1;
+  uint32 prevOutIndex = 2;
+  uint64 prevOutValue = 3;
+  uint32 sequence = 4; // reserved, must be 0xffffffff
+  repeated uint32 keypath = 6; // all inputs must be ours.
+}
+
 enum BTCOutputType {
   UNKNOWN = 0;
   P2PKH = 1;
   P2SH = 2;
   P2WPKH = 3;
   P2WSH = 4;
+}
+
+message BTCSignOutputRequest {
+  bool ours = 1;
+  BTCOutputType type = 2; // if ours is false
+  // 20 bytes for p2pkh, p2sh, pw2wpkh. 32 bytes for p2wsh.
+  uint64 value = 3;
+  bytes hash = 4; // if ours is false
+  repeated uint32 keypath = 5; // if ours is true
 }
 
 message Request {
@@ -97,6 +137,9 @@ message Request {
         CreateBackupRequest create_backup = 6;
         ShowMnemonicRequest show_mnemonic = 7;
         BTCPubRequest btc_pub = 8;
+        BTCSignInitRequest btc_sign_init = 9;
+        BTCSignInputRequest btc_sign_input = 10;
+        BTCSignOutputRequest btc_sign_output = 11;
     }
 }
 
@@ -107,5 +150,6 @@ message Response {
         RandomNumberResponse random_number = 3;
         DeviceInfoResponse device_info = 4;
         PubResponse pub = 5;
+        BTCSignNextResponse btc_sign_next = 6;
     }
 }

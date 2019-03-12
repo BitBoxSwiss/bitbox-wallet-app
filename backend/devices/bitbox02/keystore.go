@@ -20,17 +20,11 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/sirupsen/logrus"
 )
-
-var msgCoinMap = map[string]messages.BTCCoin{
-	"btc":  messages.BTCCoin_BTC,
-	"tbtc": messages.BTCCoin_TBTC,
-	"ltc":  messages.BTCCoin_LTC,
-	"tltc": messages.BTCCoin_TLTC,
-}
 
 type keystore struct {
 	device        *Device
@@ -92,9 +86,19 @@ func (keystore *keystore) ExtendedPublicKey(
 	return hdkeychain.NewKeyFromString(xpubStr)
 }
 
-func (keystore *keystore) signBTCTransaction(*btc.ProposedTransaction) error {
-	keystore.log.Info("Sign btc transaction")
-	panic("todo")
+func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
+	signatures, err := keystore.device.BTCSign(btcProposedTx)
+	if isErrorAbort(err) {
+		return errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return err
+	}
+	for index, signature := range signatures {
+		signature := signature
+		btcProposedTx.Signatures[index][keystore.CosignerIndex()] = signature
+	}
+	return nil
 }
 
 func (keystore *keystore) signETHTransaction(*eth.TxProposal) error {
