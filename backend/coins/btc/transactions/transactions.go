@@ -589,6 +589,7 @@ func (transactions *Transactions) txInfo(
 		} else {
 			txType = accounts.TxTypeSend
 			addresses = sendAddresses
+			result = -result
 		}
 
 	}
