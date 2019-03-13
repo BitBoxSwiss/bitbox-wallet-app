@@ -31,8 +31,8 @@ type Props = ProvidedProps & TranslateProps;
 
 class SigningConfiguration extends Component<Props> {
 
-    private verifyPublicKey = () => {
-        apiPost(`account/${this.props.code}/verify-publickey`);
+    private verifyPublicKey = (index: number) => {
+        apiPost(`account/${this.props.code}/verify-publickey`, index);
     }
 
     public render({ t, info }: RenderableProps<Props>) {
@@ -49,7 +49,7 @@ class SigningConfiguration extends Component<Props> {
                             </strong><br />
                             <QRCode data={xpub} />
                             <CopyableInput value={xpub} />
-                            <Button primary onClick={this.verifyPublicKey}>
+                            <Button primary onClick={() => this.verifyPublicKey(index)}>
                                 {t('Verify')}
                             </Button>
                         </div>

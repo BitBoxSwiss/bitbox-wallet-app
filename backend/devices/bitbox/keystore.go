@@ -70,6 +70,16 @@ func (keystore *keystore) VerifyOutputAddress(
 		configuration.AbsoluteKeypath().Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(configuration.ScriptType())))
 }
 
+// HasSecureBTCPubOutput implements keystore.Keystore.
+func (keystore *keystore) HasSecureBTCPubOutput() bool {
+	return false
+}
+
+// VerifyBTCPub implements keystore.Keystore.
+func (keystore *keystore) VerifyBTCPub(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	return nil
+}
+
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *keystore) ExtendedPublicKey(
 	coin coin.Coin, keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {

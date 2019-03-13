@@ -43,6 +43,13 @@ type Keystore interface {
 	// Please note that this is only supported if the keystore has a secure output channel.
 	VerifyOutputAddress(*signing.Configuration, coin.Coin) error
 
+	// HasSecureBTCPubOutput returns whether the keystore supports to output an xpub/zpub/tbup/ypub securely.
+	// Only supported on v2
+	HasSecureBTCPubOutput() bool
+
+	// VerifyBTCPub displays the public key on the device for verification
+	VerifyBTCPub(coin.Coin, signing.AbsoluteKeypath, *signing.Configuration) error
+
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)
 

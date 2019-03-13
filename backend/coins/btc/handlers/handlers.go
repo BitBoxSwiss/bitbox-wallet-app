@@ -65,6 +65,7 @@ func NewHandlers(
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/verify-publickey", handlers.ensureAccountInitialized(handlers.postVerifyPublicKey)).Methods("POST")
 	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
 }
@@ -476,6 +477,19 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	return handlers.account.VerifyAddress(addressID)
+}
+
+func (handlers *Handlers) postVerifyPublicKey(r *http.Request) (interface{}, error) {
+	var index int
+	if err := json.NewDecoder(r.Body).Decode(&index); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	switch specificAccount := handlers.account.(type) {
+	case *btc.Account:
+		return specificAccount.VerifyPublicKey(index)
+	default:
+		return false, nil
+	}
 }
 
 func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {

@@ -624,3 +624,13 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	sort.Sort(sort.Reverse(&byValue{result}))
 	return result
 }
+
+// VerifyPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
+func (account *Account) VerifyPublicKey(index int) (bool, error) {
+	keystore := account.Keystores().AccessKeystoreByIndex(index)
+	hasSecureBTCPubOutput := keystore.HasSecureBTCPubOutput()
+	if hasSecureBTCPubOutput {
+		return true, keystore.VerifyBTCPub(account.Coin(), account.signingConfiguration.AbsoluteKeypath(), account.signingConfiguration)
+	}
+	return false, nil
+}

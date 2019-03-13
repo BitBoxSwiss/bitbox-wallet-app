@@ -90,6 +90,16 @@ func (keystore *Keystore) VerifyOutputAddress(*signing.Configuration, coin.Coin)
 	return errp.New("The software-based keystore has no secure output to display the address.")
 }
 
+// HasSecureBTCPubOutput implements keystore.Keystore.
+func (keystore *Keystore) HasSecureBTCPubOutput() bool {
+	return false
+}
+
+// VerifyBTCPub implements keystore.Keystore.
+func (keystore *Keystore) VerifyBTCPub(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	return errp.New("The software-based keystore has no secure output to display the public key.")
+}
+
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *Keystore) ExtendedPublicKey(
 	coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
