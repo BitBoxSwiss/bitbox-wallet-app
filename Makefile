@@ -45,6 +45,7 @@ servewallet-regtest:
 servewallet-multisig:
 	go install ./cmd/servewallet/... && servewallet -multisig
 buildweb:
+	node --version
 	rm -rf ${WEBROOT}/build
 	yarn --cwd=${WEBROOT} install
 	yarn --cwd=${WEBROOT} run build
