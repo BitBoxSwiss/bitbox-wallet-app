@@ -710,6 +710,7 @@
       "placeholder": "Calculating fee estimation…"
     },
     "maximum": "Send all",
+    "scanQR": "Scan QR Code",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
       "label": "Progress"

@@ -130,3 +130,29 @@
     font-size: var(--size-small);
     color: var(--color-secondary);
 }
+
+.inputWithIcon {
+    position: relative;
+}
+
+.inputWithIcon input {
+    padding-right: calc(var(--spacing-default) * 2 + 18px);
+}
+
+.qrButton {
+    border: none;
+    background-color: var(--color-white);
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    position: absolute;
+    bottom: 22px;
+    right: var(--spacing-default);
+    transform: translateY(50%);
+    cursor: pointer;
+}
+
+.qrVideo {
+    width: 100%;
+    margin-bottom: var(--spacing-default);
+}
