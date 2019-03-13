@@ -20,6 +20,7 @@ import (
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -35,6 +36,7 @@ type BitBox02 interface {
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
+	InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -58,6 +60,8 @@ func NewHandlers(
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
+	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 
 	return handlers
 }
@@ -152,4 +156,22 @@ func (handlers *Handlers) postChannelHashVerify(r *http.Request) (interface{}, e
 	}
 	handlers.device.ChannelHashVerify(verify)
 	return nil, nil
+}
+
+func (handlers *Handlers) postInsertSDCard(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Insert SD Card if not inserted")
+	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_INSERT_CARD)
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postRemoveSDCard(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Remove SD Card if inserted")
+	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }
