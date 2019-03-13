@@ -49,7 +49,7 @@ interface AccountProps {
     accounts: AccountInterface[];
 }
 
-interface AccountInfo {
+export interface AccountInfo {
     signingConfiguration: {
         scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
         keypath: string;

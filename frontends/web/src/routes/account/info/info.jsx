@@ -19,35 +19,12 @@ import { ButtonLink } from '../../../components/forms';
 import { Balance } from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { QRCode } from '../../../components/qrcode/qrcode';
 import { apiGet } from '../../../utils/request';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Header } from '../../../components/layout';
-import { CopyableInput } from '../../../components/copy/Copy';
 import * as style from './info.css';
-
-const SigningConfiguration = ({ t, signingConfiguration }) => {
-    return (
-        // TODO: add info if single or multisig, and threshold.
-        <div>
-            {
-                signingConfiguration.xpubs.map((xpub, index) => {
-                    return (
-                        <div key={xpub}>
-                            <strong>
-                                {t('accountInfo.extendedPublicKey')}
-                                {signingConfiguration.xpubs.length > 1 && (' #' + (index+1))}
-                            </strong><br />
-                            <QRCode data={xpub} />
-                            <CopyableInput value={xpub} />
-                        </div>
-                    );
-                })
-            }
-        </div>
-    );
-};
+import { SigningConfiguration } from './signingconfiguration';
 
 @translate()
 export default class Info extends Component {
@@ -104,8 +81,7 @@ export default class Info extends Component {
                         <div class="content padded flex flex-column flex-center">
                             <div class={style.infoContent}>
                                 <SigningConfiguration
-                                    t={t}
-                                    signingConfiguration={info.signingConfiguration} />
+                                    info={info} code={this.props.code} />
                             </div>
                         </div>
                         <div class={style.bottomButtons}>
