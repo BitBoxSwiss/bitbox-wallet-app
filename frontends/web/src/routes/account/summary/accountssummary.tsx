@@ -94,7 +94,7 @@ class AccountsSummary extends Component<Props, State> {
                                             </span>
                                         </A>
                                     ) : (
-                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
+                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('accountSummary.exportSummary')}>
                                                 <img src={exportIcon} />
                                             </a>
                                         )
