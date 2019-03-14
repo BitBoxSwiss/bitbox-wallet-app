@@ -73,7 +73,7 @@ class InitializeAllAccounts extends Component<Props, State> {
         }
     }
 
-    private onStatusChanged(code) {
+    private onStatusChanged(code: string) {
         apiGet(`account/${code}/status`).then(status => {
             const accountSynced = status.includes('accountSynced');
             if (!accountSynced && !status.includes('accountDisabled')) {
@@ -91,13 +91,13 @@ class InitializeAllAccounts extends Component<Props, State> {
         this.unsubscribe();
     }
 
-    public render({ t }: RenderableProps<Props>) {
+    public render({ t, accounts }: RenderableProps<Props>, { initialized }: State) {
         if (this.allInitialized()) {
             return <AccountsSummary />;
         }
         return (
             <div>
-                <Spinner text={t('accountSummary.synchronizing')}/>
+                <Spinner text={`${t('accountSummary.synchronizing')}: ${Object.values(initialized).filter(status => status).length}/${accounts.length}`}/>
             </div>
         );
     }
