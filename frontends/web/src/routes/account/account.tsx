@@ -35,6 +35,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { isBitcoinBased } from './utils';
+import { SigningConfigurationInterface } from './info/signingconfiguration';
 
 export interface AccountInterface {
     coinCode: 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
@@ -50,12 +51,7 @@ interface AccountProps {
 }
 
 export interface AccountInfo {
-    signingConfiguration: {
-        scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
-        keypath: string;
-        threshold: number;
-        xpubs: string[];
-    };
+    signingConfiguration: SigningConfigurationInterface;
 }
 
 interface State {

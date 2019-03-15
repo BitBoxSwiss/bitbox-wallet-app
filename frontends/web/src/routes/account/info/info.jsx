@@ -81,7 +81,7 @@ export default class Info extends Component {
                         <div class="content padded flex flex-column flex-center">
                             <div class={style.infoContent}>
                                 <SigningConfiguration
-                                    info={info} code={this.props.code} />
+                                    info={info.signingConfiguration} code={code} />
                             </div>
                         </div>
                         <div class={style.bottomButtons}>

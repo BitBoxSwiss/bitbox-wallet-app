@@ -20,19 +20,26 @@ import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-import { AccountInfo } from '../account';
 
 interface ProvidedProps {
-    info: AccountInfo;
+    info: SigningConfigurationInterface;
     code: string;
+}
+
+export interface SigningConfigurationInterface {
+    scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
+    keypath: string;
+    threshold: number;
+    xpubs: string[];
+    address: string;
 }
 
 type Props = ProvidedProps & TranslateProps;
 
 class SigningConfiguration extends Component<Props> {
 
-    private verifyPublicKey = (index: number) => {
-        apiPost(`account/${this.props.code}/verify-publickey`, index);
+    private verifyExtendedPublicKey = (index: number) => {
+        apiPost(`account/${this.props.code}/verify-extended-public-key`, index);
     }
 
     public render({ t, info }: RenderableProps<Props>) {
@@ -40,16 +47,16 @@ class SigningConfiguration extends Component<Props> {
         // TODO: add info if single or multisig, and threshold.
         <div>
             {
-                info.signingConfiguration.xpubs.map((xpub, index) => {
+                info.xpubs.map((xpub, index) => {
                     return (
                         <div key={xpub}>
                             <strong>
                                 {t('accountInfo.extendedPublicKey')}
-                                {info.signingConfiguration.xpubs.length > 1 && (' #' + (index + 1))}
+                                {info.xpubs.length > 1 && (' #' + (index + 1))}
                             </strong><br />
                             <QRCode data={xpub} />
                             <CopyableInput value={xpub} />
-                            <Button primary onClick={() => this.verifyPublicKey(index)}>
+                            <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
                                 {t('Verify')}
                             </Button>
                         </div>

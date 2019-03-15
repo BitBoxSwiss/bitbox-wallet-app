@@ -35,20 +35,19 @@ type Keystore interface {
 	// The returned value is always zero for a singlesig configuration.
 	CosignerIndex() int
 
-	// HasSecureOutput returns whether the keystore supports to output an address securely.
+	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
-	HasSecureOutput(*signing.Configuration, coin.Coin) (bool, error)
+	CanVerifyAddress(*signing.Configuration, coin.Coin) (bool, error)
 
-	// VerifyOutputAddress outputs the public key at the given configuration for the given coin.
+	// VerifyAddress outputs the public key at the given configuration for the given coin.
 	// Please note that this is only supported if the keystore has a secure output channel.
-	VerifyOutputAddress(*signing.Configuration, coin.Coin) error
+	VerifyAddress(*signing.Configuration, coin.Coin) error
 
-	// HasSecureBTCPubOutput returns whether the keystore supports to output an xpub/zpub/tbup/ypub securely.
-	// Only supported on v2
-	HasSecureBTCPubOutput() bool
+	// CanVerifyExtendedPublicKey returns whether the keystore supports to output an xpub/zpub/tbup/ypub securely.
+	CanVerifyExtendedPublicKey() bool
 
-	// VerifyBTCPub displays the public key on the device for verification
-	VerifyBTCPub(coin.Coin, signing.AbsoluteKeypath, *signing.Configuration) error
+	// VerifyExtendedPublicKey displays the public key on the device for verification
+	VerifyExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath, *signing.Configuration) error
 
 	// ExtendedPublicKey returns the extended public key at the given absolute keypath.
 	ExtendedPublicKey(coin.Coin, signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error)

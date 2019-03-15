@@ -40,21 +40,21 @@ func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
 }
 
-// HasSecureOutput implements keystore.Keystore.
-func (keystore *keystore) HasSecureOutput(configuration *signing.Configuration, coin coinpkg.Coin) (bool, error) {
+// CanVerifyAddress implements keystore.Keystore.
+func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration, coin coinpkg.Coin) (bool, error) {
 	_, ok := msgCoinMap[coin.Code()]
 	return ok, nil
 }
 
-// VerifyOutputAddress implements keystore.Keystore.
-func (keystore *keystore) VerifyOutputAddress(
+// VerifyAddress implements keystore.Keystore.
+func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
-	hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+	canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
 	if err != nil {
 		return err
 	}
-	if !hasSecureOutput {
-		panic("HasSecureOutput must be true")
+	if !canVerifyAddress {
+		panic("CanVerifyAddress must be true")
 	}
 	msgScriptType, ok := map[signing.ScriptType]messages.BTCScriptType{
 		signing.ScriptTypeP2PKH:      messages.BTCScriptType_SCRIPT_P2PKH,
@@ -70,45 +70,44 @@ func (keystore *keystore) VerifyOutputAddress(
 	return err
 }
 
-// HasSecureBTCPubOutput implements keystore.Keystore.
-func (keystore *keystore) HasSecureBTCPubOutput() bool {
+// CanVerifyExtendedPublicKey implements keystore.Keystore.
+func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
 	return true
 }
 
-func (keystore *keystore) VerifyBTCPub(coin coinpkg.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
-	if !keystore.HasSecureBTCPubOutput() {
-		panic("HasSecureOutput must be true")
+func (keystore *keystore) VerifyExtendedPublicKey(coin coinpkg.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	if !keystore.CanVerifyExtendedPublicKey() {
+		panic("CanVerifyExtendedPublicKey must be true")
 	}
 	msgCoin, ok := msgCoinMap[coin.Code()]
 	if !ok {
 		return errp.New("unsupported coin")
 	}
 	var msgOutputType messages.BTCPubRequest_OutputType
-	switch specificCoin := coin.(type) {
-	case *btc.Coin:
-		switch specificCoin.Net().Net {
-		case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
-			msgOutputTypes := map[signing.ScriptType]messages.BTCPubRequest_OutputType{
-				signing.ScriptTypeP2PKH:      messages.BTCPubRequest_XPUB,
-				signing.ScriptTypeP2WPKHP2SH: messages.BTCPubRequest_YPUB,
-				signing.ScriptTypeP2WPKH:     messages.BTCPubRequest_ZPUB,
-			}
-			msgOutputType, ok = msgOutputTypes[configuration.ScriptType()]
-			if !ok {
-				msgOutputType = messages.BTCPubRequest_XPUB
-			}
-		case chaincfg.TestNet3Params.Net, ltc.TestNet4Params.Net:
-			msgOutputType = messages.BTCPubRequest_TPUB
-		default:
+	btcCoin, ok := coin.(*btc.Coin)
+	if !ok {
+		return errp.New("A coin must be BTC based to support xpub verification")
+	}
+	switch btcCoin.Net().Net {
+	case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
+		msgOutputTypes := map[signing.ScriptType]messages.BTCPubRequest_OutputType{
+			signing.ScriptTypeP2PKH:      messages.BTCPubRequest_XPUB,
+			signing.ScriptTypeP2WPKHP2SH: messages.BTCPubRequest_YPUB,
+			signing.ScriptTypeP2WPKH:     messages.BTCPubRequest_ZPUB,
+		}
+		msgOutputType, ok = msgOutputTypes[configuration.ScriptType()]
+		if !ok {
 			msgOutputType = messages.BTCPubRequest_XPUB
 		}
-		_, err := keystore.device.BTCPub(
-			msgCoin, keyPath.ToUInt32(), msgOutputType, messages.BTCScriptType_SCRIPT_UNKNOWN, true)
-		if err != nil {
-			return err
-		}
+	case chaincfg.TestNet3Params.Net, ltc.TestNet4Params.Net:
+		msgOutputType = messages.BTCPubRequest_TPUB
 	default:
-		return nil
+		msgOutputType = messages.BTCPubRequest_XPUB
+	}
+	_, err := keystore.device.BTCPub(
+		msgCoin, keyPath.ToUInt32(), msgOutputType, messages.BTCScriptType_SCRIPT_UNKNOWN, true)
+	if err != nil {
+		return err
 	}
 	return nil
 }
