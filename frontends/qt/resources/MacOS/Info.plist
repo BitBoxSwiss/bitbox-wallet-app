@@ -40,5 +40,8 @@
 
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.finance</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>The camera is used to scan QR codes of receive addresses.</string>
 </dict>
 </plist>
