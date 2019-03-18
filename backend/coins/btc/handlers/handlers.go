@@ -65,6 +65,7 @@ func NewHandlers(
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
@@ -479,17 +480,24 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 	return handlers.account.VerifyAddress(addressID)
 }
 
+func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interface{}, error) {
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return nil, errp.New("An account must be BTC based to support xpub verification")
+	}
+	return btcAccount.CanVerifyExtendedPublicKey(), nil
+}
+
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
 	var index int
 	if err := json.NewDecoder(r.Body).Decode(&index); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	switch specificAccount := handlers.account.(type) {
-	case *btc.Account:
-		return specificAccount.VerifyExtendedPublicKey(index)
-	default:
-		return false, nil
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return nil, errp.New("An account must be BTC based to support xpub verification")
 	}
+	return btcAccount.VerifyExtendedPublicKey(index)
 }
 
 func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {

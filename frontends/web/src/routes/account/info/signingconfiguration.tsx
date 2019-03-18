@@ -19,7 +19,7 @@ import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiPost } from '../../../utils/request';
+import { apiGet, apiPost } from '../../../utils/request';
 
 interface ProvidedProps {
     info: SigningConfigurationInterface;
@@ -34,15 +34,30 @@ export interface SigningConfigurationInterface {
     address: string;
 }
 
+interface State {
+    canVerifyExtendedPublicKey: number[]; // holds a list of keystores which support secure verification
+}
+
 type Props = ProvidedProps & TranslateProps;
 
-class SigningConfiguration extends Component<Props> {
+class SigningConfiguration extends Component<Props, State> {
+    constructor(props) {
+        super(props);
+        this.state = ({ canVerifyExtendedPublicKey: [] });
+        this.canVerifyExtendedPublicKeys();
+    }
+
+    private canVerifyExtendedPublicKeys = () => {
+        apiGet(`account/${this.props.code}/can-verify-extended-public-key`).then(canVerifyExtendedPublicKey => {
+            this.setState({ canVerifyExtendedPublicKey });
+        });
+    }
 
     private verifyExtendedPublicKey = (index: number) => {
         apiPost(`account/${this.props.code}/verify-extended-public-key`, index);
     }
 
-    public render({ t, info }: RenderableProps<Props>) {
+    public render({ t, info }: RenderableProps<Props>, { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
         <div>
@@ -56,9 +71,10 @@ class SigningConfiguration extends Component<Props> {
                             </strong><br />
                             <QRCode data={xpub} />
                             <CopyableInput value={xpub} />
-                            <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
-                                {t('Verify')}
-                            </Button>
+                            { canVerifyExtendedPublicKey.includes(index) ?
+                                <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
+                                    {t('accountInfo.verify')}
+                                </Button> : '' }
                         </div>
                     );
                 })

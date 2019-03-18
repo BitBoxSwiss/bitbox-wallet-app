@@ -625,6 +625,11 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	return result
 }
 
+// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification
+func (account *Account) CanVerifyExtendedPublicKey() []int {
+	return account.Keystores().CanVerifyExtendedPublicKeys()
+}
+
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
 // index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
 func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {

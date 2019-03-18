@@ -105,6 +105,17 @@ func (keystores *Keystores) VerifyAddress(
 	return nil
 }
 
+// CanVerifyExtendedPublicKeys returns the indices of the keystores that support secure verification
+func (keystores *Keystores) CanVerifyExtendedPublicKeys() []int {
+	canVerifyExtendedPublicKey := []int{}
+	for index, keystore := range keystores.keystores {
+		if keystore.CanVerifyExtendedPublicKey() {
+			canVerifyExtendedPublicKey = append(canVerifyExtendedPublicKey, index)
+		}
+	}
+	return canVerifyExtendedPublicKey
+}
+
 // SignTransaction signs the given proposed transaction on all keystores. Returns ErrSigningAborted
 // if the user aborts.
 func (keystores *Keystores) SignTransaction(proposedTransaction interface{}) error {

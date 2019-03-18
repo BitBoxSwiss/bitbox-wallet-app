@@ -34,8 +34,8 @@ import Transactions from '../../components/transactions/transactions';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
-import { isBitcoinBased } from './utils';
 import { SigningConfigurationInterface } from './info/signingconfiguration';
+import { isBitcoinBased } from './utils';
 
 export interface AccountInterface {
     coinCode: 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
