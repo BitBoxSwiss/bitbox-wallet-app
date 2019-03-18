@@ -1,0 +1,322 @@
+.buttons > button:not(:last-child) {
+    margin-right: 24px;
+}
+
+.button {
+    border: none;
+    font-size: 14px;
+    font-weight: 300;
+    height: 52px;
+    min-width: 180px;
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 0 30px;
+}
+
+.button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.button.primary {
+    background-color: #55A4D0;
+    color: white;
+}
+
+.button.secondary {
+    background-color: #FFB761;
+    color: white;
+}
+
+.button.muted {
+    background-color: transparent;
+}
+
+.inputGroup {
+    padding-top: 18px;
+}
+
+.label {
+    color: #999999;
+    font-size: 12px;
+    font-weight: 300;
+    margin-bottom: 18px;
+}
+
+.input {
+    height: 52px;
+    border: solid 1px #E5E5E5;
+    border-radius: 2px;
+    padding: 0 30px;
+    min-width: 280px;
+    font-size: 14px;
+    font-weight: 300;
+}
+
+.input::placeholder {
+    color: #E5E5E5;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #55A4D0;
+}
+
+.headerContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    background-color: white;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.header, .content {
+    width: 920px;
+}
+
+.header {
+    height: 70px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-weight: 300;
+    font-size: 24px;
+}
+
+.content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.steps {
+    flex: 1;
+    background-color: #F9F9F9;
+    max-width: 920px;
+    width: 100%;
+    padding: 0 60px;
+}
+
+.step {
+    border-left: solid 1px #E9E9E9;
+    position: relative;
+    flex-shrink: 0;
+    flex-basis: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0;
+    margin-left: 18px;
+    width: calc(100% - 18px);
+    transition: all ease 0.2s;
+    animation-duration: 0.2s;
+}
+
+.step.empty {
+    border-left: none;
+}
+
+.step.empty + .step.active {
+    padding-top: 0;
+    margin-top: 60px;
+    min-height: calc(100% - 336px);
+}
+
+.step.hide {
+    display: none;
+}
+
+.step.complete {
+    margin-top: 60px;
+}
+
+.step.active {
+    flex: 1;
+    padding-bottom: 60px;
+    padding-top: 60px;
+    min-height: calc(100% - 276px);
+}
+
+.stepNumber {
+    position: relative;
+    left: -18px;
+}
+
+.stepNumber > span {
+    display: inline-block;
+    background-color: #CCCCCC;
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    font-weight: 300;
+    font-size: 14px;
+}
+
+.stepNumber > span > img {
+    width: 18px;
+    height: 18px;
+}
+
+.empty .stepNumber > span {
+    opacity: 0;
+}
+
+.active .stepNumber > span {
+    background-color: #89BFDE;
+}
+
+.stepContentContainer {
+    flex: 1;
+    margin-left: 30px;
+    opacity: 0.5;
+}
+
+.stepContentContainer {
+    flex: 1;
+    margin-left: 30px;
+    opacity: 0.5;
+}
+
+.active .stepContentContainer {
+    opacity: 1;
+}
+
+.stepContent {
+    min-height: 80px;
+    max-height: 180px;
+    overflow: hidden;
+    transition: all ease 0.5s;
+}
+
+.complete .stepContent {
+    min-height: 36px;
+    max-height: 36px;
+}
+
+.active .stepContent {
+    max-height: none;
+}
+
+.stepTitle h3 {
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 300;
+    margin: 9px 0 0 0;
+}
+
+.stepContext {
+    background-color: white;
+    padding: 40px 30px;
+    margin: 30px 0;
+    border-radius: 2px;
+}
+
+.stepContext.disabled {
+    opacity: 0.5;
+}
+
+.stepContext p {
+    font-size: 14px;
+    font-weight: 300;
+    margin: 18px 0;
+}
+
+.stepContext p:first-child {
+    margin-top: 0;
+}
+
+.stepContext p:last-child {
+    margin-bottom: 0;
+}
+
+.stepContext pre {
+    display: block;
+    background-color: #F1F1F1;
+    text-align: center;
+    font-size: 20px;
+    padding: 30px 0;
+}
+
+.stepContext pre:last-child {
+    margin-bottom: 0;
+}
+
+.stepContext ul {
+    list-style-type: none;
+    padding-left: 24px;
+}
+
+.stepContext ul li {
+    font-weight: 300;
+    font-size: 14px;
+}
+
+.stepContext ul li::before {
+    content: "\2b21";
+    display: inline-block;
+    color: #55A4D0;
+    position: relative;
+    top: -2px;
+    left: -24px;
+    margin-right: -12px;
+    transform: rotate(12deg);
+}
+
+.stepContext ul li:not(:last-child) {
+    margin-bottom: 8px;
+}
+
+.standOut {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.standOut.inline {
+    margin-top: 0;
+}
+
+.standOut > img {
+    width: 18px;
+    margin-right: 12px;
+}
+
+.standOut > span {
+    font-size: 14px;
+}
+
+.standOut > span.error {
+    color: #f62459;
+}
+
+.standOut > span.info {
+    color: #55A4D0;
+}
+
+@media (max-width: 1240px) {
+    .stepContentContainer {
+        margin-left: 0;
+    }
+}

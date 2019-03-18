@@ -20,6 +20,7 @@ import * as style from './dialog.css';
 interface Props {
     title?: string;
     small?: boolean;
+    large?: boolean;
     disableEscape?: boolean;
     onClose: (e: Event) => void;
 }
@@ -128,11 +129,14 @@ class Dialog extends Component<Props, State> {
         });
     }
 
-    public render({ title, small, children }: RenderableProps<Props>, { active }: State) {
+    public render(
+        { title, small, large, children }: RenderableProps<Props>,
+        { active }: State,
+    ) {
         const activeClass = active ? style.active : '';
         return (
             <div class={[style.overlay, activeClass].join(' ')}>
-                <div class={[style.modal, activeClass, small ? style.small : ''].join(' ')}>
+                <div class={[style.modal, activeClass, small ? style.small : '', large ? style.large : ''].join(' ')}>
                     {
                         title && (
                             <h3 class={style.modalHeader}>{title}</h3>
