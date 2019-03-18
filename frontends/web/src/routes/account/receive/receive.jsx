@@ -81,9 +81,9 @@ export default class Receive extends Component {
         const { receiveAddresses, activeIndex } = this.state;
         if (receiveAddresses !== null && activeIndex !== null) {
             this.setState({ verifying: true });
-            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(hasSecureOutput => {
+            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(canVerifyAddress => {
                 this.setState({ verifying: false });
-                if (!hasSecureOutput) {
+                if (!canVerifyAddress) {
                     this.unregisterEvents();
                     alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
                 }

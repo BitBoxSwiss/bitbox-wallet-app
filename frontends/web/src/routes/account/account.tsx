@@ -34,6 +34,7 @@ import Transactions from '../../components/transactions/transactions';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
+import { SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
 export interface AccountInterface {
@@ -49,13 +50,8 @@ interface AccountProps {
     accounts: AccountInterface[];
 }
 
-interface AccountInfo {
-    signingConfiguration: {
-        scriptType: 'p2pkh' | 'p2wpkh-p2sh' | 'p2pkh';
-        keypath: string;
-        threshold: number;
-        xpubs: string[];
-    };
+export interface AccountInfo {
+    signingConfiguration: SigningConfigurationInterface;
 }
 
 interface State {

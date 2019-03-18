@@ -561,12 +561,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	hasSecureOutput, err := account.Keystores().HaveSecureOutput(address.Configuration, account.Coin())
+	canVerifyAddress, err := account.Keystores().CanVerifyAddresses(address.Configuration, account.Coin())
 	if err != nil {
 		return false, err
 	}
-	if hasSecureOutput {
-		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
+	if canVerifyAddress {
+		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -623,4 +623,19 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	}
 	sort.Sort(sort.Reverse(&byValue{result}))
 	return result
+}
+
+// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification
+func (account *Account) CanVerifyExtendedPublicKey() []int {
+	return account.Keystores().CanVerifyExtendedPublicKeys()
+}
+
+// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
+// index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
+func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
+	keystore := account.Keystores().AccessKeystoreByIndex(index)
+	if keystore.CanVerifyExtendedPublicKey() {
+		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.signingConfiguration.AbsoluteKeypath(), account.signingConfiguration)
+	}
+	return false, nil
 }

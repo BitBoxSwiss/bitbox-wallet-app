@@ -46,8 +46,8 @@ func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
 }
 
-// HasSecureOutput implements keystore.Keystore.
-func (keystore *keystore) HasSecureOutput(
+// CanVerifyAddress implements keystore.Keystore.
+func (keystore *keystore) CanVerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
 	if err != nil {
@@ -56,18 +56,29 @@ func (keystore *keystore) HasSecureOutput(
 	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), nil
 }
 
-// OutputAddress implements keystore.Keystore.
-func (keystore *keystore) OutputAddress(
+// VerifyAddress implements keystore.Keystore.
+func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
-	hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+	canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
 	if err != nil {
 		return err
 	}
-	if !hasSecureOutput {
-		panic("HasSecureOutput must be true")
+	if !canVerifyAddress {
+		panic("canVerifyAddress must be true")
 	}
 	return keystore.dbb.displayAddress(
 		configuration.AbsoluteKeypath().Encode(), fmt.Sprintf("%s-%s", coin.Code(), string(configuration.ScriptType())))
+}
+
+// CanVerifyExtendedPublicKey implements keystore.Keystore.
+func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
+	return false
+}
+
+// VerifyExtendedPublicKey implements keystore.Keystore.
+func (keystore *keystore) VerifyExtendedPublicKey(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	keystore.log.Panic("BitBox v1 does not have a screen to verify the xpub")
+	return nil
 }
 
 // ExtendedPublicKey implements keystore.Keystore.

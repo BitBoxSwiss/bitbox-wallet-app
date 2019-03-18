@@ -17,7 +17,8 @@
   },
   "accountInfo": {
     "extendedPublicKey": "Extended Public Key",
-    "title": "Account Information"
+    "title": "Account Information",
+    "verify": "Verify on device"
   },
   "accountSummary": {
     "balance": "Balance",
