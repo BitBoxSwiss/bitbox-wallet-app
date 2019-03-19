@@ -454,6 +454,10 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 		if handlers.account.Offline() {
 			status = append(status, btc.OfflineMode)
 		}
+
+		if handlers.account.FatalError() {
+			status = append(status, btc.FatalError)
+		}
 	}
 	return status, nil
 }

@@ -63,6 +63,7 @@ interface State {
     hasCard: boolean;
     exported: string;
     accountInfo?: AccountInfo;
+    fatalError: boolean;
 }
 
 type Props = AccountProps & TranslateProps;
@@ -82,6 +83,7 @@ class Account extends Component<Props, State> {
         hasCard: false,
         exported: '',
         accountInfo: undefined,
+        fatalError: false,
     };
 
     private unsubscribe!: () => void;
@@ -160,6 +162,7 @@ class Account extends Component<Props, State> {
             const state = {
                 initialized: status.includes('accountSynced'),
                 connected: !status.includes('offlineMode'),
+                fatalError: status.includes('fatalError'),
                 determiningStatus: false,
             };
             if (!state.initialized && !status.includes('accountDisabled')) {
@@ -177,7 +180,7 @@ class Account extends Component<Props, State> {
     }
 
     private onAccountChanged = () => {
-        if (!this.props.code) {
+        if (!this.props.code || this.state.fatalError) {
             return;
         }
         if (this.state.initialized && this.state.connected) {
@@ -195,6 +198,9 @@ class Account extends Component<Props, State> {
     }
 
     private export = () => {
+        if (this.state.fatalError) {
+            return;
+        }
         apiPost(`account/${this.props.code}/export`).then(exported => {
             this.setState({ exported });
         });
@@ -223,6 +229,7 @@ class Account extends Component<Props, State> {
             hasCard,
             exported,
             accountInfo,
+            fatalError,
         }: State) {
         const account = accounts &&
                         accounts.find(acct => acct.code === code);
@@ -289,10 +296,11 @@ class Account extends Component<Props, State> {
                     <div class={['innerContainer', ''].join(' ')}>
                         {initialized && !determiningStatus && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                         {
-                            !initialized || !connected ? (
+                            !initialized || !connected || fatalError ? (
                                 <Spinner text={
                                     !connected && t('account.reconnecting') ||
-                                    !initialized && t('account.initializing')
+                                    !initialized && t('account.initializing') ||
+                                    fatalError && t('account.fatalError')
                                 } />
                             ) : (
                                     <Transactions

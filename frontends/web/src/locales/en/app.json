@@ -2,6 +2,7 @@
   "account": {
     "disconnect": "Connection lost. Retrying…",
     "exportTransactions": "Export Transactions to Downloads Folder as CSV File",
+    "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "info": {
       "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",

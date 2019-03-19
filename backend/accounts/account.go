@@ -34,6 +34,7 @@ type Interface interface {
 	Initialize() error
 	Initialized() bool
 	Offline() bool
+	FatalError() bool
 	Close()
 	Notifier() Notifier
 	Transactions() []Transaction
