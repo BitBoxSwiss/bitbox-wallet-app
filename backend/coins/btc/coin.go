@@ -22,11 +22,14 @@ import (
 	"sync"
 
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcutil"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
@@ -163,4 +166,17 @@ func (coin *Coin) SmallestUnit() string {
 	default:
 		return "satoshi"
 	}
+}
+
+// DecodeAddress decodes a btc/ltc address, checking that that the format matches the account coin
+// type.
+func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
+	btcAddress, err := btcutil.DecodeAddress(address, coin.Net())
+	if err != nil {
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
+	}
+	if !btcAddress.IsForNet(coin.Net()) {
+		return nil, errp.WithStack(errors.ErrInvalidAddress)
+	}
+	return btcAddress, nil
 }
