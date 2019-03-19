@@ -225,6 +225,8 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 			} else {
 				panic(errp.Newf("Unrecoverable error happened in read channel: %v", r))
 			}
+		} else if client.close {
+			client.setStatus(rpc.DISCONNECTED)
 		}
 	}()
 	reader := bufio.NewReader(connection.conn)
@@ -591,6 +593,7 @@ func (client *RPCClient) send(msg []byte) *SocketError {
 
 // Close shuts down the connection.
 func (client *RPCClient) Close() {
+	client.log.Debug("closing rpc client")
 	client.close = true
 }
 
