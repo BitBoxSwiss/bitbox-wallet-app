@@ -19,7 +19,6 @@ import (
 
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
@@ -47,12 +46,9 @@ func (account *Account) newTx(
 
 	account.log.Debug("Prepare new transaction")
 
-	address, err := btcutil.DecodeAddress(recipientAddress, account.coin.Net())
+	address, err := account.coin.DecodeAddress(recipientAddress)
 	if err != nil {
-		return nil, nil, errp.WithStack(errors.ErrInvalidAddress)
-	}
-	if !address.IsForNet(account.coin.Net()) {
-		return nil, nil, errp.WithStack(errors.ErrInvalidAddress)
+		return nil, nil, err
 	}
 
 	var feeTarget *FeeTarget

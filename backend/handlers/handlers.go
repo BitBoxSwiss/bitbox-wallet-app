@@ -29,8 +29,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/btcsuite/btcutil"
-
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
@@ -389,7 +387,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 			if !ok {
 				panic("unexpected tyep, expected: *btc.Coin")
 			}
-			_, err := btcutil.DecodeAddress(jsonAddress, btcCoin.Net())
+			_, err := btcCoin.DecodeAddress(jsonAddress)
 			if err != nil {
 				return map[string]interface{}{"success": false, "errorCode": "invalidAddress"}, nil
 			}
