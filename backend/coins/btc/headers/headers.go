@@ -169,7 +169,7 @@ func (headers *Headers) download() {
 				func(blockHeaders []*wire.BlockHeader, max int) error {
 					batchChan <- batchInfo{blockHeaders, max}
 					return nil
-				}, func() {})
+				}, func(error) {})
 			batch := <-batchChan
 			if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
 				headers.log.WithError(err).Panic("processBatch")

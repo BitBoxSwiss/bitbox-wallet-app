@@ -42,9 +42,9 @@ type callbacks struct {
 	// success is called when a successful response has been received.
 	success func([]byte) error
 	// setupAndTeardown will be called before the response has been received.
-	setupAndTeardown func() func()
+	setupAndTeardown func() func(error)
 	// cleanup will be called after the response has been received.
-	cleanup func()
+	cleanup func(error)
 }
 
 // SocketError indicates an error when reading from or writing to a network socket.
@@ -314,16 +314,16 @@ func (client *RPCClient) conn() (*connection, error) {
 // be executed in the resendPendingRequest() function.
 // If resendPendingRequest() is already running, the pending requests are executed again but the
 // response is ignored because the request already finished with the previous connection.
-func (client *RPCClient) cleanupFinishedRequest(conn *connection, responseID int) {
+func (client *RPCClient) cleanupFinishedRequest(responseError error, conn *connection, responseID int) {
 	defer client.pendingRequestsLock.Lock()()
 	finishedRequest := client.pendingRequests[responseID]
-	finishedRequest.responseCallbacks.cleanup()
-	if client.isSubscriptionRequest(finishedRequest.method) {
+	finishedRequest.responseCallbacks.cleanup(responseError)
+	if responseError != nil && client.isSubscriptionRequest(finishedRequest.method) {
 		func() {
 			defer client.subscriptionRequestsLock.Lock()()
-			// if connection is still up and running we add it to the list of subscription requests and
-			// remove it from the collection of pending requests.
-			// Otherwise it remains in the collection of pending requests.
+			// if connection is still up and running we add it to the list of subscription requests
+			// and remove it from the collection of pending requests.  Otherwise it remains in the
+			// collection of pending requests.
 			defer client.connLock.Lock()()
 			if client.connection == conn {
 				client.subscriptionRequests = append(client.subscriptionRequests, finishedRequest)
@@ -331,8 +331,8 @@ func (client *RPCClient) cleanupFinishedRequest(conn *connection, responseID int
 			}
 		}()
 	} else {
-		// All non-subscription requests that are not resend are handled and can be removed from the collection of
-		// pending requests.
+		// All non-subscription requests that are not resend are handled and can be removed from the
+		// collection of pending requests.
 		delete(client.pendingRequests, responseID)
 	}
 }
@@ -382,20 +382,20 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 		runlock := client.pendingRequestsLock.RLock()
 		pendingRequest, ok := client.pendingRequests[*response.ID]
 		runlock()
-		var responseError *ResponseError
+		var responseError error
 		if ok {
 			responseCallbacks := pendingRequest.responseCallbacks
 			if response.Error != nil {
 				responseError = &ResponseError{errp.New(parseError(*response.Error))}
 			} else if len(response.Result) == 0 {
-				responseError = &ResponseError{errp.New("unexpected reply")}
+				responseError = &ResponseError{errp.New("unexpected reply from ElectrumX")}
 			} else if err := responseCallbacks.success([]byte(response.Result)); err != nil {
 				responseError = &ResponseError{errp.Cause(err)}
 			}
-			if responseError != nil {
-				panic(responseError)
-			}
-			defer client.cleanupFinishedRequest(conn, *response.ID)
+			// if responseError != nil {
+			// 	panic(responseError)
+			// }
+			defer client.cleanupFinishedRequest(responseError, conn, *response.ID)
 		} else {
 			unlock := client.pingRequestsLock.Lock()
 			_, ok := client.pingRequests[*response.ID]
@@ -424,7 +424,7 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 				responseCallback([]byte(response.Params))
 			}
 		}()
-	} else if response.Error != nil {
+	} else if response.ID == nil && response.Error != nil {
 		panic(&ResponseError{errp.Newf("Unexpected response: %v", response.Error)})
 	}
 }
@@ -493,12 +493,12 @@ func (client *RPCClient) transform(
 // prepare ...
 func (client *RPCClient) prepare(
 	success func([]byte) error,
-	setupAndTeardown func() func(),
+	setupAndTeardown func() func(error),
 	method string,
 	params ...interface{},
 ) []byte {
 	// Ideally, we should have a worker thread that processes a "to be send" list.
-	cleanup := func() {}
+	cleanup := func(error) {}
 	if setupAndTeardown != nil {
 		cleanup = setupAndTeardown()
 	}
@@ -527,7 +527,7 @@ func (client *RPCClient) prepare(
 // The success callback is called with the response. cleanup is called afterwards.
 func (client *RPCClient) Method(
 	success func([]byte) error,
-	setupAndTeardown func() func(),
+	setupAndTeardown func() func(error),
 	method string,
 	params ...interface{},
 ) {
@@ -550,7 +550,7 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 			responseChan <- responseBytes
 			return nil
 		},
-		func() func() { return func() {} },
+		func() func(error) { return func(error) {} },
 		method, params...)
 	select {
 	case err := <-errChan:

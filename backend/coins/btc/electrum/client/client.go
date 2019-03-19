@@ -183,7 +183,7 @@ type Balance struct {
 func (client *ElectrumClient) ScriptHashGetBalance(
 	scriptHashHex string,
 	success func(*Balance) error,
-	cleanup func()) {
+	cleanup func(error)) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
 			response := &Balance{}
@@ -193,7 +193,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 			}
 			return success(response)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.scripthash.get_balance",
@@ -205,7 +205,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex blockchain.ScriptHashHex,
 	success func(blockchain.TxHistory) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -216,7 +216,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 			}
 			return success(txs)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.scripthash.get_history",
@@ -226,7 +226,7 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 // ScriptHashSubscribe does the blockchain.scripthash.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashsubscribe
 func (client *ElectrumClient) ScriptHashSubscribe(
-	setupAndTeardown func() func(),
+	setupAndTeardown func() func(error),
 	scriptHashHex blockchain.ScriptHashHex,
 	success func(string) error,
 ) {
@@ -267,7 +267,7 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -281,7 +281,7 @@ func (client *ElectrumClient) TransactionGet(
 			}
 			return success(tx)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.transaction.get",
@@ -296,7 +296,7 @@ type Header struct {
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
 func (client *ElectrumClient) HeadersSubscribe(
-	setupAndTeardown func() func(),
+	setupAndTeardown func() func(error),
 	success func(*blockchain.Header) error,
 ) {
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
@@ -394,7 +394,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
 func (client *ElectrumClient) RelayFee(
 	success func(btcutil.Amount) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(func(responseBytes []byte) error {
 		var fee float64
@@ -406,7 +406,7 @@ func (client *ElectrumClient) RelayFee(
 			return errp.Wrap(err, "Failed to construct BTC amount")
 		}
 		return success(amount)
-	}, func() func() { return cleanup }, "blockchain.relayfee")
+	}, func() func(error) { return cleanup }, "blockchain.relayfee")
 }
 
 // EstimateFee estimates the fee rate (unit/kB) needed to be confirmed within the given number of
@@ -416,7 +416,7 @@ func (client *ElectrumClient) RelayFee(
 func (client *ElectrumClient) EstimateFee(
 	number int,
 	success func(*btcutil.Amount) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -433,7 +433,7 @@ func (client *ElectrumClient) EstimateFee(
 			}
 			return success(&amount)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.estimatefee",
@@ -461,7 +461,7 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 func (client *ElectrumClient) Headers(
 	startHeight int, count int,
 	success func(headers []*wire.BlockHeader, max int) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -485,7 +485,7 @@ func (client *ElectrumClient) Headers(
 			}
 			return success(headers, response.Max)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.block.headers",
@@ -497,7 +497,7 @@ func (client *ElectrumClient) Headers(
 func (client *ElectrumClient) GetMerkle(
 	txHash chainhash.Hash, height int,
 	success func(merkle []blockchain.TXHash, pos int) error,
-	cleanup func(),
+	cleanup func(error),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -514,7 +514,7 @@ func (client *ElectrumClient) GetMerkle(
 			}
 			return success(response.Merkle, response.Pos)
 		},
-		func() func() {
+		func() func(error) {
 			return cleanup
 		},
 		"blockchain.transaction.get_merkle",

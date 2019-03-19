@@ -258,7 +258,7 @@ func (account *Account) Initialize() error {
 			account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
 	}
 	account.ensureAddresses()
-	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
+	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
 }
 
@@ -380,12 +380,12 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						account.blockchain.RelayFee(setFee, func() {})
+						account.blockchain.RelayFee(setFee, func(error) {})
 						return nil
 					}
 					return setFee(*feeRatePerKb)
 				},
-				func() {},
+				func(error) {},
 			)
 		}(feeTarget)
 	}
@@ -460,7 +460,12 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 			account.ensureAddresses()
 			return nil
 		},
-		func() { done() },
+		func(err error) {
+			done()
+			if err != nil {
+				panic(err)
+			}
+		},
 	)
 }
 
@@ -514,7 +519,15 @@ func (account *Account) subscribeAddress(
 	address.HistoryStatus = addressHistory.Status()
 
 	account.blockchain.ScriptHashSubscribe(
-		account.synchronizer.IncRequestsCounter,
+		func() func(error) {
+			done := account.synchronizer.IncRequestsCounter()
+			return func(err error) {
+				done()
+				if err != nil {
+					panic(err)
+				}
+			}
+		},
 		address.PubkeyScriptHashHex(),
 		func(status string) error { account.onAddressStatus(address, status); return nil },
 	)
