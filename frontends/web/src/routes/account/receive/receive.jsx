@@ -119,7 +119,7 @@ export default class Receive extends Component {
     }
 
     getAccount() {
-        if (!this.props.accounts) return null;
+        if (!this.props.accounts) return undefined;
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
@@ -133,7 +133,7 @@ export default class Receive extends Component {
         paired,
     }) {
         const account = this.getAccount();
-        if (account === null) {
+        if (!account) {
             return null;
         }
         let uriPrefix = 'bitcoin:';

@@ -72,6 +72,7 @@ type Account struct {
 
 	initialized bool
 	offline     bool
+	fatalError  bool
 	onEvent     func(accounts.Event)
 	log         *logrus.Entry
 }
@@ -91,6 +92,10 @@ const (
 
 	// OfflineMode indicates that the connection to the blockchain network could not be established.
 	OfflineMode Status = "offlineMode"
+
+	// FatalError indicates that there was a fatal error in handling the account. When this happens,
+	// an error is shown to the user and the account is made unusable.
+	FatalError Status = "fatalError"
 )
 
 // NewAccount creates a new account.
@@ -258,7 +263,7 @@ func (account *Account) Initialize() error {
 			account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
 	}
 	account.ensureAddresses()
-	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
+	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
 }
 
@@ -336,6 +341,11 @@ func (account *Account) Initialized() bool {
 	return account.initialized
 }
 
+// FatalError returns true if the account had a fatal error.
+func (account *Account) FatalError() bool {
+	return account.fatalError
+}
+
 // Close stops the account.
 func (account *Account) Close() {
 	account.log.Info("Closed account")
@@ -380,12 +390,12 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						account.blockchain.RelayFee(setFee, func() {})
+						account.blockchain.RelayFee(setFee, func(error) {})
 						return nil
 					}
 					return setFee(*feeRatePerKb)
 				},
-				func() {},
+				func(error) {},
 			)
 		}(feeTarget)
 	}
@@ -460,7 +470,15 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 			account.ensureAddresses()
 			return nil
 		},
-		func() { done() },
+		func(err error) {
+			done()
+			if err != nil {
+				// We are not closing client.blockchain here, as it is reused per coin with
+				// different accounts.
+				account.fatalError = true
+				account.onEvent(accounts.EventStatusChanged)
+			}
+		},
 	)
 }
 
@@ -514,7 +532,15 @@ func (account *Account) subscribeAddress(
 	address.HistoryStatus = addressHistory.Status()
 
 	account.blockchain.ScriptHashSubscribe(
-		account.synchronizer.IncRequestsCounter,
+		func() func(error) {
+			done := account.synchronizer.IncRequestsCounter()
+			return func(err error) {
+				done()
+				if err != nil {
+					panic(err)
+				}
+			}
+		},
 		address.PubkeyScriptHashHex(),
 		func(status string) error { account.onAddressStatus(address, status); return nil },
 	)

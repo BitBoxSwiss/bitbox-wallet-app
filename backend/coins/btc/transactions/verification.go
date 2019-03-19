@@ -114,5 +114,10 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 			}
 			return dbTx.Commit()
 		},
-		func() { done() })
+		func(err error) {
+			done()
+			if err != nil {
+				panic(err)
+			}
+		})
 }

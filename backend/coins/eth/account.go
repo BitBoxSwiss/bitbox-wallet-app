@@ -308,6 +308,11 @@ func (account *Account) Offline() bool {
 	return account.offline
 }
 
+// FatalError implements accounts.Interface.
+func (account *Account) FatalError() bool {
+	return false
+}
+
 // Close implements accounts.Interface.
 func (account *Account) Close() {
 	account.log.Info("Closed account")

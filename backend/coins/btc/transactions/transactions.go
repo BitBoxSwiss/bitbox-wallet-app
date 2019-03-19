@@ -375,7 +375,12 @@ func (transactions *Transactions) doForTransaction(
 			delete(transactions.requestedTXs, txHash)
 			return dbTx.Commit()
 		},
-		func() { done() },
+		func(err error) {
+			done()
+			if err != nil {
+				panic(err)
+			}
+		},
 	)
 }
 
