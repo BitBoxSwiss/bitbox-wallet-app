@@ -513,6 +513,7 @@
       "placeholderRepeat": "Please confirm device password"
     }
   },
+  "invalidFormat": "Invalid format",
   "language": {
     "title": "Select language"
   },
