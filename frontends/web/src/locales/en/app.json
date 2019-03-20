@@ -28,8 +28,8 @@
     "fiatBalance": "Fiat Balance",
     "name": "Account Name",
     "noAccount": "There are no accounts to show.",
-    "synchronizing": "Synchronizing all accounts...",
-    "title": "Account Summary",
+    "synchronizing": "Synchronizing accounts with their blockchains: ",
+    "title": "Accounts Summary",
     "total": "Total"
   },
   "addAccount": {
@@ -653,7 +653,7 @@
     "info": {
       "button": "Continue",
       "description1": "Insert the micro SD card in to the BitBox and click “Continue”",
-      "description2": "Choose a backup on the and click “Restore”",
+      "description2": "Choose a backup and click “Restore”",
       "description3": "Enter the recovery password",
       "description4": "You need to confirm to understand that an incorrect password will create a different wallet.",
       "title": "How to restore a wallet from a backup"
