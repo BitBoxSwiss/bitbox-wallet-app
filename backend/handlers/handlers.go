@@ -36,6 +36,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	accountHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
@@ -385,7 +386,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		case "btc", "ltc", "tbtc", "tltc":
 			btcCoin, ok := coin.(*btc.Coin)
 			if !ok {
-				panic("unexpected tyep, expected: *btc.Coin")
+				panic("unexpected type, expected: *btc.Coin")
 			}
 			_, err := btcCoin.DecodeAddress(jsonAddress)
 			if err != nil {
@@ -749,6 +750,10 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		"Name",
 		"Balance",
 		"Unit",
+		"Type",
+		"Xpub",
+		"Address",
+		"Script Type",
 	})
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -763,11 +768,37 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		accountName := account.Name()
 		balance := account.Balance().Available().BigInt().String()
 		unit := account.Coin().SmallestUnit()
+		var accountType string
+		var xpubs string
+		var address string
+		var scriptType string
+		if signingConfiguration := account.Info().SigningConfiguration; signingConfiguration.IsAddressBased() {
+			accountType = "address"
+			address = signingConfiguration.Address()
+		} else {
+			accountType = "xpub"
+			for _, xpub := range account.Info().SigningConfiguration.ExtendedPublicKeys() {
+				xpubs += xpub.String() + "; "
+			}
+			switch specificAccount := account.(type) {
+			case *btc.Account:
+				scriptType = string(specificAccount.Info().SigningConfiguration.ScriptType())
+			case *eth.Account:
+				address = signingConfiguration.Address()
+			default:
+				return nil, nil
+			}
+		}
+
 		err = writer.Write([]string{
 			coin,
 			accountName,
 			balance,
 			unit,
+			accountType,
+			xpubs,
+			address,
+			scriptType,
 		})
 		if err != nil {
 			return nil, errp.WithStack(err)

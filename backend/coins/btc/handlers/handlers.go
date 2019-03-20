@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -485,11 +486,15 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 }
 
 func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interface{}, error) {
-	btcAccount, ok := handlers.account.(*btc.Account)
-	if !ok {
-		return nil, errp.New("An account must be BTC based to support xpub verification")
+	switch specificAccount := handlers.account.(type) {
+	case *btc.Account:
+		return specificAccount.CanVerifyExtendedPublicKey(), nil
+	case *eth.Account:
+		// No xpub verification for ethereum accounts
+		return []int{}, nil
+	default:
+		return nil, nil
 	}
-	return btcAccount.CanVerifyExtendedPublicKey(), nil
 }
 
 func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {

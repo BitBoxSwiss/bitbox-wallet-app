@@ -84,7 +84,7 @@ const COIN_AND_ACCOUNT_CODES = {
         scriptType: 'p2pkh',
     },
     'tbtc-addr': {
-        name: 'Bitcoin Address',
+        name: 'Bitcoin Testnet Address',
         coinCode: 'tbtc',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
     },
@@ -99,7 +99,7 @@ const COIN_AND_ACCOUNT_CODES = {
         scriptType: 'p2wpkh',
     },
     'tltc-addr': {
-        name: 'Litecoin Address',
+        name: 'Litecoin Testnet Address',
         coinCode: 'tltc',
         scriptType: 'p2wpkh', // TODO dummy script type to pass DecodeScriptType
     },

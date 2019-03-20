@@ -61,7 +61,15 @@ class SigningConfiguration extends Component<Props, State> {
         return (
         // TODO: add info if single or multisig, and threshold.
         <div>
-            {
+            { info.address ?
+                <div>
+                    <strong>
+                        {t('accountInfo.address')}
+                    </strong><br />
+                    <QRCode data={info.address} />
+                    <CopyableInput value={info.address} />
+                </div>
+                    :
                 info.xpubs.map((xpub, index) => {
                     return (
                         <div key={xpub}>

@@ -17,12 +17,14 @@
     "reconnecting": "Lost connection, trying to reconnect…"
   },
   "accountInfo": {
+    "address": "Address",
     "extendedPublicKey": "Extended Public Key",
     "title": "Account Information",
     "verify": "Verify on device"
   },
   "accountSummary": {
     "balance": "Balance",
+    "exportSummary": "Export Accounts Summary to Downloads Folder as CSV File",
     "fiatBalance": "Fiat Balance",
     "name": "Account Name",
     "noAccount": "There are no accounts to show.",

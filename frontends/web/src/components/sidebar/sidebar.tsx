@@ -63,7 +63,7 @@ function Sidebar(
                 </div>
                 {debug &&
                     <div className="sideBarItem">
-                        <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title="Account Summary">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title={t('accountSummary.title')}>
                                 <div className="single">
                                     <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
                                 </div>

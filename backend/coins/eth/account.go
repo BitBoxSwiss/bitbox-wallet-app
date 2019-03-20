@@ -113,7 +113,9 @@ func NewAccount(
 
 // Info implements accounts.Interface.
 func (account *Account) Info() *accounts.Info {
-	return nil
+	return &accounts.Info{
+		SigningConfiguration: account.signingConfiguration,
+	}
 }
 
 // Code implements accounts.Interface.
@@ -176,6 +178,14 @@ func (account *Account) Initialize() error {
 			Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 		}
 	}
+
+	account.signingConfiguration = signing.NewConfiguration(
+		account.signingConfiguration.ScriptType(),
+		account.signingConfiguration.AbsoluteKeypath(),
+		account.signingConfiguration.ExtendedPublicKeys(),
+		account.address.String(),
+		account.signingConfiguration.SigningThreshold(),
+	)
 
 	account.coin.Initialize()
 	go account.poll()
