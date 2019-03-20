@@ -2,7 +2,6 @@
   "account": {
     "disconnect": "Connection lost. Retrying…",
     "exportTransactions": "Export Transactions to Downloads Folder as CSV File",
-    "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "info": {
       "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
@@ -17,19 +16,16 @@
     "reconnecting": "Lost connection, trying to reconnect…"
   },
   "accountInfo": {
-    "address": "Address",
     "extendedPublicKey": "Extended Public Key",
-    "title": "Account Information",
-    "verify": "Verify on device"
+    "title": "Account Information"
   },
   "accountSummary": {
     "balance": "Balance",
-    "exportSummary": "Export Accounts Summary to Downloads Folder as CSV File",
     "fiatBalance": "Fiat Balance",
     "name": "Account Name",
     "noAccount": "There are no accounts to show.",
-    "synchronizing": "Synchronizing all accounts...",
-    "title": "Account Summary",
+    "synchronizing": "Synchronizing accounts with their blockchains: ",
+    "title": "Accounts Summary",
     "total": "Total"
   },
   "addAccount": {
@@ -516,7 +512,6 @@
       "placeholderRepeat": "Please confirm device password"
     }
   },
-  "invalidFormat": "Invalid format",
   "language": {
     "title": "Select language"
   },
@@ -653,7 +648,7 @@
     "info": {
       "button": "Continue",
       "description1": "Insert the micro SD card in to the BitBox and click “Continue”",
-      "description2": "Choose a backup on the and click “Restore”",
+      "description2": "Choose a backup and click “Restore”",
       "description3": "Enter the recovery password",
       "description4": "You need to confirm to understand that an incorrect password will create a different wallet.",
       "title": "How to restore a wallet from a backup"
@@ -715,7 +710,6 @@
       "placeholder": "Calculating fee estimation…"
     },
     "maximum": "Send all",
-    "scanQR": "Scan QR Code",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
       "label": "Progress"
