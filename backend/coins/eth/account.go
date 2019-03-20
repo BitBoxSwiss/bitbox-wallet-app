@@ -342,15 +342,15 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 // Transactions implements accounts.Interface.
-func (account *Account) Transactions() []accounts.Transaction {
+func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	account.synchronizer.WaitSynchronized()
-	return account.transactions
+	return account.transactions, nil
 }
 
 // Balance implements accounts.Interface.
-func (account *Account) Balance() *accounts.Balance {
+func (account *Account) Balance() (*accounts.Balance, error) {
 	account.synchronizer.WaitSynchronized()
-	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0))
+	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.

@@ -343,6 +343,8 @@ func (account *Account) Initialized() bool {
 
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
+	// Wait until synchronized, to include server errors without manually dealing with sync status.
+	account.synchronizer.WaitSynchronized()
 	return account.fatalError
 }
 
@@ -433,8 +435,11 @@ outer:
 }
 
 // Balance implements the interface.
-func (account *Account) Balance() *accounts.Balance {
-	return account.transactions.Balance()
+func (account *Account) Balance() (*accounts.Balance, error) {
+	if account.fatalError {
+		return nil, errp.New("can't call Balance() after a fatal error")
+	}
+	return account.transactions.Balance(), nil
 }
 
 func (account *Account) addresses(change bool) AddressChain {
@@ -548,7 +553,10 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (account *Account) Transactions() []accounts.Transaction {
+func (account *Account) Transactions() ([]accounts.Transaction, error) {
+	if account.fatalError {
+		return nil, errp.New("can't call Transactions() after a fatal error")
+	}
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
@@ -557,7 +565,7 @@ func (account *Account) Transactions() []accounts.Transaction {
 	for index, transaction := range transactions {
 		cast[index] = transaction
 	}
-	return cast
+	return cast, nil
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.

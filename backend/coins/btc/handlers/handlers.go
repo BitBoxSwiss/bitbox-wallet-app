@@ -163,7 +163,10 @@ func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interf
 
 func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, error) {
 	result := []Transaction{}
-	txs := handlers.account.Transactions()
+	txs, err := handlers.account.Transactions()
+	if err != nil {
+		return nil, err
+	}
 	for _, txInfo := range txs {
 		var feeString FormattedAmount
 		fee := txInfo.Fee()
@@ -246,7 +249,11 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		return nil, errp.WithStack(err)
 	}
 
-	for _, transaction := range handlers.account.Transactions() {
+	transactions, err := handlers.account.Transactions()
+	if err != nil {
+		return nil, err
+	}
+	for _, transaction := range transactions {
 		transactionType := map[accounts.TxType]string{
 			accounts.TxTypeReceive:  "received",
 			accounts.TxTypeSend:     "sent",
@@ -313,7 +320,10 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
-	balance := handlers.account.Balance()
+	balance, err := handlers.account.Balance()
+	if err != nil {
+		return nil, err
+	}
 	return map[string]interface{}{
 		"available":   handlers.formatAmountAsJSON(balance.Available()),
 		"incoming":    handlers.formatAmountAsJSON(balance.Incoming()),

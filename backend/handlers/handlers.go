@@ -687,11 +687,17 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 	totals := make(map[coin.Coin]*big.Int)
 
 	for _, account := range handlers.backend.Accounts() {
+		if account.FatalError() {
+			continue
+		}
 		err := account.Initialize()
 		if err != nil {
 			return nil, err
 		}
-		balance := account.Balance()
+		balance, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
 		jsonAccounts = append(jsonAccounts, &accountJSON{
 			CoinCode:    account.Coin().Code(),
 			AccountCode: account.Code(),
@@ -760,13 +766,19 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 	}
 
 	for _, account := range handlers.backend.Accounts() {
+		if account.FatalError() {
+			continue
+		}
 		err := account.Initialize()
 		if err != nil {
 			return nil, err
 		}
 		coin := account.Coin().Code()
 		accountName := account.Name()
-		balance := account.Balance().Available().BigInt().String()
+		balance, err := account.Balance()
+		if err != nil {
+			return nil, err
+		}
 		unit := account.Coin().SmallestUnit()
 		var accountType string
 		var xpubs string
@@ -793,7 +805,7 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 		err = writer.Write([]string{
 			coin,
 			accountName,
-			balance,
+			balance.Available().BigInt().String(),
 			unit,
 			accountType,
 			xpubs,
