@@ -254,11 +254,7 @@ class Account extends Component<Props, State> {
                         title={
                             <h2 className={componentStyle.title}>
                                 <span>{account.name}</span>
-                                {
-                                    isBitcoinBased(account.coinCode) ? (
-                                        <a href={`/account/${code}/info`} className={componentStyle.infoButton} title={t('accountInfo.title')}>i</a>
-                                    ) : ''
-                                }
+                                    <a href={`/account/${code}/info`} className={componentStyle.infoButton} title={t('accountInfo.title')}>i</a>
                                 {
                                     exported ? (
                                         <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">

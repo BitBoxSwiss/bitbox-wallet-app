@@ -17,6 +17,7 @@
     "reconnecting": "Lost connection, trying to reconnect…"
   },
   "accountInfo": {
+    "address": "Address",
     "extendedPublicKey": "Extended Public Key",
     "title": "Account Information",
     "verify": "Verify on device"
