@@ -789,8 +789,11 @@ func (handlers *Handlers) postExportAccountSummary(_ *http.Request) (interface{}
 			address = signingConfiguration.Address()
 		} else {
 			accountType = "xpub"
-			for _, xpub := range account.Info().SigningConfiguration.ExtendedPublicKeys() {
-				xpubs += xpub.String() + "; "
+			for index, xpub := range account.Info().SigningConfiguration.ExtendedPublicKeys() {
+				if index > 0 {
+					xpubs += "; "
+				}
+				xpubs += xpub.String()
 			}
 			switch specificAccount := account.(type) {
 			case *btc.Account:
