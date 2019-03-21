@@ -81,9 +81,9 @@ export default class Receive extends Component {
         const { receiveAddresses, activeIndex } = this.state;
         if (receiveAddresses !== null && activeIndex !== null) {
             this.setState({ verifying: true });
-            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(hasSecureOutput => {
+            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(canVerifyAddress => {
                 this.setState({ verifying: false });
-                if (!hasSecureOutput) {
+                if (!canVerifyAddress) {
                     this.unregisterEvents();
                     alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
                 }
@@ -119,7 +119,7 @@ export default class Receive extends Component {
     }
 
     getAccount() {
-        if (!this.props.accounts) return null;
+        if (!this.props.accounts) return undefined;
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
@@ -133,7 +133,7 @@ export default class Receive extends Component {
         paired,
     }) {
         const account = this.getAccount();
-        if (account === null) {
+        if (!account) {
             return null;
         }
         let uriPrefix = 'bitcoin:';

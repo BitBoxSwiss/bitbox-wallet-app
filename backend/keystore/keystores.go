@@ -65,35 +65,35 @@ func (keystores *Keystores) Remove(keystore Keystore) error {
 	return errp.New("The collection does not contain the given keystore.")
 }
 
-// HaveSecureOutput returns whether any of the keystores has a secure output.
-func (keystores *Keystores) HaveSecureOutput(
+// CanVerifyAddresses returns whether any of the keystores can verify an address.
+func (keystores *Keystores) CanVerifyAddresses(
 	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
 	for _, keystore := range keystores.keystores {
-		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
 		if err != nil {
 			return false, err
 		}
-		if hasSecureOutput {
+		if canVerifyAddress {
 			return true, nil
 		}
 	}
 	return false, nil
 }
 
-// OutputAddress outputs the address for the given coin with the given configuration on all
+// VerifyAddress outputs the address for the given coin with the given configuration on all
 // keystores that have a secure output.
-func (keystores *Keystores) OutputAddress(
+func (keystores *Keystores) VerifyAddress(
 	configuration *signing.Configuration,
 	coin coin.Coin,
 ) error {
 	found := false
 	for _, keystore := range keystores.keystores {
-		hasSecureOutput, err := keystore.HasSecureOutput(configuration, coin)
+		canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
 		if err != nil {
 			return err
 		}
-		if hasSecureOutput {
-			if err := keystore.OutputAddress(configuration, coin); err != nil {
+		if canVerifyAddress {
+			if err := keystore.VerifyAddress(configuration, coin); err != nil {
 				return err
 			}
 			found = true
@@ -103,6 +103,17 @@ func (keystores *Keystores) OutputAddress(
 		return errp.New("There is currently no keystore to securely output the address.")
 	}
 	return nil
+}
+
+// CanVerifyExtendedPublicKeys returns the indices of the keystores that support secure verification
+func (keystores *Keystores) CanVerifyExtendedPublicKeys() []int {
+	canVerifyExtendedPublicKey := []int{}
+	for index, keystore := range keystores.keystores {
+		if keystore.CanVerifyExtendedPublicKey() {
+			canVerifyExtendedPublicKey = append(canVerifyExtendedPublicKey, index)
+		}
+	}
+	return canVerifyExtendedPublicKey
 }
 
 // SignTransaction signs the given proposed transaction on all keystores. Returns ErrSigningAborted
@@ -136,4 +147,9 @@ func (keystores *Keystores) Configuration(
 	}
 	return signing.NewConfiguration(
 		scriptType, absoluteKeypath, extendedPublicKeys, "", signingThreshold), nil
+}
+
+// AccessKeystoreByIndex returns a specific keystore from the slice of keystores
+func (keystores *Keystores) AccessKeystoreByIndex(index int) Keystore {
+	return keystores.keystores[index]
 }

@@ -79,7 +79,7 @@ func (blockchain *BlockchainMock) RegisterTxs(txs ...*wire.MsgTx) {
 func (blockchain *BlockchainMock) TransactionGet(
 	txHash chainhash.Hash,
 	success func(*wire.MsgTx) error,
-	cleanup func()) {
+	cleanup func(error)) {
 	tx, ok := blockchain.transactions[txHash]
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
@@ -90,7 +90,7 @@ func (blockchain *BlockchainMock) TransactionGet(
 	}
 	blockchain.transactionGetCallbacks[txHash] = append(callbacks,
 		func() {
-			defer cleanup()
+			defer cleanup(nil)
 			if err := success(tx); err != nil {
 				panic(err)
 			}

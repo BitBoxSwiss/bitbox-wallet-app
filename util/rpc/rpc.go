@@ -30,7 +30,7 @@ const (
 
 // Client describes the methods needed to communicate with an RPC server.
 type Client interface {
-	Method(func([]byte) error, func() func(), string, ...interface{})
+	Method(func([]byte) error, func() func(error), string, ...interface{})
 	MethodSync(interface{}, string, ...interface{}) error
 	SubscribeNotifications(string, func([]byte))
 	Close()

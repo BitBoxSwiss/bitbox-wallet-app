@@ -99,15 +99,15 @@ const (
 // other backends can implement the same interface.
 //go:generate mockery -name Interface
 type Interface interface {
-	ScriptHashGetHistory(ScriptHashHex, func(TxHistory) error, func())
-	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func())
-	ScriptHashSubscribe(func() func(), ScriptHashHex, func(string) error)
-	HeadersSubscribe(func() func(), func(*Header) error)
+	ScriptHashGetHistory(ScriptHashHex, func(TxHistory) error, func(error))
+	TransactionGet(chainhash.Hash, func(*wire.MsgTx) error, func(error))
+	ScriptHashSubscribe(func() func(error), ScriptHashHex, func(string) error)
+	HeadersSubscribe(func() func(error), func(*Header) error)
 	TransactionBroadcast(*wire.MsgTx) error
-	RelayFee(func(btcutil.Amount) error, func())
-	EstimateFee(int, func(*btcutil.Amount) error, func())
-	Headers(int, int, func([]*wire.BlockHeader, int) error, func())
-	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int) error, func())
+	RelayFee(func(btcutil.Amount) error, func(error))
+	EstimateFee(int, func(*btcutil.Amount) error, func(error))
+	Headers(int, int, func([]*wire.BlockHeader, int) error, func(error))
+	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int) error, func(error))
 	Close()
 	ConnectionStatus() Status
 	RegisterOnConnectionStatusChangedEvent(func(Status))

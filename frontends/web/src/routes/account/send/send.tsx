@@ -417,7 +417,8 @@ class Send extends Component<Props, State> {
         try {
             const url = new URL(uri);
             if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:') {
-                throw new Error('wrong protocol');
+                alertUser(this.props.t('invalidFormat'));
+                return;
             }
             address = url.pathname;
             amount = url.searchParams.get('amount') || undefined;

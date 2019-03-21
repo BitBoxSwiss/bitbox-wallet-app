@@ -34,10 +34,11 @@ type Interface interface {
 	Initialize() error
 	Initialized() bool
 	Offline() bool
+	FatalError() bool
 	Close()
 	Notifier() Notifier
-	Transactions() []Transaction
-	Balance() *Balance
+	Transactions() ([]Transaction, error)
+	Balance() (*Balance, error)
 	// Creates, signs and broadcasts a transaction. Returns keystore.ErrSigningAborted on user
 	// abort.
 	SendTx(string, coin.SendAmount, FeeTargetCode, map[wire.OutPoint]struct{}, []byte) error

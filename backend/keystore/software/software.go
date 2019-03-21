@@ -80,14 +80,24 @@ func (keystore *Keystore) Identifier() (string, error) {
 	return keystore.identifier, nil
 }
 
-// HasSecureOutput implements keystore.Keystore.
-func (keystore *Keystore) HasSecureOutput(*signing.Configuration, coin.Coin) (bool, error) {
+// CanVerifyAddress implements keystore.Keystore.
+func (keystore *Keystore) CanVerifyAddress(*signing.Configuration, coin.Coin) (bool, error) {
 	return false, nil
 }
 
-// OutputAddress implements keystore.Keystore.
-func (keystore *Keystore) OutputAddress(*signing.Configuration, coin.Coin) error {
+// VerifyAddress implements keystore.Keystore.
+func (keystore *Keystore) VerifyAddress(*signing.Configuration, coin.Coin) error {
 	return errp.New("The software-based keystore has no secure output to display the address.")
+}
+
+// CanVerifyExtendedPublicKey implements keystore.Keystore.
+func (keystore *Keystore) CanVerifyExtendedPublicKey() bool {
+	return false
+}
+
+// VerifyExtendedPublicKey implements keystore.Keystore.
+func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+	return errp.New("The software-based keystore has no secure output to display the public key.")
 }
 
 // ExtendedPublicKey implements keystore.Keystore.

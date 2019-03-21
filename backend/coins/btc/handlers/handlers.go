@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -65,6 +66,8 @@ func NewHandlers(
 	handleFunc("/tx-proposal", handlers.ensureAccountInitialized(handlers.getAccountTxProposal)).Methods("POST")
 	handleFunc("/receive-addresses", handlers.ensureAccountInitialized(handlers.getReceiveAddresses)).Methods("GET")
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
+	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
+	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
 }
@@ -160,7 +163,10 @@ func (handlers *Handlers) ensureAccountInitialized(h func(*http.Request) (interf
 
 func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, error) {
 	result := []Transaction{}
-	txs := handlers.account.Transactions()
+	txs, err := handlers.account.Transactions()
+	if err != nil {
+		return nil, err
+	}
 	for _, txInfo := range txs {
 		var feeString FormattedAmount
 		fee := txInfo.Fee()
@@ -243,7 +249,11 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 		return nil, errp.WithStack(err)
 	}
 
-	for _, transaction := range handlers.account.Transactions() {
+	transactions, err := handlers.account.Transactions()
+	if err != nil {
+		return nil, err
+	}
+	for _, transaction := range transactions {
 		transactionType := map[accounts.TxType]string{
 			accounts.TxTypeReceive:  "received",
 			accounts.TxTypeSend:     "sent",
@@ -310,7 +320,10 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 }
 
 func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error) {
-	balance := handlers.account.Balance()
+	balance, err := handlers.account.Balance()
+	if err != nil {
+		return nil, err
+	}
 	return map[string]interface{}{
 		"available":   handlers.formatAmountAsJSON(balance.Available()),
 		"incoming":    handlers.formatAmountAsJSON(balance.Incoming()),
@@ -452,6 +465,10 @@ func (handlers *Handlers) getAccountStatus(_ *http.Request) (interface{}, error)
 		if handlers.account.Offline() {
 			status = append(status, btc.OfflineMode)
 		}
+
+		if handlers.account.FatalError() {
+			status = append(status, btc.FatalError)
+		}
 	}
 	return status, nil
 }
@@ -476,6 +493,30 @@ func (handlers *Handlers) postVerifyAddress(r *http.Request) (interface{}, error
 		return nil, errp.WithStack(err)
 	}
 	return handlers.account.VerifyAddress(addressID)
+}
+
+func (handlers *Handlers) getCanVerifyExtendedPublicKey(_ *http.Request) (interface{}, error) {
+	switch specificAccount := handlers.account.(type) {
+	case *btc.Account:
+		return specificAccount.CanVerifyExtendedPublicKey(), nil
+	case *eth.Account:
+		// No xpub verification for ethereum accounts
+		return []int{}, nil
+	default:
+		return nil, nil
+	}
+}
+
+func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interface{}, error) {
+	var index int
+	if err := json.NewDecoder(r.Body).Decode(&index); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	btcAccount, ok := handlers.account.(*btc.Account)
+	if !ok {
+		return nil, errp.New("An account must be BTC based to support xpub verification")
+	}
+	return btcAccount.VerifyExtendedPublicKey(index)
 }
 
 func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {

@@ -113,7 +113,9 @@ func NewAccount(
 
 // Info implements accounts.Interface.
 func (account *Account) Info() *accounts.Info {
-	return nil
+	return &accounts.Info{
+		SigningConfiguration: account.signingConfiguration,
+	}
 }
 
 // Code implements accounts.Interface.
@@ -176,6 +178,14 @@ func (account *Account) Initialize() error {
 			Address: crypto.PubkeyToAddress(*account.signingConfiguration.PublicKeys()[0].ToECDSA()),
 		}
 	}
+
+	account.signingConfiguration = signing.NewConfiguration(
+		account.signingConfiguration.ScriptType(),
+		account.signingConfiguration.AbsoluteKeypath(),
+		account.signingConfiguration.ExtendedPublicKeys(),
+		account.address.String(),
+		account.signingConfiguration.SigningThreshold(),
+	)
 
 	account.coin.Initialize()
 	go account.poll()
@@ -308,6 +318,11 @@ func (account *Account) Offline() bool {
 	return account.offline
 }
 
+// FatalError implements accounts.Interface.
+func (account *Account) FatalError() bool {
+	return false
+}
+
 // Close implements accounts.Interface.
 func (account *Account) Close() {
 	account.log.Info("Closed account")
@@ -327,15 +342,15 @@ func (account *Account) Notifier() accounts.Notifier {
 }
 
 // Transactions implements accounts.Interface.
-func (account *Account) Transactions() []accounts.Transaction {
+func (account *Account) Transactions() ([]accounts.Transaction, error) {
 	account.synchronizer.WaitSynchronized()
-	return account.transactions
+	return account.transactions, nil
 }
 
 // Balance implements accounts.Interface.
-func (account *Account) Balance() *accounts.Balance {
+func (account *Account) Balance() (*accounts.Balance, error) {
 	account.synchronizer.WaitSynchronized()
-	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0))
+	return accounts.NewBalance(account.balance, coin.NewAmountFromInt64(0)), nil
 }
 
 // TxProposal holds all info needed to create and sign a transacstion.

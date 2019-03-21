@@ -72,6 +72,7 @@ type Account struct {
 
 	initialized bool
 	offline     bool
+	fatalError  bool
 	onEvent     func(accounts.Event)
 	log         *logrus.Entry
 }
@@ -91,6 +92,10 @@ const (
 
 	// OfflineMode indicates that the connection to the blockchain network could not be established.
 	OfflineMode Status = "offlineMode"
+
+	// FatalError indicates that there was a fatal error in handling the account. When this happens,
+	// an error is shown to the user and the account is made unusable.
+	FatalError Status = "fatalError"
 )
 
 // NewAccount creates a new account.
@@ -258,7 +263,7 @@ func (account *Account) Initialize() error {
 			account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
 	}
 	account.ensureAddresses()
-	account.blockchain.HeadersSubscribe(func() func() { return func() {} }, account.onNewHeader)
+	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
 }
 
@@ -336,6 +341,13 @@ func (account *Account) Initialized() bool {
 	return account.initialized
 }
 
+// FatalError returns true if the account had a fatal error.
+func (account *Account) FatalError() bool {
+	// Wait until synchronized, to include server errors without manually dealing with sync status.
+	account.synchronizer.WaitSynchronized()
+	return account.fatalError
+}
+
 // Close stops the account.
 func (account *Account) Close() {
 	account.log.Info("Closed account")
@@ -380,12 +392,12 @@ func (account *Account) updateFeeTargets() {
 							account.log.WithField("fee-target", feeTarget.blocks).
 								Warning("Fee could not be estimated. Taking the minimum relay fee instead")
 						}
-						account.blockchain.RelayFee(setFee, func() {})
+						account.blockchain.RelayFee(setFee, func(error) {})
 						return nil
 					}
 					return setFee(*feeRatePerKb)
 				},
-				func() {},
+				func(error) {},
 			)
 		}(feeTarget)
 	}
@@ -423,8 +435,11 @@ outer:
 }
 
 // Balance implements the interface.
-func (account *Account) Balance() *accounts.Balance {
-	return account.transactions.Balance()
+func (account *Account) Balance() (*accounts.Balance, error) {
+	if account.fatalError {
+		return nil, errp.New("can't call Balance() after a fatal error")
+	}
+	return account.transactions.Balance(), nil
 }
 
 func (account *Account) addresses(change bool) AddressChain {
@@ -460,7 +475,15 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 			account.ensureAddresses()
 			return nil
 		},
-		func() { done() },
+		func(err error) {
+			done()
+			if err != nil {
+				// We are not closing client.blockchain here, as it is reused per coin with
+				// different accounts.
+				account.fatalError = true
+				account.onEvent(accounts.EventStatusChanged)
+			}
+		},
 	)
 }
 
@@ -514,7 +537,15 @@ func (account *Account) subscribeAddress(
 	address.HistoryStatus = addressHistory.Status()
 
 	account.blockchain.ScriptHashSubscribe(
-		account.synchronizer.IncRequestsCounter,
+		func() func(error) {
+			done := account.synchronizer.IncRequestsCounter()
+			return func(err error) {
+				done()
+				if err != nil {
+					panic(err)
+				}
+			}
+		},
 		address.PubkeyScriptHashHex(),
 		func(status string) error { account.onAddressStatus(address, status); return nil },
 	)
@@ -522,7 +553,10 @@ func (account *Account) subscribeAddress(
 }
 
 // Transactions wraps transaction.Transactions.Transactions()
-func (account *Account) Transactions() []accounts.Transaction {
+func (account *Account) Transactions() ([]accounts.Transaction, error) {
+	if account.fatalError {
+		return nil, errp.New("can't call Transactions() after a fatal error")
+	}
 	transactions := account.transactions.Transactions(
 		func(scriptHashHex blockchain.ScriptHashHex) bool {
 			return account.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil
@@ -531,7 +565,7 @@ func (account *Account) Transactions() []accounts.Transaction {
 	for index, transaction := range transactions {
 		cast[index] = transaction
 	}
-	return cast
+	return cast, nil
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses.
@@ -561,12 +595,12 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	hasSecureOutput, err := account.Keystores().HaveSecureOutput(address.Configuration, account.Coin())
+	canVerifyAddress, err := account.Keystores().CanVerifyAddresses(address.Configuration, account.Coin())
 	if err != nil {
 		return false, err
 	}
-	if hasSecureOutput {
-		return true, account.Keystores().OutputAddress(address.Configuration, account.Coin())
+	if canVerifyAddress {
+		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
 }
@@ -623,4 +657,19 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 	}
 	sort.Sort(sort.Reverse(&byValue{result}))
 	return result
+}
+
+// CanVerifyExtendedPublicKey returns the indices of the keystores that support secure verification
+func (account *Account) CanVerifyExtendedPublicKey() []int {
+	return account.Keystores().CanVerifyExtendedPublicKeys()
+}
+
+// VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
+// index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
+func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
+	keystore := account.Keystores().AccessKeystoreByIndex(index)
+	if keystore.CanVerifyExtendedPublicKey() {
+		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.signingConfiguration.AbsoluteKeypath(), account.signingConfiguration)
+	}
+	return false, nil
 }

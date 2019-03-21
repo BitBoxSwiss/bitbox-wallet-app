@@ -47,8 +47,8 @@ func NewConfiguration(
 	address string,
 	signingThreshold int,
 ) *Configuration {
-	if len(extendedPublicKeys) == 0 && len(address) == 0 || len(extendedPublicKeys) > 0 && len(address) > 0 {
-		panic("A configuration has to contain at least one extended public key or an address, but not both.")
+	if len(extendedPublicKeys) == 0 && len(address) == 0 {
+		panic("A configuration has to contain at least one extended public key or an address")
 	}
 	for _, extendedKey := range extendedPublicKeys {
 		if extendedKey.IsPrivate() {
@@ -109,7 +109,7 @@ func (configuration *Configuration) Address() string {
 
 // IsAddressBased returns whether configuration is address based or not
 func (configuration *Configuration) IsAddressBased() bool {
-	return configuration.address != ""
+	return configuration.address != "" && len(configuration.ExtendedPublicKeys()) == 0
 }
 
 // PublicKeys returns the configuration's public keys.
