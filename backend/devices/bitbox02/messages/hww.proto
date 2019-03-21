@@ -24,6 +24,7 @@ message DeviceInfoResponse {
     string name = 1;
     bool initialized = 2;
     string version = 3;
+    bool mnemonic_passphrase_enabled = 4;
 }
 
 message SetDeviceNameRequest {
@@ -38,9 +39,17 @@ message SetPasswordRequest {
 }
 
 message CreateBackupRequest {
-    // TODO add backup creation args
-    uint32 timestamp = 1;
-    int32 timezone_offset = 2;
+  // TODO add backup creation args
+  uint32 timestamp = 1;
+  int32 timezone_offset = 2;
+}
+
+message RestoreBackupRequest {
+  // TODO add backup creation args
+  string id = 1;
+}
+
+message ListBackupsRequest {
 }
 
 message ShowMnemonicRequest {
@@ -85,6 +94,16 @@ message BTCPubRequest {
 
 message PubResponse {
   string pub = 1;
+}
+
+message BackupInfo {
+  string id = 1;
+  uint32 timestamp = 2;
+  uint32 timezone_offset = 3;
+}
+
+message ListBackupsResponse {
+  repeated BackupInfo info = 1;
 }
 
 message BTCSignInitRequest {
@@ -135,6 +154,10 @@ message BTCSignOutputRequest {
   repeated uint32 keypath = 5; // if ours is true
 }
 
+message SetMnemonicPassphraseEnabledRequest {
+  bool enabled = 1;
+}
+
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
@@ -149,6 +172,9 @@ message Request {
         BTCSignInputRequest btc_sign_input = 10;
         BTCSignOutputRequest btc_sign_output = 11;
         InsertRemoveSDCardRequest insert_remove_sdcard = 12;
+        SetMnemonicPassphraseEnabledRequest set_mnemonic_passphrase_enabled = 13;
+        ListBackupsRequest list_backups = 14;
+        RestoreBackupRequest restore_backup = 15;
     }
 }
 
@@ -160,5 +186,6 @@ message Response {
         DeviceInfoResponse device_info = 4;
         PubResponse pub = 5;
         BTCSignNextResponse btc_sign_next = 6;
+        ListBackupsResponse list_backups = 7;
     }
 }
