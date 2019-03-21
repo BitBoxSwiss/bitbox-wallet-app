@@ -394,6 +394,37 @@ func (device *Device) CreateBackup() error {
 	return nil
 }
 
+type Backup struct {
+	Id   string
+	Time time.Time
+}
+
+// ListBackups returns a list of all backups on the SD card.
+func (device *Device) ListBackups() ([]*Backup, error) {
+	request := &messages.Request{
+		Request: &messages.Request_ListBackups{
+			ListBackups: &messages.ListBackupsRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return nil, err
+	}
+	listBackupsResponse, ok := response.Response.(*messages.Response_ListBackups)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	msgBackups := listBackupsResponse.ListBackups.Info
+	backups := make([]*Backup, len(msgBackups))
+	for index, msgBackup := range msgBackups {
+		backups[index] = &Backup{
+			Id:   msgBackup.Id,
+			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
+		}
+	}
+	return backups, nil
+}
+
 // ChannelHash returns the hashed handshake channel binding
 func (device *Device) ChannelHash() (string, bool) {
 	return device.channelHash, device.channelHashDeviceVerified

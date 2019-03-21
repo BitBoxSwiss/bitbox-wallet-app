@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
@@ -36,6 +37,7 @@ type BitBox02 interface {
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
+	ListBackups() ([]*bitbox02.Backup, error)
 	InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error
 }
 
@@ -60,6 +62,7 @@ func NewHandlers(
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/list-backups", handlers.getListBackups).Methods("GET")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 
@@ -138,7 +141,22 @@ func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error)
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
 
+func (handlers *Handlers) getListBackups(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("List backups ")
+	backups, err := handlers.device.ListBackups()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	result := []map[string]string{}
+	for _, backup := range backups {
+		result = append(result, map[string]string{
+			"id":   backup.Id,
+			"time": backup.Time.Format(time.RFC3339),
+		})
+	}
+	return result, nil
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {
