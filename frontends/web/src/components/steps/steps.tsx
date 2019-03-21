@@ -22,7 +22,7 @@ class Steps extends Component<{}, State> {
     }
 
     private getActiveStep = (children: JSX.Element[]) => {
-        return children.findIndex(child => child.attributes.active) + 1;
+        return children.filter(child => child).findIndex(child => child.attributes.active) + 1;
     }
 
     public render(
@@ -37,7 +37,7 @@ class Steps extends Component<{}, State> {
                     order={0}
                     activeStep={activeStep}
                 />
-                {(children as JSX.Element[]).map((child, i) => cloneElement(child, { order: i + 1, activeStep }))}
+                {(children as JSX.Element[]).filter(child => child).map((child, i) => cloneElement(child, { order: i + 1, activeStep }))}
             </div>
         );
     }

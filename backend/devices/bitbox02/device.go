@@ -175,7 +175,7 @@ func (device *Device) changeStatus(status Status) {
 	device.status = status
 	device.fireEvent(EventStatusChanged)
 	switch device.Status() {
-	case StatusUnlocked:
+	case StatusInitialized:
 		device.fireEvent(devicepkg.EventKeystoreAvailable)
 	case StatusUninitialized:
 		device.fireEvent(devicepkg.EventKeystoreGone)
@@ -200,7 +200,7 @@ func (device *Device) Identifier() string {
 
 // KeystoreForConfiguration implements device.Device.
 func (device *Device) KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystoreInterface.Keystore {
-	if device.Status() != StatusUnlocked {
+	if device.Status() != StatusInitialized {
 		return nil
 	}
 	return &keystore{
@@ -390,7 +390,7 @@ func (device *Device) CreateBackup() error {
 	if !ok {
 		return errp.New("unexpected response")
 	}
-	device.changeStatus(StatusUnlocked)
+	device.changeStatus(StatusInitialized)
 	return nil
 }
 

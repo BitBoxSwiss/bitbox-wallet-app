@@ -15,37 +15,43 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { route } from 'preact-router';
 import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import infoIcon from '../../../assets/icons/info.svg';
+import { Button } from '../../../components/forms';
 import { Step, Steps } from '../../../components/steps';
 import * as style from '../../../components/steps/steps.css';
-import RandomNumber from '../../../routes/device/settings/components/randomnumber';
+import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
-import DeviceInfo from './deviceinfo';
-import SetDeviceName from './setdevicename';
+import { Settings } from './settings';
 
-interface Props {
+interface BitBox02Props {
     deviceID: string;
 }
+
+type Props = BitBox02Props & TranslateProps;
 
 interface State {
     hash?: string;
     deviceVerified: boolean;
-    status: 'unpaired' |
-            'pairingFailed' |
-            'uninitialized' |
-            'seeded' |
-            'initialized' |
-            'unlocked';
+    status: '' |
+    'unpaired' |
+    'pairingFailed' |
+    'uninitialized' |
+    'seeded' |
+    'initialized';
     appStatus: 'createWallet' | 'setPassword' | '';
     settingPassword: boolean;
     creatingBackup: boolean;
     msdInserted: boolean;
     errorText?: string;
+    // if true, we just pair and unlock, so we can hide some steps.
+    unlockOnly: boolean;
+    showWizard: boolean;
 }
 
 class BitBox02 extends Component<Props, State> {
@@ -54,11 +60,13 @@ class BitBox02 extends Component<Props, State> {
         this.state = {
             hash: undefined,
             deviceVerified: false,
-            status: 'unpaired',
+            status: '',
             settingPassword: false,
             creatingBackup: false,
             msdInserted: false,
             appStatus: '',
+            unlockOnly: true,
+            showWizard: false,
         };
     }
 
@@ -67,9 +75,12 @@ class BitBox02 extends Component<Props, State> {
     public componentDidMount() {
         this.onChannelHashChanged();
         this.onStatusChanged();
-        this.unsubscribe = apiWebsocket(({ type, data }) => {
+        this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
             switch (type) {
                 case 'device':
+                    if (deviceID !== this.props.deviceID) {
+                        return;
+                    }
                     switch (data) {
                         case 'channelHashChanged':
                             this.onChannelHashChanged();
@@ -83,6 +94,10 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
+    private handleGetStarted = () => {
+        route('/account', true);
+    }
+
     private onChannelHashChanged = () => {
         apiGet('devices/bitbox02/' + this.props.deviceID + '/channel-hash').then(({ hash, deviceVerified }) => {
             this.setState({ hash, deviceVerified });
@@ -91,6 +106,12 @@ class BitBox02 extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet('devices/bitbox02/' + this.props.deviceID + '/status').then(status => {
+            if (!this.state.showWizard && ['unpaired', 'uninitialized', 'seeded'].includes(status)) {
+                this.setState({ showWizard: true });
+            }
+            if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
+                this.setState({ unlockOnly: false });
+            }
             this.setState({
                 status,
                 errorText: undefined,
@@ -139,9 +160,16 @@ class BitBox02 extends Component<Props, State> {
     }
 
     public render(
-        { deviceID }: RenderableProps<Props>,
-        { hash, deviceVerified, status, appStatus, settingPassword, creatingBackup, errorText }: State,
+        { t, deviceID }: RenderableProps<Props>,
+        { hash, deviceVerified, status, appStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
     ) {
+        if (status === '') {
+            return null;
+        }
+        if (!showWizard) {
+            return <Settings deviceID={deviceID}/>;
+        }
+        // TODO: move to wizard.tsx
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -164,7 +192,7 @@ class BitBox02 extends Component<Props, State> {
                                     <pre>{hash}</pre>
                                     {
                                         deviceVerified && (
-                                            <p>You have intereacted with your device that the code matches. If this is correct, you can continue by clicking the button below.</p>
+                                            <p>You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.</p>
                                         )
                                     }
                                 </div>
@@ -172,98 +200,101 @@ class BitBox02 extends Component<Props, State> {
                                     <button className={[style.button, style.primary].join(' ')} onClick={() => this.channelVerify(true)} disabled={!deviceVerified}>Confirm & Continue</button>
                                 </div>
                             </Step>
-                            <Step
-                                active={status === 'uninitialized' && appStatus === ''}
-                                title="Initialize your BitBox">
-                                <div className={style.standOut}>
-                                    <img src={infoIcon} />
-                                    <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
-                                </div>
-                                <div className={style.stepContext}>
-                                    <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. Please make sure you have a microSD card inserted in your BitBox.</p>
-                                </div>
-                                <div className={style.buttons}>
-                                    <button
-                                        className={[style.button, style.primary].join(' ')}
-                                        onClick={this.createWalletStep}
-                                        disabled={settingPassword}>
-                                        Create Wallet
-                                    </button>
-                                    <button
-                                        className={[style.button, style.secondary].join(' ')}
-                                        disabled={true}>
-                                        Restore Backup
-                                    </button>
-                                </div>
-                            </Step>
-                            <Step
-                                active={appStatus === 'createWallet' && !settingPassword}
-                                title="Create Wallet">
-                                <div className={style.stepContext}>
-                                    <p>Ok, let's create a new wallet! Here are the basics steps you will be taking to setup your BitBox:</p>
-                                    <ul>
-                                        <li>Name your device</li>
-                                        <li>Go through our guide on how to use the on screen gestures on your BitBox</li>
-                                        <li>Choose to create or restore a wallet</li>
-                                        <li>Set a password for your device</li>
-                                        <li>Poop</li>
-                                    </ul>
-                                    <div className={style.inputGroup}>
-                                        <label className={style.label}>Wallet Name</label>
-                                        <input type="text" className={style.input} placeholder="Name of your BitBox" />
+                            {!unlockOnly ?
+                                <Step
+                                    active={status === 'uninitialized' && appStatus === ''}
+                                    title="Initialize your BitBox">
+                                    <div className={style.standOut}>
+                                        <img src={infoIcon} />
+                                        <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
                                     </div>
-                                </div>
-                                <div className={style.buttons}>
-                                    <button
-                                        className={[style.button, style.primary].join(' ')}
-                                        onClick={this.setPassword}>
-                                        Name Device & Continue
+                                    <div className={style.stepContext}>
+                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. Please make sure you have a microSD card inserted in your BitBox.</p>
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.createWalletStep}
+                                            disabled={settingPassword}>
+                                            Create Wallet
                                     </button>
-                                </div>
-                            </Step>
-                            <Step
-                                active={appStatus === 'setPassword'}
-                                title="Set a password for your BitBox">
-                                {
-                                    errorText && (
-                                        <div className={style.standOut}>
-                                            <img src={alertOctagon} />
-                                            <span className={style.error}>{errorText}</span>
+                                        <button
+                                            className={[style.button, style.secondary].join(' ')}
+                                            disabled={true}>
+                                            Restore Backup
+                                    </button>
+                                    </div>
+                                </Step> : ''}
+                            {!unlockOnly ?
+                                <Step
+                                    active={appStatus === 'createWallet' && !settingPassword}
+                                    title="Create Wallet">
+                                    <div className={style.stepContext}>
+                                        <p>Ok, let's create a new wallet! Here are the basics steps you will be taking to setup your BitBox:</p>
+                                        <ul>
+                                            <li>Name your device</li>
+                                            <li>Go through our guide on how to use the on screen gestures on your BitBox</li>
+                                            <li>Choose to create or restore a wallet</li>
+                                            <li>Set a password for your device</li>
+                                            <li>Poop</li>
+                                        </ul>
+                                        <div className={style.inputGroup}>
+                                            <label className={style.label}>Wallet Name</label>
+                                            <input type="text" className={style.input} placeholder="Name of your BitBox" />
                                         </div>
-                                    )
-                                }
-                                <div className={style.stepContext}>
-                                    <p>Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.</p>
-                                </div>
-                            </Step>
-                            <Step
-                                active={status === 'seeded'}
-                                title="Create Backup">
-                                <div className={style.stepContext}>
-                                    <p>Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.</p>
-                                    <p>Please follow the on-screen instruction on your device to create a backup.</p>
-                                </div>
-                                <div className={style.buttons}>
-                                    <button
-                                        className={[style.button, style.primary].join(' ')}
-                                        onClick={this.createBackup}
-                                        disabled={creatingBackup}>
-                                        Create Backup
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.setPassword}>
+                                            Name Device & Continue
                                     </button>
-                                </div>
-                            </Step>
-                            <Step
-                                active={status === 'unlocked'}
-                                title="You're ready to go!">
-                                <div className={style.stepContext}>
-                                    <p>Hooray! You're BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.</p>
-                                </div>
-                                <div className={style.buttons}>
-                                    <RandomNumber apiPrefix={'devices/bitbox02/' + deviceID} />
-                                    <DeviceInfo apiPrefix={'devices/bitbox02/' + deviceID} />
-                                    <SetDeviceName apiPrefix={'devices/bitbox02/' + deviceID} />
-                                </div>
-                            </Step>
+                                    </div>
+                                </Step> : ''}
+                            {!unlockOnly ?
+                                <Step
+                                    active={appStatus === 'setPassword'}
+                                    title="Set a password for your BitBox">
+                                    {
+                                        errorText && (
+                                            <div className={style.standOut}>
+                                                <img src={alertOctagon} />
+                                                <span className={style.error}>{errorText}</span>
+                                            </div>
+                                        )
+                                    }
+                                    <div className={style.stepContext}>
+                                        <p>Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.</p>
+                                    </div>
+                                </Step> : ''}
+                            {!unlockOnly ?
+                                <Step
+                                    active={status === 'seeded'}
+                                    title="Create Backup">
+                                    <div className={style.stepContext}>
+                                        <p>Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.</p>
+                                        <p>Please follow the on-screen instruction on your device to create a backup.</p>
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.createBackup}
+                                            disabled={creatingBackup}>
+                                            Create Backup
+                                    </button>
+                                    </div>
+                                </Step> : ''}
+                            {status === 'initialized' ?
+                                <Step
+                                    active={status === 'initialized'}
+                                    title="You're ready to go!">
+                                    <div className={style.stepContext}>
+                                        <p>Hooray! You're BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.</p>
+                                    </div>
+                                    <Button primary onClick={this.handleGetStarted}>
+                                        {t('success.getstarted')}
+                                    </Button>
+                                </Step> : ''}
                         </Steps>
                     </div>
                 </div>
@@ -272,4 +303,5 @@ class BitBox02 extends Component<Props, State> {
     }
 }
 
-export { BitBox02 };
+const HOC = translate<BitBox02Props>()(BitBox02);
+export { HOC as BitBox02 };
