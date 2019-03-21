@@ -341,7 +341,7 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 // SetPassword invokes the set password workflow on the device. Should be called only if
 // deviceInfo.Initialized is false.
 func (device *Device) SetPassword() error {
-	if device.status != StatusUninitialized {
+	if device.status == StatusInitialized {
 		return errp.New("invalid status")
 	}
 	request := &messages.Request{
