@@ -19,19 +19,32 @@
     "extendedPublicKey": "Public Key Lanjutan",
     "title": "Maklumat Akaun"
   },
+  "accountSummary": {
+    "balance": "Baki",
+    "fiatBalance": "Baki Fiat",
+    "name": "Nama Akaun",
+    "noAccount": "Tiada akaun untuk dipaparkan.",
+    "synchronizing": "Menyegerakkan akaun dengan blockchain:",
+    "title": "Ringkasan Akaun",
+    "total": "Jumlah"
+  },
   "addAccount": {
     "accountName": "Nama akaun",
     "address": "Alamat",
     "coin": "Syiling",
     "error": {
       "alreadyExists": "Akaun ini sudah ada.",
-      "invalidAddress": "Sila masukkan alamat Ethereum yang sah",
-      "xpubInvalid": "Extended Public Key salah format."
+      "invalidAddress": "Sila masukkan alamat yang sah",
+      "xprivEntered": "AMARAN: Anda memasukkan Private Key Lanjutan. Sila masukkan Public Key Lanjutan dan simpan Private Key anda.",
+      "xpubInvalid": "Public Key Lanjutan salah format."
     },
-    "extendedPublicKey": "Extended Public Key",
+    "extendedPublicKey": "Public Key Lanjutan",
     "scriptType": "Jenis Skrip",
     "submit": "Tambah Akaun",
-    "title": "Tambah Akaun"
+    "title": "Tambah Akaun",
+    "warning": {
+      "xpubWrongNet": "Amaran: Format Public Key Lanjutan menunjukkan bahawa ia mungkin tidak sah untuk jenis akaun yang dipilih. Sekiranya anda tidak melihat transaksi yang dijangka, maka cuba import Public Key Lanjutan dengan jenis akaun yang lain."
+    }
   },
   "app": {
     "upgrade": "Versi baru aplikasi ini telah didapati! Sila kemaskini dari {{current}} ke {{version}}."
@@ -243,8 +256,8 @@
     },
     "accountInfo": {
       "xpub": {
-        "text": "Public Key lanjutan adalah kunci akar yang mana semua alamat penerima sebuah akaun diperoleh.\nIa disediakan di sini untuk kegunaan lanjutan dan saling kendalian dengan wallet yang hanya boleh dilihat sahaja, seperti Electrum atau Sentinel.",
-        "title": "Apa itu Public Key lanjutan?"
+        "text": "Public Key Lanjutan adalah kunci akar yang mana semua alamat penerima sebuah akaun diperoleh.\nIa disediakan di sini untuk kegunaan lanjutan dan saling kendalian dengan wallet yang hanya boleh dilihat sahaja, seperti Electrum atau Sentinel.",
+        "title": "Apa itu Public Key Lanjutan?"
       }
     },
     "accountLegacyConvert": {
@@ -332,6 +345,7 @@
         "title": "Apa itu wallet tersembunyi?"
       },
       "legacyHiddenWallet": {
+        "text": "Mula-mula klik butang di bawah (tersedia jika BitBox dikunci dengan kata laluan peranti utama dan 2FA dinyahdayakan), kemudian pasang kembali Bitbox dan buka dengan kata laluan peranti tersembunyi anda.",
         "title": "Bagaimanakah saya dapat mengakses legacy wallet tersembunyi?"
       },
       "pairing": {
@@ -504,7 +518,8 @@
   "legacyhiddenwallet": {
     "disable": "Matikan Legacy Hidden Wallet",
     "enable": "Aktifkan Legacy Hidden Wallet",
-    "successDisable": "Berjaya melumpuhkan legacy hidden wallet"
+    "successDisable": "Berjaya melumpuhkan legacy hidden wallet",
+    "successEnable": "Berjaya menyahaktifkan wallet legacy tersembunyi. Pasang semula BitBox anda dan masukkan kata laluan peranti tersembunyi untuk mengakses wallet legacy tersembunyi warisan."
   },
   "loading": "memuatkan ...",
   "notification": {
@@ -516,6 +531,7 @@
       "title": "Ditinggalkan"
     },
     "button": "Pasangkan Aplikasi Mudah Alih",
+    "confirm": "Adakah anda pasti mahu memasangkan BitBox anda? Ambil perhatian bahawa selepas itu, telefon bimbit diperlukan untuk melakukan transaksi.",
     "connectOnly": {
       "button": "Sambungkan aplikasi mudah alih",
       "title": "Imbas dengan aplikasi mudah alih kami dengan memilih item menu 'Sambung ke aplikasi desktop baharu'"
@@ -529,7 +545,9 @@
     },
     "start": {
       "hideAppQRCode": "Sembunyikan QR Code",
-      "revealAppQRCode": "Tunjukkan QR Code"
+      "revealAppQRCode": "Tunjukkan QR Code",
+      "step1": "Jika anda tidak mempunyai aplikasi mudah alih, anda boleh mengimbas kod QR untuk Apple App Store atau Google Play Store.",
+      "step2": "Imbas dengan aplikasi mudah alih kami, yang anda dapati di bawah nama 'Digital Bitbox 2FA' di kedai aplikasi untuk iOS dan Android:"
     },
     "started": {
       "text": "Kini sila ikuti arahan dalam aplikasi mudah alih.",
