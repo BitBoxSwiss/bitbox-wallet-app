@@ -125,6 +125,7 @@ class Account extends Component<Props, State> {
     }
 
     private checkSDCards() {
+        return;
         Promise.all(this.props.deviceIDs.map(deviceID => {
             return apiGet(`devices/${deviceID}/info`)
                 .then(info => {

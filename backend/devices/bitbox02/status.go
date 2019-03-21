@@ -30,13 +30,10 @@ const (
 	StatusUninitialized Status = "uninitialized"
 
 	// StatusSeeded is after SetPassword(), before CreateBack() during initialization of the
-	// device. Use CreateBackup() to move to StatusUnlocked.
+	// device. Use CreateBackup() to move to StatusInitialized.
 	StatusSeeded Status = "seeded"
 
-	// StatusInitialized means the device is seeded and the backup was created. Use Unlock() to move
-	// to StatusUnlocked.
+	// StatusInitialized means the device is seeded and the backup was created, and the device is
+	// unlocked. The keystore is ready to use.
 	StatusInitialized Status = "initialized"
-
-	// StatusUnlocked means device authentication was successful, and the keystore is ready to use.
-	StatusUnlocked Status = "unlocked"
 )
