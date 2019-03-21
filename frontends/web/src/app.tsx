@@ -122,11 +122,17 @@ class App extends Component<Props, State> {
     private onAccountsStatusChanged = () => {
         apiGet('accounts-status').then(status => {
             const accountsInitialized = status === 'initialized';
-            if (!accountsInitialized && getCurrentUrl().match(/^\/account\//)) {
+            const inAccounts = getCurrentUrl().match(/^\/account\//);
+            if (!accountsInitialized && inAccounts) {
                 route('/', true);
             }
             this.setState({ accountsInitialized });
-            apiGet('accounts').then(accounts => this.setState({ accounts }));
+            apiGet('accounts').then(accounts => {
+                this.setState({ accounts });
+                if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
+                    route('/', true);
+                }
+            });
         });
     }
 
