@@ -38,6 +38,7 @@ type BitBox02 interface {
 	SetPassword() error
 	CreateBackup() error
 	ListBackups() ([]*bitbox02.Backup, error)
+	RestoreBackup(string) error
 	InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error
 }
 
@@ -62,7 +63,8 @@ func NewHandlers(
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
-	handleFunc("/list-backups", handlers.getListBackups).Methods("GET")
+	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
+	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 
@@ -143,7 +145,7 @@ func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error)
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) getListBackups(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("List backups ")
 	backups, err := handlers.device.ListBackups()
 	if err != nil {
@@ -153,10 +155,24 @@ func (handlers *Handlers) getListBackups(_ *http.Request) (interface{}, error) {
 	for _, backup := range backups {
 		result = append(result, map[string]string{
 			"id":   backup.Id,
-			"time": backup.Time.Format(time.RFC3339),
+			"date": backup.Time.Format(time.RFC3339),
 		})
 	}
-	return result, nil
+	return map[string]interface{}{
+		"success": true,
+		"backups": result,
+	}, nil
+}
+
+func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
+	var backupID string
+	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.device.RestoreBackup(backupID); err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {

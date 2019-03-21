@@ -425,6 +425,27 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	return backups, nil
 }
 
+// RestoreBackup restores a backup returned by ListBackups (id).
+func (device *Device) RestoreBackup(id string) error {
+	request := &messages.Request{
+		Request: &messages.Request_RestoreBackup{
+			RestoreBackup: &messages.RestoreBackupRequest{
+				Id: id,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusInitialized)
+	return nil
+}
+
 // ChannelHash returns the hashed handshake channel binding
 func (device *Device) ChannelHash() (string, bool) {
 	return device.channelHash, device.channelHashDeviceVerified

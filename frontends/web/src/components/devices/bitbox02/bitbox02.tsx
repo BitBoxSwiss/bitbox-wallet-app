@@ -27,7 +27,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
-import { RestoreBackup } from './restorebackup';
+import { Backups } from './backups';
 import { Settings } from './settings';
 
 interface BitBox02Props {
@@ -164,7 +164,7 @@ class BitBox02 extends Component<Props, State> {
     private restoreBackup = () => {
         this.setState({
             restoreBackupStatus: 'restore',
-        })
+        });
     }
 
     private createBackup = () => {
@@ -245,7 +245,7 @@ class BitBox02 extends Component<Props, State> {
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
-                                    active={createWalletStatus == 'intro'}
+                                    active={createWalletStatus === 'intro'}
                                     title="Create Wallet">
                                     <div className={style.stepContext}>
                                         <p>Ok, let's create a new wallet! Here are the basics steps you will be taking to setup your BitBox:</p>
@@ -284,9 +284,9 @@ class BitBox02 extends Component<Props, State> {
                                         <p>Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.</p>
                                     </div>
                                 </Step> : ''}
-                            {!unlockOnly && appStatus == 'createWallet' ?
+                            {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
-                                    active={status === 'seeded' && createWalletStatus == 'createBackup'}
+                                    active={status === 'seeded' && createWalletStatus === 'createBackup'}
                                     title="Create Backup">
                                     <div className={style.stepContext}>
                                         <p>Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.</p>
@@ -303,7 +303,7 @@ class BitBox02 extends Component<Props, State> {
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'restoreBackup' ?
                                 <Step
-                                    active={restoreBackupStatus == 'intro'}
+                                    active={status !== 'initialized' && restoreBackupStatus === 'intro'}
                                     title="Restore Backup">
                                     <div className={style.stepContext}>
                                         <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
@@ -327,10 +327,13 @@ class BitBox02 extends Component<Props, State> {
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'restoreBackup' ?
                                 <Step
-                                    active={restoreBackupStatus == 'restore'}
-                                    title="Choose Backup">
+                                    active={status !== 'initialized' && restoreBackupStatus === 'restore'}
+                                    title="Restore Backup">
                                     <div className={style.stepContext}>
-                                        <RestoreBackup deviceID={deviceID} />
+                                        <Backups
+                                            deviceID={deviceID}
+                                            showRestore={true}
+                                        />
                                     </div>
                                 </Step> : ''}
                             <Step
