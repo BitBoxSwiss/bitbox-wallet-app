@@ -27,6 +27,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
+import { RestoreBackup } from './restorebackup';
 import { Settings } from './settings';
 
 interface BitBox02Props {
@@ -44,8 +45,9 @@ interface State {
     'uninitialized' |
     'seeded' |
     'initialized';
-    appStatus: 'createWallet' | '';
+    appStatus: 'createWallet' | 'restoreBackup' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
+    restoreBackupStatus: 'intro' | 'restore';
     settingPassword: boolean;
     creatingBackup: boolean;
     msdInserted: boolean;
@@ -67,6 +69,7 @@ class BitBox02 extends Component<Props, State> {
             msdInserted: false,
             appStatus: '',
             createWalletStatus: 'intro',
+            restoreBackupStatus: 'intro',
             unlockOnly: true,
             showWizard: false,
         };
@@ -136,6 +139,10 @@ class BitBox02 extends Component<Props, State> {
         this.setState({ appStatus: 'createWallet' });
     }
 
+    private restoreBackupStep = () => {
+        this.setState({ appStatus: 'restoreBackup' });
+    }
+
     private setPassword = () => {
         this.setState({
             settingPassword: true,
@@ -154,6 +161,12 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
+    private restoreBackup = () => {
+        this.setState({
+            restoreBackupStatus: 'restore',
+        })
+    }
+
     private createBackup = () => {
         this.setState({ creatingBackup: true });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/create-backup').then(({ success }) => {
@@ -166,7 +179,7 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { hash, deviceVerified, status, appStatus, createWalletStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
+        { hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
     ) {
         if (status === '') {
             return null;
@@ -225,7 +238,7 @@ class BitBox02 extends Component<Props, State> {
                                     </button>
                                         <button
                                             className={[style.button, style.secondary].join(' ')}
-                                            disabled={true}>
+                                            onClick={this.restoreBackupStep}>
                                             Restore Backup
                                     </button>
                                     </div>
@@ -239,9 +252,8 @@ class BitBox02 extends Component<Props, State> {
                                         <ul>
                                             <li>Name your device</li>
                                             <li>Go through our guide on how to use the on screen gestures on your BitBox</li>
-                                            <li>Choose to create or restore a wallet</li>
                                             <li>Set a password for your device</li>
-                                            <li>Poop</li>
+                                            <li>Create a backup</li>
                                         </ul>
                                         <div className={style.inputGroup}>
                                             <label className={style.label}>Wallet Name</label>
@@ -289,17 +301,48 @@ class BitBox02 extends Component<Props, State> {
                                     </button>
                                     </div>
                                 </Step> : ''}
-                            {status === 'initialized' ?
+                            {!unlockOnly && appStatus === 'restoreBackup' ?
                                 <Step
-                                    active={status === 'initialized'}
-                                    title="You're ready to go!">
+                                    active={restoreBackupStatus == 'intro'}
+                                    title="Restore Backup">
                                     <div className={style.stepContext}>
-                                        <p>Hooray! You're BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.</p>
+                                        <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
+                                        <ul>
+                                            <li>Name your device</li>
+                                            <li>Set a password for your device</li>
+                                            <li>Poop</li>
+                                        </ul>
+                                        <div className={style.inputGroup}>
+                                            <label className={style.label}>Wallet Name</label>
+                                            <input type="text" className={style.input} placeholder="Name of your BitBox" />
+                                        </div>
                                     </div>
-                                    <Button primary onClick={this.handleGetStarted}>
-                                        {t('success.getstarted')}
-                                    </Button>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.restoreBackup}>
+                                            Name Device & Continue
+                                        </button>
+                                    </div>
                                 </Step> : ''}
+                            {!unlockOnly && appStatus === 'restoreBackup' ?
+                                <Step
+                                    active={restoreBackupStatus == 'restore'}
+                                    title="Choose Backup">
+                                    <div className={style.stepContext}>
+                                        <RestoreBackup deviceID={deviceID} />
+                                    </div>
+                                </Step> : ''}
+                            <Step
+                                active={status === 'initialized'}
+                                title="You're ready to go!">
+                                <div className={style.stepContext}>
+                                    <p>Hooray! You're BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.</p>
+                                </div>
+                                <Button primary onClick={this.handleGetStarted}>
+                                    {t('success.getstarted')}
+                                </Button>
+                            </Step>
                         </Steps>
                     </div>
                 </div>
