@@ -341,7 +341,7 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 // SetPassword invokes the set password workflow on the device. Should be called only if
 // deviceInfo.Initialized is false.
 func (device *Device) SetPassword() error {
-	if device.status != StatusUninitialized {
+	if device.status == StatusInitialized {
 		return errp.New("invalid status")
 	}
 	request := &messages.Request{
@@ -386,6 +386,58 @@ func (device *Device) CreateBackup() error {
 		return err
 	}
 
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusInitialized)
+	return nil
+}
+
+type Backup struct {
+	Id   string
+	Time time.Time
+}
+
+// ListBackups returns a list of all backups on the SD card.
+func (device *Device) ListBackups() ([]*Backup, error) {
+	request := &messages.Request{
+		Request: &messages.Request_ListBackups{
+			ListBackups: &messages.ListBackupsRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return nil, err
+	}
+	listBackupsResponse, ok := response.Response.(*messages.Response_ListBackups)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	msgBackups := listBackupsResponse.ListBackups.Info
+	backups := make([]*Backup, len(msgBackups))
+	for index, msgBackup := range msgBackups {
+		backups[index] = &Backup{
+			Id:   msgBackup.Id,
+			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
+		}
+	}
+	return backups, nil
+}
+
+// RestoreBackup restores a backup returned by ListBackups (id).
+func (device *Device) RestoreBackup(id string) error {
+	request := &messages.Request{
+		Request: &messages.Request_RestoreBackup{
+			RestoreBackup: &messages.RestoreBackupRequest{
+				Id: id,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
 	_, ok := response.Response.(*messages.Response_Success)
 	if !ok {
 		return errp.New("unexpected response")

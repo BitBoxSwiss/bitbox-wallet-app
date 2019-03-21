@@ -19,6 +19,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { Radio } from '../forms';
 
 interface BackupsListItemProps {
+    disabled?: boolean;
     backup: Backup;
     selectedBackup: string | undefined;
     handleChange: (value: string) => void;
@@ -35,7 +36,7 @@ type Props = BackupsListItemProps & TranslateProps;
 
 class BackupsListItem extends Component<Props> {
     public render(
-        { backup, selectedBackup, handleChange, onFocus }: RenderableProps<Props>,
+        { disabled, backup, selectedBackup, handleChange, onFocus }: RenderableProps<Props>,
     ) {
         let date = '';
         if (backup.date && backup.date !== '') {
@@ -53,6 +54,7 @@ class BackupsListItem extends Component<Props> {
         }
         return (
             <Radio
+                disabled={!!disabled}
                 checked={selectedBackup === backup.id}
                 onChange={event => handleChange(event.target.value)}
                 id={backup.id}
