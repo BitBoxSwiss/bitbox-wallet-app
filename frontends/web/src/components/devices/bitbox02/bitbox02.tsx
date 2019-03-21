@@ -44,7 +44,8 @@ interface State {
     'uninitialized' |
     'seeded' |
     'initialized';
-    appStatus: 'createWallet' | 'setPassword' | '';
+    appStatus: 'createWallet' | '';
+    createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     settingPassword: boolean;
     creatingBackup: boolean;
     msdInserted: boolean;
@@ -65,6 +66,7 @@ class BitBox02 extends Component<Props, State> {
             creatingBackup: false,
             msdInserted: false,
             appStatus: '',
+            createWalletStatus: 'intro',
             unlockOnly: true,
             showWizard: false,
         };
@@ -112,6 +114,9 @@ class BitBox02 extends Component<Props, State> {
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
                 this.setState({ unlockOnly: false });
             }
+            if (status === 'seeded') {
+                this.setState({ appStatus: 'createWallet' });
+            }
             this.setState({
                 status,
                 errorText: undefined,
@@ -134,7 +139,7 @@ class BitBox02 extends Component<Props, State> {
     private setPassword = () => {
         this.setState({
             settingPassword: true,
-            appStatus: 'setPassword',
+            createWalletStatus: 'setPassword',
         });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/set-password').then(({ success }) => {
             if (!success) {
@@ -145,7 +150,7 @@ class BitBox02 extends Component<Props, State> {
                     this.setPassword();
                 });
             }
-            this.setState({ settingPassword: false, appStatus: '' });
+            this.setState({ settingPassword: false, createWalletStatus: 'createBackup' });
         });
     }
 
@@ -161,7 +166,7 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { hash, deviceVerified, status, appStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
+        { hash, deviceVerified, status, appStatus, createWalletStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
     ) {
         if (status === '') {
             return null;
@@ -225,9 +230,9 @@ class BitBox02 extends Component<Props, State> {
                                     </button>
                                     </div>
                                 </Step> : ''}
-                            {!unlockOnly ?
+                            {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
-                                    active={appStatus === 'createWallet' && !settingPassword}
+                                    active={createWalletStatus == 'intro'}
                                     title="Create Wallet">
                                     <div className={style.stepContext}>
                                         <p>Ok, let's create a new wallet! Here are the basics steps you will be taking to setup your BitBox:</p>
@@ -251,9 +256,9 @@ class BitBox02 extends Component<Props, State> {
                                     </button>
                                     </div>
                                 </Step> : ''}
-                            {!unlockOnly ?
+                            {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
-                                    active={appStatus === 'setPassword'}
+                                    active={createWalletStatus === 'setPassword'}
                                     title="Set a password for your BitBox">
                                     {
                                         errorText && (
@@ -267,9 +272,9 @@ class BitBox02 extends Component<Props, State> {
                                         <p>Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.</p>
                                     </div>
                                 </Step> : ''}
-                            {!unlockOnly ?
+                            {!unlockOnly && appStatus == 'createWallet' ?
                                 <Step
-                                    active={status === 'seeded'}
+                                    active={status === 'seeded' && createWalletStatus == 'createBackup'}
                                     title="Create Backup">
                                     <div className={style.stepContext}>
                                         <p>Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.</p>
