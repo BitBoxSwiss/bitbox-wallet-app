@@ -39,7 +39,8 @@ type BitBox02 interface {
 	CreateBackup() error
 	ListBackups() ([]*bitbox02.Backup, error)
 	RestoreBackup(string) error
-	InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error
+	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
+	SetMnemonicPassphraseEnabled(bool) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -67,6 +68,7 @@ func NewHandlers(
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
+	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
 
 	return handlers
 }
@@ -205,6 +207,17 @@ func (handlers *Handlers) postRemoveSDCard(r *http.Request) (interface{}, error)
 	handlers.log.Debug("Remove SD Card if inserted")
 	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
 	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (interface{}, error) {
+	var enabled bool
+	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.device.SetMnemonicPassphraseEnabled(enabled); err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil

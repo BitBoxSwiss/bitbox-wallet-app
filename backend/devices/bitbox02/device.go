@@ -636,3 +636,24 @@ func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardReque
 	}
 	return nil
 }
+
+// SetMnemonicPassphraseEnabled enables or disables entering a mnemonic passphrase after the normal
+// unlock.
+func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
+	request := &messages.Request{
+		Request: &messages.Request_SetMnemonicPassphraseEnabled{
+			SetMnemonicPassphraseEnabled: &messages.SetMnemonicPassphraseEnabledRequest{
+				Enabled: enabled,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
