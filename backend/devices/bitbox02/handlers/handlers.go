@@ -156,7 +156,7 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 	result := []map[string]string{}
 	for _, backup := range backups {
 		result = append(result, map[string]string{
-			"id":   backup.Id,
+			"id":   backup.ID,
 			"date": backup.Time.Format(time.RFC3339),
 		})
 	}

@@ -394,8 +394,9 @@ func (device *Device) CreateBackup() error {
 	return nil
 }
 
+// Backup contains the metadata of one backup.
 type Backup struct {
-	Id   string
+	ID   string
 	Time time.Time
 }
 
@@ -418,7 +419,7 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	backups := make([]*Backup, len(msgBackups))
 	for index, msgBackup := range msgBackups {
 		backups[index] = &Backup{
-			Id:   msgBackup.Id,
+			ID:   msgBackup.Id,
 			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
 		}
 	}
