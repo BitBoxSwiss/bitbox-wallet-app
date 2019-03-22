@@ -394,8 +394,9 @@ func (device *Device) CreateBackup() error {
 	return nil
 }
 
+// Backup contains the metadata of one backup.
 type Backup struct {
-	Id   string
+	ID   string
 	Time time.Time
 }
 
@@ -418,7 +419,7 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	backups := make([]*Backup, len(msgBackups))
 	for index, msgBackup := range msgBackups {
 		backups[index] = &Backup{
-			Id:   msgBackup.Id,
+			ID:   msgBackup.Id,
 			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
 		}
 	}
@@ -623,6 +624,27 @@ func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardReque
 		Request: &messages.Request_InsertRemoveSdcard{
 			InsertRemoveSdcard: &messages.InsertRemoveSDCardRequest{
 				Action: action,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
+// SetMnemonicPassphraseEnabled enables or disables entering a mnemonic passphrase after the normal
+// unlock.
+func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
+	request := &messages.Request{
+		Request: &messages.Request_SetMnemonicPassphraseEnabled{
+			SetMnemonicPassphraseEnabled: &messages.SetMnemonicPassphraseEnabledRequest{
+				Enabled: enabled,
 			},
 		},
 	}
