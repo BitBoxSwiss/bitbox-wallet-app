@@ -183,13 +183,13 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL: "https://mainnet.infura.io",
+				NodeURL: "https://mainnet.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
 			},
 			TETH: ethCoinConfig{
-				NodeURL: "https://ropsten.infura.io",
+				NodeURL: "https://ropsten.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
 			},
 			RETH: ethCoinConfig{
-				NodeURL: "https://rinkeby.infura.io",
+				NodeURL: "https://rinkeby.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
 			},
 		},
 	}
