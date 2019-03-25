@@ -78,9 +78,10 @@ type Device struct {
 
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Initialized bool   `json:"initialized"`
+	Name                      string `json:"name"`
+	Version                   string `json:"version"`
+	Initialized               bool   `json:"initialized"`
+	MnemonicPassphraseEnabled bool   `json:"mnemonicPassphraseEnabled"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -330,9 +331,10 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	}
 
 	deviceInfo := &DeviceInfo{
-		Name:        deviceInfoResponse.DeviceInfo.Name,
-		Version:     deviceInfoResponse.DeviceInfo.Version,
-		Initialized: deviceInfoResponse.DeviceInfo.Initialized,
+		Name:                      deviceInfoResponse.DeviceInfo.Name,
+		Version:                   deviceInfoResponse.DeviceInfo.Version,
+		Initialized:               deviceInfoResponse.DeviceInfo.Initialized,
+		MnemonicPassphraseEnabled: deviceInfoResponse.DeviceInfo.MnemonicPassphraseEnabled,
 	}
 
 	return deviceInfo, nil
