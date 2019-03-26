@@ -346,7 +346,9 @@ func (account *Account) Initialized() bool {
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
 	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	account.synchronizer.WaitSynchronized()
+	if !account.offline {
+		account.synchronizer.WaitSynchronized()
+	}
 	return account.fatalError
 }
 
