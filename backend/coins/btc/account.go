@@ -223,7 +223,9 @@ func (account *Account) Initialize() error {
 	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	account.onEvent(accounts.EventStatusChanged)
+	if account.offline {
+		account.onEvent(accounts.EventStatusChanged)
+	}
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
@@ -344,7 +346,9 @@ func (account *Account) Initialized() bool {
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
 	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	account.synchronizer.WaitSynchronized()
+	if !account.offline {
+		account.synchronizer.WaitSynchronized()
+	}
 	return account.fatalError
 }
 
