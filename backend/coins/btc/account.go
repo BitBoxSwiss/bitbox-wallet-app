@@ -223,7 +223,9 @@ func (account *Account) Initialize() error {
 	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	account.onEvent(accounts.EventStatusChanged)
+	if account.offline {
+		account.onEvent(accounts.EventStatusChanged)
+	}
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
