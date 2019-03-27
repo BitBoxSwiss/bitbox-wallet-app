@@ -2,6 +2,7 @@
   "account": {
     "disconnect": "Sambungan hilang. Mencuba lagi...",
     "exportTransactions": "Eksport Transaksi ke Folder Muat Turun sebagai Fail CSV",
+    "fatalError": "Terdapat kesilapan yang tidak dijangka.",
     "incoming": "Masuk",
     "info": {
       "btc-p2pkh": "Ini adalah akaun Bitcoin Legacy. Adalah disyorkan bahawa anda menggunakan akaun Segwit Bitcoin, kerana bayaran rangkaian yang lebih rendah.",
@@ -16,11 +17,14 @@
     "reconnecting": "Sambungan hilang, mencuba menyambung kembali..."
   },
   "accountInfo": {
+    "address": "Alamat",
     "extendedPublicKey": "Public Key Lanjutan",
-    "title": "Maklumat Akaun"
+    "title": "Maklumat Akaun",
+    "verify": "Sahkan pada peranti"
   },
   "accountSummary": {
     "balance": "Baki",
+    "exportSummary": "Eksport Ringkasan Akaun ke Folder Muat Turun sebagai Fail CSV",
     "fiatBalance": "Baki Fiat",
     "name": "Nama Akaun",
     "noAccount": "Tiada akaun untuk dipaparkan.",
@@ -512,6 +516,7 @@
       "placeholderRepeat": "Sila ulangi kata laluan peranti"
     }
   },
+  "invalidFormat": "Format tidak sah",
   "language": {
     "title": "Pilih Bahasa"
   },
@@ -709,6 +714,7 @@
       "placeholder": "Mengira bayaran anggaran ..."
     },
     "maximum": "Hantar semua",
+    "scanQR": "Imbas Kod QR",
     "signprogress": {
       "description": "Ini adalah transaksi yang mengandung banyak data. Untuk menandatangani transaksi dengan sepenuhnya, anda akan diminta untuk mengesahkan sebanyak {{steps}} kali.",
       "label": "Kemajuan"

@@ -1,0 +1,847 @@
+{
+  "account": {
+    "disconnect": "Conexão perdida. Tentando novamente...",
+    "exportTransactions": "Exportar transações para a pasta Downloads como um arquivo CSV.",
+    "fatalError": "Ocorreu um erro inesperado.",
+    "incoming": "Lançamentos",
+    "info": {
+      "btc-p2pkh": "Essa é uma conta Bitcoin Legacy. É recomendado que você utilize uma conta Bitcoin Segwit, devido às menores taxas de rede.",
+      "btc-p2wpkh": "Essa é uma conta Bitcoin Segwit nativa, que exige ainda menos taxas de rede. Ela utiliza o endereço no formato Bech32, que ainda não é amplamente aceito. Use somente se você quiser testar a tecnologia de ponta.",
+      "btc-p2wpkh-p2sh": "Essa é uma conta Bitcoin Segwit, e é recomendada para taxas de rede mais baixas. Se você acabou de atualizar do aplicativo anterior, você pode ver seu saldo na conta Bitcoin Legacy, que você pode habilitar nas configurações. Se você quiser testar uma tecnologia de ponta e economizar ainda mais em taxas de rede, vá para Configurações e habilite uma conta Bitcoin Segwit nativa, que utiliza o formato de endereço Bech32.",
+      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
+      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
+      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
+    },
+    "initializing": "Obtendo informações da blockchain...",
+    "openFile": "Abrir arquivo",
+    "reconnecting": "Conexão perdida, tentando reconectar..."
+  },
+  "accountInfo": {
+    "address": "Endereço",
+    "extendedPublicKey": "Chave pública estendida",
+    "title": "Informações da conta",
+    "verify": "Verificar no dispositivo"
+  },
+  "accountSummary": {
+    "balance": "Saldo",
+    "exportSummary": "Exportar resumo de contas para a pasta de Downloads como um arquivo CSV",
+    "fiatBalance": "Saldo em moeda fiduciária",
+    "name": "Nome da conta",
+    "noAccount": "Não há contas para mostrar.",
+    "synchronizing": "Sincronizando contas com suas blockchains:",
+    "title": "Resumo da conta",
+    "total": "Total"
+  },
+  "addAccount": {
+    "accountName": "Nome da conta",
+    "address": "Endereço",
+    "coin": "Moeda",
+    "error": {
+      "alreadyExists": "A conta já existe.",
+      "invalidAddress": "Por favor, digite um endereço válido.",
+      "xprivEntered": "AVISO: Você digitou uma chave privada estendida. Por favor digite uma chave pública estendida e mantenha suas chaves privadas seguras.",
+      "xpubInvalid": "Chave pública estendida mal formatada."
+    },
+    "extendedPublicKey": "Chave pública estendida",
+    "scriptType": "Tipo de script",
+    "submit": "Adicionar conta",
+    "title": "Adicionar conta",
+    "warning": {
+      "xpubWrongNet": "Aviso: O formato da chave pública estendida indica que não é válido para o tipo de conta selecionado. Se você não vir as transações que espera, tente importar a chave pública estendida com outro tipo de conta."
+    }
+  },
+  "app": {
+    "upgrade": "Uma nova versão desse app está disponível! Por favor, atualize de {{current}} para {{version}}."
+  },
+  "backup": {
+    "check": {
+      "checking": "Checando backup...",
+      "confirmTitle": "Checar backup",
+      "notOK": "O backup NÃO corresponde à carteira.",
+      "ok": "O backup corresponde à carteira.",
+      "password": {
+        "label": "Senha de recuperação",
+        "placeholder": "Senha de recuperação",
+        "showLabel": "senha de recuperação"
+      },
+      "title": "Checar backup"
+    },
+    "create": {
+      "info": "Por favor, digite a senha de recuperação da carteira atual para verificação.",
+      "name": {
+        "label": "Nome do backup",
+        "placeholder": "Por favor, nomeie o backup"
+      },
+      "password": {
+        "label": "Senha de recuperação",
+        "placeholder": "Por favor, digite sua senha de recuperação"
+      },
+      "title": "Criar backup",
+      "verificationFailed": "A senha de recuperação NÃO CORRESPONDE à carteira atual. O backup foi criado. Por favor, use 'Checar backup' para verificar sua senha de recuperação novamente."
+    },
+    "description": "Selecione um <strong>arquivo de backup da carteira</strong>",
+    "insert": "Por favor, insira o cartão micro SD para gerenciar backups.",
+    "insertButton": "Eu inseri o cartão micro SD",
+    "noBackups": "Não há backups neste cartão micro SD.",
+    "restore": {
+      "confirmTitle": "Restaurar backup",
+      "error": {
+        "e200": "Cartão SD não encontrado"
+      },
+      "password": {
+        "label": "Senha de recuperação ou senha de recuperação oculta",
+        "placeholder": "Senha de recuperação",
+        "repeatPlaceholder": "Repita a senha de recuperação",
+        "showLabel": "Senha de recuperação"
+      },
+      "restoring": "Restaurando o backup...",
+      "title": "Restaurar",
+      "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
+    },
+    "title": "Gerenciar backups"
+  },
+  "bitbox": {
+    "error": {
+      "e10000": "Senha atual do dispositivo incorreta.",
+      "e10001": "Falha ao substituir a senha do dispositivo",
+      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e112": "A senha do dispositivo oculto não pode ser igual à senha do dispositivo principal."
+    }
+  },
+  "blink": {
+    "button": "Piscar"
+  },
+  "bootloader": {
+    "button": "Atualizar firmware agora",
+    "progress": "Atualizando: {{progress}}%",
+    "success": "Atualização bem sucedida! Por favor, insira novamente o dispositivo. Desta vez, não toque no botão."
+  },
+  "button": {
+    "abort": "Abortar",
+    "back": "Voltar",
+    "changepin": "Mudar senha do dispositivo",
+    "check": "Checar backup",
+    "copy": "Copiar",
+    "create": "Criar",
+    "download": "Baixar",
+    "hiddenwallet": "Criar carteira oculta",
+    "next": "Próximo",
+    "ok": "OK",
+    "previous": "Anterior",
+    "receive": "Receber",
+    "restore": "Restaurar",
+    "send": "Enviar",
+    "unlock": "Desbloquear",
+    "upgrade": "Atualizar"
+  },
+  "changePin": {
+    "newTitle": "Nova senha do dispositivo",
+    "oldLabel": "Senha atual do dispositivo"
+  },
+  "checkSDcard": "checando cartão micro SD",
+  "confirm": {
+    "abortInfo": "Toque para ",
+    "abortInfoRedText": "abortar",
+    "approveInfo": "Segure 4 segundos ou mais para ",
+    "approveInfoGreenText": "confirmar",
+    "info": "Na sua BitBox",
+    "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
+  },
+  "device": {
+    "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente."
+  },
+  "deviceLock": {
+    "button": "Ativar autorização de dois fatores (2FA)",
+    "condition1": "Você tem um backup?",
+    "condition2": "A verificação pelo aplicativo de celular está funcionando?",
+    "condition3": "2FA DESATIVA backups e emparelhamento de aplicativos móveis. O dispositivo precisa ser RESETADO para sair do 2FA!",
+    "confirm": "Ativar autorização de dois fatores (2FA)",
+    "title": "Ativar autorização de dois fatores (2FA)"
+  },
+  "deviceSettings": {
+    "firmware": {
+      "newVersion": {
+        "label": "Versão disponível"
+      },
+      "title": "Firmware",
+      "upToDate": "Seu dispositivo está atualizado",
+      "version": {
+        "label": "Versão"
+      }
+    },
+    "hardware": {
+      "sdcard": {
+        "false": "Não inserido",
+        "label": "Cartão Micro SD",
+        "true": "Inserido"
+      },
+      "title": "Hardware"
+    },
+    "loading": "Recuperando informações do dispositivo...",
+    "pairing": {
+      "lock": {
+        "false": "Desativado",
+        "label": "Autorização de dois fatores (2FA)",
+        "true": "Ativado"
+      },
+      "mobile": {
+        "false": "Fechado",
+        "label": "Aplicativo móvel",
+        "true": "Abrir"
+      },
+      "status": {
+        "false": "Não emparelhado",
+        "label": "Status",
+        "true": "Emparelhado"
+      },
+      "title": "Emparelhamento"
+    },
+    "secrets": {
+      "manageBackups": "Gerenciar backups",
+      "title": "Privacidade"
+    }
+  },
+  "deviceTampered": "Sua BitBox foi fornecida com uma senha de recuperação? Se sim, pare o processo de configuração e contate o suporte imediatamente. A Shift nunca lhe dará uma carteira pronta ou fará recomendações de senha.",
+  "dialog": {
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
+  },
+  "fiat": {
+    "default": "padrão",
+    "setDefault": "Definir {{code}} como padrão",
+    "title": "Moedas"
+  },
+  "footer": {
+    "appVersion": "Versão do aplicativo:"
+  },
+  "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
+  "goal": {
+    "buttons": {
+      "create": "Criar uma nova carteira",
+      "restore": "Restaurar uma carteira de um backup"
+    },
+    "paragraph": "Por favor, selecione uma das seguintes opções:",
+    "step": {
+      "1": {
+        "title": "Informação de segurança"
+      },
+      "2": {
+        "description": "Definir uma senha do dispositivo",
+        "title": "Dispositivo"
+      },
+      "3-create": {
+        "description": "Criar uma nova carteira",
+        "title": "Carteira"
+      },
+      "3-restore": {
+        "description": "de um backup",
+        "title": "Restaurar"
+      },
+      "4-create": {
+        "title": "Resumo"
+      },
+      "4-restore": {
+        "title": "Resumo"
+      }
+    }
+  },
+  "guide": {
+    "accountDescription": {
+      "text": "Esta é a visão geral da sua conta. Mostra transações de entrada e saída. O saldo é exibido para cada conta separadamente. Consulte o guia nas configurações para saber mais sobre os diferentes tipos de conta.",
+      "title": "O que é exibido aqui?"
+    },
+    "accountFiat": {
+      "text": "Sim, você pode clicar em qualquer símbolo para girar através de várias moedas fiduciárias. Você também pode alterar a lista de moedas nas configurações.",
+      "title": "Posso exibir outras taxas de conversão?"
+    },
+    "accountIncomingBalance": {
+      "text": "Lançamentos soma os valores que estão sendo transferidos para você, mas que ainda não foram confirmados pela rede.",
+      "title": "O que significa lançamentos?"
+    },
+    "accountInfo": {
+      "xpub": {
+        "text": "Uma chave pública estendida é uma chave-raiz da qual todos os endereços de recebimento de uma conta são derivados.\nEla é fornecida aqui para uso avançado e interoperabilidade com carteiras watch-only, como Electrum ou Sentinel.",
+        "title": "O que é uma chave pública estendida?"
+      }
+    },
+    "accountLegacyConvert": {
+      "text": "Vá para a conta Bitcoin, selecione receber e copie o endereço. Volte para sua conta Legacy, clique em enviar, cole o endereço copiado e marque enviar tudo. Em seguida, assine e envie para mover todas as suas moedas em uma única transação.",
+      "title": "Como posso retirar minhas moedas da conta Legacy?"
+    },
+    "accountRates": {
+      "link": {
+        "text": "www.cryptocompare.com",
+        "url": "https://www.cryptocompare.com"
+      },
+      "text": "As taxas de câmbio são atualizadas a cada minuto através do CryptoCompare.",
+      "title": "Quais taxas são usadas?"
+    },
+    "accountReload": {
+      "text": "Todas as informações da transação são atualizadas automaticamente.",
+      "title": "Como posso recarregar o histórico de transações?"
+    },
+    "accountSendDisabled": {
+      "text": "O botão \"Enviar\" é ativado quando seu saldo for maior que zero.",
+      "title": "Por que não consigo enviar {{unit}}?"
+    },
+    "accountTransactionAttributesBTC": {
+      "text": "Tamanho virtual: Usado para determinar a taxa de rede. Você economizou com sucesso em taxas se for menor que o tamanho da transação.\nTamanho: Tamanho real da transação em bytes quando serializado de acordo com a blockchain subjacente.\nPeso: Introduzido com o Segwit, é uma nova métrica para avaliar os tamanhos das transações e dos blocos. Cada segregated witness (segwit) byte conta como um, todos os demais como quatro unidades de peso. Em vez de um megabyte em tamanho real, o limite de tamanho de bloco é agora de quatro milhões de unidades de peso.",
+      "title": "Detalhes da transação relacionados ao Bitcoin"
+    },
+    "accountTransactionAttributesGeneric": {
+      "text": "Confirmações: quando sua transação for transmitida pela primeira vez, ela não será confirmada. Você precisará esperar que ela seja incluída em um bloco por um minerador, após o qual ela terá 1 confirmação. Cada bloco transmitido na rede depois disso adicionará outra confirmação à sua transação. Geralmente, os comerciantes e outros atuantes da rede só aceitam transações com 3-6 confirmações antes de considerar a transação como liquidada.\nID de transação: Um número de identificação exclusivo que pode ser usado para procurar uma transação em um explorador de blocos.\nTaxa: Os mineradores recebem uma taxa de transação como um incentivo para incluir transações nos blocos que eles mineram. Para saber mais, clique no botão enviar.",
+      "title": "Qual é a informação mostrada nos detalhes da transação?"
+    },
+    "accountTransactionConfirmation": {
+      "text": "Esta é uma transação que foi transmitida para a rede e está aguardando para ser confirmada.",
+      "title": "O que é uma transação pendente?"
+    },
+    "accountTransactionLabel": {
+      "text": "É o endereço onde você recebeu as moedas ou para o qual você as enviou. Um endereço codifica como (e assim por quem) as moedas podem ser gastas.",
+      "title": "Qual endereço é exibido para cada transação?"
+    },
+    "accountTransactionTime": {
+      "text": "O horário em que a transação foi confirmada na blockchain.",
+      "title": "Qual horário é exibido?"
+    },
+    "appendix": {
+      "href": "https://shiftcrypto.ch/contact",
+      "link": "Contate-nos!",
+      "text": "Outra pergunta?"
+    },
+    "backups": {
+      "check": {
+        "text": "'Checar backup' permite verificar se você tem um backup funcionando correspondente à sua carteira atual. Ele também pode ser usado para verificar se você ainda tem a senha de recuperação correta. Você pode verificar sua senha de recuperação principal ou sua senha de recuperação oculta.",
+        "title": "O que é 'Checar backup'?"
+      },
+      "encrypt": {
+        "text": "Não, mas sua senha de recuperação é necessária para derivar a carteira a partir da semente armazenada.",
+        "title": "Posso criptografar o backup?"
+      },
+      "howOften": {
+        "text": "O backup é gerado automaticamente quando uma nova carteira é criada. Você só precisa fazer um novo backup se o seu cartão micro SD for perdido ou danificado, ou se você quiser usar vários cartões micro SD como backups.\nVocê não precisa criar novos backups após realizar transações. Todos os seus dados de transação podem ser recriados pelo seu único backup que foi gerado automaticamente para você.",
+        "title": "Com que frequência tenho que fazer um backup?"
+      },
+      "whatIsABackup": {
+        "text": "É uma cópia da semente em um cartão micro SD. A semente junto com sua senha de recuperação gera sua carteira.",
+        "title": "O que é um backup?"
+      }
+    },
+    "bitbox": {
+      "2FA": {
+        "text": "Quando o 2FA é ativado, todas as transações precisam ser aprovadas no celular emparelhado para gastar moedas. Internamente, um número de uso único criptografado é enviado para o aplicativo móvel, descriptografado lá e retornado à BitBox ao pressionar o botão Aceitar. Esta comunicação com o dispositivo é feita através do canal entre o telefone celular e este aplicativo de desktop estabelecido durante o emparelhamento.\n\nCertifique-se de fazer um backup de sua carteira e parear o aplicativo móvel antes de ativar o 2FA. Uma vez ativado, o slot de cartão micro SD e o emparelhamento via aplicativo móvel são desativados. Eles podem ser reativados resetando a BitBox, o que formata o dispositivo.",
+        "title": "Como funciona a autorização de dois fatores (2FA)?"
+      },
+      "disable2FA": {
+        "text": "Para desabilitar o 2FA, você precisa resetar a sua BitBox e restaurar a carteira através do seu backup. Certifique-se de que você ainda tem o cartão micro SD com o backup e que você ainda se lembra da senha de recuperação. Em seguida, pressione 'Resetar dispositivo'. Defina uma nova senha para o dispositivo e escolha \"Ou restaurar um backup\". Selecione o backup que você fez da carteira, clique em 'Restaurar' e insira a senha de recuperação que você usou ao criar a carteira.",
+        "title": "Como posso desativar a autorização de dois fatores (2FA)?"
+      },
+      "ejectBitbox": {
+        "text": "Você pode desconectar a BitBox a qualquer momento sem precisar ejetá-la primeiro.",
+        "title": "Como posso ejetar a BitBox?"
+      },
+      "ejectSD": {
+        "text": "Você pode remover o cartão micro SD da BitBox a qualquer momento, desde que você não esteja no processo de criar ou restaurar um backup.",
+        "title": "Como posso ejetar o cartão micro SD?"
+      },
+      "hiddenWallet": {
+        "text": "É uma segunda carteira no mesmo dispositivo protegida por uma senha de dispositivo e senha de recuperação diferentes, que você pode usar para negação plausível (plausible deniability). A mesma semente do backup é usada para sua carteira normal e oculta, portanto, nenhum backup adicional é necessário.",
+        "title": "O que é uma carteira oculta?"
+      },
+      "legacyHiddenWallet": {
+        "text": "Primeiro, clique no botão abaixo (disponível se a BitBox estiver desbloqueada com a senha principal do dispositivo e o 2FA estiver desabilitado), em seguida, reconecte sua BitBox e desbloqueie-a com a senha oculta do dispositivo.",
+        "title": "Como faço para acessar a carteira legacy oculta?"
+      },
+      "pairing": {
+        "text": "Depois de fazer o download do nosso aplicativo para dispositivos móveis para iOS ou Android, escaneie o QR code exibido, que cria um canal seguro entre o aplicativo móvel e este aplicativo. Depois de escanear, siga as instruções no aplicativo para dispositivos móveis.",
+        "title": "Como emparelhar de forma segura com o seu telefone"
+      }
+    },
+    "receive": {
+      "address": {
+        "text": "Dê a outros para lhe enviar algumas moedas.\n(Procure verificar independentemente o endereço, por exemplo, com um telefonema.)",
+        "title": "O que eu faço com um endereço?"
+      },
+      "addressChange": {
+        "text": "Assim que um endereço é usado em uma transação, um novo endereço é adicionado à lista para substituí-lo. Sempre haverá 20 endereços não usados ​​disponíveis na lista.",
+        "title": "Quando os endereços mudam?"
+      },
+      "howVerify": {
+        "text": "Clique no ícone da BitBox na barra lateral à esquerda e veja a seção de emparelhamento. O guia será atualizado e você poderá continuar seguindo as instruções de lá.",
+        "title": "Como posso verificar um endereço com segurança?"
+      },
+      "whyMany": {
+        "text": "Por motivos de privacidade e segurança, você nunca deve distribuir o mesmo endereço duas vezes. Clique em \"Próximo\" para obter um novo endereço para um propósito diferente. Você pode gerar até 20 endereços por vez. Todos os endereços são derivados de sua única semente do backup. (Pense nos endereços como números de um boleto.)",
+        "title": "Por que há muitos endereços?"
+      },
+      "whyVerify": {
+        "text": "Uma das razões para comprar uma carteira de hardware como a BitBox é que você não deve confiar em seu computador devido às diferentes formas que um computador convencional pode ser atacado. Consequentemente, você não deve confiar em seu computador para gerar e exibir endereços autênticos. O botão para verificar o endereço com segurança faz com que a BitBox envie o endereço para um telefone celular emparelhado, a partir do qual você também pode escanear e verificar o QR code.",
+        "title": "Por que devo verificar o endereço com segurança?"
+      }
+    },
+    "send": {
+      "fee": {
+        "text": "A taxa é baseada no tamanho dos dados da transação e não no valor. As metas de taxas são calculadas pelo algoritmo de estimativa de taxas do Bitcoin Core para cada prioridade de rede que você escolher. Elas são mostradas se tiverem um valor diferente do objetivo abaixo.\nEconômica: 24 blocos (cerca de 4 horas para Bitcoin, 1 hora para Litecoin)\nBaixa: 12 blocos (cerca de 2 horas para o Bitcoin, 30 minutos para o Litecoin)\nNormal: 6 blocos (cerca de 1 hora para o Bitcoin, 15 minutos para o Litecoin)\nAlta: 2 blocos (cerca de 20 minutos para Bitcoin, 5 minutos para Litecoin)\n(Um bloco demora, em média, dez minutos para Bitcoin (2,5 minutos para Litecoin) para ser minerado e o carregamento da rede pode variar consideravelmente nos períodos acima.)",
+        "title": "Como a taxa é determinada?"
+      },
+      "priority": {
+        "text": "Tipicamente, quanto maior a taxa que você está disposto a pagar, mais rapidamente sua transação é confirmada pela rede.",
+        "title": "Qual é a prioridade da rede?"
+      },
+      "revert": {
+        "text": "Depois que uma transação é assinada e enviada (ou seja, transmitida para a rede), ela não pode mais ser revertida. Verifique as transações (incluindo a taxa) corretamente antes de assinar!\nSe você conhece o destinatário e ele ou ela está disposto a enviar o mesmo valor (menos as taxas de transação) de volta para você, você pode enviar um novo endereço de recebimento.",
+        "title": "Posso reverter uma transação?"
+      },
+      "whyFee": {
+        "text": "As transações estão competindo para serem confirmadas por um minerador. Mineradores escolhem transações para serem incluídas na blockchain com base em sua taxa.\nOs mineradores votam no histórico das transações. Como não há nenhum terceiro confiável para fazer valer um voto por pessoa (que é a ideia das blockchains), os mineradores votam em transações sacrificando um recurso caro como o poder de computação. Como recompensa por seu trabalho, eles podem reivindicar moedas recém-criadas e a taxa de todas as transações incluídas.",
+        "title": "Por que há uma taxa de rede?"
+      }
+    },
+    "settings-electrum": {
+      "what": {
+        "text": "É possível alimentar sua carteira com seus próprios full nodes em vez de usar os servidores Shift.",
+        "title": "O que é isso?"
+      }
+    },
+    "settings": {
+      "btc-p2pkh": {
+        "text": "Essa conta usa um formato de transação antigo, que foi substituído pelos formatos de transação e endereço Segwit. Se você usou a BitBox com o antigo aplicativo de desktop antes, esta é a conta que contém suas moedas atualmente. Para economizar taxas no futuro, transfira-as para a conta Bitcoin com uma transação para um endereço na conta Bitcoin ou Bitcoin bech32.",
+        "title": "O que é Bitcoin Legacy?"
+      },
+      "btc-p2sh": {
+        "link": {
+          "text": "Benefícios da Segregated Witness",
+          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
+        },
+        "text": "Esta é uma conta segwit compatível com versões anteriores (p2sh-p2wpkh). Ela usa um novo formato de transação que economiza taxas de rede. O formato do endereço é semelhante ao legacy e, como tal, pode ser usado com todas as carteiras/trocas/serviços Bitcoin existentes.",
+        "title": "Qual é a conta Bitcoin?"
+      },
+      "btc-p2wpkh": {
+        "link": {
+          "text": "Adoção do Bech32",
+          "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
+        },
+        "text": "Para aproveitar todos os benefícios das taxas de rede mais baratas da segwit, o Bitcoin bech32 deve ser usado. Ele usa um novo formato de endereço chamado bech32, mas esse formato não é aceito em todos os lugares ainda.",
+        "title": "O que é Bitcoin bech32?"
+      },
+      "moreCoins": {
+        "text": "Nós estaremos integrando mais altcoins além do Litecoin nos próximos lançamentos. Se você estiver procurando por uma moeda específica, deixe-nos uma sugestão no contato abaixo.",
+        "title": "Vocês podem adicionar mais moedas?"
+      },
+      "servers": {
+        "text": "Este aplicativo se comunica com os servidores da Shift Cryptosecurity para verificar atualizações, carregar transações e enviar informações para aplicativos móveis emparelhados.\nAlém disso, ele busca as taxas de câmbio mais recentes do CryptoCompare. (As conversões são calculadas localmente, nenhum valor seu é transmitido.)",
+        "title": "Com quais servidores este aplicativo se comunica?"
+      },
+      "whyMultipleAccounts": {
+        "text": "Algumas criptomoedas têm vários formatos de endereço e transação. Esses endereços são separados em contas extras.",
+        "title": "Por que existem várias contas para a mesma moeda?"
+      }
+    },
+    "title": "Guia",
+    "unlock": {
+      "forgotDevicePassword": {
+        "text": "Você precisa resetar o dispositivo e restaurar a carteira a partir de um backup, usando a senha de recuperação.",
+        "title": "O que faço se eu esquecer a senha do dispositivo?"
+      },
+      "reset": {
+        "text": "Digite uma senha do dispositivo errada 15 vezes. As últimas tentativas exigem um toque longo no dispositivo.",
+        "title": "Como faço para resetar o dispositivo?"
+      }
+    },
+    "waiting": {
+      "deviceNotRecognized": {
+        "text": "O dispositivo deve piscar uma vez quando inserido. Certifique-se de que está inserido de maneira correta. Se você está tendo problemas, por favor, entre em contato conosco através do link abaixo.",
+        "title": "Meu dispositivo não é reconhecido"
+      },
+      "getDevice": {
+        "link": {
+          "text": "Encomendar uma BitBox",
+          "url": "https://shiftcrypto.ch/shop"
+        },
+        "text": "Você pode comprar uma BitBox em nossa loja online:",
+        "title": "Como posso obter um dispositivo?"
+      },
+      "internet": {
+        "text": "Sim, uma conexão com a internet é necessária para sincronizar a carteira, enviar transações e buscar as taxas de câmbio mais recentes.",
+        "title": "Este aplicativo requer uma conexão com a internet?"
+      },
+      "lostDevice": {
+        "link": {
+          "text": "Centro de backup",
+          "url": "https://shiftcrypto.ch/backup"
+        },
+        "text": "Você pode recuperar suas contas em uma nova BitBox ou com o nosso centro de backup.",
+        "title": "Eu perdi meu dispositivo. E agora?"
+      },
+      "useWithoutDevice": {
+        "text": "Infelizmente, isso ainda não é possível no momento.",
+        "title": "Posso usar o aplicativo sem um dispositivo?"
+      },
+      "welcome": {
+        "text": "Obrigado por usar este aplicativo feito pela Shift Cryptosecurity na Suíça. Ainda está em versão beta e agradecemos qualquer contribuição que você tenha para compartilhar. Por favor, dê feedback usando o link na parte inferior.",
+        "title": "Bem-vindo ao aplicativo BitBox!"
+      }
+    }
+  },
+  "headerssync": {
+    "blocksSynced": "{{blocks}} blocos sincronizados"
+  },
+  "hiddenWallet": {
+    "info1HTML": "Para fins de negação plausível (plausible deniability), uma carteira oculta pode ser criada com base em uma combinação de senha de recuperação e uma senha de dispositivo <strong>diferente</strong>.",
+    "info2HTML": "Defina a senha do dispositivo e a senha de recuperação que você deseja associar à sua carteira oculta abaixo. A senha do dispositivo e a senha de recuperação devem ser <strong>diferentes</strong> das que você definiu para sua carteira principal.",
+    "passwordLabel": "Senha de recuperação oculta",
+    "passwordPlaceholder": "Por favor, confirme a senha de recuperação oculta",
+    "pinLabel": "Senha oculta do dispositivo",
+    "pinRepeatLabel": "Repita a senha oculta do dispositivo",
+    "pinRepeatPlaceholder": "Por favor, confirme a senha oculta do dispositivo",
+    "success": "Carteira oculta criada com sucesso. Reconecte a sua BitBox para desbloqueá-la."
+  },
+  "initialize": {
+    "create": "Definir senha do dispositivo",
+    "creating": "Configurando senha do dispositivo...",
+    "error": {
+      "e102": "A senha do dispositivo precisa conter pelo menos 4 caracteres."
+    },
+    "info": {
+      "button": "Continuar",
+      "description1": "Escolha a senha do seu dispositivo. Ela será usada para desbloquear a sua BitBox.",
+      "description2": "Você pode usar números, letras & símbolos. Senhas maiores oferecem mais segurança.",
+      "description3": "Se você perder a senha do dispositivo, precisará resetá-lo e restaurar o backup da carteira.",
+      "subtitle": "Agora você vai definir a senha do seu dispositivo",
+      "title": "Inicializando seu dispositivo"
+    },
+    "input": {
+      "label": "Senha do dispositivo",
+      "labelRepeat": "Repita a senha do dispositivo",
+      "placeholderRepeat": "Por favor, confirme a senha do dispositivo"
+    }
+  },
+  "invalidFormat": "Formato Inválido",
+  "language": {
+    "title": "Selecione o idioma"
+  },
+  "legacyhiddenwallet": {
+    "disable": "Desativar carteira legacy oculta",
+    "enable": "Ativar carteira legacy oculta",
+    "successDisable": "Carteira legacy oculta desativada com sucesso.",
+    "successEnable": "Carteira legacy oculta ativada com sucesso. Reconecte sua BitBox e digite a senha oculta do dispositivo para acessar a carteira legacy oculta."
+  },
+  "loading": "carregando…",
+  "notification": {
+    "newTxs": "Nova transação em: {{accountName}}",
+    "newTxs_plural": "{{count}} novas transações em: {{accountName}}"
+  },
+  "pairing": {
+    "aborted": {
+      "text": "O emparelhamento foi cancelado no aplicativo para dispositivos móveis.",
+      "title": "Abortado"
+    },
+    "button": "Parear aplicativo móvel",
+    "confirm": "Tem certeza de que deseja parear sua BitBox? Observe que, depois disso, o celular será necessário para realizar uma transação.",
+    "connectOnly": {
+      "button": "Conectar aplicativo móvel",
+      "title": "Escaneie com nosso aplicativo móvel selecionando o item 'Conectar ao novo aplicativo de desktop' do menu"
+    },
+    "error": {
+      "text": "Algo deu errado. Por favor comece de novo.",
+      "title": "Erro"
+    },
+    "reconnectOnly": {
+      "button": "Reconectar aplicativo móvel"
+    },
+    "start": {
+      "hideAppQRCode": "Ocultar QR Code",
+      "revealAppQRCode": "Mostrar QR Code",
+      "step1": "Se você não tiver o aplicativo para dispositivos móveis, você pode escanear o QR code da Apple App Store ou da Google Play Store, dependendo de qual celular você possui.",
+      "step2": "Escaneie com nosso aplicativo para celular, que você pode encontrar sob o nome \"Digital Bitbox 2FA\" nas lojas de aplicativos para iOS e Android:"
+    },
+    "started": {
+      "text": "Agora, por favor, siga as instruções no aplicativo móvel.",
+      "title": "Ótimo"
+    },
+    "success": {
+      "text": "Parabéns, você pareou com sucesso sua BitBox com o aplicativo móvel!",
+      "title": "Sucesso"
+    },
+    "timeout": {
+      "text": "O emparelhamento expirou após dois minutos. Comece novamente se você ainda deseja parear o aplicativo para dispositivos móveis.",
+      "title": "Tempo esgotado"
+    },
+    "title": "Emparelhamento por celular"
+  },
+  "password": {
+    "show": "Mostrar {{label}}",
+    "warning": {
+      "caps": "ATENÇÃO: o caps lock (⇪) está ativado",
+      "paste": "para colar o texto, ative \"MOSTRAR {{label}}\""
+    }
+  },
+  "random": {
+    "button": "Gerar número aleatório",
+    "description": "Sua BitBox gerou o seguinte número aleatório de 128 bits:"
+  },
+  "receive": {
+    "label": "Seu endereço",
+    "ltcLegacy": {
+      "button": "Converter para o formato de endereço legacy",
+      "info": "O Litecoin está transacionando de endereços que começam com '3' para endereços que começam com um 'M'.",
+      "result": "Formato legacy de {{address}}:\n{{legacyAddress}}"
+    },
+    "title": "Receber moedas",
+    "verify": "Verificar o endereço com segurança",
+    "warning": {
+      "secureOutput": "Por favor, emparelhe a sua BitBox com o seu dispositivo móvel para permitir a verificação segura do endereço. Vá para \"Gerenciar dispositivo\" na barra lateral."
+    }
+  },
+  "reset": {
+    "button": "Resetar dispositivo",
+    "description": "Todos os dados no dispositivo serão excluídos. Isso inclui sua chave privada!",
+    "title": "Resetar dispositivo",
+    "understand": "Eu tenho um backup e sei minha senha de recuperação"
+  },
+  "securityInformation": {
+    "create": {
+      "button": "Continuar",
+      "description1": "Antes de configurar seu dispositivo, é recomendável que você faça isso em um ambiente seguro.",
+      "description2": "Você será solicitado a criar duas senhas.",
+      "description3": "A primeira é a <strong>senha do dispositivo</strong> que desbloqueia o seu dispositivo BitBox e pode ser alterada mais tarde.",
+      "description4": "A segunda é a <strong>senha de recuperação</strong> que desbloqueia sua carteira. Esta senha não pode ser alterada mais tarde.",
+      "description5": "A carteira criada será copiada para um arquivo no cartão micro SD fornecido. Ele pode ser usado em uma emergência para recuperar seus fundos usando sua <strong>senha de recuperação</strong>.",
+      "title": "Informação de segurança"
+    },
+    "restore": {
+      "button": "Continuar",
+      "description1": "Você será solicitado a inserir o cartão micro SD que você usou para armazenar seu backup.",
+      "description2": "Para restaurar o seu dispositivo, você precisará da sua senha de recuperação.",
+      "description3": "Por favor, tenha cuidado ao digitar a senha de recuperação. Qualquer senha que você inserir criará uma carteira válida. Se você digitar a senha errada, poderá ser mostrado um saldo da carteira que você não espera.",
+      "title": "Informação de segurança"
+    }
+  },
+  "seed": {
+    "agreements": {
+      "funds-access": "Eu NÃO poderei acessar meus fundos se esquecer minha senha de recuperação",
+      "password-change": "Eu NÃO posso mudar a senha de recuperação mais tarde",
+      "password-required": "A senha de recuperação é necessária para restaurar uma carteira de um backup"
+    },
+    "create": "Criar carteira",
+    "creating": "Criando carteira",
+    "description": "Eu entendo que:",
+    "error": {
+      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e200": "Você precisa inserir um cartão micro SD na sua BitBox para criar uma carteira, para que um backup possa ser criado automaticamente."
+    },
+    "info": {
+      "button": "Definir senha de recuperação agora",
+      "description1": "Insira o cartão micro SD na BitBox",
+      "description2": "Escolha uma senha de recuperação para a carteira e selecione \"Definir senha de recuperação agora\"",
+      "description3": "O backup para o cartão micro SD e sua senha de recuperação é o único método para recuperar seus fundos em caso de perda ou roubo do dispositivo BitBox.",
+      "description4": "Você não pode alterar sua senha de recuperação posteriormente sem transferir seus fundos.",
+      "title": "Criar uma nova carteira"
+    },
+    "password": {
+      "label": "Senha de recuperação",
+      "repeatPlaceholder": "Repita a senha de recuperação"
+    },
+    "walletName": {
+      "label": "Nome da carteira"
+    }
+  },
+  "seedRestore": {
+    "error": {
+      "e200": "Restaurar uma carteira de um backup requer o cartão micro SD."
+    },
+    "info": {
+      "button": "Continuar",
+      "description1": "Insira o cartão micro SD na BitBox e clique em \"Continuar\"",
+      "description2": "Escolha um backup e clique em \"Restaurar\"",
+      "description3": "Digite a senha de recuperação",
+      "description4": "Você precisa confirmar que entende que uma senha incorreta criará uma carteira diferente.",
+      "title": "Como restaurar uma carteira a partir de um backup"
+    }
+  },
+  "send": {
+    "abort": "A transação foi abortada.",
+    "address": {
+      "label": "Endereço do destinatário",
+      "placeholder": "Insira o endereço"
+    },
+    "amount": {
+      "label": "Montante",
+      "placeholder": "Insira o valor"
+    },
+    "button": "Assinar e enviar",
+    "coincontrol": {
+      "address": "Endereço",
+      "outpoint": "Outpoint",
+      "title": "Enviar da saída"
+    },
+    "confirm": {
+      "selected-coins": "Moedas selecionadas",
+      "title": "Confirmar transação",
+      "total": "Total"
+    },
+    "customFee": {
+      "label": "Taxa convertida",
+      "placeholder": "Taxa convertida"
+    },
+    "data": {
+      "label": "Dados opcionais",
+      "placeholder": "Digite dados hexadecimais"
+    },
+    "error": {
+      "insufficientFunds": "saldo insuficiente",
+      "invalidAddress": "endereço inválido",
+      "invalidAmount": "montante inválido",
+      "invalidData": "dados inválidos"
+    },
+    "fee": {
+      "customPlaceholder": "Insira o valor",
+      "label": "Taxa de rede",
+      "placeholder": "Não disponível"
+    },
+    "feeTarget": {
+      "description": {
+        "economy": "24 blocos (cerca de 4 horas para Bitcoin, 1 hora para Litecoin)",
+        "high": "2 blocos (cerca de 20 minutos para Bitcoin, 5 minutos para Litecoin)",
+        "low": "12 blocos (cerca de 2 horas para Bitcoin, 30 minutos para Litecoin)",
+        "normal": "6 blocos (cerca de 1 hora para Bitcoin, 15 minutos para Litecoin)"
+      },
+      "label": {
+        "economy": "econômica",
+        "high": "alta",
+        "low": "baixa",
+        "normal": "normal"
+      },
+      "placeholder": "Calculando estimativa de taxas..."
+    },
+    "maximum": "Enviar tudo",
+    "scanQR": "Escanear QR Code",
+    "signprogress": {
+      "description": "Esta é uma transação que contém muitos dados. Para assinar completamente a transação, você será solicitado a confirmar {{steps}} vezes.",
+      "label": "Progresso"
+    },
+    "success": "A transação foi assinada e enviada.",
+    "title": "Enviar moedas",
+    "toggleCoinControl": "Alternar controle de moedas"
+  },
+  "settings": {
+    "accounts": {
+      "bitcoinP2PKH": "Bitcoin Legacy",
+      "bitcoinP2WPKH": "Bitcoin: bech32",
+      "bitcoinP2WPKHP2SH": "Bitcoin",
+      "litecoinP2WPKH": "Litecoin: bech32",
+      "litecoinP2WPKHP2SH": "Litecoin",
+      "title": "Contas ativas"
+    },
+    "electrum": {
+      "add": "Adicionar um servidor",
+      "add-server": "Adicionar",
+      "check": "Checar",
+      "checkFailed": "Falhou",
+      "checkSuccess": "Conexão com {{host}} estabelecida com sucesso.",
+      "checking": "Checando",
+      "download-cert": "Baixar certificado remoto",
+      "remove-server": "Remover",
+      "removeConfirm": "Remover {{server}}?",
+      "reset": "Redefinir para o padrão",
+      "resetConfirm": "Você deseja remover todos os servidores e instalar os servidores padrão?",
+      "servers": "Servidores",
+      "step1": "1",
+      "step1-text": "Digite o endpoint.",
+      "step2": "2",
+      "step2-text": "Digite um certificado da cadeia de certificados do servidor. Alternativamente, baixe o certificado remoto e compare-o visualmente.",
+      "step3": "3",
+      "step3-text": "Checar a conexão e adicionar o servidor.",
+      "step4": "4",
+      "step4-text": "Reinicie a carteira. Se você não remover os servidores padrão, seu próprio node será adicionado como uma redundância.",
+      "title-btc": "Servidores Bitcoin Electrum",
+      "title-ltc": "Servidores Litecoin Electrum",
+      "title-tbtc": "Servidores Bitcoin Testnet Electrum",
+      "title-tltc": "Servidores Litecoin Testnet Electrum"
+    },
+    "expert": {
+      "coinControl": "Ativar controle de moedas",
+      "electrum": {
+        "title": "Conectar seu próprio full node"
+      },
+      "title": "Configurações para especialistas"
+    },
+    "success": "Por favor, retire e reconecte a BitBox para que as mudanças façam efeito.",
+    "title": "Configurações"
+  },
+  "setup": "Configurar dispositivo",
+  "sidebar": {
+    "addAccount": "Adicionar conta",
+    "device": "Gerenciar dispositivo",
+    "leave": "Sair",
+    "settings": "Configurações"
+  },
+  "success": {
+    "create": {
+      "info1": "Sua carteira foi armazenada com segurança no cartão micro SD. Remova-o e mantenha-o seguro.",
+      "info2": "Você criou uma senha de dispositivo segura que desbloqueia a BitBox.",
+      "info3": "Você criou uma senha de recuperação segura para sua carteira que desbloqueia seu saldo e restaura seus backups.",
+      "summary": "Aqui está um resumo do que você fez",
+      "title": "Sucesso"
+    },
+    "getstarted": "Começar",
+    "restore": {
+      "summary": "Você restaurou uma carteira a partir do seu backup com sucesso.",
+      "title": "Sucesso"
+    }
+  },
+  "transaction": {
+    "badge": {
+      "receive": "In",
+      "send": "Out",
+      "send_to_self": "Self"
+    },
+    "confirmation": "Confirmações",
+    "explorer": "ID da transação",
+    "explorerTitle": "Abrir no explorador de blocos externo",
+    "fee": "Taxa",
+    "fiatHistorical": "Histórico",
+    "gas": "Gas",
+    "pending": "Transação pendente",
+    "size": "Tamanho",
+    "vsize": "Tamanho virtual",
+    "weight": "Peso"
+  },
+  "transactions": {
+    "placeholder": "Nenhuma transação ainda."
+  },
+  "unknownError": "Ocorreu um erro desconhecido: {{errorMessage}}",
+  "unlock": {
+    "description": "Digite a senha do dispositivo para desbloqueá-lo.",
+    "error": {
+      "e109_normal": "Senha do dispositivo errada. {{restantesAttempts}} tentativas restantes antes que o dispositivo seja resetado.",
+      "e109_touch": "$t(unlock.error.e109_normal) O próximo login requer que segure o botão touch.",
+      "e113": "Devido a muitas tentativas de login, o próximo login requer que o botão touch seja pressionado por 4 segundos."
+    },
+    "input": {
+      "label": "Senha do dispositivo",
+      "placeholder": "Digite a senha do dispositivo para desbloqueá-lo"
+    },
+    "unlocking": "Desbloqueando..."
+  },
+  "upgradeFirmware": {
+    "button": "Atualizar firmware",
+    "description": "Deseja atualizar o firmware da versão {{currentVersion}} para {{newVersion}}?",
+    "label": "Uma atualização de firmware é necessária para a sua BitBox.",
+    "locked": "Para atualizar da versão {{currentVersion}} para a {{newVersion}}, por favor, realize um longo toque.",
+    "title": "Atualizar firmware",
+    "unlocked": "O bootloader está desbloqueado. Para continuar, por favor:",
+    "unlocked1": "Desconecte e reconecte sua Bitbox",
+    "unlocked2": "O LED acenderá quando a sua BitBox for conectada novamente",
+    "unlocked3": "Toque no botão touch quando o LED acender"
+  },
+  "warning": {
+    "receivePairing": "Por favor, emparelhe a BitBox para ativar a verificação segura de endereço. Vá para \"Gerenciar dispositivo\" na barra lateral.",
+    "sdcard": "Mantenha o cartão micro SD guardado separado da BitBox, a menos que você queira gerenciar os backups.",
+    "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
+  },
+  "welcome": {
+    "insertDevice": "Por favor, conecte seu dispositivo para começar",
+    "title": "Bem-vindo"
+  }
+}
