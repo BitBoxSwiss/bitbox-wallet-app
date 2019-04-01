@@ -216,28 +216,23 @@ export default class Receive extends Component {
                             <div style="position: relative;">
                                 <CopyableInput disabled={!enableCopy} value={address} />
                                 {
-                                    verifying ? (
+                                    verifying && (
                                         <Dialog
-                                            title="Verify your address"
+                                            title={t('receive.verify')}
                                             disableEscape={true}>
-                                            <p>Please verify that the following address matches the one displayed on your device.</p>
+                                            <p>{t('receive.verifyInstruction')}</p>
                                             <pre className={style.verifyAddress}>{address}</pre>
                                         </Dialog>
-                                    ) : (
-                                        <div className={style.verifyContent}>
-                                            {
-                                                !enableCopy && (
-                                                    <Button
-                                                        primary
-                                                        disabled={verifying || secureOutput === undefined}
-                                                        onClick={this.verifyAddress}>
-                                                        Show and verify full address
-                                                    </Button>
-                                                )
-                                            }
-                                        </div>
                                     )
                                 }
+                                <div className={style.verifyContent}>
+                                    <Button
+                                        primary
+                                        disabled={verifying || secureOutput === undefined}
+                                        onClick={this.verifyAddress}>
+                                        {t('receive.showFull')}
+                                    </Button>
+                                </div>
                             </div>
                         ) : <CopyableInput disabled={!enableCopy} value={address} />
                     }

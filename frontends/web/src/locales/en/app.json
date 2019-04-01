@@ -587,8 +587,10 @@
       "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
       "result": "Legacy format of {{address}}:\n{{legacyAddress}}"
     },
+    "showFull": "Show and verify full address",
     "title": "Get Coins",
     "verify": "Verify address securely",
+    "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
     "warning": {
       "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage Device' in the sidebar."
     }
