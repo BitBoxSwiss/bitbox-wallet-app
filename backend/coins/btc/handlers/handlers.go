@@ -68,6 +68,7 @@ func NewHandlers(
 	handleFunc("/verify-address", handlers.ensureAccountInitialized(handlers.postVerifyAddress)).Methods("POST")
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
+	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
 	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
 }
@@ -517,6 +518,17 @@ func (handlers *Handlers) postVerifyExtendedPublicKey(r *http.Request) (interfac
 		return nil, errp.New("An account must be BTC based to support xpub verification")
 	}
 	return btcAccount.VerifyExtendedPublicKey(index)
+}
+
+func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, error) {
+	hasSecureOutput, optional, err := handlers.account.CanVerifyAddresses()
+	if err != nil {
+		return nil, err
+	}
+	return map[string]interface{}{
+		"hasSecureOutput": hasSecureOutput,
+		"optional":        optional,
+	}, nil
 }
 
 func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {

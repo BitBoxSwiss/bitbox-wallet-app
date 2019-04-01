@@ -19,6 +19,7 @@ import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink } from '../../../components/forms';
+import { Dialog } from '../../../components/dialog/dialog';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
@@ -26,8 +27,10 @@ import { Header } from '../../../components/layout';
 import Status from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';
-import ArrowLeft from '../../../assets/icons/arrow-left-gray.svg';
-import ArrowRight from '../../../assets/icons/arrow-right-gray.svg';
+import ArrowLeft from '../../../assets/icons/arrow-left-active.svg';
+import ArrowLeftDisabled from '../../../assets/icons/arrow-left-disabled.svg';
+import ArrowRight from '../../../assets/icons/arrow-right-active.svg';
+import ArrowRightDisabled from '../../../assets/icons/arrow-right-disabled.svg';
 import * as style from './receive.css';
 
 @translate()
@@ -41,9 +44,16 @@ export default class Receive extends Component {
         /** @type {{ addressID: any, address: any }[] | null} */
         receiveAddresses: null,
         paired: null,
+
+        /** @type {{ hasSecureOutput: boolean, optional: boolean } | undefined} */
+        secureOutput: undefined,
+        verified: false,
     }
 
     componentDidMount() {
+        apiGet('account/' + this.props.code + '/has-secure-output').then(secureOutput => {
+            this.setState({ secureOutput });
+        });
         apiGet('account/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
@@ -72,35 +82,48 @@ export default class Receive extends Component {
 
     handleKeyDown = e => {
         if (e.keyCode === 27) {
-            console.log('receive.jsx route to /'); // eslint-disable-line no-console
-            route(`/account/${this.props.code}`);
+            if (!this.state.verifying) {
+                console.log('receive.jsx route to /'); // eslint-disable-line no-console
+                route(`/account/${this.props.code}`);
+            }
         }
     }
 
     verifyAddress = () => {
-        const { receiveAddresses, activeIndex } = this.state;
+        const { receiveAddresses, activeIndex, secureOutput } = this.state;
+        if (secureOutput === undefined) {
+            return;
+        }
+        if (!secureOutput.hasSecureOutput) {
+            alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
+            return;
+        }
         if (receiveAddresses !== null && activeIndex !== null) {
             this.setState({ verifying: true });
-            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(canVerifyAddress => {
-                this.setState({ verifying: false });
-                if (!canVerifyAddress) {
-                    this.unregisterEvents();
-                    alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
-                }
+            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
+                this.setState({ verifying: false, verified: true });
             });
         }
     }
 
-    previous = () => {
-        this.setState(({ activeIndex, receiveAddresses }) => ({
-            activeIndex: (activeIndex + receiveAddresses.length - 1) % receiveAddresses.length
-        }));
+    previous = e => {
+        e.preventDefault();
+        if (!this.state.verifying) {
+            this.setState(({ activeIndex, receiveAddresses }) => ({
+                activeIndex: (activeIndex + receiveAddresses.length - 1) % receiveAddresses.length,
+                verified: false,
+            }));
+        }
     };
 
-    next = () => {
-        this.setState(({ activeIndex, receiveAddresses }) => ({
-            activeIndex: (activeIndex + 1) % receiveAddresses.length
-        }));
+    next = e => {
+        e.preventDefault();
+        if (!this.state.verifying) {
+            this.setState(({ activeIndex, receiveAddresses }) => ({
+                activeIndex: (activeIndex + 1) % receiveAddresses.length,
+                verified: false,
+            }));
+        }
     };
 
     ltcConvertToLegacy = () => {
@@ -128,12 +151,17 @@ export default class Receive extends Component {
         code,
     }, {
         verifying,
+        verified,
+        secureOutput,
         activeIndex,
         receiveAddresses,
         paired,
     }) {
+        if (secureOutput === undefined) {
+            return null;
+        }
         const account = this.getAccount();
-        if (!account) {
+        if (account === undefined) {
             return null;
         }
         let uriPrefix = 'bitcoin:';
@@ -142,34 +170,76 @@ export default class Receive extends Component {
         } else if (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') {
             uriPrefix = '';
         }
+        // enable copying only after verification has been invoked if verification is possible and not optional.
+        const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
+        let enableCopy = !forceVerification || verified;
+        let address;
+        if (receiveAddresses) {
+            address = receiveAddresses[activeIndex].address;
+            if (!enableCopy && !verifying) {
+                address = address.substring(0, 8) + '...';
+            }
+        }
         const content = receiveAddresses ? (
             <div>
-                <QRCode data={uriPrefix + receiveAddresses[activeIndex].address} />
-                <CopyableInput value={receiveAddresses[activeIndex].address} />
-                <div class={['flex flex-row flex-center flex-items-center', style.labels].join(' ')}>
+                <div class={style.qrCodeContainer}>
+                    <QRCode data={enableCopy ? uriPrefix + address : undefined} />
+                </div>
+                <div class={['flex flex-row flex-between flex-items-center', style.labels].join(' ')}>
                     {
                         receiveAddresses.length > 1 && (
-                            <Button
-                                transparent
-                                disabled={verifying}
+                            <a
+                                href="#"
+                                className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.previous].join(' ')}
                                 onClick={this.previous}>
-                                <img src={ArrowLeft} class={style.arrowLeft} />
+                                <img src={verifying ? ArrowLeftDisabled : ArrowLeft} />
                                 {t('button.previous')}
-                            </Button>
+                            </a>
                         )
                     }
                     <p class={style.label}>{t('receive.label')} { receiveAddresses.length > 1 ? `(${activeIndex + 1}/${receiveAddresses.length})` : ''}</p>
                     {
                         receiveAddresses.length > 1 && (
-                            <Button
-                                transparent
-                                disabled={verifying}
-                                onClick={this.next}
-                                className={style.button}>
+                            <a
+                                href="#"
+                                className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.next].join(' ')}
+                                onClick={this.next}>
                                 {t('button.next')}
-                                <img src={ArrowRight} class={style.arrowRight} />
-                            </Button>
+                                <img src={verifying ? ArrowRightDisabled : ArrowRight} />
+                            </a>
                         )
+                    }
+                </div>
+                <div>
+                    {
+                        forceVerification ? (
+                            <div style="position: relative;">
+                                <CopyableInput disabled={!enableCopy} value={address} />
+                                {
+                                    verifying ? (
+                                        <Dialog
+                                            title="Verify your address"
+                                            disableEscape={true}>
+                                            <p>Please verify that the following address matches the one displayed on your device.</p>
+                                            <pre className={style.verifyAddress}>{address}</pre>
+                                        </Dialog>
+                                    ) : (
+                                        <div className={style.verifyContent}>
+                                            {
+                                                !enableCopy && (
+                                                    <Button
+                                                        primary
+                                                        disabled={verifying || secureOutput === undefined}
+                                                        onClick={this.verifyAddress}>
+                                                        Show and verify full address
+                                                    </Button>
+                                                )
+                                            }
+                                        </div>
+                                    )
+                                }
+                            </div>
+                        ) : <CopyableInput disabled={!enableCopy} value={address} />
                     }
                 </div>
                 {
@@ -209,12 +279,16 @@ export default class Receive extends Component {
                                 href={`/account/${code}`}>
                                 {t('button.back')}
                             </ButtonLink>
-                            <Button
-                                primary
-                                disabled={verifying}
-                                onClick={this.verifyAddress}>
-                                {t('receive.verify')}
-                            </Button>
+                            {
+                                !forceVerification ? (
+                                    <Button
+                                        primary
+                                        disabled={verifying || secureOutput === undefined}
+                                        onClick={this.verifyAddress}>
+                                        {t('receive.verify')}
+                                    </Button>
+                                ) : ''
+                            }
                         </div>
                     </div>
                 </div>

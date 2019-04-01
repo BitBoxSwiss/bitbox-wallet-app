@@ -21,7 +21,7 @@ interface Props {
     title?: string;
     small?: boolean;
     disableEscape?: boolean;
-    onClose: (e: Event) => void;
+    onClose?: (e: Event) => void;
 }
 
 interface State {

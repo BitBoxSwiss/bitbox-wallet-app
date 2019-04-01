@@ -48,18 +48,19 @@ func (keystore *keystore) CosignerIndex() int {
 
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(
-	configuration *signing.Configuration, coin coin.Coin) (bool, error) {
+	configuration *signing.Configuration, coin coin.Coin) (bool, bool, error) {
 	deviceInfo, err := keystore.dbb.DeviceInfo()
 	if err != nil {
-		return false, err
+		return false, false, err
 	}
-	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), nil
+	optional := true
+	return deviceInfo.Pairing && keystore.dbb.HasMobileChannel() && configuration.Singlesig(), optional, nil
 }
 
 // VerifyAddress implements keystore.Keystore.
 func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) error {
-	canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration, coin)
 	if err != nil {
 		return err
 	}

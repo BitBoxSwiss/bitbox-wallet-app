@@ -504,6 +504,14 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	return true, nil
 }
 
+// CanVerifyAddresses implements accounts.Interface.
+func (account *Account) CanVerifyAddresses() (bool, bool, error) {
+	if account.signingConfiguration == nil {
+		return false, false, errp.New("account must be initialized")
+	}
+	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
+}
+
 // ConvertToLegacyAddress implements accounts.Interface.
 func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) {
 	panic("not used")

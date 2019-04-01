@@ -1,9 +1,11 @@
 .button {
+    position: absolute;
+    top: 10px;
+    right: var(--spacing-default);
     border: none;
-    background-color: var(--color-brightblue);
-    width: 34px;
-    height: 34px;
-    min-width: 34px !important;
+    width: 18px;
+    height: 18px;
+    min-width: 18px !important;
     padding: 0;
     border-radius: 50%;
     display: flex;
@@ -11,22 +13,21 @@
     justify-content: center;
     align-items: center;
     margin-top: var(--spacing-half);
-    margin-left: var(--spacing-default);
     cursor: pointer;
     transition: background-color ease 0.2s;
     will-change: background-color;
 }
 
-.button:hover {
-    background-color: #89B2D2;
-}
-
 .button img {
-    width: 16px;
+    width: 18px;
 }
 
 .button:focus {
     outline: none;
+}
+
+.button:disabled {
+    cursor: not-allowed;
 }
 
 .success {
@@ -35,6 +36,7 @@
 
 .container {
     margin-bottom: var(--spacing-default);
+    position: relative;
 }
 
 .inputField {
@@ -42,8 +44,9 @@
     margin-bottom: 0;
     font-size: var(--size-medium);
     min-width: 200px !important;
-    width: 365px;
-    padding: var(--spacing-default);
+    max-width: 420px;
+    width: 100%;
+    padding: var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half) + 18px) var(--spacing-default) var(--spacing-default);
     border-radius: 2px;
     border: solid 1px var(--color-lightgray);
     resize: none;
