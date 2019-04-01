@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import CheckIcon from '../../assets/icons/check.svg';
+import CopyDisabledIcon from '../../assets/icons/copy-disabled.svg';
 import CopyIcon from '../../assets/icons/copy.svg';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './Copy.css';
@@ -23,6 +24,7 @@ import * as style from './Copy.css';
 interface CopyableInputProps {
     value: string;
     className?: string;
+    disabled?: boolean;
 }
 
 type Props = CopyableInputProps & TranslateProps;
@@ -75,18 +77,26 @@ class CopyableInput extends Component<Props, State> {
         }
     }
 
-    public render({ t, value, className }: RenderableProps<Props>, { success }: State) {
+    public render(
+        { t, value, className, disabled }: RenderableProps<Props>,
+        { success }: State,
+    ) {
         return (
             <div class={['flex flex-row flex-start flex-items-start', style.container, className ? className : ''].join(' ')}>
                 <textarea
+                    disabled={disabled}
                     readOnly
                     onFocus={this.onFocus}
                     value={value}
                     ref={this.setRef}
                     rows={1}
                     className={style.inputField} />
-                <button onClick={this.copy} class={[style.button, success ? style.success : ''].join(' ')} title={t('button.copy')}>
-                    <img src={success ? CheckIcon : CopyIcon} />
+                <button
+                    disabled={disabled}
+                    onClick={this.copy}
+                    class={[style.button, success ? style.success : ''].join(' ')}
+                    title={t('button.copy')}>
+                        <img src={success ? CheckIcon : disabled ? CopyDisabledIcon : CopyIcon} />
                 </button>
             </div>
         );
@@ -94,5 +104,4 @@ class CopyableInput extends Component<Props, State> {
 }
 
 const TranslatedCopyableInput = translate<CopyableInputProps>()(CopyableInput);
-
 export { TranslatedCopyableInput as CopyableInput };

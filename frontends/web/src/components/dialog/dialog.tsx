@@ -22,7 +22,7 @@ interface Props {
     small?: boolean;
     large?: boolean;
     disableEscape?: boolean;
-    onClose: (e: Event) => void;
+    onClose?: (e: Event) => void;
 }
 
 interface State {

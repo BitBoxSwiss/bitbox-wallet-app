@@ -1,10 +1,12 @@
 .receiveContent {
     margin: 0 auto;
     text-align: center;
+    max-width: 420px;
+    width: 100%;
 }
 
 .labels {
-    margin-top: var(--spacing-default);
+    margin: var(--spacing-default) 0;
 }
 
 .label {
@@ -12,6 +14,29 @@
     font-size: var(--size-button);
     padding: 0 var(--spacing-half);
     margin: 0;
+}
+
+.qrCodeContainer {
+    margin: var(--spacing-default) 0;
+}
+
+.verifyContent {
+    position: absolute;
+    bottom: calc((var(--spacing-default) + 32px) * -1);
+    width: 100%;
+}
+
+.verifyContent p {
+    color: var(--color-brightblue);
+    font-size: var(--size-button);
+}
+
+pre.verifyAddress {
+    margin-top: var(--spacing-default);
+    text-align: center;
+    background-color: var(--color-lightgray);
+    border-radius: 2px;
+    padding: var(--spacing-default) 0;
 }
 
 .bottomButtons {
@@ -42,6 +67,28 @@
 
 .arrowRight {
     margin-left: 3px;
+}
+
+.previous,
+.next {
+    text-decoration: none;
+    font-size: var(--size-button);
+    line-height: 1;
+    color: var(--color-brightblue);
+}
+
+.next img {
+    height: 16px;
+    margin-left: 4px;
+}
+
+.previous img {
+    height: 16px;
+    margin-right: 4px;
+}
+
+.disabled {
+    color: var(--color-brightgray);
 }
 
 @media (max-width: 640px) {

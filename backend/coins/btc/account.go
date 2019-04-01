@@ -223,7 +223,9 @@ func (account *Account) Initialize() error {
 	account.coin.Initialize()
 	account.blockchain = account.coin.Blockchain()
 	account.offline = account.blockchain.ConnectionStatus() == blockchain.DISCONNECTED
-	account.onEvent(accounts.EventStatusChanged)
+	if account.offline {
+		account.onEvent(accounts.EventStatusChanged)
+	}
 	account.blockchain.RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged)
 
 	theHeaders := account.coin.Headers()
@@ -344,7 +346,9 @@ func (account *Account) Initialized() bool {
 // FatalError returns true if the account had a fatal error.
 func (account *Account) FatalError() bool {
 	// Wait until synchronized, to include server errors without manually dealing with sync status.
-	account.synchronizer.WaitSynchronized()
+	if !account.offline {
+		account.synchronizer.WaitSynchronized()
+	}
 	return account.fatalError
 }
 
@@ -588,6 +592,9 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 // VerifyAddress verifies a receive address on a keystore. Returns false, nil if no secure output
 // exists.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
+	if account.signingConfiguration == nil {
+		return false, errp.New("account must be initialized")
+	}
 	account.synchronizer.WaitSynchronized()
 	defer account.RLock()()
 	scriptHashHex := blockchain.ScriptHashHex(addressID)
@@ -595,7 +602,7 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 	if address == nil {
 		return false, errp.New("unknown address not found")
 	}
-	canVerifyAddress, err := account.Keystores().CanVerifyAddresses(address.Configuration, account.Coin())
+	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
 	if err != nil {
 		return false, err
 	}
@@ -603,6 +610,14 @@ func (account *Account) VerifyAddress(addressID string) (bool, error) {
 		return true, account.Keystores().VerifyAddress(address.Configuration, account.Coin())
 	}
 	return false, nil
+}
+
+// CanVerifyAddresses wraps Keystores().CanVerifyAddresses(), see that function for documentation.
+func (account *Account) CanVerifyAddresses() (bool, bool, error) {
+	if account.signingConfiguration == nil {
+		return false, false, errp.New("account must be initialized")
+	}
+	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
 }
 
 // ConvertToLegacyAddress converts a ltc p2sh address to the legacy format (starting with

@@ -41,15 +41,16 @@ func (keystore *keystore) CosignerIndex() int {
 }
 
 // CanVerifyAddress implements keystore.Keystore.
-func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration, coin coinpkg.Coin) (bool, error) {
+func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration, coin coinpkg.Coin) (bool, bool, error) {
 	_, ok := msgCoinMap[coin.Code()]
-	return ok, nil
+	optional := false
+	return ok, optional, nil
 }
 
 // VerifyAddress implements keystore.Keystore.
 func (keystore *keystore) VerifyAddress(
 	configuration *signing.Configuration, coin coinpkg.Coin) error {
-	canVerifyAddress, err := keystore.CanVerifyAddress(configuration, coin)
+	canVerifyAddress, _, err := keystore.CanVerifyAddress(configuration, coin)
 	if err != nil {
 		return err
 	}
