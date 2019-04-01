@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -77,6 +78,9 @@ type AppConfig struct {
 	Backend  Backend     `json:"backend"`
 	Frontend interface{} `json:"frontend"`
 }
+
+// infuraAPIKey is used to handle ethereum full-node requests
+const infuraAPIKey = "v3/2ce516f67c0b48e8af5387b714ab8a61"
 
 const shiftRootCA = `
 -----BEGIN CERTIFICATE-----
@@ -183,13 +187,13 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL: "https://mainnet.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
+				NodeURL: "https://mainnet.infura.io/" + infuraAPIKey,
 			},
 			TETH: ethCoinConfig{
-				NodeURL: "https://ropsten.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
+				NodeURL: "https://ropsten.infura.io/" + infuraAPIKey,
 			},
 			RETH: ethCoinConfig{
-				NodeURL: "https://rinkeby.infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61",
+				NodeURL: "https://rinkeby.infura.io/" + infuraAPIKey,
 			},
 		},
 	}
@@ -208,7 +212,7 @@ type Config struct {
 
 // NewConfig creates a new Config, stored in the given location. The filename must be writable, but
 // does not have to exist.
-func NewConfig(appConfigFilename string, accountsConfigFilename string) *Config {
+func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config, error) {
 	config := &Config{
 		appConfigFilename: appConfigFilename,
 		appConfig:         NewDefaultAppConfig(),
@@ -217,7 +221,11 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) *Config 
 		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
-	return config
+	appConfig := config.updateInfuraAPIKeys(config.appConfig)
+	if err := config.SetAppConfig(appConfig); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return config, nil
 }
 
 func (config *Config) load() {
@@ -269,4 +277,13 @@ func (config *Config) save(filename string, conf interface{}) error {
 		return errp.WithStack(err)
 	}
 	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644))
+}
+
+func (config *Config) updateInfuraAPIKeys(appConfig AppConfig) AppConfig {
+	for _, ethConfig := range []*ethCoinConfig{&appConfig.Backend.ETH, &appConfig.Backend.TETH, &appConfig.Backend.RETH} {
+		if strings.HasSuffix(ethConfig.NodeURL, "infura.io/") {
+			ethConfig.NodeURL += infuraAPIKey
+		}
+	}
+	return appConfig
 }

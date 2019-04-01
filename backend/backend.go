@@ -129,10 +129,14 @@ type Backend struct {
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
+	config, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
-		config:      config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
+		config:      config,
 		events:      make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
