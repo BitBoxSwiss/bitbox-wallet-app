@@ -33,7 +33,7 @@ export default class DeviceInfo extends Component {
     }
 
     getDeviceInfo = () => {
-        apiGet(this.props.apiPrefix + '/device-info').then(deviceInfo => {
+        apiGet(this.props.apiPrefix + '/info').then(deviceInfo => {
             this.setState({
                 active: true,
                 deviceInfo,
