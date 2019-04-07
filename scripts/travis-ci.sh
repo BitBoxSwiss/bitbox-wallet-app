@@ -1,11 +1,12 @@
 #!/bin/bash -e
 if [ "$TRAVIS_OS_NAME" == "linux" ]; then
-    docker build --tag bitbox-wallet-dev -f Dockerfile .
-    docker build --tag bitbox-wallet-ci -f Dockerfile.travis .
-    docker run -i bitbox-wallet-ci bash \
-        -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app ci"
-    docker run --privileged -i bitbox-wallet-ci bash \
-        -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
+    docker run -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
+           -i shiftcrypto/bitbox-wallet-app \
+           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app ci"
+    docker run --privileged \
+           -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
+           -i shiftcrypto/bitbox-wallet-app \
+           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
 fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
