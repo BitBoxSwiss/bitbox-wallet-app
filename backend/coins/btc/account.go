@@ -682,7 +682,7 @@ func (account *Account) CanVerifyExtendedPublicKey() []int {
 // VerifyExtendedPublicKey verifies an account's public key. Returns false, nil if no secure output exists.
 // index is the position of an xpub in the []*hdkeychain which corresponds to the particular keystore in []Keystore
 func (account *Account) VerifyExtendedPublicKey(index int) (bool, error) {
-	keystore := account.Keystores().AccessKeystoreByIndex(index)
+	keystore := account.Keystores().Keystores()[index]
 	if keystore.CanVerifyExtendedPublicKey() {
 		return true, keystore.VerifyExtendedPublicKey(account.Coin(), account.signingConfiguration.AbsoluteKeypath(), account.signingConfiguration)
 	}

@@ -18,6 +18,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
@@ -38,6 +39,18 @@ type keystore struct {
 // CosignerIndex implements keystore.Keystore.
 func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
+}
+
+// SupportsAccount implements keystore.Keystore.
+func (keystore *keystore) SupportsAccount(
+	coin coin.Coin, multisig bool, meta interface{}) bool {
+	switch coin.(type) {
+	case *btc.Coin:
+		scriptType := meta.(signing.ScriptType)
+		return !multisig && scriptType != signing.ScriptTypeP2PKH
+	default:
+		return false
+	}
 }
 
 // CanVerifyAddress implements keystore.Keystore.

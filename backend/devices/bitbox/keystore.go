@@ -46,6 +46,17 @@ func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex
 }
 
+// SupportsAccount implements keystore.Keystore.
+func (keystore *keystore) SupportsAccount(
+	coin coin.Coin, multisig bool, meta interface{}) bool {
+	switch coin.(type) {
+	case *btc.Coin:
+		return true
+	default:
+		return !multisig
+	}
+}
+
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(
 	configuration *signing.Configuration, coin coin.Coin) (bool, bool, error) {
