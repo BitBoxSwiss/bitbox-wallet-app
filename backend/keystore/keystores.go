@@ -149,7 +149,7 @@ func (keystores *Keystores) Configuration(
 		scriptType, absoluteKeypath, extendedPublicKeys, "", signingThreshold), nil
 }
 
-// AccessKeystoreByIndex returns a specific keystore from the slice of keystores
-func (keystores *Keystores) AccessKeystoreByIndex(index int) Keystore {
-	return keystores.keystores[index]
+// Keystores returns all keystores.
+func (keystores *Keystores) Keystores() []Keystore {
+	return keystores.keystores
 }
