@@ -40,3 +40,15 @@ npm install -g locize-cli
 
 mkdir -p /opt/go_dist
 curl https://dl.google.com/go/go1.11.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+
+# Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
+apt-get install -y --no-install-recommends fuse
+cd /opt && \
+    wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage && \
+    echo "e5294433d97504a5081c354cdedfebe918dd50188c378d965f598576fcbbf5b4 /opt/linuxdeployqt-5-x86_64.AppImage" | sha256sum -c - && \
+    chmod +x /opt/linuxdeployqt-5-x86_64.AppImage
+
+# Install fpm to create deb/rpm packages
+apt-get install -y --no-install-recommends \
+        ruby ruby-dev build-essential rpm
+gem install --no-ri --no-rdoc fpm
