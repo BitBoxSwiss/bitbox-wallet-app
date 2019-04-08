@@ -168,7 +168,7 @@ class App extends Component<Props, State> {
                         <Account
                             path="/account/:code?"
                             code={'' /* dummy to satisfy TS */}
-                            deviceIDs={deviceIDs}
+                            devices={devices}
                             accounts={accounts} />
                         <AddAccount
                             path="/add-account" />

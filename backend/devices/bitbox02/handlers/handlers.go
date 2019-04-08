@@ -56,7 +56,7 @@ func NewHandlers(
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
-	handleFunc("/device-info", handlers.getDeviceInfo).Methods("GET")
+	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
