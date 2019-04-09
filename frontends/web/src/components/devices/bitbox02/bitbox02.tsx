@@ -56,7 +56,7 @@ interface State {
     restoreBackupStatus: 'intro' | 'restore';
     settingPassword: boolean;
     creatingBackup: boolean;
-    msdInserted: boolean;
+    sdCardInserted: boolean;
     errorText?: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
@@ -72,7 +72,7 @@ class BitBox02 extends Component<Props, State> {
             status: '',
             settingPassword: false,
             creatingBackup: false,
-            msdInserted: false,
+            sdCardInserted: false,
             appStatus: '',
             createWalletStatus: 'intro',
             restoreBackupStatus: 'intro',
@@ -156,6 +156,14 @@ class BitBox02 extends Component<Props, State> {
         this.setState({ appStatus: 'restoreBackup' });
     }
 
+    private insertSDCard = () => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success }) => {
+            if (success) {
+                this.setState({ sdCardInserted: true });
+            }
+        });
+    }
+
     private setPassword = () => {
         this.setState({
             settingPassword: true,
@@ -192,7 +200,7 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
+        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard, sdCardInserted }: State,
     ) {
         if (status === '') {
             return null;
@@ -335,6 +343,7 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status !== 'initialized' && restoreBackupStatus === 'intro'}
                                     title="Restore Backup">
+                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.stepContext}>
                                         <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
                                         <ul>
@@ -349,9 +358,10 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.buttons}>
                                         <button
+                                            disabled={!sdCardInserted}
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.restoreBackup}>
-                                            Name Device & Continue
+                                            {sdCardInserted ? 'Name Device & Continue' : 'Insert SD Card with Backup'}
                                         </button>
                                     </div>
                                 </Step> : ''}
