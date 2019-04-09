@@ -23,9 +23,19 @@ import { Entry } from '../../../components/guide/entry';
 import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
 import * as styles from './manage-backups.css';
+import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
+import { apiPost } from '../../../utils/request';
+import { Dialog } from '../../../components/dialog/dialog';
 
 @translate()
 export default class ManageBackups extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            sdCardInserted: this.props.sdCardInserted === 'true',
+            activeDialog: !this.state.sdCardInserted,
+        };
+    }
     hasDevice = () => {
         return !!this.props.devices[this.props.deviceID];
     }
@@ -36,7 +46,64 @@ export default class ManageBackups extends Component {
         }
     }
 
-    render({ t, deviceID }, { }) {
+    backButton = () => {
+        return (
+            <ButtonLink
+                secondary
+                href={`/device/${this.props.deviceID}`}>
+                {this.props.t('button.back')}
+            </ButtonLink>
+        );
+    }
+
+    listBackups  = () => {
+        switch (this.props.devices[this.props.deviceID]) {
+        case 'bitbox':
+            return (
+                <Backups
+                    deviceID={this.props.deviceID}
+                    showCreate={true}
+                    showRestore={false}>
+                    {this.backButton()}
+                </Backups>
+            );
+        case 'bitbox02':
+            return (
+                this.state.sdCardInserted ?
+                    <BackupsV2
+                        deviceID={this.props.deviceID}
+                        showRestore={false}>
+                        {this.backButton()}
+                    </BackupsV2> :
+                    <div>
+                        {this.insertBB02SDCard()}
+                        {
+                            this.state.activeDialog &&
+                            <Dialog>
+                                <div>
+                                    <p style="text-align:center; min-height: 3rem;">Please Insert SD Card</p>
+                                    <div className={['buttons', 'flex', 'flex-row', 'flex-start'].join(' ')}>
+                                        {this.backButton()}
+                                    </div>
+                                </div>
+                            </Dialog>
+                        }
+                    </div>
+            );
+        default:
+            return;
+        }
+    }
+
+    insertBB02SDCard = () => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success }) => {
+            if (success) {
+                this.setState({ sdCardInserted: true });
+            }
+        });
+    }
+
+    render({ t }, { }) {
         if (!this.hasDevice()) {
             return null;
         }
@@ -45,16 +112,7 @@ export default class ManageBackups extends Component {
                 <div class="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className={styles.manageBackups}>
-                        <Backups
-                            deviceID={deviceID}
-                            showCreate={true}
-                            showRestore={false}>
-                            <ButtonLink
-                                secondary
-                                href={`/device/${deviceID}`}>
-                                {t('button.back')}
-                            </ButtonLink>
-                        </Backups>
+                        {this.listBackups()}
                     </div>
                 </div>
                 <Guide>

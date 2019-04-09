@@ -20,7 +20,9 @@ import * as style from '../../../components/steps/steps.css';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
+import SimpleMarkup from '../../../utils/simplemarkup';
 import { Backup, BackupsListItem } from '../../backups/backup';
+import * as backupStyle from '../../backups/backups.css';
 import { Button } from '../../forms';
 
 interface LoadedBackupsProps {
@@ -41,9 +43,19 @@ interface State {
     selectedBackup?: string;
     restoring: boolean;
     errorText: string;
+    creatingBackup: boolean;
 }
 
 class Backups extends Component<Props, State> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            restoring: false,
+            errorText: '',
+            creatingBackup: false,
+        };
+    }
+
     private restore = () => {
         if (!this.state.selectedBackup) {
             return;
@@ -58,8 +70,10 @@ class Backups extends Component<Props, State> {
             });
         });
     }
+
     public render(
         { t,
+          children,
           backups,
           showRestore,
         }: RenderableProps<Props>,
@@ -80,29 +94,36 @@ class Backups extends Component<Props, State> {
                         </div>
                     )
                 }
-            {
-                backups.backups!.length ? backups.backups!.map(backup => (
-                    <BackupsListItem
-                        key={backup.id}
-                        disabled={restoring}
-                        backup={backup}
-                        selectedBackup={selectedBackup}
-                        handleChange={(b => this.setState({ selectedBackup: b }))}
-                        onFocus={() => undefined}/>
-                )) : (
-                    <p>
-                        {t('backup.noBackups')}
-                    </p>
-                )
-            }
-            { showRestore && (
-                <Button
-                    primary={true}
-                    disabled={!selectedBackup || restoring}
-                    onClick={this.restore}>
-                    {t('button.restore')}
-                </Button>
-            ) }
+                <div class={backupStyle.backupsList}>
+                    <SimpleMarkup tagName="p" markup={t('backup.description')} />
+                    {
+                        backups.backups!.length ? backups.backups!.map(backup => (
+                            <BackupsListItem
+                                key={backup.id}
+                                disabled={restoring}
+                                backup={backup}
+                                selectedBackup={selectedBackup}
+                                handleChange={(b => this.setState({ selectedBackup: b }))}
+                                onFocus={() => undefined}/>
+                        )) : (
+                            <p>
+                                {t('backup.noBackups')}
+                            </p>
+                        )
+                    }
+                </div>
+                <div class="buttons bottom flex flex-row flex-between">
+                    {children}
+                    { showRestore && (
+                        <Button
+                            primary={true}
+                            disabled={!selectedBackup || restoring}
+                            onClick={this.restore}>
+                            {t('button.restore')}
+                        </Button>
+                    ) }
+                </div>
+
             </div>
         );
     }
@@ -110,4 +131,4 @@ class Backups extends Component<Props, State> {
 
 const loadHOC = load<LoadedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);
 const HOC = translate<BackupsProps>()(loadHOC);
-export { HOC as Backups };
+export { HOC as BackupsV2 };

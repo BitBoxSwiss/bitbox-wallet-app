@@ -29,7 +29,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
-import { Backups } from './backups';
+import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
@@ -370,7 +370,7 @@ class BitBox02 extends Component<Props, State> {
                                     active={status !== 'initialized' && restoreBackupStatus === 'restore'}
                                     title="Restore Backup">
                                     <div className={style.stepContext}>
-                                        <Backups
+                                        <BackupsV2
                                             deviceID={deviceID}
                                             showRestore={true}
                                         />

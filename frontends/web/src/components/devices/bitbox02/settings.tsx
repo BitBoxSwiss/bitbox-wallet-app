@@ -16,9 +16,11 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import * as style from '../../../components/steps/steps.css';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import { apiGet } from '../../../utils/request';
+import { ButtonLink } from '../../forms';
 import { Header } from '../../layout/header';
 import DeviceInfo from './deviceinfo';
 import SetDeviceName from './setdevicename';
@@ -32,7 +34,11 @@ interface State {
     versionInfo?: VersionInfo;
 }
 
-type Props = SettingsProps & TranslateProps;
+interface LoadedSettingsProps {
+    sdCardInserted: boolean;
+}
+
+type Props = LoadedSettingsProps & SettingsProps & TranslateProps;
 
 class Settings extends Component<Props, State> {
     private apiPrefix = () => {
@@ -46,13 +52,16 @@ class Settings extends Component<Props, State> {
     }
 
     public render(
-        { t }: RenderableProps<Props>,
+        { deviceID,
+          sdCardInserted,
+          t,
+        }: RenderableProps<Props>,
         { versionInfo,
         }: State) {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>Welcome</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className={style.buttons}>
                         <RandomNumber apiPrefix={this.apiPrefix()} />
                         <DeviceInfo apiPrefix={this.apiPrefix()} />
@@ -83,6 +92,9 @@ class Settings extends Component<Props, State> {
                                 />
                             </div>
                         )}
+                        <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
+                            {t('deviceSettings.secrets.manageBackups')}
+                        </ButtonLink>
                     </div>
                 </div>
             </div>
@@ -90,5 +102,6 @@ class Settings extends Component<Props, State> {
     }
 }
 
-const HOC = translate<SettingsProps>()(Settings);
+const loadHOC = load<LoadedSettingsProps, SettingsProps & TranslateProps>(({ deviceID }) => ({ sdCardInserted: 'devices/bitbox02/' + deviceID + '/check-sdcard' }))(Settings);
+const HOC = translate<SettingsProps>()(loadHOC);
 export { HOC as Settings };
