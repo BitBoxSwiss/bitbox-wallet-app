@@ -68,7 +68,7 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
-	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")

@@ -403,7 +403,7 @@ func (device *Device) SetPassword() error {
 
 // CreateBackup is called after SetPassword() to create the backup.
 func (device *Device) CreateBackup() error {
-	if device.status != StatusSeeded {
+	if device.status != StatusSeeded && device.status != StatusInitialized {
 		return errp.New("invalid status")
 	}
 

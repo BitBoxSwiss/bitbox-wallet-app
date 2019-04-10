@@ -190,7 +190,7 @@ class BitBox02 extends Component<Props, State> {
 
     private createBackup = () => {
         this.setState({ creatingBackup: true });
-        apiPost(this.apiPrefix() + '/create-backup').then(({ success }) => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
             if (!success) {
                 alertUser('creating backup failed, try again');
             }

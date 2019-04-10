@@ -72,6 +72,7 @@ export default class ManageBackups extends Component {
                 this.state.sdCardInserted ?
                     <BackupsV2
                         deviceID={this.props.deviceID}
+                        showCreate={true}
                         showRestore={false}>
                         {this.backButton()}
                     </BackupsV2> :
@@ -81,7 +82,7 @@ export default class ManageBackups extends Component {
                             this.state.activeDialog &&
                             <Dialog>
                                 <div>
-                                    <p style="text-align:center; min-height: 3rem;">Please Insert SD Card</p>
+                                    <p style="text-align:center; min-height: 3rem;">{this.props.t('backup.insert')}</p>
                                     <div className={['buttons', 'flex', 'flex-row', 'flex-start'].join(' ')}>
                                         {this.backButton()}
                                     </div>
