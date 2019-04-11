@@ -253,3 +253,7 @@
     display: inline-block;
     margin: var(--spacing-half);
 }
+
+.transparent {
+    display: none;
+}

@@ -18,6 +18,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
@@ -36,7 +37,10 @@ type BitBox02 interface {
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
-	InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error
+	ListBackups() ([]*bitbox02.Backup, error)
+	RestoreBackup(string) error
+	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
+	SetMnemonicPassphraseEnabled(bool) error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -56,12 +60,15 @@ func NewHandlers(
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
-	handleFunc("/device-info", handlers.getDeviceInfo).Methods("GET")
+	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
+	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
+	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
 
 	return handlers
 }
@@ -138,7 +145,36 @@ func (handlers *Handlers) postCreateBackup(r *http.Request) (interface{}, error)
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
 
+func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("List backups ")
+	backups, err := handlers.device.ListBackups()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	result := []map[string]string{}
+	for _, backup := range backups {
+		result = append(result, map[string]string{
+			"id":   backup.ID,
+			"date": backup.Time.Format(time.RFC3339),
+		})
+	}
+	return map[string]interface{}{
+		"success": true,
+		"backups": result,
+	}, nil
+}
+
+func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
+	var backupID string
+	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.device.RestoreBackup(backupID); err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }
 
 func (handlers *Handlers) getChannelHash(_ *http.Request) (interface{}, error) {
@@ -171,6 +207,17 @@ func (handlers *Handlers) postRemoveSDCard(r *http.Request) (interface{}, error)
 	handlers.log.Debug("Remove SD Card if inserted")
 	err := handlers.device.InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_REMOVE_CARD)
 	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (interface{}, error) {
+	var enabled bool
+	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.device.SetMnemonicPassphraseEnabled(enabled); err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil

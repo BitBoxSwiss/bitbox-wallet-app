@@ -78,9 +78,10 @@ type Device struct {
 
 // DeviceInfo is the data returned from the device info api call.
 type DeviceInfo struct {
-	Name        string `json:"name"`
-	Version     string `json:"version"`
-	Initialized bool   `json:"initialized"`
+	Name                      string `json:"name"`
+	Version                   string `json:"version"`
+	Initialized               bool   `json:"initialized"`
+	MnemonicPassphraseEnabled bool   `json:"mnemonicPassphraseEnabled"`
 }
 
 // NewDevice creates a new instance of Device.
@@ -175,7 +176,7 @@ func (device *Device) changeStatus(status Status) {
 	device.status = status
 	device.fireEvent(EventStatusChanged)
 	switch device.Status() {
-	case StatusUnlocked:
+	case StatusInitialized:
 		device.fireEvent(devicepkg.EventKeystoreAvailable)
 	case StatusUninitialized:
 		device.fireEvent(devicepkg.EventKeystoreGone)
@@ -200,7 +201,7 @@ func (device *Device) Identifier() string {
 
 // KeystoreForConfiguration implements device.Device.
 func (device *Device) KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystoreInterface.Keystore {
-	if device.Status() != StatusUnlocked {
+	if device.Status() != StatusInitialized {
 		return nil
 	}
 	return &keystore{
@@ -330,9 +331,10 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 	}
 
 	deviceInfo := &DeviceInfo{
-		Name:        deviceInfoResponse.DeviceInfo.Name,
-		Version:     deviceInfoResponse.DeviceInfo.Version,
-		Initialized: deviceInfoResponse.DeviceInfo.Initialized,
+		Name:                      deviceInfoResponse.DeviceInfo.Name,
+		Version:                   deviceInfoResponse.DeviceInfo.Version,
+		Initialized:               deviceInfoResponse.DeviceInfo.Initialized,
+		MnemonicPassphraseEnabled: deviceInfoResponse.DeviceInfo.MnemonicPassphraseEnabled,
 	}
 
 	return deviceInfo, nil
@@ -341,7 +343,7 @@ func (device *Device) DeviceInfo() (*DeviceInfo, error) {
 // SetPassword invokes the set password workflow on the device. Should be called only if
 // deviceInfo.Initialized is false.
 func (device *Device) SetPassword() error {
-	if device.status != StatusUninitialized {
+	if device.status == StatusInitialized {
 		return errp.New("invalid status")
 	}
 	request := &messages.Request{
@@ -390,7 +392,60 @@ func (device *Device) CreateBackup() error {
 	if !ok {
 		return errp.New("unexpected response")
 	}
-	device.changeStatus(StatusUnlocked)
+	device.changeStatus(StatusInitialized)
+	return nil
+}
+
+// Backup contains the metadata of one backup.
+type Backup struct {
+	ID   string
+	Time time.Time
+}
+
+// ListBackups returns a list of all backups on the SD card.
+func (device *Device) ListBackups() ([]*Backup, error) {
+	request := &messages.Request{
+		Request: &messages.Request_ListBackups{
+			ListBackups: &messages.ListBackupsRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return nil, err
+	}
+	listBackupsResponse, ok := response.Response.(*messages.Response_ListBackups)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	msgBackups := listBackupsResponse.ListBackups.Info
+	backups := make([]*Backup, len(msgBackups))
+	for index, msgBackup := range msgBackups {
+		backups[index] = &Backup{
+			ID:   msgBackup.Id,
+			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
+		}
+	}
+	return backups, nil
+}
+
+// RestoreBackup restores a backup returned by ListBackups (id).
+func (device *Device) RestoreBackup(id string) error {
+	request := &messages.Request{
+		Request: &messages.Request_RestoreBackup{
+			RestoreBackup: &messages.RestoreBackupRequest{
+				Id: id,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusInitialized)
 	return nil
 }
 
@@ -571,6 +626,27 @@ func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardReque
 		Request: &messages.Request_InsertRemoveSdcard{
 			InsertRemoveSdcard: &messages.InsertRemoveSDCardRequest{
 				Action: action,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
+// SetMnemonicPassphraseEnabled enables or disables entering a mnemonic passphrase after the normal
+// unlock.
+func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
+	request := &messages.Request{
+		Request: &messages.Request_SetMnemonicPassphraseEnabled{
+			SetMnemonicPassphraseEnabled: &messages.SetMnemonicPassphraseEnabledRequest{
+				Enabled: enabled,
 			},
 		},
 	}

@@ -74,8 +74,11 @@ export default class Settings extends Component {
             this.setState({ newVersion: version.replace('v', '') });
         });
 
-        this.unsubscribe = apiWebsocket(({ type, data }) => {
+        this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
             if (type === 'device') {
+                if (deviceID !== this.props.deviceID) {
+                    return;
+                }
                 switch (data) {
                 case 'mobileDisconnected':
                     this.setState({ connected: false });

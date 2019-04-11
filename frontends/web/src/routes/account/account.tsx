@@ -34,6 +34,7 @@ import Transactions from '../../components/transactions/transactions';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
+import { Devices } from '../device/deviceswitch';
 import { SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
@@ -46,7 +47,7 @@ export interface AccountInterface {
 
 interface AccountProps {
     code: string;
-    deviceIDs: string[];
+    devices: Devices;
     accounts: AccountInterface[];
 }
 
@@ -117,14 +118,25 @@ class Account extends Component<Props, State> {
         if (this.props.code !== prevProps.code) {
             this.onStatusChanged();
         }
-        if (this.props.deviceIDs.length !== prevProps.deviceIDs.length) {
+        if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
             this.checkSDCards();
         }
     }
 
     private checkSDCards() {
-        Promise.all(this.props.deviceIDs.map(deviceID => {
-            return apiGet(`devices/${deviceID}/info`)
+        Promise.all(this.deviceIDs(this.props.devices).map(deviceID => {
+            let apiPrefix;
+            switch (this.props.devices[deviceID]) {
+            case 'bitbox':
+                apiPrefix = 'devices/';
+                break;
+            case 'bitbox02':
+                apiPrefix = 'devices/bitbox02/';
+                break;
+            default:
+                return;
+            }
+            return apiGet(`${apiPrefix}${deviceID}/info`)
                 .then(info => {
                     if (!info) {
                         return false;
@@ -212,6 +224,10 @@ class Account extends Component<Props, State> {
         }
         return (account.coinCode === 'btc' || account.coinCode === 'tbtc') &&
             accountInfo.signingConfiguration.scriptType === 'p2pkh';
+    }
+
+    private deviceIDs = (devices: Devices) => {
+        return Object.keys(devices);
     }
 
     public render(
