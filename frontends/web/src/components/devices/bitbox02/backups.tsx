@@ -24,6 +24,7 @@ import SimpleMarkup from '../../../utils/simplemarkup';
 import { Backup, BackupsListItem } from '../../backups/backup';
 import * as backupStyle from '../../backups/backups.css';
 import { Button } from '../../forms';
+import { Check } from './checkbackup';
 import { Create } from './createbackup';
 
 interface LoadedBackupsProps {
@@ -120,17 +121,22 @@ class Backups extends Component<Props, State> {
                     {children}
                     {
                         showRestore && (
-                        <Button
-                            primary={true}
-                            disabled={!selectedBackup || restoring}
-                            onClick={this.restore}>
-                            {t('button.restore')}
-                        </Button>
+                            <Button
+                                primary={true}
+                                disabled={!selectedBackup || restoring}
+                                onClick={this.restore}>
+                                {t('button.restore')}
+                            </Button>
                         )
                     }
                     {
                         showCreate && (
-                        <Create deviceID={deviceID}/>
+                            <Check deviceID={deviceID} />
+                        )
+                    }
+                    {
+                        showCreate && (
+                            <Create deviceID={deviceID} />
                         )
                     }
                 </div>

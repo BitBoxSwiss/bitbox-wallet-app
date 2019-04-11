@@ -57,6 +57,7 @@
     "check": {
       "checking": "Checking backup…",
       "confirmTitle": "Check Backup",
+      "failure": "Backup integrity could not be verified. Please create a new backup",
       "notOK": "Backup does NOT match the wallet.",
       "ok": "Backup matches the wallet.",
       "password": {
@@ -64,6 +65,7 @@
         "placeholder": "Recovery password",
         "showLabel": "recovery password"
       },
+      "success": "Backup verified successfuly.",
       "title": "Check Backup"
     },
     "create": {

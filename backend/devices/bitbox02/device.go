@@ -464,6 +464,24 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	return backups, nil
 }
 
+// CheckBackup checks the integrity of backups and if they are restorable
+func (device *Device) CheckBackup() error {
+	request := &messages.Request{
+		Request: &messages.Request_CheckBackup{
+			CheckBackup: &messages.CheckBackupRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
+}
+
 // RestoreBackup restores a backup returned by ListBackups (id).
 func (device *Device) RestoreBackup(id string) error {
 	request := &messages.Request{

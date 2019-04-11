@@ -41,6 +41,7 @@ type BitBox02 interface {
 	SetPassword() error
 	CreateBackup() error
 	ListBackups() ([]*bitbox02.Backup, error)
+	CheckBackup() error
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
@@ -69,6 +70,7 @@ func NewHandlers(
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
 	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/backups/check", handlers.getCheckBackup).Methods("GET")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
 	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")
@@ -172,6 +174,14 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 		"success": true,
 		"backups": result,
 	}, nil
+}
+
+func (handlers *Handlers) getCheckBackup(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Checking Backup")
+	if err := handlers.device.CheckBackup(); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return map[string]interface{}{"success": true}, nil
 }
 
 func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
