@@ -129,10 +129,14 @@ type Backend struct {
 // NewBackend creates a new backend with the given arguments.
 func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backend, error) {
 	log := logging.Get().WithGroup("backend")
+	config, err := config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename())
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
 	backend := &Backend{
 		arguments:   arguments,
 		environment: environment,
-		config:      config.NewConfig(arguments.AppConfigFilename(), arguments.AccountsConfigFilename()),
+		config:      config,
 		events:      make(chan interface{}, 1000),
 
 		devices:   map[string]device.Interface{},
@@ -247,11 +251,26 @@ func (backend *Backend) createAndAddAccount(
 	keypath string,
 	scriptType signing.ScriptType,
 ) {
+	log := backend.log.WithField("code", code).WithField("name", name)
 	if !backend.arguments.Multisig() && !backend.config.AppConfig().Backend.AccountActive(code) {
-		backend.log.WithField("code", code).WithField("name", name).Info("skipping inactive account")
+		log.WithField("name", name).Info("skipping inactive account")
 		return
 	}
-	backend.log.WithField("code", code).WithField("name", name).Info("init account")
+
+	var meta interface{}
+	switch coin.(type) {
+	case *btc.Coin:
+		meta = scriptType
+	default:
+	}
+	for _, keystore := range backend.keystores.Keystores() {
+		if !keystore.SupportsAccount(coin, backend.arguments.Multisig(), meta) {
+			log.Info("skipping unsupported account")
+			return
+		}
+	}
+
+	log.Info("init account")
 	absoluteKeypath, err := signing.NewAbsoluteKeypath(keypath)
 	if err != nil {
 		panic(err)

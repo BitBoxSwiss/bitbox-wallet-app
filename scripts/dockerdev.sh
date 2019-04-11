@@ -25,7 +25,7 @@ dockerdev () {
 
     # If already running, enter the container.
     if docker ps | grep -q $container_name; then
-        docker exec -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
+        docker exec --user=dockeruser -it $container_name /opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/scripts/docker_init.sh
         return
     fi
 
@@ -44,6 +44,11 @@ dockerdev () {
            --add-host="dev2.shiftcrypto.ch:176.9.28.156" \
            -v $repo_path:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app \
            bitbox-wallet bash
+
+    # Use same user/group id as on the host, so that files are not created as root in the mounted
+    # volume.
+    docker exec -it $container_name groupadd -g `id -g` dockergroup
+    docker exec -it $container_name useradd --create-home -u `id -u` -g dockergroup dockeruser
 
     # Call a second time to enter the container.
     dockerdev

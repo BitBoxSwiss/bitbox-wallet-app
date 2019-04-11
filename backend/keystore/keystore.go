@@ -35,6 +35,10 @@ type Keystore interface {
 	// The returned value is always zero for a singlesig configuration.
 	CosignerIndex() int
 
+	// SupportsAccount returns true if they keystore supports the given coin/account.
+	// meta is a coin-specific metadata related to the account type.
+	SupportsAccount(coin coin.Coin, multisig bool, meta interface{}) bool
+
 	// CanVerifyAddress returns whether the keystore supports to output an address securely.
 	// This is typically done through a screen on the device or through a paired mobile phone.
 	// optional is true if the user can skip verification, and false if they should be incentivized
