@@ -661,6 +661,24 @@ func (device *Device) BTCSign(
 	}
 }
 
+// CheckSDCard checks whether an sd card is inserted in the device
+func (device *Device) CheckSDCard() (bool, error) {
+	request := &messages.Request{
+		Request: &messages.Request_CheckSdcard{
+			CheckSdcard: &messages.CheckSDCardRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return false, err
+	}
+	sdCardInserted, ok := response.Response.(*messages.Response_CheckSdcard)
+	if !ok {
+		return false, errp.New("unexpected response")
+	}
+	return sdCardInserted.CheckSdcard.Inserted, nil
+}
+
 // InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state
 func (device *Device) InsertRemoveSDCard(action messages.InsertRemoveSDCardRequest_SDCardAction) error {
 	request := &messages.Request{
