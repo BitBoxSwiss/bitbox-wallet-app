@@ -178,7 +178,7 @@ func NewDevice(
 		closed:           false,
 		channel:          relay.NewChannelFromConfigFile(channelConfigDir),
 		channelConfigDir: channelConfigDir,
-		log:              log,
+		log:              log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
 
 	if device.channel != nil {
@@ -209,7 +209,7 @@ func NewDevice(
 			break
 		}
 		device.initialized = initialized
-		log.WithFields(logrus.Fields{"deviceID": deviceID, "initialized": initialized}).Debug("Device initialization status")
+		log.WithField("initialized", initialized).Debug("Device initialization status")
 	}
 	return device, nil
 }

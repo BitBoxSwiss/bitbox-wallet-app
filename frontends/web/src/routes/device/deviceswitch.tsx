@@ -17,11 +17,12 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { BitBox02 } from '../../components/devices/bitbox02/bitbox02';
+import { BitBox02Bootloader } from '../../components/devices/bitbox02bootloader/bitbox02bootloader';
 import Device from './device';
 import { Waiting } from './waiting';
 
 export interface Devices {
-    [deviceID: string]: string;
+    [deviceID: string]: 'bitbox' | 'bitbox02' | 'bitbox02-bootloader';
 }
 
 // Keys are typed as 'string | number' in Preact, which prevents us from using 'Devices' (object) here.
@@ -51,6 +52,8 @@ class DeviceSwitch extends Component<Props, {}> {
             return <Device deviceID={deviceID} />;
         case 'bitbox02':
              return <BitBox02 deviceID={deviceID} />;
+        case 'bitbox02-bootloader':
+             return <BitBox02Bootloader deviceID={deviceID} />;
         default:
             return <Waiting />;
         }

@@ -42,6 +42,8 @@ import (
 	bitboxHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	bitbox02Handlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	bitbox02bootloaderHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
@@ -228,12 +230,25 @@ func NewHandlers(
 		return bitbox02HandlersMap[deviceID]
 	}
 
+	bitbox02BootloaderHandlersMap := map[string]*bitbox02bootloaderHandlers.Handlers{}
+	getBitBox02BootloaderHandlers := func(deviceID string) *bitbox02bootloaderHandlers.Handlers {
+		defer handlersMapLock.Lock()()
+		if _, ok := bitbox02BootloaderHandlersMap[deviceID]; !ok {
+			bitbox02BootloaderHandlersMap[deviceID] = bitbox02bootloaderHandlers.NewHandlers(getAPIRouter(
+				apiRouter.PathPrefix(fmt.Sprintf("/devices/bitbox02-bootloader/%s", deviceID)).Subrouter(),
+			), log)
+		}
+		return bitbox02BootloaderHandlersMap[deviceID]
+	}
+
 	backend.OnDeviceInit(func(device device.Interface) {
 		switch specificDevice := device.(type) {
 		case *bitbox.Device:
 			getDeviceHandlers(device.Identifier()).Init(specificDevice)
 		case *bitbox02.Device:
 			getBitBox02Handlers(device.Identifier()).Init(specificDevice)
+		case *bitbox02bootloader.Device:
+			getBitBox02BootloaderHandlers(device.Identifier()).Init(specificDevice)
 		}
 	})
 	backend.OnDeviceUninit(func(deviceID string) {

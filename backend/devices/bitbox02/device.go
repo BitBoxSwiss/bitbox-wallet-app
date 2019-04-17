@@ -87,7 +87,6 @@ type DeviceInfo struct {
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	deviceID string,
-	bootloader bool,
 	version *semver.SemVer,
 	communication Communication,
 ) *Device {
@@ -97,8 +96,16 @@ func NewDevice(
 		deviceID:      deviceID,
 		communication: communication,
 		status:        StatusUnpaired,
-		log:           log.WithField("deviceID", deviceID),
+		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
+}
+
+func (device *Device) readFrame() ([]byte, error) {
+	reply, err := device.communication.ReadFrame()
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimRightFunc(reply, func(r rune) bool { return r == 0 }), nil
 }
 
 // Init implements device.Device.
@@ -122,7 +129,7 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame("I CAN HAS HANDSHAKE?"); err != nil {
 		panic(err)
 	}
-	responseBytes, err := device.communication.ReadFrame()
+	responseBytes, err := device.readFrame()
 	if err != nil {
 		panic(err)
 	}
@@ -137,7 +144,7 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame(string(msg)); err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.communication.ReadFrame()
+	responseBytes, err = device.readFrame()
 	if err != nil {
 		panic(err)
 	}
@@ -154,7 +161,7 @@ func (device *Device) Init(testing bool) {
 	}
 	device.channelHash = hex.EncodeToString(handshake.ChannelBinding()[:8])
 	go func() {
-		response, err := device.communication.ReadFrame()
+		response, err := device.readFrame()
 		if err != nil {
 			panic(err)
 		}
@@ -248,7 +255,7 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if err := device.communication.SendFrame(string(requestBytesEncrypted)); err != nil {
 		return nil, err
 	}
-	responseBytes, err := device.communication.ReadFrame()
+	responseBytes, err := device.readFrame()
 	if err != nil {
 		return nil, err
 	}

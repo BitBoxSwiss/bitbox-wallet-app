@@ -54,7 +54,7 @@ func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
 	log *logrus.Entry,
 ) *Handlers {
-	handlers := &Handlers{log: log}
+	handlers := &Handlers{log: log.WithField("device", "bitbox02")}
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")

@@ -36,11 +36,6 @@ import (
 
 const (
 	hwwCID = 0xff000000
-	// initial frame identifier
-	u2fHIDTypeInit = 0x80
-	// first vendor defined command
-	u2fHIDVendorFirst = u2fHIDTypeInit | 0x40
-	hwwCMD            = u2fHIDVendorFirst | 0x01
 )
 
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
@@ -51,6 +46,7 @@ type Communication struct {
 	log                *logrus.Entry
 	usbWriteReportSize int
 	usbReadReportSize  int
+	usbCMD             byte
 	hmac               bool
 }
 
@@ -59,13 +55,18 @@ type CommunicationErr error
 
 // NewCommunication creates a new Communication.
 func NewCommunication(
-	device io.ReadWriteCloser, usbWriteReportSize, usbReadReportSize int, hmac bool) *Communication {
+	device io.ReadWriteCloser,
+	usbWriteReportSize,
+	usbReadReportSize int,
+	usbCMD byte,
+	hmac bool) *Communication {
 	return &Communication{
 		device:             device,
 		mutex:              sync.Mutex{},
 		log:                logging.Get().WithGroup("usb"),
 		usbWriteReportSize: usbWriteReportSize,
 		usbReadReportSize:  usbReadReportSize,
+		usbCMD:             usbCMD,
 		hmac:               hmac,
 	}
 }
@@ -78,7 +79,7 @@ func (communication *Communication) Close() {
 	}
 }
 
-// SendFrame implements Communication to communicate with the device
+// SendFrame sends one usb message.
 func (communication *Communication) SendFrame(msg string) error {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -106,7 +107,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	if err := binary.Write(header, binary.BigEndian, uint32(hwwCID)); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := binary.Write(header, binary.BigEndian, uint8(hwwCMD)); err != nil {
+	if err := binary.Write(header, binary.BigEndian, communication.usbCMD); err != nil {
 		return errp.WithStack(err)
 	}
 	if err := binary.Write(header, binary.BigEndian, uint16(dataLen&0xFFFF)); err != nil {
@@ -131,15 +132,11 @@ func (communication *Communication) sendFrame(msg string) error {
 	return nil
 }
 
-// ReadFrame implements Communication to communicate with the device
+// ReadFrame reads one usb message.
 func (communication *Communication) ReadFrame() ([]byte, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
-	reply, err := communication.readFrame()
-	if err != nil {
-		return nil, err
-	}
-	return bytes.TrimRightFunc(reply, func(r rune) bool { return r == 0 }), nil
+	return communication.readFrame()
 }
 
 func (communication *Communication) readFrame() ([]byte, error) {
@@ -154,8 +151,8 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	if read[0] != 0xff || read[1] != 0 || read[2] != 0 || read[3] != 0 {
 		return nil, errors.New("USB command ID mismatch")
 	}
-	if read[4] != hwwCMD {
-		return nil, errp.Newf("USB command frame mismatch (%d, expected %d)", read[4], hwwCMD)
+	if read[4] != communication.usbCMD {
+		return nil, errp.Newf("USB command frame mismatch (%d, expected %d)", read[4], communication.usbCMD)
 	}
 	data := new(bytes.Buffer)
 	dataLen := int(read[5])*256 + int(read[6])
