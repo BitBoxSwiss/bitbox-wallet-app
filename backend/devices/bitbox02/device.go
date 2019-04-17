@@ -667,3 +667,18 @@ func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
 	}
 	return nil
 }
+
+func (device *Device) reboot() error {
+	request := &messages.Request{
+		Request: &messages.Request_Reboot{
+			Reboot: &messages.RebootRequest{},
+		},
+	}
+	_, err := device.query(request)
+	return err
+}
+
+// UpgradeFirmware reboots into the bootloader so a firmware can be flashed.
+func (device *Device) UpgradeFirmware() error {
+	return device.reboot()
+}

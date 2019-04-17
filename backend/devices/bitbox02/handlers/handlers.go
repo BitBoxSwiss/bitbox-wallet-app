@@ -22,7 +22,9 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -41,6 +43,7 @@ type BitBox02 interface {
 	RestoreBackup(string) error
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
 	SetMnemonicPassphraseEnabled(bool) error
+	UpgradeFirmware() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -69,6 +72,8 @@ func NewHandlers(
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
+	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
+	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 
 	return handlers
 }
@@ -221,4 +226,29 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
+	info, err := handlers.device.DeviceInfo()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	currentVersion, err := semver.NewSemVerFromString(info.Version)
+	if err != nil {
+		return nil, err
+	}
+	newVersion := bitbox02bootloader.BundledFirmwareVersion()
+	return map[string]interface{}{
+		"currentVersion": currentVersion.String(),
+		"newVersion":     newVersion.String(),
+		"canUpgrade":     newVersion.AtLeast(currentVersion) && currentVersion.String() != newVersion.String(),
+	}, nil
+}
+
+func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface{}, error) {
+	err := handlers.device.UpgradeFirmware()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return nil, nil
 }
