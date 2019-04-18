@@ -100,6 +100,10 @@
     },
     "title": "Manage Backups"
   },
+  "bb02Bootloader": {
+    "abort": "Don't upgrade – Take me back",
+    "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds..."
+  },
   "bitbox": {
     "error": {
       "e10000": "Current device password incorrect.",

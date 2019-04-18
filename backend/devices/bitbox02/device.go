@@ -42,6 +42,11 @@ import (
 
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
+var (
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(0, 0, 1)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(1, 0, 0)
+)
+
 // ProductName is the name of the BitBox02 product.
 const ProductName = "bitbox02"
 
@@ -62,8 +67,11 @@ const (
 
 // Device provides the API to communicate with the BitBox02.
 type Device struct {
-	deviceID                  string
-	communication             Communication
+	deviceID      string
+	communication Communication
+	// firmware version.
+	version *semver.SemVer
+
 	channelHash               string
 	channelHashAppVerified    bool
 	channelHashDeviceVerified bool
@@ -87,7 +95,6 @@ type DeviceInfo struct {
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	deviceID string,
-	bootloader bool,
 	version *semver.SemVer,
 	communication Communication,
 ) *Device {
@@ -96,13 +103,32 @@ func NewDevice(
 	return &Device{
 		deviceID:      deviceID,
 		communication: communication,
+		version:       version,
 		status:        StatusUnpaired,
-		log:           log.WithField("deviceID", deviceID),
+		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
+}
+
+// Version returns the firmware version.
+func (device *Device) Version() *semver.SemVer {
+	return device.version
+}
+
+func (device *Device) readFrame() ([]byte, error) {
+	reply, err := device.communication.ReadFrame()
+	if err != nil {
+		return nil, err
+	}
+	return bytes.TrimRightFunc(reply, func(r rune) bool { return r == 0 }), nil
 }
 
 // Init implements device.Device.
 func (device *Device) Init(testing bool) {
+	if device.version.AtLeast(lowestNonSupportedFirmwareVersion) {
+		device.changeStatus(StatusRequireAppUpgrade)
+		return
+	}
+
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
 	if err != nil {
@@ -122,7 +148,7 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame("I CAN HAS HANDSHAKE?"); err != nil {
 		panic(err)
 	}
-	responseBytes, err := device.communication.ReadFrame()
+	responseBytes, err := device.readFrame()
 	if err != nil {
 		panic(err)
 	}
@@ -137,7 +163,7 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame(string(msg)); err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.communication.ReadFrame()
+	responseBytes, err = device.readFrame()
 	if err != nil {
 		panic(err)
 	}
@@ -154,7 +180,7 @@ func (device *Device) Init(testing bool) {
 	}
 	device.channelHash = hex.EncodeToString(handshake.ChannelBinding()[:8])
 	go func() {
-		response, err := device.communication.ReadFrame()
+		response, err := device.readFrame()
 		if err != nil {
 			panic(err)
 		}
@@ -248,7 +274,7 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if err := device.communication.SendFrame(string(requestBytesEncrypted)); err != nil {
 		return nil, err
 	}
-	responseBytes, err := device.communication.ReadFrame()
+	responseBytes, err := device.readFrame()
 	if err != nil {
 		return nil, err
 	}
@@ -461,6 +487,11 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	}
 	device.channelHashAppVerified = ok
 	if ok {
+		if !device.version.AtLeast(lowestSupportedFirmwareVersion) {
+			device.changeStatus(StatusRequireFirmwareUpgrade)
+			return
+		}
+
 		info, err := device.DeviceInfo()
 		if err != nil {
 			device.log.WithError(err).Error("could not get device info")
@@ -659,4 +690,19 @@ func (device *Device) SetMnemonicPassphraseEnabled(enabled bool) error {
 		return errp.New("unexpected response")
 	}
 	return nil
+}
+
+func (device *Device) reboot() error {
+	request := &messages.Request{
+		Request: &messages.Request_Reboot{
+			Reboot: &messages.RebootRequest{},
+		},
+	}
+	_, err := device.query(request)
+	return err
+}
+
+// UpgradeFirmware reboots into the bootloader so a firmware can be flashed.
+func (device *Device) UpgradeFirmware() error {
+	return device.reboot()
 }

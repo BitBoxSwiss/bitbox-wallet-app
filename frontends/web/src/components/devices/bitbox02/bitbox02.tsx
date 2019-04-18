@@ -18,6 +18,8 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import infoIcon from '../../../assets/icons/info.svg';
+import { AppUpgradeRequired } from '../../../components/appupgraderequired';
+import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button } from '../../../components/forms';
 import { Step, Steps } from '../../../components/steps';
 import * as style from '../../../components/steps/steps.css';
@@ -29,6 +31,7 @@ import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
 import { Backups } from './backups';
 import { Settings } from './settings';
+import { UpgradeButton, VersionInfo } from './upgradebutton';
 
 interface BitBox02Props {
     deviceID: string;
@@ -37,9 +40,12 @@ interface BitBox02Props {
 type Props = BitBox02Props & TranslateProps;
 
 interface State {
+    versionInfo?: VersionInfo;
     hash?: string;
     deviceVerified: boolean;
     status: '' |
+    'require_firmware_upgrade' |
+    'require_app_upgrade' |
     'unpaired' |
     'pairingFailed' |
     'uninitialized' |
@@ -78,6 +84,9 @@ class BitBox02 extends Component<Props, State> {
     private unsubscribe!: () => void;
 
     public componentDidMount() {
+        apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
+            this.setState({ versionInfo });
+        });
         this.onChannelHashChanged();
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
@@ -99,18 +108,22 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
+    private apiPrefix = () => {
+        return 'devices/bitbox02/' + this.props.deviceID;
+    }
+
     private handleGetStarted = () => {
         route('/account', true);
     }
 
     private onChannelHashChanged = () => {
-        apiGet('devices/bitbox02/' + this.props.deviceID + '/channel-hash').then(({ hash, deviceVerified }) => {
+        apiGet(this.apiPrefix() + '/channel-hash').then(({ hash, deviceVerified }) => {
             this.setState({ hash, deviceVerified });
         });
     }
 
     private onStatusChanged = () => {
-        apiGet('devices/bitbox02/' + this.props.deviceID + '/status').then(status => {
+        apiGet(this.apiPrefix() + '/status').then(status => {
             if (!this.state.showWizard && ['unpaired', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
             }
@@ -132,7 +145,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private channelVerify = ok => {
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/channel-hash-verify', ok);
+        apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
     }
 
     private createWalletStep = () => {
@@ -148,7 +161,7 @@ class BitBox02 extends Component<Props, State> {
             settingPassword: true,
             createWalletStatus: 'setPassword',
         });
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/set-password').then(({ success }) => {
+        apiPost(this.apiPrefix() + '/set-password').then(({ success }) => {
             if (!success) {
                 this.setState({
                     errorText: 'Passwords did not match, please try again.',
@@ -169,7 +182,7 @@ class BitBox02 extends Component<Props, State> {
 
     private createBackup = () => {
         this.setState({ creatingBackup: true });
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/create-backup').then(({ success }) => {
+        apiPost(this.apiPrefix() + '/create-backup').then(({ success }) => {
             if (!success) {
                 alertUser('creating backup failed, try again');
             }
@@ -179,10 +192,27 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
+        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
     ) {
         if (status === '') {
             return null;
+        }
+        if (status === 'require_firmware_upgrade') {
+            if (!versionInfo) {
+                return null;
+            }
+            return (
+                <CenteredContent>
+                    <p><strong>{t('upgradeFirmware.label')}</strong></p>
+                    <UpgradeButton
+                        apiPrefix={this.apiPrefix()}
+                        versionInfo={versionInfo}
+                    />
+                </CenteredContent>
+            );
+        }
+        if (status === 'require_app_upgrade') {
+            return <AppUpgradeRequired/>;
         }
         if (!showWizard) {
             return <Settings deviceID={deviceID}/>;

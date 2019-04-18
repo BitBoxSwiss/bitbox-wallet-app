@@ -22,6 +22,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -36,6 +37,9 @@ const (
 
 	bitbox02VendorID  = 0x03eb
 	bitbox02ProductID = 0x2403
+
+	bitboxCMD             = 0x80 + 0x40 + 0x01
+	bitbox02BootloaderCMD = 0x80 + 0x40 + 0x03
 )
 
 func isBitBox(deviceInfo hid.DeviceInfo) bool {
@@ -44,6 +48,10 @@ func isBitBox(deviceInfo hid.DeviceInfo) bool {
 
 func isBitBox02(deviceInfo hid.DeviceInfo) bool {
 	return deviceInfo.Product == "BitBox" && deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+}
+
+func isBitBox02Bootloader(deviceInfo hid.DeviceInfo) bool {
+	return deviceInfo.Product == "bb02-bootloader" && deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
 }
 
 // DeviceInfos returns a slice of all found bitbox devices.
@@ -55,7 +63,7 @@ func DeviceInfos() []hid.DeviceInfo {
 		if deviceInfo.Serial == "" || deviceInfo.Product == "" {
 			continue
 		}
-		if isBitBox(deviceInfo) || isBitBox02(deviceInfo) {
+		if isBitBox(deviceInfo) || isBitBox02(deviceInfo) || isBitBox02Bootloader(deviceInfo) {
 			deviceInfos = append(deviceInfos, deviceInfo)
 		}
 	}
@@ -111,6 +119,20 @@ func deviceInfoLogFields(deviceInfo hid.DeviceInfo) logrus.Fields {
 	}
 }
 
+func (manager *Manager) parseVersion(serial string) (*semver.SemVer, error) {
+	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(serial)
+	if len(match) != 2 {
+		manager.log.WithField("serial", serial).Error("Serial number is malformed")
+		return nil, errp.Newf("Could not find the firmware version in '%s'.", serial)
+	}
+	version, err := semver.NewSemVerFromString(match[1])
+	if err != nil {
+		return nil, errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
+			errp.Context{"serial": serial})
+	}
+	return version, err
+}
+
 func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, error) {
 	deviceID := deviceIdentifier(deviceInfo)
 	manager.log.
@@ -118,38 +140,31 @@ func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, e
 		WithFields(deviceInfoLogFields(deviceInfo)).
 		Info("Registering BitBox")
 	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
-	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
-	if len(match) != 2 {
-		manager.log.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
-		return nil, errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
-	}
-	firmwareVersion, err := semver.NewSemVerFromString(match[1])
+	version, err := manager.parseVersion(deviceInfo.Serial)
 	if err != nil {
-		return nil, errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
-			errp.Context{"serial": deviceInfo.Serial})
+		return nil, err
 	}
-
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
 	usbWriteReportSize := 64
 	usbReadReportSize := 64
-	if bootloader && !firmwareVersion.AtLeast(semver.NewSemVer(3, 0, 0)) {
+	if bootloader && !version.AtLeast(semver.NewSemVer(3, 0, 0)) {
 		// Bootloader 3.0.0 changed to composite USB. Since then, the report lengths are 65/65,
 		// not 4099/256 (including report ID).  See dev->output_report_length at
 		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
 		usbWriteReportSize = 4098
 		usbReadReportSize = 256
 	}
-	hmac := firmwareVersion.AtLeast(semver.NewSemVer(5, 0, 0))
+	hmac := version.AtLeast(semver.NewSemVer(5, 0, 0))
 	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d, hmac=%v", usbWriteReportSize, usbReadReportSize, hmac)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
-		firmwareVersion,
+		version,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, hmac),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, hmac),
 	)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to establish communication to device")
@@ -173,18 +188,10 @@ func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Devic
 		WithField("device-id", deviceID).
 		WithFields(deviceInfoLogFields(deviceInfo)).
 		Info("Registering BitBox02")
-	bootloader := deviceInfo.Product == "bootloader"
-	match := regexp.MustCompile(`v([0-9]+\.[0-9]+\.[0-9]+)`).FindStringSubmatch(deviceInfo.Serial)
-	if len(match) != 2 {
-		manager.log.WithField("serial", deviceInfo.Serial).Error("Serial number is malformed")
-		return nil, errp.Newf("Could not find the firmware version in '%s'.", deviceInfo.Serial)
-	}
-	firmwareVersion, err := semver.NewSemVerFromString(match[1])
+	version, err := manager.parseVersion(deviceInfo.Serial)
 	if err != nil {
-		return nil, errp.WithContext(errp.WithMessage(err, "Failed to read version from serial number"),
-			errp.Context{"serial": deviceInfo.Serial})
+		return nil, err
 	}
-
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
@@ -194,9 +201,34 @@ func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Devic
 	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02.NewDevice(
 		deviceID,
-		bootloader,
-		firmwareVersion,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, false),
+		version,
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, false),
+	), nil
+}
+
+func (manager *Manager) makeBitBox02Bootloader(deviceInfo hid.DeviceInfo) (
+	*bitbox02bootloader.Device, error) {
+	deviceID := deviceIdentifier(deviceInfo)
+	manager.log.
+		WithField("device-id", deviceID).
+		WithFields(deviceInfoLogFields(deviceInfo)).
+		Info("Registering BitBox02 bootloader")
+	version, err := manager.parseVersion(deviceInfo.Serial)
+	if err != nil {
+		return nil, err
+	}
+
+	hidDevice, err := deviceInfo.Open()
+	if err != nil {
+		return nil, errp.WithMessage(err, "Failed to open device")
+	}
+	usbWriteReportSize := 64
+	usbReadReportSize := 64
+	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
+	return bitbox02bootloader.NewDevice(
+		deviceID,
+		version,
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD, false),
 	), nil
 }
 
@@ -250,6 +282,13 @@ func (manager *Manager) listen() {
 				device, err = manager.makeBitBox02(deviceInfo)
 				if err != nil {
 					manager.log.WithError(err).Error("Failed to register bitbox02")
+					continue
+				}
+			case isBitBox02Bootloader(deviceInfo):
+				var err error
+				device, err = manager.makeBitBox02Bootloader(deviceInfo)
+				if err != nil {
+					manager.log.WithError(err).Error("Failed to register bitbox02 bootloader")
 					continue
 				}
 			default:

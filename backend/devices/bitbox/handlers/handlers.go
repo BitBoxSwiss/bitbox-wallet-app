@@ -63,7 +63,7 @@ func NewHandlers(
 	handleFunc func(string, func(*http.Request) (interface{}, error)) *mux.Route,
 	log *logrus.Entry,
 ) *Handlers {
-	handlers := &Handlers{log: log}
+	handlers := &Handlers{log: log.WithField("device", "bitbox")}
 
 	handleFunc("/status", handlers.getDeviceStatusHandler).Methods("GET")
 	handleFunc("/bootloader-status", handlers.getBootloaderStatusHandler).Methods("GET")

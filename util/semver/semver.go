@@ -35,8 +35,10 @@ func NewSemVer(major uint16, minor uint16, patch uint16) *SemVer {
 	return &SemVer{major, minor, patch}
 }
 
-// NewSemVerFromString creates a new SemVer from the given version string and returns an error on failure.
+// NewSemVerFromString creates a new SemVer from the given version string and returns an error on
+// failure.
 func NewSemVerFromString(versionString string) (*SemVer, error) {
+	versionString = strings.TrimPrefix(versionString, "v")
 	splits := strings.Split(versionString, ".")
 	if len(splits) != 3 {
 		return nil, errp.New("The version format has to be 'major.minor.patch'.")

@@ -25,6 +25,7 @@ message DeviceInfoResponse {
     bool initialized = 2;
     string version = 3;
     bool mnemonic_passphrase_enabled = 4;
+    uint32 monotonic_increments_remaining = 5;
 }
 
 message SetDeviceNameRequest {
@@ -158,6 +159,23 @@ message SetMnemonicPassphraseEnabledRequest {
   bool enabled = 1;
 }
 
+message PerformAttestationRequest {
+  // 32 bytes challenge.
+  bytes challenge = 1;
+}
+
+message PerformAttestationResponse {
+  bytes bootloader_hash = 1;
+  bytes device_pubkey = 2;
+  bytes certificate = 3;
+  bytes root_pubkey_identifier = 4;
+  bytes challenge_signature = 5;
+}
+
+message RebootRequest {
+
+}
+
 message Request {
     oneof request {
         RandomNumberRequest random_number = 1;
@@ -175,6 +193,8 @@ message Request {
         SetMnemonicPassphraseEnabledRequest set_mnemonic_passphrase_enabled = 13;
         ListBackupsRequest list_backups = 14;
         RestoreBackupRequest restore_backup = 15;
+        PerformAttestationRequest perform_attestation = 16;
+        RebootRequest reboot = 17;
     }
 }
 
@@ -187,5 +207,6 @@ message Response {
         PubResponse pub = 5;
         BTCSignNextResponse btc_sign_next = 6;
         ListBackupsResponse list_backups = 7;
+        PerformAttestationResponse perform_attestation = 8;
     }
 }
