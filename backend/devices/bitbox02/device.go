@@ -42,6 +42,11 @@ import (
 
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
+var (
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(0, 0, 1)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(1, 0, 0)
+)
+
 // ProductName is the name of the BitBox02 product.
 const ProductName = "bitbox02"
 
@@ -62,8 +67,11 @@ const (
 
 // Device provides the API to communicate with the BitBox02.
 type Device struct {
-	deviceID                  string
-	communication             Communication
+	deviceID      string
+	communication Communication
+	// firmware version.
+	version *semver.SemVer
+
 	channelHash               string
 	channelHashAppVerified    bool
 	channelHashDeviceVerified bool
@@ -95,9 +103,15 @@ func NewDevice(
 	return &Device{
 		deviceID:      deviceID,
 		communication: communication,
+		version:       version,
 		status:        StatusUnpaired,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
+}
+
+// Version returns the firmware version.
+func (device *Device) Version() *semver.SemVer {
+	return device.version
 }
 
 func (device *Device) readFrame() ([]byte, error) {
@@ -110,6 +124,11 @@ func (device *Device) readFrame() ([]byte, error) {
 
 // Init implements device.Device.
 func (device *Device) Init(testing bool) {
+	if device.version.AtLeast(lowestNonSupportedFirmwareVersion) {
+		device.changeStatus(StatusRequireAppUpgrade)
+		return
+	}
+
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
 	if err != nil {
@@ -468,6 +487,11 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	}
 	device.channelHashAppVerified = ok
 	if ok {
+		if !device.version.AtLeast(lowestSupportedFirmwareVersion) {
+			device.changeStatus(StatusRequireFirmwareUpgrade)
+			return
+		}
+
 		info, err := device.DeviceInfo()
 		if err != nil {
 			device.log.WithError(err).Error("could not get device info")

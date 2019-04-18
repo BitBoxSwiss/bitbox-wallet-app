@@ -18,9 +18,9 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
+import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox } from '../../icon/logo';
-import * as style from './style.css';
 
 interface BitBox02BootloaderProps {
     deviceID: string;
@@ -127,15 +127,13 @@ class BitBox02Bootloader extends Component<Props, State> {
             );
         }
         return (
-            <div class="content">
-                <div className={[style.container].join(' ')}>
-                    <BitBox />
-                    <div style="margin: 1rem; min-height: 5rem;">
-                        {upgradeOrStatus}
-                        <p>{status.errMsg}</p>
-                    </div>
+            <CenteredContent>
+                <BitBox />
+                <div style="margin: 1rem; min-height: 5rem;">
+                    {upgradeOrStatus}
+                    <p>{status.errMsg}</p>
                 </div>
-            </div>
+            </CenteredContent>
         );
     }
 }

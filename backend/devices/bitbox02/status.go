@@ -36,4 +36,11 @@ const (
 	// StatusInitialized means the device is seeded and the backup was created, and the device is
 	// unlocked. The keystore is ready to use.
 	StatusInitialized Status = "initialized"
+
+	// StatusRequireFirmwareUpgrade means that the a firmware upgrade is required before being able
+	// to proceed to StatusLoggedIn or StatusSeeded (firmware version too old).
+	StatusRequireFirmwareUpgrade Status = "require_firmware_upgrade"
+
+	// StatusRequireAppUpgrade means that the an app upgrade is required (firmware version too new).
+	StatusRequireAppUpgrade Status = "require_app_upgrade"
 )

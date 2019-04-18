@@ -31,6 +31,7 @@ import (
 
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
+	Version() *semver.SemVer
 	Status() bitbox02.Status
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
@@ -229,14 +230,7 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 }
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
-	info, err := handlers.device.DeviceInfo()
-	if err != nil {
-		return maybeBB02Err(err, handlers.log), nil
-	}
-	currentVersion, err := semver.NewSemVerFromString(info.Version)
-	if err != nil {
-		return nil, err
-	}
+	currentVersion := handlers.device.Version()
 	newVersion := bitbox02bootloader.BundledFirmwareVersion()
 	return map[string]interface{}{
 		"currentVersion": currentVersion.String(),

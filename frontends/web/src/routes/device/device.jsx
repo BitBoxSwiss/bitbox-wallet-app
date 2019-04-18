@@ -16,6 +16,7 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
+import { AppUpgradeRequired } from '../../components/appupgraderequired';
 import { apiGet } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import Unlock from './unlock';
@@ -28,8 +29,6 @@ import SeedRestore from './setup/seed-restore';
 import { Initialize } from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
-import A from '../../components/anchor/anchor';
-import * as style from './device.css';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -126,7 +125,6 @@ export default class Device extends Component {
     }
 
     render({
-        t,
         deviceID,
     }, {
         deviceRegistered,
@@ -146,16 +144,7 @@ export default class Device extends Component {
         case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
             return <RequireUpgrade deviceID={deviceID} />;
         case DeviceStatus.REQUIRE_APP_UPGRADE:
-            return (
-                <div class="contentWithGuide">
-                    <div className={style.container}>
-                        {t('device.appUpradeRequired')}
-                        <A href="https://shiftcrypto.ch/start">
-                            {t('button.download')}
-                        </A>
-                    </div>
-                </div>
-            );
+            return <AppUpgradeRequired/>;
         case DeviceStatus.INITIALIZED:
             return <Unlock deviceID={deviceID} />;
         case DeviceStatus.UNINITIALIZED:
