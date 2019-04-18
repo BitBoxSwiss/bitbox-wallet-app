@@ -36,11 +36,16 @@ type Props = UpgradeButtonProps & TranslateProps;
 
 interface State {
     activeDialog: boolean;
+    confirming: boolean;
 }
 
 class UpgradeButton extends Component<Props, State> {
     private upgradeFirmware = () => {
-        apiPost(this.props.apiPrefix + '/upgrade-firmware');
+        this.setState({ confirming: true });
+        apiPost(this.props.apiPrefix + '/upgrade-firmware').then(() => {
+            this.setState({ confirming: false });
+            this.abort();
+        });
     }
 
     private abort = () => {
@@ -52,6 +57,7 @@ class UpgradeButton extends Component<Props, State> {
           versionInfo,
         }: RenderableProps<Props>,
         { activeDialog,
+          confirming,
         }: State,
     ) {
         if (!versionInfo || !versionInfo.canUpgrade) {
@@ -66,20 +72,27 @@ class UpgradeButton extends Component<Props, State> {
                 {
                     activeDialog && (
                         <Dialog
-                            title={t('upgradeFirmware.title')}
-                            onClose={this.abort}>
+                        title={t('upgradeFirmware.title')}
+                        onClose={this.abort}>
+                        { confirming ? t('confirmOnDevice') : (
                             <p>{t('upgradeFirmware.description', {
                                     currentVersion: versionInfo.currentVersion,
                                     newVersion: versionInfo.newVersion,
                             })}</p>
+                        )}
+                        { !confirming && (
                             <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
+
                                 <Button secondary onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
-                                <Button primary onClick={this.upgradeFirmware}>
+                                <Button
+                                    primary
+                                    onClick={this.upgradeFirmware}>
                                     {t('button.upgrade')}
                                 </Button>
                             </div>
+                        )}
                         </Dialog>
                     )
                 }
