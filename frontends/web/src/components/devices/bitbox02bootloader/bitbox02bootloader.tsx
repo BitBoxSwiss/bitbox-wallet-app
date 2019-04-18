@@ -86,6 +86,10 @@ class BitBox02Bootloader extends Component<Props, State> {
         apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/upgrade-firmware');
     }
 
+    private reboot = () => {
+        apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/reboot');
+    }
+
     public render(
         { t }: RenderableProps<Props>,
         { status }: State,
@@ -107,11 +111,19 @@ class BitBox02Bootloader extends Component<Props, State> {
             }
         } else {
             upgradeOrStatus = (
-                <Button
-                    primary
-                    onClick={this.upgradeFirmware}>
-                    {t('bootloader.button')}
-                </Button>
+                <div style="text-align:center;">
+                    <Button
+                        primary
+                        onClick={this.upgradeFirmware}>
+                        {t('bootloader.button')}
+                    </Button>
+                    <br/><br/>
+                    <Button
+                        secondary
+                        onClick={this.reboot}>
+                        {t('bb02Bootloader.abort')}
+                    </Button>
+                </div>
             );
         }
         return (
