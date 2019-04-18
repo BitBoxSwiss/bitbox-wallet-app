@@ -148,6 +148,10 @@ class BitBox02 extends Component<Props, State> {
         apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
     }
 
+    private uninitializedStep = () => {
+        this.setState({ appStatus: ''});
+    }
+
     private createWalletStep = () => {
         this.setState({ appStatus: 'createWallet' });
     }
@@ -374,6 +378,14 @@ class BitBox02 extends Component<Props, State> {
                                             deviceID={deviceID}
                                             showRestore={true}
                                         />
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.uninitializedStep}
+                                            disabled={settingPassword}>
+                                            Back
+                                        </button>
                                     </div>
                                 </Step> : ''}
                             <Step
