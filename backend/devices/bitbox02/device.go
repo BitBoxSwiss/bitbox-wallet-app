@@ -18,7 +18,8 @@ package bitbox02
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/hex"
+	"encoding/base32"
+	"fmt"
 	"math/big"
 	"sync"
 	"time"
@@ -178,7 +179,14 @@ func (device *Device) Init(testing bool) {
 	if err := device.communication.SendFrame(string(msg)); err != nil {
 		panic(err)
 	}
-	device.channelHash = hex.EncodeToString(handshake.ChannelBinding()[:8])
+
+	channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
+	device.channelHash = fmt.Sprintf(
+		"%s %s\n%s %s",
+		channelHashBase32[:5],
+		channelHashBase32[5:10],
+		channelHashBase32[10:15],
+		channelHashBase32[15:20])
 	go func() {
 		response, err := device.readFrame()
 		if err != nil {
