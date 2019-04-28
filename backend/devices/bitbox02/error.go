@@ -18,22 +18,13 @@ import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
 const (
 	// 100 errors are reserved for errors coming from the device firmware
-	// Difference namespace should be used for local app errors
+	// Different namespace should be used for local app errors
 
 	// ErrInvalidInput is returned when the request sends and invalid or unexpected input
 	ErrInvalidInput = 101
 
-	// ErrMemory is returned when an an error occurs during memory handling in the commander
-	ErrMemory = 102
-
-	// ErrTouchButton TODO: currently not returned anywhere
-	ErrTouchButton = 103
-
-	// ErrSetPW is returned by SetPassword() if the two user passwords did not match.
-	ErrSetPW = 104
-
 	// ErrUserAbort is returned when the user aborts an action on the device.
-	ErrUserAbort = 108
+	ErrUserAbort = 104
 )
 
 // Error wraps an error from bitbox02.
