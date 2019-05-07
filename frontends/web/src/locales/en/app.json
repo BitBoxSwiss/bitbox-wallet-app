@@ -57,7 +57,6 @@
     "check": {
       "checking": "Checking backup…",
       "confirmTitle": "Check Backup",
-      "failure": "Backup integrity could not be verified. Please create a new backup",
       "notOK": "Backup does NOT match the wallet.",
       "ok": "Backup matches the wallet.",
       "password": {
@@ -65,7 +64,7 @@
         "placeholder": "Recovery password",
         "showLabel": "recovery password"
       },
-      "success": "Backup verified successfuly.",
+      "success": "Successfully verified backup with ID:\n",
       "title": "Check Backup"
     },
     "create": {
@@ -84,6 +83,7 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
+    "list": "Found the <strong>following backups</strong> on this SD card:",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",

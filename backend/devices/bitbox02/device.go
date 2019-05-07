@@ -464,8 +464,8 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	return backups, nil
 }
 
-// CheckBackup checks the integrity of backups and if they are restorable
-func (device *Device) CheckBackup() error {
+// CheckBackup checks if any backup on the SD card matches the current seed on the device
+func (device *Device) CheckBackup() (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_CheckBackup{
 			CheckBackup: &messages.CheckBackupRequest{},
@@ -473,13 +473,13 @@ func (device *Device) CheckBackup() error {
 	}
 	response, err := device.query(request)
 	if err != nil {
-		return err
+		return "", err
 	}
-	_, ok := response.Response.(*messages.Response_Success)
+	backupID, ok := response.Response.(*messages.Response_CheckBackup)
 	if !ok {
-		return errp.New("unexpected response")
+		return "", errp.New("unexpected response")
 	}
-	return nil
+	return backupID.CheckBackup.Id, nil
 }
 
 // RestoreBackup restores a backup returned by ListBackups (id).

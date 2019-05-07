@@ -16,13 +16,14 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import { apiGet } from '../../../utils/request';
+import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { Button } from '../../forms';
 import Spinner from '../../spinner/Spinner';
 
 interface CheckProps {
     deviceID: string;
+    disabled: boolean;
 }
 
 type Props = CheckProps & TranslateProps;
@@ -39,12 +40,13 @@ class Check extends Component<Props, State> {
     };
 
     private checkBackup = () => {
-        apiGet('devices/bitbox02/' + this.props.deviceID + '/backups/check').then(({ success }) => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check').then(({ backupID, success }) => {
             let message;
-            if (!success) {
-                message = this.props.t('backup.check.failure');
+            if (success && backupID) {
+                message = this.props.t('backup.check.success') + backupID;
+            } else {
+                message = this.props.t('backup.check.notOK');
             }
-            message = this.props.t('backup.check.success');
             this.setState({ message });
         });
     }
@@ -58,6 +60,7 @@ class Check extends Component<Props, State> {
             <div>
                 <Button
                     secondary
+                    disabled={this.props.disabled}
                     onClick={() => {this.checkBackup(); this.setState({ activeDialog: true }); }}>
                     {t('button.check')}
                 </Button>
@@ -65,7 +68,8 @@ class Check extends Component<Props, State> {
                     activeDialog && (
                         <Dialog
                         title={t('backup.check.title')}
-                        onClose={this.abort}>
+                        onClose={this.abort}
+                        large={true}>
                             { message ? (
                                 <div>
                                     <p style="min-height: 3rem;">{message}</p>

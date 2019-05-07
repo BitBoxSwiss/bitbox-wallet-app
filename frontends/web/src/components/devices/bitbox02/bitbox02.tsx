@@ -56,7 +56,7 @@ interface State {
     restoreBackupStatus: 'intro' | 'restore';
     settingPassword: boolean;
     creatingBackup: boolean;
-    sdCardInserted: boolean;
+    sdCardInserted?: boolean;
     errorText?: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
@@ -72,7 +72,7 @@ class BitBox02 extends Component<Props, State> {
             status: '',
             settingPassword: false,
             creatingBackup: false,
-            sdCardInserted: false,
+            sdCardInserted: undefined,
             appStatus: '',
             createWalletStatus: 'intro',
             restoreBackupStatus: 'intro',
@@ -87,6 +87,7 @@ class BitBox02 extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
+        this.checkSDCardInserted();
         this.onChannelHashChanged();
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
@@ -158,6 +159,10 @@ class BitBox02 extends Component<Props, State> {
 
     private restoreBackupStep = () => {
         this.setState({ appStatus: 'restoreBackup' });
+    }
+
+    private checkSDCardInserted = () => {
+        apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
     private insertSDCard = () => {
@@ -264,6 +269,7 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status === 'uninitialized' && appStatus === ''}
                                     title="Initialize your BitBox">
+                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.standOut}>
                                         <img src={infoIcon} />
                                         <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
@@ -275,12 +281,13 @@ class BitBox02 extends Component<Props, State> {
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.createWalletStep}
-                                            disabled={settingPassword}>
+                                            disabled={settingPassword || !sdCardInserted}>
                                             Create Wallet
                                     </button>
                                         <button
                                             className={[style.button, style.secondary].join(' ')}
-                                            onClick={this.restoreBackupStep}>
+                                            onClick={this.restoreBackupStep}
+                                            disabled={!sdCardInserted}>
                                             Restore Backup
                                     </button>
                                     </div>
@@ -347,7 +354,6 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status !== 'initialized' && restoreBackupStatus === 'intro'}
                                     title="Restore Backup">
-                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.stepContext}>
                                         <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
                                         <ul>
@@ -362,10 +368,9 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.buttons}>
                                         <button
-                                            disabled={!sdCardInserted}
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.restoreBackup}>
-                                            {sdCardInserted ? 'Name Device & Continue' : 'Insert SD Card with Backup'}
+                                            Name Device & Continue
                                         </button>
                                     </div>
                                 </Step> : ''}

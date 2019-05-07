@@ -100,17 +100,26 @@ class Backups extends Component<Props, State> {
                     )
                 }
                 <div class={backupStyle.backupsList}>
-                    <SimpleMarkup tagName="p" markup={t('backup.description')} />
                     {
-                        backups.backups!.length ? backups.backups!.map(backup => (
-                            <BackupsListItem
-                                key={backup.id}
-                                disabled={restoring}
-                                backup={backup}
-                                selectedBackup={selectedBackup}
-                                handleChange={(b => this.setState({ selectedBackup: b }))}
-                                onFocus={() => undefined}/>
-                        )) : (
+                    backups.backups!.length ?
+                        (
+                            <div>
+                                <SimpleMarkup tagName="p" markup={t('backup.list')} />
+                                {backups.backups!.map(backup => (
+                                    <table className={style.table}>
+                                        <BackupsListItem
+                                            key={backup.id}
+                                            disabled={restoring}
+                                            backup={backup}
+                                            selectedBackup={selectedBackup}
+                                            handleChange={(b => this.setState({ selectedBackup: b }))}
+                                            onFocus={() => undefined}
+                                            radio={false} />
+                                    </table>
+                                )) }
+                            </div>
+                        ) :
+                        (
                             <p>
                                 {t('backup.noBackups')}
                             </p>
@@ -131,7 +140,10 @@ class Backups extends Component<Props, State> {
                     }
                     {
                         showCreate && (
-                            <Check deviceID={deviceID} />
+                            <Check
+                                deviceID={deviceID}
+                                disabled={backups.backups!.length === 0}
+                            />
                         )
                     }
                     {
