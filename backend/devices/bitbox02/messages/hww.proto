@@ -1,3 +1,17 @@
+// Copyright 2019 Shift Cryptosecurity AG
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 // Device intialization and Request random number
 
 syntax = "proto3";
@@ -37,6 +51,7 @@ message SetDeviceLanguageRequest {
 }
 
 message SetPasswordRequest {
+    bytes entropy = 1;
 }
 
 message CreateBackupRequest {
@@ -53,6 +68,13 @@ message RestoreBackupRequest {
 message ListBackupsRequest {
 }
 
+message CheckBackupRequest {
+}
+
+message CheckBackupResponse {
+  string id = 1;
+}
+
 message ShowMnemonicRequest {
 }
 
@@ -62,6 +84,13 @@ message InsertRemoveSDCardRequest {
     INSERT_CARD = 1;
   }
   SDCardAction action = 1;
+}
+
+message CheckSDCardRequest {
+}
+
+message CheckSDCardResponse {
+  bool inserted = 1;
 }
 
 enum BTCCoin {
@@ -190,11 +219,13 @@ message Request {
         BTCSignInputRequest btc_sign_input = 10;
         BTCSignOutputRequest btc_sign_output = 11;
         InsertRemoveSDCardRequest insert_remove_sdcard = 12;
-        SetMnemonicPassphraseEnabledRequest set_mnemonic_passphrase_enabled = 13;
-        ListBackupsRequest list_backups = 14;
-        RestoreBackupRequest restore_backup = 15;
-        PerformAttestationRequest perform_attestation = 16;
-        RebootRequest reboot = 17;
+        CheckSDCardRequest check_sdcard = 13;
+        SetMnemonicPassphraseEnabledRequest set_mnemonic_passphrase_enabled = 14;
+        ListBackupsRequest list_backups = 15;
+        RestoreBackupRequest restore_backup = 16;
+        PerformAttestationRequest perform_attestation = 17;
+        RebootRequest reboot = 18;
+        CheckBackupRequest check_backup = 19;
     }
 }
 
@@ -207,6 +238,8 @@ message Response {
         PubResponse pub = 5;
         BTCSignNextResponse btc_sign_next = 6;
         ListBackupsResponse list_backups = 7;
-        PerformAttestationResponse perform_attestation = 8;
+        CheckBackupResponse check_backup = 8;
+        PerformAttestationResponse perform_attestation = 9;
+        CheckSDCardResponse check_sdcard = 10;
     }
 }
