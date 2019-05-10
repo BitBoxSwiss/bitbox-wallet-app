@@ -29,7 +29,7 @@
     "name": "Nome da conta",
     "noAccount": "Não há contas para mostrar.",
     "synchronizing": "Sincronizando contas com suas blockchains:",
-    "title": "Resumo da conta",
+    "title": "Resumo das contas",
     "total": "Total"
   },
   "addAccount": {
@@ -414,7 +414,7 @@
           "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
         },
         "text": "Esta é uma conta segwit compatível com versões anteriores (p2sh-p2wpkh). Ela usa um novo formato de transação que economiza taxas de rede. O formato do endereço é semelhante ao legacy e, como tal, pode ser usado com todas as carteiras/trocas/serviços Bitcoin existentes.",
-        "title": "Qual é a conta Bitcoin?"
+        "title": "O que é a conta Bitcoin?"
       },
       "btc-p2wpkh": {
         "link": {
@@ -814,7 +814,7 @@
   "unlock": {
     "description": "Digite a senha do dispositivo para desbloqueá-lo.",
     "error": {
-      "e109_normal": "Senha do dispositivo errada. {{restantesAttempts}} tentativas restantes antes que o dispositivo seja resetado.",
+      "e109_normal": "Senha do dispositivo errada. {{remainingAttempts}} tentativas restantes antes que o dispositivo seja resetado.",
       "e109_touch": "$t(unlock.error.e109_normal) O próximo login requer que segure o botão touch.",
       "e113": "Devido a muitas tentativas de login, o próximo login requer que o botão touch seja pressionado por 4 segundos."
     },
@@ -841,7 +841,7 @@
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
   },
   "welcome": {
-    "insertDevice": "Por favor, conecte seu dispositivo para começar",
+    "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
     "title": "Bem-vindo"
   }
 }
