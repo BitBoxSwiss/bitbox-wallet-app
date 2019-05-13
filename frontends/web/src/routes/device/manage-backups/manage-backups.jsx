@@ -17,14 +17,14 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { ButtonLink } from '../../../components/forms';
+import { ButtonLink, Button } from '../../../components/forms';
 import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
 import * as styles from './manage-backups.css';
 import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
-import { apiPost } from '../../../utils/request';
+import { apiGet } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
 
 @translate()
@@ -73,18 +73,23 @@ export default class ManageBackups extends Component {
                     <BackupsV2
                         deviceID={this.props.deviceID}
                         showCreate={true}
-                        showRestore={false}>
+                        showRestore={false}
+                        showRadio={false}>
                         {this.backButton()}
                     </BackupsV2> :
                     <div>
-                        {this.insertBB02SDCard()}
                         {
                             this.state.activeDialog &&
                             <Dialog>
                                 <div>
                                     <p style="text-align:center; min-height: 3rem;">{this.props.t('backup.insert')}</p>
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-start'].join(' ')}>
+                                    <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
                                         {this.backButton()}
+                                        <Button
+                                            primary
+                                            onClick={this.checkBB02SDCard}>
+                                            {this.props.t('button.ok')}
+                                        </Button>
                                     </div>
                                 </div>
                             </Dialog>
@@ -96,12 +101,8 @@ export default class ManageBackups extends Component {
         }
     }
 
-    insertBB02SDCard = () => {
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success }) => {
-            if (success) {
-                this.setState({ sdCardInserted: true });
-            }
-        });
+    checkBB02SDCard = () => {
+        apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
     render({ t }, { }) {
