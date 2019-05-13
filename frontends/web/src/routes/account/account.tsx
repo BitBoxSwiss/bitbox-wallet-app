@@ -167,6 +167,10 @@ class Account extends Component<Props, State> {
             return;
         }
         apiGet(`account/${code}/status`).then(status => {
+            if (this.props.code !== code) {
+                // Results came in after the account was switched. Ignore.
+                return;
+            }
             const state = {
                 initialized: status.includes('accountSynced'),
                 connected: !status.includes('offlineMode'),
@@ -177,6 +181,10 @@ class Account extends Component<Props, State> {
             }
             if (state.initialized && !status.includes('accountDisabled')) {
                 apiGet(`account/${code}/info`).then(accountInfo => {
+                    if (this.props.code !== code) {
+                        // Results came in after the account was switched. Ignore.
+                        return;
+                    }
                     this.setState({ accountInfo });
                 });
             }
@@ -191,10 +199,19 @@ class Account extends Component<Props, State> {
             return;
         }
         if (this.state.initialized && this.state.connected) {
+            const expectedCode = this.props.code;
             apiGet(`account/${this.props.code}/balance`).then(balance => {
+                if (this.props.code !== expectedCode) {
+                    // Results came in after the account was switched. Ignore.
+                    return;
+                }
                 this.setState({ balance });
             });
             apiGet(`account/${this.props.code}/transactions`).then(transactions => {
+                if (this.props.code !== expectedCode) {
+                    // Results came in after the account was switched. Ignore.
+                    return;
+                }
                 this.setState({ transactions });
             });
         } else {
