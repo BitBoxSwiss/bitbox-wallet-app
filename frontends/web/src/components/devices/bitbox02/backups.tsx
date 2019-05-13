@@ -38,6 +38,7 @@ interface BackupsProps {
     deviceID: string;
     showRestore?: boolean;
     showCreate?: boolean;
+    showRadio: boolean;
 }
 
 type Props = LoadedBackupsProps & BackupsProps & TranslateProps;
@@ -80,6 +81,7 @@ class Backups extends Component<Props, State> {
           backups,
           showRestore,
           showCreate,
+          showRadio,
           deviceID,
         }: RenderableProps<Props>,
         { selectedBackup,
@@ -114,7 +116,7 @@ class Backups extends Component<Props, State> {
                                             selectedBackup={selectedBackup}
                                             handleChange={(b => this.setState({ selectedBackup: b }))}
                                             onFocus={() => undefined}
-                                            radio={false} />
+                                            radio={showRadio} />
                                     </table>
                                 )) }
                             </div>

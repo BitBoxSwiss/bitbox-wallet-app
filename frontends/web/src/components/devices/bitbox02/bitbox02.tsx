@@ -275,7 +275,7 @@ class BitBox02 extends Component<Props, State> {
                                         <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
                                     </div>
                                     <div className={style.stepContext}>
-                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. Please make sure you have a microSD card inserted in your BitBox.</p>
+                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox.</strong></p>
                                     </div>
                                     <div className={style.buttons}>
                                         <button
@@ -382,6 +382,7 @@ class BitBox02 extends Component<Props, State> {
                                         <BackupsV2
                                             deviceID={deviceID}
                                             showRestore={true}
+                                            showRadio={true}
                                         />
                                     </div>
                                     <div className={style.buttons}>
