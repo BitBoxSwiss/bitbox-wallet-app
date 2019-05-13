@@ -130,7 +130,8 @@ class Backups extends Component<Props, State> {
                                 backup={backup}
                                 selectedBackup={selectedBackup}
                                 handleChange={this.handleBackuplistChange}
-                                onFocus={this.scrollIntoView} />
+                                onFocus={this.scrollIntoView}
+                                radio={true} />
                         )) : (
                             <p class={style.emptyText}>
                                 {t('backup.noBackups')}

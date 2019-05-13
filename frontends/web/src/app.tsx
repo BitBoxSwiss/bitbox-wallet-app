@@ -181,7 +181,7 @@ class App extends Component<Props, State> {
                         {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                         {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
                         <ManageBackups
-                            path="/manage-backups/:deviceID"
+                            path="/manage-backups/:deviceID/:sdCardInserted?"
                             key={devices}
                             devices={devices}
                         />

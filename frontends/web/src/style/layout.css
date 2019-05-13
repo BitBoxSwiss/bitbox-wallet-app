@@ -31,6 +31,7 @@
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-rock); }
+.text-darkgray { color: var(--color-gray); }
 .text-black { color: var(--color-softblack); }
 .text-black + label {
     color: var(--color-softblack);

@@ -24,6 +24,7 @@ interface BackupsListItemProps {
     selectedBackup: string | undefined;
     handleChange: (value: string) => void;
     onFocus: ({ target }: { target: HTMLElement; }) => void;
+    radio: boolean;
 }
 
 export interface Backup {
@@ -36,7 +37,7 @@ type Props = BackupsListItemProps & TranslateProps;
 
 class BackupsListItem extends Component<Props> {
     public render(
-        { disabled, backup, selectedBackup, handleChange, onFocus }: RenderableProps<Props>,
+        { disabled, backup, selectedBackup, handleChange, onFocus, radio }: RenderableProps<Props>,
     ) {
         let date = '';
         if (backup.date && backup.date !== '') {
@@ -53,6 +54,7 @@ class BackupsListItem extends Component<Props> {
             date = 'unknown';
         }
         return (
+            radio ?
             <Radio
                 disabled={!!disabled}
                 checked={selectedBackup === backup.id}
@@ -63,7 +65,11 @@ class BackupsListItem extends Component<Props> {
                 onFocus={onFocus}
                 sizeMedium>
                 <span className="text-small text-gray">{date}</span>
-            </Radio>
+            </Radio> :
+            <tr>
+                <div className="text-medium text-darkgray">{backup.id}</div>
+                <div className="text-small text-gray">{date}</div>
+            </tr>
         );
     }
 }

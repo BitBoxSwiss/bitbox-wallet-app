@@ -403,7 +403,7 @@ func (device *Device) SetPassword() error {
 
 // CreateBackup is called after SetPassword() to create the backup.
 func (device *Device) CreateBackup() error {
-	if device.status != StatusSeeded {
+	if device.status != StatusSeeded && device.status != StatusInitialized {
 		return errp.New("invalid status")
 	}
 
@@ -462,6 +462,24 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 		}
 	}
 	return backups, nil
+}
+
+// CheckBackup checks if any backup on the SD card matches the current seed on the device
+func (device *Device) CheckBackup() (string, error) {
+	request := &messages.Request{
+		Request: &messages.Request_CheckBackup{
+			CheckBackup: &messages.CheckBackupRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return "", err
+	}
+	backupID, ok := response.Response.(*messages.Response_CheckBackup)
+	if !ok {
+		return "", errp.New("unexpected response")
+	}
+	return backupID.CheckBackup.Id, nil
 }
 
 // RestoreBackup restores a backup returned by ListBackups (id).
@@ -659,6 +677,24 @@ func (device *Device) BTCSign(
 			return signatures, nil
 		}
 	}
+}
+
+// CheckSDCard checks whether an sd card is inserted in the device
+func (device *Device) CheckSDCard() (bool, error) {
+	request := &messages.Request{
+		Request: &messages.Request_CheckSdcard{
+			CheckSdcard: &messages.CheckSDCardRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return false, err
+	}
+	sdCardInserted, ok := response.Response.(*messages.Response_CheckSdcard)
+	if !ok {
+		return false, errp.New("unexpected response")
+	}
+	return sdCardInserted.CheckSdcard.Inserted, nil
 }
 
 // InsertRemoveSDCard sends a command to the device to insert of remove the sd card based on the workflow state

@@ -29,7 +29,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
-import { Backups } from './backups';
+import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
@@ -56,7 +56,7 @@ interface State {
     restoreBackupStatus: 'intro' | 'restore';
     settingPassword: boolean;
     creatingBackup: boolean;
-    msdInserted: boolean;
+    sdCardInserted?: boolean;
     errorText?: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
@@ -72,7 +72,7 @@ class BitBox02 extends Component<Props, State> {
             status: '',
             settingPassword: false,
             creatingBackup: false,
-            msdInserted: false,
+            sdCardInserted: undefined,
             appStatus: '',
             createWalletStatus: 'intro',
             restoreBackupStatus: 'intro',
@@ -87,6 +87,7 @@ class BitBox02 extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
+        this.checkSDCardInserted();
         this.onChannelHashChanged();
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
@@ -148,12 +149,28 @@ class BitBox02 extends Component<Props, State> {
         apiPost(this.apiPrefix() + '/channel-hash-verify', ok);
     }
 
+    private uninitializedStep = () => {
+        this.setState({ appStatus: ''});
+    }
+
     private createWalletStep = () => {
         this.setState({ appStatus: 'createWallet' });
     }
 
     private restoreBackupStep = () => {
         this.setState({ appStatus: 'restoreBackup' });
+    }
+
+    private checkSDCardInserted = () => {
+        apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
+    }
+
+    private insertSDCard = () => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success }) => {
+            if (success) {
+                this.setState({ sdCardInserted: true });
+            }
+        });
     }
 
     private setPassword = () => {
@@ -182,7 +199,7 @@ class BitBox02 extends Component<Props, State> {
 
     private createBackup = () => {
         this.setState({ creatingBackup: true });
-        apiPost(this.apiPrefix() + '/create-backup').then(({ success }) => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
             if (!success) {
                 alertUser('creating backup failed, try again');
             }
@@ -192,7 +209,7 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard }: State,
+        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard, sdCardInserted }: State,
     ) {
         if (status === '') {
             return null;
@@ -252,23 +269,25 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status === 'uninitialized' && appStatus === ''}
                                     title="Initialize your BitBox">
+                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.standOut}>
                                         <img src={infoIcon} />
                                         <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
                                     </div>
                                     <div className={style.stepContext}>
-                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. Please make sure you have a microSD card inserted in your BitBox.</p>
+                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox.</strong></p>
                                     </div>
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.createWalletStep}
-                                            disabled={settingPassword}>
+                                            disabled={settingPassword || !sdCardInserted}>
                                             Create Wallet
                                     </button>
                                         <button
                                             className={[style.button, style.secondary].join(' ')}
-                                            onClick={this.restoreBackupStep}>
+                                            onClick={this.restoreBackupStep}
+                                            disabled={!sdCardInserted}>
                                             Restore Backup
                                     </button>
                                     </div>
@@ -360,10 +379,19 @@ class BitBox02 extends Component<Props, State> {
                                     active={status !== 'initialized' && restoreBackupStatus === 'restore'}
                                     title="Restore Backup">
                                     <div className={style.stepContext}>
-                                        <Backups
+                                        <BackupsV2
                                             deviceID={deviceID}
                                             showRestore={true}
+                                            showRadio={true}
                                         />
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            onClick={this.uninitializedStep}
+                                            disabled={settingPassword}>
+                                            Back
+                                        </button>
                                     </div>
                                 </Step> : ''}
                             <Step

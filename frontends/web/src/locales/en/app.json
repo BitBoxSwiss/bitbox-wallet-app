@@ -64,6 +64,7 @@
         "placeholder": "Recovery password",
         "showLabel": "recovery password"
       },
+      "success": "Successfully verified backup with ID:\n",
       "title": "Check Backup"
     },
     "create": {
@@ -82,6 +83,7 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
+    "list": "Found the <strong>following backups</strong> on this SD card:",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",

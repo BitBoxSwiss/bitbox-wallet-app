@@ -315,6 +315,11 @@
     color: #55A4D0;
 }
 
+.table {
+    width: 100%;
+    margin-bottom: var(--spacing-default);
+}
+
 @media (max-width: 1240px) {
     .stepContentContainer {
         margin-left: 0;

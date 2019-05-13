@@ -41,7 +41,9 @@ type BitBox02 interface {
 	SetPassword() error
 	CreateBackup() error
 	ListBackups() ([]*bitbox02.Backup, error)
+	CheckBackup() (string, error)
 	RestoreBackup(string) error
+	CheckSDCard() (bool, error)
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
@@ -67,9 +69,11 @@ func NewHandlers(
 	handleFunc("/info", handlers.getDeviceInfo).Methods("GET")
 	handleFunc("/set-device-name", handlers.postSetDeviceName).Methods("POST")
 	handleFunc("/set-password", handlers.postSetPassword).Methods("POST")
-	handleFunc("/create-backup", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/backups/create", handlers.postCreateBackup).Methods("POST")
+	handleFunc("/backups/check", handlers.postCheckBackup).Methods("POST")
 	handleFunc("/backups/list", handlers.getBackupsList).Methods("GET")
 	handleFunc("/backups/restore", handlers.postBackupsRestore).Methods("POST")
+	handleFunc("/check-sdcard", handlers.getCheckSDCard).Methods("GET")
 	handleFunc("/insert-sdcard", handlers.postInsertSDCard).Methods("POST")
 	handleFunc("/remove-sdcard", handlers.postRemoveSDCard).Methods("POST")
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
@@ -172,6 +176,18 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 	}, nil
 }
 
+func (handlers *Handlers) postCheckBackup(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Checking Backup")
+	backupID, err := handlers.device.CheckBackup()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":  true,
+		"backupID": backupID,
+	}, nil
+}
+
 func (handlers *Handlers) postBackupsRestore(r *http.Request) (interface{}, error) {
 	var backupID string
 	if err := json.NewDecoder(r.Body).Decode(&backupID); err != nil {
@@ -198,6 +214,15 @@ func (handlers *Handlers) postChannelHashVerify(r *http.Request) (interface{}, e
 	}
 	handlers.device.ChannelHashVerify(verify)
 	return nil, nil
+}
+
+func (handlers *Handlers) getCheckSDCard(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Checking if SD Card is inserted")
+	sdCardInserted, err := handlers.device.CheckSDCard()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return sdCardInserted, nil
 }
 
 func (handlers *Handlers) postInsertSDCard(r *http.Request) (interface{}, error) {
