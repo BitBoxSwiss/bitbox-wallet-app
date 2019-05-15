@@ -38,6 +38,7 @@ export default class SetDeviceName extends Component {
                 this.setState({
                     active: false,
                 });
+                this.props.getInfo();
             } else {
                 // @ts-ignore
                 alertUser('Device name could not be set');

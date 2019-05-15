@@ -32,6 +32,12 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
+    deviceInfo: {
+        name: string;
+        initialized: boolean;
+        version: string;
+        mnemonicPassphraseEnabled: boolean;
+    };
 }
 
 interface LoadedSettingsProps {
@@ -45,7 +51,14 @@ class Settings extends Component<Props, State> {
         return 'devices/bitbox02/' + this.props.deviceID;
     }
 
+    private getInfo = () => {
+        apiGet(this.apiPrefix() + '/info').then(deviceInfo => {
+            this.setState({ deviceInfo });
+        });
+    }
+
     public componentDidMount() {
+        this.getInfo();
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
@@ -59,12 +72,13 @@ class Settings extends Component<Props, State> {
         }: RenderableProps<Props>,
         {
             versionInfo,
+            deviceInfo,
         }: State,
     ) {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('sidebar.device')}</h2>} />
+                    <Header title={<h2>{t('sidebar.device')}{ deviceInfo && deviceInfo.name && `: ${deviceInfo.name}` }</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className={style.buttons}>
@@ -121,7 +135,7 @@ class Settings extends Component<Props, State> {
                                     </div>
                                 </div>
                                 <div className="items">
-                                    <SetDeviceName apiPrefix={this.apiPrefix()} />
+                                    <SetDeviceName apiPrefix={this.apiPrefix()} getInfo={this.getInfo} />
                                     <RandomNumber apiPrefix={this.apiPrefix()} />
                                 </div>
                             </div>
