@@ -20,6 +20,7 @@ import { Button, Input } from '../../forms';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { alertUser } from '../../alert/Alert';
+import * as dialogStyles from '../../dialog/dialog.css';
 
 @translate()
 export default class SetDeviceName extends Component {
@@ -70,13 +71,13 @@ export default class SetDeviceName extends Component {
                 </Button>
                 {
                     active ? (
-                        <Dialog onClose={this.abort}>
-                            <p>{t('deviceinfo.set-name')}</p>
-                            <Input label={t('deviceinfo.set-name')}
+                        <Dialog onClose={this.abort} title={t('deviceinfo.set-name')}>
+                            <Input
+                                label={t('deviceinfo.set-name')}
                                 onInput={this.handleChange}
                                 value={deviceName}
                                 id="deviceName" />
-                            <div class="flex flex-row flex-end flex-items-center">
+                            <div class={[dialogStyles.buttons, "flex flex-row flex-end flex-items-center"].join(' ')}>
                                 <Button primary onClick={this.setName}>{t('button.ok')}</Button>
                             </div>
                         </Dialog>
