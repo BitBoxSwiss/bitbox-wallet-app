@@ -23,7 +23,7 @@ import { alertUser } from '../../alert/Alert';
 import * as dialogStyles from '../../dialog/dialog.css';
 
 @translate()
-export default class SetDeviceName extends Component {
+export class SetDeviceName extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -35,9 +35,7 @@ export default class SetDeviceName extends Component {
     setName = () => {
         apiPost(this.props.apiPrefix + '/set-device-name', { name: this.state.deviceName }).then(result => {
             if (result.success) {
-                this.setState({
-                    active: false,
-                });
+                this.abort();
                 this.props.getInfo();
             } else {
                 // @ts-ignore
@@ -49,6 +47,7 @@ export default class SetDeviceName extends Component {
     setNameDialog = () => {
         this.setState({
             active: true,
+            deviceName: '',
         });
     }
 
@@ -60,26 +59,45 @@ export default class SetDeviceName extends Component {
     abort = () => {
         this.setState({
             active: false,
-            deviceName: '',
         });
+    }
+
+    validate = () => {
+        // @ts-ignore
+        if (!this.nameInput || !this.nameInput.validity.valid || !this.state.deviceName) {
+            return false;
+        }
+        return true;
     }
 
     render({ t }, { deviceName, active }) {
         return (
             <div>
                 <Button primary onClick={this.setNameDialog}>
-                    Set Device Name
+                    {t('bitbox02Settings.deviceName.title')}
                 </Button>
                 {
                     active ? (
-                        <Dialog onClose={this.abort} title={t('deviceinfo.set-name')}>
+                        <Dialog onClose={this.abort} title={t('bitbox02Settings.deviceName.title')}>
                             <Input
-                                label={t('deviceinfo.set-name')}
+                                pattern="^.{0,63}$"
+                                label={t('bitbox02Settings.deviceName.input')}
                                 onInput={this.handleChange}
+                                getRef={ref => this.nameInput = ref}
                                 value={deviceName}
                                 id="deviceName" />
-                            <div class={[dialogStyles.buttons, "flex flex-row flex-end flex-items-center"].join(' ')}>
-                                <Button primary onClick={this.setName}>{t('button.ok')}</Button>
+                            <div class={[dialogStyles.buttons, 'buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+                                <Button
+                                    secondary
+                                    onClick={this.abort}>
+                                    {t('button.back')}
+                                </Button>
+                                <Button
+                                    primary
+                                    disabled={!this.validate()}
+                                    onClick={this.setName}>
+                                    {t('button.ok')}
+                                </Button>
                             </div>
                         </Dialog>
                     ) : null

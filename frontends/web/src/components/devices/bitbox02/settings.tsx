@@ -22,8 +22,7 @@ import RandomNumber from '../../../routes/device/settings/components/randomnumbe
 import { apiGet } from '../../../utils/request';
 import { ButtonLink } from '../../forms';
 import { Header } from '../../layout/header';
-import DeviceInfo from './deviceinfo';
-import SetDeviceName from './setdevicename';
+import { SetDeviceName } from './setdevicename';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
 interface SettingsProps {
@@ -75,6 +74,9 @@ class Settings extends Component<Props, State> {
             deviceInfo,
         }: State,
     ) {
+        if (deviceInfo === undefined) {
+            return null;
+        }
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -91,7 +93,6 @@ class Settings extends Component<Props, State> {
                                     <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
                                         {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
-                                    <DeviceInfo apiPrefix={this.apiPrefix()} />
                                 </div>
                                 <hr />
                                 <div class="subHeaderContainer">
@@ -135,7 +136,9 @@ class Settings extends Component<Props, State> {
                                     </div>
                                 </div>
                                 <div className="items">
-                                    <SetDeviceName apiPrefix={this.apiPrefix()} getInfo={this.getInfo} />
+                                    <SetDeviceName
+                                        apiPrefix={this.apiPrefix()}
+                                        getInfo={this.getInfo} />
                                     <RandomNumber apiPrefix={this.apiPrefix()} />
                                 </div>
                             </div>

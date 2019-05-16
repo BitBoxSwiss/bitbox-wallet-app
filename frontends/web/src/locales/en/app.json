@@ -208,6 +208,12 @@
       "title": "Secrets"
     }
   },
+  "bitbox02Settings": {
+      "deviceName": {
+          "title": "Set Device Name",
+          "input": "Device Name"
+      }
+  },
   "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
   "dialog": {
     "cancel": "Cancel",
