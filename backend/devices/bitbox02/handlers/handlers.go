@@ -41,7 +41,7 @@ type BitBox02 interface {
 	SetPassword() error
 	CreateBackup() error
 	ListBackups() ([]*bitbox02.Backup, error)
-	CheckBackup() (string, error)
+	CheckBackup(bool) (string, error)
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
@@ -176,9 +176,13 @@ func (handlers *Handlers) getBackupsList(_ *http.Request) (interface{}, error) {
 	}, nil
 }
 
-func (handlers *Handlers) postCheckBackup(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) postCheckBackup(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Checking Backup")
-	backupID, err := handlers.device.CheckBackup()
+	jsonBody := map[string]bool{}
+	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	backupID, err := handlers.device.CheckBackup(jsonBody["silent"])
 	if err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}

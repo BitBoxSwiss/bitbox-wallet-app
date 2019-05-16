@@ -40,10 +40,12 @@ class Check extends Component<Props, State> {
     };
 
     private checkBackup = () => {
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check').then(({ backupID, success }) => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
+            silent: false,
+        }).then(({ backupID, success }) => {
             let message;
             if (success && backupID) {
-                message = this.props.t('backup.check.success') + backupID;
+                message = this.props.t('backup.check.success', { name: backupID });
             } else {
                 message = this.props.t('backup.check.notOK');
             }
