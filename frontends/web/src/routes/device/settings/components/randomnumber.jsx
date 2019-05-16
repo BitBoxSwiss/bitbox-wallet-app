@@ -27,15 +27,15 @@ export default class RandomNumber extends Component {
         super(props);
         this.state = {
             active: false,
-            number: 0,
+            number: undefined,
         };
     }
 
     getRandomNumber = () => {
-        apiPost(this.props.apiPrefix + '/random-number').then(num => {
+        apiPost(this.props.apiPrefix + '/random-number').then(number => {
             this.setState({
                 active: true,
-                number: num,
+                number,
             });
         });
     }
@@ -43,7 +43,7 @@ export default class RandomNumber extends Component {
     abort = () => {
         this.setState({
             active: false,
-            number: 0,
+            number: undefined,
         });
     }
 
@@ -54,9 +54,9 @@ export default class RandomNumber extends Component {
                     {t('random.button')}
                 </Button>
                 {
-                    active ? (
+                    active && number ? (
                         <Dialog onClose={this.abort}>
-                            <p>{t('random.description')}</p>
+                            <p>{t('random.description', { bits: number.length * 4 })}</p>
                             <CopyableInput value={number} />
                             <div class="flex flex-row flex-end flex-items-center">
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>

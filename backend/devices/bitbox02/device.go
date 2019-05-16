@@ -465,10 +465,12 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 }
 
 // CheckBackup checks if any backup on the SD card matches the current seed on the device
-func (device *Device) CheckBackup() (string, error) {
+func (device *Device) CheckBackup(silent bool) (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_CheckBackup{
-			CheckBackup: &messages.CheckBackupRequest{},
+			CheckBackup: &messages.CheckBackupRequest{
+				Silent: silent,
+			},
 		},
 	}
 	response, err := device.query(request)

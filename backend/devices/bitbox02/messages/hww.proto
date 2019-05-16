@@ -69,6 +69,7 @@ message ListBackupsRequest {
 }
 
 message CheckBackupRequest {
+    bool silent = 1;
 }
 
 message CheckBackupResponse {

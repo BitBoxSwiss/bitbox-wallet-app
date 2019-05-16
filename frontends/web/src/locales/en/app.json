@@ -64,10 +64,12 @@
         "placeholder": "Recovery password",
         "showLabel": "recovery password"
       },
-      "success": "Successfully verified backup with ID:\n",
+      "success": "Successfully verified backup: {{name}}",
       "title": "Check Backup"
     },
     "create": {
+      "alreadyExists": "You already have a valid backup. Do you wish to re-create it?",
+      "fail": "Creating the backup FAILED!",
       "info": "Please enter the recovery password of the current wallet for verification.",
       "name": {
         "label": "Backup Name",
@@ -112,6 +114,15 @@
       "e10001": "Failed to replace device password",
       "e102": "The password must consist of at least 8 characters.",
       "e112": "Hidden device password cannot be the same as the main device password."
+    }
+  },
+  "bitbox02Interact": {
+    "followInstructions": "Please follow the instructions on your BitBox."
+  },
+  "bitbox02Settings": {
+    "deviceName": {
+      "input": "Device Name",
+      "title": "Set Device Name"
     }
   },
   "blink": {
@@ -585,7 +596,7 @@
   },
   "random": {
     "button": "Generate Random Number",
-    "description": "Your BitBox generated the following 128-bit random number:"
+    "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
     "label": "Your address",
