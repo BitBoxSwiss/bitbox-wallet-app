@@ -20,6 +20,8 @@ import { Button } from '../../forms';
 import { apiGet } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { CopyableInput } from '../../copy/Copy';
+import * as dialogStyles from '../../dialog/dialog.css';
+import * as style from './deviceinfo.css';
 
 
 @translate()
@@ -56,12 +58,20 @@ export default class DeviceInfo extends Component {
                 </Button>
                 {
                     active ? (
-                        <Dialog onClose={this.abort}>
-                            <p>{t('deviceinfo.description')}</p>
-                            <CopyableInput value={deviceInfo.name} />
-                            <CopyableInput value={deviceInfo.version} />
-                            <CopyableInput value={deviceInfo.initialized} />
-                            <div class="flex flex-row flex-end flex-items-center">
+                        <Dialog onClose={this.abort} title={t('deviceinfo.description')}>
+                            <div>
+                                <label className={style.label}>Device Name</label>
+                                <CopyableInput value={deviceInfo.name} />
+                            </div>
+                            <div>
+                                <label className={style.label}>Firmware Version</label>
+                                <CopyableInput value={deviceInfo.version} />
+                            </div>
+                            <div>
+                                <label className={style.label}>Device Initialized Status</label>
+                                <CopyableInput value={deviceInfo.initialized} />
+                            </div>
+                            <div class={[dialogStyles.buttons, "flex flex-row flex-end flex-items-center"].join(' ')}>
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>
                             </div>
                         </Dialog>

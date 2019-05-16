@@ -32,6 +32,12 @@ interface SettingsProps {
 
 interface State {
     versionInfo?: VersionInfo;
+    deviceInfo: {
+        name: string;
+        initialized: boolean;
+        version: string;
+        mnemonicPassphraseEnabled: boolean;
+    };
 }
 
 interface LoadedSettingsProps {
@@ -45,56 +51,95 @@ class Settings extends Component<Props, State> {
         return 'devices/bitbox02/' + this.props.deviceID;
     }
 
+    private getInfo = () => {
+        apiGet(this.apiPrefix() + '/info').then(deviceInfo => {
+            this.setState({ deviceInfo });
+        });
+    }
+
     public componentDidMount() {
+        this.getInfo();
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
     }
 
     public render(
-        { deviceID,
-          sdCardInserted,
-          t,
+        {
+            deviceID,
+            sdCardInserted,
+            t,
         }: RenderableProps<Props>,
-        { versionInfo,
-        }: State) {
+        {
+            versionInfo,
+            deviceInfo,
+        }: State,
+    ) {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className={style.buttons}>
-                        <RandomNumber apiPrefix={this.apiPrefix()} />
-                        <DeviceInfo apiPrefix={this.apiPrefix()} />
-                        <SetDeviceName apiPrefix={this.apiPrefix()} />
-
-                        <dl class="items">
-                            <div>
-                                <dt>{t('deviceSettings.firmware.version.label')}</dt>
-                                <dd>{versionInfo ? versionInfo.currentVersion : t('loading')}</dd>
-                            </div>
-                            {versionInfo && versionInfo.canUpgrade && (
-                                <div>
-                                    <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
-                                    <dd>{versionInfo.newVersion}</dd>
+                    <Header title={<h2>{t('sidebar.device')}{ deviceInfo && deviceInfo.name && `: ${deviceInfo.name}` }</h2>} />
+                    <div class="innerContainer scrollableContainer">
+                        <div class="content padded">
+                            <div className={style.buttons}>
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>{t('deviceSettings.secrets.title')}</h3>
+                                    </div>
                                 </div>
-                            ) || (
-                                <div>
-                                    <dt></dt>
-                                    <dd>{t('deviceSettings.firmware.upToDate')}</dd>
+                                <div className="items">
+                                    <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
+                                        {t('deviceSettings.secrets.manageBackups')}
+                                    </ButtonLink>
+                                    <DeviceInfo apiPrefix={this.apiPrefix()} />
                                 </div>
-                            )}
-                        </dl>
-                        {versionInfo && versionInfo.canUpgrade && (
-                            <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
-                                <UpgradeButton
-                                    apiPrefix={this.apiPrefix()}
-                                    versionInfo={versionInfo}
-                                />
+                                <hr />
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>{t('deviceSettings.firmware.title')}</h3>
+                                    </div>
+                                </div>
+                                <dl class="items marginBottom">
+                                    <div>
+                                        <dt>{t('deviceSettings.firmware.version.label')}</dt>
+                                        <dd>{versionInfo ? versionInfo.currentVersion : t('loading')}</dd>
+                                    </div>
+                                    {
+                                        versionInfo && versionInfo.canUpgrade && (
+                                            <div>
+                                                <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
+                                                <dd>{versionInfo.newVersion}</dd>
+                                            </div>
+                                        ) || (
+                                            <div>
+                                                <dt></dt>
+                                                <dd>{t('deviceSettings.firmware.upToDate')}</dd>
+                                            </div>
+                                        )
+                                    }
+                                </dl>
+                                {
+                                    versionInfo && versionInfo.canUpgrade && (
+                                        <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
+                                            <UpgradeButton
+                                                apiPrefix={this.apiPrefix()}
+                                                versionInfo={versionInfo}
+                                            />
+                                        </div>
+                                    )
+                                }
+                                <hr />
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>{t('deviceSettings.hardware.title')}</h3>
+                                    </div>
+                                </div>
+                                <div className="items">
+                                    <SetDeviceName apiPrefix={this.apiPrefix()} getInfo={this.getInfo} />
+                                    <RandomNumber apiPrefix={this.apiPrefix()} />
+                                </div>
                             </div>
-                        )}
-                        <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
-                            {t('deviceSettings.secrets.manageBackups')}
-                        </ButtonLink>
+                        </div>
                     </div>
                 </div>
             </div>
