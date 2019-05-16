@@ -591,7 +591,7 @@
   },
   "random": {
     "button": "Generate Random Number",
-    "description": "Your BitBox generated the following 128-bit random number:"
+    "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
     "label": "Your address",
