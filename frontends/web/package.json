@@ -6,7 +6,7 @@
     "postinstall": "npx tcm src --camelCase dashes",
     "build": "preact build --no-prerender --service-worker=false",
     "dev": "preact watch",
-    "lint": "eslint --cache --ignore-path ../../.gitignore '**/*.{js,jsx}'",
+    "lint": "eslint --max-warnings 0 --cache --ignore-path ../../.gitignore '**/*.{js,jsx}'",
     "postlint": "tslint -e 'src/**/*.css.d.ts' 'src/**/*.ts?(x)'",
     "test": "jest",
     "browserlist": "npx browserslist"
