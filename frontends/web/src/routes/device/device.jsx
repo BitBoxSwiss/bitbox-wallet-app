@@ -144,7 +144,7 @@ export default class Device extends Component {
         case DeviceStatus.REQUIRE_FIRMWARE_UPGRADE:
             return <RequireUpgrade deviceID={deviceID} />;
         case DeviceStatus.REQUIRE_APP_UPGRADE:
-            return <AppUpgradeRequired/>;
+            return <AppUpgradeRequired />;
         case DeviceStatus.INITIALIZED:
             return <Unlock deviceID={deviceID} />;
         case DeviceStatus.UNINITIALIZED:
