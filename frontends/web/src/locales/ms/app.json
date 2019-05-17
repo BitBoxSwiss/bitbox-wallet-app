@@ -577,7 +577,7 @@
   },
   "random": {
     "button": "Menjana Nombor Rawak",
-    "description": "BitBox anda telah menjana nombor rawak 128-bit berikut:"
+    "description": "BitBox anda telah menjana nombor rawak {{bits}}-bit berikut:"
   },
   "receive": {
     "label": "Alamat anda",

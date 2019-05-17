@@ -578,7 +578,7 @@
   },
   "random": {
     "button": "Gerar número aleatório",
-    "description": "Sua BitBox gerou o seguinte número aleatório de 128 bits:"
+    "description": "Sua BitBox gerou o seguinte número aleatório de {{bits}} bits:"
   },
   "receive": {
     "label": "Seu endereço",

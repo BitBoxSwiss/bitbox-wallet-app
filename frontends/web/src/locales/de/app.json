@@ -553,7 +553,7 @@
   },
   "random": {
     "button": "Zufallszahl generieren",
-    "description": "Ihre BitBox hat die folgende 128-Bit-Zufallszahl generiert:"
+    "description": "Ihre BitBox hat die folgende {{bits}}-Bit-Zufallszahl generiert:"
   },
   "receive": {
     "label": "Meine Adresse",

@@ -552,7 +552,7 @@
   },
   "random": {
     "button": "乱数を生成",
-    "description": "あなたのBitBoxは次の128bit乱数を生成しました："
+    "description": "あなたのBitBoxは次の{{bits}}bit乱数を生成しました："
   },
   "receive": {
     "label": "あなたのアドレス",
