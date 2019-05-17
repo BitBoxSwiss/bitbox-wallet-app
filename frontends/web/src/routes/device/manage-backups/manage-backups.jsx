@@ -36,11 +36,13 @@ export default class ManageBackups extends Component {
             activeDialog: !this.state.sdCardInserted,
         };
     }
+
     hasDevice = () => {
         return !!this.props.devices[this.props.deviceID];
     }
 
     componentWillMount() {
+        route;
         if (!this.hasDevice()) {
             route('/', true);
         }
@@ -105,6 +107,31 @@ export default class ManageBackups extends Component {
         apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
+    renderGuide = t => {
+        switch (this.props.devices[this.props.deviceID]) {
+        case 'bitbox':
+            return (
+                <Guide>
+                    <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup')} />
+                    <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt')} />
+                    <Entry key="guide.backups.check" entry={t('guide.backups.check')} />
+                    <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
+                </Guide>
+            );
+        case 'bitbox02':
+            return (
+                <Guide>
+                    <Entry key="guide.backupsBB02.whatIsABackup" entry={t('guide.backupsBB02.whatIsABackup')} />
+                    <Entry key="guide.backupsBB02.encrypt" entry={t('guide.backupsBB02.encrypt')} shown={true} />
+                    <Entry key="guide.backupsBB02.check" entry={t('guide.backupsBB02.check')} />
+                    <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
+                </Guide>
+            );
+        default:
+            return null;
+        }
+    }
+
     render({ t }, { }) {
         if (!this.hasDevice()) {
             return null;
@@ -117,12 +144,7 @@ export default class ManageBackups extends Component {
                         {this.listBackups()}
                     </div>
                 </div>
-                <Guide>
-                    <Entry key="guide.backups.whatIsABackup" entry={t('guide.backups.whatIsABackup')} />
-                    <Entry key="guide.backups.encrypt" entry={t('guide.backups.encrypt')} />
-                    <Entry key="guide.backups.check" entry={t('guide.backups.check')} />
-                    <Entry key="guide.backups.howOften" entry={t('guide.backups.howOften')} />
-                </Guide>
+                {this.renderGuide(t)}
             </div>
         );
     }

@@ -345,6 +345,20 @@
         "title": "What is a backup?"
       }
     },
+    "backupsBB02": {
+      "check": {
+        "text": "'Check Backup' allows you to verify that you have a working backup corresponding to your current wallet.",
+        "title": "What is 'Check Backup'?"
+      },
+      "encrypt": {
+        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet.",
+        "title": "Can I encrypt the backup?"
+      },
+      "whatIsABackup": {
+        "text": "It is a copy of the seed on an micro SD card.",
+        "title": "What is a backup?"
+      }
+    },
     "bitbox": {
       "2FA": {
         "text": "When 2FA is enabled, all transactions have to be approved on the paired mobile phone in order to spend coins. Under the hood, an encrypted single-use number is sent to the mobile app, decrypted there, and returned to the BitBox when pressing the Accept button. This communication with the device is done via the channel between the mobile phone and this desktop app established during pairing.\n\nBe sure to backup your wallet and pair the mobile app before enabling 2FA. Once enabled, the micro SD slot and mobile app pairing are disabled. They can be re-enabled by resetting the BitBox, which erases the device.",
