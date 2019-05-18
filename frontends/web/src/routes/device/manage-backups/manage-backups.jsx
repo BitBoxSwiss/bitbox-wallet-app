@@ -42,7 +42,6 @@ export default class ManageBackups extends Component {
     }
 
     componentWillMount() {
-        route;
         if (!this.hasDevice()) {
             route('/', true);
         }
