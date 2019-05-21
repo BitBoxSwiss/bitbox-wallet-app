@@ -64,7 +64,7 @@
         "placeholder": "Recovery password",
         "showLabel": "recovery password"
       },
-      "success": "Successfully verified backup: {{name}}",
+      "success": "Successfully verified backup:",
       "title": "Check Backup"
     },
     "create": {

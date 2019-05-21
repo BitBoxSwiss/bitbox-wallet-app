@@ -144,6 +144,7 @@ class Backups extends Component<Props, State> {
                         showCreate && (
                             <Check
                                 deviceID={deviceID}
+                                backups={backups.backups ? backups.backups : []}
                                 disabled={backups.backups!.length === 0}
                             />
                         )

@@ -17,12 +17,13 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
+import { Backup, BackupsListItem } from '../../backups/backup';
 import { Dialog } from '../../dialog/dialog';
 import { Button } from '../../forms';
-import Spinner from '../../spinner/Spinner';
 
 interface CheckProps {
     deviceID: string;
+    backups: Backup[];
     disabled: boolean;
 }
 
@@ -31,21 +32,24 @@ type Props = CheckProps & TranslateProps;
 interface State {
     activeDialog: boolean;
     message: string;
+    foundBackup?: Backup;
 }
 
 class Check extends Component<Props, State> {
     public state = {
         activeDialog: false,
         message: '',
+        foundBackup: undefined,
     };
 
-    private checkBackup = () => {
+    private checkBackup = backups => {
         apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
             silent: false,
         }).then(({ backupID, success }) => {
             let message;
             if (success && backupID) {
-                message = this.props.t('backup.check.success', { name: backupID });
+                this.setState({foundBackup: backups.find(backup => backup.id === backupID)});
+                message = this.props.t('backup.check.success');
             } else {
                 message = this.props.t('backup.check.notOK');
             }
@@ -57,35 +61,37 @@ class Check extends Component<Props, State> {
         this.setState({ activeDialog: false });
     }
 
-    public render({ t }: RenderableProps<Props>, { activeDialog, message }: State) {
+    public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup }: State) {
         return (
             <div>
                 <Button
                     secondary
                     disabled={this.props.disabled}
-                    onClick={() => {this.checkBackup(); this.setState({ activeDialog: true }); }}>
+                    onClick={() => {this.checkBackup(backups); this.setState({ activeDialog: true }); }}>
                     {t('button.check')}
                 </Button>
                 {
                     activeDialog && (
                         <Dialog
-                        title={t('backup.check.title')}
+                        title={message}
                         onClose={this.abort}
                         large={true}>
-                            { message ? (
+                            {
                                 <div>
-                                    <p style="min-height: 3rem;">{message}</p>
+                                    { foundBackup !== undefined &&
+                                    <BackupsListItem
+                                        backup={foundBackup}
+                                        handleChange={() => undefined}
+                                        onFocus={() => undefined}
+                                        radio={false}
+                                    /> }
                                     <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
                                         <Button primary onClick={this.abort}>
                                             {t('button.ok')}
                                         </Button>
                                     </div>
                                 </div>
-                            ) : (
-                                <div style="min-height: 6rem;">
-                                    <Spinner text={t('backup.check.checking')} />
-                                </div>
-                            )}
+                            }
                         </Dialog>
                     )
                 }
