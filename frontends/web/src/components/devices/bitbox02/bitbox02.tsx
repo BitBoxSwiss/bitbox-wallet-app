@@ -358,8 +358,8 @@ class BitBox02 extends Component<Props, State> {
                                         <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
                                         <ul>
                                             <li>Name your device</li>
+                                            <li>Select a backup on the microSD card</li>
                                             <li>Set a password for your device</li>
-                                            <li>Poop</li>
                                         </ul>
                                         <div className={style.inputGroup}>
                                             <label className={style.label}>Wallet Name</label>
