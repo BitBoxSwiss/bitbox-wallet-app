@@ -35,6 +35,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
+import { Devices } from '../../device/deviceswitch';
 import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
 import * as style from './send.css';
@@ -43,6 +44,7 @@ import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 interface SendProps {
     accounts: Account[];
     code?: string;
+    devices: Devices;
     deviceIDs: string[];
 }
 
@@ -136,7 +138,7 @@ class Send extends Component<Props, State> {
 
     public componentDidMount() {
         apiGet(`account/${this.props.code}/balance`).then(balance => this.setState({ balance }));
-        if (this.props.deviceIDs.length > 0) {
+        if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then((mobileChannel: boolean) => {
                 apiGet('devices/' + this.props.deviceIDs[0] + '/info').then(({ pairing }) => {
                     const account = this.getAccount();
