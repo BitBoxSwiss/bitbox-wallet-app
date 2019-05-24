@@ -26,6 +26,7 @@ import * as style from '../../../components/steps/steps.css';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
+import SimpleMarkup from '../../../utils/simplemarkup';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
@@ -254,70 +255,74 @@ class BitBox02 extends Component<Props, State> {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>Welcome</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer" style="background-color: #F9F9F9;">
                         <Steps>
                             <Step
                                 active={status === 'unpaired' || status === 'pairingFailed'}
-                                title="Verify your BitBox">
+                                title={t('bitbox02Wizard.pairing.title')}>
                                 {
                                     status === 'pairingFailed' && (
                                         <div className={style.standOut}>
                                             <img src={alertOctagon} />
-                                            <span className={style.error}>Unconfirmed pairing. Please replug your BitBox02.</span>
+                                            <span className={style.error}>{t('bitbox02Wizard.pairing.failed')}</span>
                                         </div>
                                     )
                                 }
                                 <div className={[style.stepContext, status === 'pairingFailed' ? style.disabled : ''].join(' ')}>
-                                    <p>A new BitBox has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch "Correct" on your device and then the button below to continue.</p>
+                                    <p>{t('bitbox02Wizard.pairing.unpaired')}</p>
                                     <pre>{hash}</pre>
                                     {
                                         deviceVerified && (
-                                            <p>You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.</p>
+                                            <p>{t('bitbox02Wizard.pairing.paired')}</p>
                                         )
                                     }
                                 </div>
                                 <div className={style.buttons}>
-                                    <button className={[style.button, style.primary].join(' ')} onClick={() => this.channelVerify(true)} disabled={!deviceVerified}>Confirm & Continue</button>
+                                    <button className={[style.button, style.primary].join(' ')} onClick={() => this.channelVerify(true)} disabled={!deviceVerified}>
+                                        {t('bitbox02Wizard.pairing.confirmButton')}
+                                    </button>
                                 </div>
                             </Step>
                             {!unlockOnly ?
                                 <Step
                                     active={status === 'uninitialized' && appStatus === ''}
-                                    title="Initialize your BitBox">
+                                    title={t('bitbox02Wizard.initialize.title')}>
+                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.standOut}>
                                         <img src={infoIcon} />
-                                        <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
+                                        <span className={style.info}>{t('bitbox02Wizard.initialize.tip')}</span>
                                     </div>
                                     <div className={style.stepContext}>
-                                        <p>Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox.</strong></p>
+                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} />
                                     </div>
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.createWalletStep}
                                             disabled={settingPassword || !sdCardInserted}>
-                                            Create Wallet
+                                            {t('seed.create')}
                                     </button>
                                         <button
                                             className={[style.button, style.secondary].join(' ')}
                                             onClick={this.restoreBackupStep}
                                             disabled={!sdCardInserted}>
-                                            Restore Backup
+                                            {t('backup.restore.confirmTitle')}
                                     </button>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
                                     active={createWalletStatus === 'intro'}
-                                    title="Create Wallet">
+                                    title={t('seed.create')}>
                                     <div className={style.stepContext}>
-                                        <p>Ok, let's create a new wallet! Here are the basics steps you will be taking to setup your BitBox:</p>
+                                        <p>{t('bitbox02Wizard.create.text')}</p>
+                                        <p>{t('bitbox02Wizard.create.info')}</p>
                                         <ul>
-                                            <li>Name your device</li>
-                                            <li>Go through our guide on how to use the on screen gestures on your BitBox</li>
-                                            <li>Set a password for your device</li>
-                                            <li>Create a backup</li>
+                                            <li>{t('bitbox02Wizard.create.point1')}</li>
+                                            <li>{t('bitbox02Wizard.create.point2')}</li>
+                                            <li>{t('bitbox02Wizard.create.point3')}</li>
+                                            <li>{t('bitbox02Wizard.create.point4')}</li>
                                         </ul>
                                         <div className={style.inputGroup}>
                                             <Input
@@ -333,14 +338,14 @@ class BitBox02 extends Component<Props, State> {
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.setDeviceName}>
-                                            Name Device & Continue
+                                            {t('bitbox02Wizard.create.button')}
                                     </button>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
                                     active={createWalletStatus === 'setPassword'}
-                                    title="Set a password for your BitBox">
+                                    title={t('bitbox02Wizard.initialize.passwordTitle')}>
                                     {
                                         errorText && (
                                             <div className={style.standOut}>
@@ -350,49 +355,50 @@ class BitBox02 extends Component<Props, State> {
                                         )
                                     }
                                     <div className={style.stepContext}>
-                                        <p>Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.</p>
+                                        <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
                                 <Step
                                     active={status === 'seeded' && createWalletStatus === 'createBackup'}
-                                    title="Create Backup">
+                                    title={t('backup.create.title')}>
                                     <div className={style.stepContext}>
-                                        <p>Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.</p>
-                                        <p>Please follow the on-screen instruction on your device to create a backup.</p>
+                                        <p>{t('bitbox02Wizard.backup.text1')}</p>
+                                        <p>{t('bitbox02Wizard.backup.text2')}</p>
                                     </div>
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.createBackup}
                                             disabled={creatingBackup}>
-                                            Create Backup
+                                            {t('backup.create.title')}
                                     </button>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'restoreBackup' ?
                                 <Step
                                     active={status !== 'initialized' && restoreBackupStatus === 'intro'}
-                                    title="Restore Backup">
+                                    title={t('backup.restore.confirmTitle')}>
                                     <div className={style.stepContext}>
-                                        <p>Ok, let's restore a backup! Here are the basics steps you will be taking to setup your BitBox:</p>
+                                        <p>{t('bitbox02Wizard.backup.restoreText')}</p>
+                                        <p>{t('bitbox02Wizard.create.info')}</p>
                                         <ul>
-                                            <li>Select a backup on the microSD card</li>
-                                            <li>Set a password for your device</li>
+                                            <li>{t('bitbox02Wizard.backup.point1')}</li>
+                                            <li>{t('bitbox02Wizard.backup.point2')}</li>
                                         </ul>
                                     </div>
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.restoreBackup}>
-                                            Continue
+                                            {t('seedRestore.info.button')}
                                         </button>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'restoreBackup' ?
                                 <Step
                                     active={status !== 'initialized' && restoreBackupStatus === 'restore'}
-                                    title="Restore Backup">
+                                    title={t('backup.restore.confirmTitle')}>
                                     <div className={style.stepContext}>
                                         <BackupsV2
                                             deviceID={deviceID}
@@ -405,15 +411,15 @@ class BitBox02 extends Component<Props, State> {
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.uninitializedStep}
                                             disabled={settingPassword}>
-                                            Back
+                                            {t('button.back')}
                                         </button>
                                     </div>
                                 </Step> : ''}
                             <Step
                                 active={status === 'initialized'}
-                                title="You're ready to go!">
+                                title={t('bitbox02Wizard.success.title')}>
                                 <div className={style.stepContext}>
-                                    <p>Hooray! You're BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.</p>
+                                    <p>{t('bitbox02Wizard.success.text')}</p>
                                 </div>
                                 <Button primary onClick={this.handleGetStarted}>
                                     {t('success.getstarted')}
