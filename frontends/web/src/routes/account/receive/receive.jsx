@@ -57,7 +57,7 @@ export default class Receive extends Component {
         apiGet('account/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
-        if (this.props.deviceIDs.length > 0) {
+        if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(paired => {
                 this.setState({ paired });
             });

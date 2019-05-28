@@ -156,10 +156,12 @@ class App extends Component<Props, State> {
                     <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"
+                            devices={devices}
                             deviceIDs={deviceIDs}
                             accounts={accounts} />
                         <Receive
                             path="/account/:code/receive"
+                            devices={devices}
                             accounts={accounts}
                             deviceIDs={deviceIDs} />
                         <Info

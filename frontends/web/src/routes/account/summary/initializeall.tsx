@@ -97,7 +97,7 @@ class InitializeAllAccounts extends Component<Props, State> {
         }
         return (
             <div>
-                <Spinner text={`${t('accountSummary.synchronizing')}: ${Object.values(initialized).filter(status => status).length}/${accounts.length}`}/>
+                <Spinner text={`${t('accountSummary.synchronizing')} ${Object.values(initialized).filter(status => status).length}/${accounts.length}`}/>
             </div>
         );
     }
