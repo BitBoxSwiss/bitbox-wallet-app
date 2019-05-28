@@ -18,6 +18,10 @@ bridge, and one to invoke calls in the backend.
 Similarly to the Desktop variant, the Go library can be statically compiled and added to an Android
 Studio / XCode project. This is not part of this repo yet.
 
+### Compatibility
+x86 (no ARM), 64 bit: Windows 7+, macOS 10.11+, Linux 
+
+
 ## Build status
 
 [![Build Status](https://travis-ci.org/digitalbitbox/bitbox-wallet-app.svg?branch=master)](https://travis-ci.org/digitalbitbox/bitbox-wallet-app)
