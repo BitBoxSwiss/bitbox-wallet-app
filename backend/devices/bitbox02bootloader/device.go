@@ -196,9 +196,9 @@ func (device *Device) GetHashes(displayFirmwareHash, displaySigningKeydataHash b
 	return firmwareHash, signingKeyDatahash, nil
 }
 
-// IsShowFirmwareHashEnabled returns whether the bootloader will automatically show the firmware
+// ShowFirmwareHashEnabled returns whether the bootloader will automatically show the firmware
 // hash on boot.
-func (device *Device) IsShowFirmwareHashEnabled() (bool, error) {
+func (device *Device) ShowFirmwareHashEnabled() (bool, error) {
 	response, err := device.query('H', []byte{0xFF})
 	if err != nil {
 		return false, err

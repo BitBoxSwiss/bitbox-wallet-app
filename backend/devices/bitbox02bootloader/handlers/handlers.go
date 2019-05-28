@@ -15,9 +15,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -27,6 +29,8 @@ type BitBox02Bootloader interface {
 	Status() *bitbox02bootloader.Status
 	UpgradeFirmware() error
 	Reboot() error
+	ShowFirmwareHashEnabled() (bool, error)
+	SetShowFirmwareHashEnabled(bool) error
 	Erased() (bool, error)
 }
 
@@ -46,6 +50,8 @@ func NewHandlers(
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reboot", handlers.postRebootHandler).Methods("POST")
+	handleFunc("/show-firmware-hash-enabled", handlers.getShowFirmwareHashEnabledHandler).Methods("GET")
+	handleFunc("/set-firmware-hash-enabled", handlers.postSetShowFirmwareHashEnabledHandler).Methods("POST")
 	handleFunc("/erased", handlers.getErasedHandler).Methods("GET")
 
 	return handlers
@@ -74,6 +80,18 @@ func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface
 
 func (handlers *Handlers) postRebootHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.Reboot()
+}
+
+func (handlers *Handlers) getShowFirmwareHashEnabledHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.ShowFirmwareHashEnabled()
+}
+
+func (handlers *Handlers) postSetShowFirmwareHashEnabledHandler(r *http.Request) (interface{}, error) {
+	var enabled bool
+	if err := json.NewDecoder(r.Body).Decode(&enabled); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return nil, handlers.device.SetShowFirmwareHashEnabled(enabled)
 }
 
 func (handlers *Handlers) getErasedHandler(_ *http.Request) (interface{}, error) {

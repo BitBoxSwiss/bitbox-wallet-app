@@ -15,18 +15,24 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
 import { BitBox } from '../../icon/logo';
+import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 
 interface BitBox02BootloaderProps {
     deviceID: string;
 }
 
-type Props = BitBox02BootloaderProps & TranslateProps;
+interface LoadedProps {
+    erased: boolean;
+}
+
+type Props = BitBox02BootloaderProps & LoadedProps & TranslateProps;
 
 interface State {
     status: {
@@ -36,7 +42,7 @@ interface State {
         upgradeSuccessful: boolean;
         rebootSeconds: number;
     };
-    erased: boolean;
+    advancedSettings: boolean;
 }
 
 class BitBox02Bootloader extends Component<Props, State> {
@@ -50,16 +56,13 @@ class BitBox02Bootloader extends Component<Props, State> {
                 upgradeSuccessful: false,
                 rebootSeconds: 0,
             },
-            erased: false,
+            advancedSettings: false,
         };
     }
 
     private unsubscribe!: () => void;
 
     public componentDidMount() {
-        apiGet('devices/bitbox02-bootloader/' + this.props.deviceID + '/erased').then(erased => {
-            this.setState({ erased });
-        });
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
             switch (type) {
@@ -96,17 +99,21 @@ class BitBox02Bootloader extends Component<Props, State> {
     }
 
     public render(
-        { t }: RenderableProps<Props>,
+        { t,
+          deviceID,
+          erased,
+        }: RenderableProps<Props>,
         { status,
-          erased }: State,
+          advancedSettings,
+        }: State,
     ) {
-        let upgradeOrStatus;
+        let contents;
         if (status.upgrading) {
             if (status.upgradeSuccessful) {
-                upgradeOrStatus = <p>{t('bb02Bootloader.success', { rebootSeconds: status.rebootSeconds.toString() })}</p>;
+                contents = <p>{t('bb02Bootloader.success', { rebootSeconds: status.rebootSeconds.toString() })}</p>;
             } else {
                 const value = Math.round(status.progress * 100);
-                upgradeOrStatus = (
+                contents = (
                     <div>
                         <progress value={value} max="100">{value}%</progress>
                         <p>{t('bootloader.progress', {
@@ -116,7 +123,7 @@ class BitBox02Bootloader extends Component<Props, State> {
                 );
             }
         } else {
-            upgradeOrStatus = (
+            contents = (
                 <div style="text-align:center;">
                     <Button
                         primary
@@ -131,6 +138,20 @@ class BitBox02Bootloader extends Component<Props, State> {
                               {t('bb02Bootloader.abort')}
                           </Button>
                     )}
+                    <hr/>
+                    <div>
+                        <a
+                            onClick={() => { this.setState({ advancedSettings: !advancedSettings }); }}
+                            style="text-decoration: underline; cursor: pointer;" >
+                            { advancedSettings ? '-' : '+' } Advanced Settings
+                        </a>
+                    </div>
+                    { advancedSettings && (
+                          <div>
+                              <br />
+                              <ToggleShowFirmwareHash deviceID={deviceID} />
+                          </div>
+                    )}
                 </div>
             );
         }
@@ -138,7 +159,7 @@ class BitBox02Bootloader extends Component<Props, State> {
             <CenteredContent>
                 <BitBox />
                 <div style="margin: 1rem; min-height: 5rem;">
-                    {upgradeOrStatus}
+                    {contents}
                     <p>{status.errMsg}</p>
                 </div>
             </CenteredContent>
@@ -146,5 +167,6 @@ class BitBox02Bootloader extends Component<Props, State> {
     }
 }
 
-const HOC = translate<BitBox02BootloaderProps>()(BitBox02Bootloader);
+const loadHOC = load<LoadedProps, BitBox02BootloaderProps & TranslateProps>(({ deviceID }) => ({ erased: 'devices/bitbox02-bootloader/' + deviceID + '/erased' }))(BitBox02Bootloader);
+const HOC = translate<BitBox02BootloaderProps>()(loadHOC);
 export { HOC as BitBox02Bootloader };
