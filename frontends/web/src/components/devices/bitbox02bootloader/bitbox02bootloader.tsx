@@ -36,6 +36,7 @@ interface State {
         upgradeSuccessful: boolean;
         rebootSeconds: number;
     };
+    erased: boolean;
 }
 
 class BitBox02Bootloader extends Component<Props, State> {
@@ -49,12 +50,16 @@ class BitBox02Bootloader extends Component<Props, State> {
                 upgradeSuccessful: false,
                 rebootSeconds: 0,
             },
+            erased: false,
         };
     }
 
     private unsubscribe!: () => void;
 
     public componentDidMount() {
+        apiGet('devices/bitbox02-bootloader/' + this.props.deviceID + '/erased').then(erased => {
+            this.setState({ erased });
+        });
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
             switch (type) {
@@ -92,7 +97,8 @@ class BitBox02Bootloader extends Component<Props, State> {
 
     public render(
         { t }: RenderableProps<Props>,
-        { status }: State,
+        { status,
+          erased }: State,
     ) {
         let upgradeOrStatus;
         if (status.upgrading) {
@@ -118,11 +124,13 @@ class BitBox02Bootloader extends Component<Props, State> {
                         {t('bootloader.button')}
                     </Button>
                     <br/><br/>
-                    <Button
-                        secondary
-                        onClick={this.reboot}>
-                        {t('bb02Bootloader.abort')}
-                    </Button>
+                    { !erased && (
+                          <Button
+                              secondary
+                              onClick={this.reboot}>
+                              {t('bb02Bootloader.abort')}
+                          </Button>
+                    )}
                 </div>
             );
         }

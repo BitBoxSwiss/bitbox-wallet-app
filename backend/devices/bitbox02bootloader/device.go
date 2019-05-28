@@ -17,6 +17,7 @@ package bitbox02bootloader
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/binary"
 	"io"
 	"math"
@@ -34,9 +35,10 @@ import (
 )
 
 const (
-	chunkSize = 8 * 512
+	chunkSize       = 8 * 512
+	maxFirmwareSize = 884736
 	// max number of chunks that can be written when flashing the firmware
-	firmwareChunks = 178
+	firmwareChunks = maxFirmwareSize / chunkSize
 
 	numRootKeys    = 5
 	numSigningKeys = 5
@@ -70,6 +72,13 @@ type Status struct {
 
 // EventStatusChanged is fired when the status changes. Check the status using Status().
 const EventStatusChanged device.Event = "statusChanged"
+
+func toByte(b bool) byte {
+	if b {
+		return 1
+	}
+	return 0
+}
 
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
@@ -177,12 +186,6 @@ func (device *Device) Versions() (uint32, uint32, error) {
 // If the display flags are true, the hashes are also shown on the device screen.
 func (device *Device) GetHashes(displayFirmwareHash, displaySigningKeydataHash bool) (
 	[]byte, []byte, error) {
-	toByte := func(b bool) byte {
-		if b {
-			return 1
-		}
-		return 0
-	}
 	response, err := device.query('h',
 		[]byte{toByte(displayFirmwareHash), toByte(displaySigningKeydataHash)})
 	if err != nil {
@@ -191,6 +194,23 @@ func (device *Device) GetHashes(displayFirmwareHash, displaySigningKeydataHash b
 	firmwareHash := response[:32]
 	signingKeyDatahash := response[32:64]
 	return firmwareHash, signingKeyDatahash, nil
+}
+
+// IsShowFirmwareHashEnabled returns whether the bootloader will automatically show the firmware
+// hash on boot.
+func (device *Device) IsShowFirmwareHashEnabled() (bool, error) {
+	response, err := device.query('H', []byte{0xFF})
+	if err != nil {
+		return false, err
+	}
+	return response[0] == 1, nil
+}
+
+// SetShowFirmwareHashEnabled returns whether the bootloader will automatically show the firmware
+// hash on boot.
+func (device *Device) SetShowFirmwareHashEnabled(enabled bool) error {
+	_, err := device.query('H', []byte{toByte(enabled)})
+	return err
 }
 
 // Reboot reboots the device.
@@ -295,4 +315,31 @@ func (device *Device) UpgradeFirmware() error {
 		time.Sleep(time.Second)
 	}
 	return device.Reboot()
+}
+
+// Erased returns true if the the device contains no firmware.
+func (device *Device) Erased() (bool, error) {
+	// We check by comparing the device reported firmware hash. If erased, the firmware is all
+	// '\xFF'.
+
+	firmwareVersion, _, err := device.Versions()
+	if err != nil {
+		return false, err
+	}
+	firmwareVersionLE := make([]byte, 4)
+	binary.LittleEndian.PutUint32(firmwareVersionLE, firmwareVersion)
+
+	emptyFirmware := bytes.Repeat([]byte{0xFF}, maxFirmwareSize)
+
+	doubleHash := func(b []byte) []byte {
+		first := sha256.Sum256(b)
+		second := sha256.Sum256(first[:])
+		return second[:]
+	}
+	emptyFirmwareHash := doubleHash(append(firmwareVersionLE, emptyFirmware...))
+	firmwareHash, _, err := device.GetHashes(false, false)
+	if err != nil {
+		return false, err
+	}
+	return bytes.Equal(firmwareHash, emptyFirmwareHash), nil
 }

@@ -27,6 +27,7 @@ type BitBox02Bootloader interface {
 	Status() *bitbox02bootloader.Status
 	UpgradeFirmware() error
 	Reboot() error
+	Erased() (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -45,6 +46,7 @@ func NewHandlers(
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reboot", handlers.postRebootHandler).Methods("POST")
+	handleFunc("/erased", handlers.getErasedHandler).Methods("GET")
 
 	return handlers
 }
@@ -72,4 +74,8 @@ func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface
 
 func (handlers *Handlers) postRebootHandler(_ *http.Request) (interface{}, error) {
 	return nil, handlers.device.Reboot()
+}
+
+func (handlers *Handlers) getErasedHandler(_ *http.Request) (interface{}, error) {
+	return handlers.device.Erased()
 }
