@@ -169,7 +169,7 @@ func (communication *Communication) readFrame() ([]byte, error) {
 		data.Write(read[5:readLen])
 		idx += readLen - 5
 	}
-	return data.Bytes(), nil
+	return data.Bytes()[:dataLen], nil
 }
 
 // SendBootloader sends a message in the format the bootloader expects and fetches the response.
