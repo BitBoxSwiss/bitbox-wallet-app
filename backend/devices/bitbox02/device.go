@@ -81,6 +81,8 @@ type Device struct {
 	// firmware version.
 	version *semver.SemVer
 
+	configDir string
+
 	channelHash               string
 	channelHashAppVerified    bool
 	channelHashDeviceVerified bool
@@ -105,6 +107,7 @@ type DeviceInfo struct {
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
+	configDir string,
 	communication Communication,
 ) *Device {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
