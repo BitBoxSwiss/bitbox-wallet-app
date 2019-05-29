@@ -435,6 +435,7 @@ func (device *Device) CreateBackup() error {
 // Backup contains the metadata of one backup.
 type Backup struct {
 	ID   string
+	Name string
 	Time time.Time
 }
 
@@ -458,6 +459,7 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 	for index, msgBackup := range msgBackups {
 		backups[index] = &Backup{
 			ID:   msgBackup.Id,
+			Name: msgBackup.Name,
 			Time: time.Unix(int64(msgBackup.Timestamp), 0).Local(),
 		}
 	}
@@ -465,6 +467,7 @@ func (device *Device) ListBackups() ([]*Backup, error) {
 }
 
 // CheckBackup checks if any backup on the SD card matches the current seed on the device
+// and returns the name and ID of the matching backup
 func (device *Device) CheckBackup(silent bool) (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_CheckBackup{
@@ -477,11 +480,11 @@ func (device *Device) CheckBackup(silent bool) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	backupID, ok := response.Response.(*messages.Response_CheckBackup)
+	backup, ok := response.Response.(*messages.Response_CheckBackup)
 	if !ok {
 		return "", errp.New("unexpected response")
 	}
-	return backupID.CheckBackup.Id, nil
+	return backup.CheckBackup.Id, nil
 }
 
 // RestoreBackup restores a backup returned by ListBackups (id).

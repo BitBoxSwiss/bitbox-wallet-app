@@ -21,7 +21,7 @@ import { Radio } from '../forms';
 interface BackupsListItemProps {
     disabled?: boolean;
     backup: Backup;
-    selectedBackup: string | undefined;
+    selectedBackup?: string;
     handleChange: (value: string) => void;
     onFocus: ({ target }: { target: HTMLElement; }) => void;
     radio: boolean;
@@ -67,7 +67,8 @@ class BackupsListItem extends Component<Props> {
                 <span className="text-small text-gray">{date}</span>
             </Radio> :
             <tr>
-                <div className="text-medium text-darkgray">{backup.id}</div>
+                <div className="text-medium text-darkgray text-bold">{backup.name}</div>
+                <div className="text-small text-gray">ID: {backup.id}</div>
                 <div className="text-small text-gray">{date}</div>
             </tr>
         );
