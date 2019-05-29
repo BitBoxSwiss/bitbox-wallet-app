@@ -83,6 +83,7 @@ type Device struct {
 
 	configDir string
 
+	deviceNoiseStaticPubkey   []byte
 	channelHash               string
 	channelHashAppVerified    bool
 	channelHashDeviceVerified bool
@@ -116,6 +117,7 @@ func NewDevice(
 		deviceID:      deviceID,
 		communication: communication,
 		version:       version,
+		configDir:     configDir,
 		status:        StatusUnpaired,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -134,15 +136,25 @@ func (device *Device) Init(testing bool) {
 	}
 
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
-	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
-	if err != nil {
-		panic(err)
+	keypair := device.configGetAppNoiseStaticKeypair()
+	if keypair == nil {
+		device.log.Info("noise static keypair created")
+		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
+		if err != nil {
+			panic(err)
+		}
+		keypair = &kp
+		if err := device.configSetAppNoiseStaticKeypair(keypair); err != nil {
+			device.log.WithError(err).Error("could not store app noise static keypair")
+
+			// Not a critical error, ignore.
+		}
 	}
 	handshake, err := noise.NewHandshakeState(noise.Config{
 		CipherSuite:   cipherSuite,
 		Random:        rand.Reader,
 		Pattern:       noise.HandshakeXX,
-		StaticKeypair: keypair,
+		StaticKeypair: *keypair,
 		Prologue:      []byte("Noise_XX_25519_ChaChaPoly_SHA256"),
 		Initiator:     true,
 	})
@@ -178,8 +190,16 @@ func (device *Device) Init(testing bool) {
 		panic(err)
 	}
 
+	device.deviceNoiseStaticPubkey = handshake.PeerStatic()
+	if len(device.deviceNoiseStaticPubkey) != 32 {
+		panic(errp.New("expected 32 byte remote static pubkey"))
+	}
+
+	pairingVerificationRequiredByApp := !device.configContainsDeviceStaticPubkey(
+		device.deviceNoiseStaticPubkey)
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
-	if pairingVerificationRequiredByDevice {
+
+	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {
 		channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
 		device.channelHash = fmt.Sprintf(
 			"%s %s\n%s %s",
@@ -525,6 +545,8 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	}
 	device.channelHashAppVerified = ok
 	if ok {
+		// No critical error, we will just need to re-confirm the pairing next time.
+		_ = device.configAddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		if !device.version.AtLeast(lowestSupportedFirmwareVersion) {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
 			return
