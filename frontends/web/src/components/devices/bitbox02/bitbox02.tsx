@@ -20,7 +20,7 @@ import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import infoIcon from '../../../assets/icons/info.svg';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
-import { Button } from '../../../components/forms';
+import { Button, Input } from '../../../components/forms';
 import { Step, Steps } from '../../../components/steps';
 import * as style from '../../../components/steps/steps.css';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -58,6 +58,7 @@ interface State {
     creatingBackup: boolean;
     sdCardInserted?: boolean;
     errorText?: string;
+    deviceName: string;
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
@@ -76,6 +77,7 @@ class BitBox02 extends Component<Props, State> {
             appStatus: '',
             createWalletStatus: 'intro',
             restoreBackupStatus: 'intro',
+            deviceName: '',
             unlockOnly: true,
             showWizard: false,
         };
@@ -166,9 +168,11 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private insertSDCard = () => {
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success }) => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
             if (success) {
                 this.setState({ sdCardInserted: true });
+            } else if (errorMessage) {
+                alertUser(errorMessage);
             }
         });
     }
@@ -207,9 +211,25 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
+    private handleDeviceNameInput = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
+        const value: string = target.value;
+        this.setState({deviceName: value});
+    }
+
+    private setDeviceName = () => {
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
+        .then(result => {
+            if (result.success) {
+                this.setPassword();
+            }
+        });
+    }
+
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus, settingPassword, creatingBackup, errorText, unlockOnly, showWizard, sdCardInserted }: State,
+        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus,
+            settingPassword, creatingBackup, errorText, unlockOnly, showWizard, sdCardInserted, deviceName }: State,
     ) {
         if (status === '') {
             return null;
@@ -305,14 +325,19 @@ class BitBox02 extends Component<Props, State> {
                                             <li>Create a backup</li>
                                         </ul>
                                         <div className={style.inputGroup}>
-                                            <label className={style.label}>Wallet Name</label>
-                                            <input type="text" className={style.input} placeholder="Name of your BitBox" />
+                                            <Input
+                                                label={t('bitbox02Settings.deviceName.title')}
+                                                onInput={this.handleDeviceNameInput}
+                                                placeholder={t('bitbox02Settings.deviceName.input')}
+                                                value={deviceName}
+                                                id="deviceName"
+                                            />
                                         </div>
                                     </div>
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
-                                            onClick={this.setPassword}>
+                                            onClick={this.setDeviceName}>
                                             Name Device & Continue
                                     </button>
                                     </div>
