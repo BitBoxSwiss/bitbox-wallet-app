@@ -72,8 +72,9 @@ func DeviceInfos() []hid.DeviceInfo {
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
 type Manager struct {
-	devices          map[string]device.Interface
-	channelConfigDir string // passed to each device during initialization
+	devices           map[string]device.Interface
+	channelConfigDir  string // passed to each bitbox01 device during initialization
+	bitbox02ConfigDir string // passed to each bitbox02 device during initialization
 
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
@@ -88,14 +89,16 @@ type Manager struct {
 // before onRegister is called.
 func NewManager(
 	channelConfigDir string,
+	bitbox02ConfigDir string,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
 ) *Manager {
 	return &Manager{
-		devices:          map[string]device.Interface{},
-		channelConfigDir: channelConfigDir,
-		onRegister:       onRegister,
-		onUnregister:     onUnregister,
+		devices:           map[string]device.Interface{},
+		channelConfigDir:  channelConfigDir,
+		bitbox02ConfigDir: bitbox02ConfigDir,
+		onRegister:        onRegister,
+		onUnregister:      onUnregister,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -202,6 +205,7 @@ func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Devic
 	return bitbox02.NewDevice(
 		deviceID,
 		version,
+		manager.bitbox02ConfigDir,
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, false),
 	), nil
 }

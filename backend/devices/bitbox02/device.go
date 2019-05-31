@@ -67,6 +67,13 @@ const (
 	EventStatusChanged device.Event = "statusChanged"
 )
 
+const (
+	opICanHasHandShaek          = "h"
+	opICanHasPairinVerificashun = "v"
+
+	responseSuccess = "\x00"
+)
+
 // Device provides the API to communicate with the BitBox02.
 type Device struct {
 	deviceID      string
@@ -74,6 +81,9 @@ type Device struct {
 	// firmware version.
 	version *semver.SemVer
 
+	configDir string
+
+	deviceNoiseStaticPubkey   []byte
 	channelHash               string
 	channelHashAppVerified    bool
 	channelHashDeviceVerified bool
@@ -98,6 +108,7 @@ type DeviceInfo struct {
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
+	configDir string,
 	communication Communication,
 ) *Device {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
@@ -106,6 +117,7 @@ func NewDevice(
 		deviceID:      deviceID,
 		communication: communication,
 		version:       version,
+		configDir:     configDir,
 		status:        StatusUnpaired,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -116,14 +128,6 @@ func (device *Device) Version() *semver.SemVer {
 	return device.version
 }
 
-func (device *Device) readFrame() ([]byte, error) {
-	reply, err := device.communication.ReadFrame()
-	if err != nil {
-		return nil, err
-	}
-	return bytes.TrimRightFunc(reply, func(r rune) bool { return r == 0 }), nil
-}
-
 // Init implements device.Device.
 func (device *Device) Init(testing bool) {
 	if device.version.AtLeast(lowestNonSupportedFirmwareVersion) {
@@ -132,29 +136,36 @@ func (device *Device) Init(testing bool) {
 	}
 
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
-	keypair, err := cipherSuite.GenerateKeypair(rand.Reader)
-	if err != nil {
-		panic(err)
+	keypair := device.configGetAppNoiseStaticKeypair()
+	if keypair == nil {
+		device.log.Info("noise static keypair created")
+		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
+		if err != nil {
+			panic(err)
+		}
+		keypair = &kp
+		if err := device.configSetAppNoiseStaticKeypair(keypair); err != nil {
+			device.log.WithError(err).Error("could not store app noise static keypair")
+
+			// Not a critical error, ignore.
+		}
 	}
 	handshake, err := noise.NewHandshakeState(noise.Config{
 		CipherSuite:   cipherSuite,
 		Random:        rand.Reader,
 		Pattern:       noise.HandshakeXX,
-		StaticKeypair: keypair,
+		StaticKeypair: *keypair,
 		Prologue:      []byte("Noise_XX_25519_ChaChaPoly_SHA256"),
 		Initiator:     true,
 	})
 	if err != nil {
 		panic(err)
 	}
-	if err := device.communication.SendFrame("I CAN HAS HANDSHAKE?"); err != nil {
-		panic(err)
-	}
-	responseBytes, err := device.readFrame()
+	responseBytes, err := device.queryRaw([]byte(opICanHasHandShaek))
 	if err != nil {
 		panic(err)
 	}
-	if string(responseBytes) != "OKAY!!" {
+	if string(responseBytes) != responseSuccess {
 		panic(string(responseBytes))
 	}
 	// do handshake:
@@ -162,10 +173,7 @@ func (device *Device) Init(testing bool) {
 	if err != nil {
 		panic(err)
 	}
-	if err := device.communication.SendFrame(string(msg)); err != nil {
-		panic(err)
-	}
-	responseBytes, err = device.readFrame()
+	responseBytes, err = device.queryRaw(msg)
 	if err != nil {
 		panic(err)
 	}
@@ -177,34 +185,50 @@ func (device *Device) Init(testing bool) {
 	if err != nil {
 		panic(err)
 	}
-	if err := device.communication.SendFrame(string(msg)); err != nil {
+	responseBytes, err = device.queryRaw(msg)
+	if err != nil {
 		panic(err)
 	}
 
-	channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
-	device.channelHash = fmt.Sprintf(
-		"%s %s\n%s %s",
-		channelHashBase32[:5],
-		channelHashBase32[5:10],
-		channelHashBase32[10:15],
-		channelHashBase32[15:20])
-	go func() {
-		response, err := device.readFrame()
-		if err != nil {
+	device.deviceNoiseStaticPubkey = handshake.PeerStatic()
+	if len(device.deviceNoiseStaticPubkey) != 32 {
+		panic(errp.New("expected 32 byte remote static pubkey"))
+	}
+
+	pairingVerificationRequiredByApp := !device.configContainsDeviceStaticPubkey(
+		device.deviceNoiseStaticPubkey)
+	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
+
+	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {
+		channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
+		device.channelHash = fmt.Sprintf(
+			"%s %s\n%s %s",
+			channelHashBase32[:5],
+			channelHashBase32[5:10],
+			channelHashBase32[10:15],
+			channelHashBase32[15:20])
+		if err := device.communication.SendFrame(opICanHasPairinVerificashun); err != nil {
 			panic(err)
 		}
-		device.channelHashDeviceVerified = string(response) == "ACCEPTED!"
-		if device.channelHashDeviceVerified {
-			device.channelHashDeviceVerified = true
-			device.fireEvent(EventChannelHashChanged)
-		} else {
-			device.sendCipher = nil
-			device.receiveCipher = nil
-			device.channelHash = ""
-			device.channelHashDeviceVerified = false
-			device.changeStatus(StatusPairingFailed)
-		}
-	}()
+		go func() {
+			response, err := device.communication.ReadFrame()
+			if err != nil {
+				panic(err)
+			}
+			device.channelHashDeviceVerified = string(response) == responseSuccess
+			if device.channelHashDeviceVerified {
+				device.fireEvent(EventChannelHashChanged)
+			} else {
+				device.sendCipher = nil
+				device.receiveCipher = nil
+				device.channelHash = ""
+				device.changeStatus(StatusPairingFailed)
+			}
+		}()
+	} else {
+		device.channelHashDeviceVerified = true
+		device.ChannelHashVerify(true)
+	}
 }
 
 func (device *Device) changeStatus(status Status) {
@@ -271,6 +295,13 @@ func (device *Device) Close() {
 	device.communication.Close()
 }
 
+func (device *Device) queryRaw(request []byte) ([]byte, error) {
+	if err := device.communication.SendFrame(string(request)); err != nil {
+		return nil, err
+	}
+	return device.communication.ReadFrame()
+}
+
 func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if device.sendCipher == nil {
 		return nil, errp.New("handshake must come first")
@@ -280,10 +311,7 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 		return nil, errp.WithStack(err)
 	}
 	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
-	if err := device.communication.SendFrame(string(requestBytesEncrypted)); err != nil {
-		return nil, err
-	}
-	responseBytes, err := device.readFrame()
+	responseBytes, err := device.queryRaw(requestBytesEncrypted)
 	if err != nil {
 		return nil, err
 	}
@@ -520,6 +548,8 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	}
 	device.channelHashAppVerified = ok
 	if ok {
+		// No critical error, we will just need to re-confirm the pairing next time.
+		_ = device.configAddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		if !device.version.AtLeast(lowestSupportedFirmwareVersion) {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
 			return

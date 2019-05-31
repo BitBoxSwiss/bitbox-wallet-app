@@ -106,6 +106,9 @@
   },
   "bb02Bootloader": {
     "abort": "Don't upgrade – Take me back",
+    "advanced": {
+      "toggleShowFirmwareHash": "Show the Firmware every time on startup"
+    },
     "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds..."
   },
   "bitbox": {

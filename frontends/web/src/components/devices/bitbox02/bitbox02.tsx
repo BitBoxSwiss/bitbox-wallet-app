@@ -89,7 +89,6 @@ class BitBox02 extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
-        this.checkSDCardInserted();
         this.onChannelHashChanged();
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
@@ -132,6 +131,7 @@ class BitBox02 extends Component<Props, State> {
             }
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
                 this.setState({ unlockOnly: false });
+                this.insertSDCard();
             }
             if (status === 'seeded') {
                 this.setState({ appStatus: 'createWallet' });
@@ -161,10 +161,6 @@ class BitBox02 extends Component<Props, State> {
 
     private restoreBackupStep = () => {
         this.setState({ appStatus: 'restoreBackup' });
-    }
-
-    private checkSDCardInserted = () => {
-        apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(inserted => this.setState({ sdCardInserted: inserted }));
     }
 
     private insertSDCard = () => {
@@ -289,7 +285,6 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status === 'uninitialized' && appStatus === ''}
                                     title="Initialize your BitBox">
-                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.standOut}>
                                         <img src={infoIcon} />
                                         <span className={style.info}>Before continuing, it is highly recommended that you proceed in a secure environment.</span>
