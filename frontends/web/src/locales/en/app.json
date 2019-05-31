@@ -128,6 +128,43 @@
       "title": "Set Device Name"
     }
   },
+  "bitbox02Wizard": {
+    "backup": {
+      "point1": "Select a backup on the microSD card",
+      "point2": "Set a password for your device",
+      "restoreText": "Ok, let's restore a backup!",
+      "text1": "Great, your password is now set and the device is seeded. Now it's time to create your first backup. Please make sure you have your microSD card inserted in your BitBox and continue.",
+      "text2": "Please follow the on-screen instruction on your device to create a backup."
+    },
+    "create": {
+      "button": "Name Device & Continue",
+      "info": "Here are the basics steps you will be taking to set up your BitBox: ",
+      "inputTitle": "Wallet Name",
+      "point1": "Name your device",
+      "point2": "Go through our guide on how to use the touch gestures on your BitBox",
+      "point3": "Set a password for your device",
+      "point4": "Create a backup",
+      "text": "Ok, let's create a new wallet!"
+    },
+    "initialize": {
+      "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
+      "passwordTitle": "Set a password for your BitBox",
+      "text": "Successfully paired your BitBox! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox</strong>",
+      "tip": "Before continuing, it is highly recommended that you proceed in a secure environment.",
+      "title": "Initialize your BitBox"
+    },
+    "pairing": {
+      "confirmButton": "Confirm & Continue",
+      "failed": "Unconfirmed pairing. Please replug your BitBox02.",
+      "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
+      "title": "Verify your BitBox",
+      "unpaired": "A new BitBox has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch 'Correct' on your device and then the button below to continue."
+    },
+    "success": {
+      "text": "Hooray! Your BitBox is now ready to use, please use the in-app guide on each screen for further information on how to use the app with your BitBox.",
+      "title": "You're ready to go!"
+    }
+  },
   "blink": {
     "button": "Blink"
   },
