@@ -635,9 +635,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	}
 	backend.devices[theDevice.Identifier()] = theDevice
 
-	backend.onDeviceInit(theDevice)
-	theDevice.Init(backend.Testing())
-
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event device.Event, data interface{}) {
 		switch event {
@@ -669,6 +666,10 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 			Meta:     data,
 		}
 	})
+
+	backend.onDeviceInit(theDevice)
+	theDevice.Init(backend.Testing())
+
 	select {
 	case backend.events <- backendEvent{
 		Type: "devices",
