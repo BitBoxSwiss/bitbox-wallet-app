@@ -39,6 +39,7 @@ interface BackupsProps {
     showRestore?: boolean;
     showCreate?: boolean;
     showRadio: boolean;
+    restoreSetPassword?: () => void;
 }
 
 type Props = LoadedBackupsProps & BackupsProps & TranslateProps;
@@ -65,6 +66,9 @@ class Backups extends Component<Props, State> {
             return;
         }
         this.setState({ restoring: true });
+        if (this.props.restoreSetPassword) {
+            this.props.restoreSetPassword();
+        }
         apiPost(
             'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
             this.state.selectedBackup).then(({ success }) => {
