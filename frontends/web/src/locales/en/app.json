@@ -109,6 +109,8 @@
     "advanced": {
       "toggleShowFirmwareHash": "Show the Firmware every time on startup"
     },
+    "flipscreen": "Flip screen",
+    "orientation": "Device oriented the wrong way?",
     "success": "Upgrade successful! Continuing in {{rebootSeconds}} seconds..."
   },
   "bitbox": {

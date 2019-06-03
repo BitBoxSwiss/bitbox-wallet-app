@@ -218,6 +218,11 @@ func (device *Device) Reboot() error {
 	return device.communication.SendFrame("r")
 }
 
+// ScreenRotate rotates the device screen.
+func (device *Device) ScreenRotate() error {
+	return device.communication.SendFrame("f")
+}
+
 func (device *Device) erase(firmwareNumChunks uint8) error {
 	_, err := device.query('e', []byte{firmwareNumChunks})
 	return err

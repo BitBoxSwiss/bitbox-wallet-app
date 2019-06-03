@@ -32,6 +32,7 @@ type BitBox02Bootloader interface {
 	ShowFirmwareHashEnabled() (bool, error)
 	SetShowFirmwareHashEnabled(bool) error
 	Erased() (bool, error)
+	ScreenRotate() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -53,6 +54,7 @@ func NewHandlers(
 	handleFunc("/show-firmware-hash-enabled", handlers.getShowFirmwareHashEnabledHandler).Methods("GET")
 	handleFunc("/set-firmware-hash-enabled", handlers.postSetShowFirmwareHashEnabledHandler).Methods("POST")
 	handleFunc("/erased", handlers.getErasedHandler).Methods("GET")
+	handleFunc("/screen-rotate", handlers.postScreenRotateHandler).Methods("POST")
 
 	return handlers
 }
@@ -96,4 +98,8 @@ func (handlers *Handlers) postSetShowFirmwareHashEnabledHandler(r *http.Request)
 
 func (handlers *Handlers) getErasedHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.Erased()
+}
+
+func (handlers *Handlers) postScreenRotateHandler(_ *http.Request) (interface{}, error) {
+	return nil, handlers.device.ScreenRotate()
 }

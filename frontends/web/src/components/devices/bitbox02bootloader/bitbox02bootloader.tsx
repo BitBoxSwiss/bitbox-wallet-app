@@ -98,6 +98,10 @@ class BitBox02Bootloader extends Component<Props, State> {
         apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/reboot');
     }
 
+    private screenRotate = () => {
+        apiPost('devices/bitbox02-bootloader/' + this.props.deviceID + '/screen-rotate');
+    }
+
     public render(
         { t,
           deviceID,
@@ -138,6 +142,15 @@ class BitBox02Bootloader extends Component<Props, State> {
                               {t('bb02Bootloader.abort')}
                           </Button>
                     )}
+                    <br/><br/>
+                    <div>
+                        {t('bb02Bootloader.orientation')}&nbsp;
+                        <a
+                            onClick={this.screenRotate}
+                            style="text-decoration: underline; cursor: pointer;" >
+                            {t('bb02Bootloader.flipscreen')}
+                        </a>
+                    </div>
                     <hr/>
                     <div>
                         <a
