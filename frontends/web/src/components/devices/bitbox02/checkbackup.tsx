@@ -33,6 +33,7 @@ interface State {
     activeDialog: boolean;
     message: string;
     foundBackup?: Backup;
+    userVerified: boolean;
 }
 
 class Check extends Component<Props, State> {
@@ -40,16 +41,27 @@ class Check extends Component<Props, State> {
         activeDialog: false,
         message: '',
         foundBackup: undefined,
+        userVerified: false,
     };
 
-    private checkBackup = backups => {
+    private checkBackup = (silent: boolean, backups) => {
         apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/check', {
-            silent: false,
-        }).then(({ backupID, success }) => {
+            silent,
+        }).then( response => {
             let message;
-            if (success && backupID) {
-                this.setState({foundBackup: backups.find(backup => backup.id === backupID)});
+            // "silent" call gets the backup id from device without blocking to display in dialogue
+            if (silent && response.success && response.backupID) {
+                const foundBackup = backups.find((backup: Backup) => backup.id === response.backupID);
+                if (foundBackup) {
+                    this.setState({foundBackup});
+                    message = this.props.t('backup.check.success');
+                } else {
+                    message = this.props.t('unknownError', {errorMessage: 'Not found'});
+                }
+            // second non-silent call is blocking and waits for user to confirm backup on device screen
+            } else if (!silent && response.success) {
                 message = this.props.t('backup.check.success');
+                this.setState({userVerified: true});
             } else {
                 message = this.props.t('backup.check.notOK');
             }
@@ -58,23 +70,28 @@ class Check extends Component<Props, State> {
     }
 
     private abort = () => {
-        this.setState({ activeDialog: false });
+        this.setState({ activeDialog: false, userVerified: false });
     }
 
-    public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup }: State) {
+    public render({ t, backups }: RenderableProps<Props>, { activeDialog, message, foundBackup, userVerified }: State) {
+        let silent: boolean;
         return (
             <div>
                 <Button
                     secondary
                     disabled={this.props.disabled}
-                    onClick={() => {this.checkBackup(backups); this.setState({ activeDialog: true }); }}>
+                    onClick={() => {
+                        this.checkBackup(silent = true, backups = backups);
+                        this.setState({ activeDialog: true });
+                        this.checkBackup(silent = false, backups = backups);
+                    }}
+                >
                     {t('button.check')}
                 </Button>
                 {
                     activeDialog && (
                         <Dialog
                         title={message}
-                        onClose={this.abort}
                         large={true}>
                             {
                                 <div>
@@ -86,8 +103,12 @@ class Check extends Component<Props, State> {
                                         radio={false}
                                     /> }
                                     <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                        <Button primary onClick={this.abort}>
-                                            {t('button.ok')}
+                                        <Button
+                                            primary
+                                            onClick={this.abort}
+                                            disabled={!userVerified}
+                                        >
+                                            { userVerified ? t('button.ok') : t('accountInfo.verify') }
                                         </Button>
                                     </div>
                                 </div>
