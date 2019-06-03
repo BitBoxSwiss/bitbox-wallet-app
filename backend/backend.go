@@ -630,9 +630,6 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
-	if theDevice.ProductName() == "bitbox02" && !backend.arguments.DevMode() {
-		return nil
-	}
 	backend.devices[theDevice.Identifier()] = theDevice
 
 	mainKeystore := len(backend.devices) == 1
