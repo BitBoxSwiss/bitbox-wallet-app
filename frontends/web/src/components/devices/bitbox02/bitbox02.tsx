@@ -54,7 +54,7 @@ interface State {
     'initialized';
     appStatus: 'createWallet' | 'restoreBackup' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
-    restoreBackupStatus: 'intro' | 'restore';
+    restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     settingPassword: boolean;
     creatingBackup: boolean;
     sdCardInserted?: boolean;
@@ -195,6 +195,12 @@ class BitBox02 extends Component<Props, State> {
     private restoreBackup = () => {
         this.setState({
             restoreBackupStatus: 'restore',
+        });
+    }
+
+    public restoreSetPassword = () => {
+        this.setState({
+            restoreBackupStatus: 'setPassword',
         });
     }
 
@@ -404,6 +410,7 @@ class BitBox02 extends Component<Props, State> {
                                             deviceID={deviceID}
                                             showRestore={true}
                                             showRadio={true}
+                                            restoreSetPassword={this.restoreSetPassword}
                                         />
                                     </div>
                                     <div className={style.buttons}>
@@ -413,6 +420,22 @@ class BitBox02 extends Component<Props, State> {
                                             disabled={settingPassword}>
                                             {t('button.back')}
                                         </button>
+                                    </div>
+                                </Step> : ''}
+                            {!unlockOnly && appStatus === 'restoreBackup' ?
+                                <Step
+                                    active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
+                                    title={t('bitbox02Wizard.initialize.passwordTitle')}>
+                                    {
+                                        errorText && (
+                                            <div className={style.standOut}>
+                                                <img src={alertOctagon} />
+                                                <span className={style.error}>{errorText}</span>
+                                            </div>
+                                        )
+                                    }
+                                    <div className={style.stepContext}>
+                                        <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
                                     </div>
                                 </Step> : ''}
                             <Step
