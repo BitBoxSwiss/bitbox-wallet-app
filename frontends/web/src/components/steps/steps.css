@@ -102,6 +102,18 @@
     justify-content: flex-start;
 }
 
+.passwordGesturesGif {
+    height: 75%;
+    width: 75%;
+    object-fit: cover;
+}
+
+.passwordGesturesGifWrapper {
+  height: 60%;
+  width: 75%;
+  margin: auto;
+}
+
 .steps {
     flex: 1;
     background-color: #F9F9F9;

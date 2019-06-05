@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Allows to import GIF.
+declare module '*.gif';
+
 // Allows to import JSON.
 declare module '*.json';
 
