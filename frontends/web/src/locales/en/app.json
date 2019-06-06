@@ -107,7 +107,7 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – Take me back",
     "advanced": {
-      "toggleShowFirmwareHash": "Show the Firmware every time on startup"
+      "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
     "orientation": "Device oriented the wrong way?",
