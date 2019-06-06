@@ -45,8 +45,8 @@ import (
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(0, 0, 1)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(1, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(1, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(2, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.

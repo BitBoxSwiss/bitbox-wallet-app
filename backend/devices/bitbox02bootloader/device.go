@@ -40,8 +40,8 @@ const (
 	// max number of chunks that can be written when flashing the firmware
 	firmwareChunks = maxFirmwareSize / chunkSize
 
-	numRootKeys    = 5
-	numSigningKeys = 5
+	numRootKeys    = 3
+	numSigningKeys = 3
 
 	sigDataMagic          uint32 = 0x653f362b
 	magicLen                     = 4

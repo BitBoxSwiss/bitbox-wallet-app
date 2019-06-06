@@ -32,7 +32,7 @@ func BundledFirmwareVersion() *semver.SemVer {
 // bundledFirmware returns the binary of the bundled firmware.
 func bundledFirmware() []byte {
 	binary, err := Asset(fmt.Sprintf(
-		"assets/firmware.deterministic.%s.signed.bin",
+		"assets/firmware.v%s.signed.bin",
 		bundledFirmwareVersion.String()))
 	if err != nil {
 		panic(err)
