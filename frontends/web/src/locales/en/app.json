@@ -142,7 +142,8 @@
       "point2": "Set a password for your device",
       "restoreText": "Ok, let's restore a backup!",
       "text1": "Great, your BitBox02 password is now set and wallet created. Now it's time to create your first backup. Please make sure your microSD card is inserted into your BitBox02 and continue.",
-      "text2": "Please follow the on-screen instruction on your device to create a backup."
+      "text2": "Please follow the on-screen instruction on your device to create a backup.",
+      "text3": "After your backup is created, please remove the microSD card and store it in a <strong>secure location</strong>. The contents of the microSD card is not password-protected. Never insert it into any other device but your BitBox02."
     },
     "create": {
       "button": "Name Device & Continue",

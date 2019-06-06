@@ -380,6 +380,7 @@ class BitBox02 extends Component<Props, State> {
                                     <div className={style.stepContext}>
                                         <p>{t('bitbox02Wizard.backup.text1')}</p>
                                         <p>{t('bitbox02Wizard.backup.text2')}</p>
+                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.backup.text3')} />
                                     </div>
                                     <div className={style.buttons}>
                                         <button
