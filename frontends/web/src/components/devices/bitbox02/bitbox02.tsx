@@ -329,7 +329,6 @@ class BitBox02 extends Component<Props, State> {
                                             <li>{t('bitbox02Wizard.create.point1')}</li>
                                             <li>{t('bitbox02Wizard.create.point2')}</li>
                                             <li>{t('bitbox02Wizard.create.point3')}</li>
-                                            <li>{t('bitbox02Wizard.create.point4')}</li>
                                         </ul>
                                         <div className={style.inputGroup}>
                                             <Input
