@@ -79,6 +79,8 @@ type Manager struct {
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
 
+	onlyOne bool
+
 	log *logrus.Entry
 }
 
@@ -92,6 +94,7 @@ func NewManager(
 	bitbox02ConfigDir string,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
+	onlyOne bool,
 ) *Manager {
 	return &Manager{
 		devices:           map[string]device.Interface{},
@@ -99,6 +102,7 @@ func NewManager(
 		bitbox02ConfigDir: bitbox02ConfigDir,
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
+		onlyOne:           onlyOne,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -270,6 +274,10 @@ func (manager *Manager) listen() {
 			deviceID := deviceIdentifier(deviceInfo)
 			// Skip if already registered.
 			if _, ok := manager.devices[deviceID]; ok {
+				continue
+			}
+			// Skip if we already have another device registered and we only support one device.
+			if manager.onlyOne && len(manager.devices) != 0 {
 				continue
 			}
 			var device device.Interface
