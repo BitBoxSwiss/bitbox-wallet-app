@@ -239,7 +239,7 @@ export default class Receive extends Component {
                 </div>
                 {
                     code === 'ltc-p2wpkh-p2sh' && (
-                        <div>
+                        <div style="margin-top:60px;">
                             <p>{t('receive.ltcLegacy.info')}</p>
                             <Button
                                 primary
