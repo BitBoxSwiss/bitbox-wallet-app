@@ -571,11 +571,13 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 // Start starts the background services. It returns a channel of events to handle by the library
 // client.
 func (backend *Backend) Start() <-chan interface{} {
+	// We support only one device at a time at the moment.
+	onlyOne := !backend.arguments.Multisig()
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
 		backend.Register,
-		backend.Deregister).Start()
+		backend.Deregister, onlyOne).Start()
 	backend.initPersistedAccounts()
 	return backend.events
 }
