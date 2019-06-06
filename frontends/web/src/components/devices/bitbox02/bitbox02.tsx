@@ -199,10 +199,16 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
-    public restoreSetPassword = () => {
+    private backupOnBeforeRestore = () => {
         this.setState({
             restoreBackupStatus: 'setPassword',
         });
+    }
+
+    private backupOnAfterRestore = (success: boolean) => {
+        if (!success) {
+            this.restoreBackup();
+        }
     }
 
     private createBackup = () => {
@@ -413,7 +419,8 @@ class BitBox02 extends Component<Props, State> {
                                             deviceID={deviceID}
                                             showRestore={true}
                                             showRadio={true}
-                                            restoreSetPassword={this.restoreSetPassword}
+                                            backupOnBeforeRestore={this.backupOnBeforeRestore}
+                                            backupOnAfterRestore={this.backupOnAfterRestore}
                                         />
                                     </div>
                                     <div className={style.buttons}>

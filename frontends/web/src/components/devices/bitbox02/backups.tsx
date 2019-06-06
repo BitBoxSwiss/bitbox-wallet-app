@@ -39,7 +39,8 @@ interface BackupsProps {
     showRestore?: boolean;
     showCreate?: boolean;
     showRadio: boolean;
-    restoreSetPassword?: () => void;
+    backupOnBeforeRestore?: () => void;
+    backupOnAfterRestore?: (success: boolean) => void;
 }
 
 type Props = LoadedBackupsProps & BackupsProps & TranslateProps;
@@ -66,17 +67,20 @@ class Backups extends Component<Props, State> {
             return;
         }
         this.setState({ restoring: true });
-        if (this.props.restoreSetPassword) {
-            this.props.restoreSetPassword();
+        if (this.props.backupOnBeforeRestore) {
+            this.props.backupOnBeforeRestore();
         }
         apiPost(
             'devices/bitbox02/' + this.props.deviceID + '/backups/restore',
             this.state.selectedBackup).then(({ success }) => {
-            this.setState({
-                restoring: false,
-                errorText: success ? '' : 'Error restoring the backup',
+                this.setState({
+                    restoring: false,
+                    errorText: success ? '' : 'Error restoring the backup',
+                });
+                if (this.props.backupOnAfterRestore) {
+                    this.props.backupOnAfterRestore(success);
+                }
             });
-        });
     }
 
     public render(
