@@ -22,6 +22,7 @@ import RandomNumber from '../../../routes/device/settings/components/randomnumbe
 import { apiGet } from '../../../utils/request';
 import { ButtonLink } from '../../forms';
 import { Header } from '../../layout/header';
+import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { SetDeviceName } from './setdevicename';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
@@ -140,6 +141,18 @@ class Settings extends Component<Props, State> {
                                         apiPrefix={this.apiPrefix()}
                                         getInfo={this.getInfo} />
                                     <RandomNumber apiPrefix={this.apiPrefix()} />
+                                </div>
+                                <hr />
+                                <div class="subHeaderContainer">
+                                    <div class="subHeader">
+                                        <h3>{t('settings.expert.title')}</h3>
+                                    </div>
+                                </div>
+                                <div className="items">
+                                    <MnemonicPassphraseButton
+                                        apiPrefix={this.apiPrefix()}
+                                        mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
+                                        getInfo={this.getInfo} />
                                 </div>
                             </div>
                         </div>
