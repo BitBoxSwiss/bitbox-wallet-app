@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import SimpleMarkup from '../../utils/simplemarkup';
 import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
@@ -71,7 +72,7 @@ class Alert extends Component<TranslateProps, State> {
                         <p
                             key={i}
                             class={ i === 0 ? 'first' : '' }>
-                            {line}
+                            <SimpleMarkup tagName="span" markup={line} />
                         </p>
                     )) : null
                 }
