@@ -21,6 +21,7 @@ import BitBoxInvertedLogo from './assets/bitbox-logo-alt.svg';
 import BitBoxLogo from './assets/bitbox-logo.svg';
 import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.svg';
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
+import BitBox02Logo from './assets/bitbox02-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
 import ETH from './assets/eth-color.svg';
@@ -35,6 +36,7 @@ interface GenericProps {
 }
 
 export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" class={style.logo} />;
+export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" class={style.logo} />;
 export const BitBoxInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxInvertedLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;

@@ -21,7 +21,7 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { CenteredContent } from '../../centeredcontent/centeredcontent';
 import { Button } from '../../forms';
-import { BitBox } from '../../icon/logo';
+import { BitBox02 } from '../../icon/logo';
 import { ToggleShowFirmwareHash } from './toggleshowfirmwarehash';
 
 interface BitBox02BootloaderProps {
@@ -170,7 +170,7 @@ class BitBox02Bootloader extends Component<Props, State> {
         }
         return (
             <CenteredContent>
-                <BitBox />
+                <BitBox02 />
                 <div style="margin: 1rem; min-height: 5rem;">
                     {contents}
                     <p>{status.errMsg}</p>
