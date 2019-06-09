@@ -54,14 +54,13 @@ message SetPasswordRequest {
     bytes entropy = 1;
 }
 
+// Timestamp must be in UTC
 message CreateBackupRequest {
-  // TODO add backup creation args
   uint32 timestamp = 1;
   int32 timezone_offset = 2;
 }
 
 message RestoreBackupRequest {
-  // TODO add backup creation args
   string id = 1;
 }
 
