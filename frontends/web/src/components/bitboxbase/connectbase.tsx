@@ -25,7 +25,7 @@ export interface ConnectedBaseProps {
 }
 
 interface State {
-    blockInfo: string;
+    blockInfo: object;
     bitboxBaseID: string;
 }
 
@@ -36,7 +36,7 @@ export class ConnectedBase extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
-            blockInfo : '',
+            blockInfo : {},
             bitboxBaseID: '',
         };
     }
@@ -83,24 +83,18 @@ export class ConnectedBase extends Component<Props, State> {
         if (!blockInfo) {
             return null;
         }
-        let blocks = '';
-        let difficulty = '';
-        let alias = '';
-        let i = '';
-        const blockInfoArr = blockInfo.split(' ');
-        blocks = blockInfoArr[0];
-        difficulty = blockInfoArr[1];
-        i = blockInfoArr[2];
-        alias = blockInfoArr[3];
+
+        const blocks = 'blocks';
+        const difficulty = 'difficulty';
+        const lightningAlias = 'lightningAlias';
 
         return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <p>Block Number: {blocks}</p>
-                        <p>Difficulty: {difficulty}</p>
-                        <p>Incrementer: {i}</p>
+                        <p>Block Number: {blockInfo[blocks]}</p>
+                        <p>Difficulty: {blockInfo[difficulty]}</p>
                         <p>Device ID: {bitboxBaseID}</p>
-                        <p>Lightning Alias: {alias}</p>
+                        <p>Lightning Alias: {blockInfo[lightningAlias]}</p>
                         <div class="buttons flex flex-row flex-end">
                             <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
                         </div>

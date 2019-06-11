@@ -30,25 +30,35 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// BaseMiddlewareInfo holds some sample information from the BitBox Base
+type BaseMiddlewareInfo struct {
+	Blocks         int64   `json:"blocks"`
+	Difficulty     float64 `json:"difficulty"`
+	LightningAlias string  `json:"lightningAlias"`
+}
+
 // Updater implements observable blockchainInfo.
 type Updater struct {
 	observable.Implementation
-	blockchainInfo string
+	middlewareInfo *BaseMiddlewareInfo
 	log            *logrus.Entry
 	running        bool
 	address        string
 }
 
-// BlockInfo returns the last received blockchain information packet from the middleware
-func (updater *Updater) BlockInfo() string {
-	return updater.blockchainInfo
+// MiddlewareInfo returns the last received blockchain information packet from the middleware
+func (updater *Updater) MiddlewareInfo() interface{} {
+	return updater.middlewareInfo
 }
 
 // NewUpdater returns a new bitboxbase updater.
 func NewUpdater(address string) *Updater {
 	updater := &Updater{
-		log:     logging.Get().WithGroup("bitboxbase"),
-		address: address,
+		log:            logging.Get().WithGroup("bitboxbase"),
+		address:        address,
+		middlewareInfo: &BaseMiddlewareInfo{},
+		log:            logging.Get().WithGroup("bitboxbase"),
+		address:        address,
 	}
 	return updater
 }
@@ -102,7 +112,7 @@ func (updater *Updater) GetEnv() ([]byte, error) {
 	return bodyBytes, err
 }
 
-//Stop provides a setter for the running flag
+// Stop provides a setter for the running flag
 func (updater *Updater) Stop() {
 	updater.running = false
 }
@@ -114,22 +124,38 @@ func listenWebsocket(updater *Updater, bitboxBaseID string) {
 		updater.log.Printf("Websocket dial failed: %s", err.Error())
 	}
 	// TODO: add proper error handling
-	//defer c.Close()
 
 	for {
-		_, message, err := c.ReadMessage()
+		err = client.ReadJSON(updater.middlewareInfo)
 		if err != nil {
-			updater.log.Println("read:", err)
+			updater.log.Error("Websocket read failed:", err)
+			err = client.Close()
+			if err != nil {
+				updater.log.Error("Failed to close websocket connection: ", err)
+			}
 			return
 		}
-		updater.blockchainInfo = string(message)
+
+		if err != nil {
+			updater.log.Error("Websocket middlewareInfo Unmarshal failed:", err)
+			err = client.Close()
+			if err != nil {
+				updater.log.Error("Failed to close websocket connection: ", err)
+			}
+			return
+		}
+
 		updater.Notify(observable.Event{
 			Subject: fmt.Sprintf("/bitboxbases/%s/blockinfo", bitboxBaseID),
 			Action:  action.Replace,
-			Object:  updater.blockchainInfo,
+			Object:  updater.middlewareInfo,
 		})
-		updater.log.Printf("Received blockinfo: %s , from id: %s", updater.blockchainInfo, bitboxBaseID)
+		updater.log.Printf("Received blockinfo: %v , from id: %s", updater.middlewareInfo, bitboxBaseID)
 		if !updater.running {
+			err = client.Close()
+			if err != nil {
+				updater.log.Error("Failed to close websocket connection: ", err)
+			}
 			return
 		}
 	}

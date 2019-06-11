@@ -43,7 +43,7 @@ type Interface interface {
 	GetRegisterTime() time.Time
 
 	// BlockInfo returns some blockchain information.
-	BlockInfo() string
+	BlockInfo() interface{}
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
@@ -143,8 +143,8 @@ func (base *BitBoxBase) GetUpdaterInstance() *updater.Updater {
 }
 
 //BlockInfo returns the received blockinfo packet from the updater
-func (base *BitBoxBase) BlockInfo() string {
-	return base.GetUpdaterInstance().BlockInfo()
+func (base *BitBoxBase) BlockInfo() interface{} {
+	return base.GetUpdaterInstance().MiddlewareInfo()
 }
 
 //Identifier implements a getter for the bitboxBase ID
