@@ -30,7 +30,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -107,7 +106,7 @@ func (communication *Communication) sendFrame(msg string) error {
 		}
 		x := buf.Bytes() // needs to be in a var: https://github.com/golang/go/issues/14210#issuecomment-346402945
 		_, err := communication.device.Write(x)
-		return errors.WithMessage(errors.WithStack(err), "Failed to send message")
+		return errp.WithMessage(errp.WithStack(err), "Failed to send message")
 	}
 	readBuffer := bytes.NewBuffer([]byte(msg))
 	// init frame
@@ -151,10 +150,10 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	read := make([]byte, communication.usbReadReportSize)
 	readLen, err := communication.device.Read(read)
 	if err != nil {
-		return nil, errors.WithStack(err)
+		return nil, errp.WithStack(err)
 	}
 	if readLen < 7 {
-		return nil, errors.New("expected minimum read length of 7")
+		return nil, errp.New("expected minimum read length of 7")
 	}
 	if read[0] != 0xff || read[1] != 0 || read[2] != 0 || read[3] != 0 {
 		return nil, errp.Newf("USB command ID mismatch %d %d %d %d", read[0], read[1], read[2], read[3])
@@ -169,10 +168,10 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	for idx < dataLen {
 		readLen, err = communication.device.Read(read)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, errp.WithStack(err)
 		}
 		if readLen < 5 {
-			return nil, errors.New("expected minimum read length of 7")
+			return nil, errp.New("expected minimum read length of 7")
 		}
 		data.Write(read[5:readLen])
 		idx += readLen - 5
@@ -215,7 +214,7 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		}
 		_, err := communication.device.Write(chunk)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, errp.WithStack(err)
 		}
 		written += chunkLen
 	}
@@ -225,7 +224,7 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		currentRead := make([]byte, communication.usbReadReportSize)
 		readLen, err := communication.device.Read(currentRead)
 		if err != nil {
-			return nil, errors.WithStack(err)
+			return nil, errp.WithStack(err)
 		}
 		read.Write(currentRead[:readLen])
 	}
