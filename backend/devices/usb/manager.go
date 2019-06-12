@@ -15,7 +15,6 @@
 package usb
 
 import (
-	"encoding/hex"
 	"io"
 	"os"
 	"regexp"
@@ -28,7 +27,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
-	"github.com/karalabe/hid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -45,51 +43,15 @@ const (
 
 // DeviceInfo contains the usb descriptor info and a way to open the device for reading and writing.
 type DeviceInfo interface {
-	VendorID() uint16
-	ProductID() uint16
-	UsagePage() uint16
+	VendorID() int
+	ProductID() int
+	UsagePage() int
 	Interface() int
 	Serial() string
 	Product() string
 	Manufacturer() string
 	Identifier() string
 	Open() (io.ReadWriteCloser, error)
-}
-
-type hidDeviceInfo struct {
-	hid.DeviceInfo
-}
-
-func (info hidDeviceInfo) VendorID() uint16 {
-	return info.DeviceInfo.VendorID
-}
-func (info hidDeviceInfo) ProductID() uint16 {
-	return info.DeviceInfo.ProductID
-}
-func (info hidDeviceInfo) UsagePage() uint16 {
-	return info.DeviceInfo.UsagePage
-}
-func (info hidDeviceInfo) Interface() int {
-	return info.DeviceInfo.Interface
-}
-func (info hidDeviceInfo) Serial() string {
-	return info.DeviceInfo.Serial
-}
-func (info hidDeviceInfo) Manufacturer() string {
-	return info.DeviceInfo.Manufacturer
-}
-func (info hidDeviceInfo) Product() string {
-	return info.DeviceInfo.Product
-}
-func (info hidDeviceInfo) Identifier() string {
-	return hex.EncodeToString([]byte(info.DeviceInfo.Path))
-}
-func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
-	device, err := info.DeviceInfo.Open()
-	if err != nil {
-		return nil, err
-	}
-	return device, nil
 }
 
 func isBitBox(deviceInfo DeviceInfo) bool {
@@ -102,23 +64,6 @@ func isBitBox02(deviceInfo DeviceInfo) bool {
 
 func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
 	return deviceInfo.Product() == "bb02-bootloader" && deviceInfo.VendorID() == bitbox02VendorID && deviceInfo.ProductID() == bitbox02ProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
-}
-
-// DeviceInfos returns a slice of all recognized devices.
-func DeviceInfos() []DeviceInfo {
-	deviceInfos := []DeviceInfo{}
-	for _, deviceInfo := range hid.Enumerate(0, 0) {
-		di := hidDeviceInfo{deviceInfo}
-		// If Enumerate() is called too quickly after a device is inserted, the HID device input
-		// report is not yet ready.
-		if di.Serial() == "" || di.Product() == "" {
-			continue
-		}
-		if isBitBox(di) || isBitBox02(di) || isBitBox02Bootloader(di) {
-			deviceInfos = append(deviceInfos, di)
-		}
-	}
-	return deviceInfos
 }
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
