@@ -15,7 +15,7 @@
 package usb
 
 import (
-	"encoding/hex"
+	"io"
 	"os"
 	"regexp"
 	"time"
@@ -27,7 +27,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
-	"github.com/karalabe/hid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -42,32 +41,29 @@ const (
 	bitbox02BootloaderCMD = 0x80 + 0x40 + 0x03
 )
 
-func isBitBox(deviceInfo hid.DeviceInfo) bool {
-	return deviceInfo.VendorID == bitboxVendorID && deviceInfo.ProductID == bitboxProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+// DeviceInfo contains the usb descriptor info and a way to open the device for reading and writing.
+type DeviceInfo interface {
+	VendorID() int
+	ProductID() int
+	UsagePage() int
+	Interface() int
+	Serial() string
+	Product() string
+	Manufacturer() string
+	Identifier() string
+	Open() (io.ReadWriteCloser, error)
 }
 
-func isBitBox02(deviceInfo hid.DeviceInfo) bool {
-	return deviceInfo.Product == "BitBox02" && deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+func isBitBox(deviceInfo DeviceInfo) bool {
+	return deviceInfo.VendorID() == bitboxVendorID && deviceInfo.ProductID() == bitboxProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
-func isBitBox02Bootloader(deviceInfo hid.DeviceInfo) bool {
-	return deviceInfo.Product == "bb02-bootloader" && deviceInfo.VendorID == bitbox02VendorID && deviceInfo.ProductID == bitbox02ProductID && (deviceInfo.UsagePage == 0xffff || deviceInfo.Interface == 0)
+func isBitBox02(deviceInfo DeviceInfo) bool {
+	return deviceInfo.Product() == "BitBox02" && deviceInfo.VendorID() == bitbox02VendorID && deviceInfo.ProductID() == bitbox02ProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
-// DeviceInfos returns a slice of all found bitbox devices.
-func DeviceInfos() []hid.DeviceInfo {
-	deviceInfos := []hid.DeviceInfo{}
-	for _, deviceInfo := range hid.Enumerate(0, 0) {
-		// If Enumerate() is called too quickly after a device is inserted, the HID device input
-		// report is not yet ready.
-		if deviceInfo.Serial == "" || deviceInfo.Product == "" {
-			continue
-		}
-		if isBitBox(deviceInfo) || isBitBox02(deviceInfo) || isBitBox02Bootloader(deviceInfo) {
-			deviceInfos = append(deviceInfos, deviceInfo)
-		}
-	}
-	return deviceInfos
+func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
+	return deviceInfo.Product() == "bb02-bootloader" && deviceInfo.VendorID() == bitbox02VendorID && deviceInfo.ProductID() == bitbox02ProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
@@ -76,6 +72,7 @@ type Manager struct {
 	channelConfigDir  string // passed to each bitbox01 device during initialization
 	bitbox02ConfigDir string // passed to each bitbox02 device during initialization
 
+	deviceInfos  func() []DeviceInfo
 	onRegister   func(device.Interface) error
 	onUnregister func(string)
 
@@ -92,6 +89,7 @@ type Manager struct {
 func NewManager(
 	channelConfigDir string,
 	bitbox02ConfigDir string,
+	deviceInfos func() []DeviceInfo,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
 	onlyOne bool,
@@ -100,6 +98,7 @@ func NewManager(
 		devices:           map[string]device.Interface{},
 		channelConfigDir:  channelConfigDir,
 		bitbox02ConfigDir: bitbox02ConfigDir,
+		deviceInfos:       deviceInfos,
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
 		onlyOne:           onlyOne,
@@ -108,21 +107,15 @@ func NewManager(
 	}
 }
 
-func deviceIdentifier(deviceInfo hid.DeviceInfo) string {
-	return hex.EncodeToString([]byte(deviceInfo.Path))
-}
-
-func deviceInfoLogFields(deviceInfo hid.DeviceInfo) logrus.Fields {
+func deviceInfoLogFields(deviceInfo DeviceInfo) logrus.Fields {
 	return logrus.Fields{
-		"path":         deviceInfo.Path,
-		"vendorID":     deviceInfo.VendorID,
-		"productID":    deviceInfo.ProductID,
-		"release":      deviceInfo.Release,
-		"serial":       deviceInfo.Serial,
-		"manufacturer": deviceInfo.Manufacturer,
-		"product":      deviceInfo.Product,
-		"usagePage":    deviceInfo.UsagePage,
-		"usage":        deviceInfo.Usage,
+		"identifier":   deviceInfo.Identifier(),
+		"vendorID":     deviceInfo.VendorID(),
+		"productID":    deviceInfo.ProductID(),
+		"serial":       deviceInfo.Serial(),
+		"manufacturer": deviceInfo.Manufacturer(),
+		"product":      deviceInfo.Product(),
+		"usagePage":    deviceInfo.UsagePage(),
 	}
 }
 
@@ -140,14 +133,14 @@ func (manager *Manager) parseVersion(serial string) (*semver.SemVer, error) {
 	return version, err
 }
 
-func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, error) {
-	deviceID := deviceIdentifier(deviceInfo)
+func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error) {
+	deviceID := deviceInfo.Identifier()
 	manager.log.
 		WithField("device-id", deviceID).
 		WithFields(deviceInfoLogFields(deviceInfo)).
 		Info("Registering BitBox")
-	bootloader := deviceInfo.Product == "bootloader" || deviceInfo.Product == "Digital Bitbox bootloader"
-	version, err := manager.parseVersion(deviceInfo.Serial)
+	bootloader := deviceInfo.Product() == "bootloader" || deviceInfo.Product() == "Digital Bitbox bootloader"
+	version, err := manager.parseVersion(deviceInfo.Serial())
 	if err != nil {
 		return nil, err
 	}
@@ -189,13 +182,13 @@ func (manager *Manager) makeBitBox(deviceInfo hid.DeviceInfo) (*bitbox.Device, e
 	return device, nil
 }
 
-func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Device, error) {
-	deviceID := deviceIdentifier(deviceInfo)
+func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, error) {
+	deviceID := deviceInfo.Identifier()
 	manager.log.
 		WithField("device-id", deviceID).
 		WithFields(deviceInfoLogFields(deviceInfo)).
 		Info("Registering BitBox02")
-	version, err := manager.parseVersion(deviceInfo.Serial)
+	version, err := manager.parseVersion(deviceInfo.Serial())
 	if err != nil {
 		return nil, err
 	}
@@ -214,14 +207,14 @@ func (manager *Manager) makeBitBox02(deviceInfo hid.DeviceInfo) (*bitbox02.Devic
 	), nil
 }
 
-func (manager *Manager) makeBitBox02Bootloader(deviceInfo hid.DeviceInfo) (
+func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	*bitbox02bootloader.Device, error) {
-	deviceID := deviceIdentifier(deviceInfo)
+	deviceID := deviceInfo.Identifier()
 	manager.log.
 		WithField("device-id", deviceID).
 		WithFields(deviceInfoLogFields(deviceInfo)).
 		Info("Registering BitBox02 bootloader")
-	version, err := manager.parseVersion(deviceInfo.Serial)
+	version, err := manager.parseVersion(deviceInfo.Serial())
 	if err != nil {
 		return nil, err
 	}
@@ -246,8 +239,8 @@ func (manager *Manager) checkIfRemoved(deviceID string) bool {
 	// short amount of time even though the device is still plugged in. The workaround is to check
 	// multiple times.
 	for i := 0; i < 5; i++ {
-		for _, deviceInfo := range DeviceInfos() {
-			if deviceIdentifier(deviceInfo) == deviceID {
+		for _, deviceInfo := range manager.deviceInfos() {
+			if deviceInfo.Identifier() == deviceID {
 				return false
 			}
 		}
@@ -269,9 +262,9 @@ func (manager *Manager) listen() {
 		}
 
 		// Check if device was inserted.
-		deviceInfos := DeviceInfos()
+		deviceInfos := manager.deviceInfos()
 		for _, deviceInfo := range deviceInfos {
-			deviceID := deviceIdentifier(deviceInfo)
+			deviceID := deviceInfo.Identifier()
 			// Skip if already registered.
 			if _, ok := manager.devices[deviceID]; ok {
 				continue

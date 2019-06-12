@@ -48,6 +48,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -116,6 +117,11 @@ type qtEnvironment struct {
 // NotifyUser implements backend.Environment
 func (env qtEnvironment) NotifyUser(text string) {
 	env.notifyUser(text)
+}
+
+// DeviceInfos implements backend.Environment
+func (env qtEnvironment) DeviceInfos() []usb.DeviceInfo {
+	return usb.DeviceInfos()
 }
 
 //export serve

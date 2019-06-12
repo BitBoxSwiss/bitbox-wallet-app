@@ -97,6 +97,8 @@ var ErrAccountAlreadyExists = errors.New("already exists")
 type Environment interface {
 	// NotifyUser notifies the user, via desktop notifcation, mobile notification area, ...
 	NotifyUser(string)
+	// DeviceInfos returns a list of available recognized devices (BitBox01, BitBox02, ...).
+	DeviceInfos() []usb.DeviceInfo
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -576,6 +578,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
+		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister, onlyOne).Start()
 	backend.initPersistedAccounts()

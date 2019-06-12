@@ -19,6 +19,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
@@ -31,6 +32,11 @@ type androidEnvironment struct {
 // NotifyUser implements backend.Environment
 func (androidEnvironment) NotifyUser(text string) {
 	// TODO: use android notification center.
+}
+
+// DeviceInfos implements backend.Environment
+func (androidEnvironment) DeviceInfos() []usb.DeviceInfo {
+	return []usb.DeviceInfo{}
 }
 
 // Serve serves the BitBox Wallet API for use in a mobile client.
