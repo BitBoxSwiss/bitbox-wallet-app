@@ -576,6 +576,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
+		usb.DeviceInfos,
 		backend.Register,
 		backend.Deregister, onlyOne).Start()
 	backend.initPersistedAccounts()
