@@ -25,6 +25,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
@@ -65,6 +66,8 @@ func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
 }
 
 func main() {
+	config.SetAppDir("appfolder.dev")
+
 	mainnet := flag.Bool("mainnet", false, "switch to mainnet instead of testnet coins")
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
 	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
@@ -85,9 +88,8 @@ func main() {
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend, err := backend.NewBackend(
-		arguments.NewArguments("appfolder.dev", !*mainnet, *regtest, *multisig, *devmode),
-		webdevEnvironment{},
-	)
+		arguments.NewArguments(config.AppDir(), !*mainnet, *regtest, *multisig, *devmode),
+		webdevEnvironment{})
 	if err != nil {
 		log.Fatal(err)
 	}

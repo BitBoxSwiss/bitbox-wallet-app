@@ -34,15 +34,28 @@ import (
 //
 // When replacing the value in tests, make sure initAppFolderOnce below
 // has already been called.
+
+var mu sync.RWMutex
 var appFolder string
 
-func initAppFolder() {
+// SetAppDir sets the app folder (retrieved by AppDir()) and can only be called once.
+func SetAppDir(folder string) {
+	mu.Lock()
+	defer mu.Unlock()
+	if appFolder != "" {
+		panic("app folder already set")
+	}
+	appFolder = folder
+}
+
+func defaultAppFolder() string {
+	var folder string
 	switch runtime.GOOS {
 	case "darwin":
 		// Usually /Users/$USER/Library/Application Support.
-		appFolder = os.Getenv("HOME") + "/Library/Application Support"
+		folder = os.Getenv("HOME") + "/Library/Application Support"
 	case "windows":
-		appFolder = os.Getenv("APPDATA")
+		folder = os.Getenv("APPDATA")
 	case "linux":
 		// Previously, we always used $HOME/.config/bitbox to store paired channel data.
 		// Because XDG_CONFIG_HOME is preferred over HOME env var in default setup,
@@ -51,26 +64,32 @@ func initAppFolder() {
 		// So, check for the existing dir first. If that fails, use the regular approach.
 		// For most users, it is a noop.
 		// See https://github.com/digitalbitbox/bitbox-wallet-app/pull/16 for more details.
-		appFolder = filepath.Join(os.Getenv("HOME"), ".config")
-		if fi, err := os.Stat(appFolder + "/bitbox"); err == nil && fi.IsDir() {
+		folder = filepath.Join(os.Getenv("HOME"), ".config")
+		if fi, err := os.Stat(folder + "/bitbox"); err == nil && fi.IsDir() {
 			break
 		}
 		// Usually /home/$USER/.config.
-		appFolder = os.Getenv("XDG_CONFIG_HOME")
-		if appFolder == "" {
-			appFolder = filepath.Join(os.Getenv("HOME"), ".config")
+		folder = os.Getenv("XDG_CONFIG_HOME")
+		if folder == "" {
+			folder = filepath.Join(os.Getenv("HOME"), ".config")
 		}
 	}
-	appFolder = filepath.Join(appFolder, "bitbox")
+	folder = filepath.Join(folder, "bitbox")
+	return folder
 }
-
-// initAppFolderOnce serializes initialization of the appFolder in calls to AppDir.
-var initAppFolderOnce sync.Once
 
 // AppDir returns the absolute path to the default BitBox desktop app directory
 // in the user standard config location.
 func AppDir() string {
-	initAppFolderOnce.Do(initAppFolder)
+	mu.RLock()
+	folder := appFolder
+	mu.RUnlock()
+	if folder != "" {
+		return folder
+	}
+	mu.Lock()
+	appFolder = defaultAppFolder()
+	mu.Unlock()
 	return appFolder
 }
 
