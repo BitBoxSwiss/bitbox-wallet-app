@@ -32,6 +32,7 @@ import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
+import { BitBoxBase } from './routes/bitboxbase/bitboxbase';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
@@ -44,6 +45,7 @@ interface State {
     accountsInitialized: boolean;
     deviceIDs: string[];
     devices: Devices;
+    bitboxBaseIDs: string[];
 }
 
 type Props = TranslateProps;
@@ -54,6 +56,7 @@ class App extends Component<Props, State> {
         accountsInitialized: false,
         deviceIDs: [],
         devices: {},
+        bitboxBaseIDs: [],
     };
 
     private unsubscribe!: () => void;
@@ -69,6 +72,7 @@ class App extends Component<Props, State> {
 
     public componentDidMount() {
         this.onDevicesRegisteredChanged();
+        this.onBitBoxBasesRegisteredChanged();
         this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
@@ -104,6 +108,12 @@ class App extends Component<Props, State> {
                     break;
                 }
                 break;
+            case 'bitboxbases':
+                switch (data) {
+                case 'registeredChanged':
+                    this.onBitBoxBasesRegisteredChanged();
+                    break;
+                }
             }
         });
     }
@@ -116,6 +126,16 @@ class App extends Component<Props, State> {
         apiGet('devices/registered').then(devices => {
             const deviceIDs = Object.keys(devices);
             this.setState({ devices, deviceIDs });
+        });
+    }
+
+    private onBitBoxBasesRegisteredChanged = () => {
+        apiGet('bitboxbases/registered').then(bases => {
+            let bitboxBaseIDs = [];
+            if (bases !== null) {
+                bitboxBaseIDs = bases;
+            }
+            this.setState({ bitboxBaseIDs });
         });
     }
 
@@ -142,7 +162,7 @@ class App extends Component<Props, State> {
 
     public render(
         {}: RenderableProps<Props>,
-        { accounts, devices, deviceIDs, accountsInitialized }: State,
+        { accounts, devices, deviceIDs, bitboxBaseIDs, accountsInitialized }: State,
     ) {
         return (
             <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
@@ -176,6 +196,9 @@ class App extends Component<Props, State> {
                             path="/add-account" />
                         <InitializeAllAccounts accounts={accounts}
                             path="/account-summary" />
+                        <BitBoxBase
+                          path="/bitboxbase"
+                          bitboxBaseIDs={bitboxBaseIDs} />
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings

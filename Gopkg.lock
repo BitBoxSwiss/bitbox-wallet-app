@@ -55,6 +55,14 @@
   revision = "ab6388e0c60ae4834a1f57511e20c17b5f78be4b"
 
 [[projects]]
+  digest = "1:8561fc011218ed9821f6d73057154e692cdfd0f37e929ef6c4a574b6299136cb"
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  pruneopts = ""
+  revision = "4b4cebaf850ec58f1bb1fec5bdebdf8501c2bc3f"
+  version = "v3.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:4115e9fad17f63edd4e5e2409b3c7d3c7372f338a677f973454ffab0a59bcddf"
   name = "github.com/cloudfoundry-attic/jibber_jabber"
@@ -171,6 +179,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:fc9d6a928810ad2ade605aa102a6aa6846f21f1bf0297eceb3c777e4dfdc5338"
+  name = "github.com/grandcat/zeroconf"
+  packages = ["."]
+  pruneopts = ""
+  revision = "85eadb44205c14827ae7cbb129bc7eed4488dd25"
+
+[[projects]]
+  branch = "master"
   digest = "1:7535c60bd75c6772c949551a2ce83d4ec6545d16d354ccf4d225a96a04cf8605"
   name = "github.com/karalabe/hid"
   packages = ["."]
@@ -184,6 +200,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "f71540b9dfdcfe64dbf2818e9b66423c6aafcacd"
+
+[[projects]]
+  digest = "1:fe5c46307cbb2fd38045ddfebb50860ca396599f1f166a46e53206c64c69ea50"
+  name = "github.com/miekg/dns"
+  packages = ["."]
+  pruneopts = ""
+  revision = "8aa92d4e02c501ba21e26fb92cf2fb9f23f56917"
+  version = "v1.1.9"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
@@ -280,6 +304,8 @@
     "blake2s",
     "chacha20poly1305",
     "curve25519",
+    "ed25519",
+    "ed25519/internal/edwards25519",
     "internal/chacha20",
     "internal/subtle",
     "pbkdf2",
@@ -295,7 +321,14 @@
   branch = "master"
   digest = "1:08e41d63f8dac84d83797368b56cf0b339e42d0224e5e56668963c28aec95685"
   name = "golang.org/x/net"
-  packages = ["websocket"]
+  packages = [
+    "bpf",
+    "internal/iana",
+    "internal/socket",
+    "ipv4",
+    "ipv6",
+    "websocket",
+  ]
   pruneopts = ""
   revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
 
@@ -362,6 +395,7 @@
     "github.com/golang/protobuf/proto",
     "github.com/gorilla/mux",
     "github.com/gorilla/websocket",
+    "github.com/grandcat/zeroconf",
     "github.com/karalabe/hid",
     "github.com/pkg/errors",
     "github.com/sirupsen/logrus",

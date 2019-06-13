@@ -86,6 +86,17 @@ function Sidebar(
                     </div>
                 }
                 <div className="sidebar_drawer"></div>
+                {debug &&
+                    <div className="sideBarItem">
+                      <Link activeClassName="sidebar-active" class="settings" href={`/bitboxbase`} title={t('sidebar.bitboxBase')}>
+                        <div className="stacked">
+                          <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
+                          <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
+                        </div>
+                        <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
+                      </Link>
+                    </div>
+                }
                 <div className="sidebar_bottom">
                     {
                         (debug && accountsInitialized && deviceIDs.length === 0) && (
