@@ -33,21 +33,14 @@ linters-settings:
     enabled-checks:
       - assignOp
       - builtinShadow
-      - busySelect
       - caseOrder
       - captLocal
-      - deadCodeAfterLogFatal
-      - deferInLoop
       - dupArg
       - dupBranchBody
       - dupCase
       - elseif
-      - evalOrder
       - flagDeref
-      - floatCompare
       - ifElseChain
-      - indexOnlyLoop
-      - namedConst
       - nilValReturn
       - rangeExprCopy
       - rangeValCopy
@@ -59,7 +52,6 @@ linters-settings:
       - underef
       - unlambda
       - unslice
-      - rangeValCopy
       - defaultCaseOrder
   gocyclo:
     min-complexity: 25

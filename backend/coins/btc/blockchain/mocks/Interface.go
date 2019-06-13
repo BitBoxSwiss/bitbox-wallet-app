@@ -58,7 +58,7 @@ func (_m *Interface) RegisterOnConnectionStatusChangedEvent(_a0 func(blockchain.
 }
 
 // RelayFee provides a mock function with given fields: _a0, _a1
-func (_m *Interface) RelayFee(_a0 func(btcutil.Amount) error, _a1 func(error)) {
+func (_m *Interface) RelayFee(_a0 func(btcutil.Amount), _a1 func(error)) {
 	_m.Called(_a0, _a1)
 }
 

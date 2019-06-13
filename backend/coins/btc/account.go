@@ -379,13 +379,12 @@ func (account *Account) updateFeeTargets() {
 	defer account.RLock()()
 	for _, feeTarget := range account.feeTargets {
 		func(feeTarget *FeeTarget) {
-			setFee := func(feeRatePerKb btcutil.Amount) error {
+			setFee := func(feeRatePerKb btcutil.Amount) {
 				defer account.Lock()()
 				feeTarget.feeRatePerKb = &feeRatePerKb
 				account.log.WithFields(logrus.Fields{"blocks": feeTarget.blocks,
 					"fee-rate-per-kb": feeRatePerKb}).Debug("Fee estimate per kb")
 				account.onEvent(accounts.EventFeeTargetsChanged)
-				return nil
 			}
 
 			account.blockchain.EstimateFee(
@@ -399,7 +398,8 @@ func (account *Account) updateFeeTargets() {
 						account.blockchain.RelayFee(setFee, func(error) {})
 						return nil
 					}
-					return setFee(*feeRatePerKb)
+					setFee(*feeRatePerKb)
+					return nil
 				},
 				func(error) {},
 			)

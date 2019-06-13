@@ -393,7 +393,7 @@ func (client *ElectrumClient) TransactionBroadcast(transaction *wire.MsgTx) erro
 // RelayFee does the blockchain.relayfee() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainrelayfee
 func (client *ElectrumClient) RelayFee(
-	success func(btcutil.Amount) error,
+	success func(btcutil.Amount),
 	cleanup func(error),
 ) {
 	client.rpc.Method(func(responseBytes []byte) error {
@@ -405,7 +405,8 @@ func (client *ElectrumClient) RelayFee(
 		if err != nil {
 			return errp.Wrap(err, "Failed to construct BTC amount")
 		}
-		return success(amount)
+		success(amount)
+		return nil
 	}, func() func(error) { return cleanup }, "blockchain.relayfee")
 }
 
