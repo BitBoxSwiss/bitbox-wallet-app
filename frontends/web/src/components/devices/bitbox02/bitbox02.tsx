@@ -48,6 +48,7 @@ interface State {
     status: '' |
     'require_firmware_upgrade' |
     'require_app_upgrade' |
+    'connected' |
     'unpaired' |
     'pairingFailed' |
     'uninitialized' |
@@ -128,7 +129,8 @@ class BitBox02 extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (!this.state.showWizard && ['unpaired', 'uninitialized', 'seeded'].includes(status)) {
+            console.log("STATUS", status);
+            if (!this.state.showWizard && ['connected', 'unpaired', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
             }
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
@@ -271,6 +273,15 @@ class BitBox02 extends Component<Props, State> {
                     <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer" style="background-color: #F9F9F9;">
                         <Steps>
+                            <Step active={status === 'connected'}
+                                  title={t('button.unlock')}>
+                                <div className={style.stepContext}>
+                                    <p>{t('unlock.description')}</p>
+                                </div>
+                                <div className={style.passwordGesturesGifWrapper}>
+                                    <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                </div>
+                            </Step>
                             <Step
                                 active={status === 'unpaired' || status === 'pairingFailed'}
                                 title={t('bitbox02Wizard.pairing.title')}>

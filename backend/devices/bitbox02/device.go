@@ -46,7 +46,7 @@ import (
 
 var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(1, 0, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(2, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.
@@ -70,6 +70,8 @@ const (
 const (
 	opICanHasHandShaek          = "h"
 	opICanHasPairinVerificashun = "v"
+	opAttestation               = "a"
+	opUnlock                    = "u"
 
 	responseSuccess = "\x00"
 )
@@ -118,7 +120,7 @@ func NewDevice(
 		communication: communication,
 		version:       version,
 		configDir:     configDir,
-		status:        StatusUnpaired,
+		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
 }
@@ -134,6 +136,22 @@ func (device *Device) Init(testing bool) {
 		device.changeStatus(StatusRequireAppUpgrade)
 		return
 	}
+
+	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
+		go func() {
+			_, err := device.queryRaw([]byte(opUnlock))
+			if err != nil {
+				panic(err)
+			}
+			device.pair()
+		}()
+	} else {
+		device.pair()
+	}
+}
+
+func (device *Device) pair() {
+	device.changeStatus(StatusUnpaired)
 
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair := device.configGetAppNoiseStaticKeypair()
