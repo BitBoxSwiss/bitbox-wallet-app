@@ -146,7 +146,7 @@ func serve(
 		log.WithError(err).Fatal("Failed to generate random string")
 	}
 	theBackend, err := backend.NewBackend(arguments.NewArguments(
-		config.AppDir(), *testnet, false, false, false),
+		config.AppDir(), *testnet, false, false, false, false),
 		&qtEnvironment{
 			notifyUser: func(text string) {
 				C.notifyUser(notifyUserCallback, C.CString(text))

@@ -47,8 +47,11 @@ type Arguments struct {
 	// Multisig stores whether the application is in multisig mode.
 	multisig bool
 
-	// devmode stores whether the application is in dev mode and, therefore, connects to the dev environment
+	// devmode stores whether the application is in dev mode
 	devmode bool
+
+	//devservers stores wether the app should connect to the dev servers. The devservers configuration is not persisted when switching back to production.
+	devservers bool
 
 	// log is the logger for this context
 	log *logrus.Entry
@@ -61,6 +64,7 @@ func NewArguments(
 	regtest bool,
 	multisig bool,
 	devmode bool,
+	devservers bool,
 ) *Arguments {
 	if !testing && regtest {
 		panic("Cannot use -regtest with -mainnet.")
@@ -87,6 +91,7 @@ func NewArguments(
 		regtest:                regtest,
 		multisig:               multisig,
 		devmode:                devmode,
+		devservers:             devservers,
 		log:                    log,
 	}
 
@@ -130,6 +135,11 @@ func (arguments *Arguments) Testing() bool {
 // DevMode returns whether the backend is in developer mode.
 func (arguments *Arguments) DevMode() bool {
 	return arguments.devmode
+}
+
+// DevServers returns whether the backend should use the development servers.
+func (arguments *Arguments) DevServers() bool {
+	return arguments.devservers
 }
 
 // Regtest returns whether the backend is for regtest only.

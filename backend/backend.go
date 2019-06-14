@@ -379,7 +379,7 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 }
 
 func (backend *Backend) defaultElectrumXServers(code string) []*rpc.ServerInfo {
-	if backend.arguments.DevMode() {
+	if backend.arguments.DevServers() {
 		return defaultDevServers(code)
 	}
 
