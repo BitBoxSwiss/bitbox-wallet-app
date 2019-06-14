@@ -23,8 +23,9 @@ const (
 	// device if it is initialzed).
 	StatusConnected = "connected"
 
-	// StatusUnpaired is the first status. After the pairing screen has been confirmed, we move to
-	// StatusUninitialized or StatusInitialized depending on the device status.
+	// StatusUnpaired means the pairing has not been confirmed yet. After the pairing screen has
+	// been confirmed, we move to StatusUninitialized or StatusInitialized depending on the device
+	// status.
 	StatusUnpaired Status = "unpaired"
 
 	// StatusPairingFailed is when the pairing code was rejected on the app or on the device.

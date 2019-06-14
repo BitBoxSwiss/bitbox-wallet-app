@@ -47,6 +47,7 @@ type BitBox02 interface {
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
+	Attestation() bool
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -63,6 +64,7 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("device", "bitbox02")}
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
+	handleFunc("/attestation", handlers.getAttestationHandler).Methods("GET")
 	handleFunc("/random-number", handlers.postGetRandomNumberHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHash).Methods("GET")
 	handleFunc("/channel-hash-verify", handlers.postChannelHashVerify).Methods("POST")
@@ -110,6 +112,11 @@ func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
 
 func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
 	return handlers.device.Status(), nil
+}
+
+func (handlers *Handlers) getAttestationHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Attestation")
+	return handlers.device.Attestation(), nil
 }
 
 func (handlers *Handlers) postGetRandomNumberHandler(_ *http.Request) (interface{}, error) {
