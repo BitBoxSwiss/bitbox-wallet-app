@@ -44,6 +44,8 @@ servewallet-regtest:
 	go install ./cmd/servewallet/... && servewallet -regtest
 servewallet-multisig:
 	go install ./cmd/servewallet/... && servewallet -multisig
+servewallet-prodservers:
+	go install ./cmd/servewallet/... && servewallet -devservers=false
 buildweb:
 	node --version
 	rm -rf ${WEBROOT}/build

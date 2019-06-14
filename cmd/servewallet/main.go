@@ -72,6 +72,7 @@ func main() {
 	regtest := flag.Bool("regtest", false, "use regtest instead of testnet coins")
 	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
 	devmode := flag.Bool("devmode", true, "switch to dev mode")
+	devservers := flag.Bool("devservers", true, "switch to dev servers")
 	flag.Parse()
 
 	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
@@ -88,7 +89,7 @@ func main() {
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend, err := backend.NewBackend(
-		arguments.NewArguments(config.AppDir(), !*mainnet, *regtest, *multisig, *devmode),
+		arguments.NewArguments(config.AppDir(), !*mainnet, *regtest, *multisig, *devmode, *devservers),
 		webdevEnvironment{})
 	if err != nil {
 		log.Fatal(err)

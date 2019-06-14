@@ -48,7 +48,7 @@ func Serve() {
 	}
 	connectionData := backendHandlers.NewConnectionData(8082, token)
 	backend, err := backend.NewBackend(
-		arguments.NewArguments(".", false, false, false, false),
+		arguments.NewArguments(".", false, false, false, false, false),
 		androidEnvironment{},
 	)
 	if err != nil {
