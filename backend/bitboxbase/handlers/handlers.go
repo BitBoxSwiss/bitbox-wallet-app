@@ -24,6 +24,7 @@ import (
 //Base models the api of the base middleware
 type Base interface {
 	BlockInfo() string
+	ConnectElectrum() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -40,6 +41,7 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/blockinfo", handlers.getBlockInfoHandler).Methods("GET")
+	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
 
 	return handlers
 }
@@ -60,4 +62,12 @@ func (handlers *Handlers) Uninit() {
 func (handlers *Handlers) getBlockInfoHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Block Info")
 	return handlers.base.BlockInfo(), nil
+}
+
+func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {
+	err := handlers.base.ConnectElectrum()
+	if err != nil {
+		return map[string]interface{}{"success": false}, nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }

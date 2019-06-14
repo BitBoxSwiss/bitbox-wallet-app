@@ -15,9 +15,15 @@
 package bitboxbase
 
 import (
+	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/updater"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/sirupsen/logrus"
 )
 
 // Interface represents bitbox base.
@@ -38,26 +44,97 @@ type Interface interface {
 
 	// BlockInfo returns some blockchain information.
 	BlockInfo() string
+
+	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
+	ConnectElectrum() error
 }
 
 //BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
 	bitboxBaseID    string //This is just the ip at the moment, but will be an actual unique string, once the noise pairing is implemented
 	registerTime    time.Time
+	address         string
 	closed          bool
 	updaterInstance *updater.Updater
+	electrsRPCPort  string
+	network         string
+	log             *logrus.Entry
+	config          *config.Config
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
-func NewBitBoxBase(ip string, id string) (*BitBoxBase, error) {
+func NewBitBoxBase(address string, id string, config *config.Config) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
+		log:             logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:    id,
 		closed:          false,
-		updaterInstance: updater.NewUpdater(),
+		address:         strings.Split(address, ":")[0],
+		updaterInstance: updater.NewUpdater(address),
 		registerTime:    time.Now(),
+		config:          config,
 	}
-	err := bitboxBase.GetUpdaterInstance().Connect(ip, bitboxBase.bitboxBaseID)
+	err := bitboxBase.GetUpdaterInstance().Connect(address, bitboxBase.bitboxBaseID)
+	if err != nil {
+		return nil, err
+	}
+
+	bodyBytes, err := bitboxBase.GetUpdaterInstance().GetEnv()
+	if err != nil {
+		return nil, err
+	}
+	var envData map[string]interface{}
+	if err := json.Unmarshal(bodyBytes, &envData); err != nil {
+		bitboxBase.log.WithError(err).Error(" Failed to unmarshal GetEnv body bytes")
+		//bitboxBase.GetUpdaterInstance().Stop()
+		return bitboxBase, err
+	}
+	var ok bool
+	bitboxBase.electrsRPCPort, ok = envData["electrsRPCPort"].(string)
+	if !ok {
+		bitboxBase.log.Error(" Getenv did not return an electrsRPCPort string field")
+		return bitboxBase, err
+	}
+	bitboxBase.network, ok = envData["network"].(string)
+	if !ok {
+		bitboxBase.log.Error(" Getenv did not return a network string field")
+		return bitboxBase, err
+	}
 	return bitboxBase, err
+}
+
+// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
+func (base *BitBoxBase) ConnectElectrum() error {
+	electrumAddress := base.address + ":" + base.electrsRPCPort
+
+	electrumCert, err := electrum.DownloadCert(electrumAddress)
+	if err != nil {
+		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())
+		return err
+	}
+
+	if err := electrum.CheckElectrumServer(
+		electrumAddress,
+		electrumCert,
+		base.log); err != nil {
+		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())
+		return err
+	}
+
+	base.log.WithField("ElectrumAddress:", electrumAddress).Debug("Setting config to base electrum Server...")
+
+	// BaseBtcConfig sets the TBTC configs to the provided cert and ip.
+	if base.isTestnet() {
+		base.config.SetTBTCElectrumServers(electrumAddress, electrumCert)
+	} else {
+		base.config.SetBTCElectrumServers(electrumAddress, electrumCert)
+	}
+	// Disable Litecoin and Ethereum accounts - we do not want any more traffic hitting other servers
+	base.config.SetBtcOnly()
+
+	if err := base.config.SetAppConfig(base.config.AppConfig()); err != nil {
+		return err
+	}
+	return nil
 }
 
 //GetUpdaterInstance return ths current instance of the updater
@@ -78,6 +155,11 @@ func (base *BitBoxBase) Identifier() string {
 //GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
+}
+
+//isTestnet returns a boolean that is true when connected to a base serving testnet and false otherwise
+func (base *BitBoxBase) isTestnet() bool {
+	return base.network == "testnet"
 }
 
 //Close implements a method to unset the bitboxBase

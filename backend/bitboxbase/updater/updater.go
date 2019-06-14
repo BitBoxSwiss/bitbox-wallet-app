@@ -20,9 +20,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"regexp"
-	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -38,6 +36,7 @@ type Updater struct {
 	blockchainInfo string
 	log            *logrus.Entry
 	running        bool
+	address        string
 }
 
 // BlockInfo returns the last received blockchain information packet from the middleware
@@ -46,19 +45,19 @@ func (updater *Updater) BlockInfo() string {
 }
 
 // NewUpdater returns a new bitboxbase updater.
-func NewUpdater() *Updater {
+func NewUpdater(address string) *Updater {
 	updater := &Updater{
-		log: logging.Get().WithGroup("bitboxbase"),
+		log:     logging.Get().WithGroup("bitboxbase"),
+		address: address,
 	}
 	return updater
 }
 
 //Connect start the websocket go routine, first checking if the middleware is reachable
-func (updater *Updater) Connect(ip string, bitboxBaseID string) error {
+func (updater *Updater) Connect(address string, bitboxBaseID string) error {
 	//TODO: This is where the initial rest call should go. The initial call initiates the noise authentication pairing.
 	//This should not be asynchronous, the frontend should not show something until the pairing initiates
-	simpleURL := url.URL{Scheme: "http", Host: ip, Path: "/"}
-	response, err := http.Get(simpleURL.String())
+	response, err := http.Get("http://" + address + "/")
 	//defer response.Body.Close()
 	if err != nil {
 		updater.log.Println("No response from middleware", err)
@@ -84,8 +83,23 @@ func (updater *Updater) Connect(ip string, bitboxBaseID string) error {
 		return errors.New("updater: Unexpected Response Body Bytes")
 	}
 	updater.running = true
-	go listenWebsocket(updater, ip, bitboxBaseID)
+	go listenWebsocket(updater, bitboxBaseID)
 	return nil
+}
+
+//GetEnv makes an http GET request to the base and on success returns some environment data from the base such as the electrs port
+func (updater *Updater) GetEnv() ([]byte, error) {
+	response, err := http.Get("http://" + updater.address + "/getenv")
+	if err != nil {
+		updater.log.Error("GetEnv http GET request failed, unable to get information from BitBox Base")
+		return nil, err
+	}
+	bodyBytes, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		updater.log.Error("GetEnv body bytes not read properly")
+		return nil, err
+	}
+	return bodyBytes, err
 }
 
 //Stop provides a setter for the running flag
@@ -93,10 +107,9 @@ func (updater *Updater) Stop() {
 	updater.running = false
 }
 
-func listenWebsocket(updater *Updater, ip string, bitboxBaseID string) {
-	u := url.URL{Scheme: "ws", Host: ip, Path: "/ws"}
-	updater.log.Printf("connecting to %s", u.String())
-	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+func listenWebsocket(updater *Updater, bitboxBaseID string) {
+	updater.log.Printf("connecting to base websocket")
+	c, _, err := websocket.DefaultDialer.Dial("ws://"+updater.address+"/ws", nil)
 	if err != nil {
 		updater.log.Printf("Websocket dial failed: %s", err.Error())
 	}
@@ -116,7 +129,6 @@ func listenWebsocket(updater *Updater, ip string, bitboxBaseID string) {
 			Object:  updater.blockchainInfo,
 		})
 		updater.log.Printf("Received blockinfo: %s , from id: %s", updater.blockchainInfo, bitboxBaseID)
-		time.Sleep(time.Second)
 		if !updater.running {
 			return
 		}

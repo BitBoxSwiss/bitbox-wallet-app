@@ -21,7 +21,9 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+
 	"github.com/grandcat/zeroconf"
 	"github.com/sirupsen/logrus"
 )
@@ -35,7 +37,8 @@ type Detector struct {
 
 	removedIDs map[string]bool //keeps track of the bases that were removed manually by the user.
 
-	log *logrus.Entry
+	log    *logrus.Entry
+	config *config.Config
 }
 
 // NewDetector creates a new detector. onRegister is called when a bitboxbase has been
@@ -44,19 +47,21 @@ type Detector struct {
 func NewDetector(
 	onRegister func(bitboxbase.Interface) error,
 	onUnregister func(string),
+	config *config.Config,
 ) *Detector {
 	return &Detector{
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
 		onRegister:          onRegister,
 		onUnregister:        onUnregister,
 		removedIDs:          make(map[string]bool),
+		config:              config,
 
 		log: logging.Get().WithGroup("detector"),
 	}
 }
 
 // TryMakeNewBase attempts to create a new bitboxBase connection to the BitBox base. Returns true if successful, false otherwise.
-func (detector *Detector) TryMakeNewBase(ip string) (bool, error) {
+func (detector *Detector) TryMakeNewBase(address string) (bool, error) {
 	for bitboxBaseID, bitboxBase := range detector.baseDeviceInterface {
 		// Check if bitboxbase was removed.
 		if detector.checkIfRemoved(bitboxBaseID) {
@@ -67,15 +72,14 @@ func (detector *Detector) TryMakeNewBase(ip string) (bool, error) {
 		}
 	}
 
-	// Make the id the ip for now, later the pairing should be factored in here as well.
-	bitboxBaseID := ip
+	// Make the id the address for now, later the pairing should be factored in here as well.
+	bitboxBaseID := address
 	// Skip if already registered.
 	if _, ok := detector.baseDeviceInterface[bitboxBaseID]; ok {
 		return false, nil
 	}
-	var baseDevice bitboxbase.Interface
-	var err error
-	baseDevice, err = bitboxbase.NewBitBoxBase(ip, bitboxBaseID)
+
+	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, detector.config)
 
 	if err != nil {
 		detector.log.WithError(err).Error("Failed to register Base")

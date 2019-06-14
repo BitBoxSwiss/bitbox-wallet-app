@@ -15,10 +15,6 @@
 package backend
 
 import (
-	"bytes"
-	"crypto/tls"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -31,7 +27,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/mdns"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
@@ -42,7 +37,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -156,7 +150,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log:         log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
-	backend.baseDetector = mdns.NewDetector(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister)
+	backend.baseDetector = mdns.NewDetector(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
 
 	if err != nil {
 		return nil, err
@@ -761,47 +755,13 @@ func (backend *Backend) Rates() map[string]map[string]float64 {
 
 // DownloadCert downloads the first element of the remote certificate chain.
 func (backend *Backend) DownloadCert(server string) (string, error) {
-	var pemCert []byte
-	conn, err := tls.Dial("tcp", server, &tls.Config{
-		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
-			if len(rawCerts) == 0 {
-				return errp.New("no remote certs")
-			}
-
-			certificatePEM := &pem.Block{Type: "CERTIFICATE", Bytes: rawCerts[0]}
-			certificatePEMBytes := &bytes.Buffer{}
-			if err := pem.Encode(certificatePEMBytes, certificatePEM); err != nil {
-				panic(err)
-			}
-			pemCert = certificatePEMBytes.Bytes()
-			return nil
-		},
-		InsecureSkipVerify: true,
-	})
-	if err != nil {
-		return "", err
-	}
-	_ = conn.Close()
-	return string(pemCert), nil
+	return electrum.DownloadCert(server)
 }
 
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func (backend *Backend) CheckElectrumServer(server string, pemCert string) error {
-	backends := []rpc.Backend{
-		electrum.NewElectrum(backend.log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}),
-	}
-	conn, err := backends[0].EstablishConnection()
-	if err != nil {
-		return err
-	}
-	_ = conn.Close()
-	// Simple check if the server is an electrum server.
-	jsonrpcClient := jsonrpc.NewRPCClient(backends, backend.log)
-	electrumClient := client.NewElectrumClient(jsonrpcClient, backend.log)
-	defer electrumClient.Close()
-	_, err = electrumClient.ServerVersion()
-	return err
+	return electrum.CheckElectrumServer(server, pemCert, backend.log)
 }
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in
