@@ -56,10 +56,9 @@ export interface AccountInfo {
 }
 
 interface State {
-    determiningStatus: boolean;
     initialized: boolean;
     connected: boolean;
-    transactions: any[]; // define once transaction.jsx is converted
+    transactions?: any[]; // define once transaction.jsx is converted
     balance?: BalanceInterface;
     hasCard: boolean;
     exported: string;
@@ -71,15 +70,9 @@ type Props = AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
     public state = {
-        // We update the account state in componentDidUpdate(), without resetting
-        // the state, to avoid a rerender (screen flash). For a split second however, the state
-        // is old/undefined (e.g. the new account might not be initialized, but state.initialized
-        // is still true from a previous account until it is updated in onStatusChanged()).
-        // determiningStatus indicates this situation and is true during that time.
-        determiningStatus: false,
         initialized: false,
         connected: false,
-        transactions: [],
+        transactions: undefined,
         balance: undefined,
         hasCard: false,
         exported: '',
@@ -104,7 +97,10 @@ class Account extends Component<Props, State> {
 
     public componentWillReceiveProps(nextProps) {
         if (nextProps.code && nextProps.code !== this.props.code) {
-            this.setState({ determiningStatus: true });
+            this.setState({
+                balance: undefined,
+                transactions: undefined,
+            });
         }
     }
 
@@ -171,17 +167,24 @@ class Account extends Component<Props, State> {
             return;
         }
         apiGet(`account/${code}/status`).then(status => {
+            if (this.props.code !== code) {
+                // Results came in after the account was switched. Ignore.
+                return;
+            }
             const state = {
                 initialized: status.includes('accountSynced'),
                 connected: !status.includes('offlineMode'),
                 fatalError: status.includes('fatalError'),
-                determiningStatus: false,
             };
             if (!state.initialized && !status.includes('accountDisabled')) {
                 apiPost(`account/${code}/init`);
             }
             if (state.initialized && !status.includes('accountDisabled')) {
                 apiGet(`account/${code}/info`).then(accountInfo => {
+                    if (this.props.code !== code) {
+                        // Results came in after the account was switched. Ignore.
+                        return;
+                    }
                     this.setState({ accountInfo });
                 });
             }
@@ -196,15 +199,26 @@ class Account extends Component<Props, State> {
             return;
         }
         if (this.state.initialized && this.state.connected) {
+            const expectedCode = this.props.code;
             apiGet(`account/${this.props.code}/balance`).then(balance => {
+                if (this.props.code !== expectedCode) {
+                    // Results came in after the account was switched. Ignore.
+                    return;
+                }
                 this.setState({ balance });
             });
             apiGet(`account/${this.props.code}/transactions`).then(transactions => {
+                if (this.props.code !== expectedCode) {
+                    // Results came in after the account was switched. Ignore.
+                    return;
+                }
                 this.setState({ transactions });
             });
         } else {
-            this.setState({ balance: undefined });
-            this.setState({ transactions: [] });
+            this.setState({
+                balance: undefined,
+                transactions: undefined,
+            });
         }
         this.setState({ exported: '' });
     }
@@ -230,6 +244,10 @@ class Account extends Component<Props, State> {
         return Object.keys(devices);
     }
 
+    private dataLoaded = () => {
+        return this.state.balance !== undefined && this.state.transactions !== undefined;
+    }
+
     public render(
         {
             t,
@@ -240,7 +258,6 @@ class Account extends Component<Props, State> {
             transactions,
             initialized,
             connected,
-            determiningStatus,
             balance,
             hasCard,
             exported,
@@ -252,7 +269,7 @@ class Account extends Component<Props, State> {
         if (!account) {
             return null;
         }
-        const noTransactions = (initialized && transactions.length <= 0);
+        const noTransactions = (initialized && transactions !== undefined && transactions.length <= 0);
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -306,13 +323,13 @@ class Account extends Component<Props, State> {
                         </div>
                     </Header>
                     <div class={['innerContainer', ''].join(' ')}>
-                        {initialized && !determiningStatus && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
+                        {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                         {
-                            !initialized || !connected || fatalError ? (
+                            !initialized || !connected || !this.dataLoaded() || fatalError ? (
                                 <Spinner text={
                                     !connected && t('account.reconnecting') ||
                                     !initialized && t('account.initializing') ||
-                                    fatalError && t('account.fatalError')
+                                    fatalError && t('account.fatalError') || ''
                                 } />
                             ) : (
                                     <Transactions
@@ -333,19 +350,19 @@ class Account extends Component<Props, State> {
                         <Entry key="accountSendDisabled" entry={t('guide.accountSendDisabled', { unit: balance.available.unit })} />
                     )}
                     <Entry key="accountReload" entry={t('guide.accountReload')} />
-                    {transactions.length > 0 && (
+                    {transactions !== undefined && transactions.length > 0 && (
                         <Entry key="accountTransactionLabel" entry={t('guide.accountTransactionLabel')} />
                     )}
-                    {transactions.length > 0 && (
+                    {transactions !== undefined && transactions.length > 0 && (
                         <Entry key="accountTransactionTime" entry={t('guide.accountTransactionTime')} />
                     )}
                     {this.isLegacy(account, accountInfo) && (
                         <Entry key="accountLegacyConvert" entry={t('guide.accountLegacyConvert')} />
                     )}
-                    {transactions.length > 0 && (
+                    {transactions !== undefined &&  transactions.length > 0 && (
                         <Entry key="accountTransactionAttributesGeneric" entry={t('guide.accountTransactionAttributesGeneric')} />
                     )}
-                    {transactions.length > 0 && isBitcoinBased(account.coinCode) && (
+                    {transactions !== undefined && transactions.length > 0 && isBitcoinBased(account.coinCode) && (
                         <Entry key="accountTransactionAttributesBTC" entry={t('guide.accountTransactionAttributesBTC')} />
                     )}
                     {balance && balance.hasIncoming && (
