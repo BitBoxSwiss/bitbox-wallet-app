@@ -44,10 +44,12 @@ type Props = BitBox02Props & TranslateProps;
 interface State {
     versionInfo?: VersionInfo;
     hash?: string;
+    attestationResult?: boolean;
     deviceVerified: boolean;
     status: '' |
     'require_firmware_upgrade' |
     'require_app_upgrade' |
+    'connected' |
     'unpaired' |
     'pairingFailed' |
     'uninitialized' |
@@ -71,6 +73,7 @@ class BitBox02 extends Component<Props, State> {
         super(props);
         this.state = {
             hash: undefined,
+            attestationResult: undefined,
             deviceVerified: false,
             status: '',
             settingPassword: false,
@@ -90,6 +93,9 @@ class BitBox02 extends Component<Props, State> {
     public componentDidMount() {
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
+        });
+        apiGet(this.apiPrefix() + '/attestation').then(attestationResult => {
+            this.setState({ attestationResult });
         });
         this.onChannelHashChanged();
         this.onStatusChanged();
@@ -128,7 +134,7 @@ class BitBox02 extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (!this.state.showWizard && ['unpaired', 'uninitialized', 'seeded'].includes(status)) {
+            if (!this.state.showWizard && ['connected', 'unpaired', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
             }
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
@@ -238,8 +244,21 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { versionInfo, hash, deviceVerified, status, appStatus, createWalletStatus, restoreBackupStatus,
-            settingPassword, creatingBackup, errorText, unlockOnly, showWizard, sdCardInserted, deviceName }: State,
+        { attestationResult,
+          versionInfo,
+          hash,
+          deviceVerified,
+          status,
+          appStatus,
+          createWalletStatus,
+          restoreBackupStatus,
+          settingPassword,
+          creatingBackup,
+          errorText,
+          unlockOnly,
+          showWizard,
+          sdCardInserted,
+          deviceName }: State,
     ) {
         if (status === '') {
             return null;
@@ -269,8 +288,23 @@ class BitBox02 extends Component<Props, State> {
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
+
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer" style="background-color: #F9F9F9;">
+                        { attestationResult === false && (
+                              <div>
+                                  {t('bitbox02Wizard.attestationFailed')}
+                              </div>
+                        )}
                         <Steps>
+                            <Step active={status === 'connected'}
+                                  title={t('button.unlock')}>
+                                <div className={style.stepContext}>
+                                    <p>{t('unlock.description')}</p>
+                                </div>
+                                <div className={style.passwordGesturesGifWrapper}>
+                                    <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                </div>
+                            </Step>
                             <Step
                                 active={status === 'unpaired' || status === 'pairingFailed'}
                                 title={t('bitbox02Wizard.pairing.title')}>

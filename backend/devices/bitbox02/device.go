@@ -45,8 +45,8 @@ import (
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(1, 0, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(2, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.
@@ -65,11 +65,17 @@ const (
 
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
 	EventStatusChanged device.Event = "statusChanged"
+
+	// EventAttestationCheckFailed is fired when the device does not pass the attestation signature
+	// check, indicating that it might not be an authentic device.
+	EventAttestationCheckFailed device.Event = "attestationCheckFailed"
 )
 
 const (
 	opICanHasHandShaek          = "h"
 	opICanHasPairinVerificashun = "v"
+	opAttestation               = "a"
+	opUnlock                    = "u"
 
 	responseSuccess = "\x00"
 )
@@ -82,6 +88,8 @@ type Device struct {
 	version *semver.SemVer
 
 	configDir string
+
+	attestation bool
 
 	deviceNoiseStaticPubkey   []byte
 	channelHash               string
@@ -118,7 +126,7 @@ func NewDevice(
 		communication: communication,
 		version:       version,
 		configDir:     configDir,
-		status:        StatusUnpaired,
+		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
 }
@@ -134,6 +142,27 @@ func (device *Device) Init(testing bool) {
 		device.changeStatus(StatusRequireAppUpgrade)
 		return
 	}
+
+	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
+		attestation, err := device.performAttestation()
+		if err != nil {
+			panic(err)
+		}
+		device.attestation = attestation
+		go func() {
+			_, err := device.queryRaw([]byte(opUnlock))
+			if err != nil {
+				panic(err)
+			}
+			device.pair()
+		}()
+	} else {
+		device.pair()
+	}
+}
+
+func (device *Device) pair() {
+	device.changeStatus(StatusUnpaired)
 
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair := device.configGetAppNoiseStaticKeypair()

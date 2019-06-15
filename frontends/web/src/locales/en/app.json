@@ -137,6 +137,7 @@
     }
   },
   "bitbox02Wizard": {
+    "attestationFailed": "Device attestation failed. Your BitBox may be counterfeit or compromised. Any coins on the BitBox02 may be at risk of being lost. Please contact support@shiftcrypto.ch immediately.",
     "backup": {
       "point1": "Select a backup on the microSD card",
       "point2": "Set a password for your device",
