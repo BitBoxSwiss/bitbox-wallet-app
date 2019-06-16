@@ -162,8 +162,6 @@ func (device *Device) Init(testing bool) {
 }
 
 func (device *Device) pair() {
-	device.changeStatus(StatusUnpaired)
-
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair := device.configGetAppNoiseStaticKeypair()
 	if keypair == nil {
@@ -236,6 +234,9 @@ func (device *Device) pair() {
 			channelHashBase32[5:10],
 			channelHashBase32[10:15],
 			channelHashBase32[15:20])
+		device.fireEvent(EventChannelHashChanged)
+		device.changeStatus(StatusUnpaired)
+
 		if err := device.communication.SendFrame(opICanHasPairinVerificashun); err != nil {
 			panic(err)
 		}
