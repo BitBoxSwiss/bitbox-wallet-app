@@ -27,6 +27,9 @@ func (device *Device) performAttestation() (bool, error) {
 	if err != nil {
 		return false, err
 	}
+	if string(response[:1]) != responseSuccess {
+		return false, nil
+	}
 	response = response[1:]
 	var bootloaderHash, devicePubkeyBytes, certificate, rootPubkeyIdentifier, challengeSignature []byte
 	bootloaderHash, response = response[:32], response[32:]

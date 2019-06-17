@@ -134,7 +134,7 @@ class BitBox02 extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (!this.state.showWizard && ['connected', 'unpaired', 'uninitialized', 'seeded'].includes(status)) {
+            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
             }
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
