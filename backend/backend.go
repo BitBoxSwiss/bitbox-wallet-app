@@ -163,8 +163,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 
-	backend.baseDetector = mdns.NewDetector(
-		backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
+	backend.baseDetector = mdns.NewDetector(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
 
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 

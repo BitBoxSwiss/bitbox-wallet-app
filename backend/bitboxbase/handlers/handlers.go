@@ -24,7 +24,7 @@ import (
 
 //Base models the api of the base middleware
 type Base interface {
-	BlockInfo() interface{}
+	MiddlewareInfo() interface{}
 	ConnectElectrum() error
 }
 
@@ -41,7 +41,7 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
-	handleFunc("/blockinfo", handlers.getBlockInfoHandler).Methods("GET")
+	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
 
 	return handlers
@@ -60,9 +60,9 @@ func (handlers *Handlers) Uninit() {
 	handlers.base = nil
 }
 
-func (handlers *Handlers) getBlockInfoHandler(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Block Info")
-	return jsonp.MustMarshal(handlers.base.BlockInfo()), nil
+	return jsonp.MustMarshal(handlers.base.MiddlewareInfo()), nil
 }
 
 func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {

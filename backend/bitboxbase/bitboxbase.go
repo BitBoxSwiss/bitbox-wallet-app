@@ -42,8 +42,8 @@ type Interface interface {
 	//GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 	GetRegisterTime() time.Time
 
-	// BlockInfo returns some blockchain information.
-	BlockInfo() interface{}
+	// MiddlewareInfo returns some blockchain information.
+	MiddlewareInfo() interface{}
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
@@ -51,27 +51,29 @@ type Interface interface {
 
 //BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
-	bitboxBaseID    string //This is just the ip at the moment, but will be an actual unique string, once the noise pairing is implemented
-	registerTime    time.Time
-	address         string
-	closed          bool
-	updaterInstance *updater.Updater
-	electrsRPCPort  string
-	network         string
-	log             *logrus.Entry
-	config          *config.Config
+	bitboxBaseID        string //This is just the ip currently
+	registerTime        time.Time
+	address             string
+	closed              bool
+	updaterInstance     *updater.Updater
+	electrsRPCPort      string
+	network             string
+	log                 *logrus.Entry
+	config              *config.Config
+	bitboxBaseConfigDir string
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
-func NewBitBoxBase(address string, id string, config *config.Config) (*BitBoxBase, error) {
+func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
-		log:             logging.Get().WithGroup("bitboxbase"),
-		bitboxBaseID:    id,
-		closed:          false,
-		address:         strings.Split(address, ":")[0],
-		updaterInstance: updater.NewUpdater(address),
-		registerTime:    time.Now(),
-		config:          config,
+		log:                 logging.Get().WithGroup("bitboxbase"),
+		bitboxBaseID:        id,
+		closed:              false,
+		address:             strings.Split(address, ":")[0],
+		updaterInstance:     updater.NewUpdater(address, bitboxBaseConfigDir),
+		registerTime:        time.Now(),
+		config:              config,
+		bitboxBaseConfigDir: bitboxBaseConfigDir,
 	}
 	err := bitboxBase.GetUpdaterInstance().Connect(address, bitboxBase.bitboxBaseID)
 	if err != nil {
@@ -142,8 +144,8 @@ func (base *BitBoxBase) GetUpdaterInstance() *updater.Updater {
 	return base.updaterInstance
 }
 
-//BlockInfo returns the received blockinfo packet from the updater
-func (base *BitBoxBase) BlockInfo() interface{} {
+//MiddlewareInfo returns the received MiddlewareInfo packet from the updater
+func (base *BitBoxBase) MiddlewareInfo() interface{} {
 	return base.GetUpdaterInstance().MiddlewareInfo()
 }
 

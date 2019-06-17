@@ -37,8 +37,9 @@ type Detector struct {
 
 	removedIDs map[string]bool //keeps track of the bases that were removed manually by the user.
 
-	log    *logrus.Entry
-	config *config.Config
+	log                 *logrus.Entry
+	config              *config.Config
+	bitboxBaseConfigDir string
 }
 
 // NewDetector creates a new detector. onRegister is called when a bitboxbase has been
@@ -48,6 +49,7 @@ func NewDetector(
 	onRegister func(bitboxbase.Interface) error,
 	onUnregister func(string),
 	config *config.Config,
+	bitboxBaseConfigDir string,
 ) *Detector {
 	return &Detector{
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
@@ -55,6 +57,7 @@ func NewDetector(
 		onUnregister:        onUnregister,
 		removedIDs:          make(map[string]bool),
 		config:              config,
+		bitboxBaseConfigDir: bitboxBaseConfigDir,
 
 		log: logging.Get().WithGroup("detector"),
 	}
@@ -79,7 +82,7 @@ func (detector *Detector) TryMakeNewBase(address string) (bool, error) {
 		return false, nil
 	}
 
-	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, detector.config)
+	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, detector.config, detector.bitboxBaseConfigDir)
 
 	if err != nil {
 		detector.log.WithError(err).Error("Failed to register Base")

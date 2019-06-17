@@ -24,8 +24,14 @@ export interface ConnectedBaseProps {
     bitboxBaseID: string;
 }
 
+interface BlockInfoType {
+    blocks: number;
+    difficulty: number;
+    lightningAlias: string;
+}
+
 interface State {
-    blockInfo: object;
+    blockInfo?: BlockInfoType;
     bitboxBaseID: string;
 }
 
@@ -36,7 +42,7 @@ export class ConnectedBase extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
-            blockInfo : {},
+            blockInfo: undefined,
             bitboxBaseID: '',
         };
     }
@@ -45,7 +51,7 @@ export class ConnectedBase extends Component<Props, State> {
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID) {
             this.setState({ bitboxBaseID : this.props.bitboxBaseID});
-            apiSubscribe('/bitboxbases/' + this.props.bitboxBaseID + '/blockinfo', ({ object }) => {
+            apiSubscribe('/bitboxbases/' + this.props.bitboxBaseID + '/middlewareinfo', ({ object }) => {
                 this.setState({ blockInfo: object });
             });
         }
@@ -84,17 +90,13 @@ export class ConnectedBase extends Component<Props, State> {
             return null;
         }
 
-        const blocks = 'blocks';
-        const difficulty = 'difficulty';
-        const lightningAlias = 'lightningAlias';
-
         return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <p>Block Number: {blockInfo[blocks]}</p>
-                        <p>Difficulty: {blockInfo[difficulty]}</p>
+                        <p>Block Number: {blockInfo.blocks}</p>
+                        <p>Difficulty: {blockInfo.difficulty}</p>
                         <p>Device ID: {bitboxBaseID}</p>
-                        <p>Lightning Alias: {blockInfo[lightningAlias]}</p>
+                        <p>Lightning Alias: {blockInfo.lightningAlias}</p>
                         <div class="buttons flex flex-row flex-end">
                             <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
                         </div>
