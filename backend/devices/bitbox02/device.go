@@ -649,12 +649,12 @@ func (device *Device) BTCSign(
 	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
 	tx := btcProposedTx.TXProposal.Transaction
 	signatures := make([]*btcec.Signature, len(tx.TxIn))
-	msgCoin, ok := msgCoinMap[coin.Code()]
+	msgCoin, ok := btcMsgCoinMap[coin.Code()]
 	if !ok {
 		return nil, errp.Newf("coin not supported: %s", coin.Code())
 	}
 	scriptType := btcProposedTx.TXProposal.AccountConfiguration.ScriptType()
-	msgScriptType, ok := msgScriptTypeMap[scriptType]
+	msgScriptType, ok := btcMsgScriptTypeMap[scriptType]
 	if !ok {
 		return nil, errp.Newf("Unsupported script type %s", scriptType)
 	}
@@ -713,7 +713,7 @@ func (device *Device) BTCSign(
 			if len(addresses) != 1 {
 				return nil, errp.New("couldn't parse pkScript")
 			}
-			msgOutputType, ok := msgOutputTypeMap[scriptClass]
+			msgOutputType, ok := btcMsgOutputTypeMap[scriptClass]
 			if !ok {
 				return nil, errp.Newf("unsupported output type: %d", scriptClass)
 			}

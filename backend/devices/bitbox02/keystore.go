@@ -48,6 +48,8 @@ func (keystore *keystore) SupportsAccount(
 	case *btc.Coin:
 		scriptType := meta.(signing.ScriptType)
 		return !multisig && scriptType != signing.ScriptTypeP2PKH
+	case *eth.Coin:
+		return true
 	default:
 		return false
 	}
@@ -55,9 +57,16 @@ func (keystore *keystore) SupportsAccount(
 
 // CanVerifyAddress implements keystore.Keystore.
 func (keystore *keystore) CanVerifyAddress(configuration *signing.Configuration, coin coinpkg.Coin) (bool, bool, error) {
-	_, ok := msgCoinMap[coin.Code()]
 	optional := false
-	return ok, optional, nil
+	switch coin.(type) {
+	case *btc.Coin:
+		_, ok := btcMsgCoinMap[coin.Code()]
+		return ok, optional, nil
+	case *eth.Coin:
+		_, ok := ethMsgCoinMap[coin.Code()]
+		return ok, optional, nil
+	}
+	return false, false, nil
 }
 
 // VerifyAddress implements keystore.Keystore.
@@ -70,17 +79,33 @@ func (keystore *keystore) VerifyAddress(
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
 	}
-	msgScriptType, ok := map[signing.ScriptType]messages.BTCScriptType{
-		signing.ScriptTypeP2PKH:      messages.BTCScriptType_SCRIPT_P2PKH,
-		signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptType_SCRIPT_P2WPKH_P2SH,
-		signing.ScriptTypeP2WPKH:     messages.BTCScriptType_SCRIPT_P2WPKH,
-	}[configuration.ScriptType()]
-	if !ok {
-		panic("unsupported script type")
+	switch coin.(type) {
+	case *btc.Coin:
+		msgScriptType, ok := map[signing.ScriptType]messages.BTCScriptType{
+			signing.ScriptTypeP2PKH:      messages.BTCScriptType_SCRIPT_P2PKH,
+			signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptType_SCRIPT_P2WPKH_P2SH,
+			signing.ScriptTypeP2WPKH:     messages.BTCScriptType_SCRIPT_P2WPKH,
+		}[configuration.ScriptType()]
+		if !ok {
+			panic("unsupported script type")
+		}
+		_, err = keystore.device.BTCPub(
+			btcMsgCoinMap[coin.Code()], configuration.AbsoluteKeypath().ToUInt32(),
+			messages.BTCPubRequest_ADDRESS, msgScriptType, true)
+	case *eth.Coin:
+		msgCoin, ok := ethMsgCoinMap[coin.Code()]
+		if !ok {
+			return errp.New("unsupported coin")
+		}
+		_, err := keystore.device.ETHPub(
+			msgCoin, configuration.AbsoluteKeypath().ToUInt32(),
+			messages.ETHPubRequest_ADDRESS, true)
+		if err != nil {
+			return err
+		}
+	default:
+		return errp.New("unsupported coin")
 	}
-	_, err = keystore.device.BTCPub(
-		msgCoinMap[coin.Code()], configuration.AbsoluteKeypath().ToUInt32(),
-		messages.BTCPubRequest_ADDRESS, msgScriptType, true)
 	return err
 }
 
@@ -89,39 +114,41 @@ func (keystore *keystore) CanVerifyExtendedPublicKey() bool {
 	return true
 }
 
-func (keystore *keystore) VerifyExtendedPublicKey(coin coinpkg.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
+func (keystore *keystore) VerifyExtendedPublicKey(
+	coin coinpkg.Coin, keyPath signing.AbsoluteKeypath, configuration *signing.Configuration) error {
 	if !keystore.CanVerifyExtendedPublicKey() {
 		panic("CanVerifyExtendedPublicKey must be true")
 	}
-	msgCoin, ok := msgCoinMap[coin.Code()]
-	if !ok {
-		return errp.New("unsupported coin")
-	}
-	var msgOutputType messages.BTCPubRequest_OutputType
-	btcCoin, ok := coin.(*btc.Coin)
-	if !ok {
-		return errp.New("A coin must be BTC based to support xpub verification")
-	}
-	switch btcCoin.Net().Net {
-	case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
-		msgOutputTypes := map[signing.ScriptType]messages.BTCPubRequest_OutputType{
-			signing.ScriptTypeP2PKH:      messages.BTCPubRequest_XPUB,
-			signing.ScriptTypeP2WPKHP2SH: messages.BTCPubRequest_YPUB,
-			signing.ScriptTypeP2WPKH:     messages.BTCPubRequest_ZPUB,
-		}
-		msgOutputType, ok = msgOutputTypes[configuration.ScriptType()]
+	switch specificCoin := coin.(type) {
+	case *btc.Coin:
+		msgCoin, ok := btcMsgCoinMap[coin.Code()]
 		if !ok {
+			return errp.New("unsupported coin")
+		}
+		var msgOutputType messages.BTCPubRequest_OutputType
+		switch specificCoin.Net().Net {
+		case chaincfg.MainNetParams.Net, ltc.MainNetParams.Net:
+			msgOutputTypes := map[signing.ScriptType]messages.BTCPubRequest_OutputType{
+				signing.ScriptTypeP2PKH:      messages.BTCPubRequest_XPUB,
+				signing.ScriptTypeP2WPKHP2SH: messages.BTCPubRequest_YPUB,
+				signing.ScriptTypeP2WPKH:     messages.BTCPubRequest_ZPUB,
+			}
+			msgOutputType, ok = msgOutputTypes[configuration.ScriptType()]
+			if !ok {
+				msgOutputType = messages.BTCPubRequest_XPUB
+			}
+		case chaincfg.TestNet3Params.Net, ltc.TestNet4Params.Net:
+			msgOutputType = messages.BTCPubRequest_TPUB
+		default:
 			msgOutputType = messages.BTCPubRequest_XPUB
 		}
-	case chaincfg.TestNet3Params.Net, ltc.TestNet4Params.Net:
-		msgOutputType = messages.BTCPubRequest_TPUB
-	default:
-		msgOutputType = messages.BTCPubRequest_XPUB
-	}
-	_, err := keystore.device.BTCPub(
-		msgCoin, keyPath.ToUInt32(), msgOutputType, messages.BTCScriptType_SCRIPT_UNKNOWN, true)
-	if err != nil {
-		return err
+		_, err := keystore.device.BTCPub(
+			msgCoin, keyPath.ToUInt32(), msgOutputType, messages.BTCScriptType_SCRIPT_UNKNOWN, true)
+		if err != nil {
+			return err
+		}
+	case *eth.Coin:
+		return errp.New("unsupported operation")
 	}
 	return nil
 }
@@ -129,18 +156,33 @@ func (keystore *keystore) VerifyExtendedPublicKey(coin coinpkg.Coin, keyPath sig
 // ExtendedPublicKey implements keystore.Keystore.
 func (keystore *keystore) ExtendedPublicKey(
 	coin coinpkg.Coin, keyPath signing.AbsoluteKeypath) (*hdkeychain.ExtendedKey, error) {
-	msgCoin, ok := msgCoinMap[coin.Code()]
-	if !ok {
+	switch coin.(type) {
+	case *btc.Coin:
+		msgCoin, ok := btcMsgCoinMap[coin.Code()]
+		if !ok {
+			return nil, errp.New("unsupported coin")
+		}
+		xpubStr, err := keystore.device.BTCPub(
+			msgCoin, keyPath.ToUInt32(),
+			messages.BTCPubRequest_XPUB, messages.BTCScriptType_SCRIPT_UNKNOWN, false)
+		if err != nil {
+			return nil, err
+		}
+		return hdkeychain.NewKeyFromString(xpubStr)
+	case *eth.Coin:
+		msgCoin, ok := ethMsgCoinMap[coin.Code()]
+		if !ok {
+			return nil, errp.New("unsupported coin")
+		}
+		xpubStr, err := keystore.device.ETHPub(
+			msgCoin, keyPath.ToUInt32(), messages.ETHPubRequest_XPUB, false)
+		if err != nil {
+			return nil, err
+		}
+		return hdkeychain.NewKeyFromString(xpubStr)
+	default:
 		return nil, errp.New("unsupported coin")
 	}
-	var xpubStr string
-	xpubStr, err := keystore.device.BTCPub(
-		msgCoin, keyPath.ToUInt32(),
-		messages.BTCPubRequest_XPUB, messages.BTCScriptType_SCRIPT_UNKNOWN, false)
-	if err != nil {
-		return nil, err
-	}
-	return hdkeychain.NewKeyFromString(xpubStr)
 }
 
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
@@ -158,8 +200,38 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	return nil
 }
 
-func (keystore *keystore) signETHTransaction(*eth.TxProposal) error {
-	panic("todo")
+func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
+	msgCoin, ok := ethMsgCoinMap[txProposal.Coin.Code()]
+	if !ok {
+		return errp.New("unsupported coin")
+	}
+	tx := txProposal.Tx
+	recipient := tx.To()
+	if recipient == nil {
+		return errp.New("contract creation not supported")
+	}
+	signature, err := keystore.device.ETHSign(
+		msgCoin,
+		txProposal.Keypath.ToUInt32(),
+		tx.Nonce(),
+		tx.GasPrice(),
+		tx.Gas(),
+		*recipient,
+		tx.Value(),
+		tx.Data(),
+	)
+	if isErrorAbort(err) {
+		return errp.WithStack(keystorePkg.ErrSigningAborted)
+	}
+	if err != nil {
+		return err
+	}
+	signedTx, err := txProposal.Tx.WithSignature(txProposal.Signer, signature)
+	if err != nil {
+		return err
+	}
+	txProposal.Tx = signedTx
+	return nil
 }
 
 // SignTransaction implements keystore.Keystore.

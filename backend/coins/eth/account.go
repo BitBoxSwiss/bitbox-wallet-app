@@ -355,8 +355,9 @@ func (account *Account) Balance() (*accounts.Balance, error) {
 
 // TxProposal holds all info needed to create and sign a transacstion.
 type TxProposal struct {
-	Tx  *types.Transaction
-	Fee *big.Int
+	Coin coin.Coin
+	Tx   *types.Transaction
+	Fee  *big.Int
 	// Signer contains the sighash algo, which depends on the block number.
 	Signer types.Signer
 	// KeyPath is the location of this account's address/pubkey/privkey.
@@ -423,6 +424,7 @@ func (account *Account) newTx(
 		common.HexToAddress(recipientAddress),
 		value, gasLimit, suggestedGasPrice, data)
 	return &TxProposal{
+		Coin:    account.coin,
 		Tx:      tx,
 		Fee:     fee,
 		Signer:  types.MakeSigner(account.coin.Net(), account.blockNumber),
@@ -501,7 +503,20 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 
 // VerifyAddress implements accounts.Interface.
 func (account *Account) VerifyAddress(addressID string) (bool, error) {
-	return true, nil
+	if account.signingConfiguration == nil {
+		return false, errp.New("account must be initialized")
+	}
+	account.synchronizer.WaitSynchronized()
+	defer account.RLock()()
+	canVerifyAddress, _, err := account.Keystores().CanVerifyAddresses(
+		account.signingConfiguration, account.Coin())
+	if err != nil {
+		return false, err
+	}
+	if canVerifyAddress {
+		return true, account.Keystores().VerifyAddress(account.signingConfiguration, account.Coin())
+	}
+	return false, nil
 }
 
 // CanVerifyAddresses implements accounts.Interface.
