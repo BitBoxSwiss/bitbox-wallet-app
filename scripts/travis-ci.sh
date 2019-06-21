@@ -7,6 +7,10 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
            -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
            -i shiftcrypto/bitbox-wallet-app \
            bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app qt-linux"
+    docker run --privileged \
+           -v ${TRAVIS_BUILD_DIR}:/opt/go/src/github.com/digitalbitbox/bitbox-wallet-app/ \
+           -i shiftcrypto/bitbox-wallet-app \
+           bash -c "make -C \$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app android"
 fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then

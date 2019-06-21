@@ -52,3 +52,7 @@ cd /opt && \
 apt-get install -y --no-install-recommends \
         ruby ruby-dev build-essential rpm
 gem install --no-ri --no-rdoc fpm
+
+# Needed for Android.
+apt-get install -y --no-install-recommends default-jdk
+/opt/android-sdk/tools/bin/sdkmanager "ndk-bundle" "platforms;android-29" "build-tools;29.0.0" "platform-tools"

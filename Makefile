@@ -25,6 +25,7 @@ envinit:
 	go get golang.org/x/tools/cmd/goimports
 	go get -u github.com/jteeuwen/go-bindata/...
 	go get -u golang.org/x/mobile/cmd/gomobile
+	gomobile init
 # This must be run in $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 osx-init:
 	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
