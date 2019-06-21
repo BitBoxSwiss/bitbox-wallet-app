@@ -15,8 +15,10 @@
 package electrum
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/pem"
 	"io"
 	"net"
 	"time"
@@ -142,4 +144,49 @@ func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry) blockch
 	}
 	jsonrpcClient := jsonrpc.NewRPCClient(backends, log)
 	return client.NewElectrumClient(jsonrpcClient, log)
+}
+
+// DownloadCert downloads the first element of the remote certificate chain.
+func DownloadCert(server string) (string, error) {
+	var pemCert []byte
+	conn, err := tls.Dial("tcp", server, &tls.Config{
+		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
+			if len(rawCerts) == 0 {
+				return errp.New("no remote certs")
+			}
+
+			certificatePEM := &pem.Block{Type: "CERTIFICATE", Bytes: rawCerts[0]}
+			certificatePEMBytes := &bytes.Buffer{}
+			if err := pem.Encode(certificatePEMBytes, certificatePEM); err != nil {
+				panic(err)
+			}
+			pemCert = certificatePEMBytes.Bytes()
+			return nil
+		},
+		InsecureSkipVerify: true,
+	})
+	if err != nil {
+		return "", err
+	}
+	_ = conn.Close()
+	return string(pemCert), nil
+}
+
+// CheckElectrumServer checks if a tls connection can be established with the electrum server, and
+// whether the server is an electrum server.
+func CheckElectrumServer(server string, pemCert string, log *logrus.Entry) error {
+	backends := []rpc.Backend{
+		NewElectrum(log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}),
+	}
+	conn, err := backends[0].EstablishConnection()
+	if err != nil {
+		return err
+	}
+	_ = conn.Close()
+	// Simple check if the server is an electrum server.
+	jsonrpcClient := jsonrpc.NewRPCClient(backends, log)
+	electrumClient := client.NewElectrumClient(jsonrpcClient, log)
+	defer electrumClient.Close()
+	_, err = electrumClient.ServerVersion()
+	return err
 }

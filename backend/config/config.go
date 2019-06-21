@@ -228,6 +228,39 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 	return config, nil
 }
 
+// SetBtcOnly sets non-bitcoin accounts in the config to false
+func (config *Config) SetBtcOnly() {
+	config.appConfig.Backend.LitecoinP2WPKHP2SHActive = false
+	config.appConfig.Backend.LitecoinP2WPKHActive = false
+	config.appConfig.Backend.EthereumActive = false
+}
+
+// SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert
+func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string) {
+	config.appConfig.Backend.BTC = btcCoinConfig{
+		ElectrumServers: []*rpc.ServerInfo{
+			{
+				Server:  electrumAddress,
+				TLS:     true,
+				PEMCert: electrumCert,
+			},
+		},
+	}
+}
+
+// SetTBTCElectrumServers sets the TBTC configuration to the provided electrumIP and electrumCert
+func (config *Config) SetTBTCElectrumServers(electrumAddress, electrumCert string) {
+	config.appConfig.Backend.TBTC = btcCoinConfig{
+		ElectrumServers: []*rpc.ServerInfo{
+			{
+				Server:  electrumAddress,
+				TLS:     true,
+				PEMCert: electrumCert,
+			},
+		},
+	}
+}
+
 func (config *Config) load() {
 	jsonBytes, err := ioutil.ReadFile(config.appConfigFilename)
 	if err != nil {

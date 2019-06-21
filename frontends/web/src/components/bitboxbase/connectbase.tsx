@@ -51,17 +51,25 @@ export class ConnectedBase extends Component<Props, State> {
         }
     }
 
-    private removeBitBoxBase = (event: Event) => {
-        event.preventDefault();
+    private removeBitBoxBase = () => {
         apiPost('bitboxbases/disconnectbase', {
             bitboxBaseID : this.props.bitboxBaseID,
-        }).then(data => {
-            const { success } = data;
+        }).then(({ success }) => {
             if (!success) {
                 alertUser('Did not work');
             }
         });
 
+    }
+
+    private connectElectrum = () => {
+        apiPost('bitboxbases/' + this.props.bitboxBaseID + '/connect-electrum', {
+            bitboxBaseID : this.props.bitboxBaseID,
+        }).then(({success}) => {
+            if (!success) {
+                alertUser(success.errorMessage);
+            }
+        });
     }
 
     public render(
@@ -95,6 +103,11 @@ export class ConnectedBase extends Component<Props, State> {
                         <p>Lightning Alias: {alias}</p>
                         <div class="buttons flex flex-row flex-end">
                             <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="buttons flex flex-row flex-end">
+                            <Button onClick={this.connectElectrum}>Connect Electrum</Button>
                         </div>
                     </div>
                 </div>
