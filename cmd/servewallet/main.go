@@ -92,7 +92,7 @@ func main() {
 		arguments.NewArguments(config.AppDir(), !*mainnet, *regtest, *multisig, *devmode, *devservers),
 		webdevEnvironment{})
 	if err != nil {
-		log.Fatal(err)
+		log.WithField("error", err).Panic(err)
 	}
 	handlers := backendHandlers.NewHandlers(backend, connectionData)
 	log.WithFields(logrus.Fields{"address": address, "port": port}).Info("Listening for HTTP")

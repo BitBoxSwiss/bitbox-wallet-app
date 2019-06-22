@@ -14,7 +14,7 @@ Wallet application.
 Install [Docker]
 (https://docs.docker.com/install/linux/docker-ce/):
 
-Initalize the Docker image:
+Initialize the Docker image:
 `make dockerinit`
 
 Enter the Docker environment:
@@ -54,6 +54,17 @@ Build artifacts:
 
 To create the installer, run the NSIS UI, then: compile NSI scripts -> frontend/qt/setup.nsi, or run
 `makensis setup.nsi`.
+
+## Android
+
+EXPERIMENTAL / ALPHA, do not use in production.
+
+Enter the Docker environment: `make dockerdev`
+
+Within the Docker dev environment, build the Android App: `make android`
+
+The Android Sdk is assumed to be in `/opt/android-sdk`. Use `make android ANDROID_SDK_ROOT=...` to
+use a different Sdk location.
 
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.

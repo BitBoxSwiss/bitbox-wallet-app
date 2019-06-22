@@ -143,7 +143,6 @@ func NewHandlers(
 ) *Handlers {
 	log := logging.Get().WithGroup("handlers")
 	router := mux.NewRouter()
-
 	handlers := &Handlers{
 		Router:  router,
 		backend: backend,

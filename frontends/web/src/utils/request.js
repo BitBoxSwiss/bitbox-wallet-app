@@ -18,6 +18,7 @@ import i18n from '../i18n/i18n';
 import { extConfig } from './config';
 import { alertUser } from '../components/alert/Alert';
 import { call, runningInQtWebEngine } from './qttransport';
+import { androidCall, runningInAndroid } from './androidtransport';
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');
@@ -57,6 +58,12 @@ export function apiGet(endpoint) {
             endpoint,
         }));
     }
+    if (runningInAndroid()) {
+        return androidCall(JSON.stringify({
+            method: 'GET',
+            endpoint,
+        }));
+    }
     return fetch(apiURL(endpoint), {
         method: 'GET'
     }).then(response => response.json()).then(handleError(endpoint));
@@ -65,6 +72,13 @@ export function apiGet(endpoint) {
 export function apiPost(endpoint, body) {
     if (runningInQtWebEngine()) {
         return call(JSON.stringify({
+            method: 'POST',
+            endpoint,
+            body: JSON.stringify(body)
+        }));
+    }
+    if (runningInAndroid()) {
+        return androidCall(JSON.stringify({
             method: 'POST',
             endpoint,
             body: JSON.stringify(body)

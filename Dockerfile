@@ -11,8 +11,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+FROM thyrlian/android-sdk:3.0 as android
 
 FROM shiftcrypto/qt5:16.04
+
+# Android
+COPY --from=android /opt/android-sdk /opt/android-sdk
 
 ADD scripts/docker_install.sh /tmp/
 RUN /tmp/docker_install.sh

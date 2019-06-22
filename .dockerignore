@@ -1,1 +1,4 @@
 /frontends/qt/build
+/frontends/android/BitBox/app/build
+/frontends/android/BitBox/app/captures
+/frontends/android/BitBox/app/.idea

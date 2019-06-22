@@ -140,11 +140,6 @@ func serve(
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).WithField("version", backend.Version).Info("environment")
-	var err error
-	token, err = random.HexString(16)
-	if err != nil {
-		log.WithError(err).Fatal("Failed to generate random string")
-	}
 	theBackend, err := backend.NewBackend(arguments.NewArguments(
 		config.AppDir(), *testnet, false, false, false, false),
 		&qtEnvironment{
@@ -156,6 +151,12 @@ func serve(
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")
 	}
+
+	token, err = random.HexString(16)
+	if err != nil {
+		log.WithError(err).Fatal("Failed to generate random string")
+	}
+
 	events := theBackend.Events()
 	go func() {
 		for {

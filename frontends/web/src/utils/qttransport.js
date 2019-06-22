@@ -48,11 +48,10 @@ function initTransport() {
                 webChannel = channel;
                 webChannel.objects.backend.gotResponse.connect((queryID, response) => {
                     queryPromises[queryID].resolve(JSON.parse(response));
+                    delete queryPromises[queryID];
                 });
                 webChannel.objects.backend.pushNotify.connect(msg => {
-                    if (currentListeners) {
-                        currentListeners.forEach(listener => listener(JSON.parse(msg)));
-                    }
+                    currentListeners.forEach(listener => listener(JSON.parse(msg)));
                 });
                 resolve(webChannel);
             };
