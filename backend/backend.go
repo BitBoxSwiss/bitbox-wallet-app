@@ -150,12 +150,14 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		log:         log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
-	backend.baseDetector = mdns.NewDetector(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
-
 	if err != nil {
 		return nil, err
 	}
 	backend.notifier = notifier
+
+	backend.baseDetector = mdns.NewDetector(
+		backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
+
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
 	return backend, nil
