@@ -42,7 +42,8 @@ var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
 }
 
 var ethMsgCoinMap = map[string]messages.ETHCoin{
-	"eth":  messages.ETHCoin_ETH,
-	"teth": messages.ETHCoin_RopstenETH,
-	"reth": messages.ETHCoin_RinkebyETH,
+	"eth":       messages.ETHCoin_ETH,
+	"teth":      messages.ETHCoin_RopstenETH,
+	"reth":      messages.ETHCoin_RinkebyETH,
+	"erc20Test": messages.ETHCoin_RopstenETH,
 }

@@ -23,6 +23,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -248,11 +249,18 @@ func prepareTransactions(
 }
 
 // Transactions queries EtherScan for transactions for the given account, until endBlock.
-func (etherScan *EtherScan) Transactions(address common.Address, endBlock *big.Int) (
+// Provide erc20Token to filter for those. If nil, standard etheruem transactions will be fetched.
+func (etherScan *EtherScan) Transactions(
+	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
 	[]accounts.Transaction, error) {
 	params := url.Values{}
 	params.Set("module", "account")
-	params.Set("action", "txlist")
+	if erc20Token != nil {
+		params.Set("action", "tokentx")
+		params.Set("contractAddress", erc20Token.ContractAddress().Hex())
+	} else {
+		params.Set("action", "txlist")
+	}
 	params.Set("startblock", "0")
 	params.Set("tag", "latest")
 	params.Set("sort", "desc") // desc by block number

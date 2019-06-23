@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 	"path"
+	"strings"
 	"time"
 
 	ethereum "github.com/ethereum/go-ethereum"
@@ -16,10 +17,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -36,9 +40,9 @@ type Account struct {
 	synchronizer            *synchronizer.Synchronizer
 	coin                    *Coin
 	dbFolder                string
+	db                      db.Interface
 	code                    string
 	name                    string
-	db                      db.Interface
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
@@ -264,7 +268,7 @@ func (account *Account) update() error {
 
 	// Get confirmed transactions from EtherScan.
 	confirmedTansactions, err := account.coin.EtherScan().Transactions(
-		account.address.Address, account.blockNumber)
+		account.address.Address, account.blockNumber, account.coin.erc20Token)
 	if err != nil {
 		return err
 	}
@@ -298,12 +302,24 @@ func (account *Account) update() error {
 		}
 	}
 
-	balance, err := account.coin.client.BalanceAt(context.TODO(),
-		account.address.Address, account.blockNumber)
-	if err != nil {
-		return errp.WithStack(err)
+	if account.coin.erc20Token != nil {
+		tok, err := erc20.NewIERC20(account.coin.erc20Token.ContractAddress(), account.coin.client)
+		if err != nil {
+			panic(err)
+		}
+		balance, err := tok.BalanceOf(&bind.CallOpts{}, account.address.Address)
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		account.balance = coin.NewAmount(balance)
+	} else {
+		balance, err := account.coin.client.BalanceAt(context.TODO(),
+			account.address.Address, account.blockNumber)
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		account.balance = coin.NewAmount(balance)
 	}
-	account.balance = coin.NewAmount(balance)
 
 	return nil
 }
@@ -358,6 +374,9 @@ type TxProposal struct {
 	Coin coin.Coin
 	Tx   *types.Transaction
 	Fee  *big.Int
+	// Value can be the same as Tx.Value(), but in case of e.g. ERC20, tx.Value() is zero, while the
+	// Token value is encoded in the contract input data.
+	Value *big.Int
 	// Signer contains the sighash algo, which depends on the block number.
 	Signer types.Signer
 	// KeyPath is the location of this account's address/pubkey/privkey.
@@ -391,14 +410,38 @@ func (account *Account) newTx(
 	}
 
 	address := common.HexToAddress(recipientAddress)
-	message := ethereum.CallMsg{
-		From:     account.address.Address,
-		To:       &address,
-		Gas:      0,
-		GasPrice: suggestedGasPrice,
-		Value:    value,
-		Data:     data,
+	var message ethereum.CallMsg
+
+	if account.coin.erc20Token != nil {
+		parsed, err := abi.JSON(strings.NewReader(erc20.IERC20ABI))
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		erc20ContractData, err := parsed.Pack("transfer", &address, value)
+		if err != nil {
+			panic(errp.WithStack(err))
+		}
+		contractAddress := account.coin.erc20Token.ContractAddress()
+		message = ethereum.CallMsg{
+			From:     account.address.Address,
+			To:       &contractAddress,
+			Gas:      0,
+			GasPrice: suggestedGasPrice,
+			Value:    big.NewInt(0),
+			Data:     erc20ContractData,
+		}
+	} else {
+		// Standard ethereum transaction
+		message = ethereum.CallMsg{
+			From:     account.address.Address,
+			To:       &address,
+			Gas:      0,
+			GasPrice: suggestedGasPrice,
+			Value:    value,
+			Data:     data,
+		}
 	}
+
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
@@ -407,26 +450,34 @@ func (account *Account) newTx(
 
 	fee := new(big.Int).Mul(new(big.Int).SetUint64(gasLimit), suggestedGasPrice)
 
-	if amount.SendAll() {
-		// Set the value correctly and check that the fee is smaller than or equal to the balance.
-		value = new(big.Int).Sub(account.balance.BigInt(), fee)
-		if value.Sign() < 0 {
-			return nil, errp.WithStack(errors.ErrInsufficientFunds)
-		}
+	// Adjust amount with fee
+	if account.coin.erc20Token != nil {
+		// in erc 20 tokens, the amount is in the token unit, while the fee is in ETH, so there is
+		// no issue withSendAll.
 	} else {
-		// Check that the entered value and the estimated fee are not greater than the balance.
-		total := new(big.Int).Add(value, fee)
-		if total.Cmp(account.balance.BigInt()) == 1 {
-			return nil, errp.WithStack(errors.ErrInsufficientFunds)
+		if amount.SendAll() {
+			// Set the value correctly and check that the fee is smaller than or equal to the balance.
+			value = new(big.Int).Sub(account.balance.BigInt(), fee)
+			message.Value = value
+			if message.Value.Sign() < 0 {
+				return nil, errp.WithStack(errors.ErrInsufficientFunds)
+			}
+		} else {
+			// Check that the entered value and the estimated fee are not greater than the balance.
+			total := new(big.Int).Add(message.Value, fee)
+			if total.Cmp(account.balance.BigInt()) == 1 {
+				return nil, errp.WithStack(errors.ErrInsufficientFunds)
+			}
 		}
 	}
 	tx := types.NewTransaction(account.nextNonce,
-		common.HexToAddress(recipientAddress),
-		value, gasLimit, suggestedGasPrice, data)
+		*message.To,
+		message.Value, gasLimit, suggestedGasPrice, message.Data)
 	return &TxProposal{
 		Coin:    account.coin,
 		Tx:      tx,
 		Fee:     fee,
+		Value:   value,
 		Signer:  types.MakeSigner(account.coin.Net(), account.blockNumber),
 		Keypath: account.signingConfiguration.AbsoluteKeypath(),
 	}, nil
@@ -491,9 +542,13 @@ func (account *Account) TxProposal(
 		return coin.Amount{}, coin.Amount{}, coin.Amount{}, err
 	}
 
-	value := txProposal.Tx.Value()
-	total := new(big.Int).Add(value, txProposal.Fee)
-	return coin.NewAmount(value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
+	var total *big.Int
+	if account.coin.erc20Token != nil {
+		total = txProposal.Value
+	} else {
+		total = new(big.Int).Add(txProposal.Value, txProposal.Fee)
+	}
+	return coin.NewAmount(txProposal.Value), coin.NewAmount(txProposal.Fee), coin.NewAmount(total), nil
 }
 
 // GetUnusedReceiveAddresses implements accounts.Interface.

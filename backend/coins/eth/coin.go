@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -23,23 +24,30 @@ type Coin struct {
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
 	nodeURL               string
+	etherScanURL          string
+	erc20Token            *erc20.Token
 	etherScan             *etherscan.EtherScan
 
 	log *logrus.Entry
 }
 
 // NewCoin creates a new coin with the given parameters.
+// For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
 	code string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
+	etherScanURL string,
 	nodeURL string,
+	erc20Token *erc20.Token,
 ) *Coin {
 	return &Coin{
 		code:                  code,
 		net:                   net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		nodeURL:               nodeURL,
+		etherScanURL:          etherScanURL,
+		erc20Token:            erc20Token,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -51,13 +59,6 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 // Initialize implements coin.Coin.
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
-		etherScanURL := "https://api.etherscan.io/api"
-		if coin.code == "reth" {
-			etherScanURL = "https://api-rinkeby.etherscan.io/api"
-		}
-		if coin.code == "teth" {
-			etherScanURL = "https://api-ropsten.etherscan.io/api"
-		}
 		coin.log.Infof("connecting to %s", coin.nodeURL)
 		client, err := ethclient.Dial(coin.nodeURL)
 		if err != nil {
@@ -66,7 +67,7 @@ func (coin *Coin) Initialize() {
 		}
 		coin.client = client
 
-		coin.etherScan = etherscan.NewEtherScan(etherScanURL)
+		coin.etherScan = etherscan.NewEtherScan(coin.etherScanURL)
 	})
 }
 
@@ -82,9 +83,18 @@ func (coin *Coin) Unit() string {
 
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coin.Amount) string {
-	ether := big.NewInt(1e18)
+	var factor *big.Int
+	if coin.erc20Token != nil {
+		// 10^decimals
+		factor = new(big.Int).Exp(
+			big.NewInt(10),
+			new(big.Int).SetUint64(uint64(coin.erc20Token.Decimals())), nil)
+	} else {
+		// Standard Ethereum
+		factor = big.NewInt(1e18)
+	}
 	return strings.TrimRight(strings.TrimRight(
-		new(big.Rat).SetFrac(amount.BigInt(), ether).FloatString(18),
+		new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18),
 		"0"), ".")
 }
 

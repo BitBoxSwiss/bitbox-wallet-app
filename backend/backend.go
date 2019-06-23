@@ -29,6 +29,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
@@ -47,21 +48,23 @@ import (
 )
 
 const (
-	coinBTC  = "btc"
-	coinTBTC = "tbtc"
-	coinLTC  = "ltc"
-	coinTLTC = "tltc"
-	coinETH  = "eth"
-	coinTETH = "teth"
-	coinRETH = "reth"
+	coinBTC       = "btc"
+	coinTBTC      = "tbtc"
+	coinLTC       = "ltc"
+	coinTLTC      = "tltc"
+	coinETH       = "eth"
+	coinTETH      = "teth"
+	coinRETH      = "reth"
+	coinERC20TEST = "erc20Test"
 	// If you add coins, don't forget to update `testnetCoins` below.
 )
 
 var testnetCoins = map[string]struct{}{
-	coinTBTC: {},
-	coinTLTC: {},
-	coinTETH: {},
-	coinRETH: {},
+	coinTBTC:      {},
+	coinTLTC:      {},
+	coinTETH:      {},
+	coinRETH:      {},
+	coinERC20TEST: {},
 }
 
 type backendEvent struct {
@@ -208,7 +211,7 @@ func (backend *Backend) CreateAndAddAccount(
 		}
 		accountsConfig := backend.config.AccountsConfig()
 		for _, account := range accountsConfig.Accounts {
-			if account.Configuration.Hash() == configuration.Hash() {
+			if account.Configuration.Hash() == configuration.Hash() && account.CoinCode == coin.Code() {
 				return errp.WithStack(ErrAccountAlreadyExists)
 			}
 		}
@@ -410,13 +413,26 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 			"https://insight.litecore.io/tx/")
 	case coinETH:
 		coin = eth.NewCoin(code, params.MainnetChainConfig,
-			"https://etherscan.io/tx/", backend.config.AppConfig().Backend.ETH.NodeURL)
+			"https://etherscan.io/tx/",
+			"https://api.etherscan.io/api",
+			backend.config.AppConfig().Backend.ETH.NodeURL, nil)
 	case coinRETH:
 		coin = eth.NewCoin(code, params.RinkebyChainConfig,
-			"https://rinkeby.etherscan.io/tx/", backend.config.AppConfig().Backend.RETH.NodeURL)
+			"https://rinkeby.etherscan.io/tx/",
+			"https://api-rinkeby.etherscan.io/api",
+			backend.config.AppConfig().Backend.RETH.NodeURL, nil)
 	case coinTETH:
 		coin = eth.NewCoin(code, params.TestnetChainConfig,
-			"https://ropsten.etherscan.io/tx/", backend.config.AppConfig().Backend.TETH.NodeURL)
+			"https://ropsten.etherscan.io/tx/",
+			"https://api-ropsten.etherscan.io/api",
+			backend.config.AppConfig().Backend.TETH.NodeURL, nil)
+	case coinERC20TEST:
+		coin = eth.NewCoin(code, params.TestnetChainConfig,
+			"https://ropsten.etherscan.io/tx/",
+			"https://api-ropsten.etherscan.io/api",
+			backend.config.AppConfig().Backend.TETH.NodeURL,
+			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
+		)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
 	}
@@ -437,6 +453,7 @@ func (backend *Backend) initPersistedAccounts() {
 		if err != nil {
 			backend.log.Errorf("skipping persisted account %s/%s, could not find coin",
 				account.CoinCode, account.Code)
+			continue
 		}
 		getSigningConfiguration := func() (*signing.Configuration, error) {
 			return account.Configuration, nil
@@ -487,6 +504,8 @@ func (backend *Backend) initAccounts() {
 				backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 				RETH, _ := backend.Coin(coinRETH)
 				backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+				erc20TEST, _ := backend.Coin(coinERC20TEST)
+				backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			}
 		}
 	} else {
