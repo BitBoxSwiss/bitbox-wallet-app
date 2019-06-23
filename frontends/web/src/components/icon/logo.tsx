@@ -50,6 +50,7 @@ const logoMap = {
     eth: [ETH, ETH_GREY],
     teth: [ETH, ETH_GREY],
     reth: [ETH, ETH_GREY],
+    erc20Test: [ETH, ETH_GREY],
 };
 
 interface Props {
@@ -60,13 +61,18 @@ interface Props {
 }
 
 function Logo({ coinCode, active, ...rest }: Props) {
+    if (!logoMap[coinCode]) {
+        // tslint:disable-next-line:no-console
+        console.error('logo undefined for ', coinCode);
+        return null;
+    }
     return (
         <div>
-        { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
-         : <div class="stacked">
-         <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
-         <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
-     </div>}
+            { active ? <img draggable={false} src={logoMap[coinCode][0]} {...rest}/>
+              : <div class="stacked">
+                  <img draggable={false} src={logoMap[coinCode][1]} {...rest} />
+                  <img draggable={false} src={logoMap[coinCode][0]} {...rest} />
+              </div>}
         </div>
     );
 }
