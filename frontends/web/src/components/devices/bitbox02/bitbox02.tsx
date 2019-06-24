@@ -291,9 +291,11 @@ class BitBox02 extends Component<Props, State> {
 
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer" style="background-color: #F9F9F9;">
                         { attestationResult === false && (
-                              <div>
-                                  {t('bitbox02Wizard.attestationFailed')}
-                              </div>
+                            <div className={style.warningBlockContainer}>
+                                <div className={style.warningBlock}>
+                                    {t('bitbox02Wizard.attestationFailed')}
+                                </div>
+                            </div>
                         )}
                         <Steps>
                             <Step active={status === 'connected'}

@@ -50,6 +50,7 @@
     --size-small: 13px;
     --size-label: var(--size-small);
     --size-button: 14px;
+    --size-default: 14px;
 
     /* spacing */
     --spacing-large: 2rem;

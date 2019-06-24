@@ -156,6 +156,11 @@
     margin-top: 60px;
 }
 
+.step.empty.complete {
+    margin-top: 0;
+    height: 0;
+}
+
 .step.active {
     flex: 1;
     padding-bottom: 60px;
@@ -330,6 +335,22 @@
 .table {
     width: 100%;
     margin-bottom: var(--spacing-default);
+}
+
+.warningBlockContainer {
+    padding: 0 60px;
+    width: 100%;
+    max-width: 920px;
+}
+
+.warningBlock {
+    margin-top: var(--spacing-large);
+    border: solid 1px var(--color-danger);
+    padding: 40px 30px;
+    color: var(--color-danger);
+    font-weight: 300;
+    font-size: var(--size-default);
+    border-radius: 2px;
 }
 
 @media (max-width: 1240px) {
