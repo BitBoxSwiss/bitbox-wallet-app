@@ -110,8 +110,6 @@ public class MainActivity extends AppCompatActivity {
         vw.clearCache(true);
         vw.clearHistory();
         vw.getSettings().setJavaScriptEnabled(true);
-        vw.getSettings().setDomStorageEnabled(true);
-        // For the frontend to be able to access the Go api on localhost:8082
         vw.getSettings().setAllowUniversalAccessFromFileURLs(true);
 
         vw.setWebViewClient(new WebViewClient() {

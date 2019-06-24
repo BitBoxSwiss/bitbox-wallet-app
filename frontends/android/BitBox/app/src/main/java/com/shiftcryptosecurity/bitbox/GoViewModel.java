@@ -158,7 +158,7 @@ public class GoViewModel extends AndroidViewModel {
         this.goEnvironment = new GoEnvironment();
         this.goAPI = new GoAPI();
 
-        Goserver.serve(app.getApplicationInfo(). dataDir, this.goEnvironment, this.goAPI);
+        Goserver.serve(app.getApplicationContext().getFilesDir().getAbsolutePath(), this.goEnvironment, this.goAPI);
     }
 
     @Override
