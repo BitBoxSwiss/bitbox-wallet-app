@@ -11,6 +11,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:41959f43fed8e9510c9a9b05968cd53e9a950baa6cd136fa122fd2169e50db75"
+  name = "github.com/aristanetworks/goarista"
+  packages = ["monotime"]
+  pruneopts = ""
+  revision = "52c2a7864a0891eefaed13a457510c7405a7105b"
+
+[[projects]]
+  branch = "master"
   digest = "1:83160035e81a0d248a1379f71b12e94c26b0cc8dab22994663af7e2e9ff9611b"
   name = "github.com/btcsuite/btcd"
   packages = [
@@ -99,9 +107,14 @@
   name = "github.com/ethereum/go-ethereum"
   packages = [
     ".",
+    "accounts",
+    "accounts/abi",
+    "accounts/abi/bind",
+    "accounts/keystore",
     "common",
     "common/hexutil",
     "common/math",
+    "common/mclock",
     "common/prque",
     "core/types",
     "crypto",
@@ -109,6 +122,7 @@
     "crypto/sha3",
     "ethclient",
     "ethdb",
+    "event",
     "log",
     "metrics",
     "p2p/netutil",
@@ -152,6 +166,14 @@
   packages = ["."]
   pruneopts = ""
   revision = "2e65f85255dbc3072edf28d6b5b8efc472979f5a"
+
+[[projects]]
+  digest = "1:ad92aa49f34cbc3546063c7eb2cabb55ee2278b72842eda80e2a20a8a06a8d73"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
 
 [[projects]]
   digest = "1:20ed7daa9b3b38b6d1d39b48ab3fd31122be5419461470d0c28de3e121c93ecf"
@@ -210,6 +232,14 @@
   version = "v1.1.9"
 
 [[projects]]
+  digest = "1:a5484d4fa43127138ae6e7b2299a6a52ae006c7f803d98d717f60abf3e97192e"
+  name = "github.com/pborman/uuid"
+  packages = ["."]
+  pruneopts = ""
+  revision = "adf5a7427709b9deb95d29d3fa8a2bf9cfd388f1"
+  version = "v1.2"
+
+[[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -224,6 +254,14 @@
   pruneopts = ""
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  digest = "1:6938b6ee0351393c55baa54b64352e49a741a1b7b616a7d134d237106812070f"
+  name = "github.com/rjeczalik/notify"
+  packages = ["."]
+  pruneopts = ""
+  revision = "69d839f37b13a8cb7a78366f7633a4071cb43be7"
+  version = "v0.9.2"
 
 [[projects]]
   digest = "1:78c9cf43ddeacd0e472f412082227a0fac2ae107ee60e9112156f9371f9912cf"
@@ -358,6 +396,27 @@
   revision = "c4d099d611ac3ded35360abf03581e13d91c828f"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ea2736240dd8e2e6c2e6d691f7197aba82b079c127d60bfa6a890541811b9d81"
+  name = "golang.org/x/tools"
+  packages = [
+    "go/ast/astutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/internal/packagesdriver",
+    "go/packages",
+    "go/types/typeutil",
+    "imports",
+    "internal/fastwalk",
+    "internal/gopathwalk",
+    "internal/imports",
+    "internal/module",
+    "internal/semver",
+  ]
+  pruneopts = ""
+  revision = "6e04913cbbac05c5c0c9d8f237717e292f700e76"
+
+[[projects]]
   branch = "v2"
   digest = "1:4f830ee018eb8c56d0def653ad7c9a1d2a053f0cef2ac6b2200f73b98fa6a681"
   name = "gopkg.in/natefinch/npipe.v2"
@@ -384,11 +443,14 @@
     "github.com/coreos/bbolt",
     "github.com/davecgh/go-spew/spew",
     "github.com/ethereum/go-ethereum",
+    "github.com/ethereum/go-ethereum/accounts/abi",
+    "github.com/ethereum/go-ethereum/accounts/abi/bind",
     "github.com/ethereum/go-ethereum/common",
     "github.com/ethereum/go-ethereum/common/math",
     "github.com/ethereum/go-ethereum/core/types",
     "github.com/ethereum/go-ethereum/crypto",
     "github.com/ethereum/go-ethereum/ethclient",
+    "github.com/ethereum/go-ethereum/event",
     "github.com/ethereum/go-ethereum/params",
     "github.com/ethereum/go-ethereum/rlp",
     "github.com/flynn/noise",

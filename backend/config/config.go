@@ -66,7 +66,7 @@ func (backend Backend) AccountActive(code string) bool {
 		return backend.LitecoinP2WPKHP2SHActive
 	case "tltc-p2wpkh", "ltc-p2wpkh":
 		return backend.LitecoinP2WPKHActive
-	case "eth", "teth", "reth":
+	case "eth", "teth", "reth", "erc20Test":
 		return backend.EthereumActive
 	default:
 		panic(fmt.Sprintf("unknown code %s", code))

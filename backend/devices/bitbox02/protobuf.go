@@ -22,21 +22,28 @@ import (
 
 // conversions from types used by the wallet to types defined in the protobuf messages.
 
-var msgCoinMap = map[string]messages.BTCCoin{
+var btcMsgCoinMap = map[string]messages.BTCCoin{
 	"btc":  messages.BTCCoin_BTC,
 	"tbtc": messages.BTCCoin_TBTC,
 	"ltc":  messages.BTCCoin_LTC,
 	"tltc": messages.BTCCoin_TLTC,
 }
 
-var msgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptType{
+var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptType{
 	signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptType_SCRIPT_P2WPKH_P2SH,
 	signing.ScriptTypeP2WPKH:     messages.BTCScriptType_SCRIPT_P2WPKH,
 }
 
-var msgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
+var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
 	txscript.PubKeyHashTy:          messages.BTCOutputType_P2PKH,
 	txscript.ScriptHashTy:          messages.BTCOutputType_P2SH,
 	txscript.WitnessV0PubKeyHashTy: messages.BTCOutputType_P2WPKH,
 	txscript.WitnessV0ScriptHashTy: messages.BTCOutputType_P2WSH,
+}
+
+var ethMsgCoinMap = map[string]messages.ETHCoin{
+	"eth":       messages.ETHCoin_ETH,
+	"teth":      messages.ETHCoin_RopstenETH,
+	"reth":      messages.ETHCoin_RinkebyETH,
+	"erc20Test": messages.ETHCoin_RopstenETH,
 }
