@@ -102,16 +102,16 @@ func formatAsCurrency(amount float64) string {
 }
 
 // Conversions handles fiat conversions
-func Conversions(amount coin.Amount, coin coin.Coin) map[string]string {
+func Conversions(amount coin.Amount, coin coin.Coin, isFee bool) map[string]string {
 	var conversions map[string]string
 	if backend.GetRatesUpdaterInstance() != nil {
 		rates := backend.GetRatesUpdaterInstance().Last()
 		if rates != nil {
-			unit := coin.Unit()
+			unit := coin.Unit(isFee)
 			if len(unit) == 4 && strings.HasPrefix(unit, "T") || unit == "RETH" {
 				unit = unit[1:]
 			}
-			float := coin.ToUnit(amount)
+			float := coin.ToUnit(amount, isFee)
 			conversions = map[string]string{}
 			for key, value := range rates[unit] {
 				conversions[key] = formatAsCurrency(float * value)
@@ -121,16 +121,16 @@ func Conversions(amount coin.Amount, coin coin.Coin) map[string]string {
 	return conversions
 }
 
-func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount) FormattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
 	return FormattedAmount{
-		Amount:      handlers.account.Coin().FormatAmount(amount),
-		Unit:        handlers.account.Coin().Unit(),
-		Conversions: Conversions(amount, handlers.account.Coin()),
+		Amount:      handlers.account.Coin().FormatAmount(amount, isFee),
+		Unit:        handlers.account.Coin().Unit(isFee),
+		Conversions: Conversions(amount, handlers.account.Coin(), isFee),
 	}
 }
 
-func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount) FormattedAmount {
-	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)))
+func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee bool) FormattedAmount {
+	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)), isFee)
 }
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
@@ -172,7 +172,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 		var feeString FormattedAmount
 		fee := txInfo.Fee()
 		if fee != nil {
-			feeString = handlers.formatAmountAsJSON(*fee)
+			feeString = handlers.formatAmountAsJSON(*fee, true)
 		}
 		var formattedTime *string
 		timestamp := txInfo.Timestamp()
@@ -192,7 +192,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 				accounts.TxTypeSend:     "send",
 				accounts.TxTypeSendSelf: "send_to_self",
 			}[txInfo.Type()],
-			Amount:    handlers.formatAmountAsJSON(txInfo.Amount()),
+			Amount:    handlers.formatAmountAsJSON(txInfo.Amount(), false),
 			Fee:       feeString,
 			Time:      formattedTime,
 			Addresses: addresses,
@@ -204,7 +204,7 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			txInfoJSON.Weight = specificInfo.Weight
 			feeRatePerKb := specificInfo.FeeRatePerKb()
 			if feeRatePerKb != nil {
-				txInfoJSON.FeeRatePerKb = handlers.formatBTCAmountAsJSON(*feeRatePerKb)
+				txInfoJSON.FeeRatePerKb = handlers.formatBTCAmountAsJSON(*feeRatePerKb, true)
 			}
 		case types.EthereumTransaction:
 			txInfoJSON.Gas = specificInfo.Gas()
@@ -312,7 +312,7 @@ func (handlers *Handlers) getUTXOs(_ *http.Request) (interface{}, error) {
 		result = append(result,
 			map[string]interface{}{
 				"outPoint": output.OutPoint.String(),
-				"amount":   handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value)),
+				"amount":   handlers.formatBTCAmountAsJSON(btcutil.Amount(output.TxOut.Value), false),
 				"address":  output.Address,
 			})
 	}
@@ -326,8 +326,8 @@ func (handlers *Handlers) getAccountBalance(_ *http.Request) (interface{}, error
 		return nil, err
 	}
 	return map[string]interface{}{
-		"available":   handlers.formatAmountAsJSON(balance.Available()),
-		"incoming":    handlers.formatAmountAsJSON(balance.Incoming()),
+		"available":   handlers.formatAmountAsJSON(balance.Available(), false),
+		"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), false),
 		"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 	}, nil
 }
@@ -426,9 +426,9 @@ func (handlers *Handlers) getAccountTxProposal(r *http.Request) (interface{}, er
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  handlers.formatAmountAsJSON(outputAmount),
-		"fee":     handlers.formatAmountAsJSON(fee),
-		"total":   handlers.formatAmountAsJSON(total),
+		"amount":  handlers.formatAmountAsJSON(outputAmount, false),
+		"fee":     handlers.formatAmountAsJSON(fee, true),
+		"total":   handlers.formatAmountAsJSON(total, false),
 	}, nil
 }
 

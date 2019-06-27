@@ -414,22 +414,22 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/")
 	case coinETH:
-		coin = eth.NewCoin(code, params.MainnetChainConfig,
+		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			"https://api.etherscan.io/api",
 			backend.config.AppConfig().Backend.ETH.NodeURL, nil)
 	case coinRETH:
-		coin = eth.NewCoin(code, params.RinkebyChainConfig,
+		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
 			"https://api-rinkeby.etherscan.io/api",
 			backend.config.AppConfig().Backend.RETH.NodeURL, nil)
 	case coinTETH:
-		coin = eth.NewCoin(code, params.TestnetChainConfig,
+		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			"https://api-ropsten.etherscan.io/api",
 			backend.config.AppConfig().Backend.TETH.NodeURL, nil)
 	case coinERC20TEST:
-		coin = eth.NewCoin(code, params.TestnetChainConfig,
+		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			"https://api-ropsten.etherscan.io/api",
 			backend.config.AppConfig().Backend.TETH.NodeURL,

@@ -35,6 +35,8 @@ type Coin struct {
 	initOnce              sync.Once
 	client                *ethclient.Client
 	code                  string
+	unit                  string
+	feeUnit               string
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
 	nodeURL               string
@@ -49,6 +51,8 @@ type Coin struct {
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
 	code string,
+	unit string,
+	feeUnit string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
 	etherScanURL string,
@@ -57,6 +61,8 @@ func NewCoin(
 ) *Coin {
 	return &Coin{
 		code:                  code,
+		unit:                  unit,
+		feeUnit:               feeUnit,
 		net:                   net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		nodeURL:               nodeURL,
@@ -91,14 +97,17 @@ func (coin *Coin) Code() string {
 }
 
 // Unit implements coin.Coin.
-func (coin *Coin) Unit() string {
-	return strings.ToUpper(coin.code)
+func (coin *Coin) Unit(isFee bool) string {
+	if isFee {
+		return coin.feeUnit
+	}
+	return coin.unit
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coin.Amount) string {
+func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
 	var factor *big.Int
-	if coin.erc20Token != nil {
+	if !isFee && coin.erc20Token != nil {
 		// 10^decimals
 		factor = new(big.Int).Exp(
 			big.NewInt(10),
@@ -113,7 +122,7 @@ func (coin *Coin) FormatAmount(amount coin.Amount) string {
 }
 
 // ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coin.Amount) float64 {
+func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
 	ether := big.NewInt(1e18)
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), ether).Float64()
 	return result

@@ -30,14 +30,15 @@ type Coin interface {
 	// // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 	// Type() uint32
 
-	// Unit is the unit code of the string for formatting amounts.
-	Unit() string
+	// Unit is the unit code for formatting amounts, e.g. "BTC".
+	// The fee unit is usually the same as the main unit, but can differ.
+	Unit(isFee bool) string
 
 	// FormatAmount formats the given amount as a number.
-	FormatAmount(Amount) string
+	FormatAmount(amount Amount, isFee bool) string
 
 	// ToUnit returns the given amount in the unit as returned above.
-	ToUnit(Amount) float64
+	ToUnit(amount Amount, isFee bool) float64
 
 	// // Server returns the host and port of the full node used for blockchain synchronization.
 	// Server() string
