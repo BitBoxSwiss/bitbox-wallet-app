@@ -29,6 +29,7 @@ export default class LanguageSwitcher extends Component {
         const languages = [
             { code: 'de', display: 'Deutsch' },
             { code: 'en', display: 'English' },
+            { code: 'hi', display: 'हिन्दी ' },
             { code: 'ja', display: '日本語' },
             { code: 'ms', display: 'Bahasa Melayu' },
             { code: 'pt', display: 'Português' },
