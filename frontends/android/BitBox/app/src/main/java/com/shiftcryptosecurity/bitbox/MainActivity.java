@@ -27,10 +27,8 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.InputStream;
-import java.util.Map;
 
 import goserver.Goserver;
 
