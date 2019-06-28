@@ -166,7 +166,7 @@
       "confirmButton": "Confirm & Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
       "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
-      "title": "Verify your BitBox",
+      "title": "Verify Pairing Code",
       "unpaired": "A new BitBox02 has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch underneath the check mark on your BitBox02 and then click the button below to continue."
     },
     "success": {

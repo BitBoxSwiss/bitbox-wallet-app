@@ -149,6 +149,8 @@ func (device *Device) Init(testing bool) {
 			panic(err)
 		}
 		device.attestation = attestation
+		device.log.Infof("attestation check result: %v", attestation)
+
 		go func() {
 			_, err := device.queryRaw([]byte(opUnlock))
 			if err != nil {
@@ -157,6 +159,8 @@ func (device *Device) Init(testing bool) {
 			device.pair()
 		}()
 	} else {
+		// skip warning for v1.0.0, where attestation was not supported.
+		device.attestation = true
 		device.pair()
 	}
 }
