@@ -122,19 +122,19 @@ func (coin *Coin) Net() *chaincfg.Params {
 }
 
 // Unit implements coin.Coin.
-func (coin *Coin) Unit() string {
+func (coin *Coin) Unit(bool) string {
 	return coin.unit
 }
 
 // FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coin.Amount) string {
+func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
 	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).FloatString(8),
 		"0"), ".")
 }
 
 // ToUnit implements coin.Coin.
-func (coin *Coin) ToUnit(amount coin.Amount) float64 {
+func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
 	result, _ := new(big.Rat).SetFrac(amount.BigInt(), big.NewInt(unitSatoshi)).Float64()
 	return result
 }

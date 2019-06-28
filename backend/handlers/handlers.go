@@ -767,11 +767,11 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func formatAmountAsJSON(amount coin.Amount, coin coin.Coin) accountHandlers.FormattedAmount {
+func formatAmountAsJSON(amount coin.Amount, coin coin.Coin, isFee bool) accountHandlers.FormattedAmount {
 	return accountHandlers.FormattedAmount{
-		Amount:      coin.FormatAmount(amount),
-		Unit:        coin.Unit(),
-		Conversions: accountHandlers.Conversions(amount, coin),
+		Amount:      coin.FormatAmount(amount, isFee),
+		Unit:        coin.Unit(isFee),
+		Conversions: accountHandlers.Conversions(amount, coin, isFee),
 	}
 }
 
@@ -803,8 +803,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			AccountCode: account.Code(),
 			Name:        account.Name(),
 			Balance: map[string]interface{}{
-				"available":   formatAmountAsJSON(balance.Available(), account.Coin()),
-				"incoming":    formatAmountAsJSON(balance.Incoming(), account.Coin()),
+				"available":   formatAmountAsJSON(balance.Available(), account.Coin(), false),
+				"incoming":    formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
 				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 			},
 		})
@@ -819,7 +819,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 	jsonTotals := make(map[string]accountHandlers.FormattedAmount)
 	for c, total := range totals {
-		jsonTotals[c.Code()] = formatAmountAsJSON(coin.NewAmount(total), c)
+		jsonTotals[c.Code()] = formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
 
 	return map[string]interface{}{
