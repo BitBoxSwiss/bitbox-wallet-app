@@ -1,13 +1,17 @@
 package com.shiftcryptosecurity.bitbox;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.hardware.usb.UsbManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.os.Handler;
@@ -15,6 +19,7 @@ import android.os.Message;
 import android.os.Bundle;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.PermissionRequest;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -22,14 +27,16 @@ import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.ConsoleMessage;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.InputStream;
-import java.util.Map;
 
 import goserver.Goserver;
 
 public class MainActivity extends AppCompatActivity {
+    private final int PERMISSIONS_REQUEST_CAMERA_QRCODE = 0;
+    // stores the request from onPermissionRequest until the user has granted or denied the permission.
+    private PermissionRequest webViewpermissionRequest;
+
     private class JavascriptBridge {
         private Context context;
 
@@ -47,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             handleIntent(intent);
         }
-    };;
+    };
 
     private static String getMimeType(String url) {
         String type = null;
@@ -130,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // WebView.setWebContentsDebuggingEnabled(true);
+        // WebView.setWebContentsDebuggingEnabled(true); // enable remote debugging in chrome://inspect/#devices
         vw.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
@@ -138,6 +145,30 @@ public class MainActivity extends AppCompatActivity {
                         + consoleMessage.lineNumber() + " of "
                         + consoleMessage.sourceId());
                 return super.onConsoleMessage(consoleMessage);
+            }
+
+            @Override
+            public void onPermissionRequest(PermissionRequest request) {
+                // Handle webview permission request for camera when launching the QR code scanner.
+                for (String resource : request.getResources()) {
+                    if (resource.equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CAMERA)
+                                == PackageManager.PERMISSION_GRANTED) {
+                            // App already has the camera permission, so we grant the permission to
+                            // the webview.
+                            request.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                            return;
+                        }
+                        // Otherwise we ask the user for permission.
+                        MainActivity.this.webViewpermissionRequest = request;
+                        ActivityCompat.requestPermissions(MainActivity.this,
+                                new String[]{Manifest.permission.CAMERA},
+                                PERMISSIONS_REQUEST_CAMERA_QRCODE);
+                        // Permission will be granted or denied in onRequestPermissionsResult()
+                        return;
+                    }
+                }
+                request.deny();
             }
         });
         final String javascriptVariableName = "android";
@@ -186,6 +217,22 @@ public class MainActivity extends AppCompatActivity {
         }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
             goViewModel.updateDeviceList();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CAMERA_QRCODE:
+                if (this.webViewpermissionRequest != null) {
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        this.webViewpermissionRequest.grant(new String[]{PermissionRequest.RESOURCE_VIDEO_CAPTURE});
+                    } else {
+                        this.webViewpermissionRequest.deny();
+                    }
+                    this.webViewpermissionRequest = null;
+                }
+                break;
         }
     }
 }
