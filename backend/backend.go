@@ -44,7 +44,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
@@ -101,6 +100,8 @@ type Environment interface {
 	NotifyUser(string)
 	// DeviceInfos returns a list of available recognized devices (BitBox01, BitBox02, ...).
 	DeviceInfos() []usb.DeviceInfo
+	// SystemOpen opens a web url in the default browser, or a file url in the default application.
+	SystemOpen(string) error
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
@@ -801,7 +802,7 @@ func (backend *Backend) NotifyUser(text string) {
 	backend.environment.NotifyUser(text)
 }
 
-// SystemOpen opens a web url in the default browser, or a file url in the default application.  It
+// SystemOpen opens a web url in the default browser, or a file url in the default application. It
 // whitelists url patterns and blocks all invalid ones. Returns an error if the url was blocked or
 // the url could not be opened.
 func (backend *Backend) SystemOpen(url string) error {
@@ -846,6 +847,6 @@ func (backend *Backend) SystemOpen(url string) error {
 	if blocked {
 		return errp.Newf("Blocked /open with url: %s", url)
 	}
-	return system.Open(url)
+	return backend.environment.SystemOpen(url)
 
 }

@@ -55,6 +55,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 )
 
 var handlers *backendHandlers.Handlers
@@ -120,8 +121,13 @@ func (env qtEnvironment) NotifyUser(text string) {
 }
 
 // DeviceInfos implements backend.Environment
-func (env qtEnvironment) DeviceInfos() []usb.DeviceInfo {
+func (qtEnvironment) DeviceInfos() []usb.DeviceInfo {
 	return usb.DeviceInfos()
+}
+
+// SystemOpen implements backend.Environment
+func (qtEnvironment) SystemOpen(url string) error {
+	return system.Open(url)
 }
 
 //export serve

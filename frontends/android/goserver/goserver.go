@@ -80,6 +80,7 @@ type GoEnvironmentInterface interface {
 type backendEnvironment struct {
 	notifyUser  func(string)
 	deviceInfos func() []usb.DeviceInfo
+	systemOpen  func(string) error
 }
 
 // NotifyUser implements backend.Environment
@@ -93,6 +94,14 @@ func (env backendEnvironment) NotifyUser(text string) {
 func (env backendEnvironment) DeviceInfos() []usb.DeviceInfo {
 	if env.deviceInfos != nil {
 		return env.deviceInfos()
+	}
+	return nil
+}
+
+// SystemOpen implements backend.Environment
+func (env backendEnvironment) SystemOpen(url string) error {
+	if env.systemOpen != nil {
+		return env.systemOpen(url)
 	}
 	return nil
 }
@@ -213,6 +222,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInt
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
+			systemOpen: nil,
 		})
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")
