@@ -18,6 +18,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"regexp"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
@@ -37,11 +38,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
+	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
@@ -796,4 +799,53 @@ func (backend *Backend) RegisterTestKeystore(pin string) {
 // NotifyUser creates a desktop notification.
 func (backend *Backend) NotifyUser(text string) {
 	backend.environment.NotifyUser(text)
+}
+
+// SystemOpen opens a web url in the default browser, or a file url in the default application.  It
+// whitelists url patterns and blocks all invalid ones. Returns an error if the url was blocked or
+// the url could not be opened.
+func (backend *Backend) SystemOpen(url string) error {
+	blocked := true
+
+	for _, whitelistedURL := range []string{
+		"https://www.cryptocompare.com",
+		"https://bitcoincore.org/en/2016/01/26/segwit-benefits/",
+		"https://en.bitcoin.it/wiki/Bech32_adoption",
+	} {
+		if url == whitelistedURL {
+			blocked = false
+			break
+		}
+	}
+
+	whitelistedPatterns := []string{
+		"^https://shiftcrypto.ch/",
+		"^https://blockstream\\.info/(testnet/)?tx/",
+		"^http://explorer\\.litecointools\\.com/tx/",
+		"^https://insight\\.litecore\\.io/tx/",
+		"^https://etherscan\\.io/tx/",
+		"^https://rinkeby\\.etherscan\\.io/tx/",
+		"^https://ropsten\\.etherscan\\.io/tx/",
+	}
+
+	// Whitelist csv export.
+	downloadDir, err := utilConfig.DownloadsDir()
+	if err != nil {
+		return err
+	}
+	whitelistedPatterns = append(whitelistedPatterns,
+		fmt.Sprintf("^%s", regexp.QuoteMeta(downloadDir)),
+	)
+
+	for _, pattern := range whitelistedPatterns {
+		if regexp.MustCompile(pattern).MatchString(url) {
+			blocked = false
+			break
+		}
+	}
+	if blocked {
+		return errp.Newf("Blocked /open with url: %s", url)
+	}
+	return system.Open(url)
+
 }
