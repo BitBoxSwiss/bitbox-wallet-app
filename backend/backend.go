@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"regexp"
+	"runtime"
 
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/cloudfoundry-attic/jibber_jabber"
@@ -829,14 +830,16 @@ func (backend *Backend) SystemOpen(url string) error {
 		"^https://ropsten\\.etherscan\\.io/tx/",
 	}
 
-	// Whitelist csv export.
-	downloadDir, err := utilConfig.DownloadsDir()
-	if err != nil {
-		return err
+	if runtime.GOOS != "android" { // TODO: fix DownloadsDir() for android
+		// Whitelist csv export.
+		downloadDir, err := utilConfig.DownloadsDir()
+		if err != nil {
+			return err
+		}
+		whitelistedPatterns = append(whitelistedPatterns,
+			fmt.Sprintf("^%s", regexp.QuoteMeta(downloadDir)),
+		)
 	}
-	whitelistedPatterns = append(whitelistedPatterns,
-		fmt.Sprintf("^%s", regexp.QuoteMeta(downloadDir)),
-	)
 
 	for _, pattern := range whitelistedPatterns {
 		if regexp.MustCompile(pattern).MatchString(url) {

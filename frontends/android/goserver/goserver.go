@@ -76,6 +76,7 @@ type GoDeviceInfoInterface interface {
 type GoEnvironmentInterface interface {
 	NotifyUser(string)
 	DeviceInfo() GoDeviceInfoInterface
+	SystemOpen(string) error
 }
 
 // backendEnvironment translates from GoEnvironmentInterface to backend.Environment.
@@ -248,7 +249,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInt
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			systemOpen: nil,
+			systemOpen: environment.SystemOpen,
 		})
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")

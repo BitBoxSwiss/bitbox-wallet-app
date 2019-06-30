@@ -6,6 +6,8 @@ import goserver.GoReadWriteCloserInterface;
 import goserver.GoAPIInterface;
 import goserver.Goserver;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Message;
 import android.os.Handler;
 import android.app.Application;
@@ -120,6 +122,15 @@ public class GoViewModel extends AndroidViewModel {
 
         public GoDeviceInfoInterface deviceInfo() {
             return this.device;
+        }
+
+        public void systemOpen(String url) throws Exception {
+            // https://developer.android.com/guide/components/intents-common.html#java
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            if (intent.resolveActivity(getApplication().getPackageManager()) != null) {
+                getApplication().startActivity(intent);
+            }
         }
     }
 
