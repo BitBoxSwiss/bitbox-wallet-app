@@ -17,6 +17,7 @@ package btc
 import (
 	"fmt"
 	"math/big"
+	"os"
 	"path"
 	"strings"
 	"sync"
@@ -84,8 +85,15 @@ func (coin *Coin) Initialize() {
 		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
 
 		// Init Headers
+
+		// delete old db version (up to v4.10.0, bbolt was used):
+		oldDBFilename := path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code))
+		if _, err := os.Stat(oldDBFilename); err == nil {
+			_ = os.Remove(oldDBFilename)
+		}
+
 		db, err := headersdb.NewDB(
-			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.db", coin.code)))
+			path.Join(coin.dbFolder, fmt.Sprintf("headers-%s.bin", coin.code)))
 		if err != nil {
 			coin.log.WithError(err).Panic("Could not open headers DB")
 		}
@@ -99,7 +107,7 @@ func (coin *Coin) Initialize() {
 			if event == headers.EventSyncing || event == headers.EventSynced {
 				status, err := coin.headers.Status()
 				if err != nil {
-					coin.log.Error("Could not get headers status")
+					coin.log.WithError(err).Error("Could not get headers status")
 				}
 				coin.Notify(observable.Event{
 					Subject: fmt.Sprintf("coins/%s/headers/status", coin.code),

@@ -150,15 +150,8 @@ func (headers *Headers) download() {
 	for range headers.kickChan {
 		func() {
 			defer headers.lock.Lock()()
-			dbTx, err := headers.db.Begin()
-			if err != nil {
-				// TODO
-				panic(err)
-			}
-			defer func() {
-				_ = dbTx.Commit()
-			}()
-			tip, err := dbTx.Tip()
+			db := headers.db
+			tip, err := db.Tip()
 			if err != nil {
 				// TODO
 				panic(err)
@@ -171,7 +164,7 @@ func (headers *Headers) download() {
 					return nil
 				}, func(error) {})
 			batch := <-batchChan
-			if err := headers.processBatch(dbTx, tip, batch.blockHeaders, batch.max); err != nil {
+			if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
 				headers.log.WithError(err).Panic("processBatch")
 			}
 		}()
@@ -180,7 +173,7 @@ func (headers *Headers) download() {
 
 var errPrevHash = errors.New("header prevhash does not match")
 
-func (headers *Headers) getTarget(dbTx DBTxInterface, index int) (*big.Int, error) {
+func (headers *Headers) getTarget(db DBInterface, index int) (*big.Int, error) {
 	targetTimespan := int64(headers.net.TargetTimespan / time.Second)
 	targetTimePerBlock := int64(headers.net.TargetTimePerBlock / time.Second)
 	blocksPerRetarget := int(targetTimespan / targetTimePerBlock)
@@ -195,11 +188,11 @@ func (headers *Headers) getTarget(dbTx DBTxInterface, index int) (*big.Int, erro
 		// https://litecoin.info/index.php/Time_warp_attack#cite_note-2
 		firstIndex--
 	}
-	first, err := dbTx.HeaderByHeight(firstIndex)
+	first, err := db.HeaderByHeight(firstIndex)
 	if err != nil {
 		return nil, err
 	}
-	last, err := dbTx.HeaderByHeight((chunkIndex+1)*blocksPerRetarget - 1)
+	last, err := db.HeaderByHeight((chunkIndex+1)*blocksPerRetarget - 1)
 	if err != nil {
 		return nil, err
 	}
@@ -245,14 +238,14 @@ func (headers *Headers) powHash(msg []byte) chainhash.Hash {
 	}
 }
 
-func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.BlockHeader) error {
+func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHeader) error {
 	if tip == 0 {
 		if header.BlockHash() != *headers.net.GenesisHash {
 			return errp.Newf("wrong genesis hash, got %s, expected %s",
 				header.BlockHash(), *headers.net.GenesisHash)
 		}
 	} else {
-		previousHeader, err := dbTx.HeaderByHeight(tip - 1)
+		previousHeader, err := db.HeaderByHeight(tip - 1)
 		if err != nil {
 			return err
 		}
@@ -273,7 +266,7 @@ func (headers *Headers) canConnect(dbTx DBTxInterface, tip int, header *wire.Blo
 		}
 		// Check Difficulty, PoW.
 		if headers.net.Net == chaincfg.MainNetParams.Net || headers.net.Net == ltc.MainNetParams.Net {
-			newTarget, err := headers.getTarget(dbTx, tip)
+			newTarget, err := headers.getTarget(db, tip)
 			if err != nil {
 				return err
 			}
@@ -304,7 +297,7 @@ func min(a, b int) int {
 	return b
 }
 
-func (headers *Headers) reorg(dbTx DBTxInterface, tip int) {
+func (headers *Headers) reorg(db DBInterface, tip int) {
 	// Simple reorg method: re-fetch headers up to the maximum reorg limit. The server can shorten
 	// our chain by sending a fake header and set us back by `reorgLimit` blocks, but it needs to
 	// contain the correct PoW to do so.
@@ -312,7 +305,7 @@ func (headers *Headers) reorg(dbTx DBTxInterface, tip int) {
 	if newTip < -1 {
 		newTip = -1
 	}
-	if err := dbTx.PutTip(newTip); err != nil {
+	if err := db.RevertTo(newTip); err != nil {
 		panic(err)
 	}
 	headers.kick()
@@ -327,22 +320,23 @@ func (headers *Headers) notifyEvent(event Event) {
 }
 
 func (headers *Headers) processBatch(
-	dbTx DBTxInterface, tip int, blockHeaders []*wire.BlockHeader, max int) error {
+	db DBInterface, tip int, blockHeaders []*wire.BlockHeader, max int) error {
 	for _, header := range blockHeaders {
-		err := headers.canConnect(dbTx, tip+1, header)
+		err := headers.canConnect(db, tip+1, header)
 		if errp.Cause(err) == errPrevHash {
 			headers.log.WithError(err).Infof("Reorg detected at height %d", tip+1)
-			headers.reorg(dbTx, tip)
+			headers.reorg(db, tip)
 			return nil
 		}
 		if err != nil {
 			return errp.WithMessage(err, "can't connect header, unexpected blockchain reply")
 		}
 		tip++
-		if err := dbTx.PutHeader(tip, header); err != nil {
+		if err := db.PutHeader(tip, header); err != nil {
 			return err
 		}
 	}
+	_ = db.Flush()
 	if len(blockHeaders) == min(max, headers.headersPerBatch) {
 		// Received max number of headers per batch, so there might be more.
 		headers.kick()
@@ -360,12 +354,7 @@ func (headers *Headers) processBatch(
 // up to this height yet.
 func (headers *Headers) HeaderByHeight(height int) (*wire.BlockHeader, error) {
 	defer headers.lock.RLock()()
-	dbTx, err := headers.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer dbTx.Rollback()
-	return dbTx.HeaderByHeight(height)
+	return headers.db.HeaderByHeight(height)
 }
 
 func (headers *Headers) kick() {
@@ -386,12 +375,7 @@ func (headers *Headers) update(blockHeight int) error {
 
 func (headers *Headers) tip() int {
 	defer headers.lock.RLock()()
-	dbTx, err := headers.db.Begin()
-	if err != nil {
-		panic(err)
-	}
-	defer dbTx.Rollback()
-	tip, err := dbTx.Tip()
+	tip, err := headers.db.Tip()
 	if err != nil {
 		panic(err)
 	}
@@ -401,16 +385,11 @@ func (headers *Headers) tip() int {
 // Status returns the current sync status.
 func (headers *Headers) Status() (*Status, error) {
 	defer headers.lock.RLock()()
-	dbTx, err := headers.db.Begin()
+	tip, err := headers.db.Tip()
 	if err != nil {
 		return nil, err
 	}
-	defer dbTx.Rollback()
-	tip, err := dbTx.Tip()
-	if err != nil {
-		return nil, err
-	}
-	header, err := dbTx.HeaderByHeight(tip)
+	header, err := headers.db.HeaderByHeight(tip)
 	if err != nil {
 		return nil, err
 	}

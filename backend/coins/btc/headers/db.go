@@ -16,22 +16,17 @@ package headers
 
 import "github.com/btcsuite/btcd/wire"
 
-// DBTxInterface needs to be implemented to persist all headers related data.
-type DBTxInterface interface {
-	// Commit closes the transaction, writing the changes.
-	Commit() error
-	// Rollback closes the transaction without writing anything and be called safely after Commit().
-	Rollback()
-	// PutHeader stores a header at a new tip.
-	PutHeader(tip int, header *wire.BlockHeader) error
-	HeaderByHeight(height int) (*wire.BlockHeader, error)
-	PutTip(tip int) error
-	Tip() (int, error)
-}
-
-// DBInterface can be implemented by database backends to open database transactions.
+// DBInterface can be implemented by database backends to store/retrieve headers.
 type DBInterface interface {
-	// Begin starts a DB transaction. Apply `defer tx.Rollback()` in any case after. Use
-	// `tx.Commit()` to commit the write operations.
-	Begin() (DBTxInterface, error)
+	// PutHeader stores a header at the specified height.
+	PutHeader(height int, header *wire.BlockHeader) error
+	// HeaderByHeight retrieves a header stored at the specified height. If no header was found, nil
+	// is returned.
+	HeaderByHeight(height int) (*wire.BlockHeader, error)
+	// RevertTo deletes all headers after tip.
+	RevertTo(tip int) error
+	// Tip retrieves the current max. height.
+	Tip() (int, error)
+	// Flush forces the db changes to the filesystem.
+	Flush() error
 }
