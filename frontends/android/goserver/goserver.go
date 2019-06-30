@@ -17,6 +17,7 @@ package goserver
 import (
 	"bytes"
 	"io"
+	"log"
 	"net/http"
 	"runtime"
 	"runtime/debug"
@@ -32,6 +33,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -74,12 +76,14 @@ type GoDeviceInfoInterface interface {
 type GoEnvironmentInterface interface {
 	NotifyUser(string)
 	DeviceInfo() GoDeviceInfoInterface
+	SystemOpen(string) error
 }
 
 // backendEnvironment translates from GoEnvironmentInterface to backend.Environment.
 type backendEnvironment struct {
 	notifyUser  func(string)
 	deviceInfos func() []usb.DeviceInfo
+	systemOpen  func(string) error
 }
 
 // NotifyUser implements backend.Environment
@@ -93,6 +97,14 @@ func (env backendEnvironment) NotifyUser(text string) {
 func (env backendEnvironment) DeviceInfos() []usb.DeviceInfo {
 	if env.deviceInfos != nil {
 		return env.deviceInfos()
+	}
+	return nil
+}
+
+// SystemOpen implements backend.Environment
+func (env backendEnvironment) SystemOpen(url string) error {
+	if env.systemOpen != nil {
+		return env.systemOpen(url)
 	}
 	return nil
 }
@@ -183,6 +195,25 @@ func BackendCall(queryID int, jsonQuery string) {
 	}()
 }
 
+type goLogHook struct {
+}
+
+func (hook goLogHook) Levels() []logrus.Level {
+	return []logrus.Level{
+		logrus.PanicLevel,
+		logrus.FatalLevel,
+		logrus.ErrorLevel,
+		logrus.WarnLevel,
+		logrus.InfoLevel,
+		logrus.DebugLevel,
+	}
+}
+
+func (hook goLogHook) Fire(entry *logrus.Entry) error {
+	log.Print(entry.String())
+	return nil
+}
+
 // Serve serves the BitBox Wallet API for use in a mobile client. It is called when the application
 // is started or wakes up from sleep.
 func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInterface) {
@@ -196,9 +227,14 @@ func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInt
 		// between during sleep between Shutdown and Serve.
 		config.SetAppDir(dataDir)
 	})
+	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
 	goAPI = theGoAPI
 
-	log := logging.Get().WithGroup("server")
+	logger := logging.Get()
+	// log via builtin log package, as that is redirected to Android's logcat.
+	logger.AddHook(goLogHook{})
+	log := logger.WithGroup("server")
+
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).WithField("version", backend.Version).Info("environment")
 
@@ -213,6 +249,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInt
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
+			systemOpen: environment.SystemOpen,
 		})
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")

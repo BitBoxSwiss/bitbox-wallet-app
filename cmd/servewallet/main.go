@@ -27,6 +27,7 @@ import (
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 	"github.com/sirupsen/logrus"
 )
 
@@ -61,8 +62,14 @@ func (webdevEnvironment) NotifyUser(text string) {
 	}
 }
 
+// DeviceInfos implements backend.Environment
 func (webdevEnvironment) DeviceInfos() []usb.DeviceInfo {
 	return usb.DeviceInfos()
+}
+
+// SystemOpen implements backend.Environment
+func (webdevEnvironment) SystemOpen(url string) error {
+	return system.Open(url)
 }
 
 func main() {
