@@ -390,6 +390,7 @@ class BitBox02 extends Component<Props, State> {
                                         <div className={style.inputGroup}>
                                             <Input
                                                 label={t('bitbox02Settings.deviceName.title')}
+                                                pattern="^.{0,63}$"
                                                 onInput={this.handleDeviceNameInput}
                                                 placeholder={t('bitbox02Settings.deviceName.input')}
                                                 value={deviceName}
@@ -399,6 +400,7 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.buttons}>
                                         <button
+                                            disabled={!deviceName}
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.setDeviceName}>
                                             {t('bitbox02Wizard.create.button')}
