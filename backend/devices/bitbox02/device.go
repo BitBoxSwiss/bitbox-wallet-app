@@ -46,7 +46,7 @@ import (
 
 var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 0, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(3, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.
