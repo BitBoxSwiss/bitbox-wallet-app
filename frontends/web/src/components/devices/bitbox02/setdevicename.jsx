@@ -21,6 +21,7 @@ import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { alertUser } from '../../alert/Alert';
 import * as dialogStyles from '../../dialog/dialog.css';
+import WaitDialog from '../../wait-dialog/wait-dialog';
 
 @translate()
 export class SetDeviceName extends Component {
@@ -29,11 +30,14 @@ export class SetDeviceName extends Component {
         this.state = {
             active: false,
             deviceName: '',
+            inProgress: false,
         };
     }
 
     setName = () => {
+        this.setState({ inProgress: true });
         apiPost(this.props.apiPrefix + '/set-device-name', { name: this.state.deviceName }).then(result => {
+            this.setState({ inProgress: false });
             if (result.success) {
                 this.abort();
                 this.props.getInfo();
@@ -70,7 +74,7 @@ export class SetDeviceName extends Component {
         return true;
     }
 
-    render({ t }, { deviceName, active }) {
+    render({ t }, { deviceName, active, inProgress }) {
         return (
             <div>
                 <Button primary onClick={this.setNameDialog}>
@@ -102,6 +106,11 @@ export class SetDeviceName extends Component {
                         </Dialog>
                     ) : null
                 }
+                { inProgress && (
+                    <WaitDialog title={t('bitbox02Settings.deviceName.title')} >
+                        {t('bitbox02Interact.followInstructions')}
+                    </WaitDialog>
+                )}
             </div>
         );
     }

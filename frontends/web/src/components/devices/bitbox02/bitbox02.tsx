@@ -31,6 +31,7 @@ import SimpleMarkup from '../../../utils/simplemarkup';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { Header } from '../../layout/header';
+import WaitDialog from '../../wait-dialog/wait-dialog';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
@@ -66,6 +67,9 @@ interface State {
     // if true, we just pair and unlock, so we can hide some steps.
     unlockOnly: boolean;
     showWizard: boolean;
+    waitDialog?: {
+        title: string;
+    };
 }
 
 class BitBox02 extends Component<Props, State> {
@@ -85,6 +89,7 @@ class BitBox02 extends Component<Props, State> {
             deviceName: '',
             unlockOnly: true,
             showWizard: false,
+            waitDialog: undefined,
         };
     }
 
@@ -234,8 +239,10 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private setDeviceName = () => {
+        this.setState({ waitDialog: { title: this.props.t('bitbox02Settings.deviceName.title') } });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
         .then(result => {
+            this.setState({ waitDialog: undefined });
             if (result.success) {
                 this.setPassword();
             }
@@ -258,7 +265,8 @@ class BitBox02 extends Component<Props, State> {
           unlockOnly,
           showWizard,
           sdCardInserted,
-          deviceName }: State,
+          deviceName,
+          waitDialog }: State,
     ) {
         if (status === '') {
             return null;
@@ -286,6 +294,13 @@ class BitBox02 extends Component<Props, State> {
         // TODO: move to wizard.tsx
         return (
             <div className="contentWithGuide">
+                { waitDialog && (
+                      <WaitDialog
+                          title={waitDialog.title}
+                      >
+                          {t('bitbox02Interact.followInstructions')}
+                      </WaitDialog>
+                )}
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
 
@@ -375,6 +390,7 @@ class BitBox02 extends Component<Props, State> {
                                         <div className={style.inputGroup}>
                                             <Input
                                                 label={t('bitbox02Settings.deviceName.title')}
+                                                pattern="^.{0,63}$"
                                                 onInput={this.handleDeviceNameInput}
                                                 placeholder={t('bitbox02Settings.deviceName.input')}
                                                 value={deviceName}
@@ -384,6 +400,7 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.buttons}>
                                         <button
+                                            disabled={!deviceName}
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.setDeviceName}>
                                             {t('bitbox02Wizard.create.button')}

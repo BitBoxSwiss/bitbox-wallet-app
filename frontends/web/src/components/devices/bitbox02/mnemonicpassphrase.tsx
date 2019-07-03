@@ -19,6 +19,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../alert/Alert';
 import { Button } from '../../forms';
+import WaitDialog from '../../wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
     apiPrefix: string;
@@ -26,13 +27,19 @@ interface MnemonicPassphraseButtonProps {
     mnemonicPassphraseEnabled: boolean;
 }
 
+interface State {
+    inProgress: boolean;
+}
+
 type Props = MnemonicPassphraseButtonProps & TranslateProps;
 
-class MnemonicPassphraseButton  extends Component<Props, {}> {
+class MnemonicPassphraseButton  extends Component<Props, State> {
     private toggle = () => {
         const enable = !this.props.mnemonicPassphraseEnabled;
+        this.setState({ inProgress: true });
         apiPost(this.props.apiPrefix + '/set-mnemonic-passphrase-enabled',
                 enable).then(({ success }) => {
+                    this.setState({ inProgress: false });
                     if (success) {
                         if (enable) {
                             alertUser(this.props.t('bitbox02Settings.mnemonicPassphrase.successEnable'));
@@ -48,13 +55,17 @@ class MnemonicPassphraseButton  extends Component<Props, {}> {
         { t,
           mnemonicPassphraseEnabled,
         }: RenderableProps<Props>,
-        { }: { },
+        { inProgress }: State,
     ) {
+        const title = mnemonicPassphraseEnabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
         return (
             <div>
-                <Button primary onClick={this.toggle}>
-                    {mnemonicPassphraseEnabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable')}
-                </Button>
+                <Button primary onClick={this.toggle}>{title}</Button>
+                { inProgress && (
+                    <WaitDialog title={title} >
+                        {t('bitbox02Interact.followInstructions')}
+                    </WaitDialog>
+                )}
             </div>
         );
     }
