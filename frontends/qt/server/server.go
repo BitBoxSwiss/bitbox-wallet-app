@@ -19,6 +19,7 @@ package main
 #define BACKEND_H
 #include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 typedef void (*pushNotificationsCallback) (const char*);
 static void pushNotify(pushNotificationsCallback f, const char* msg) {
@@ -40,6 +41,7 @@ import "C"
 
 import (
 	"flag"
+	"unsafe"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
@@ -83,7 +85,9 @@ func serve(
 		*testnet,
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
-				C.respond(responseCallback, C.int(queryID), C.CString(response))
+				cResponse := C.CString(response)
+				C.respond(responseCallback, C.int(queryID), cResponse)
+				C.free(unsafe.Pointer(cResponse))
 			},
 			pushNotify: func(msg string) {
 				C.pushNotify(pushNotificationsCallback, C.CString(msg))
