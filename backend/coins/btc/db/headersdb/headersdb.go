@@ -16,130 +16,104 @@ package headersdb
 
 import (
 	"bytes"
-	"encoding/binary"
+	"os"
 
 	"github.com/btcsuite/btcd/wire"
-	bbolt "github.com/coreos/bbolt"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 )
+
+const headerSize = 80
 
 // DB is a bbolt key/value database.
 type DB struct {
-	db *bbolt.DB
+	file *os.File
+	lock locker.Locker
 }
 
 // NewDB creates/opens a new db.
 func NewDB(filename string) (*DB, error) {
-	db, err := bbolt.Open(filename, 0600, nil)
+	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE, 0600)
 	if err != nil {
-		return nil, err
+		return nil, errp.WithStack(err)
 	}
-	return &DB{db: db}, nil
+	return &DB{file: file}, nil
 }
 
-const (
-	bucketInfo    = "info"
-	bucketHeaders = "headers"
-)
-
-// Begin implements headers.DBInterface.
-func (db *DB) Begin() (headers.DBTxInterface, error) {
-	tx, err := db.db.Begin(true)
+func (db *DB) tip() (int, error) {
+	fileInfo, err := db.file.Stat()
 	if err != nil {
-		return nil, err
+		return 0, errp.WithStack(err)
 	}
-	bucket, err := tx.CreateBucketIfNotExists([]byte("headers"))
+	return int(fileInfo.Size()/headerSize) - 1, nil
+}
+
+// RevertTo implements headers.DBInterface.
+func (db *DB) RevertTo(tip int) error {
+	defer db.lock.Lock()()
+	if tip < -1 {
+		panic("invalid tip")
+	}
+	currentTip, err := db.tip()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	bucketInfo, err := bucket.CreateBucketIfNotExists([]byte(bucketInfo))
-	if err != nil {
-		return nil, err
+	if tip > currentTip {
+		panic("revert must go backwards")
 	}
-	bucketHeaders, err := bucket.CreateBucketIfNotExists([]byte(bucketHeaders))
-	if err != nil {
-		return nil, err
+	if err := db.file.Truncate(headerSize * int64(tip+1)); err != nil {
+		return err
 	}
-	return &Tx{
-		tx:            tx,
-		bucketInfo:    bucketInfo,
-		bucketHeaders: bucketHeaders,
-	}, nil
+	return nil
 }
 
-// Tx implements headers.DBTxInterface.
-type Tx struct {
-	tx *bbolt.Tx
-
-	bucketInfo    *bbolt.Bucket
-	bucketHeaders *bbolt.Bucket
+// Tip implements headers.DBInterface.
+func (db *DB) Tip() (int, error) {
+	defer db.lock.RLock()()
+	return db.tip()
 }
 
-// Rollback implements headers.DBTxInterface.
-func (tx *Tx) Rollback() {
-	// Only possible error is ErrTxClosed.
-	_ = tx.tx.Rollback()
-}
-
-// Commit implements headers.DBTxInterface.
-func (tx *Tx) Commit() error {
-	return tx.tx.Commit()
-}
-
-func serInt(i int) []byte {
-	var buffer bytes.Buffer
-	if err := binary.Write(&buffer, binary.BigEndian, int64(i)); err != nil {
-		panic(err)
+// PutHeader implements headers.DBInterface.
+func (db *DB) PutHeader(height int, header *wire.BlockHeader) error {
+	if height < 0 {
+		panic("invalid height")
 	}
-	return buffer.Bytes()
-}
-
-// PutTip implements headers.DBTxInterface.
-func (tx *Tx) PutTip(tip int) error {
-	return tx.bucketInfo.Put([]byte("tip"), serInt(tip))
-}
-
-// Tip implements headers.DBTxInterface.
-func (tx *Tx) Tip() (int, error) {
-	if value := tx.bucketInfo.Get([]byte("tip")); value != nil {
-		var tip int64
-		if err := binary.Read(bytes.NewReader(value), binary.BigEndian, &tip); err != nil {
-			return 0, errp.WithStack(err)
-		}
-		return int(tip), nil
-	}
-
-	return -1, nil
-}
-
-// PutHeader implements headers.DBTxInterface.
-func (tx *Tx) PutHeader(tip int, header *wire.BlockHeader) error {
+	defer db.lock.Lock()()
 	var headerSer bytes.Buffer
 	if err := header.Serialize(&headerSer); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := tx.bucketHeaders.Put(serInt(tip), headerSer.Bytes()); err != nil {
-		return err
+	if _, err := db.file.WriteAt(headerSer.Bytes(), headerSize*int64(height)); err != nil {
+		return errp.WithStack(err)
 	}
-	return tx.PutTip(tip)
+	return nil
 }
 
-// HeaderByHeight implements headers.DBTxInterface.
-func (tx *Tx) HeaderByHeight(height int) (*wire.BlockHeader, error) {
-	tip, err := tx.Tip()
+// HeaderByHeight implements headers.DBInterface.
+func (db *DB) HeaderByHeight(height int) (*wire.BlockHeader, error) {
+	defer db.lock.Lock()()
+	tip, err := db.tip()
 	if err != nil {
 		return nil, err
 	}
 	if tip < height {
 		return nil, nil
 	}
-	if value := tx.bucketHeaders.Get(serInt(height)); value != nil {
-		header := &wire.BlockHeader{}
-		if err := header.Deserialize(bytes.NewReader(value)); err != nil {
-			return nil, errp.WithStack(err)
-		}
-		return header, nil
+	headerBytes := make([]byte, headerSize)
+	if _, err := db.file.ReadAt(headerBytes, headerSize*int64(height)); err != nil {
+		return nil, errp.WithStack(err)
 	}
-	return nil, nil
+	if bytes.Equal(headerBytes, bytes.Repeat([]byte{0}, headerSize)) {
+		return nil, nil
+	}
+	header := &wire.BlockHeader{}
+	if err := header.Deserialize(bytes.NewReader(headerBytes)); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	return header, nil
+}
+
+// Flush implements headers.DBInterface.
+func (db *DB) Flush() error {
+	return db.file.Sync()
 }
