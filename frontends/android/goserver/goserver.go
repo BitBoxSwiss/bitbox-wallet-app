@@ -15,34 +15,19 @@
 package goserver
 
 import (
-	"bytes"
 	"io"
 	"log"
-	"net/http"
-	"runtime"
-	"runtime/debug"
-	"strings"
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 	"github.com/sirupsen/logrus"
 )
 
 var (
-	handlers *backendHandlers.Handlers
-	token    string
-	goAPI    GoAPIInterface
-
-	quitChan chan struct{}
-	once     sync.Once
+	once sync.Once
 )
 
 // the Go*-named interfaces are implemented in Java for the mobile client. The "Go" prefix is so
@@ -79,36 +64,6 @@ type GoEnvironmentInterface interface {
 	SystemOpen(string) error
 }
 
-// backendEnvironment translates from GoEnvironmentInterface to backend.Environment.
-type backendEnvironment struct {
-	notifyUser  func(string)
-	deviceInfos func() []usb.DeviceInfo
-	systemOpen  func(string) error
-}
-
-// NotifyUser implements backend.Environment
-func (env backendEnvironment) NotifyUser(text string) {
-	if env.notifyUser != nil {
-		env.notifyUser(text)
-	}
-}
-
-// DeviceInfos implements backend.Environment
-func (env backendEnvironment) DeviceInfos() []usb.DeviceInfo {
-	if env.deviceInfos != nil {
-		return env.deviceInfos()
-	}
-	return nil
-}
-
-// SystemOpen implements backend.Environment
-func (env backendEnvironment) SystemOpen(url string) error {
-	if env.systemOpen != nil {
-		return env.systemOpen(url)
-	}
-	return nil
-}
-
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
 // are as-is except for Read().
 type readWriteCloser struct {
@@ -143,56 +98,12 @@ func (d deviceInfo) Open() (io.ReadWriteCloser, error) {
 
 // GoAPIInterface is used to pas api (GET/POST) responses and websocket push notifications to Android.
 type GoAPIInterface interface {
-	Respond(queryID int, response string)
-	PushNotify(msg string)
-}
-
-type response struct {
-	Body bytes.Buffer
-}
-
-func (r *response) Header() http.Header {
-	// Not needed.
-	return http.Header{}
-}
-
-func (r *response) Write(buf []byte) (int, error) {
-	r.Body.Write(buf)
-	return len(buf), nil
-}
-
-func (r *response) WriteHeader(int) {
-	// Not needed.
+	bridgecommon.NativeCommunication
 }
 
 // BackendCall bridges GET/POST calls (serverless, directly calling the backend handlers).
 func BackendCall(queryID int, jsonQuery string) {
-	if handlers == nil {
-		return
-	}
-	query := map[string]string{}
-	jsonp.MustUnmarshal([]byte(jsonQuery), &query)
-	if query["method"] != "POST" && query["method"] != "GET" {
-		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
-	}
-	go func() {
-		defer func() {
-			// recover from all panics and log error before panicking again
-			if r := recover(); r != nil {
-				logging.Get().WithGroup("server").WithField("panic", true).Errorf("%v\n%s", r, string(debug.Stack()))
-			}
-		}()
-
-		resp := &response{}
-		request, err := http.NewRequest(query["method"], "/api/"+query["endpoint"], strings.NewReader(query["body"]))
-		if err != nil {
-			panic(errp.WithStack(err))
-		}
-		request.Header.Set("Authorization", "Basic "+token)
-		handlers.Router.ServeHTTP(resp, request)
-		responseBytes := resp.Body.Bytes()
-		goAPI.Respond(queryID, string(responseBytes))
-	}()
+	bridgecommon.BackendCall(queryID, jsonQuery)
 }
 
 type goLogHook struct {
@@ -216,78 +127,36 @@ func (hook goLogHook) Fire(entry *logrus.Entry) error {
 
 // Serve serves the BitBox Wallet API for use in a mobile client. It is called when the application
 // is started or wakes up from sleep.
-func Serve(dataDir string, environment GoEnvironmentInterface, theGoAPI GoAPIInterface) {
-	if quitChan != nil {
-		panic("already running; must call Shutdown()")
-	}
-	quitChan = make(chan struct{})
-
+func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
 	once.Do(func() {
 		// SetAppDir can only be called once, but this is okay, since the data dir does not change
 		// between during sleep between Shutdown and Serve.
 		config.SetAppDir(dataDir)
 	})
-	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
-	goAPI = theGoAPI
 
-	logger := logging.Get()
 	// log via builtin log package, as that is redirected to Android's logcat.
-	logger.AddHook(goLogHook{})
-	log := logger.WithGroup("server")
+	logging.Get().AddHook(goLogHook{})
 
-	log.Info("--------------- Started application --------------")
-	log.WithField("goos", runtime.GOOS).WithField("goarch", runtime.GOARCH).WithField("version", backend.Version).Info("environment")
-
-	backend, err := backend.NewBackend(
-		arguments.NewArguments(config.AppDir(), false, false, false, false, false),
-		backendEnvironment{
-			notifyUser: environment.NotifyUser,
-			deviceInfos: func() []usb.DeviceInfo {
+	testnet := false
+	bridgecommon.Serve(
+		testnet,
+		goAPI,
+		&bridgecommon.BackendEnvironment{
+			NotifyUserFunc: environment.NotifyUser,
+			DeviceInfosFunc: func() []usb.DeviceInfo {
 				i := environment.DeviceInfo()
 				if i == nil {
 					return []usb.DeviceInfo{}
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			systemOpen: environment.SystemOpen,
-		})
-	if err != nil {
-		log.WithError(err).Fatal("Failed to create backend")
-	}
-
-	token, err = random.HexString(16)
-	if err != nil {
-		log.WithError(err).Fatal("Failed to generate random string")
-	}
-
-	events := backend.Events()
-	go func() {
-		for {
-			select {
-			case <-quitChan:
-				return
-			default:
-				select {
-				case <-quitChan:
-					return
-				case event := <-events:
-					goAPI.PushNotify(string(jsonp.MustMarshal(event)))
-				}
-			}
-		}
-	}()
-
-	// the port is unused in the Android app, as we bridge directly without a server.
-	handlers = backendHandlers.NewHandlers(backend,
-		backendHandlers.NewConnectionData(-1, token))
-
+			SystemOpenFunc: environment.SystemOpen,
+		},
+	)
 }
 
 // Shutdown is cleaning up after Serve. It is called when the application is closed or goes to
 // sleep.
 func Shutdown() {
-	if quitChan != nil {
-		close(quitChan)
-		quitChan = nil
-	}
+	bridgecommon.Shutdown()
 }
