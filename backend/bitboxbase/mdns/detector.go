@@ -20,16 +20,24 @@ import (
 	"net"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	micromdns "github.com/micro/mdns"
 
-	"github.com/grandcat/zeroconf"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	service           = "_bitboxbase._tcp"
+	discoveryDuration = time.Second * 10
 )
 
 // Detector listens for new bitboxbases and creates a new bitboxBase when detected.
 type Detector struct {
+	foundBases          map[string]string
 	baseDeviceInterface map[string]bitboxbase.Interface
 
 	onRegister   func(bitboxbase.Interface) error
@@ -50,6 +58,7 @@ func NewDetector(
 	config *config.Config,
 ) *Detector {
 	return &Detector{
+		foundBases:          make(map[string]string),
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
 		onRegister:          onRegister,
 		onUnregister:        onUnregister,
@@ -76,7 +85,7 @@ func (detector *Detector) TryMakeNewBase(address string) (bool, error) {
 	bitboxBaseID := address
 	// Skip if already registered.
 	if _, ok := detector.baseDeviceInterface[bitboxBaseID]; ok {
-		return false, nil
+		return false, errp.New("Base already registered")
 	}
 
 	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, detector.config)
@@ -107,52 +116,44 @@ func (detector *Detector) checkIfRemoved(bitboxBaseID string) bool {
 	return false
 }
 
-//mdnsLookup scans the localnetwork and creates a new base if one is found.
-func (detector *Detector) mdnsLookup(ctx context.Context) {
-	entries := make(chan *zeroconf.ServiceEntry)
-	go func(results <-chan *zeroconf.ServiceEntry) {
-		for entry := range results {
-			if len(entry.AddrIPv4) == 0 {
-				continue
-			}
-			bitboxBaseID := net.IP.String(entry.AddrIPv4[0]) + ":8845"
-			//Check that this ID is not registered
-			if _, ok := detector.baseDeviceInterface[bitboxBaseID]; ok {
-				continue
-			}
-			//Check that the ID was not removed within the same session
-			if _, ok := detector.removedIDs[bitboxBaseID]; ok {
-				continue
-			}
-			_, err := detector.TryMakeNewBase(bitboxBaseID)
-			if err != nil {
-				detector.log.WithError(err).Error("Failed to create new base:", err.Error())
-			}
-		}
-	}(entries)
-
-	resolver, err := zeroconf.NewResolver(nil)
-	if err != nil {
-		detector.log.WithError(err).Error("Failed to initialize resolver:", err.Error())
-	}
-	err = resolver.Browse(ctx, "_bitboxbase._tcp", "local.", entries)
-	if err != nil {
-		detector.log.WithError(err).Error("Failed to browse:", err.Error())
-	}
-}
-
-// listen runs a for loop and creates a new context that lasts for every new mdns scan.
-func (detector *Detector) listen() {
+// mdnsScan scans the local network forever for BitBox Base devices.
+func (detector *Detector) mdnsScan() {
 	for {
-		ctx, cancel := context.WithCancel(context.Background())
-		go detector.mdnsLookup(ctx)
-		time.Sleep(15 * time.Second)
-		cancel()
+		entries := make(chan *micromdns.ServiceEntry)
+		go func() {
+			for entry := range entries {
+				host := entry.Host
+				resolvedHosts, err := net.LookupHost(host)
+				if err != nil {
+					detector.log.WithError(err).Error("Failed to resolve hostname: ", host)
+					continue
+				}
+				baseIPv4 := resolvedHosts[0] + ":8845"
+
+				if _, ok := detector.foundBases[baseIPv4]; !ok {
+					detector.foundBases[baseIPv4] = host
+				}
+			}
+		}()
+
+		ctx, cancel := context.WithTimeout(context.Background(), discoveryDuration)
+
+		// Start mdns lookup
+		err := micromdns.Lookup(service, entries)
+		if err != nil {
+			detector.log.WithError(err).Error("mDNS lookup failed for service: ", service)
+		}
+
 		<-ctx.Done()
+
+		// Wait one second for go routine shutdown, necessary to correctly filter by "_bitboxbase._tcp"
+		time.Sleep(time.Second * 1)
+		close(entries)
+		cancel()
 	}
 }
 
-// Start listens for inserted/removed base devices forever.
+// Start starts a continuous mDNS scan for BitBox Base devices on local network.
 func (detector *Detector) Start() {
-	go detector.listen()
+	go detector.mdnsScan()
 }
