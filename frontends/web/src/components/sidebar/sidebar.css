@@ -18,7 +18,7 @@
 
 .sidebar {
     position: fixed;
-    margin-left: -70%;
+    margin-left: calc(var(--sidebar-width-large) * -1);
     align-content: stretch;
     background-color: var(--color-dark);
     display: flex;
@@ -123,6 +123,7 @@
 .sidebarItem .stacked,
 .sidebarItem .single {
     margin: 0 var(--sidebar-icon-margin) 0 var(--sidebar-margin);
+    height: var(--sidebar-icon-size);
 }
 
 a.sidebar-active .sidebar_label,
