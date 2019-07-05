@@ -19,8 +19,6 @@ import { route } from 'preact-router';
 import { Link, Match } from 'preact-router/match';
 import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
-import plusCircleDisabled from '../../assets/icons/plus-circle-disabled.svg';
-import plusCircle from '../../assets/icons/plus-circle.svg';
 import settings from '../../assets/icons/settings-alt.svg';
 import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
@@ -61,45 +59,50 @@ function Sidebar(
                 <div className="sidebarLogoContainer">
                     <BitBoxInverted className="sidebarLogo" />
                 </div>
+                <div className="sidebarHeaderContainer">
+                    <span className="sidebarHeader">Accounts</span>
+                    {
+                        debug && (
+                            <span className="sidebarHeaderAction">
+                                <a href={`/add-account`} title={t('sidebar.addAccount')}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                                    </svg>
+                                </a>
+                            </span>
+                        )
+                    }
+                </div>
                 {debug &&
-                    <div className="sideBarItem">
+                    <div className="sidebarItem">
                         <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title={t('accountSummary.title')}>
-                                <div className="single">
-                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
-                                </div>
-                                <span className="sidebar_label">{t('accountSummary.title')}</span>
+                            <div className="single">
+                                <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                            </div>
+                            <span className="sidebar_label">{t('accountSummary.title')}</span>
+                        </Link>
+                    </div>
+                }
+                { accounts && accounts.map(getAccountLink) }
+                <div className="sidebarHeaderContainer end">
+                    <span className="sidebarHeader">Settings</span>
+                </div>
+                {debug &&
+                    <div className="sidebarItem">
+                        <Link activeClassName="sidebar-active" class="settings" href={`/bitboxbase`} title={t('sidebar.bitboxBase')}>
+                            <div className="stacked">
+                                <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
+                                <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
+                            </div>
+                            <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
                         </Link>
                     </div>
                 }
                 {
-                    accounts && accounts.map(getAccountLink)
-                }
-                {debug &&
-                    <div className="sideBarItem">
-                        <Link activeClassName="sidebar-active" class="settings" href={`/add-account`} title={t('sidebar.addAccount')}>
-                            <div className="stacked">
-                                <img draggable={false} className="sidebar_settings" src={plusCircleDisabled} alt={t('sidebar.addAccount')} />
-                                <img draggable={false} className="sidebar_settings" src={plusCircle} alt={t('sidebar.addAccount')} />
-                            </div>
-                            <span className="sidebar_label">{t('sidebar.addAccount')}</span>
-                        </Link>
-                    </div>
-                }
-                <div className="sidebar_drawer"></div>
-                {debug &&
-                    <div className="sideBarItem">
-                      <Link activeClassName="sidebar-active" class="settings" href={`/bitboxbase`} title={t('sidebar.bitboxBase')}>
-                        <div className="stacked">
-                          <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
-                          <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
-                        </div>
-                        <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
-                      </Link>
-                    </div>
-                }
-                <div className="sidebar_bottom">
-                    {
-                        (debug && accountsInitialized && deviceIDs.length === 0) && (
+                    (debug && accountsInitialized && deviceIDs.length === 0) && (
+                        <div className="sidebarItem">
                             <a href="#" onClick={eject}>
                                 <div className="single">
                                     <img
@@ -109,29 +112,29 @@ function Sidebar(
                                         alt={t('sidebar.leave')} />
                                 </div>
                             </a>
-                        )
-                    }
-                    {
-                        deviceIDs.map(deviceID => (
-                            <div key={deviceID}>
-                                <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
-                                    <div className="single">
-                                        <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
-                                    </div>
-                                    <span className="sidebar_label">{t('sidebar.device')}</span>
-                                </Link>
-                            </div>
-                        ))
-                    }
-                    <div>
-                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
-                            <div className="stacked">
-                                <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
-                                <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
-                            </div>
-                            <span className="sidebar_label">{t('sidebar.settings')}</span>
-                        </Link>
-                    </div>
+                        </div>
+                    )
+                }
+                {
+                    deviceIDs.map(deviceID => (
+                        <div key={deviceID} className="sidebarItem">
+                            <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
+                                </div>
+                                <span className="sidebar_label">{t('sidebar.device')}</span>
+                            </Link>
+                        </div>
+                    ))
+                }
+                <div className="sidebarItem">
+                    <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
+                        <div className="stacked">
+                            <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
+                            <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />
+                        </div>
+                        <span className="sidebar_label">{t('sidebar.settings')}</span>
+                    </Link>
                 </div>
             </nav>
         </div>
@@ -140,7 +143,7 @@ function Sidebar(
 
 function getAccountLink({ coinCode, code, name }: AccountInterface): JSX.Element {
     return (
-        <div key={code} className="sideBarItem">
+        <div key={code} className="sidebarItem">
             <Match>
                 {match => getBackLink(coinCode, code, name, match.url === `/account/${code}` || match.url.startsWith(`/account/${code}/`))}
             </Match>

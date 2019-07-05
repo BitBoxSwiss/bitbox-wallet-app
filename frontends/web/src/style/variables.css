@@ -61,7 +61,13 @@
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
 
     /* sidebar */
-    --sidebar-width-large: 200px;
+    --sidebar-width-large: 250px;
+    --sidebar-margin: 32px;
+    --sidebar-item-height: 52px;
+    --sidebar-icon-margin: 14px;
+    --sidebar-icon-size: 24px;
+    --sidebar-header-size: 12px;
+    --sidebar-header-line-height: 16px;
 
     /* header */
     --header-height: 91px;
