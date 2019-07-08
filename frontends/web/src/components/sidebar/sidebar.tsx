@@ -141,7 +141,7 @@ class Sidebar extends Component<Props> {
                     </div>
                     {debug &&
                         <div className="sidebarItem">
-                            <Link activeClassName="sidebar-active" class="settings" href={`/account-summary`} title={t('accountSummary.title')}>
+                            <Link activeClassName="sidebar-active" href={`/account-summary`} title={t('accountSummary.title')}>
                                 <div className="single">
                                     <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
                                 </div>
@@ -210,17 +210,16 @@ function getAccountLink({ coinCode, code, name }: AccountInterface): JSX.Element
     return (
         <div key={code} className="sidebarItem">
             <Match>
-                {match => getBackLink(coinCode, code, name, match.url === `/account/${code}` || match.url.startsWith(`/account/${code}/`))}
+                {() => getBackLink(coinCode, code, name)}
             </Match>
         </div>
     );
 }
 
-function getBackLink(coinCode: string, code: string, name: string, active: boolean): JSX.Element {
+function getBackLink(coinCode: string, code: string, name: string): JSX.Element {
     return (
         <Link
             activeClassName="sidebar-active"
-            className={active ? 'sidebar-active' : ''}
             href={`/account/${code}`}
             title={name}>
             <Logo coinCode={coinCode} className="sidebar_icon" alt={name} />
