@@ -94,7 +94,9 @@ class Sidebar extends Component<Props> {
         const touch = e.changedTouches[0];
         const travelX = Math.abs(touch.clientX - this.swipe.x);
         const travelY = Math.abs(touch.clientY - this.swipe.y);
-        if (this.swipe.active && this.swipe.x < 60  && travelX > 70 && travelY < 100 && window.innerWidth <= 901) {
+        const validSwipe = window.innerWidth <= 901 && this.swipe.active && travelY < 100 && travelX > 70;
+        if ((!panelStore.state.activeSidebar && validSwipe && this.swipe.x < 60) ||
+            (panelStore.state.activeSidebar && validSwipe && this.swipe.x > 230)) {
             toggleSidebar();
         }
         this.swipe = {

@@ -47,7 +47,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    height: 80px;
+    height: 70px;
     padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-large);
     background-size: cover;
     background-color: rgba(0, 0, 0, 0.1);
