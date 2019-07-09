@@ -66,6 +66,9 @@ Within the Docker dev environment, build the Android App: `make android`
 The Android Sdk is assumed to be in `/opt/android-sdk`. Use `make android ANDROID_SDK_ROOT=...` to
 use a different Sdk location.
 
+Build artifacts:
+* `frontends/android/BitBox/app/build/outputs/apk/*`
+
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.
 The `qtwebwidgets` QT module only supports native building on Windows. It is
