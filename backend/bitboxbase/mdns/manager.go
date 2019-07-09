@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//Package mdns manages detects and/or registers new bitbox bases.
+// Package mdns manages and/or registers new bitbox bases.
 package mdns
 
 import (
@@ -35,29 +35,29 @@ const (
 	discoveryDuration = time.Second * 10
 )
 
-// Detector listens for new bitboxbases and creates a new bitboxBase when detected.
-type Detector struct {
+// Manager listens for new bitboxbases and handles their (de)registration.
+type Manager struct {
 	foundBases          map[string]string
 	baseDeviceInterface map[string]bitboxbase.Interface
 
 	onRegister   func(bitboxbase.Interface) error
 	onUnregister func(string)
 
-	removedIDs map[string]bool //keeps track of the bases that were removed manually by the user.
+	removedIDs map[string]bool // keeps track of the bases that were removed manually by the user.
 
 	log    *logrus.Entry
 	config *config.Config
 }
 
-// NewDetector creates a new detector. onRegister is called when a bitboxbase has been
+// NewManager creates a new manager. onRegister is called when a bitboxbase has been
 // inserted. onUnregister is called when the bitboxbase has been removed.
 //
-func NewDetector(
+func NewManager(
 	onRegister func(bitboxbase.Interface) error,
 	onUnregister func(string),
 	config *config.Config,
-) *Detector {
-	return &Detector{
+) *Manager {
+	return &Manager{
 		foundBases:          make(map[string]string),
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
 		onRegister:          onRegister,
@@ -65,59 +65,59 @@ func NewDetector(
 		removedIDs:          make(map[string]bool),
 		config:              config,
 
-		log: logging.Get().WithGroup("detector"),
+		log: logging.Get().WithGroup("manager"),
 	}
 }
 
 // TryMakeNewBase attempts to create a new bitboxBase connection to the BitBox base. Returns true if successful, false otherwise.
-func (detector *Detector) TryMakeNewBase(address string) (bool, error) {
-	for bitboxBaseID, bitboxBase := range detector.baseDeviceInterface {
+func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
+	for bitboxBaseID, bitboxBase := range manager.baseDeviceInterface {
 		// Check if bitboxbase was removed.
-		if detector.checkIfRemoved(bitboxBaseID) {
+		if manager.checkIfRemoved(bitboxBaseID) {
 			bitboxBase.Close()
-			delete(detector.baseDeviceInterface, bitboxBaseID)
-			detector.onUnregister(bitboxBaseID)
-			detector.log.WithField("bitboxbase-id", bitboxBaseID).Info("Unregistered bitboxbase")
+			delete(manager.baseDeviceInterface, bitboxBaseID)
+			manager.onUnregister(bitboxBaseID)
+			manager.log.WithField("bitboxbase-id", bitboxBaseID).Info("Unregistered bitboxbase")
 		}
 	}
 
 	// Make the id the address for now, later the pairing should be factored in here as well.
 	bitboxBaseID := address
 	// Skip if already registered.
-	if _, ok := detector.baseDeviceInterface[bitboxBaseID]; ok {
+	if _, ok := manager.baseDeviceInterface[bitboxBaseID]; ok {
 		return false, errp.New("Base already registered")
 	}
 
-	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, detector.config)
+	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config)
 
 	if err != nil {
-		detector.log.WithError(err).Error("Failed to register Base")
+		manager.log.WithError(err).Error("Failed to register Base")
 		return false, err
 	}
-	detector.baseDeviceInterface[bitboxBaseID] = baseDevice
-	if err := detector.onRegister(baseDevice); err != nil {
-		detector.log.WithError(err).Error("Failed to execute on-register")
+	manager.baseDeviceInterface[bitboxBaseID] = baseDevice
+	if err := manager.onRegister(baseDevice); err != nil {
+		manager.log.WithError(err).Error("Failed to execute on-register")
 		return false, err
 	}
 	return true, nil
 }
 
-// RemoveBase allows external objects to delete a detector entry.
-func (detector *Detector) RemoveBase(bitboxBaseID string) {
-	if _, ok := detector.baseDeviceInterface[bitboxBaseID]; ok {
-		delete(detector.baseDeviceInterface, bitboxBaseID)
-		detector.removedIDs[bitboxBaseID] = true
+// RemoveBase allows external objects to delete a manager entry.
+func (manager *Manager) RemoveBase(bitboxBaseID string) {
+	if _, ok := manager.baseDeviceInterface[bitboxBaseID]; ok {
+		delete(manager.baseDeviceInterface, bitboxBaseID)
+		manager.removedIDs[bitboxBaseID] = true
 	}
 }
 
 // checkIfRemoved returns true if a bitboxbase was detected in, but is not reachable anymore.
-func (detector *Detector) checkIfRemoved(bitboxBaseID string) bool {
-	//TODO implement this function, should check if the bitboxBase is reachable, if not properly unregister it.
+func (manager *Manager) checkIfRemoved(bitboxBaseID string) bool {
+	// TODO implement this function, should check if the bitboxBase is reachable, if not properly unregister it.
 	return false
 }
 
 // mdnsScan scans the local network forever for BitBox Base devices.
-func (detector *Detector) mdnsScan() {
+func (manager *Manager) mdnsScan() {
 	for {
 		entries := make(chan *micromdns.ServiceEntry)
 		go func() {
@@ -125,13 +125,13 @@ func (detector *Detector) mdnsScan() {
 				host := entry.Host
 				resolvedHosts, err := net.LookupHost(host)
 				if err != nil {
-					detector.log.WithError(err).Error("Failed to resolve hostname: ", host)
+					manager.log.WithError(err).Error("Failed to resolve hostname: ", host)
 					continue
 				}
 				baseIPv4 := resolvedHosts[0] + ":8845"
 
-				if _, ok := detector.foundBases[baseIPv4]; !ok {
-					detector.foundBases[baseIPv4] = host
+				if _, ok := manager.foundBases[baseIPv4]; !ok {
+					manager.foundBases[baseIPv4] = host
 				}
 			}
 		}()
@@ -141,7 +141,7 @@ func (detector *Detector) mdnsScan() {
 		// Start mdns lookup
 		err := micromdns.Lookup(service, entries)
 		if err != nil {
-			detector.log.WithError(err).Error("mDNS lookup failed for service: ", service)
+			manager.log.WithError(err).Error("mDNS lookup failed for service: ", service)
 		}
 
 		<-ctx.Done()
@@ -154,6 +154,6 @@ func (detector *Detector) mdnsScan() {
 }
 
 // Start starts a continuous mDNS scan for BitBox Base devices on local network.
-func (detector *Detector) Start() {
-	go detector.mdnsScan()
+func (manager *Manager) Start() {
+	go manager.mdnsScan()
 }
