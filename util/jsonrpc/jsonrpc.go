@@ -220,11 +220,13 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 				client.resendPendingRequestsAndSubscriptions(sockErr.connection)
 				return
 			}
-			if err, ok := r.(error); ok {
-				panic(errp.Wrap(err, "Unrecoverable error happened in read channel"))
+			var err error
+			if panicErr, ok := r.(error); ok {
+				err = panicErr
 			} else {
-				panic(errp.Newf("Unrecoverable error happened in read channel: %v", r))
+				err = errp.Newf("Unrecoverable error happened in read channel: %v", r)
 			}
+			client.log.WithError(err).Panic("Unrecoverable error happened in read channel")
 		} else if client.close {
 			client.setStatus(rpc.DISCONNECTED)
 		}
@@ -244,10 +246,10 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 // separate go routine to listen for incoming data.
 func (client *RPCClient) establishConnection(backend rpc.Backend) error {
 	conn, err := backend.EstablishConnection()
-	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
 	if err != nil {
 		return err
 	}
+	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
 	client.log.Debugf("Established connection to backend")
 	client.connection = &connection{conn, backend}
 	go client.read(client.connection, client.handleResponse)
@@ -339,6 +341,16 @@ func (client *RPCClient) cleanupFinishedRequest(responseError error, conn *conne
 	}
 }
 
+func (client *RPCClient) failAll(err error) {
+	client.log.WithError(err).Error("Unexpected response")
+	defer client.pendingRequestsLock.Lock()()
+
+	for responseID, request := range client.pendingRequests {
+		delete(client.pendingRequests, responseID)
+		go request.responseCallbacks.cleanup(err)
+	}
+}
+
 func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) {
 	// fmt.Println("got response ", string(responseBytes))
 
@@ -361,12 +373,16 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 		Params  json.RawMessage  `json:"params"`
 	}{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
-		// panic will be caught in read() and subscribed connections will be re-subscribed
-		panic(&ResponseError{errp.Wrap(err, "Failed to unmarshal response")})
+		client.failAll((&ResponseError{errp.Wrap(
+			err,
+			fmt.Sprintf("Failed to unmarshal response: %s", string(responseBytes)),
+		)}))
+		return
 	}
 	if response.JSONRPC != "2.0" {
-		// panic will be caught in read() and subscribed connections will be re-subscribed
-		panic(&ResponseError{errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)})
+		client.failAll(
+			&ResponseError{errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)})
+		return
 	}
 
 	parseError := func(msg json.RawMessage) string {
@@ -552,8 +568,15 @@ func (client *RPCClient) MethodSync(response interface{}, method string, params 
 			responseChan <- responseBytes
 			return nil
 		},
-		func() func(error) { return func(error) {} },
+		func() func(error) {
+			return func(err error) {
+				if err != nil {
+					errChan <- err
+				}
+			}
+		},
 		method, params...)
+
 	select {
 	case err := <-errChan:
 		return err
