@@ -57,17 +57,6 @@ export class ConnectedBase extends Component<Props, State> {
         }
     }
 
-    private removeBitBoxBase = () => {
-        apiPost('bitboxbases/disconnectbase', {
-            bitboxBaseID : this.props.bitboxBaseID,
-        }).then(({ success }) => {
-            if (!success) {
-                alertUser('Did not work');
-            }
-        });
-
-    }
-
     private connectElectrum = () => {
         apiPost('bitboxbases/' + this.props.bitboxBaseID + '/connect-electrum', {
             bitboxBaseID : this.props.bitboxBaseID,
@@ -93,13 +82,12 @@ export class ConnectedBase extends Component<Props, State> {
         return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <p>Block Number: {blockInfo.blocks}</p>
-                        <p>Difficulty: {blockInfo.difficulty}</p>
-                        <p>Device ID: {bitboxBaseID}</p>
-                        <p>Lightning Alias: {blockInfo.lightningAlias}</p>
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
-                        </div>
+                        <ul>
+                            <li>Block Number: {blockInfo.blocks}</li>
+                            <li>Difficulty: {blockInfo.difficulty}</li>
+                            <li>Device ID: {bitboxBaseID}</li>
+                            <li>Lightning Alias: {blockInfo.lightningAlias}</li>
+                        </ul>
                     </div>
                     <div class="row">
                         <div class="buttons flex flex-row flex-end">
