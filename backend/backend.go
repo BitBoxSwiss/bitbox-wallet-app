@@ -163,7 +163,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 
-	backend.baseManager = mdns.NewManager(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
+	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
 
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
@@ -646,6 +646,16 @@ func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 // BitBoxBasesRegistered returns a map of bitboxBaseIDs and registered bitbox bases.
 func (backend *Backend) BitBoxBasesRegistered() map[string]bitboxbase.Interface {
 	return backend.bitboxBases
+}
+
+// BitBoxBasesDetected returns a map of IPs and Hostnames of detected Bases.
+func (backend *Backend) BitBoxBasesDetected() map[string]string {
+	return backend.baseManager.GetDetectedBases()
+}
+
+// EmitBitBoxBaseDetected saves the IP and Hostname of detected BitBox Bases at this backend
+func (backend *Backend) EmitBitBoxBaseDetected() {
+	backend.events <- backendEvent{Type: "bitboxbases", Data: "detectedChanged"}
 }
 
 // bitBoxBaseRegister registers the given bitboxbase at this backend.

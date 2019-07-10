@@ -16,14 +16,15 @@
 package mdns
 
 import (
-	"context"
 	"net"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
-
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	micromdns "github.com/micro/mdns"
 
@@ -31,13 +32,22 @@ import (
 )
 
 const (
+	domain            = "local"
 	service           = "_bitboxbase._tcp"
 	discoveryDuration = time.Second * 10
 )
 
+// BaseDeviceInfo contains the IPv4s and Hostname of a discovered BitBox Base
+type BaseDeviceInfo struct {
+	Hostname string
+	IPv4     string
+}
+
 // Manager listens for new bitboxbases and handles their (de)registration.
 type Manager struct {
-	foundBases          map[string]string
+	onDetect      func()
+	detectedBases map[string]string
+
 	baseDeviceInterface map[string]bitboxbase.Interface
 
 	onRegister   func(bitboxbase.Interface) error
@@ -52,16 +62,17 @@ type Manager struct {
 
 // NewManager creates a new manager. onRegister is called when a bitboxbase has been
 // inserted. onUnregister is called when the bitboxbase has been removed.
-//
 func NewManager(
+	onDetect func(),
 	onRegister func(bitboxbase.Interface) error,
 	onUnregister func(string),
 	config *config.Config,
 	bitboxBaseConfigDir string,
 ) *Manager {
 	return &Manager{
-		foundBases:          make(map[string]string),
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
+		onDetect:            onDetect,
+		detectedBases:       map[string]string{},
 		onRegister:          onRegister,
 		onUnregister:        onUnregister,
 		removedIDs:          make(map[string]bool),
@@ -86,11 +97,13 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 
 	// Make the id the address for now, later the pairing should be factored in here as well.
 	bitboxBaseID := address
+
 	// Skip if already registered.
 	if _, ok := manager.baseDeviceInterface[bitboxBaseID]; ok {
 		return false, errp.New("Base already registered")
 	}
 
+	manager.log.WithField("host", manager.detectedBases[address]).WithField("address", address)
 	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir)
 
 	if err != nil {
@@ -113,6 +126,11 @@ func (manager *Manager) RemoveBase(bitboxBaseID string) {
 	}
 }
 
+// GetDetectedBases returns bases detected by the manager with the mDNS scan
+func (manager *Manager) GetDetectedBases() map[string]string {
+	return manager.detectedBases
+}
+
 // checkIfRemoved returns true if a bitboxbase was detected in, but is not reachable anymore.
 func (manager *Manager) checkIfRemoved(bitboxBaseID string) bool {
 	// TODO implement this function, should check if the bitboxBase is reachable, if not properly unregister it.
@@ -123,36 +141,51 @@ func (manager *Manager) checkIfRemoved(bitboxBaseID string) bool {
 func (manager *Manager) mdnsScan() {
 	for {
 		entries := make(chan *micromdns.ServiceEntry)
+		wg := sync.WaitGroup{}
+		wg.Add(1)
 		go func() {
+			defer wg.Done()
 			for entry := range entries {
 				host := entry.Host
 				resolvedHosts, err := net.LookupHost(host)
-				if err != nil {
+				if err != nil || len(resolvedHosts) == 0 {
 					manager.log.WithError(err).Error("Failed to resolve hostname: ", host)
 					continue
 				}
-				baseIPv4 := resolvedHosts[0] + ":8845"
+				baseIPv4 := resolvedHosts[0] + ":" + strconv.Itoa(entry.Port)
 
-				if _, ok := manager.foundBases[baseIPv4]; !ok {
-					manager.foundBases[baseIPv4] = host
+				deviceInfo := BaseDeviceInfo{
+					Hostname: host,
+					IPv4:     baseIPv4,
+				}
+
+				// Inform the backend that a new Base has been detected
+				// Even though micromdns.Lookup is supposed to filter based on mDNS service, sometimes it
+				// discovers other devices so we also filter them out here
+				if _, ok := manager.detectedBases[deviceInfo.Hostname]; !ok && strings.Contains(entry.Name, service) {
+					manager.detectedBases[deviceInfo.Hostname] = deviceInfo.IPv4
+					manager.onDetect()
 				}
 			}
 		}()
 
-		ctx, cancel := context.WithTimeout(context.Background(), discoveryDuration)
-
-		// Start mdns lookup
-		err := micromdns.Lookup(service, entries)
+		// Start mdns lookup with custom params
+		params := &micromdns.QueryParam{
+			Service:             service,
+			Domain:              domain,
+			Timeout:             discoveryDuration,
+			Entries:             entries,
+			WantUnicastResponse: false,
+		}
+		err := micromdns.Query(params)
 		if err != nil {
 			manager.log.WithError(err).Error("mDNS lookup failed for service: ", service)
 		}
 
-		<-ctx.Done()
-
-		// Wait one second for go routine shutdown, necessary to correctly filter by "_bitboxbase._tcp"
-		time.Sleep(time.Second * 1)
+		// Close channel and wait for go routine to finish
 		close(entries)
-		cancel()
+		wg.Wait()
+		time.Sleep(time.Second)
 	}
 }
 
