@@ -116,15 +116,16 @@ type Backend struct {
 
 	notifier *Notifier
 
-	devices            map[string]device.Interface
-	bitboxBases        map[string]bitboxbase.Interface
-	keystores          *keystore.Keystores
-	onAccountInit      func(accounts.Interface)
-	onAccountUninit    func(accounts.Interface)
-	onDeviceInit       func(device.Interface)
-	onDeviceUninit     func(string)
-	onBitBoxBaseInit   func(bitboxbase.Interface)
-	onBitBoxBaseUninit func(string)
+	devices             map[string]device.Interface
+	detectedBitBoxBases map[string]string
+	bitboxBases         map[string]bitboxbase.Interface
+	keystores           *keystore.Keystores
+	onAccountInit       func(accounts.Interface)
+	onAccountUninit     func(accounts.Interface)
+	onDeviceInit        func(device.Interface)
+	onDeviceUninit      func(string)
+	onBitBoxBaseInit    func(bitboxbase.Interface)
+	onBitBoxBaseUninit  func(string)
 
 	coins     map[string]coin.Coin
 	coinsLock locker.Locker
@@ -150,12 +151,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		config:      config,
 		events:      make(chan interface{}, 1000),
 
-		devices:     map[string]device.Interface{},
-		bitboxBases: map[string]bitboxbase.Interface{},
-		keystores:   keystore.NewKeystores(),
-		coins:       map[string]coin.Coin{},
-		accounts:    []accounts.Interface{},
-		log:         log,
+		devices:             map[string]device.Interface{},
+		detectedBitBoxBases: make(map[string]string),
+		bitboxBases:         map[string]bitboxbase.Interface{},
+		keystores:           keystore.NewKeystores(),
+		coins:               map[string]coin.Coin{},
+		accounts:            []accounts.Interface{},
+		log:                 log,
 	}
 	notifier, err := NewNotifier(filepath.Join(arguments.MainDirectoryPath(), "notifier.db"))
 	if err != nil {
@@ -164,7 +166,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	backend.notifier = notifier
 
 	backend.baseManager = mdns.NewManager(
-		backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
+		backend.BitBoxBaseDetect, backend.BitBoxBasesDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config)
 
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
@@ -647,6 +649,17 @@ func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 // BitBoxBasesRegistered returns a map of bitboxBaseIDs and registered bitbox bases.
 func (backend *Backend) BitBoxBasesRegistered() map[string]bitboxbase.Interface {
 	return backend.bitboxBases
+}
+
+// BitBoxBasesDetected returns a map of IPs and Hostnames of detected Bases.
+func (backend *Backend) BitBoxBasesDetected() map[string]string {
+	return backend.detectedBitBoxBases
+}
+
+// BitBoxBaseDetect saves the IP and Hostname of detected BitBox Bases at this backend
+func (backend *Backend) BitBoxBaseDetect(detectedBase mdns.BaseDeviceInfo) {
+	backend.detectedBitBoxBases[detectedBase.Hostname] = detectedBase.IPv4
+	backend.events <- backendEvent{Type: "bitboxbases", Data: "detectedChanged"}
 }
 
 // bitBoxBaseRegister registers the given bitboxbase at this backend.
