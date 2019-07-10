@@ -51,17 +51,6 @@ export class ConnectedBase extends Component<Props, State> {
         }
     }
 
-    private removeBitBoxBase = () => {
-        apiPost('bitboxbases/disconnectbase', {
-            bitboxBaseID : this.props.bitboxBaseID,
-        }).then(({ success }) => {
-            if (!success) {
-                alertUser('Did not work');
-            }
-        });
-
-    }
-
     private connectElectrum = () => {
         apiPost('bitboxbases/' + this.props.bitboxBaseID + '/connect-electrum', {
             bitboxBaseID : this.props.bitboxBaseID,
@@ -83,27 +72,17 @@ export class ConnectedBase extends Component<Props, State> {
         if (!blockInfo) {
             return null;
         }
-        let blocks = '';
-        let difficulty = '';
-        let alias = '';
-        let i = '';
-        const blockInfoArr = blockInfo.split(' ');
-        blocks = blockInfoArr[0];
-        difficulty = blockInfoArr[1];
-        i = blockInfoArr[2];
-        alias = blockInfoArr[3];
+        const blockInfoObj = JSON.parse(blockInfo);
 
         return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <p>Block Number: {blocks}</p>
-                        <p>Difficulty: {difficulty}</p>
-                        <p>Incrementer: {i}</p>
-                        <p>Device ID: {bitboxBaseID}</p>
-                        <p>Lightning Alias: {alias}</p>
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
-                        </div>
+                        <ul>
+                            <li>Block Number: {blockInfoObj.blocks}</li>
+                            <li>Difficulty: {blockInfoObj.difficulty}</li>
+                            <li>Device ID: {bitboxBaseID}</li>
+                            <li>Lightning Alias: {blockInfoObj.lightningAlias}</li>
+                        </ul>
                     </div>
                     <div class="row">
                         <div class="buttons flex flex-row flex-end">

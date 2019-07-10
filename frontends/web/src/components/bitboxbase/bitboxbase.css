@@ -1,0 +1,222 @@
+.button {
+    border: none;
+    font-size: 14px;
+    font-weight: 300;
+    height: 52px;
+    min-width: 180px;
+    cursor: pointer;
+    border-radius: 2px;
+    padding: 0 30px;
+}
+
+.button.primary {
+    background-color: #55A4D0;
+    color: white;
+}
+
+.detectedBaseContainer {
+    background-color: var(--color-white);
+    padding: var(--spacing-default) var(--spacing-large);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.detectedBaseContainer * {
+    min-width: 0;
+}
+
+.detectedBaseContainer:hover .toggleContainer,
+.detectedBaseContainer.expanded .toggleContainer {
+    left: -32px;
+}
+
+.detectedBase {
+    margin: 0 auto;
+    max-width: calc(var(--content-width) - (var(--spacing-large) * 2));
+    padding: var(--spacing-half) 0;
+}
+
+.hostname {
+    line-height: 1;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    padding-bottom: var(--size-medium);
+    margin-bottom: calc(var(--size-medium) * -1);
+}
+
+.detectedBaseContainer.expanded .multiline {
+    white-space: normal;
+    overflow: auto;
+}
+
+.labelContainer {
+    position: relative;
+}
+
+.detectedBaseLabel {
+    display: inline-block;
+    font-size: var(--size-small);
+    background-color: var(--color-secondary);
+    color: var(--color-white);
+    line-height: 1;
+    text-align: center;
+    margin-bottom: 3px;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.detectedBaseLabel.flat {
+    position: relative;
+    margin-right: var(--spacing-default);
+    margin-bottom: 0;
+    width: 64px;
+    height: 64px;
+    border-radius: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.detectedBaseLabel.flat img {
+    width: 48px;
+}
+
+.detectedBaseLabel.flat span {
+    display: block;
+    font-size: var(--size-small);
+}
+
+.toggleContainer {
+    position: absolute;
+    margin-top: 16px;
+    left: 0;
+    top: 0;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+
+.toggle {
+    position: relative;
+    left: 25%;
+    top: 25%;
+    width: 10px;
+    height: 10px;
+    border: solid;
+    border-width: 2px 2px 0 0;
+    border-color: var(--color-secondary);
+    transform: rotate(-45deg) translate(0%, -50%);
+    margin: 10px 0 0 8px;
+}
+
+.toggle.collapsed {
+    border-width: 0 0 2px 2px;
+    margin: 4px 0 0 8px;
+}
+
+.row {
+    margin-top: var(--spacing-half);
+}
+
+.items {
+    margin: 0 calc(var(--spacing-default) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-default) * -1);
+}
+
+.items > * {
+    margin: 0 var(--spacing-default) var(--spacing-half) var(--spacing-default);
+}
+
+.collapsedContent {
+    overflow: hidden;
+    max-height: 0;
+    transition: all 0.2s ease;
+}
+
+.collapsedContent.active {
+    margin-top: var(--spacing-half);
+    max-height: 100px;
+}
+
+.collapsedContent .spacer {
+    width: 34px;
+    margin-right: var(--spacing-default);
+}
+
+.collapsedContent .detectedBaseLabel {
+    width: auto;
+    text-align: left;
+    background-color: transparent;
+    color: var(--color-secondary);
+}
+
+.collapsedContent a {
+    color: var(--color-coolblue);
+}
+
+.collapsedContent a:hover {
+    color: var(--color-brightblue);
+}
+
+@media (max-width: 900px) {
+    .detectedBaseContainer {
+        padding: var(--spacing-default) var(--spacing-default);
+    }
+
+    .detectedBase {
+        max-width: calc(var(--content-width) - (var(--spacing-default) * 2));
+    }
+
+    .toggleContainer {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .detectedBaseContainer {
+        padding: var(--spacing-default) var(--spacing-half);
+    }
+
+    .detectedBase {
+        max-width: calc(var(--content-width) - (var(--spacing-half) * 2));
+    }
+
+    .collapsedContent.active {
+        max-height: 106px;
+    }
+
+    .collapsedContent .spacer {
+        min-width: 34px;
+        margin-right: var(--spacing-half);
+    }
+
+    .items {
+        margin: 0 calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1);
+    }
+
+    .items > * {
+        margin: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
+    }
+
+    .detectedBaseLabel {
+        display: block;
+        word-wrap: break-word;
+        overflow: hidden;
+        font-size: var(--size-small);
+        text-overflow: ellipsis;
+    }
+
+    .labelContainer {
+        flex-shrink: 0;
+        align-self: flex-start;
+    }
+
+    .detectedBaseLabel.flat {
+        margin-right: var(--spacing-half);
+        font-size: var(--size-small);
+    }
+}
