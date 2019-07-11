@@ -13,6 +13,7 @@
     --color-brightgray: #dfdfdf;
     --color-rock: #aaa;
     --color-gray: #848484;
+    --color-lightergray: #E5E5E5;
     --color-softblack: #3d3935;
     --color-dark: #323230;
 
@@ -34,7 +35,7 @@
     --color-focus: rgb(59, 153, 252);
 
     /* background colors */
-    --background: var(--color-lightgray);
+    --background: #F5F5F5;
     --background-hover: var(--background);
     --background-active: var(--color-white);
     --background-sidebar: var(--color-lightgray);
@@ -44,10 +45,10 @@
     --size-extra-large: 2.2rem;
     --size-large: 2rem;
     --size-large-mobile: 1.4rem;
-    --size-subheader: 1.3rem;
+    --size-subheader: 22px;
     --size-subheader-mobile: 1.2rem;
     --size-medium: 1rem;
-    --size-small: 13px;
+    --size-small: 12px;
     --size-label: var(--size-small);
     --size-button: 14px;
     --size-default: 14px;
@@ -56,6 +57,11 @@
     --spacing-large: 2rem;
     --spacing-default: 1rem;
     --spacing-half: .5rem;
+
+    --space-half: 16px;
+    --space-default: 32px;
+
+    --item-height: 52px;
 
     /* typography */
     --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Ubuntu", "Roboto", "Oxygen", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -70,11 +76,18 @@
     --sidebar-header-line-height: 16px;
 
     /* header */
-    --header-height: 91px;
+    --header-height: 70px;
+    --header-default-font-size: 24px;
 
     /* content */
     --content-width: 880px;
 
     /* guide */
     --guide-width: 350px;
+}
+
+@media (max-width: 768px) {
+    :root {
+        --size-subheader: 18px;
+    }
 }

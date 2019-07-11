@@ -85,7 +85,7 @@ class Settings extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className={style.buttons}>
-                                <div class="subHeaderContainer">
+                                <div class="subHeaderContainer first">
                                     <div class="subHeader">
                                         <h3>{t('deviceSettings.secrets.title')}</h3>
                                     </div>

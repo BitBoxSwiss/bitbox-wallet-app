@@ -1,31 +1,30 @@
 .coincode {
-    padding: 0px 0px 4px 10px;
-}
-
-.coinlogo {
-    margin-left: 10px;
+    height: 24px;
+    /* padding: 0px 0px 4px 10px; */
 }
 
 .coinheader {
-    margin: 0;
     display: flex;
     flex-direction: row;
-    margin-top: 25px;
-    margin-bottom: 10px;
-    max-height: 60px;
+    align-items: center;
+}
+
+.coinheader > div:first-child {
+    height: 24px;
+    margin-right: calc(var(--space-half) / 2);
 }
 
 .table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: var(--spacing-default);
-    border: solid 1px #E5E5E5;
+    border: solid 1px var(--color-brightgray);
 }
 
 .table tr td,
 .table tr th {
-    height: 50px;
-    padding: calc(var(--spacing-default) + var(--spacing-half));
+    height: 52px;
+    padding: var(--space-half);
     text-align: left;
     font-weight: 300;
 }
@@ -35,19 +34,19 @@
     text-align: right;
 }
 
-.table tr th {
-    font-size: 14px;
-    background-color: #E5E5E5;
-    color: #242424;
-    padding-top: 0;
-    padding-bottom: 0;
+.table thead th {
+    font-size: var(--size-small);
+    background-color: var(--color-lightergray);
+    color: var(--color-black);
 }
 
-.table tr td {
-    font-size: 14px;
-    height: 0px;
-    padding-top: 16px;
-    padding-bottom: 16px;
+.table tr td,
+.table tfoot th {
+    font-size: var(--size-default) !important;
+}
+
+.table tfoot th {
+    background-color: var(--color-lightergray);
 }
 
 @media (max-width: 640px) {

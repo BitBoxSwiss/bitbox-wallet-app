@@ -50,7 +50,7 @@ function Selection({
     const currencies = Object.keys(rates.BTC) as Fiat[];
     return (
         <div>
-            <div class="subHeaderContainer">
+            <div class="subHeaderContainer first">
                 <div class="subHeader">
                     <h3>{t('fiat.title')}</h3>
                 </div>

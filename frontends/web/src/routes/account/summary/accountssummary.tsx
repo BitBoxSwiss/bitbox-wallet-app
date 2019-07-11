@@ -105,7 +105,7 @@ class AccountsSummary extends Component<Props, State> {
                             <div className="content padded">
                                 {
                                     coins.length > 0 ?
-                                    coins.map(coin => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]}/>) :
+                                    coins.map((coin, index) => <BalancesTable coinCode={coin} accounts={groupedAccounts[coin]} total={data.totals[coin]} index={index} />) :
                                     <p>{t('accountSummary.noAccount')}</p>
                                 }
                             </div>

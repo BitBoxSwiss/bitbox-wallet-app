@@ -26,22 +26,21 @@ interface ProvidedProps {
     coinCode: string;
     accounts: AccountAndBalanceInterface[];
     total: Amount;
+    index: number;
 }
 
 type Props = ProvidedProps & TranslateProps;
 
 class BalancesTable extends Component<Props> {
     public render(
-        { t, coinCode, accounts, total }: RenderableProps<Props>,
+        { t, coinCode, accounts, total, index }: RenderableProps<Props>,
     ) {
         return (
             <div>
-                <div className={style.coinheader}>
-                    <div className="subHeader" class="row">
-                        <div class="flex flex-1 flex-row flex-between flex-items-center flex-center" height={64}>
-                            <Logo className={style.coinlogo} coinCode={coinCode} alt={coinCode} active={true} />
-                            <h3 className={style.coincode}>{coinCode.toUpperCase()}</h3>
-                        </div>
+                <div className={['subHeaderContainer', index < 1 && 'first'].join(' ')}>
+                    <div className={['subHeader', style.coinheader].join(' ')}>
+                        <Logo className={style.coincode} coinCode={coinCode} alt={coinCode} active={true} />
+                        <h3>{coinCode.toUpperCase()}</h3>
                     </div>
                 </div>
                 <table className={style.table}>

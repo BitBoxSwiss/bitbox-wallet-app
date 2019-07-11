@@ -36,10 +36,6 @@
 }
 
 @media (max-width: 880px) {
-	.rates {
-		font-size: var(--size-small);
-	}
-
 	.fiatRow {
 		bottom: 0;
 	}

@@ -108,7 +108,7 @@ class Sidebar extends Component<Props> {
 
     private handleSidebarItemClick = (e: MouseEvent) => {
         const el = (e.target as Element).closest('a');
-        if (el!.classList.contains('sidebar-active')) {
+        if (el!.classList.contains('sidebar-active') && window.innerWidth <= 901) {
             toggleSidebar();
         }
     }
@@ -193,7 +193,11 @@ class Sidebar extends Component<Props> {
                     </div>
                     {debug &&
                         <div className="sidebarItem">
-                            <Link activeClassName="sidebar-active" class="settings" href={`/bitboxbase`} title={t('sidebar.bitboxBase')}>
+                            <Link
+                                activeClassName="sidebar-active"
+                                href={`/bitboxbase`}
+                                title={t('sidebar.bitboxBase')}
+                                onClick={this.handleSidebarItemClick}>
                                 <div className="stacked">
                                     <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
                                     <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
@@ -220,7 +224,11 @@ class Sidebar extends Component<Props> {
                     {
                         deviceIDs.map(deviceID => (
                             <div key={deviceID} className="sidebarItem">
-                                <Link href={`/device/${deviceID}`} activeClassName="sidebar-active" className="settings" title={t('sidebar.device')}>
+                                <Link
+                                    href={`/device/${deviceID}`}
+                                    activeClassName="sidebar-active"
+                                    title={t('sidebar.device')}
+                                    onClick={this.handleSidebarItemClick}>
                                     <div className="single">
                                         <img draggable={false} className="sidebar_settings" src={deviceSettings} alt={t('sidebar.device')} />
                                     </div>
@@ -230,7 +238,11 @@ class Sidebar extends Component<Props> {
                         ))
                     }
                     <div className="sidebarItem">
-                        <Link activeClassName="sidebar-active" class="settings" href={`/settings`} title={t('sidebar.settings')}>
+                        <Link
+                            activeClassName="sidebar-active"
+                            href={`/settings`}
+                            title={t('sidebar.settings')}
+                            onClick={this.handleSidebarItemClick}>
                             <div className="stacked">
                                 <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.settings')} />
                                 <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.settings')} />

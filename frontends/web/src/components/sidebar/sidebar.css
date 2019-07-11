@@ -185,7 +185,7 @@ a.sidebar-active .single img,
     line-height: 1;
     flex: 1;
     padding-top: 0;
-    font-size: var(--size-small);
+    font-size: var(--size-default);
     font-weight: 300;
     transition: all 0.2s ease;
 }
@@ -195,11 +195,6 @@ a.sidebar-active .single img,
         position: relative;
         margin-left: 0;
         width: var(--sidebar-width-large);
-    }
-
-    .sidebar .sidebarLogoContainer {
-        padding: var(--spacing-large) var(--spacing-large);
-        height: 96px;
     }
 
     .sidebar .sidebarLogoContainer a {
