@@ -45,6 +45,10 @@
     font-size: var(--size-default) !important;
 }
 
+.table tbody td {
+    background-color: var(--color-white);
+}
+
 .table tfoot th {
     background-color: var(--color-lightergray);
 }

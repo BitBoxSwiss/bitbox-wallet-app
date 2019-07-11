@@ -33,7 +33,7 @@ function Header(
 ): JSX.Element {
     const hasChildren = Array.isArray(children) && children.length > 0;
     return (
-        <div className={style.container}>
+        <div className={[style.container, hasChildren ? style.hasChildren : ''].join(' ')}>
             <div className={[style.header, narrow ? style.narrow : '', hasChildren ? style.hasChildren : ''].join(' ')}>
                 <div className={style.sidebarToggler} onClick={toggleSidebar}>
                     <img src={MenuIcon} />

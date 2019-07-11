@@ -35,7 +35,7 @@
     --color-focus: rgb(59, 153, 252);
 
     /* background colors */
-    --background: #F5F5F5;
+    --background: var(--white);
     --background-hover: var(--background);
     --background-active: var(--color-white);
     --background-sidebar: var(--color-lightgray);
@@ -58,8 +58,9 @@
     --spacing-default: 1rem;
     --spacing-half: .5rem;
 
-    --space-half: 16px;
     --space-default: 32px;
+    --space-half: 16px;
+    --space-quarter: 8px;
 
     --item-height: 52px;
 
@@ -88,6 +89,7 @@
 
 @media (max-width: 768px) {
     :root {
+        --header-default-font-size: 20px;
         --size-subheader: 18px;
     }
 }

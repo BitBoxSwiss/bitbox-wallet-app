@@ -6,7 +6,7 @@
 
 .input label {
     display: block;
-    margin-bottom: var(--spacing-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .input input {

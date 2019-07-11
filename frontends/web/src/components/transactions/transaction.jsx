@@ -110,7 +110,7 @@ export default class Transaction extends Component {
                     <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
                         <div class={style.spacer}></div>
                         <div class="flex-1">
-                            <div class={['flex flex-row flex-start flex-items-start flex-wrap', style.row, style.items].join(' ')}>
+                            <div class={['flex flex-row flex-start flex-items-start', style.row, style.items].join(' ')}>
                                 <div>
                                     <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
                                     <div class={style.address}>{numConfirmations}</div>
