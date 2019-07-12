@@ -15,27 +15,48 @@
 package handlers_test
 
 import (
+	"bytes"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
 )
+
+// testEnvironment implements backend.Environment
+type testEnvironment struct {
+}
+
+// NotifyUser implements backend.Environment
+func (testEnvironment) NotifyUser(text string) {
+}
+
+// DeviceInfos implements backend.Environment
+func (testEnvironment) DeviceInfos() []usb.DeviceInfo {
+	return usb.DeviceInfos()
+}
+
+// SystemOpen implements backend.Environment
+func (testEnvironment) SystemOpen(url string) error {
+	return system.Open(url)
+}
 
 // List all routes with `go test backend/handlers/handlers_test.go -v`.
 func TestListRoutes(t *testing.T) {
-	const skip = true
-	if skip {
-		t.Skip("manual listing of handlers")
-	}
 	connectionData := handlers.NewConnectionData(8082, "")
 	backend, err := backend.NewBackend(arguments.NewArguments(
 		test.TstTempDir("bitbox-wallet-listroutes-"), false, false, false, false, false),
-		nil,
+		testEnvironment{},
 	)
 	if err != nil {
 		fmt.Println(err)
@@ -57,19 +78,129 @@ func TestListRoutes(t *testing.T) {
 		if len(methods) > 0 {
 			fmt.Print(" (" + strings.Join(methods, ",") + ")")
 		}
-		/* The following methods are only available in a newer version of mux: */
-		// queriesTemplates, err := route.GetQueriesTemplates()
-		// if err == nil {
-		// 	   fmt.Println("Queries templates:", strings.Join(queriesTemplates, ","))
-		// }
-		// queriesRegexps, err := route.GetQueriesRegexp()
-		// if err == nil {
-		// 	   fmt.Println("Queries regexps:", strings.Join(queriesRegexps, ","))
-		// }
 		fmt.Println()
 		return nil
 	})
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func requestTester(request *http.Request, t *testing.T) *httptest.ResponseRecorder {
+	connectionData := handlers.NewConnectionData(8082, "")
+	backendInstance, err := backend.NewBackend(arguments.NewArguments(
+		test.TstTempDir("test-tempdir-"), false, false, false, false, false),
+		testEnvironment{},
+	)
+	require.NoError(t, err)
+	handlers := handlers.NewHandlers(backendInstance, connectionData)
+
+	rr := httptest.NewRecorder()
+	handlers.Router.ServeHTTP(rr, request)
+	return rr
+}
+
+func checkResponse(t *testing.T, response *httptest.ResponseRecorder, expectedResponse string) {
+	require.Equal(t, response.Code, http.StatusOK)
+	require.Equal(t, response.Body.String(), expectedResponse)
+}
+
+func TestConfigDefaultHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/config/default", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	require.Equal(t, rr.Code, http.StatusOK)
+	req, err = http.NewRequest("POST", "/api/config", bytes.NewBuffer(rr.Body.Bytes()))
+	require.NoError(t, err)
+	rr = requestTester(req, t)
+	require.Equal(t, rr.Code, http.StatusOK)
+}
+
+func TestNotifyHandler(t *testing.T) {
+	req, err := http.NewRequest("POST", "/api/notify-user", bytes.NewBuffer([]byte("{\"text\":\"test\"}")))
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "null\n")
+}
+
+func TestOpenHandler(t *testing.T) {
+	req, err := http.NewRequest("POST", "/api/open", bytes.NewBuffer([]byte("\"malformed\"")))
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "{\"error\":\"Blocked /open with url: malformed\"}\n")
+}
+
+func TestQRHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/qr", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "{\"error\":\"no data to encode\"}\n")
+}
+
+func TestTestingHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/testing", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "false\n")
+}
+
+func TestUpdateHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/update", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "null\n")
+}
+
+func TestVersionHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/version", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+
+	require.Equal(t, rr.Code, http.StatusOK)
+	if !regexp.MustCompile(`([0-9]+\.[0-9]+\.[0-9]+)`).Match(rr.Body.Bytes()) {
+		t.Errorf("Get Version response body differes. Expected version string with *.*.* : Got %q", rr.Body.String())
+	}
+}
+
+func TestAccountsHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/accounts", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "[]\n")
+}
+
+func TestAccountsStatusHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/accounts-status", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "\"uninitialized\"\n")
+}
+
+func TestAccountsSummaryHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/export-account-summary", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+
+	require.Equal(t, rr.Code, http.StatusMethodNotAllowed)
+}
+
+func TestRatesHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/rates", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	require.Equal(t, rr.Code, http.StatusOK)
+}
+
+func TestDevicesRegisteredHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/devices/registered", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "{}\n")
+}
+
+func TestBitBoxBasesRegisteredHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/bitboxbases/registered", nil)
+	require.NoError(t, err)
+	rr := requestTester(req, t)
+	checkResponse(t, rr, "null\n")
 }
