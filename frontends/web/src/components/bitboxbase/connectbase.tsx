@@ -24,8 +24,14 @@ export interface ConnectedBaseProps {
     bitboxBaseID: string;
 }
 
+interface BlockInfoType {
+    blocks: number;
+    difficulty: number;
+    lightningAlias: string;
+}
+
 interface State {
-    blockInfo: string;
+    blockInfo?: BlockInfoType;
     bitboxBaseID: string;
 }
 
@@ -36,7 +42,7 @@ export class ConnectedBase extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
-            blockInfo : '',
+            blockInfo: undefined,
             bitboxBaseID: '',
         };
     }
@@ -45,7 +51,7 @@ export class ConnectedBase extends Component<Props, State> {
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID) {
             this.setState({ bitboxBaseID : this.props.bitboxBaseID});
-            apiSubscribe('/bitboxbases/' + this.props.bitboxBaseID + '/blockinfo', ({ object }) => {
+            apiSubscribe('/bitboxbases/' + this.props.bitboxBaseID + '/middlewareinfo', ({ object }) => {
                 this.setState({ blockInfo: object });
             });
         }
@@ -83,24 +89,14 @@ export class ConnectedBase extends Component<Props, State> {
         if (!blockInfo) {
             return null;
         }
-        let blocks = '';
-        let difficulty = '';
-        let alias = '';
-        let i = '';
-        const blockInfoArr = blockInfo.split(' ');
-        blocks = blockInfoArr[0];
-        difficulty = blockInfoArr[1];
-        i = blockInfoArr[2];
-        alias = blockInfoArr[3];
 
         return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <p>Block Number: {blocks}</p>
-                        <p>Difficulty: {difficulty}</p>
-                        <p>Incrementer: {i}</p>
+                        <p>Block Number: {blockInfo.blocks}</p>
+                        <p>Difficulty: {blockInfo.difficulty}</p>
                         <p>Device ID: {bitboxBaseID}</p>
-                        <p>Lightning Alias: {alias}</p>
+                        <p>Lightning Alias: {blockInfo.lightningAlias}</p>
                         <div class="buttons flex flex-row flex-end">
                             <Button onClick={this.removeBitBoxBase} danger>Delete</Button>
                         </div>
