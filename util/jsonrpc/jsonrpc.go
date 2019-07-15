@@ -117,11 +117,14 @@ type RPCClient struct {
 	notificationsCallbacks     map[string][]func([]byte)
 	notificationsCallbacksLock locker.Locker
 
+	onError func(error)
+
 	log *logrus.Entry
 }
 
-// NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls connection).
-func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
+// NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls
+// connection). onError is called for unexpected errors like malformed server responses.
+func NewRPCClient(backends []rpc.Backend, onError func(error), log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
 		backends:                        backends,
 		msgID:                           0,
@@ -131,6 +134,7 @@ func NewRPCClient(backends []rpc.Backend, log *logrus.Entry) *RPCClient {
 		pingRequests:                    map[int]bool{},
 		subscriptionRequests:            []*request{},
 		notificationsCallbacks:          map[string][]func([]byte){},
+		onError:                         onError,
 		log:                             log,
 	}
 	return client
@@ -362,11 +366,19 @@ func (client *RPCClient) handleResponse(conn *connection, responseBytes []byte) 
 	}{}
 	if err := json.Unmarshal(responseBytes, response); err != nil {
 		// panic will be caught in read() and subscribed connections will be re-subscribed
-		panic(&ResponseError{errp.Wrap(err, "Failed to unmarshal response")})
+		client.log.WithError(err).Errorf("invalid json response: %s", string(responseBytes))
+		if client.onError != nil {
+			client.onError(&ResponseError{err})
+		}
+		return
 	}
 	if response.JSONRPC != "2.0" {
-		// panic will be caught in read() and subscribed connections will be re-subscribed
-		panic(&ResponseError{errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)})
+		err := &ResponseError{errp.Newf("Unexpected json rpc version: %s", response.JSONRPC)}
+		client.log.WithError(err).Error("Unexpected response")
+		if client.onError != nil {
+			client.onError(err)
+		}
+		return
 	}
 
 	parseError := func(msg json.RawMessage) string {

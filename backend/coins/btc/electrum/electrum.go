@@ -142,7 +142,7 @@ func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry) blockch
 	for _, serverInfo := range servers {
 		backends = append(backends, &Electrum{log, serverInfo})
 	}
-	jsonrpcClient := jsonrpc.NewRPCClient(backends, log)
+	jsonrpcClient := jsonrpc.NewRPCClient(backends, nil, log)
 	return client.NewElectrumClient(jsonrpcClient, log)
 }
 
@@ -183,10 +183,31 @@ func CheckElectrumServer(server string, pemCert string, log *logrus.Entry) error
 		return err
 	}
 	_ = conn.Close()
+
+	// receives nil on success
+	errChan := make(chan error)
+
 	// Simple check if the server is an electrum server.
-	jsonrpcClient := jsonrpc.NewRPCClient(backends, log)
+	jsonrpcClient := jsonrpc.NewRPCClient(
+		backends,
+		func(err error) {
+			select {
+			case errChan <- err:
+			default:
+			}
+		},
+		log,
+	)
 	electrumClient := client.NewElectrumClient(jsonrpcClient, log)
+	// We have two sources of errors, general communication errors and method specific errors.
+	// We receive the first one that comes back.
 	defer electrumClient.Close()
-	_, err = electrumClient.ServerVersion()
-	return err
+	go func() {
+		_, err := electrumClient.ServerVersion()
+		select {
+		case errChan <- err:
+		default:
+		}
+	}()
+	return <-errChan
 }
