@@ -108,7 +108,8 @@ func NewDevice(
 }
 
 // Init implements device.Device.
-func (device *Device) Init(testing bool) {
+func (device *Device) Init(testing bool) error {
+	return nil
 }
 
 // ProductName implements device.Device.

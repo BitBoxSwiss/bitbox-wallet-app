@@ -215,8 +215,9 @@ func NewDevice(
 }
 
 // Init initialized the device. testing means the device is initialized for testnet.
-func (dbb *Device) Init(testing bool) {
+func (dbb *Device) Init(testing bool) error {
 	dbb.setPasswordPolicy(testing)
+	return nil
 }
 
 // setPasswordPolicy sets the password policy to the test or prod policy.
