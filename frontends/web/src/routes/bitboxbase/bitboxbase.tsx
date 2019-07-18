@@ -16,20 +16,27 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
-import { ConnectedBase } from '../../components/bitboxbase/connectbase';
-import { Button, Input } from '../../components/forms';
+import * as style from '../../components/bitboxbase/bitboxbase.css';
+import { DetectedBase } from '../../components/bitboxbase/detectedbase';
+import { Input } from '../../components/forms';
 import { Header } from '../../components/layout';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
 
-export interface BitBoxBaseProps {
+interface BitBoxBaseProps {
     bitboxBaseIDs: string[];
+    detectedBases: DetectedBitBoxBases;
     bitboxBaseID?: string;
     ip?: string;
 }
 
+export interface DetectedBitBoxBases {
+    [Hostname: string]: string;
+}
+
 export const bitboxBaseStore = new Store<BitBoxBaseProps>({
+    detectedBases: {},
     bitboxBaseIDs: [],
     bitboxBaseID: '',
     ip: '',
@@ -50,13 +57,22 @@ class BitBoxBase extends Component<Props> {
         });
     }
 
-    private connect = (event: Event) => {
+    private submit = (event: Event) => {
         event.preventDefault();
         apiPost('bitboxbases/connectbase', {
             ip: bitboxBaseStore.state.ip,
         }).then(data => {
             const { success } = data;
             if (!success) {
+                alertUser(data.errorMessage);
+            }
+        });
+    }
+
+    private connect = (ip: string) => {
+        apiPost('bitboxbases/connectbase', { ip })
+        .then(data => {
+            if (!data.success) {
                 alertUser(data.errorMessage);
             }
         });
@@ -70,39 +86,49 @@ class BitBoxBase extends Component<Props> {
         {
             t,
             ip,
-            bitboxBaseIDs,
+            detectedBases,
         }: RenderableProps<Props>,
         ) {
             return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={t('bitboxBase.title')} />
+                    <Header title={<h2>{t('bitboxBase.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div class="row">
-                                <span>
-                                    <form onSubmit={this.connect}>
-                                        <Input
-                                            name="ip"
-                                            onInput={this.handleFormChange}
-                                            value={ip}
-                                            placeholder="host:port"
-                                        />
-                                        <Button primary disabled={ip === ''} onClick={this.connect}>
-                                            "Connect"
-                                        </Button>
-                                    </form>
-                                </span>
+                            <div>
+                                <h3>{t('bitboxBase.detectedBases')}</h3>
+                                {
+                                    Object.entries(detectedBases).map(bases => (
+                                    <DetectedBase
+                                        hostname={bases[0]}
+                                        ip={bases[1]}
+                                        connect={this.connect}/>
+                                ))
+                                }
                             </div>
-                            {bitboxBaseIDs.map( bitboxBaseID => (
-                                <ConnectedBase
-                                    bitboxBaseID={bitboxBaseID}
-                                />
-                            ))}
+                            <div>
+                                <h3>{t('bitboxBase.manualInput')}</h3>
+                                <form onSubmit={this.submit}>
+                                    <Input
+                                        name="ip"
+                                        onInput={this.handleFormChange}
+                                        value={ip}
+                                        placeholder="IP address:port"
+                                    />
+                                    <div class="flex flex-row flex-start flex-center flex-around">
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            disabled={ip === ''}
+                                            onClick={this.submit}>
+                                            {t('bitboxBase.connect')}
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             );
         }
 }

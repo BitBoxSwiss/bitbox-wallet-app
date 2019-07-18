@@ -32,7 +32,7 @@ import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
-import { BitBoxBase } from './routes/bitboxbase/bitboxbase';
+import { BitBoxBase, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbase';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
@@ -45,6 +45,7 @@ interface State {
     accountsInitialized: boolean;
     deviceIDs: string[];
     devices: Devices;
+    detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
 }
 
@@ -56,6 +57,7 @@ class App extends Component<Props, State> {
         accountsInitialized: false,
         deviceIDs: [],
         devices: {},
+        detectedBases: {},
         bitboxBaseIDs: [],
     };
 
@@ -73,6 +75,7 @@ class App extends Component<Props, State> {
     public componentDidMount() {
         this.onDevicesRegisteredChanged();
         this.onBitBoxBasesRegisteredChanged();
+        this.onBitBoxBasesDetectedChanged();
         this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
@@ -113,6 +116,9 @@ class App extends Component<Props, State> {
                 case 'registeredChanged':
                     this.onBitBoxBasesRegisteredChanged();
                     break;
+                case 'detectedChanged':
+                    this.onBitBoxBasesDetectedChanged();
+                    break;
                 }
             }
         });
@@ -126,6 +132,12 @@ class App extends Component<Props, State> {
         apiGet('devices/registered').then(devices => {
             const deviceIDs = Object.keys(devices);
             this.setState({ devices, deviceIDs });
+        });
+    }
+
+    private onBitBoxBasesDetectedChanged = () => {
+        apiGet('bitboxbases/detected').then(detectedBases => {
+            this.setState({ detectedBases });
         });
     }
 
@@ -162,7 +174,7 @@ class App extends Component<Props, State> {
 
     public render(
         {}: RenderableProps<Props>,
-        { accounts, devices, deviceIDs, bitboxBaseIDs, accountsInitialized }: State,
+        { accounts, devices, deviceIDs, bitboxBaseIDs, accountsInitialized, detectedBases }: State,
     ) {
         return (
             <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
@@ -198,6 +210,7 @@ class App extends Component<Props, State> {
                             path="/account-summary" />
                         <BitBoxBase
                           path="/bitboxbase"
+                          detectedBases={detectedBases}
                           bitboxBaseIDs={bitboxBaseIDs} />
                         <ElectrumSettings
                             path="/settings/electrum" />

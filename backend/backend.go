@@ -132,7 +132,7 @@ type Backend struct {
 	accounts     []accounts.Interface
 	accountsLock locker.Locker
 
-	baseDetector *mdns.Detector
+	baseManager *mdns.Manager
 
 	log *logrus.Entry
 }
@@ -163,7 +163,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 
-	backend.baseDetector = mdns.NewDetector(backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
+	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
 
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
@@ -622,7 +622,7 @@ func (backend *Backend) Start() <-chan interface{} {
 		backend.Deregister, onlyOne).Start()
 
 	if backend.arguments.DevMode() {
-		backend.baseDetector.Start()
+		backend.baseManager.Start()
 	}
 	backend.initPersistedAccounts()
 	return backend.events
@@ -633,9 +633,9 @@ func (backend *Backend) Events() <-chan interface{} {
 	return backend.events
 }
 
-// TryMakeNewBase calls TryMakeNewBase() in the detector with the given ip
+// TryMakeNewBase calls TryMakeNewBase() in the manager with the given ip
 func (backend *Backend) TryMakeNewBase(ip string) (bool, error) {
-	return backend.baseDetector.TryMakeNewBase(ip)
+	return backend.baseManager.TryMakeNewBase(ip)
 }
 
 // DevicesRegistered returns a map of device IDs to device of registered devices.
@@ -646,6 +646,16 @@ func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 // BitBoxBasesRegistered returns a map of bitboxBaseIDs and registered bitbox bases.
 func (backend *Backend) BitBoxBasesRegistered() map[string]bitboxbase.Interface {
 	return backend.bitboxBases
+}
+
+// BitBoxBasesDetected returns a map of IPs and Hostnames of detected Bases.
+func (backend *Backend) BitBoxBasesDetected() map[string]string {
+	return backend.baseManager.GetDetectedBases()
+}
+
+// EmitBitBoxBaseDetected saves the IP and Hostname of detected BitBox Bases at this backend
+func (backend *Backend) EmitBitBoxBaseDetected() {
+	backend.events <- backendEvent{Type: "bitboxbases", Data: "detectedChanged"}
 }
 
 // bitBoxBaseRegister registers the given bitboxbase at this backend.
@@ -670,7 +680,7 @@ func (backend *Backend) BitBoxBaseDeregister(bitboxBaseID string) {
 		backend.bitboxBases[bitboxBaseID].Close()
 		backend.onBitBoxBaseUninit(bitboxBaseID)
 		delete(backend.bitboxBases, bitboxBaseID)
-		backend.baseDetector.RemoveBase(bitboxBaseID)
+		backend.baseManager.RemoveBase(bitboxBaseID)
 		backend.events <- backendEvent{Type: "bitboxbases", Data: "registeredChanged"}
 	}
 	backend.events <- backendEvent{Type: "bitboxbases", Data: "registeredChanged"}

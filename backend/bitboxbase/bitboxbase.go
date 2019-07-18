@@ -39,7 +39,7 @@ type Interface interface {
 	// Close tells the bitboxbase to close all connections.
 	Close()
 
-	//GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
+	// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 	GetRegisterTime() time.Time
 
 	// MiddlewareInfo returns some blockchain information.
@@ -49,7 +49,7 @@ type Interface interface {
 	ConnectElectrum() error
 }
 
-//BitBoxBase provides the dictated bitboxbase api to communicate with the base
+// BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
 	bitboxBaseID        string //This is just the ip currently
 	registerTime        time.Time
@@ -87,7 +87,7 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 	var envData map[string]interface{}
 	if err := json.Unmarshal(bodyBytes, &envData); err != nil {
 		bitboxBase.log.WithError(err).Error(" Failed to unmarshal GetEnv body bytes")
-		//bitboxBase.GetUpdaterInstance().Stop()
+		// bitboxBase.GetUpdaterInstance().Stop()
 		return bitboxBase, err
 	}
 	var ok bool
@@ -139,37 +139,37 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	return nil
 }
 
-//GetUpdaterInstance return ths current instance of the updater
+// GetUpdaterInstance return ths current instance of the updater
 func (base *BitBoxBase) GetUpdaterInstance() *updater.Updater {
 	return base.updaterInstance
 }
 
-//MiddlewareInfo returns the received MiddlewareInfo packet from the updater
+// MiddlewareInfo returns the received MiddlewareInfo packet from the updater
 func (base *BitBoxBase) MiddlewareInfo() interface{} {
 	return base.GetUpdaterInstance().MiddlewareInfo()
 }
 
-//Identifier implements a getter for the bitboxBase ID
+// Identifier implements a getter for the bitboxBase ID
 func (base *BitBoxBase) Identifier() string {
 	return base.bitboxBaseID
 }
 
-//GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
+// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
 }
 
-//isTestnet returns a boolean that is true when connected to a base serving testnet and false otherwise
+// isTestnet returns a boolean that is true when connected to a base serving testnet and false otherwise
 func (base *BitBoxBase) isTestnet() bool {
 	return base.network == "testnet"
 }
 
-//Close implements a method to unset the bitboxBase
+// Close implements a method to unset the bitboxBase
 func (base *BitBoxBase) Close() {
 	base.GetUpdaterInstance().Stop()
 	base.closed = true
 }
 
-//Init initializes the bitboxBase
+// Init initializes the bitboxBase
 func (base *BitBoxBase) Init(testing bool) {
 }

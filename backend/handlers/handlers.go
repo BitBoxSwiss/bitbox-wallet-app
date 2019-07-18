@@ -85,6 +85,7 @@ type Backend interface {
 	DevicesRegistered() map[string]device.Interface
 	OnBitBoxBaseInit(f func(bitboxbase.Interface))
 	OnBitBoxBaseUninit(f func(bitboxBaseID string))
+	BitBoxBasesDetected() map[string]string
 	BitBoxBasesRegistered() map[string]bitboxbase.Interface
 	Start() <-chan interface{}
 	RegisterKeystore(keystore.Keystore)
@@ -194,6 +195,7 @@ func NewHandlers(
 	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
 	bitboxBasesRouter("/registered", handlers.getBitBoxBasesRegisteredHandler).Methods("GET")
+	bitboxBasesRouter("/detected", handlers.getBitBoxBasesDetectedHandler).Methods("GET")
 
 	handlersMapLock := locker.Locker{}
 
@@ -472,6 +474,14 @@ func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interfac
 		jsonDevices[deviceID] = device.ProductName()
 	}
 	return jsonDevices, nil
+}
+
+func (handlers *Handlers) getBitBoxBasesDetectedHandler(_ *http.Request) (interface{}, error) {
+	jsonDetectedBases := map[string]string{}
+	for hostname, baseIPv4 := range handlers.backend.BitBoxBasesDetected() {
+		jsonDetectedBases[hostname] = baseIPv4
+	}
+	return jsonDetectedBases, nil
 }
 
 func (handlers *Handlers) getBitBoxBasesRegisteredHandler(_ *http.Request) (interface{}, error) {

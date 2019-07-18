@@ -175,6 +175,9 @@
     }
   },
   "bitboxBase": {
+    "connect": "Connect Base",
+    "detectedBases": "Detected the following devices on your network:",
+    "manualInput": "Can't see your BitBox Base? Connect manually below:",
     "title": "BitBox Base"
   },
   "blink": {
