@@ -322,7 +322,7 @@ class Account extends Component<Props, State> {
                             </ButtonLink>
                         </div>
                     </Header>
-                    <div class={['innerContainer', ''].join(' ')}>
+                    <div class={['innerContainer', 'scrollableContainer'].join(' ')}>
                         {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                         {
                             !initialized || !connected || !this.dataLoaded() || fatalError ? (

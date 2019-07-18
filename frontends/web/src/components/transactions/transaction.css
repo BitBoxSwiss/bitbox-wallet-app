@@ -26,7 +26,7 @@
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: 1;
-    margin-bottom: 3px;
+    margin-bottom: calc(var(--space-half) / 2);
 }
 
 .date span:first-child {
@@ -42,6 +42,7 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    font-size: var(--size-default);
     padding-bottom: var(--size-medium);
     margin-bottom: calc(var(--size-medium) * -1);
 }
@@ -62,7 +63,7 @@
 }
 
 .amount div:first-child {
-    margin-bottom: 3px;
+    margin-bottom: calc(var(--space-half) / 2);
 }
 
 .amount.receive {
@@ -82,7 +83,7 @@
 }
 
 .amountValue {
-    font-size: var(--size-medium);
+    font-size: var(--size-default);
 }
 
 .fiat {
@@ -92,7 +93,7 @@
 
 .unit {
     color: var(--color-secondary);
-    font-size: var(--size-small);
+    font-size: var(--size-default);
 }
 
 .labelContainer {
@@ -106,7 +107,7 @@
     color: var(--color-white);
     line-height: 1;
     text-align: center;
-    margin-bottom: 3px;
+    margin-bottom: calc(var(--space-half) / 2);
     user-select: none;
     white-space: nowrap;
 }
@@ -179,7 +180,7 @@
 }
 
 .row:not(:first-child) {
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
 }
 
 .items {
@@ -197,7 +198,7 @@
 }
 
 .collapsedContent.active {
-    margin-top: var(--spacing-half);
+    margin-top: var(--space-quarter);
     max-height: 100px;
 }
 
@@ -266,7 +267,7 @@
 
 @media (max-width: 640px) {
     .transactionContainer {
-        padding: var(--spacing-default) var(--spacing-half);
+        padding: var(--spacing-default) var(--space-half);
     }
 
     .transaction {
@@ -279,7 +280,6 @@
 
     .collapsedContent .spacer {
         min-width: 34px;
-        margin-right: var(--spacing-half);
     }
 
     .items {
@@ -287,25 +287,19 @@
     }
 
     .items > * {
-        margin: 0 var(--spacing-half) var(--spacing-half) var(--spacing-half);
+        margin: 0 var(--space-quarter) var(--spacing-half) var(--space-quarter);
     }
 
     .transactionLabel {
         display: block;
         word-wrap: break-word;
         overflow: hidden;
-        font-size: var(--size-small);
         text-overflow: ellipsis;
     }
 
     .labelContainer {
         flex-shrink: 0;
         align-self: flex-start;
-    }
-
-    .transactionLabel.flat {
-        margin-right: var(--spacing-half);
-        font-size: var(--size-small);
     }
 
     .date span:first-child {
@@ -326,9 +320,6 @@
 
     .address {
         position: relative;
-        font-size: var(--size-button);
-        padding-bottom: var(--size-button);
-        margin-bottom: calc(var(--size-button) * -1);
     }
 
     .externalLabel {

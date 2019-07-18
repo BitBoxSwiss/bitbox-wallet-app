@@ -88,11 +88,11 @@ class UTXOs extends Component<Props, State> {
         { utxos, selectedUTXOs }: State,
     ) {
         return (
-            <div class="row">
+            <div class="row first">
                 {
                     active && (
                         <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
-                            <div class="subHeaderContainer">
+                            <div class="subHeaderContainer first">
                                 <div class={['subHeader', style.subHeader].join(' ')}>
                                     <h3>{t('send.coincontrol.title')}</h3>
                                 </div>

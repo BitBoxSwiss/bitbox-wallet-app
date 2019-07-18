@@ -1,6 +1,5 @@
 .container {
     background-color: var(--color-white);
-    border-bottom: 1px solid var(--fat-border-color);
     width: 100%;
 }
 
@@ -12,9 +11,14 @@
     z-index: 1001;
 }
 
+.container.hasChildren {
+    border-bottom: solid 1px var(--color-lightgray);
+}
+
 .header {
-    padding: var(--spacing-large);
+    padding: 0 var(--spacing-large);
     max-width: var(--content-width);
+    height: var(--header-height);
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -24,17 +28,17 @@
     margin: 0 auto;
 }
 
-.header.children {
-    padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
-    max-width: var(--content-width);
+.header.hasChildren {
     width: 100%;
 }
 
 .children {
-    padding: 0 var(--spacing-large) var(--spacing-large) var(--spacing-large);
+    padding: 0 var(--spacing-large) 20px var(--spacing-large);
     max-width: var(--content-width);
     width: 100%;
-    margin: 0 auto;
+    margin-top: calc(var(--space-half) * -0.75);
+    margin-left: auto;
+    margin-right: auto;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -57,18 +61,12 @@
 
 .title > * {
     margin: 0;
-    font-size: var(--size-large);
+    font-size: var(--header-default-font-size);
     font-weight: 300;
-    line-height: 32px;
+    line-height: 1;
     display: inline-flex;
     align-items: center;
     user-select: none;
-}
-
-.header.children .title > * {
-    font-size: var(--size-medium);
-    font-weight: normal;
-    text-transform: uppercase;
 }
 
 .sidebarToggler {
@@ -100,11 +98,6 @@
         position: relative;
         left: calc(var(--spacing-default) * -1);
     }
-    
-
-    .header.children {
-        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default) 0 var(--spacing-default);
-    }
 
     .children {
         padding: 0 var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default);
@@ -120,19 +113,15 @@
         position: initial;
     }
 
-    .header.children {
+    .header.hadChildren {
         padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half) 0 var(--spacing-half);
     }
 
     .children {
-        padding: 0 var(--spacing-half) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half);
+        padding: 0 var(--space-half) calc(var(--spacing-default) + var(--spacing-half)) var(--space-half);
     }
 
     .sidebarToggler {
         margin-right: var(--spacing-half);
-    }
-
-    .title > * {
-        font-size: var(--size-large-mobile);
     }
 }

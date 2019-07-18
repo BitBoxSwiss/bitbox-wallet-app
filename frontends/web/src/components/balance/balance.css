@@ -92,18 +92,24 @@
 }
 
 @media (max-width: 560px) {
-    .balanceTable {
-        display: table;
-        margin-left: calc(32px + var(--spacing-half));
-    }
 
     .balanceTable tr {
-        display: table-row;
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    .balanceTable tr:first-child {
+        margin-right: var(--space-quarter);
     }
 
     .balanceTable td {
-      font-size: var(--size-subheader);
-      font-weight: normal;
+        display: block;
+        font-size: var(--size-subheader);
+        font-weight: normal;
+    }
+
+    .balanceTable td:last-child {
+        margin-bottom: calc(var(--space-quarter) / 2);
     }
 }
 

@@ -548,7 +548,7 @@ class Send extends Component<Props, State> {
                                     />
                                 )
                             }
-                            <div class="row">
+                            <div class="row first">
                                 <Input
                                     label={t('send.address.label')}
                                     placeholder={t('send.address.placeholder')}
