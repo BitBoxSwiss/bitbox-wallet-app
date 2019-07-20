@@ -34,7 +34,7 @@ const (
 
 // Interface represents a hardware wallet device.
 type Interface interface {
-	Init(testing bool)
+	Init(testing bool) error
 	// ProductName returns the product name of the device in lowercase.
 	ProductName() string
 

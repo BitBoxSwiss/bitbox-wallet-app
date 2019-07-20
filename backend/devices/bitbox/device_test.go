@@ -65,7 +65,7 @@ func (s *dbbTestSuite) SetupTest() {
 	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false, /* bootloader */
 		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication)
-	dbb.Init(true)
+	require.NoError(s.T(), dbb.Init(true))
 	require.NoError(s.T(), err)
 	s.dbb = dbb
 }

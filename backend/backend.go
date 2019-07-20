@@ -726,8 +726,6 @@ func (backend *Backend) DeregisterKeystore() {
 
 // Register registers the given device at this backend.
 func (backend *Backend) Register(theDevice device.Interface) error {
-	backend.devices[theDevice.Identifier()] = theDevice
-
 	mainKeystore := len(backend.devices) == 1
 	theDevice.SetOnEvent(func(event device.Event, data interface{}) {
 		switch event {
@@ -761,7 +759,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	})
 
 	backend.onDeviceInit(theDevice)
-	theDevice.Init(backend.Testing())
+	if err := theDevice.Init(backend.Testing()); err != nil {
+		backend.onDeviceUninit(theDevice.Identifier())
+		return err
+	}
+	backend.devices[theDevice.Identifier()] = theDevice
 
 	select {
 	case backend.events <- backendEvent{

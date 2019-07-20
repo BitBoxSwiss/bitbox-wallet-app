@@ -137,16 +137,16 @@ func (device *Device) Version() *semver.SemVer {
 }
 
 // Init implements device.Device.
-func (device *Device) Init(testing bool) {
+func (device *Device) Init(testing bool) error {
 	if device.version.AtLeast(lowestNonSupportedFirmwareVersion) {
 		device.changeStatus(StatusRequireAppUpgrade)
-		return
+		return nil
 	}
 
 	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
 		attestation, err := device.performAttestation()
 		if err != nil {
-			panic(err)
+			return err
 		}
 		device.attestation = attestation
 		device.log.Infof("attestation check result: %v", attestation)
@@ -154,7 +154,10 @@ func (device *Device) Init(testing bool) {
 		go func() {
 			_, err := device.queryRaw([]byte(opUnlock))
 			if err != nil {
-				panic(err)
+				// Most likely the device has been unplugged.
+				device.log.WithError(err).Error(
+					"opUnlock: unknown IO error (most likely the device was unplugged)")
+				return
 			}
 			device.pair()
 		}()
@@ -163,6 +166,7 @@ func (device *Device) Init(testing bool) {
 		device.attestation = true
 		device.pair()
 	}
+	return nil
 }
 
 func (device *Device) pair() {
@@ -194,7 +198,10 @@ func (device *Device) pair() {
 	}
 	responseBytes, err := device.queryRaw([]byte(opICanHasHandShaek))
 	if err != nil {
-		panic(err)
+		// Most likely the device has been unplugged.
+		device.log.WithError(err).Error(
+			"opICanHasHandShaek: unknown IO error (most likely the device was unplugged)")
+		return
 	}
 	if string(responseBytes) != responseSuccess {
 		panic(string(responseBytes))
@@ -206,7 +213,10 @@ func (device *Device) pair() {
 	}
 	responseBytes, err = device.queryRaw(msg)
 	if err != nil {
-		panic(err)
+		// Most likely the device has been unplugged.
+		device.log.WithError(err).Error(
+			"handshake#0: unknown IO error (most likely the device was unplugged)")
+		return
 	}
 	_, _, _, err = handshake.ReadMessage(nil, responseBytes)
 	if err != nil {
@@ -218,7 +228,10 @@ func (device *Device) pair() {
 	}
 	responseBytes, err = device.queryRaw(msg)
 	if err != nil {
-		panic(err)
+		// Most likely the device has been unplugged.
+		device.log.WithError(err).Error(
+			"handshake#1: unknown IO error (most likely the device was unplugged)")
+		return
 	}
 
 	device.deviceNoiseStaticPubkey = handshake.PeerStatic()
@@ -242,12 +255,18 @@ func (device *Device) pair() {
 		device.changeStatus(StatusUnpaired)
 
 		if err := device.communication.SendFrame(opICanHasPairinVerificashun); err != nil {
-			panic(err)
+			// Most likely the device has been unplugged.
+			device.log.WithError(err).Error(
+				"opICanHasPairinVerificashun send: unknown IO error (most likely the device was unplugged)")
+			return
 		}
 		go func() {
 			response, err := device.communication.ReadFrame()
 			if err != nil {
-				panic(err)
+				// Most likely the device has been unplugged.
+				device.log.WithError(err).Error(
+					"opICanHasPairinVerificashun read: unknown IO error (most likely the device was unplugged)")
+				return
 			}
 			device.channelHashDeviceVerified = string(response) == responseSuccess
 			if device.channelHashDeviceVerified {
