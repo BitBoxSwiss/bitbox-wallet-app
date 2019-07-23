@@ -47,6 +47,9 @@ type Interface interface {
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
+
+	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
+	Ping() (bool, error)
 }
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
@@ -63,17 +66,17 @@ type BitBoxBase struct {
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
-func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string) (*BitBoxBase, error) {
+func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string, onUnregister func(string)) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
 		address:             strings.Split(address, ":")[0],
-		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir),
+		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir, onUnregister, id),
 		registerTime:        time.Now(),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 	}
-	err := bitboxBase.rpcClient.Connect(address, bitboxBase.bitboxBaseID)
+	err := bitboxBase.rpcClient.Connect(bitboxBase.bitboxBaseID)
 	if err != nil {
 		return nil, err
 	}
@@ -146,6 +149,11 @@ func (base *BitBoxBase) isTestnet() bool {
 // Close implements a method to unset the bitboxBase
 func (base *BitBoxBase) Close() {
 	base.rpcClient.Stop()
+}
+
+// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
+func (base *BitBoxBase) Ping() (bool, error) {
+	return base.rpcClient.Ping()
 }
 
 // Init initializes the bitboxBase

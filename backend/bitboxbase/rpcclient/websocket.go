@@ -43,13 +43,15 @@ const (
 	responseNeedsPairing        = "\x01"
 )
 
-func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-chan []byte, closeChan chan struct{}) {
+func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-chan []byte) {
 	const maxMessageSize = 512
 
 	readLoop := func() {
 		defer func() {
-			close(closeChan)
+			rpcClient.client.Close()
 			_ = client.Close()
+			rpcClient.log.Println("Closing websocket read loop")
+			rpcClient.onUnregister(rpcClient.bitboxBaseID)
 		}()
 		client.SetReadLimit(maxMessageSize)
 		for {
@@ -72,23 +74,31 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 	writeLoop := func() {
 		defer func() {
 			_ = client.Close()
+			rpcClient.log.Println("Closing websocket write loop")
 		}()
 		for {
 			select {
-			case message, ok := <-writeChan:
-				if !ok {
-					_ = client.WriteMessage(websocket.CloseMessage, []byte{})
-					return
-				}
-				err := client.WriteMessage(websocket.BinaryMessage, rpcClient.sendCipher.Encrypt(nil, nil, message))
-				if err != nil {
-					rpcClient.log.WithFields(logrus.Fields{"group": "rpcClient websocket", "error": err}).Error("websocket could not write message")
-				}
-
-			case <-closeChan:
+			case <-rpcClient.rpcConnection.CloseChan():
 				_ = client.WriteMessage(websocket.CloseMessage, []byte{})
 				rpcClient.log.Info("closing websocket connection")
 				return
+			default:
+				select {
+				case <-rpcClient.rpcConnection.CloseChan():
+					_ = client.WriteMessage(websocket.CloseMessage, []byte{})
+					rpcClient.log.Info("closing websocket connection")
+					return
+
+				case message, ok := <-writeChan:
+					if !ok {
+						_ = client.WriteMessage(websocket.CloseMessage, []byte{})
+						return
+					}
+					err := client.WriteMessage(websocket.BinaryMessage, rpcClient.sendCipher.Encrypt(nil, nil, message))
+					if err != nil {
+						rpcClient.log.WithFields(logrus.Fields{"group": "rpcClient websocket", "error": err}).Error("websocket could not write message")
+					}
+				}
 			}
 		}
 	}
