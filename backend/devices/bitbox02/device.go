@@ -143,6 +143,10 @@ func (device *Device) Init(testing bool) error {
 		return nil
 	}
 
+	return device.init()
+}
+
+func (device *Device) init() error {
 	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
 		attestation, err := device.performAttestation()
 		if err != nil {
@@ -290,8 +294,6 @@ func (device *Device) changeStatus(status Status) {
 	switch device.Status() {
 	case StatusInitialized:
 		device.fireEvent(devicepkg.EventKeystoreAvailable)
-	case StatusUninitialized:
-		device.fireEvent(devicepkg.EventKeystoreGone)
 	}
 }
 
@@ -839,4 +841,20 @@ func (device *Device) reboot() error {
 // UpgradeFirmware reboots into the bootloader so a firmware can be flashed.
 func (device *Device) UpgradeFirmware() error {
 	return device.reboot()
+}
+
+// Reset factory resets the device.
+func (device *Device) Reset() error {
+	request := &messages.Request{
+		Request: &messages.Request_Reset_{
+			Reset_: &messages.ResetRequest{},
+		},
+	}
+	_, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	device.fireEvent(devicepkg.EventKeystoreGone)
+	device.changeStatus(StatusConnected)
+	return device.init()
 }

@@ -43,8 +43,13 @@ func (err *Error) Error() string {
 	return err.Message
 }
 
+// isErrorCode returns whether the error is a bitbox02 error with the given code.
+func isErrorCode(err error, code int32) bool {
+	deviceErr, ok := errp.Cause(err).(*Error)
+	return ok && deviceErr.Code == code
+}
+
 // isErrorAbort returns whether the user aborted the operation.
 func isErrorAbort(err error) bool {
-	deviceErr, ok := errp.Cause(err).(*Error)
-	return ok && deviceErr.Code == ErrUserAbort
+	return isErrorCode(err, ErrUserAbort)
 }
