@@ -2,6 +2,7 @@
   "account": {
     "disconnect": "Verbindung unterbrochen. Erneut verbinden...",
     "exportTransactions": "Exportiere die Transaktionen zum Download Ordner als CSV Datei",
+    "fatalError": "",
     "incoming": "rein",
     "info": {
       "btc-p2pkh": "Dies ist ein legacy Bitcoin Konto. Wir empfehlen, das Segwit Bitcoin Konto zu verwenden um Netzwerkgebühren zu sparen. ",
@@ -16,8 +17,13 @@
     "reconnecting": "Verbindung abgebrochen, neue Verbindung wird aufgebaut…"
   },
   "accountInfo": {
+    "address": "Adresse",
     "extendedPublicKey": "Erweiterter Public Key",
-    "title": "Konto Informationen"
+    "title": "Konto Informationen",
+    "verify": "Auf dem Gerät bestätigen"
+  },
+  "accountSummary": {
+    "name": "Konto Name"
   },
   "addAccount": {
     "accountName": "Konto Name",
@@ -85,7 +91,7 @@
       "e10000": "Aktuelles Gerätepasswort ist falsch.",
       "e10001": "Fehler beim Ändern des Gerätepassworts",
       "e102": "Das Passwort muss aus 8 Zeichen bestehen.",
-      "e112": "Das versteckte Gerätepasswort und das normale Gerätepasswort können nicht identisch sein. Marko"
+      "e112": "Das versteckte Gerätepasswort und das normale Gerätepasswort können nicht identisch sein."
     }
   },
   "blink": {
@@ -240,12 +246,12 @@
     },
     "accountInfo": {
       "xpub": {
-        "text": "Ein erweiterter Public Key ist ein übergeordneter Key, aus dem alle Empfangsadressen abgeleitet werden. Marko",
+        "text": "Ein erweiterter Public Key ist ein übergeordneter Key, aus dem alle Empfangsadressen abgeleitet werden.",
         "title": "Was ist ein erweiterter Public Key?"
       }
     },
     "accountLegacyConvert": {
-      "text": "Gehen Sie zum Bitcoin Konto, wählen Sie Empfangen und kopieren Sie die Adresse. Gehen Sie zurück zu Ihrem alten Konto, klicken Sie dort auf \"Senden\", fügen Sie die kopierte Adresse ein und klicken Sie auf \"Alles senden\". Bestätigen Sie ihre Transaktion ganz normal auf der BitBox. Marko",
+      "text": "Gehen Sie zum Bitcoin Konto, wählen Sie Empfangen und kopieren Sie die Adresse. Gehen Sie zurück zu Ihrem alten Konto, klicken Sie dort auf \"Senden\", fügen Sie die kopierte Adresse ein und klicken Sie auf \"Alles senden\". Bestätigen Sie ihre Transaktion ganz normal auf der BitBox.",
       "title": "Wie kann ich meine Coins vom alten \"Bitcoin Legacy\" Konto auf ein neueres senden?"
     },
     "accountRates": {
@@ -265,11 +271,11 @@
       "title": "Warum kann ich keine {{unit}} senden?"
     },
     "accountTransactionAttributesBTC": {
-      "text": "Virtuelle Größe: Wird zur Ermittlung der Netzwerkgebühr verwendet. Sie haben erfolgreich Gebühren gespart, wenn sie kleiner als die Transaktion sind.\nGröße: Aktuelle Transaktionsgröße in Bytes nach der Serialisierung gemäß der zugrunde liegenden Blockchain.\nGewicht: Mit Segwit eingeführt, ist dies eine neue Metrik zur Bewertung von Transaktions- und Blockgrößen. Jedes Segwit Byte zählt als eins, alles andere als vier \"Gewichtseinheiten\". Statt eines Megabytes, beträgt die Blockgrößenbegrenzung nun vier Millionen \"Gewichtseinheiten\". Marko",
+      "text": "Virtuelle Größe: Wird zur Ermittlung der Netzwerkgebühr verwendet. Sie haben erfolgreich Gebühren gespart, wenn sie kleiner als die Transaktion sind.\nGröße: Aktuelle Transaktionsgröße in Bytes nach der Serialisierung gemäß der zugrunde liegenden Blockchain.\nGewicht: Mit Segwit eingeführt, ist dies eine neue Metrik zur Bewertung von Transaktions- und Blockgrößen. Jedes Segwit Byte zählt als eins, alles andere als vier \"Gewichtseinheiten\". Statt eines Megabytes, beträgt die Blockgrößenbegrenzung nun vier Millionen \"Gewichtseinheiten\".",
       "title": "Bitcoin-bezogene Transaktionsdetails"
     },
     "accountTransactionAttributesGeneric": {
-      "text": "Bestätigungen: Nachdem Sie ihre Transaktion gesendet haben ist diese zuerst unbestätigt.  Sie müssen warten, bis sie von einem Miner in eine Block aufgenommen wird. Dann hat Ihre Transaktion die erste  Bestätigung. Jeder nachfolgende Block fügt Ihrer Transaktion eine weitere Bestätigung hinzu. Meist sehen Händler und andere Netzwerkakteure Transaktionen erst mit 3 bis 6 Bestätigungen als erledigt.\nTransaktions-ID: Eine eindeutige Identifikationsnummer, die zum Nachschlagen einer Transaktion in einem Blockexplorer verwendet werden kann.\nGebühr: Miner erhalten eine Transaktionsgebühr als Anreiz, Transaktionen in die von ihnen erzeugten Blöcke aufzunehmen. Um mehr zu erfahren, klicken Sie auf  \"Senden\". Marko",
+      "text": "Bestätigungen: Nachdem Sie ihre Transaktion gesendet haben ist diese zuerst unbestätigt.  Sie müssen warten, bis sie von einem Miner in eine Block aufgenommen wird. Dann hat Ihre Transaktion die erste  Bestätigung. Jeder nachfolgende Block fügt Ihrer Transaktion eine weitere Bestätigung hinzu. Meist sehen Händler und andere Netzwerkakteure Transaktionen erst mit 3 bis 6 Bestätigungen als erledigt.\nTransaktions-ID: Eine eindeutige Identifikationsnummer, die zum Nachschlagen einer Transaktion in einem Blockexplorer verwendet werden kann.\nGebühr: Miner erhalten eine Transaktionsgebühr als Anreiz, Transaktionen in die von ihnen erzeugten Blöcke aufzunehmen. Um mehr zu erfahren, klicken Sie auf  \"Senden\".",
       "title": "Welche Informationen werden in den Transaktionsdetails angezeigt?"
     },
     "accountTransactionConfirmation": {
@@ -277,7 +283,7 @@
       "title": "Was ist eine ausstehende Transaktion?"
     },
     "accountTransactionLabel": {
-      "text": "Es ist die Adresse an die SIE Coins erhalten oder geschickt haben. Eine Adresse codiert, wie und von wem die Coins ausgegeben werden können. Marko",
+      "text": "Es ist die Adresse an die SIE Coins erhalten oder geschickt haben. Eine Adresse codiert, wie und von wem die Coins ausgegeben werden können.",
       "title": "Welche Adresse wird für jede Transaktion angezeigt?"
     },
     "accountTransactionTime": {
@@ -309,7 +315,7 @@
     },
     "bitbox": {
       "2FA": {
-        "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte XXX an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStellen Sie sicher, dass Sie ein Backup Ihres Wallets erstellen und die App verbinden, bevor Sie 2FA aktivieren. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Sie können es nur erneut aktivieren, indem Sie die BitBox zurücksetzen, wodurch das Gerät gelöscht wird. Marko",
+        "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte XXX an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStellen Sie sicher, dass Sie ein Backup Ihres Wallets erstellen und die App verbinden, bevor Sie 2FA aktivieren. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Sie können es nur erneut aktivieren, indem Sie die BitBox zurücksetzen, wodurch das Gerät gelöscht wird.",
         "title": "Wie funktioniert die Zwei-Faktor-Autorisierung (2FA)"
       },
       "disable2FA": {
@@ -464,7 +470,7 @@
     }
   },
   "headerssync": {
-    "blocksSynced": "{{blocks}} blocks synchronisiert\n"
+    "blocksSynced": "{{blocks}} Blöcke synchronisiert\n"
   },
   "hiddenWallet": {
     "info1HTML": "Zur glaubhaften Abstreitbarkeit kann ein verstecktes Wallet erstellt werden, dass auf einer <strong> anderen </strong> Geräte- und Wiederherstellungspasswort Kombination basiert.",
@@ -709,7 +715,7 @@
     "electrum": {
       "add": "Server hinzufügen",
       "add-server": "Hinzufügen",
-      "check": "Checken",
+      "check": "Überprüfen",
       "checkFailed": "Fehlgeschlagen",
       "checkSuccess": "Verbindung zu {{host}} wurde erfolgreich hergestellt",
       "checking": "Überprüfen",
@@ -785,7 +791,7 @@
   },
   "unknownError": "Ein unbekannter Fehler ist aufgetreten {{errorMessage}}\n\n",
   "unlock": {
-    "description": "Geben Sie Ihr Gerätepasswort ein um Ihr Geräte zu entsperren.",
+    "description": "Geben Sie Ihr Gerätepasswort ein um Ihr Gerät zu entsperren.",
     "error": {
       "e109_normal": "Gerätepasswort inkorrekt.  {{remainingAttempts}} Versuche verbleibend, bevor sich das Gerät auf die Werkseinstellungen zurücksetzt. ",
       "e109_touch": "$t(unlock.error.e109_normal) Beim nächsten Loginversuch müssen Sie die LED lange halten.",
