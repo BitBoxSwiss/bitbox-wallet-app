@@ -23,6 +23,7 @@ import { apiGet } from '../../../utils/request';
 import { ButtonLink } from '../../forms';
 import { Header } from '../../layout/header';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
+import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
@@ -94,6 +95,7 @@ class Settings extends Component<Props, State> {
                                     <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
                                         {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
+                                    <Reset apiPrefix={this.apiPrefix()} />
                                 </div>
                                 <hr />
                                 <div class="subHeaderContainer">

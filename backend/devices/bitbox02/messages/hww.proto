@@ -228,11 +228,11 @@ message ETHPubRequest {
 message ETHSignRequest {
   ETHCoin coin = 1;
   repeated uint32 keypath = 2;
-  bytes nonce = 3;
-  bytes gas_price = 4;
-  bytes gas_limit = 5;
-  bytes recipient = 6;
-  bytes value = 7;
+  bytes nonce = 3; // smallest big endian serialization, max. 16 bytes
+  bytes gas_price = 4; // smallest big endian serialization, max. 16 bytes
+  bytes gas_limit = 5; // smallest big endian serialization, max. 16 bytes
+  bytes recipient = 6; // 20 byte recipient
+  bytes value = 7; // smallest big endian serialization, max. 32 bytes
   bytes data = 8;
 }
 
@@ -253,6 +253,8 @@ message ETHResponse {
     ETHSignResponse sign = 2;
   }
 }
+
+message ResetRequest {}
 
 message Request {
     oneof request {
@@ -276,6 +278,7 @@ message Request {
         RebootRequest reboot = 18;
         CheckBackupRequest check_backup = 19;
         ETHRequest eth = 20;
+        ResetRequest reset = 21;
     }
 }
 

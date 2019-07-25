@@ -48,6 +48,7 @@ type BitBox02 interface {
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
 	Attestation() bool
+	Reset() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -81,7 +82,7 @@ func NewHandlers(
 	handleFunc("/set-mnemonic-passphrase-enabled", handlers.postSetMnemonicPassphraseEnabled).Methods("POST")
 	handleFunc("/bundled-firmware-version", handlers.getBundledFirmwareVersionHandler).Methods("GET")
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
-
+	handleFunc("/reset", handlers.postResetHandler).Methods("POST")
 	return handlers
 }
 
@@ -282,4 +283,12 @@ func (handlers *Handlers) postUpgradeFirmwareHandler(_ *http.Request) (interface
 		return maybeBB02Err(err, handlers.log), nil
 	}
 	return nil, nil
+}
+
+func (handlers *Handlers) postResetHandler(_ *http.Request) (interface{}, error) {
+	err := handlers.device.Reset()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
 }
