@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package updater contains the API to the physical device.
-package updater
+// Package rpcclient contains the API to the physical device.
+package rpcclient
 
 import (
 	"bytes"
@@ -35,8 +35,8 @@ type configuration struct {
 	BitBoxBaseNoiseStaticPubkeys [][]byte      `json:"bitboxBaseNoiseStaticPubkeys"`
 }
 
-func (updater *Updater) readConfig() *configuration {
-	configFile := config.NewFile(updater.bitboxBaseConfigDir, configFilename)
+func (rpcClient *RPCClient) readConfig() *configuration {
+	configFile := config.NewFile(rpcClient.bitboxBaseConfigDir, configFilename)
 	if !configFile.Exists() {
 		return &configuration{}
 	}
@@ -47,13 +47,13 @@ func (updater *Updater) readConfig() *configuration {
 	return &conf
 }
 
-func (updater *Updater) storeConfig(conf *configuration) error {
-	configFile := config.NewFile(updater.bitboxBaseConfigDir, configFilename)
+func (rpcClient *RPCClient) storeConfig(conf *configuration) error {
+	configFile := config.NewFile(rpcClient.bitboxBaseConfigDir, configFilename)
 	return configFile.WriteJSON(conf)
 }
 
-func (updater *Updater) configContainsBitBoxBaseStaticPubkey(pubkey []byte) bool {
-	for _, configPubkey := range updater.readConfig().BitBoxBaseNoiseStaticPubkeys {
+func (rpcClient *RPCClient) configContainsBitBoxBaseStaticPubkey(pubkey []byte) bool {
+	for _, configPubkey := range rpcClient.readConfig().BitBoxBaseNoiseStaticPubkeys {
 		if bytes.Equal(configPubkey, pubkey) {
 			return true
 		}
@@ -61,19 +61,19 @@ func (updater *Updater) configContainsBitBoxBaseStaticPubkey(pubkey []byte) bool
 	return false
 }
 
-func (updater *Updater) configAddBitBoxBaseStaticPubkey(pubkey []byte) error {
-	if updater.configContainsBitBoxBaseStaticPubkey(pubkey) {
+func (rpcClient *RPCClient) configAddBitBoxBaseStaticPubkey(pubkey []byte) error {
+	if rpcClient.configContainsBitBoxBaseStaticPubkey(pubkey) {
 		// Don't add again if already present.
 		return nil
 	}
 
-	config := updater.readConfig()
+	config := rpcClient.readConfig()
 	config.BitBoxBaseNoiseStaticPubkeys = append(config.BitBoxBaseNoiseStaticPubkeys, pubkey)
-	return updater.storeConfig(config)
+	return rpcClient.storeConfig(config)
 }
 
-func (updater *Updater) configGetAppNoiseStaticKeypair() *noise.DHKey {
-	key := updater.readConfig().AppNoiseStaticKeypair
+func (rpcClient *RPCClient) configGetAppNoiseStaticKeypair() *noise.DHKey {
+	key := rpcClient.readConfig().AppNoiseStaticKeypair
 	if key == nil {
 		return nil
 	}
@@ -83,11 +83,11 @@ func (updater *Updater) configGetAppNoiseStaticKeypair() *noise.DHKey {
 	}
 }
 
-func (updater *Updater) configSetAppNoiseStaticKeypair(key *noise.DHKey) error {
-	config := updater.readConfig()
+func (rpcClient *RPCClient) configSetAppNoiseStaticKeypair(key *noise.DHKey) error {
+	config := rpcClient.readConfig()
 	config.AppNoiseStaticKeypair = &noiseKeypair{
 		Private: key.Private,
 		Public:  key.Public,
 	}
-	return updater.storeConfig(config)
+	return rpcClient.storeConfig(config)
 }

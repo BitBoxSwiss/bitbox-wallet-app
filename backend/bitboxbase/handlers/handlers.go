@@ -54,7 +54,7 @@ func (handlers *Handlers) Init(base Base) {
 	handlers.base = base
 }
 
-// Uninit removes the bitbox. After this, not requests should be made.
+// Uninit removes the bitboxbase. After this, no requests should be made.
 func (handlers *Handlers) Uninit() {
 	handlers.log.Debug("Uninit")
 	handlers.base = nil

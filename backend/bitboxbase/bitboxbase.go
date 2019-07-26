@@ -15,14 +15,14 @@
 package bitboxbase
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/updater"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,8 +33,8 @@ type Interface interface {
 	// Identifier returns the bitboxBaseID.
 	Identifier() string
 
-	// GetUpdater returns the updater so we can listen to its events.
-	GetUpdaterInstance() *updater.Updater
+	// GetRPCClient returns the rpcClient so we can listen to its events.
+	RPCClient() *rpcclient.RPCClient
 
 	// Close tells the bitboxbase to close all connections.
 	Close()
@@ -54,8 +54,7 @@ type BitBoxBase struct {
 	bitboxBaseID        string //This is just the ip currently
 	registerTime        time.Time
 	address             string
-	closed              bool
-	updaterInstance     *updater.Updater
+	rpcClient           *rpcclient.RPCClient
 	electrsRPCPort      string
 	network             string
 	log                 *logrus.Entry
@@ -68,39 +67,19 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
-		closed:              false,
 		address:             strings.Split(address, ":")[0],
-		updaterInstance:     updater.NewUpdater(address, bitboxBaseConfigDir),
+		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir),
 		registerTime:        time.Now(),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 	}
-	err := bitboxBase.GetUpdaterInstance().Connect(address, bitboxBase.bitboxBaseID)
+	err := bitboxBase.rpcClient.Connect(address, bitboxBase.bitboxBaseID)
 	if err != nil {
 		return nil, err
 	}
 
-	bodyBytes, err := bitboxBase.GetUpdaterInstance().GetEnv()
-	if err != nil {
-		return nil, err
-	}
-	var envData map[string]interface{}
-	if err := json.Unmarshal(bodyBytes, &envData); err != nil {
-		bitboxBase.log.WithError(err).Error(" Failed to unmarshal GetEnv body bytes")
-		// bitboxBase.GetUpdaterInstance().Stop()
-		return bitboxBase, err
-	}
-	var ok bool
-	bitboxBase.electrsRPCPort, ok = envData["electrsRPCPort"].(string)
-	if !ok {
-		bitboxBase.log.Error(" Getenv did not return an electrsRPCPort string field")
-		return bitboxBase, err
-	}
-	bitboxBase.network, ok = envData["network"].(string)
-	if !ok {
-		bitboxBase.log.Error(" Getenv did not return a network string field")
-		return bitboxBase, err
-	}
+	bitboxBase.network, bitboxBase.electrsRPCPort = bitboxBase.rpcClient.GetEnv()
+
 	return bitboxBase, err
 }
 
@@ -139,14 +118,14 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	return nil
 }
 
-// GetUpdaterInstance return ths current instance of the updater
-func (base *BitBoxBase) GetUpdaterInstance() *updater.Updater {
-	return base.updaterInstance
+// RPCClient returns ths current instance of the rpcClient
+func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
+	return base.rpcClient
 }
 
-// MiddlewareInfo returns the received MiddlewareInfo packet from the updater
+// MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
 func (base *BitBoxBase) MiddlewareInfo() interface{} {
-	return base.GetUpdaterInstance().MiddlewareInfo()
+	return base.rpcClient.SampleInfo()
 }
 
 // Identifier implements a getter for the bitboxBase ID
@@ -166,8 +145,7 @@ func (base *BitBoxBase) isTestnet() bool {
 
 // Close implements a method to unset the bitboxBase
 func (base *BitBoxBase) Close() {
-	base.GetUpdaterInstance().Stop()
-	base.closed = true
+	base.rpcClient.Stop()
 }
 
 // Init initializes the bitboxBase
