@@ -256,8 +256,11 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 					header.PrevBlock, tip, prevBlock, tip-1))
 		}
 
-		lastCheckpoint := headers.net.Checkpoints[len(headers.net.Checkpoints)-1]
-		if tip == int(lastCheckpoint.Height) {
+		var lastCheckpoint *chaincfg.Checkpoint
+		if len(headers.net.Checkpoints) > 0 {
+			lastCheckpoint = &headers.net.Checkpoints[len(headers.net.Checkpoints)-1]
+		}
+		if lastCheckpoint != nil && tip == int(lastCheckpoint.Height) {
 			if *lastCheckpoint.Hash != header.BlockHash() {
 				return errp.Newf("checkpoint mismatch at %d. Expected %s, got %s",
 					tip, lastCheckpoint.Hash, header.BlockHash())
@@ -278,7 +281,7 @@ func (headers *Headers) canConnect(db DBInterface, tip int, header *wire.BlockHe
 				panic(errp.WithStack(err))
 			}
 			// Skip PoW check before the checkpoint for performance.
-			if tip > int(lastCheckpoint.Height) {
+			if lastCheckpoint != nil && tip > int(lastCheckpoint.Height) {
 				powHash := headers.powHash(headerSerialized.Bytes())
 				proofOfWork := btcdBlockchain.HashToBig(&powHash)
 				if proofOfWork.Cmp(newTarget) > 0 {
