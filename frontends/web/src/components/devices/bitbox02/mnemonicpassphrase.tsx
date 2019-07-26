@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
+import SimpleMarkup from '../../../utils/simplemarkup';
 import { alertUser } from '../../alert/Alert';
 import { Button } from '../../forms';
 import WaitDialog from '../../wait-dialog/wait-dialog';
@@ -48,7 +49,7 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
                         }
                         this.props.getInfo();
                     }
-        });
+                });
     }
 
     public render(
@@ -58,13 +59,22 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
         { inProgress }: State,
     ) {
         const title = mnemonicPassphraseEnabled ? t('bitbox02Settings.mnemonicPassphrase.disable') : t('bitbox02Settings.mnemonicPassphrase.enable');
+        const message = t('bitbox02Settings.mnemonicPassphrase.description');
         return (
             <div>
                 <Button primary onClick={this.toggle}>{title}</Button>
                 { inProgress && (
-                    <WaitDialog title={title} >
-                        {t('bitbox02Interact.followInstructions')}
-                    </WaitDialog>
+                      <WaitDialog title={title} >
+                          { !mnemonicPassphraseEnabled && message && (
+                                <p>{
+                                    message.split('\n').map(line => (
+                                        <span>
+                                            <SimpleMarkup tagName="span" markup={line} /><br/>
+                                        </span>
+                                    ))}
+                                </p>)}
+                          <p>{t('bitbox02Interact.followInstructions')}</p>
+                      </WaitDialog>
                 )}
             </div>
         );

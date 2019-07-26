@@ -130,10 +130,11 @@
       "title": "Set BitBox02 Name"
     },
     "mnemonicPassphrase": {
+      "description": "This allows you to enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>",
       "disable": "Disable Mnemonic Passphrase",
       "enable": "Enable Mnemonic Passphrase",
       "successDisable": "Mnemonic Passphrase successfully disabled.",
-      "successEnable": "Mnemonic Passphrase successfully enabled.\nFrom now on, you can enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>"
+      "successEnable": "Mnemonic Passphrase successfully enabled.\nFrom now on, you can enter a mnemonic passphrase after unlocking your BitBox02."
     }
   },
   "bitbox02Wizard": {
