@@ -87,8 +87,8 @@ func NewManager(
 func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	for bitboxBaseID, bitboxBase := range manager.baseDeviceInterface {
 		// Check if bitboxbase was removed.
-		if manager.checkIfRemoved(bitboxBaseID) {
-			manager.log.Printf("Removing bitboxbase with id %q", bitboxBaseID)
+		if manager.checkIfRemoved(bitboxBase) {
+			manager.log.Infof("Removing bitboxbase with id %q", bitboxBaseID)
 			bitboxBase.Close()
 			delete(manager.baseDeviceInterface, bitboxBaseID)
 			manager.onUnregister(bitboxBaseID)
@@ -104,11 +104,6 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 		return false, errp.New("Base already registered")
 	}
 
-	if _, ok := manager.detectedBases[address]; !ok {
-		manager.detectedBases[address] = address
-		manager.onDetect()
-	}
-
 	manager.log.WithField("host", manager.detectedBases[address]).WithField("address", address)
 	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister)
 
@@ -116,6 +111,12 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 		manager.log.WithError(err).Error("Failed to register Base")
 		return false, err
 	}
+
+	if _, ok := manager.detectedBases[address]; !ok {
+		manager.detectedBases[address] = address
+		manager.onDetect()
+	}
+
 	manager.baseDeviceInterface[bitboxBaseID] = baseDevice
 	if err := manager.onRegister(baseDevice); err != nil {
 		manager.log.WithError(err).Error("Failed to execute on-register")
@@ -138,8 +139,8 @@ func (manager *Manager) GetDetectedBases() map[string]string {
 }
 
 // checkIfRemoved returns true if a bitboxbase was detected in, but is not reachable anymore.
-func (manager *Manager) checkIfRemoved(bitboxBaseID string) bool {
-	connected, err := manager.baseDeviceInterface[bitboxBaseID].Ping()
+func (manager *Manager) checkIfRemoved(bitboxBase bitboxbase.Interface) bool {
+	connected, err := bitboxBase.Ping()
 	if err != nil || !connected {
 		return true
 	}

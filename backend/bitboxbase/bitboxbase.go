@@ -21,6 +21,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 
 	"github.com/sirupsen/logrus"
@@ -43,7 +44,7 @@ type Interface interface {
 	GetRegisterTime() time.Time
 
 	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() interface{}
+	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
@@ -81,8 +82,12 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 		return nil, err
 	}
 
-	bitboxBase.network, bitboxBase.electrsRPCPort = bitboxBase.rpcClient.GetEnv()
-
+	response, err := bitboxBase.rpcClient.GetEnv()
+	if err != nil {
+		return nil, err
+	}
+	bitboxBase.network = response.Network
+	bitboxBase.electrsRPCPort = response.ElectrsRPCPort
 	return bitboxBase, err
 }
 
@@ -127,8 +132,13 @@ func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 }
 
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() interface{} {
-	return base.rpcClient.SampleInfo()
+func (base *BitBoxBase) MiddlewareInfo() (rpcclient.SampleInfoResponse, error) {
+	response, err := base.rpcClient.SampleInfo()
+	if err != nil {
+		// intercept error so the user is not confronted with weird rpc error message
+		return response, errp.New("error received from sample info rpc call client")
+	}
+	return response, nil
 }
 
 // Identifier implements a getter for the bitboxBase ID
@@ -136,7 +146,7 @@ func (base *BitBoxBase) Identifier() string {
 	return base.bitboxBaseID
 }
 
-// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
+// GetRegisterTime implements a getter for the timestamp of when the bitbox base was registered
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
 }
