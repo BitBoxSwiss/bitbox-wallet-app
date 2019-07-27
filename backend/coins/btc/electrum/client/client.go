@@ -35,7 +35,7 @@ import (
 )
 
 const (
-	clientVersion         = "0.0.1"
+	clientVersion         = "3.3.8"
 	clientProtocolVersion = "1.2"
 )
 

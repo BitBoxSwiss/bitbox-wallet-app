@@ -60,14 +60,11 @@ docker run \
        -e DAEMON_URL="dbb:dbb@${DOCKER_IP}:10332" \
        -e COIN=BitcoinSegwit \
        -e NET=regtest \
-       -e RPC_PORT=10002 \
        -e PEER_DISCOVERY= \
-       -e HOST=0.0.0.0 \
-       -e RPC_HOST=0.0.0.0 \
-       -e TCP_PORT=52001 \
-       -e SSL_PORT=52002 \
        -p 52001:52001 \
+       -e REQUEST_SLEEP=0 \
        -p 10002:10002 \
+       -e SERVICES=rpc://0.0.0.0:10002,tcp://0.0.0.0:52001,ssl://0.0.0.0:52002 \
        --name=electrumx-regtest \
        lukechilds/electrumx &
 
