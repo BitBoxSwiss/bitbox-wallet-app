@@ -45,6 +45,7 @@ export const Shift = (props: GenericProps) => <img {...props} draggable={false} 
 const logoMap = {
     btc: [BTC, BTC_GREY],
     tbtc: [BTC, BTC_GREY],
+    rbtc: [BTC, BTC_GREY],
     ltc: [LTC, LTC_GREY],
     tltc: [LTC, LTC_GREY],
     eth: [ETH, ETH_GREY],

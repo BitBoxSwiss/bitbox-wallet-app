@@ -51,6 +51,7 @@ docker run -v $BITCOIN_DATADIR:/bitcoin --name=bitcoind-regtest \
        -port=12340 \
        -rpcport=10332 \
        -txindex=1 \
+       -rpcbind=0.0.0.0 \
        -rpcallowip=$DOCKER_IP/16 &
 
 docker run \
@@ -71,7 +72,8 @@ docker run \
        lukechilds/electrumx &
 
 echo "Interact with the regtest chain (e.g. generate 101 blocks and send coins):"
-echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generate 101"
+echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 getnewaddress"
+echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 generatetoaddress 101 <newaddress>"
 echo "    bitcoin-cli -regtest -datadir=${BITCOIN_DATADIR} -rpcuser=dbb -rpcpassword=dbb -rpcport=10332 sendtoaddress <address> <amount>"
 
 while true; do sleep 1; done
