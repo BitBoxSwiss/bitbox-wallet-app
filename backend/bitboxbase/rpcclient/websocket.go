@@ -24,7 +24,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/flynn/noise"
 	"github.com/gorilla/websocket"
-	"github.com/sirupsen/logrus"
 )
 
 // runWebsocket sets up loops for sending/receiving, abstracting away the low level details about
@@ -43,26 +42,34 @@ const (
 	responseNeedsPairing        = "\x01"
 )
 
-func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-chan []byte, closeChan chan struct{}) {
+func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-chan []byte) {
 	const maxMessageSize = 512
 
 	readLoop := func() {
 		defer func() {
-			close(closeChan)
-			_ = client.Close()
+			err := rpcClient.client.Close()
+			if err != nil {
+				rpcClient.log.WithError(err).Error("failed to close rpc client")
+			}
+			err = client.Close()
+			if err != nil {
+				rpcClient.log.WithError(err).Error("failed to close websocket client")
+			}
+			rpcClient.log.Info("Closing websocket read loop")
+			rpcClient.onUnregister(rpcClient.bitboxBaseID)
 		}()
 		client.SetReadLimit(maxMessageSize)
 		for {
 			_, msg, err := client.ReadMessage()
 			if err != nil {
 				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway) {
-					rpcClient.log.WithFields(logrus.Fields{"group": "rpcClient websocket", "error": err}).Error(err.Error())
+					rpcClient.log.WithError(err).Error("Unexpected websocket close")
 				}
 				break
 			}
 			messageDecrypted, err := rpcClient.receiveCipher.Decrypt(nil, nil, msg)
 			if err != nil {
-				rpcClient.log.WithFields(logrus.Fields{"group": "rpcClient websocket", "error": err}).Error("websocket client could not decrypt incoming packets")
+				rpcClient.log.WithError(err).Error("websocket client could not decrypt incoming packets")
 				break
 			}
 			rpcClient.parseMessage(messageDecrypted)
@@ -71,24 +78,35 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 
 	writeLoop := func() {
 		defer func() {
-			_ = client.Close()
+			err := client.Close()
+			if err != nil {
+				rpcClient.log.WithError(err).Error("failed to close websocket client")
+			}
+			rpcClient.log.Info("Closing websocket write loop")
 		}()
 		for {
 			select {
-			case message, ok := <-writeChan:
-				if !ok {
-					_ = client.WriteMessage(websocket.CloseMessage, []byte{})
-					return
-				}
-				err := client.WriteMessage(websocket.BinaryMessage, rpcClient.sendCipher.Encrypt(nil, nil, message))
-				if err != nil {
-					rpcClient.log.WithFields(logrus.Fields{"group": "rpcClient websocket", "error": err}).Error("websocket could not write message")
-				}
-
-			case <-closeChan:
+			case <-rpcClient.rpcConnection.CloseChan():
 				_ = client.WriteMessage(websocket.CloseMessage, []byte{})
 				rpcClient.log.Info("closing websocket connection")
 				return
+			default:
+				select {
+				case <-rpcClient.rpcConnection.CloseChan():
+					_ = client.WriteMessage(websocket.CloseMessage, []byte{})
+					rpcClient.log.Info("closing websocket connection")
+					return
+
+				case message, ok := <-writeChan:
+					if !ok {
+						_ = client.WriteMessage(websocket.CloseMessage, []byte{})
+						return
+					}
+					err := client.WriteMessage(websocket.BinaryMessage, rpcClient.sendCipher.Encrypt(nil, nil, message))
+					if err != nil {
+						rpcClient.log.WithError(err).Error("websocket could not write message")
+					}
+				}
 			}
 		}
 	}

@@ -21,6 +21,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 
 	"github.com/sirupsen/logrus"
@@ -43,10 +44,13 @@ type Interface interface {
 	GetRegisterTime() time.Time
 
 	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() interface{}
+	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
+
+	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
+	Ping() (bool, error)
 }
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
@@ -63,23 +67,27 @@ type BitBoxBase struct {
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
-func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string) (*BitBoxBase, error) {
+func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string, onUnregister func(string)) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
 		address:             strings.Split(address, ":")[0],
-		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir),
+		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir, onUnregister, id),
 		registerTime:        time.Now(),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 	}
-	err := bitboxBase.rpcClient.Connect(address, bitboxBase.bitboxBaseID)
+	err := bitboxBase.rpcClient.Connect(bitboxBase.bitboxBaseID)
 	if err != nil {
 		return nil, err
 	}
 
-	bitboxBase.network, bitboxBase.electrsRPCPort = bitboxBase.rpcClient.GetEnv()
-
+	response, err := bitboxBase.rpcClient.GetEnv()
+	if err != nil {
+		return nil, err
+	}
+	bitboxBase.network = response.Network
+	bitboxBase.electrsRPCPort = response.ElectrsRPCPort
 	return bitboxBase, err
 }
 
@@ -124,8 +132,13 @@ func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 }
 
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() interface{} {
-	return base.rpcClient.SampleInfo()
+func (base *BitBoxBase) MiddlewareInfo() (rpcclient.SampleInfoResponse, error) {
+	response, err := base.rpcClient.SampleInfo()
+	if err != nil {
+		// intercept error so the user is not confronted with weird rpc error message
+		return response, errp.New("error received from sample info rpc call client")
+	}
+	return response, nil
 }
 
 // Identifier implements a getter for the bitboxBase ID
@@ -133,7 +146,7 @@ func (base *BitBoxBase) Identifier() string {
 	return base.bitboxBaseID
 }
 
-// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
+// GetRegisterTime implements a getter for the timestamp of when the bitbox base was registered
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
 }
@@ -146,6 +159,11 @@ func (base *BitBoxBase) isTestnet() bool {
 // Close implements a method to unset the bitboxBase
 func (base *BitBoxBase) Close() {
 	base.rpcClient.Stop()
+}
+
+// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
+func (base *BitBoxBase) Ping() (bool, error) {
+	return base.rpcClient.Ping()
 }
 
 // Init initializes the bitboxBase

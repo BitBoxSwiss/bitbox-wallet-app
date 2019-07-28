@@ -17,6 +17,7 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -24,7 +25,7 @@ import (
 
 //Base models the api of the base middleware
 type Base interface {
-	MiddlewareInfo() interface{}
+	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
 	ConnectElectrum() error
 }
 
@@ -61,8 +62,12 @@ func (handlers *Handlers) Uninit() {
 }
 
 func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Block Info")
-	return jsonp.MustMarshal(handlers.base.MiddlewareInfo()), nil
+	handlers.log.Debug("Middleware Info")
+	middlewareInfo, err := handlers.base.MiddlewareInfo()
+	if err != nil {
+		return nil, err
+	}
+	return jsonp.MustMarshal(middlewareInfo), nil
 }
 
 func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {

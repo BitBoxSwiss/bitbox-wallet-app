@@ -76,7 +76,6 @@ func (conn *rpcConn) Write(p []byte) (n int, err error) {
 }
 
 func (conn *rpcConn) Close() error {
-	// check that the channel exists before closing
 	if conn.closeChan != nil {
 		close(conn.closeChan)
 		conn.closeChan = nil
@@ -111,40 +110,55 @@ type RPCClient struct {
 	channelHashBitBoxBaseVerified bool
 	sendCipher, receiveCipher     *noise.CipherState
 
+	onUnregister func(string)
+	bitboxBaseID string
+
 	//rpc stuff
 	client        *rpc.Client
-	bitboxBaseID  string
 	rpcConnection *rpcConn
 }
 
 // NewRPCClient returns a new bitboxbase rpcClient.
-func NewRPCClient(address string, bitboxBaseConfigDir string) *RPCClient {
+func NewRPCClient(address string, bitboxBaseConfigDir string, onUnregister func(string), bitboxBaseID string) *RPCClient {
 	rpcClient := &RPCClient{
+		bitboxBaseID:        bitboxBaseID,
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		address:             address,
 		sampleInfo:          &SampleInfoResponse{},
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		rpcConnection:       newRPCConn(),
+		onUnregister:        onUnregister,
 	}
 	return rpcClient
 }
 
-// Connect starts the websocket go routine, first checking if the middleware is reachable,
-// then establishing a websocket connection, then authenticating and encrypting all further traffic with noise.
-func (rpcClient *RPCClient) Connect(address string, bitboxBaseID string) error {
-	rpcClient.bitboxBaseID = bitboxBaseID
-	response, err := http.Get("http://" + address + "/")
+// Ping sends a get request to the bitbox base's middleware root handler and returns true if successful
+func (rpcClient *RPCClient) Ping() (bool, error) {
+	response, err := http.Get("http://" + rpcClient.address + "/")
 	if err != nil {
-		rpcClient.log.Println("No response from middleware", err)
-		return err
+		rpcClient.log.WithError(err).Error("No response from middleware")
+		return false, err
 	}
 
 	if response.StatusCode != http.StatusOK {
-		rpcClient.log.Println("Received http status code from middleware other than 200")
+		rpcClient.log.Error("Received http status code from middleware other than 200")
+		return false, nil
+	}
+	return true, nil
+}
+
+// Connect starts the websocket go routine, first checking if the middleware is reachable,
+// then establishing a websocket connection, then authenticating and encrypting all further traffic with noise.
+func (rpcClient *RPCClient) Connect(bitboxBaseID string) error {
+	rpcClient.bitboxBaseID = bitboxBaseID
+	rpcClient.log.Infof("connecting to bitbox base websocket with id %q", bitboxBaseID)
+	connected, err := rpcClient.Ping()
+	if err != nil {
 		return err
 	}
-
-	rpcClient.log.Printf("connecting to base websocket")
+	if !connected {
+		return errp.New("rpcClient: Failed to connect with the bitboxbase middleware")
+	}
 	ws, _, err := websocket.DefaultDialer.Dial("ws://"+rpcClient.address+"/ws", nil)
 	if err != nil {
 		return errp.New("rpcClient: failed to create new websocket client")
@@ -153,51 +167,61 @@ func (rpcClient *RPCClient) Connect(address string, bitboxBaseID string) error {
 		return err
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
-	rpcClient.runWebsocket(ws, rpcClient.rpcConnection.WriteChan(), rpcClient.rpcConnection.CloseChan())
+	rpcClient.runWebsocket(ws, rpcClient.rpcConnection.WriteChan())
 	return nil
 }
 
 func (rpcClient *RPCClient) parseMessage(message []byte) {
 	if len(message) == 0 {
-		rpcClient.log.Println("Received empty message")
+		rpcClient.log.Error("Received empty message, dropping.")
 		return
 	}
 	opCode := message[0]
 	switch opCode {
 	case opUCanHasDemo:
-		go rpcClient.SampleInfo()
+		go func() {
+			_, err := rpcClient.SampleInfo()
+			if err != nil {
+				rpcClient.log.WithError(err).Error("GetSampleInfo notification triggered rpc call failed")
+			}
+		}()
 	case opRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
 	default:
-		rpcClient.log.Println("Received message without opCode")
+		rpcClient.log.Error("Received message without opCode, dropping.")
 	}
 }
 
-//Stop shuts down the websocket connection with the base
+// Stop shuts down the websocket connection with the base
 func (rpcClient *RPCClient) Stop() {
-	close(rpcClient.rpcConnection.CloseChan())
+	err := rpcClient.client.Close()
+	if err != nil {
+		rpcClient.log.WithError(err).Error("failed to close rpc client")
+	}
 }
 
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
-func (rpcClient *RPCClient) GetEnv() (string, string) {
+func (rpcClient *RPCClient) GetEnv() (GetEnvResponse, error) {
 	var reply GetEnvResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSystemEnv", request, &reply)
 	if err != nil {
-		rpcClient.log.Printf("Failed with: %v", err)
+		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
+		return reply, err
 	}
-	return reply.Network, reply.ElectrsRPCPort
+	return reply, nil
 }
 
 // SampleInfo make a synchronous rpc call to the base, emits an event containing the SampleInfo struct
 // to the frontend and returns the SampleInfo struct
-func (rpcClient *RPCClient) SampleInfo() SampleInfoResponse {
+func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
 	var reply SampleInfoResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
 	if err != nil {
-		rpcClient.log.Printf("Failed with: %v", err)
+		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
+		return reply, err
 	}
 	rpcClient.Notify(observable.Event{
 		Subject: fmt.Sprintf("/bitboxbases/%s/middlewareinfo", rpcClient.bitboxBaseID),
@@ -205,5 +229,5 @@ func (rpcClient *RPCClient) SampleInfo() SampleInfoResponse {
 		Object:  reply,
 	})
 
-	return reply
+	return reply, nil
 }
