@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/db/headersdb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -46,6 +47,7 @@ type Coin struct {
 	net                   *chaincfg.Params
 	dbFolder              string
 	servers               []*rpc.ServerInfo
+	forceElectrumClient   *client.ElectrumClient
 	blockExplorerTxPrefix string
 
 	observable.Implementation
@@ -78,11 +80,21 @@ func NewCoin(
 	return coin
 }
 
+// ForceElectrumClient does not use the servers passed in NewCoin, but the one provided here.
+func (coin *Coin) ForceElectrumClient(client *client.ElectrumClient) {
+	coin.forceElectrumClient = client
+}
+
 // Initialize implements coin.Coin.
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
-		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
+		if coin.forceElectrumClient != nil {
+			coin.log.Info("Forcing Bitcoin Electrum client.")
+			coin.blockchain = coin.forceElectrumClient
+		} else {
+			coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
+		}
 
 		// Init Headers
 

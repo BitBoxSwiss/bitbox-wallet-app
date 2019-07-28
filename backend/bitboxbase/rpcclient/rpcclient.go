@@ -19,6 +19,7 @@ package rpcclient
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/rpc"
 
@@ -35,12 +36,15 @@ import (
 const (
 	opRPCCall     = byte('r')
 	opUCanHasDemo = byte('d')
+	opElectrum    = byte('e')
 )
 
 type rpcConn struct {
 	readChan  chan []byte
 	writeChan chan []byte
 	closeChan chan struct{}
+	// buffer msg to read if it is not read at once.
+	readBuffer []byte
 }
 
 // newRPCConn returns a pointer to a rpcConn struct. RPCConn is used as an io.ReadWriteCloser by the rpc connection.
@@ -65,9 +69,17 @@ func (conn *rpcConn) CloseChan() chan struct{} {
 	return conn.closeChan
 }
 
-func (conn *rpcConn) Read(p []byte) (n int, err error) {
-	message := <-conn.readChan
-	return copy(p, message), nil
+func (conn *rpcConn) Read(p []byte) (int, error) {
+	var message []byte
+	if len(conn.readBuffer) > 0 {
+		message = conn.readBuffer
+		conn.readBuffer = nil
+	} else {
+		message = <-conn.readChan
+	}
+	n := copy(p, message)
+	conn.readBuffer = message[n:]
+	return n, nil
 }
 
 func (conn *rpcConn) Write(p []byte) (n int, err error) {
@@ -114,8 +126,9 @@ type RPCClient struct {
 	bitboxBaseID string
 
 	//rpc stuff
-	client        *rpc.Client
-	rpcConnection *rpcConn
+	client             *rpc.Client
+	rpcConnection      *rpcConn
+	electrumConnection *rpcConn
 }
 
 // NewRPCClient returns a new bitboxbase rpcClient.
@@ -128,6 +141,7 @@ func NewRPCClient(address string, bitboxBaseConfigDir string, onUnregister func(
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		rpcConnection:       newRPCConn(),
 		onUnregister:        onUnregister,
+		electrumConnection:  newRPCConn(),
 	}
 	return rpcClient
 }
@@ -168,6 +182,14 @@ func (rpcClient *RPCClient) Connect(bitboxBaseID string) error {
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
 	rpcClient.runWebsocket(ws, rpcClient.rpcConnection.WriteChan())
+	go func() {
+		for {
+			msg := <-rpcClient.electrumConnection.WriteChan()
+			if err := rpcClient.electrumSend(msg); err != nil {
+				rpcClient.log.WithError(err).Error("ElectrumSend failed")
+			}
+		}
+	}()
 	return nil
 }
 
@@ -176,7 +198,7 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.log.Error("Received empty message, dropping.")
 		return
 	}
-	opCode := message[0]
+	opCode, message := message[0], message[1:]
 	switch opCode {
 	case opUCanHasDemo:
 		go func() {
@@ -186,8 +208,9 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 			}
 		}()
 	case opRPCCall:
-		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
+	case opElectrum:
+		rpcClient.electrumConnection.ReadChan() <- message
 	default:
 		rpcClient.log.Error("Received message without opCode, dropping.")
 	}
@@ -230,4 +253,20 @@ func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
 	})
 
 	return reply, nil
+}
+
+// electrumSend is is sending `msg` to the Electrum Server. Do not use this directly, use
+// `ElectrumConnection` instead.
+func (rpcClient *RPCClient) electrumSend(msg []byte) error {
+	var reply struct{}
+	return rpcClient.client.Call(
+		"RPCServer.ElectrumSend",
+		struct{ Msg []byte }{Msg: msg},
+		&reply,
+	)
+}
+
+// ElectrumConnection returns a ReadWriteCloser which communicates to the Electrum Server.
+func (rpcClient *RPCClient) ElectrumConnection() io.ReadWriteCloser {
+	return rpcClient.electrumConnection
 }

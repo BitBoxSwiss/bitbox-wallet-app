@@ -15,14 +15,18 @@
 package bitboxbase
 
 import (
+	"io"
 	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 
 	"github.com/sirupsen/logrus"
 )
@@ -51,6 +55,10 @@ type Interface interface {
 
 	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
 	Ping() (bool, error)
+
+	// MakeElectrumClient creates an Electrum client which talks to the base Electrum server.
+	// The messages are going through the noise-encrypted channel.
+	MakeElectrumClient() *client.ElectrumClient
 }
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
@@ -64,6 +72,20 @@ type BitBoxBase struct {
 	log                 *logrus.Entry
 	config              *config.Config
 	bitboxBaseConfigDir string
+}
+
+type electrumBackend struct {
+	conn io.ReadWriteCloser
+}
+
+func (eb *electrumBackend) EstablishConnection() (io.ReadWriteCloser, error) {
+	return eb.conn, nil
+}
+
+func (eb *electrumBackend) ServerInfo() *rpc.ServerInfo {
+	return &rpc.ServerInfo{
+		Server: "base", // TODO: this is only used for logging, refactor
+	}
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
@@ -86,6 +108,7 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 	if err != nil {
 		return nil, err
 	}
+
 	bitboxBase.network = response.Network
 	bitboxBase.electrsRPCPort = response.ElectrsRPCPort
 	return bitboxBase, err
@@ -129,6 +152,19 @@ func (base *BitBoxBase) ConnectElectrum() error {
 // RPCClient returns ths current instance of the rpcClient
 func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 	return base.rpcClient
+}
+
+// MakeElectrumClient implements Interface.
+func (base *BitBoxBase) MakeElectrumClient() *client.ElectrumClient {
+	return client.NewElectrumClient(
+		jsonrpc.NewRPCClient(
+			[]rpc.Backend{
+				&electrumBackend{conn: base.rpcClient.ElectrumConnection()},
+			},
+			func(error) {},
+			base.log,
+		),
+		base.log)
 }
 
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient

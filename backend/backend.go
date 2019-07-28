@@ -53,6 +53,7 @@ import (
 const (
 	coinBTC       = "btc"
 	coinTBTC      = "tbtc"
+	coinRBTC      = "rbtc"
 	coinLTC       = "ltc"
 	coinTLTC      = "tltc"
 	coinETH       = "eth"
@@ -163,7 +164,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 
-	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
+	backend.baseManager = mdns.NewManager(
+		backend.EmitBitBoxBaseDetected,
+		backend.bitBoxBaseRegister,
+		backend.BitBoxBaseDeregister,
+		backend.config,
+		backend.arguments.BitBoxBaseDirectoryPath(),
+	)
 
 	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
 
@@ -398,7 +405,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	}
 	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
-	case "rbtc":
+	case coinRBTC:
 		servers := []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
 		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "")
 	case coinTBTC:
@@ -670,6 +677,20 @@ func (backend *Backend) bitBoxBaseRegister(theBase bitboxbase.Interface) error {
 		Data: "registeredChanged",
 	}:
 	default:
+	}
+
+	// Use this base as the Electrum backend for Bitcoin.
+	backend.log.Info("Using BitBox Base as the Bitcoin Backend")
+	for _, coinCode := range []string{
+		coinBTC,
+		coinTBTC,
+		coinRBTC,
+	} {
+		coin, err := backend.Coin(coinCode)
+		if err != nil {
+			return err
+		}
+		coin.(*btc.Coin).ForceElectrumClient(theBase.MakeElectrumClient())
 	}
 	return nil
 }

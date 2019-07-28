@@ -43,7 +43,7 @@ const (
 )
 
 func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-chan []byte) {
-	const maxMessageSize = 512
+	const maxMessageSize = 1024 * 1024
 
 	readLoop := func() {
 		defer func() {
