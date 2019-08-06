@@ -50,6 +50,7 @@ type BitBox02 interface {
 	Attestation() bool
 	Reset() error
 	ShowMnemonic() error
+	RestoreFromMnemonic() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -85,6 +86,7 @@ func NewHandlers(
 	handleFunc("/upgrade-firmware", handlers.postUpgradeFirmwareHandler).Methods("POST")
 	handleFunc("/reset", handlers.postResetHandler).Methods("POST")
 	handleFunc("/show-mnemonic", handlers.postShowMnemonicHandler).Methods("POST")
+	handleFunc("/restore-from-mnemonic", handlers.postRestoreFromMnemonicHandler).Methods("POST")
 	return handlers
 }
 
@@ -297,6 +299,14 @@ func (handlers *Handlers) postResetHandler(_ *http.Request) (interface{}, error)
 
 func (handlers *Handlers) postShowMnemonicHandler(_ *http.Request) (interface{}, error) {
 	err := handlers.device.ShowMnemonic()
+	if err != nil {
+		return maybeBB02Err(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postRestoreFromMnemonicHandler(_ *http.Request) (interface{}, error) {
+	err := handlers.device.RestoreFromMnemonic()
 	if err != nil {
 		return maybeBB02Err(err, handlers.log), nil
 	}

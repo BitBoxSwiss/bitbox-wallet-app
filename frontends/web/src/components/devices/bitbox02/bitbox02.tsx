@@ -56,11 +56,12 @@ interface State {
     'uninitialized' |
     'seeded' |
     'initialized';
-    appStatus: 'createWallet' | 'restoreBackup' | '';
+    appStatus: 'createWallet' | 'restoreBackup' | 'restoreFromMnemonic' | '';
     createWalletStatus: 'intro' | 'setPassword' | 'createBackup';
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     settingPassword: boolean;
     creatingBackup: boolean;
+    restoringFromMnemonic: boolean;
     sdCardInserted?: boolean;
     errorText?: string;
     deviceName: string;
@@ -82,6 +83,7 @@ class BitBox02 extends Component<Props, State> {
             status: '',
             settingPassword: false,
             creatingBackup: false,
+            restoringFromMnemonic: false,
             sdCardInserted: undefined,
             appStatus: '',
             createWalletStatus: 'intro',
@@ -144,7 +146,6 @@ class BitBox02 extends Component<Props, State> {
             }
             if (this.state.unlockOnly && ['uninitialized', 'seeded'].includes(status)) {
                 this.setState({ unlockOnly: false });
-                this.insertSDCard();
             }
             if (status === 'seeded') {
                 this.setState({ appStatus: 'createWallet' });
@@ -169,11 +170,17 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private createWalletStep = () => {
+        this.insertSDCard();
         this.setState({ appStatus: 'createWallet' });
     }
 
     private restoreBackupStep = () => {
+        this.insertSDCard();
         this.setState({ appStatus: 'restoreBackup' });
+    }
+
+    private restoreFromMnemonicStep = () => {
+        this.setState({ appStatus: 'restoreFromMnemonic' });
     }
 
     private insertSDCard = () => {
@@ -205,6 +212,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private restoreBackup = () => {
+        this.insertSDCard();
         this.setState({
             restoreBackupStatus: 'restore',
         });
@@ -249,6 +257,16 @@ class BitBox02 extends Component<Props, State> {
         });
     }
 
+    private restoreFromMnemonic = () => {
+        this.setState({ restoringFromMnemonic: true });
+        apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
+            if (!success) {
+                alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'));
+            }
+            this.setState({ restoringFromMnemonic: false });
+        });
+    }
+
     public render(
         { t, deviceID }: RenderableProps<Props>,
         { attestationResult,
@@ -261,6 +279,7 @@ class BitBox02 extends Component<Props, State> {
           restoreBackupStatus,
           settingPassword,
           creatingBackup,
+          restoringFromMnemonic,
           errorText,
           unlockOnly,
           showWizard,
@@ -352,7 +371,6 @@ class BitBox02 extends Component<Props, State> {
                                 <Step
                                     active={status === 'uninitialized' && appStatus === ''}
                                     title={t('bitbox02Wizard.initialize.title')}>
-                                    {sdCardInserted ? true : this.insertSDCard()}
                                     <div className={style.standOut}>
                                         <img src={infoIcon} />
                                         <span className={style.info}>{t('bitbox02Wizard.initialize.tip')}</span>
@@ -364,15 +382,20 @@ class BitBox02 extends Component<Props, State> {
                                         <button
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.createWalletStep}
-                                            disabled={settingPassword || !sdCardInserted}>
+                                            disabled={settingPassword}>
                                             {t('seed.create')}
-                                    </button>
+                                        </button>
                                         <button
                                             className={[style.button, style.secondary].join(' ')}
-                                            onClick={this.restoreBackupStep}
-                                            disabled={!sdCardInserted}>
+                                            onClick={this.restoreBackupStep}>
                                             {t('backup.restore.confirmTitle')}
-                                    </button>
+                                        </button>
+                                        <br/><br/>
+                                        <button
+                                            className={[style.button, style.secondary].join(' ')}
+                                            onClick={this.restoreFromMnemonicStep}>
+                                            {t('backup.restoreFromMnemonic.confirmTitle')}
+                                        </button>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
@@ -381,6 +404,7 @@ class BitBox02 extends Component<Props, State> {
                                     title={t('seed.create')}>
                                     <div className={style.stepContext}>
                                         <p>{t('bitbox02Wizard.create.text')}</p>
+                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
                                         <p>{t('bitbox02Wizard.create.info')}</p>
                                         <ul>
                                             <li>{t('bitbox02Wizard.create.point1')}</li>
@@ -400,7 +424,7 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.buttons}>
                                         <button
-                                            disabled={!deviceName}
+                                            disabled={!deviceName || !sdCardInserted}
                                             className={[style.button, style.primary].join(' ')}
                                             onClick={this.setDeviceName}>
                                             {t('bitbox02Wizard.create.button')}
@@ -450,6 +474,7 @@ class BitBox02 extends Component<Props, State> {
                                     title={t('backup.restore.confirmTitle')}>
                                     <div className={style.stepContext}>
                                         <p>{t('bitbox02Wizard.backup.restoreText')}</p>
+                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
                                         <p>{t('bitbox02Wizard.create.info')}</p>
                                         <ul>
                                             <li>{t('bitbox02Wizard.backup.point1')}</li>
@@ -459,7 +484,8 @@ class BitBox02 extends Component<Props, State> {
                                     <div className={style.buttons}>
                                         <button
                                             className={[style.button, style.primary].join(' ')}
-                                            onClick={this.restoreBackup}>
+                                            onClick={this.restoreBackup}
+                                            disabled={!sdCardInserted}>
                                             {t('seedRestore.info.button')}
                                         </button>
                                     </div>
@@ -503,6 +529,27 @@ class BitBox02 extends Component<Props, State> {
                                     </div>
                                     <div className={style.passwordGesturesGifWrapper}>
                                         <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                    </div>
+                                </Step> : ''}
+                            {!unlockOnly && appStatus === 'restoreFromMnemonic' ?
+                                <Step
+                                    active={status !== 'initialized'}
+                                    title={t('backup.restoreFromMnemonic.confirmTitle')}>
+                                    <div className={style.stepContext}>
+                                        <p>{t('bitbox02Wizard.backup.restoreText')}</p>
+                                        <p>{t('bitbox02Wizard.create.info')}</p>
+                                        <ul>
+                                            <li>{t('bitbox02Wizard.restoreFromMnemonic.point1')}</li>
+                                            <li>{t('bitbox02Wizard.restoreFromMnemonic.point2')}</li>
+                                        </ul>
+                                    </div>
+                                    <div className={style.buttons}>
+                                        <button
+                                            className={[style.button, style.primary].join(' ')}
+                                            disabled={restoringFromMnemonic}
+                                            onClick={this.restoreFromMnemonic}>
+                                            {t('backup.restoreFromMnemonic.confirmTitle')}
+                                        </button>
                                     </div>
                                 </Step> : ''}
                             <Step

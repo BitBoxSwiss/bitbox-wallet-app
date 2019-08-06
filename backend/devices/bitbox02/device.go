@@ -876,3 +876,22 @@ func (device *Device) ShowMnemonic() error {
 	}
 	return nil
 }
+
+// RestoreFromMnemonic invokes the mnemonic phrase import workflow.
+func (device *Device) RestoreFromMnemonic() error {
+	request := &messages.Request{
+		Request: &messages.Request_RestoreFromMnemonic{
+			RestoreFromMnemonic: &messages.RestoreFromMnemonicRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	device.changeStatus(StatusInitialized)
+	return nil
+}
