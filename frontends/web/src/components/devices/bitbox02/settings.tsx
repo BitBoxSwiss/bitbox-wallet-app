@@ -25,6 +25,7 @@ import { Header } from '../../layout/header';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
+import { ShowMnemonic } from './showmnemonic';
 import { UpgradeButton, VersionInfo } from './upgradebutton';
 
 interface SettingsProps {
@@ -95,6 +96,7 @@ class Settings extends Component<Props, State> {
                                     <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
                                         {t('deviceSettings.secrets.manageBackups')}
                                     </ButtonLink>
+                                    <ShowMnemonic apiPrefix={this.apiPrefix()} />
                                     <Reset apiPrefix={this.apiPrefix()} />
                                 </div>
                                 <hr />

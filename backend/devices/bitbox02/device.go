@@ -45,7 +45,7 @@ import (
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(2, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(3, 0, 0)
 	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
 )
 
@@ -857,4 +857,22 @@ func (device *Device) Reset() error {
 	device.fireEvent(devicepkg.EventKeystoreGone)
 	device.changeStatus(StatusConnected)
 	return device.init()
+}
+
+// ShowMnemonic lets the user export the bip39 mnemonic phrase on the device.
+func (device *Device) ShowMnemonic() error {
+	request := &messages.Request{
+		Request: &messages.Request_ShowMnemonic{
+			ShowMnemonic: &messages.ShowMnemonicRequest{},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.Response_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
 }
