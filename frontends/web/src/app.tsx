@@ -32,7 +32,7 @@ import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
-import { BitBoxBase, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbase';
+import { BitBoxBase, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
