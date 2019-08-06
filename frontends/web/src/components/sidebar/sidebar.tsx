@@ -32,6 +32,7 @@ import Logo, { AppLogoInverted } from '../icon/logo';
 
 interface SidebarProps {
     deviceIDs: string[];
+    bitboxBaseIDs: string[];
     accounts: AccountInterface[];
     accountsInitialized: boolean;
 }
@@ -140,6 +141,7 @@ class Sidebar extends Component<Props> {
         {
             t,
             deviceIDs,
+            bitboxBaseIDs,
             accounts,
             accountsInitialized,
             shown,
@@ -196,16 +198,32 @@ class Sidebar extends Component<Props> {
                             <Link
                                 activeClassName="sidebar-active"
                                 href={`/bitboxbase`}
-                                title={t('sidebar.bitboxBase')}
+                                title={t('sidebar.bitboxBaseConnect')}
                                 onClick={this.handleSidebarItemClick}>
                                 <div className="stacked">
                                     <img draggable={false} className="sidebar_settings" src={settingsGrey} alt={t('sidebar.bitboxBase')} />
                                     <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
                                 </div>
-                                <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
+                                <span className="sidebar_label">{t('sidebar.bitboxBaseConnect')}</span>
                             </Link>
                         </div>
                     }
+                    {debug && bitboxBaseIDs.map(bitboxBaseID => (
+                            <div key={bitboxBaseID} className="sidebarItem">
+                                <Link
+                                    href={`/bitboxbase/${bitboxBaseID}`}
+                                    activeClassName="sidebar-active"
+                                    title={t('sidebar.bitboxBase')}
+                                    onClick={this.handleSidebarItemClick}>
+                                    <div className="single">
+                                        <img draggable={false} className="sidebar_settings" src={settings} alt={t('sidebar.bitboxBase')} />
+                                    </div>
+                                    <span className="sidebar_label">{t('sidebar.bitboxBase')}</span>
+                                </Link>
+                            </div>
+                        ))
+                    }
+
                     {
                         (debug && accountsInitialized && deviceIDs.length === 0) && (
                             <div className="sidebarItem">

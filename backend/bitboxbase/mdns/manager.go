@@ -53,8 +53,6 @@ type Manager struct {
 	onRegister   func(bitboxbase.Interface) error
 	onUnregister func(string)
 
-	removedIDs map[string]bool // keeps track of the bases that were removed manually by the user.
-
 	log                 *logrus.Entry
 	config              *config.Config
 	bitboxBaseConfigDir string
@@ -75,7 +73,6 @@ func NewManager(
 		detectedBases:       map[string]string{},
 		onRegister:          onRegister,
 		onUnregister:        onUnregister,
-		removedIDs:          make(map[string]bool),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 
@@ -112,14 +109,13 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 		return false, err
 	}
 
-	if _, ok := manager.detectedBases[address]; !ok {
-		manager.detectedBases[address] = address
-		manager.onDetect()
-	}
-
 	manager.baseDeviceInterface[bitboxBaseID] = baseDevice
 	if err := manager.onRegister(baseDevice); err != nil {
 		manager.log.WithError(err).Error("Failed to execute on-register")
+		return false, err
+	}
+
+	if err = baseDevice.ConnectRPCClient(); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -127,10 +123,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 
 // RemoveBase allows external objects to delete a manager entry.
 func (manager *Manager) RemoveBase(bitboxBaseID string) {
-	if _, ok := manager.baseDeviceInterface[bitboxBaseID]; ok {
-		delete(manager.baseDeviceInterface, bitboxBaseID)
-		manager.removedIDs[bitboxBaseID] = true
-	}
+	delete(manager.baseDeviceInterface, bitboxBaseID)
 }
 
 // GetDetectedBases returns bases detected by the manager with the mDNS scan

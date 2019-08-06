@@ -22,10 +22,12 @@ import (
 	"net/http"
 	"net/rpc"
 
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+
 	"github.com/flynn/noise"
 	"github.com/gorilla/websocket"
 
@@ -109,8 +111,10 @@ type RPCClient struct {
 	channelHashAppVerified        bool
 	channelHashBitBoxBaseVerified bool
 	sendCipher, receiveCipher     *noise.CipherState
+	onChangeStatus                func(bitboxbasestatus.Status)
+	onEvent                       func(bitboxbasestatus.Event)
+	onUnregister                  func() (bool, error)
 
-	onUnregister func(string)
 	bitboxBaseID string
 
 	//rpc stuff
@@ -119,7 +123,13 @@ type RPCClient struct {
 }
 
 // NewRPCClient returns a new bitboxbase rpcClient.
-func NewRPCClient(address string, bitboxBaseConfigDir string, onUnregister func(string), bitboxBaseID string) *RPCClient {
+func NewRPCClient(address string,
+	bitboxBaseID string,
+	bitboxBaseConfigDir string,
+	onChangeStatus func(bitboxbasestatus.Status),
+	onEvent func(bitboxbasestatus.Event),
+	onUnregister func() (bool, error)) (*RPCClient, error) {
+
 	rpcClient := &RPCClient{
 		bitboxBaseID:        bitboxBaseID,
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -127,9 +137,19 @@ func NewRPCClient(address string, bitboxBaseConfigDir string, onUnregister func(
 		sampleInfo:          &SampleInfoResponse{},
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		rpcConnection:       newRPCConn(),
+		onChangeStatus:      onChangeStatus,
+		onEvent:             onEvent,
 		onUnregister:        onUnregister,
 	}
-	return rpcClient
+	if success, err := rpcClient.Ping(); !success {
+		return nil, err
+	}
+	return rpcClient, nil
+}
+
+// ChannelHash returns the noise channel and a boolean to indicate if it is verified
+func (rpcClient *RPCClient) ChannelHash() (string, bool) {
+	return rpcClient.channelHash, rpcClient.channelHashBitBoxBaseVerified
 }
 
 // Ping sends a get request to the bitbox base's middleware root handler and returns true if successful
@@ -149,21 +169,16 @@ func (rpcClient *RPCClient) Ping() (bool, error) {
 
 // Connect starts the websocket go routine, first checking if the middleware is reachable,
 // then establishing a websocket connection, then authenticating and encrypting all further traffic with noise.
-func (rpcClient *RPCClient) Connect(bitboxBaseID string) error {
-	rpcClient.bitboxBaseID = bitboxBaseID
-	rpcClient.log.Infof("connecting to bitbox base websocket with id %q", bitboxBaseID)
-	connected, err := rpcClient.Ping()
-	if err != nil {
+func (rpcClient *RPCClient) Connect() error {
+	rpcClient.log.Printf("connecting to base websocket")
+	if success, err := rpcClient.Ping(); !success {
 		return err
-	}
-	if !connected {
-		return errp.New("rpcClient: Failed to connect with the bitboxbase middleware")
 	}
 	ws, _, err := websocket.DefaultDialer.Dial("ws://"+rpcClient.address+"/ws", nil)
 	if err != nil {
 		return errp.New("rpcClient: failed to create new websocket client")
 	}
-	if err = rpcClient.initializeNoise(ws, bitboxBaseID); err != nil {
+	if err = rpcClient.initializeNoise(ws); err != nil {
 		return err
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
@@ -229,5 +244,5 @@ func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
 		Object:  reply,
 	})
 
-	return reply, nil
+	return reply, err
 }

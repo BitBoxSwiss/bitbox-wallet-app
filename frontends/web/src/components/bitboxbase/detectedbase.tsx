@@ -18,7 +18,6 @@ import { Component, h, RenderableProps} from 'preact';
 import BaseLogo from '../../assets/icons/bbbase64.png';
 import { translate, TranslateProps } from '../../decorators/translate';
 import * as style from './bitboxbase.css';
-import { ConnectedBase } from './connectbase';
 
 interface DetectedBaseProps {
     ip: string;
@@ -78,17 +77,6 @@ class DetectedBase extends Component<Props, State> {
                                 onClick={ () => connect(ip)}>
                                 {t('bitboxBase.connect')}
                             </button>
-                        </div>
-                    </div>
-                    <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
-                        <div class={style.spacer}></div>
-                        <div class="flex-1">
-                            <div class={['flex flex-row flex-start flex-items-start flex-wrap', style.row, style.items].join(' ')}>
-                                <div>
-                                    {/* TODO: Rewrite ConnectedBase which is now for demo purposes */}
-                                    <ConnectedBase bitboxBaseID={ip}/>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
