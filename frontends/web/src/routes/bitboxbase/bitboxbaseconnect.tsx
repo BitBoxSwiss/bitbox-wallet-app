@@ -24,7 +24,7 @@ import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
 
-interface BitBoxBaseProps {
+interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
     detectedBases: DetectedBitBoxBases;
     bitboxBaseID?: string;
@@ -35,16 +35,16 @@ export interface DetectedBitBoxBases {
     [Hostname: string]: string;
 }
 
-export const bitboxBaseStore = new Store<BitBoxBaseProps>({
+export const bitboxBaseStore = new Store<BitBoxBaseConnectProps>({
     detectedBases: {},
     bitboxBaseIDs: [],
     bitboxBaseID: '',
     ip: '',
 });
 
-type Props = BitBoxBaseProps & TranslateProps;
+type Props = BitBoxBaseConnectProps & TranslateProps;
 
-class BitBoxBase extends Component<Props> {
+class BitBoxBaseConnect extends Component<Props> {
 
     constructor(props) {
         super(props);
@@ -133,5 +133,5 @@ class BitBoxBase extends Component<Props> {
         }
 }
 
-const HOC = translate<BitBoxBaseProps>()(BitBoxBase);
-export { HOC as BitBoxBase };
+const HOC = translate<BitBoxBaseConnectProps>()(BitBoxBaseConnect);
+export { HOC as BitBoxBaseConnect };

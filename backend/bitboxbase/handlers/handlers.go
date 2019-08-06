@@ -18,6 +18,7 @@ import (
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -27,6 +28,9 @@ import (
 type Base interface {
 	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
 	ConnectElectrum() error
+	Status() bitboxbasestatus.Status
+	ChannelHash() (string, bool)
+	Deregister() (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -44,6 +48,9 @@ func NewHandlers(
 
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
+	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
+	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
+	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
 
 	return handlers
 }
@@ -61,8 +68,28 @@ func (handlers *Handlers) Uninit() {
 	handlers.base = nil
 }
 
-func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Middleware Info")
+func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Println("Disconnecting base...")
+	success, err := handlers.base.Deregister()
+
+	return map[string]interface{}{"success": success}, err
+}
+
+func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
+	return handlers.base.Status(), nil
+}
+
+func (handlers *Handlers) getChannelHashHandler(r *http.Request) (interface{}, error) {
+	hash, bitboxBaseVerified := handlers.base.ChannelHash()
+	return map[string]interface{}{
+		"hash":               hash,
+		"bitboxBaseVerified": bitboxBaseVerified,
+	}, nil
+
+}
+
+func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Block Info")
 	middlewareInfo, err := handlers.base.MiddlewareInfo()
 	if err != nil {
 		return nil, err

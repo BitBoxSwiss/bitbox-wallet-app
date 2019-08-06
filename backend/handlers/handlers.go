@@ -189,7 +189,6 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/bitboxbases/connectbase", handlers.postConnectBaseHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/bitboxbases/disconnectbase", handlers.postDisconnectBaseHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
@@ -636,20 +635,6 @@ func (handlers *Handlers) postConnectBaseHandler(r *http.Request) (interface{}, 
 	return map[string]interface{}{
 		"success": true,
 	}, nil
-}
-
-func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
-	jsonBody := map[string]string{}
-	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	bitboxBaseID := jsonBody["bitboxBaseID"]
-	handlers.log.WithField("BitBox Base ID", bitboxBaseID).Debug("Disconnecting from middleware with the following id:")
-
-	//Implment proper error handling for deregister
-	handlers.backend.BitBoxBaseDeregister(bitboxBaseID)
-	var success = true
-	return map[string]interface{}{"success": success}, nil
 }
 
 func (handlers *Handlers) eventsHandler(w http.ResponseWriter, r *http.Request) {
