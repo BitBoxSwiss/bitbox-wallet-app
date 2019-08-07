@@ -29,6 +29,9 @@ const (
 	// StatusPairingFailed is when the pairing code was rejected on the app or on the BitBox Base.
 	StatusPairingFailed Status = "pairingFailed"
 
+	// StatusBitcoinPre is after status unpaired, if the Base has not been initialized before.
+	StatusBitcoinPre Status = "bitcoinPre"
+
 	// StatusInitialized means the BitBox Base has verfied the pairing
 	StatusInitialized Status = "initialized"
 )
