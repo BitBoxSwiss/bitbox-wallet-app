@@ -46,4 +46,7 @@ const (
 
 	// EventChannelHashChange should be emitted whenever the noise channel hash changes.
 	EventChannelHashChange Event = "channelHashChanged"
+
+	// EventSampleInfoChange should be emitted whenever the rpcclient gets a new SampleInfo notification
+	EventSampleInfoChange Event = "sampleInfoChanged"
 )

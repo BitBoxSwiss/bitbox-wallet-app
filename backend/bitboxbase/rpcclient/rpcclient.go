@@ -18,15 +18,12 @@
 package rpcclient
 
 import (
-	"fmt"
 	"net/http"
 	"net/rpc"
 
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 
 	"github.com/flynn/noise"
 	"github.com/gorilla/websocket"
@@ -112,9 +109,8 @@ type ResyncBitcoinResponse struct {
 	Success bool
 }
 
-// RPCClient implements observable blockchainInfo.
+// RPCClient handles communication with the BitBox Base's rpc server
 type RPCClient struct {
-	observable.Implementation
 	sampleInfo          *SampleInfoResponse
 	log                 *logrus.Entry
 	address             string
@@ -208,12 +204,7 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 	opCode := message[0]
 	switch opCode {
 	case opUCanHasDemo:
-		go func() {
-			_, err := rpcClient.SampleInfo()
-			if err != nil {
-				rpcClient.log.WithError(err).Error("GetSampleInfo notification triggered rpc call failed")
-			}
-		}()
+		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
 	case opRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -252,13 +243,7 @@ func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
 		return reply, err
 	}
-	rpcClient.Notify(observable.Event{
-		Subject: fmt.Sprintf("/bitboxbases/%s/middlewareinfo", rpcClient.bitboxBaseID),
-		Action:  action.Replace,
-		Object:  reply,
-	})
-
-	return reply, err
+	return reply, nil
 }
 
 // ResyncBitcoin makes a synchronous rpc call to the base and returns wether the resync bitcoin script on

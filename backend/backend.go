@@ -662,7 +662,6 @@ func (backend *Backend) EmitBitBoxBaseDetected() {
 func (backend *Backend) bitBoxBaseRegister(theBase bitboxbase.Interface) error {
 	backend.bitboxBases[theBase.Identifier()] = theBase
 	backend.onBitBoxBaseInit(theBase)
-	theBase.RPCClient().Observe(func(event observable.Event) { backend.events <- event })
 	theBase.Self().Observe(func(event observable.Event) { backend.events <- event })
 	select {
 	case backend.events <- backendEvent{

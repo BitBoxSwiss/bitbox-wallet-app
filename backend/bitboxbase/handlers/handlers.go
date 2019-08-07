@@ -20,7 +20,6 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -79,7 +78,8 @@ func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{
 }
 
 func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.base.Status(), nil
+	handlers.log.Println("Sending Status: ", handlers.base.Status())
+	return map[string]interface{}{"status": handlers.base.Status()}, nil
 }
 
 func (handlers *Handlers) getChannelHashHandler(r *http.Request) (interface{}, error) {
@@ -95,9 +95,13 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 	handlers.log.Debug("Block Info")
 	middlewareInfo, err := handlers.base.MiddlewareInfo()
 	if err != nil {
+		handlers.log.Println(err.Error())
 		return nil, err
 	}
-	return jsonp.MustMarshal(middlewareInfo), nil
+	return map[string]interface{}{
+		"success":        true,
+		"middlewareInfo": middlewareInfo,
+	}, nil
 }
 
 func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {
