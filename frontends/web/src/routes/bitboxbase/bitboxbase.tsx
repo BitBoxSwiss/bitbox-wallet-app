@@ -68,7 +68,6 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private unsubscribe!: () => void;
-    private unsubscribeDemo!: () => void;
 
     public componentDidMount() {
         this.onChannelHashChanged();
@@ -81,7 +80,7 @@ class BitBoxBase extends Component<Props, State> {
                 case 'channelHashChanged':
                     this.onChannelHashChanged();
                     break;
-                case 'middlewareInfoChanged':
+                case 'sampleInfoChanged':
                     this.onNewMiddlewareInfo();
                     break;
                 case 'disconnect':
@@ -95,15 +94,11 @@ class BitBoxBase extends Component<Props, State> {
         // Only create a new websocket if the bitboxBaseID changed.
         if (this.props.bitboxBaseID !== this.state.bitboxBaseID) {
             this.setState({ bitboxBaseID : this.props.bitboxBaseID});
-            this.unsubscribeDemo = apiSubscribe('/bitboxbases/' + this.props.bitboxBaseID + '/middlewareinfo', ({ object }) => {
-                this.setState({ middlewareInfo: object });
-            });
         }
     }
 
     public componentWillUnmount() {
         this.unsubscribe();
-        this.unsubscribeDemo();
     }
 
     private apiPrefix = () => {
@@ -117,7 +112,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private onStatusChanged = () => {
-        apiGet(this.apiPrefix() + '/status').then(status => {
+        apiGet(this.apiPrefix() + '/status').then(({status}) => {
             if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
@@ -131,8 +126,10 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private onNewMiddlewareInfo = () => {
-        apiGet(this.apiPrefix() + '/middlewareinfo').then(middlewareInfo => {
-            this.setState({ middlewareInfo });
+        apiGet(this.apiPrefix() + '/middlewareinfo').then(({success, middlewareInfo}) => {
+            if (success) {
+                this.setState({ middlewareInfo });
+            }
         });
     }
 
@@ -231,9 +228,9 @@ class BitBoxBase extends Component<Props, State> {
                                             <img src={alertOctagon} />
                                             <span className={style.error}>{t('bitboxBaseWizard.pairing.failed')}</span>
                                         </div>
-                                       <div class="buttons flex flex-row flex-end">
-                                           <Button onClick={this.removeBitBoxBase} danger>Disconnect Base</Button>
-                                       </div>
+                                        <div class="buttons flex flex-row flex-end">
+                                            <Button onClick={this.removeBitBoxBase} danger>Disconnect Base</Button>
+                                        </div>
                                     </div>
                                     )
                                 }
