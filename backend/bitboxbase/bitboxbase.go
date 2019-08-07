@@ -67,6 +67,9 @@ type Interface interface {
 	// Deregister calls the backend's BitBoxBase Deregister callback and sends a notification to the frontend, if bitboxbase is active.
 	// If bitboxbase is not active, an error is returned.
 	Deregister() (bool, error)
+
+	// SyncOption returns true if the bitcoin resync rpc call executed successfully
+	SyncOption(string) (bool, error)
 }
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
@@ -214,6 +217,31 @@ func (base *BitBoxBase) MiddlewareInfo() (rpcclient.SampleInfoResponse, error) {
 		return rpcclient.SampleInfoResponse{}, err
 	}
 	return base.rpcClient.SampleInfo()
+}
+
+// SyncOption returns true if the chosen sync option was executed successfully
+func (base *BitBoxBase) SyncOption(option string) (bool, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	switch option {
+	case "pre-synced":
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return true, nil
+	case "reindex":
+		base.log.Println("bitboxbase is making a ReindexResyncOption call")
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcclient.ReindexOption)
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return replySuccess.Success, err
+	case "scratch":
+		base.log.Println("bitboxbase is making a IBDResyncOption call")
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcclient.ResyncOption)
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return replySuccess.Success, err
+	default:
+		return true, nil
+	}
 }
 
 // Identifier implements a getter for the bitboxBase ID

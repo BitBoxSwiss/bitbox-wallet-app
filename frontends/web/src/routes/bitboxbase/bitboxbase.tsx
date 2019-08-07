@@ -45,6 +45,7 @@ interface State {
     'connected' |
     'unpaired' |
     'pairingFailed' |
+    'bitcoinPre' |
     'initialized';
     hash?: string;
     showWizard: boolean;
@@ -117,7 +118,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed'].includes(status)) {
+            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
             this.setState({
@@ -163,6 +164,16 @@ class BitBoxBase extends Component<Props, State> {
 
     private onDisconnect = () => {
         route('/bitboxbase', true);
+    }
+
+    private syncOption = (syncOption: 'pre-synced' | 'reindex' | 'scratch') => {
+        apiPost(this.apiPrefix() + '/syncoption', {
+            option: syncOption,
+        }).then(success => {
+            if (!success) {
+                alertUser('Failed to execute sync from pre-synced state');
+            }
+        });
     }
 
     public render(
@@ -234,6 +245,34 @@ class BitBoxBase extends Component<Props, State> {
                                             <p>{t('bitboxBaseWizard.pairing.paired')}</p>
                                         )
                                     }
+                                </div>
+                            </Step>
+                            <Step
+                                active={status === 'bitcoinPre'}
+                                title={t('bitboxBaseWizard.bitcoin.title')}>
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                   <div class="buttons flex flex-row flex-end">
+                                       <Button onClick={() => this.syncOption('pre-synced')} danger>{t('bitboxBaseWizard.bitcoin.pre')}</Button>
+                                   </div>
+                                   <div className={style.stepContext}>
+                                     <p>{t('bitboxBaseWizard.bitcoin.preInfo')}</p>
+                                   </div>
+                                </div>
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                   <div class="buttons flex flex-row flex-end">
+                                       <Button onClick={() => this.syncOption('reindex')} danger>{t('bitboxBaseWizard.bitcoin.reindex')}</Button>
+                                   </div>
+                                   <div className={style.stepContext}>
+                                       <p>{t('bitboxBaseWizard.bitcoin.reindexInfo')}</p>
+                                   </div>
+                                </div>
+                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                   <div class="buttons flex flex-row flex-end">
+                                       <Button onClick={() => this.syncOption('scratch')} danger>{t('bitboxBaseWizard.bitcoin.syncFromScratch')}</Button>
+                                   </div>
+                                   <div className={style.stepContext}>
+                                      <p>{t('bitboxBaseWizard.bitcoin.syncFromScratchInfo')}</p>
+                                   </div>
                                 </div>
                             </Step>
                             <Step

@@ -15,6 +15,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
@@ -31,6 +32,7 @@ type Base interface {
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
 	Deregister() (bool, error)
+	SyncOption(string) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -51,6 +53,7 @@ func NewHandlers(
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
+	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
 
 	return handlers
 }
@@ -103,4 +106,16 @@ func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface
 		return map[string]interface{}{"success": false}, nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSyncOptionHandler(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Option string `json:"option"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return nil, err
+	}
+
+	success, err := handlers.base.SyncOption(payload.Option)
+	return map[string]interface{}{"success": success}, err
 }
