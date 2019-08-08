@@ -1,12 +1,13 @@
 .container {
-    position: relative;
+    
 }
 
 .status {
+    position: relative;
     margin: 0 auto;
     max-width: var(--content-width);
-    padding: var(--spacing-half) var(--spacing-large);
-    font-size: var(--size-medium);
+    padding: var(--space-half) calc(var(--space-default) * 1.5) var(--space-half) var(--space-default);
+    font-size: var(--size-default);
 }
 
 .success {
@@ -25,20 +26,20 @@
 }
 
 .close {
-    background-color: transparent;
-    border: 0;
     color: var(--color-white);
-    line-height: 36px;
-    min-width: auto;
-    padding: 0 var(--spacing-default);
     position: absolute;
-    top: 0;
-    right: 0;
+    top: var(--space-half);
+    right: var(--space-default);
 }
 
-@media (max-width: 640px) {
+.close svg {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 768px) {
     .status {
-        padding: var(--spacing-half);
-        font-size: var(--size-button);
+        padding: var(--space-half);
+        font-size: var(--size-default);
     }
 }

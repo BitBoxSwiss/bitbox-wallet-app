@@ -57,17 +57,17 @@
 }
 
 .balanceTable td:last-child {
-    font-size: var(--size-label);
+    font-size: var(--size-default);
 }
 
 .balanceTable .availableAmount {
-    padding-right: 4px;
+    padding-right: var(--space-quarter);
     text-align: right;
 }
 
 .balanceTable .availableUnit {
     color: var(--color-secondary);
-    padding-right: var(--spacing-default);
+    padding-right: var(--space-half);
 }
 
 .balanceTable .incomingRow {
@@ -80,20 +80,18 @@
 
 @media (max-width: 640px) {
     .balanceTable .availableUnit {
-        padding-right: var(--spacing-half);
+        /* padding-right: var(--spacw-half); */
     }
 }
 
 @media (max-width: 560px) {
     .balanceTable td {
         font-size: var(--size-subheader);
-        font-weight: normal;
     }
 }
 
 @media (max-width: 560px) {
-
-    .balanceTable tr {
+    /* .balanceTable tr {
         display: flex;
         flex-direction: column-reverse;
     }
@@ -110,7 +108,7 @@
 
     .balanceTable td:last-child {
         margin-bottom: calc(var(--space-quarter) / 2);
-    }
+    } */
 }
 
 .accountName {

@@ -11,8 +11,20 @@ dt {
     color: var(--color-secondary);
     display: block;
     font-size: var(--size-small);
+    font-weight: 300;
     line-height: 1;
     margin-bottom: 5px;
+}
+
+.labelLarge {
+    font-size: var(--size-default);
+    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+}
+
+.labelLink {
+    color: var(--color-blue);
+    cursor: pointer;
+    line-height: 1;
 }
 
 input:invalid,
@@ -38,4 +50,14 @@ input[type="checkbox"]:focus + label::before {
     outline-offset: -2px;
     outline-style: auto;
     outline-width: 4px;
+}
+
+@media (max-width: 768px) {
+    .labelLarge {
+        margin-bottom: var(--space-half);
+    }
+
+    .labelLink {
+        font-size: var(--size-small);
+    }
 }

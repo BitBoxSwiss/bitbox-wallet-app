@@ -11,20 +11,22 @@
 }
 
 .fiatList label {
-    min-width: 250px;
+    width: 100%;
 }
 
 .fiatList label span {
-    color: var(--color-white);
-    background-color: var(--color-focus);
-    font-size: var(--size-small);
+    color: var(--color-blue);
+    background-color: transparent;
+    font-size: var(--size-label);
+    font-weight: 400;
     margin-left: var(--spacing-half);
-    padding: 1px var(--spacing-half);
+    padding: 1px 0;
     position: absolute;
     top: 50%;
+    right: 0;
     transform: translateY(-50%);
     transition: background-color .2s ease-out;
-    display:none;
+    display: inline-block;
     border-radius: 2px;
     line-height: 16px;
     cursor: pointer;
@@ -39,6 +41,48 @@
 }
 
 .fiatList label span.show {
-    background-color: var(--color-info);
+    display: inline-block;
+    padding: 1px var(--spacing-half);
+    background-color: var(--color-blue);
+    color: var(--color-white);
     cursor: default;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.left,
+.right {
+    width: calc((100% - var(--space-default)) / 2);
+}
+
+.content {
+    background-color: var(--color-white);
+    padding: var(--space-half);
+}
+
+.content > span > label {
+    display: block;
+}
+
+.content > span:not(:first-child) > label {
+    margin-top: var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .left,
+    .right {
+        width: 100%;
+    }
+
+    .right {
+        margin-top: var(--space-half);
+    }
 }

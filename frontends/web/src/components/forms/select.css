@@ -13,10 +13,11 @@
     border: solid 1px var(--color-brightgray);
     border-radius: 2px;
     font-family: var(--font-family);
-    font-size: var(--size-medium);
-    height: 2.75em;
+    font-size: var(--size-default);
+    font-weight: 300;
+    height: 52px;
     margin-bottom: var(--spacing-default);
-    padding: var(--spacing-half) var(--spacing-default);
+    padding: 0 var(--space-half);
     width: 100%;
 }
 

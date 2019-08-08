@@ -15,7 +15,7 @@
 }
 
 .availableFiatAmount {
-	padding-right: 4px !important;
+	padding-right: var(--space-quarter) !important;
 	text-align: right;
 }
 

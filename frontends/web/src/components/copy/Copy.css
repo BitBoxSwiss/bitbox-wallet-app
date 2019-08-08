@@ -35,29 +35,34 @@
 }
 
 .container {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-default);
     position: relative;
 }
 
 .inputField {
     flex: 1;
     margin-bottom: 0;
-    font-size: var(--size-medium);
+    font-size: var(--size-default);
+    font-weight: 300;
     min-width: 200px !important;
-    max-width: 420px;
     width: 100%;
-    padding: var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half) + 18px) var(--spacing-default) var(--spacing-default);
+    padding: var(--space-half) calc(var(--space-half) * 3) var(--space-half) var(--space-half);
+    height: 52px;
     border-radius: 2px;
     border: solid 1px var(--color-lightgray);
     resize: none;
 }
 
+.inputField:focus {
+    outline: solid 1px var(--color-blue);
+}
+
 @media screen and (max-width: 640px) {
     .button {
-        margin-left: var(--spacing-half);
+        margin-left: var(--space-quarter);
     }
+}
 
-    .inputField {
-        font-size: var(--size-button);
-    }
+.flexibleHeight {
+    height: auto;
 }

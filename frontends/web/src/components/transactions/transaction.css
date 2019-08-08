@@ -1,332 +1,270 @@
-.transactionContainer {
-    background-color: var(--color-white);
-    padding: var(--spacing-default) var(--spacing-large);
-    position: relative;
-    overflow: hidden;
-    border-bottom: solid 1px var(--color-lightgray);
-    transition: all 0.2s ease;
+.container {
+    margin: var(--space-half) 0;
+    height: 152px;
+    transition: height ease-out 0.1s, margin ease-out 0.2s;
+    will-change: height, margin;
 }
 
-.transactionContainer * {
-    min-width: 0;
+.container.collapsed {
+    height: 52px;
+    margin: 0 0;
 }
 
-.transactionContainer:hover .toggleContainer,
-.transactionContainer.expanded .toggleContainer {
-    left: -32px;
+.row {
+    background-color: var(--color-white) !important;
+    height: 52px;
 }
 
-.transaction {
-    margin: 0 auto;
-    max-width: calc(var(--content-width) - (var(--spacing-large) * 2));
-    padding: var(--spacing-half) 0;
+.row * {
+    font-size: var(--size-default);
+    font-weight: 300;
+    color: var(--color-softblack);
+}
+
+.type {
+    width: 18px;
+    height: 18px;
+}
+
+.typeIn {
+    stroke: var(--color-success) !important;
+}
+
+.typeOut {
+    stroke: var(--color-danger) !important;
+}
+
+.typeSelf {
+    stroke: var(--color-secondary) !important;
+}
+
+.type {
+
 }
 
 .date {
-    color: var(--color-secondary);
-    font-size: var(--size-small);
-    line-height: 1;
-    margin-bottom: calc(var(--space-half) / 2);
-}
 
-.date span:first-child {
-    display: inline;
-}
-
-.date span:last-child {
-    display: none;
 }
 
 .address {
-    line-height: 1;
-    white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
-    font-size: var(--size-default);
-    padding-bottom: var(--size-medium);
-    margin-bottom: calc(var(--size-medium) * -1);
 }
 
-.address.multiline {
-    max-width: 450px;
+.statusIndicator {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: var(--color-lightgray);
+    margin-right: var(--space-quarter);
 }
 
-.transactionContainer.expanded .multiline {
-    white-space: normal;
-    overflow: auto;
+.statusIndicatorComplete {
+    background-color: var(--color-success);
 }
 
-.amount {
-    min-width: 160px !important;
-    text-align: right;
-    line-height: 1;
+.statusIndicatorPending {
+    background-color: var(--color-yellow);
 }
 
-.amount div:first-child {
-    margin-bottom: calc(var(--space-half) / 2);
-}
-
-.amount.receive {
-    color: var(--color-softgreen);
-}
-
-.amount.send {
-    color: var(--color-softred);
-}
-
-.amount.send_to_self {
-    color: var(--color-gray);
-}
-
-.amount.converted {
-    color: lightgrey;
-}
-
-.amountValue {
-    font-size: var(--size-default);
+.status {
+    
 }
 
 .fiat {
-    font-weight: normal;
-    font-size: var(--size-small) !important;
+
 }
 
-.unit {
-    color: var(--color-secondary);
-    font-size: var(--size-default);
+.currency {
+
 }
 
-.labelContainer {
-    position: relative;
-}
-
-.transactionLabel {
-    display: inline-block;
-    font-size: var(--size-small);
-    background-color: var(--color-secondary);
-    color: var(--color-white);
-    line-height: 1;
-    text-align: center;
-    margin-bottom: calc(var(--space-half) / 2);
-    user-select: none;
-    white-space: nowrap;
-}
-
-.transactionLabel.flat {
-    position: relative;
-    margin-right: var(--spacing-default);
-    margin-bottom: 0;
-    width: 32px;
-    height: 32px;
-    border-radius: 2px;
+.action {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    cursor: pointer;
 }
 
-.transactionLabel.flat img {
-    width: 14px;
+.expandIcon {
+    stroke: var(--color-gray);
+    width: 18px;
+    height: 18px;
 }
 
-.transactionLabel.flat span {
-    display: block;
-    font-size: var(--size-small);
+.expandedContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: calc(54px + var(--space-quarter));
+    padding-right: calc(60px + var(--space-quarter));
+    height: 99px;
+    margin-top: 1px;
+    background-color: var(--color-white);
+    font-size: var(--size-default);
+    color: var(--color-softblack);
+    font-weight: 300;
 }
 
-.transactionLabel.receive {
-    background-color: var(--color-softgreen);
-}
-
-.transactionLabel.send {
-    background-color: var(--color-softred);
-}
-
-.toggleContainer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    transition: all 0.1s ease;
-}
-
-.toggle {
-    position: relative;
-    left: 25%;
-    top: 25%;
-    width: 10px;
-    height: 10px;
-    border: solid;
-    border-width: 2px 2px 0 0;
-    border-color: var(--color-secondary);
-    transform: rotate(-45deg) translate(0%, -50%);
-    margin: 10px 0 0 8px;
-}
-
-.toggle.collapsed {
-    border-width: 0 0 2px 2px;
-    margin: 4px 0 0 8px;
-}
-
-.toggle.receive {
-    border-color: var(--color-softgreen);
-}
-
-.toggle.send {
-    border-color: var(--color-softred);
-}
-
-.row:not(:first-child) {
-    margin-top: var(--space-quarter);
-}
-
-.items {
-    margin: 0 calc(var(--spacing-default) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-default) * -1);
-}
-
-.items > * {
-    margin: 0 var(--spacing-default) var(--spacing-half) var(--spacing-default);
-}
-
-.collapsedContent {
-    overflow: hidden;
-    max-height: 0;
-    transition: all 0.2s ease;
-}
-
-.collapsedContent.active {
-    margin-top: var(--space-quarter);
-    max-height: 100px;
-}
-
-.collapsedContent .spacer {
-    width: 34px;
-    margin-right: var(--spacing-default);
-}
-
-.collapsedContent .transactionLabel {
-    width: auto;
-    text-align: left;
-    background-color: transparent;
-    color: var(--color-secondary);
-}
-
-.collapsedContent a {
-    color: var(--color-coolblue);
-}
-
-.collapsedContent a:hover {
-    color: var(--color-brightblue);
-}
-
-.externalLabel {
+.collapsed .expandedContent {
     display: none;
-    width: 13px;
-    height: 13px;
-    margin-left: 5px;
-    vertical-align: top;
+}
+
+.expandedItems {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.expandedItems > *:not(:last-child) {
+    margin-right: var(--space-default);
+}
+
+.expandedTransactionContainer {
+    margin-top: var(--space-half);
+}
+
+.columnLabel,
+.inlineLabel {
+    font-size: var(--size-default);
+    color: var(--color-gray);
+}
+
+.columnLabel {
+    margin-right: var(--space-quarter);
+    display: none;
+}
+
+.columnLabel.reverse {
+    margin-right: 0;
+    margin-left: var(--space-quarter);
+}
+
+.inlineValue {
+    margin-left: var(--space-quarter);
+}
+
+.confirmations {
+
+}
+
+.gas {
+
+}
+
+.weight {
+
+}
+
+.virtualSize {
+
+}
+
+.size {
+
+}
+
+.fee {
+    min-width: 140px;
+}
+
+.transactionId {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.externalLink {
+    color: var(--color-blue);
     cursor: pointer;
 }
 
-.externalLabel img {
-    width: 13px;
-    height: 13px;
-}
-
-.external {
-    position: relative;
-    top: -1px;
-    display: inline-block;
-    vertical-align: bottom;
-    width: 16px;
-    height: 16px;
-    margin-left: 5px;
-    cursor: pointer;
-}
-
-.external img {
-    width: 16px;
-}
-
-@media (max-width: 900px) {
-    .transactionContainer {
-        padding: var(--spacing-default) var(--spacing-default);
+@media (max-width: 1004px) {
+    .container {
+        margin: var(--space-half) 0;
+        height: 199px;
+        transition: height ease-out 0.1s, margin ease-out 0.2s;
+        will-change: height, margin;
     }
 
-    .transaction {
-        max-width: calc(var(--content-width) - (var(--spacing-default) * 2));
+    .container:first-child {
+        margin-top: 0;
+    }
+    
+    .container.collapsed {
+        height: 99px;
+        margin: var(--space-quarter) 0;
+    }
+    
+    .row {
+        padding: 0 var(--space-half);
+        height: 99px;
     }
 
-    .toggleContainer {
-        display: none;
-    }
-}
-
-@media (max-width: 640px) {
-    .transactionContainer {
-        padding: var(--spacing-default) var(--space-half);
-    }
-
-    .transaction {
-        max-width: calc(var(--content-width) - (var(--spacing-half) * 2));
-    }
-
-    .collapsedContent.active {
-        max-height: 106px;
-    }
-
-    .collapsedContent .spacer {
-        min-width: 34px;
-    }
-
-    .items {
-        margin: 0 calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1) calc(var(--spacing-half) * -1);
-    }
-
-    .items > * {
-        margin: 0 var(--space-quarter) var(--spacing-half) var(--space-quarter);
-    }
-
-    .transactionLabel {
-        display: block;
-        word-wrap: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-    .labelContainer {
-        flex-shrink: 0;
-        align-self: flex-start;
-    }
-
-    .date span:first-child {
-        display: none;
-    }
-
-    .date span:last-child {
+    .columnLabel {
         display: inline;
     }
 
-    .amount {
-        min-width: 130px !important;
+    .fiat,
+    .currency {
+        /* width: 100%;
+        display: inline-flex;
+        justify-content: space-between; */
     }
 
-    .amountValue {
-        font-size: var(--size-button);
+    .action {
+        align-items: flex-end;
     }
 
-    .address {
-        position: relative;
+    .expandedContent {
+        padding-right: var(--space-half);
+    }
+}
+
+@media (max-width: 926px) {
+    .container {
+        height: 249px;
     }
 
-    .externalLabel {
-        display: inline-block;
+    .expandedContent {
+        height: 149px;
     }
 
-    .external {
+    .inlineLabel {
+        display: block;
+        margin-bottom: var(--space-quarter);
+    }
+
+    .inlineValue {
+        margin-left: 0;
+        text-align: center;
+    }
+}
+
+@media (max-width: 666px) {
+    .columnLabel:not(.keepVisible) {
         display: none;
+    }
+
+    .row {
+        padding: 0 var(--space-quarter);
+    }
+
+    .row *,
+    .expandedContent,
+    .inlineLabel {
+        font-size: var(--size-small);
+    }
+
+    .expandedContent {
+        padding-left: calc(var(--space-half) + (var(--space-quarter) / 2));
+        padding-right: calc(var(--space-half));
+    }
+
+    .inlineLabel {
+        white-space: nowrap;
+    }
+
+    .fee {
+        min-width: 0;
     }
 }

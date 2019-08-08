@@ -15,8 +15,6 @@
  */
 
 import { Component, h } from 'preact';
-import { ButtonLink } from '../../../components/forms';
-import { Balance } from '../../../components/balance/balance';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
@@ -65,31 +63,19 @@ export default class Info extends Component {
         t,
         code,
     }, {
-        balance,
-        info
+        info,
     }) {
         const account = this.getAccount();
         if (!account || !info) return null;
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('accountInfo.title')}</h2>}>
-                        <Balance
-                            balance={balance} />
-                    </Header>
+                    <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer">
                         <div class="content padded flex flex-column flex-center">
                             <div class={style.infoContent}>
-                                <SigningConfiguration
-                                    info={info.signingConfiguration} code={code} />
+                                <SigningConfiguration info={info.signingConfiguration} code={code} />
                             </div>
-                        </div>
-                        <div class={style.bottomButtons}>
-                            <ButtonLink
-                                secondary
-                                href={`/account/${code}`}>
-                                {t('button.back')}
-                            </ButtonLink>
                         </div>
                     </div>
                 </div>

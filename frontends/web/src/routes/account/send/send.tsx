@@ -21,6 +21,7 @@ import reject from '../../../assets/icons/cancel.svg';
 import approve from '../../../assets/icons/checked.svg';
 import qrcodeIcon from '../../../assets/icons/qrcode.png';
 import { alertUser } from '../../../components/alert/Alert';
+import A from '../../../components/anchor/anchor';
 import { Balance, BalanceInterface } from '../../../components/balance/balance';
 import { Dialog } from '../../../components/dialog/dialog';
 import { Button, ButtonLink, Checkbox, Input } from '../../../components/forms';
@@ -522,22 +523,18 @@ class Send extends Component<Props, State> {
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
-                    <Header title={<h2>{t('send.title')}</h2>}>
-                        <Balance balance={balance} />
-                        {
-                            coinControl && (
-                                <div style="align-self: flex-end;">
-                                    <Button
-                                        primary
-                                        onClick={this.toggleCoinControl}>
-                                        {t('send.toggleCoinControl')}
-                                    </Button>
-                                </div>
-                            )
-                        }
-                    </Header>
+                    <Header title={<h2>{t('send.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
+                            <div className="flex flex-row flex-between">
+                                <label className="labelLarge">Available Balance</label>
+                                {
+                                    coinControl && (
+                                        <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
+                                    )
+                                }
+                            </div>
+                            <Balance balance={balance} />
                             {
                                 coinControl && (
                                     <UTXOs
@@ -548,7 +545,8 @@ class Send extends Component<Props, State> {
                                     />
                                 )
                             }
-                            <div class="row first">
+                            <div class={style.container}>
+                                <label className="labelLarge">Transaction Details</label>
                                 <Input
                                     label={t('send.address.label')}
                                     placeholder={t('send.address.placeholder')}
@@ -605,7 +603,8 @@ class Send extends Component<Props, State> {
                             <div class="row">
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                     <FeeTargets
-                                        label={t('send.feeTarget.label')}
+                                        // label={t('send.feeTarget.label')}
+                                        label="Priority"
                                         placeholder={t('send.feeTarget.placeholder')}
                                         accountCode={account.code}
                                         disabled={!amount && !sendAll}

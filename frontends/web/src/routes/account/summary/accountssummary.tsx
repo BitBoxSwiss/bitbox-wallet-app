@@ -22,7 +22,6 @@ import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
 import { Amount } from '../../../components/rates/rates';
-import * as componentStyle from '../../../components/style.css';
 import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -88,13 +87,13 @@ class AccountsSummary extends Component<Props, State> {
                                 {
                                     exported ? (
                                         <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
-                                            <span className={componentStyle.exportedButton} style="margin-right: 5px;">
+                                            <span style="margin-right: 5px;">
                                                 <img src={checkIcon} style="margin-right: 5px !important;" />
-                                                <span className={componentStyle.exportedText}>{t('account.openFile')}</span>
+                                                <span>{t('account.openFile')}</span>
                                             </span>
                                         </A>
                                     ) : (
-                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('accountSummary.exportSummary')}>
+                                            <a onClick={this.export} title={t('accountSummary.exportSummary')}>
                                                 <img src={exportIcon} />
                                             </a>
                                         )
