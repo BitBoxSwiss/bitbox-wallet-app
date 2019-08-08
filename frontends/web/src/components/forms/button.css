@@ -1,6 +1,6 @@
 .button {
     align-items: center;
-    border-width: 2px;
+    border-width: 1px;
     border-style: solid;
     border-color: transparent;
     border-radius: 2px;
@@ -8,13 +8,13 @@
     /* Otter doesn't like display: inline-flex; */
     display: inline-block;
     font-family: var(--font-family);
-    font-size: var(--size-button);
-    font-weight: 500;
+    font-size: var(--size-default);
+    font-weight: 400;
     justify-content: center;
-    line-height: 30px;
+    line-height: 50px;
     min-width: 100px !important;
-    height: 34px;
-    padding: 0 var(--spacing-half);
+    height: 50px;
+    padding: 0 var(--space-half);
     position: relative;
     outline: none;
     text-align: center;
@@ -26,13 +26,13 @@
 
 .primary {
     composes: button;
-    background: var(--color-default);
+    background: var(--color-blue);
     color: var(--color-white);
 }
 
 .primary:focus,
 .primary:hover {
-    background-color: var(--color-dark);
+    background-color: var(--color-lightblue);
 }
 
 .secondary {
@@ -49,14 +49,14 @@
 
 .danger {
     composes: button;
-    background-color: var(--color-softred);
-    border-color: var(--color-softred);
+    background-color: var(--color-swissred);
+    border-color: var(--color-swissred);
     color: var(--color-white);
 }
 
 .danger:hover {
-    background-color: var(--color-swissred);
-    border-color: var(--color-swissred);
+    background-color: var(--color-softred);
+    border-color: var(--color-softred);
 }
 
 .danger:focus {
@@ -81,9 +81,6 @@
 
 @media (max-width: 640px) {
     .button {
-        line-height: 28px;
         min-width: 90px;
-        height: 32px;
-        font-size: var(--size-small);
     }
 }

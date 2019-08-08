@@ -1,3 +1,7 @@
+.container {
+    margin-top: calc(var(--space-default) * 1.5);
+}
+
 .input {
     padding: var(--spacing-default);
     border-radius: 2px;
@@ -39,7 +43,7 @@
 }
 
 .confirmationBox .block {
-    padding: var(--spacing-default);
+    padding: var(--space-half);
     overflow: hidden;
 }
 
@@ -70,11 +74,17 @@
 }
 
 .confirmationBox .block .confirmationLabel {
-    margin-bottom: var(--spacing-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .confirmationValueTable {
     border-collapse: collapse;
+    font-size: var(--size-default);
+    font-weight: 300;
+}
+
+.confirmationValueTable tr:first-child td {
+    padding-bottom: var(--space-quarter);
 }
 
 .confirmationValueTable td {
@@ -99,10 +109,9 @@
 }
 
 .confirmationValue {
-    font-size: var(--size-medium);
+    font-size: var(--size-default);
+    font-weight: 300;
     line-height: 1;
-    padding-bottom: var(--size-medium);
-    margin: 0 0 calc(var(--size-medium) * -1) 0 !important;
     overflow: hidden;
     text-overflow: ellipsis;
     direction: rtl;
@@ -126,8 +135,9 @@
 }
 
 .feeDescription {
-    margin-top: calc(var(--spacing-default) * -1);
+    margin-top: 0;
     font-size: var(--size-small);
+    font-weight: 300;
     color: var(--color-secondary);
 }
 
@@ -146,10 +156,14 @@
     height: 18px;
     padding: 0;
     position: absolute;
-    bottom: 22px;
+    top: 50%;
     right: var(--spacing-default);
-    transform: translateY(50%);
     cursor: pointer;
+}
+
+.qrButton img {
+    width: 100%;
+    height: 100%;
 }
 
 .qrVideo {

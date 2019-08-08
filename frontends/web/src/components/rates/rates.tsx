@@ -107,6 +107,7 @@ interface ProvidedProps {
     amount: Amount;
     tableRow?: boolean;
     unstyled?: boolean;
+    skipUnit?: boolean;
 }
 
 type Props = ProvidedProps & SharedProps;
@@ -115,6 +116,7 @@ function Conversion({
     amount,
     tableRow,
     unstyled,
+    skipUnit,
     rates,
     active,
     children,
@@ -146,7 +148,11 @@ function Conversion({
             {children}
             {formattedValue}
             {' '}
-            <span className={style.unit} onClick={rotateFiat}>{active}</span>
+            {
+                !skipUnit && (
+                    <span className={style.unit} onClick={rotateFiat}>{active}</span>
+                )
+            }
         </span>
     );
 }

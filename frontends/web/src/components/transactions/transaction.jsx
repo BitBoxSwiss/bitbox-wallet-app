@@ -17,12 +17,9 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { FiatConversion } from '../rates/rates';
-import ArrowUp from '../../assets/icons/arrow-up.svg';
-import ArrowDown from '../../assets/icons/arrow-down.svg';
-import ArrowRight from '../../assets/icons/arrow-right.svg';
-import ExternalLink from '../../assets/icons/external-link.svg';
 import A from '../anchor/anchor';
 import * as style from './transaction.css';
+import * as parentStyle from './transactions.css';
 
 @translate()
 export default class Transaction extends Component {
@@ -34,25 +31,11 @@ export default class Transaction extends Component {
         this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
     }
 
-    parseTime = time => {
-        const options = {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        };
-        return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
-    }
-
     parseTimeShort = time => {
         const options = {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
         };
         return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
     }
@@ -71,108 +54,158 @@ export default class Transaction extends Component {
         weight,
         numConfirmations,
         time,
+        fiatCode,
         addresses,
     }, {
         collapsed,
     }) {
         const badge = t(`transaction.badge.${type}`);
-        const arrow = badge === 'In' ? ArrowDown : badge === 'Out' ? ArrowUp : ArrowRight;
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
-        const date = time ? this.parseTime(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
-        const sDate = time ? this.parseTimeShort(time) : (numConfirmations <= 0 ? t('transaction.pending') : 'Time not yet available');
+        const sDate = time ? this.parseTimeShort(time) : (numConfirmations <= 0 ? t('transaction.pending') : '---');
         return (
-            <div class={[style.transactionContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
-                <div class={['flex flex-column flex-start', style.transaction].join(' ')}>
-                    <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
-                        <div class="flex flex-row flex-start flex-items-start">
-                            <div class={style.labelContainer} onClick={this.onUncollapse}>
-                                <div class={style.toggleContainer}>
-                                    <div class={[style.toggle, style[type], collapsed ? style.collapsed : style.expanded].join(' ')}></div>
-                                </div>
-                                <div class={[style.transactionLabel, style[type], style.flat].join(' ')}>
-                                    <img src={arrow} />
-                                    {badge}
-                                </div>
-                            </div>
-                            <div>
-                                <div class={style.date}>
-                                    <span>{date}</span>
-                                    <span>{sDate}</span>
-                                </div>
-                                <div class={[style.address, style.multiline].join(' ')}>{addresses.join(', ')}</div>
-                            </div>
+            <div className={[style.container, collapsed ? style.collapsed : ''].join(' ')}>
+                <div className={[parentStyle.columns, style.row].join(' ')}>
+                    <div className={parentStyle.columnGroup}>
+                        <div className={parentStyle.type}>
+                            {
+                                badge === 'In' ? (
+                                    <svg className={[style.type, style.typeIn].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <polyline points="19 12 12 19 5 12"></polyline>
+                                    </svg>
+                                ) : badge === 'Out' ? (
+                                    <svg className={[style.type, style.typeOut].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                                        <polyline points="5 12 12 5 19 12"></polyline>
+                                    </svg>
+                                ) : (
+                                    <svg className={[style.type, style.typeSelf].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                )
+                            }
                         </div>
-                        <div class={[style.amount, style[type]].join(' ')}>
-                            <div><span class={style.amountValue}>{sign}{amount.amount}</span> <span class={style.unit}>{amount.unit}</span></div>
-                            <div class={style.fiat}><FiatConversion amount={amount}>{sign}</FiatConversion></div>
+                        <div className={parentStyle.date}>
+                            <span className={style.columnLabel}>Date:</span>
+                            <span className={style.date}>{sDate}</span>
                         </div>
-                    </div>
-                    <div class={[style.collapsedContent, !collapsed ? style.active : '', 'flex flex-row flex-start'].join(' ')}>
-                        <div class={style.spacer}></div>
-                        <div class="flex-1">
-                            <div class={['flex flex-row flex-start flex-items-start', style.row, style.items].join(' ')}>
-                                <div>
-                                    <div class={style.transactionLabel}>{t('transaction.confirmation')}</div>
-                                    <div class={style.address}>{numConfirmations}</div>
-                                </div>
+                        <div className={[parentStyle.address].join(' ')}>
+                            <span className={style.columnLabel}>Address:</span>
+                            <span className={style.address}>{addresses.join(', ')}</span>
+                        </div>
+                        <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
+                            <a href="#" className={style.action} onClick={this.onUncollapse}>
                                 {
-                                    gas ? (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.gas')}</div>
-                                            <div class={style.address}>{gas}</div>
-                                        </div>
-                                    ) : ''
-                                }
-                                {
-                                    vsize ? (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.vsize')}</div>
-                                            <div class={style.address}>{vsize} bytes</div>
-                                        </div>
-                                    ) : ''
-                                }
-                                {
-                                    size ? (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.size')}</div>
-                                            <div class={style.address}>{size} bytes</div>
-                                        </div>
-                                    ) : ''
-                                }
-                                {
-                                    weight ? (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.weight')}</div>
-                                            <div class={style.address}>{weight}</div>
-                                        </div>
-                                    ) : ''
-                                }
-                                {
-                                    fee && fee.amount && (
-                                        <div>
-                                            <div class={style.transactionLabel}>{t('transaction.fee')}</div>
-                                            <div class={style.address} title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>{fee.amount} {fee.unit}</div>
-                                        </div>
+                                    collapsed ? (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            <line x1="11" y1="8" x2="11" y2="14"></line>
+                                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                                        </svg>
+                                    ) : (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                                        </svg>
                                     )
                                 }
-                            </div>
-                            <div class={style.row}>
-                                <div class={style.transactionLabel}>
-                                    {t('transaction.explorer')}
-                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
-                                        <img class={style.externalLabel} src={ExternalLink} />
-                                    </A>
-                                </div>
-                                <div class={style.address}>
-                                    {id}
-                                    <A href={ explorerURL + id } title={t('transaction.explorerTitle')}>
-                                        <img class={style.external} src={ExternalLink} />
-                                    </A>
-                                </div>
-                            </div>
+                            </a>
+                        </div>
+                    </div>
+                    <div className={[parentStyle.columnGroup].join(' ')}>
+                        <div className={parentStyle.status}>
+                            <span className={style.columnLabel}>Status:</span>
+                            <span className={[style.statusIndicator, (time && numConfirmations >= 6) ? style.statusIndicatorComplete : style.statusIndicatorPending].join(' ')}></span>
+                            <span className={style.status}>{(time && numConfirmations >= 6) ? "Complete" : "Pending"}</span>
+                        </div>
+                        <div className={parentStyle.fiat}><span className={style.fiat}>
+                            <FiatConversion amount={amount} skipUnit>{type === 'send' && sign} </FiatConversion></span>
+                            <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>{fiatCode}</span>
+                        </div>
+                        <div className={parentStyle.currency}>
+                            <span className={style.currency}>{type === 'send' && sign} {amount.amount}</span>
+                            <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>BTC</span>
+                        </div>
+                        <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
+                            <a href="#" className={style.action} onClick={this.onUncollapse}>
+                                {
+                                    collapsed ? (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            <line x1="11" y1="8" x2="11" y2="14"></line>
+                                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                                        </svg>
+                                    ) : (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                            <line x1="8" y1="11" x2="14" y2="11"></line>
+                                        </svg>
+                                    )
+                                }
+                            </a>
                         </div>
                     </div>
                 </div>
+                {
+                    !collapsed && (
+                        <div className={style.expandedContent}>
+                            <div className={style.expandedItems}>
+                                <div className={style.confirmations}>
+                                    <span className={style.inlineLabel}>{t('transaction.confirmation')}:</span><span className={style.inlineValue}>{numConfirmations}</span>
+                                </div>
+                                {
+                                    gas ? (
+                                        <div className={style.gas}>
+                                            <span className={style.inlineLabel}>{t('transaction.gas')}:</span><span className={style.inlineValue}>{gas}</span>
+                                        </div>
+                                    ) : null
+                                }
+                                {
+                                    weight ? (
+                                        <div className={style.weight}>
+                                            <span className={style.inlineLabel}>{t('transaction.weight')}:</span><span className={style.inlineValue}>{weight}</span>
+                                        </div>
+                                    ) : null
+                                }
+                                {
+                                    vsize ? (
+                                        <div className={style.virtualSize}>
+                                            <span className={style.inlineLabel}>{t('transaction.vsize')}:</span><span className={style.inlineValue}>{vsize}</span>
+                                        </div>
+                                    ) : null
+                                }
+                                {
+                                    size ? (
+                                        <div className={style.size}>
+                                            <span className={style.inlineLabel}>{t('transaction.size')}:</span><span className={style.inlineValue}>{size}</span>
+                                        </div>
+                                    ) : null
+                                }
+                                <div className={style.fee}>
+                                    <span className={style.inlineLabel}>{t('transaction.fee')}:</span>
+                                    {
+                                        fee && fee.amount ? (
+                                            <span title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''} className={style.inlineValue}>{fee.amount} {fee.unit}</span>
+                                        ) : (
+                                            <span className={style.inlineValue}>---</span>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                            <div className={style.expandedTransactionContainer}>
+                                <div className={style.transactionId}>
+                                    <span className={style.inlineLabel}>{t('transaction.explorer')}:</span>
+                                    <span className={style.inlineValue}><A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A></span>
+                                </div>
+                            </div>
+                        </div>
+                    )
+                }
             </div>
         );
     }

@@ -6,7 +6,7 @@
 .checkbox input + label {
     display: inline-block;
     margin-right: 1em;
-    padding-left: 1.6em;
+    padding-left: 2em;
     position: relative;
 }
 

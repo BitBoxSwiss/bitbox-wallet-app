@@ -16,13 +16,17 @@
     border-style: solid;
     border-width: 1px;
     font-family: var(--font-family);
-    font-size: 1rem;
-    font-weight: normal;
-    height: 2.75em;
-    padding: var(--spacing-half) var(--spacing-default);
+    font-size: var(--size-default);
+    font-weight: 300;
+    height: 52px;
+    padding: 0 var(--space-half);
     width: 100%;
     transition: outline-color .2s ease-out, border-color .2s ease-out;
     will-change: outline-color, border-color;
+}
+
+.input input:focus {
+    outline: solid 1px var(--color-blue);
 }
 
 .input input[disabled] {
@@ -35,7 +39,7 @@
 .isTransparent input[disabled] {
     border: none;
     color: var(--color-default) !important;
-    padding: var(--spacing-half) 0;
+    /* padding: var(--spacing-half) 0; */
     cursor: default;
 }
 

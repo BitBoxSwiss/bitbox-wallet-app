@@ -26,6 +26,7 @@ import { FiatSelection } from '../../components/fiat/fiat';
 import { Header, Footer } from '../../components/layout';
 import { Shift } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
+import * as style from '../../components/fiat/fiat.css';
 
 @translate()
 export default class Settings extends Component {
@@ -66,6 +67,13 @@ export default class Settings extends Component {
         config,
         accountSuccess,
     }) {
+        const accountsList = [
+            'bitcoinP2PKHActive',
+            'bitcoinP2WPKHActive',
+            'bitcoinP2WPKHP2SHActive',
+            'litecoinP2WPKHActive',
+            'litecoinP2WPKHP2SHActive',
+        ];
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -75,78 +83,6 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
-                                        <FiatSelection />
-                                        <hr />
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('settings.accounts.title')}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-row flex-start flex-wrap wrapped">
-                                            <div>
-                                                <Checkbox
-                                                    checked={config.backend.bitcoinP2WPKHP2SHActive}
-                                                    id="bitcoinP2WPKHP2SHActive"
-                                                    onChange={this.handleToggleAccount}
-                                                    label={t('settings.accounts.bitcoinP2WPKHP2SH')}
-                                                    className="text-medium" />
-                                                <Checkbox
-                                                    checked={config.backend.bitcoinP2WPKHActive}
-                                                    id="bitcoinP2WPKHActive"
-                                                    onChange={this.handleToggleAccount}
-                                                    label={t('settings.accounts.bitcoinP2WPKH')}
-                                                    className="text-medium" />
-                                                <Checkbox
-                                                    checked={config.backend.bitcoinP2PKHActive}
-                                                    id="bitcoinP2PKHActive"
-                                                    onChange={this.handleToggleAccount}
-                                                    label={t('settings.accounts.bitcoinP2PKH')}
-                                                    className="text-medium" />
-                                            </div>
-                                            <div>
-                                                <Checkbox
-                                                    checked={config.backend.litecoinP2WPKHP2SHActive}
-                                                    id="litecoinP2WPKHP2SHActive"
-                                                    onChange={this.handleToggleAccount}
-                                                    label={t('settings.accounts.litecoinP2WPKHP2SH')}
-                                                    className="text-medium" />
-                                                <Checkbox
-                                                    checked={config.backend.litecoinP2WPKHActive}
-                                                    id="litecoinP2WPKHActive"
-                                                    onChange={this.handleToggleAccount}
-                                                    label={t('settings.accounts.litecoinP2WPKH')}
-                                                    className="text-medium" />
-                                            </div>
-                                            { debug && (
-                                                <div>
-                                                    <Checkbox
-                                                        checked={config.backend.ethereumActive}
-                                                        id="ethereumActive"
-                                                        onChange={this.handleToggleAccount}
-                                                        label="Ethereum"
-                                                        className="text-medium" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <hr />
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('settings.expert.title')}</h3>
-                                            </div>
-                                        </div>
-                                        <div class="flex flex-row flex-start flex-items-center flex-wrap wrapped">
-                                            <div>
-                                                <Checkbox
-                                                    checked={config.frontend.coinControl}
-                                                    id="coinControl"
-                                                    onChange={this.handleToggleCoinControl}
-                                                    label={t('settings.expert.coinControl')}
-                                                    className="text-medium" />
-                                            </div>
-                                            <div>
-                                                <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
-                                            </div>
-                                        </div>
                                         {
                                             accountSuccess && (
                                                 <div class="row">
@@ -158,9 +94,82 @@ export default class Settings extends Component {
                                                 </div>
                                             )
                                         }
+                                        <FiatSelection />
+                                        <hr />
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('settings.accounts.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className={style.container}>
+                                            <div className={style.left}>
+                                                <label className="labelLarge">Avaiable Accounts</label>
+                                                <div className={style.content}>
+                                                    {
+                                                        accountsList.map((account, index) => {
+                                                            return !config.backend[account] ? (
+                                                                <Checkbox
+                                                                    key={`available-account-${index}`}
+                                                                    checked={config.backend[account]}
+                                                                    id={account}
+                                                                    onChange={this.handleToggleAccount}
+                                                                    label={t(`settings.accounts.${account.replace('Active', '')}`)}
+                                                                    className="text-medium" />
+                                                            ) : null
+                                                        })
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div className={style.right}>
+                                                <label className="labelLarge">Active Accounts</label>
+                                                <div className={style.content}>
+                                                    {
+                                                        accountsList.map((account, index) => {
+                                                            return config.backend[account] ? (
+                                                                <Checkbox
+                                                                    key={`available-account-${index}`}
+                                                                    checked={config.backend[account]}
+                                                                    id={account}
+                                                                    onChange={this.handleToggleAccount}
+                                                                    label={t(`settings.accounts.${account.replace('Active', '')}`)}
+                                                                    className="text-medium" />
+                                                            ) : null
+                                                        })
+                                                    }
+                                                    {
+                                                        debug && (
+                                                            <Checkbox
+                                                                checked={config.backend.ethereumActive}
+                                                                id="ethereumActive"
+                                                                onChange={this.handleToggleAccount}
+                                                                label="Ethereum"
+                                                                className="text-medium" />
+                                                        )
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('settings.expert.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div class={style.content}>
+                                            <Checkbox
+                                                checked={config.frontend.coinControl}
+                                                id="coinControl"
+                                                onChange={this.handleToggleCoinControl}
+                                                label={t('settings.expert.coinControl')}
+                                                className="text-medium" />
+                                        </div>
+                                        <div class="row extra">
+                                            <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
+                                        </div>
                                     </div>
                                 )
                             }
+                            <hr />
                             <Footer>
                                 <Shift />
                             </Footer>

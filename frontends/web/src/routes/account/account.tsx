@@ -16,25 +16,19 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import ArrowDown from '../../assets/icons/arrow-down.svg';
-import ArrowUp from '../../assets/icons/arrow-up.svg';
-import checkIcon from '../../assets/icons/check.svg';
-import exportIcon from '../../assets/icons/download.svg';
-import A from '../../components/anchor/anchor';
 import { Balance, BalanceInterface } from '../../components/balance/balance';
-import { ButtonLink } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import HeadersSync from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
-import * as componentStyle from '../../components/style.css';
 import Transactions from '../../components/transactions/transactions';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
 import { Devices } from '../device/deviceswitch';
+import * as style from './account.css';
 import { SigningConfigurationInterface } from './info/signingconfiguration';
 import { isBitcoinBased } from './utils';
 
@@ -285,60 +279,60 @@ class Account extends Component<Props, State> {
                     }
                     <Header
                         title={
-                            <h2 className={componentStyle.title}>
+                            <h2>
                                 <span>{account.name}</span>
-                                    <a href={`/account/${code}/info`} className={componentStyle.infoButton} title={t('accountInfo.title')}>i</a>
-                                {
-                                    exported ? (
-                                        <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
-                                            <span className={componentStyle.exportedButton} style="margin-right: 5px;">
-                                                <img src={checkIcon} style="margin-right: 5px !important;" />
-                                                <span className={componentStyle.exportedText}>{t('account.openFile')}</span>
-                                            </span>
-                                        </A>
-                                    ) : (
-                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('account.exportTransactions')}>
-                                                <img src={exportIcon} />
-                                            </a>
-                                        )
-                                }
                             </h2>
                         }>
-                        <Balance balance={balance} />
-                        <div class={componentStyle.buttons}>
-                            <ButtonLink
-                                primary
-                                href={`/account/${code}/receive`}
-                                disabled={!initialized}>
-                                <img src={ArrowDown} />
-                                <span>{t('button.receive')}</span>
-                            </ButtonLink>
-                            <ButtonLink
-                                primary
-                                href={`/account/${code}/send`}
-                                disabled={!initialized || balance && balance.available.amount === '0'}>
-                                <img src={ArrowUp} />
-                                <span>{t('button.send')}</span>
-                            </ButtonLink>
-                        </div>
+                        <a href={`/account/${code}/info`} title={t('accountInfo.title')}>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="8"></line>
+                            </svg>
+                        </a>
                     </Header>
                     {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}
                     <div className="innerContainer scrollableContainer">
-                        {
-                            !initialized || !connected || !this.dataLoaded() || fatalError ? (
-                                <Spinner text={
-                                    !connected && t('account.reconnecting') ||
-                                    !initialized && t('account.initializing') ||
-                                    fatalError && t('account.fatalError') || ''
-                                } />
-                            ) : (
+                        <div className="content padded">
+                            <div class="flex flex-row flex-between flex-items-center">
+                                <label className="labelLarge">Available Balance</label>
+                                <div className="flex flex-row spaced">
+                                    <a href={`/account/${code}/send`} className={['labelLarge labelLink', style.accountLink].join(' ')}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="19" x2="12" y2="5"></line>
+                                            <polyline points="5 12 12 5 19 12"></polyline>
+                                        </svg>
+                                        <span>Send</span>
+                                    </a>
+                                    <a href={`/account/${code}/receive`} className={['labelLarge labelLink', style.accountLink].join(' ')}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <polyline points="19 12 12 19 5 12"></polyline>
+                                        </svg>
+                                        <span>Receive</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <Balance balance={balance} />
+                            {
+                                !initialized || !connected || !this.dataLoaded() || fatalError ? (
+                                    <Spinner text={
+                                        !connected && t('account.reconnecting') ||
+                                        !initialized && t('account.initializing') ||
+                                        fatalError && t('account.fatalError') || ''
+                                    } />
+                                ) : (
                                     <Transactions
+                                        exported={exported}
+                                        handleExport={this.export}
                                         explorerURL={account.blockExplorerTxPrefix}
                                         transactions={transactions}
+                                        unit={balance!.available.unit}
                                         className={noTransactions ? 'isVerticallyCentered' : 'scrollableContainer'}
                                     />
                                 )
-                        }
+                            }
+                        </div>
                         <Status dismissable keyName={`info-${code}`} type="info">
                             {t(`account.info.${code}`, { defaultValue: '' })}
                         </Status>

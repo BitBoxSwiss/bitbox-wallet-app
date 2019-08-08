@@ -55,34 +55,61 @@ function Selection({
                     <h3>{t('fiat.title')}</h3>
                 </div>
             </div>
-            <div class={style.fiatList}>
-                {
-                    currencies.map((currency, index) => {
-                        const main = currency === active;
-                        return (
-                            <Checkbox
-                                key={currency}
-                                name="fiat"
-                                id={`fiat-${index}`}
-                                label={currency}
-                                checked={selected.includes(currency)}
-                                disabled={main}
-                                onChange={changeSelected}
-                                value={currency}
-                                className="text-medium">
-                                <span
-                                    tabIndex={0}
-                                    className={[style.button, main ? style.show : ''].join(' ')}
-                                    onClick={setDefault}
-                                    data-code={currency}>
-                                    {t(main ? 'fiat.default' : 'fiat.setDefault', {
-                                        code: currency,
-                                    })}
-                                </span>
-                            </Checkbox>
-                        );
-                    })
-                }
+            <div className={style.container}>
+                <div className={style.left}>
+                    <label className="labelLarge">Available Currencies</label>
+                    <div className={[style.content, style.fiatList].join(' ')}>
+                        {
+                            currencies.map((currency, index) => {
+                                const main = currency === active;
+                                return !selected.includes(currency) ? (
+                                    <Checkbox
+                                        key={currency}
+                                        name="fiat"
+                                        id={`fiat-${index}`}
+                                        label={currency}
+                                        checked={selected.includes(currency)}
+                                        disabled={main}
+                                        onChange={changeSelected}
+                                        value={currency}
+                                        className="text-medium" />
+                                ) : null;
+                            })
+                        }
+                    </div>
+                </div>
+                <div className={style.right}>
+                    <label className="labelLarge">Active Currencies</label>
+                    <div className={[style.content, style.fiatList].join(' ')}>
+                        {
+                            currencies.map((currency, index) => {
+                                const main = currency === active;
+                                return selected.includes(currency) ? (
+                                    <Checkbox
+                                        key={currency}
+                                        name="fiat"
+                                        id={`fiat-${index}`}
+                                        label={currency}
+                                        checked={selected.includes(currency)}
+                                        disabled={main}
+                                        onChange={changeSelected}
+                                        value={currency}
+                                        className="text-medium">
+                                        <span
+                                            tabIndex={0}
+                                            className={[style.button, main ? style.show : ''].join(' ')}
+                                            onClick={setDefault}
+                                            data-code={currency}>
+                                            {t(main ? 'fiat.default' : 'fiat.setDefault', {
+                                                code: currency,
+                                            })}
+                                        </span>
+                                    </Checkbox>
+                                ) : null;
+                            })
+                        }
+                    </div>
+                </div>
             </div>
         </div>
     );

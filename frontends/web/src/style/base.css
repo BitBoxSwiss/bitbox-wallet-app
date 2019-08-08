@@ -41,6 +41,9 @@ h1, h2, h3, h4, h5 {
     display: none;
 }
 
+a {
+    color: var(--color-blue);
+}
 
 /* definition list */
 

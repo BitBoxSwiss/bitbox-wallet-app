@@ -91,14 +91,14 @@ export default class WaitDialog extends Component {
                         <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
                             <div class="flex flex-column flex-center flex-items-center">
                                 <img class={style.image} src={reject} alt="Reject" />
-                                <p class="text-bold">
+                                <p>
                                     {t('confirm.abortInfo')}
                                     <span class="text-red">{t('confirm.abortInfoRedText')}</span>
                                 </p>
                             </div>
                             <div class="flex flex-column flex-center flex-items-center">
                                 <img class={style.image} src={approve} alt="Approve" />
-                                <p class="text-bold">
+                                <p>
                                     {t('confirm.approveInfo')}
                                     <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
                                 </p>

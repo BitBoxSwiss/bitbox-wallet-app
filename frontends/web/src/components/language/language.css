@@ -1,12 +1,12 @@
 .button img {
-  width: 20px !important;
+  width: 18px !important;
   margin-right: 5px !important;
 }
 
 .language {
   display: block;
   width: 100%;
-  padding: var(--spacing-half) 0;
+  padding: var(--spacing-quarter) 0;
   color: var(--color-rock);
   border: none;
   background-color: transparent;
@@ -19,4 +19,10 @@
 
 .language:hover {
   background-color: var(--color-lightgray);
+}
+
+@media (max-width: 768px) {
+  .language {
+    font-size: var(--size-small) !important;
+  }
 }
