@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
@@ -47,7 +48,7 @@ type Interface interface {
 	GetRegisterTime() time.Time
 
 	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
+	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
@@ -104,7 +105,7 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 		onUnregister:        onUnregister,
 		active:              false,
 	}
-	rpcClient, err := rpcclient.NewRPCClient(address, id, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister)
+	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister)
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
@@ -211,10 +212,10 @@ func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 }
 
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() (rpcclient.SampleInfoResponse, error) {
+func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error) {
 	if !base.active {
 		err := errp.New("Attempted a call to non-active base")
-		return rpcclient.SampleInfoResponse{}, err
+		return rpcmessages.SampleInfoResponse{}, err
 	}
 	return base.rpcClient.SampleInfo()
 }
@@ -231,12 +232,12 @@ func (base *BitBoxBase) SyncOption(option string) (bool, error) {
 		return true, nil
 	case "reindex":
 		base.log.Println("bitboxbase is making a ReindexResyncOption call")
-		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcclient.ReindexOption)
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Reindex)
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	case "scratch":
 		base.log.Println("bitboxbase is making a IBDResyncOption call")
-		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcclient.ResyncOption)
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Resync)
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	default:

@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"net/rpc"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -29,11 +30,6 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	opRPCCall     = byte('r')
-	opUCanHasDemo = byte('d')
 )
 
 type rpcConn struct {
@@ -82,36 +78,8 @@ func (conn *rpcConn) Close() error {
 	return nil
 }
 
-// ResyncBitcoinOptions is a iota that holds the options for the ResyncBitcoin rpc call
-type ResyncBitcoinOptions int
-
-// constant iotas for the ResyncBitcoinOptions
-const (
-	ResyncOption ResyncBitcoinOptions = iota
-	ReindexOption
-)
-
-// GetEnvResponse holds the information from the rpc call reply to get some environment data from the base
-type GetEnvResponse struct {
-	Network        string
-	ElectrsRPCPort string
-}
-
-// SampleInfoResponse holds some sample information from the BitBox Base
-type SampleInfoResponse struct {
-	Blocks         int64   `json:"blocks"`
-	Difficulty     float64 `json:"difficulty"`
-	LightningAlias string  `json:"lightningAlias"`
-}
-
-// ResyncBitcoinResponse is the struct that gets sent by the rpc server during a ResyncBitcoin call
-type ResyncBitcoinResponse struct {
-	Success bool
-}
-
 // RPCClient handles communication with the BitBox Base's rpc server
 type RPCClient struct {
-	sampleInfo          *SampleInfoResponse
 	log                 *logrus.Entry
 	address             string
 	bitboxBaseConfigDir string
@@ -125,8 +93,6 @@ type RPCClient struct {
 	onEvent                       func(bitboxbasestatus.Event)
 	onUnregister                  func() (bool, error)
 
-	bitboxBaseID string
-
 	//rpc stuff
 	client        *rpc.Client
 	rpcConnection *rpcConn
@@ -134,17 +100,14 @@ type RPCClient struct {
 
 // NewRPCClient returns a new bitboxbase rpcClient.
 func NewRPCClient(address string,
-	bitboxBaseID string,
 	bitboxBaseConfigDir string,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
 	onUnregister func() (bool, error)) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
-		bitboxBaseID:        bitboxBaseID,
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		address:             address,
-		sampleInfo:          &SampleInfoResponse{},
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		rpcConnection:       newRPCConn(),
 		onChangeStatus:      onChangeStatus,
@@ -201,11 +164,11 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.log.Error("Received empty message, dropping.")
 		return
 	}
-	opCode := message[0]
+	opCode := string(message[0])
 	switch opCode {
-	case opUCanHasDemo:
+	case rpcmessages.OpUCanHasSampleInfo:
 		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
-	case opRPCCall:
+	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
 	default:
@@ -222,8 +185,8 @@ func (rpcClient *RPCClient) Stop() {
 }
 
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
-func (rpcClient *RPCClient) GetEnv() (GetEnvResponse, error) {
-	var reply GetEnvResponse
+func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
+	var reply rpcmessages.GetEnvResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSystemEnv", request, &reply)
 	if err != nil {
@@ -235,8 +198,8 @@ func (rpcClient *RPCClient) GetEnv() (GetEnvResponse, error) {
 
 // SampleInfo make a synchronous rpc call to the base, emits an event containing the SampleInfo struct
 // to the frontend and returns the SampleInfo struct
-func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
-	var reply SampleInfoResponse
+func (rpcClient *RPCClient) SampleInfo() (rpcmessages.SampleInfoResponse, error) {
+	var reply rpcmessages.SampleInfoResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
 	if err != nil {
@@ -248,9 +211,9 @@ func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
 
 // ResyncBitcoin makes a synchronous rpc call to the base and returns wether the resync bitcoin script on
 // the BitBox Base was executed successfully.
-func (rpcClient *RPCClient) ResyncBitcoin(options ResyncBitcoinOptions) (ResyncBitcoinResponse, error) {
+func (rpcClient *RPCClient) ResyncBitcoin(options rpcmessages.ResyncBitcoinArgs) (rpcmessages.ResyncBitcoinResponse, error) {
 	rpcClient.log.Println("Executing ResyncBitcoin rpc call")
-	var reply ResyncBitcoinResponse
+	var reply rpcmessages.ResyncBitcoinResponse
 	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", options, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("ResyncBitcoin RPC call failed")

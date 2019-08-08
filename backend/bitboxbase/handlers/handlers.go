@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ import (
 
 //Base models the api of the base middleware
 type Base interface {
-	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
+	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
