@@ -1,48 +1,19 @@
-.guideWrapper {
+.overlay {
     position: fixed;
     top: 0;
-    right: 0;
-    width: 48px;
-    height: 48px;
-    z-index: 4003;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.3);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity ease 0.2s;
 }
 
-.guideToggler {
-    position: relative;
-    top: -60px;
-    right: -12px;
+.close {
     color: var(--color-white);
-    background-color: var(--color-darkblue);
-    width: 96px;
-    height: 96px;
-    transform: rotate(45deg);
-    font-size: var(--size-medium);
-    transition: all ease-out 0.1s;
-}
-
-.guideToggler span {
-    position: absolute;
-    bottom: 4px;
-    left: 38px;
-    cursor: default;
-    display: block;
     width: 18px;
     height: 18px;
-    line-height: 18px;
-    text-align: center;
-    transform: rotate(-45deg);
-    transition: all ease 0.1s;
-    user-select: none;
-}
-
-.guideWrapper:hover .guideToggler {
-    top: -48px;
-    right: 0px;
-}
-
-.guideWrapper:hover .guideToggler span {
-    bottom: 10px;
-    left: 38px;
 }
 
 .wrapper {
@@ -52,21 +23,25 @@
 .guide {
     margin-right: calc(var(--guide-width) * -1);
     height: 100vh;
-    padding: var(--spacing-large);
     width: var(--guide-width);
     color: white;
-    background-color: var(--color-brightblue);
+    background-color: #89BFDE;
     overflow-y: auto;
-    transition: margin-right 0.2s ease, opacity 0.1s ease;
-    will-change: margin-right, opacity;
+    transition: margin-right 0.2s ease, transform 0.2s ease;
+    will-change: margin-right, transform;
 }
 
 .header {
-    margin-bottom: var(--spacing-large);
+    margin-bottom: var(--space-default);
+    height: var(--header-height);
+    padding: 0 var(--space-default);
+    background-color: var(--color-brightblue);
 }
 
-.header h1 {
+.header h2 {
     margin: 0;
+    font-size: var(--header-default-font-size);
+    font-weight: 300;
 }
 
 .header a {
@@ -74,20 +49,25 @@
     font-size: 20px;
 }
 
-.guide h1 {
+.content {
+    padding: 0 var(--space-default);
+}
+
+.content h1 {
     margin-top: 0px;
     font-size: 1.5em;
 }
 
-.guide h2 {
+.content h2 {
     margin: 0px;
     font-size: 1.1em;
     line-height: 1.2em;
+    font-weight: 300;
 }
 
 .guide p {
     margin: 0.4em 0;
-    font-size: 0.9em;
+    font-size: var(--size-default);
 }
 
 .show {
@@ -95,7 +75,7 @@
 }
 
 .entry {
-    margin-top: var(--spacing-large);
+    margin-top: var(--space-default);
 }
 
 .highlighted {
@@ -138,27 +118,56 @@
     flex-basis: 0;
 }
 
-@media screen and (max-width: 1256px) {
+@media (max-width: 1348px) {
+    .guideWrapper {
+        width: calc( (((100% - var(--sidebar-width-large)) - var(--content-width)) / 2) + 18px + var(--space-default) );
+    }
+}
+
+@media screen and (max-width: 1601px) {
+    .overlay.show {
+        opacity: 1;
+    }
+
     .guide {
         position: fixed;
         margin-right: 0;
         top: 0;
         right: 0;
         width: 100%;
+        max-width: 460px;
         opacity: 0;
         z-index: -10;
+        transform: translateX(100%);
+        transition-delay: 0.2s;
     }
+    
     .show {
         opacity: 1;
         z-index: 4002;
     }
+
+    .guide.show {
+        transform: translateX(0%);
+    }
+}
+
+@media (max-width: 768px) {
+    .guideWrapper {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: calc(var(--space-half) + 18px);
+    }
+
+    .header,
+    .content {
+        padding-left: var(--space-half);
+        padding-right: var(--space-half);
+    }
 }
 
 @media screen and (max-width: 640px) {
-    .guide {
-        padding: var(--spacing-default);
-    }
-
     .guide h2 {
         font-size: 1.05em;
     }

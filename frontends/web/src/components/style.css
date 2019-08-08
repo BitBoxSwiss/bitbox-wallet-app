@@ -53,58 +53,6 @@
     }
 }
 
-.title img {
-    display: inherit;
-    width: 20px;
-    margin-left: var(--spacing-half);
-}
-
-.infoButton,
-.exportButton,
-.exportedButton {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: solid 1px var(--color-brightblue);
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    text-transform: lowercase;
-    text-decoration: none;
-    color: var(--color-brightblue);
-    font-size: var(--size-small);
-    margin-left: var(--spacing-half);
-    cursor: pointer;
-}
-
-.exportButton:hover img {
-    stroke: blue;
-}
-
-.exportButton img,
-.exportedButton img {
-    margin: 0 !important;
-    width: 12px;
-    height: 12px;
-}
-
-.exportedButton {
-    border: none;
-    border-radius: 10px;
-    padding: 0 var(--spacing-half);
-    width: auto;
-    background-color: var(--color-success);
-}
-
-.exportedText {
-    text-transform: none;
-    text-decoration: none;
-    color: var(--color-white);
-    font-size: var(--size-small);
-    cursor: pointer;
-}
-
 .badge {
     position: absolute;
     top: -8px;

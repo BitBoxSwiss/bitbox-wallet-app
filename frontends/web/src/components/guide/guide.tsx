@@ -50,6 +50,10 @@ export function toggle() {
     setGuideShown(!store.state.shown);
 }
 
+export function shown() {
+    return store.state.shown;
+}
+
 export function show() {
     setGuideShown(true);
 }
@@ -63,18 +67,22 @@ type Props = SharedProps & TranslateProps;
 function Guide({ shown, t, children }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={style.wrapper}>
-            <div className={style.guideWrapper} onClick={toggle}>
-                <div className={style.guideToggler}>
-                    <span>{store.state.shown ? '✕' : '?'}</span>
-                </div>
-            </div>
+            <div className={[style.overlay, shown && style.show].join(' ')} onClick={toggle}></div>
             <div className={[style.guide, shown && style.show].join(' ')}>
                 <div className={[style.header, 'flex flex-row flex-between flex-items-center'].join(' ')}>
-                    <h1>{t('guide.title')}</h1>
+                    <h2>{t('guide.title')}</h2>
+                    <a href="#" onClick={toggle}>
+                        <svg className={style.close} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </a>
                 </div>
-                {children}
-                <div className={style.entry}>
-                    {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                <div className={style.content}>
+                    {children}
+                    <div className={style.entry}>
+                        {t('guide.appendix.text')} <A href={t('guide.appendix.href')}>{t('guide.appendix.link')}</A>
+                    </div>
                 </div>
             </div>
         </div>

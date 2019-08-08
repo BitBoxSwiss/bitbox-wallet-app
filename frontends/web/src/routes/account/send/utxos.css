@@ -1,5 +1,5 @@
 .container {
-    position: relative;
+    margin-top: calc(var(--space-default) * 1.5);
 }
 
 .subHeader h3 {
@@ -34,14 +34,11 @@
     background-color: var(--color-white);
 }
 
-.table > tr:hover {
-    background-color: var(--color-lightgray);
-}
-
 .table > tr > td {
     line-height: 1.3;
-    font-size: 14px;
-    padding: var(--spacing-default) 0;
+    font-size: var(--size-default);
+    font-weight: 300;
+    padding: var(--space-half) 0;
     border-bottom: solid 1px var(--color-lightgray);
 }
 
@@ -51,9 +48,13 @@
     white-space: nowrap;
 }
 
+.table > tr > td > span:last-child {
+    padding-top: var(--space-quarter);
+}
+
 .table > tr > td label {
     display: inline-block;
-    font-size: 14px;
+    font-size: var(--size-default);
     margin: 0;
 }
 
@@ -89,6 +90,10 @@
     padding: 0;
 }
 
+.amountTable tr:first-child td {
+    padding-bottom: var(--space-quarter);
+}
+
 .amountTable tr td:first-child {
     padding-right: 3px;
 }
@@ -104,19 +109,24 @@
     }
 }
 
-@media (max-width: 816px) {
+@media (max-width: 768px) {
+    .table > tr > td,
+    .table > tr > td label {
+        font-size: var(--size-small);
+    }
+
     .table > tr > td:first-child {
-        padding-left: var(--spacing-half);
+        padding-left: var(--space-half);
     }
 
     .table > tr > td:nth-child(2) {
-        padding-left: 17px;
+        padding-left: var(--space-quarter);
         text-overflow: ellipsis;
         max-width: calc(100% - (180px));
     }
 
     .table > tr > td:last-child {
-        padding-right: var(--spacing-half);
-        padding-left: var(--spacing-half);
+        padding-right: var(--space-half);
+        padding-left: var(--space-quarter);
     }
 }

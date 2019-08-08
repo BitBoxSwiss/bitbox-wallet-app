@@ -19,3 +19,16 @@
     padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
     width: 800px;
 }
+
+.accountLink {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: none;
+}
+
+.accountLink svg {
+    width: 18px;
+    height: 18px;
+    margin-right: var(--space-quarter);
+}

@@ -87,50 +87,43 @@ class UTXOs extends Component<Props, State> {
         { t, active }: RenderableProps<Props>,
         { utxos, selectedUTXOs }: State,
     ) {
+        if (!active) {
+            return null;
+        }
         return (
-            <div class="row first">
-                {
-                    active && (
-                        <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
-                            <div class="subHeaderContainer first">
-                                <div class={['subHeader', style.subHeader].join(' ')}>
-                                    <h3>{t('send.coincontrol.title')}</h3>
-                                </div>
-                            </div>
-                            <div class={style.tableContainer}>
-                                <table className={style.table}>
-                                    {
-                                        utxos.map(utxo => (
-                                            <tr key={'utxo-' + utxo.outPoint}>
-                                                <td>
-                                                    <Checkbox
-                                                        checked={!!selectedUTXOs[utxo.outPoint]}
-                                                        id={'utxo-' + utxo.outPoint}
-                                                        data-outpoint={utxo.outPoint}
-                                                        onChange={this.handleUTXOChange}
-                                                    />
-                                                </td>
-                                                <td>
-                                                    <span><label>{t('send.coincontrol.outpoint')}:</label> {utxo.outPoint}</span>
-                                                    <span><label>{t('send.coincontrol.address')}:</label> {utxo.address}</span>
-                                                </td>
-                                                <td class={style.right}>
-                                                    <table class={style.amountTable} align="right">
-                                                        <tr>
-                                                            <td>{utxo.amount.amount}</td>
-                                                            <td>{utxo.amount.unit}</td>
-                                                        </tr>
-                                                        <FiatConversion amount={utxo.amount} tableRow unstyled />
-                                                    </table>
-                                                </td>
+            <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
+                <label className="labelLarge">{t('send.coincontrol.title')}</label>
+                <div class={style.tableContainer}>
+                    <table className={style.table}>
+                        {
+                            utxos.map(utxo => (
+                                <tr key={'utxo-' + utxo.outPoint}>
+                                    <td>
+                                        <Checkbox
+                                            checked={!!selectedUTXOs[utxo.outPoint]}
+                                            id={'utxo-' + utxo.outPoint}
+                                            data-outpoint={utxo.outPoint}
+                                            onChange={this.handleUTXOChange}
+                                        />
+                                    </td>
+                                    <td>
+                                        <span><label>{t('send.coincontrol.outpoint')}:</label> {utxo.outPoint}</span>
+                                        <span><label>{t('send.coincontrol.address')}:</label> {utxo.address}</span>
+                                    </td>
+                                    <td class={style.right}>
+                                        <table class={style.amountTable} align="right">
+                                            <tr>
+                                                <td><span>{utxo.amount.amount}</span></td>
+                                                <td><span>{utxo.amount.unit}</span></td>
                                             </tr>
-                                        ))
-                                    }
-                                </table>
-                            </div>
-                        </div>
-                    )
-                }
+                                            <FiatConversion amount={utxo.amount} tableRow unstyled />
+                                        </table>
+                                    </td>
+                                </tr>
+                            ))
+                        }
+                    </table>
+                </div>
             </div>
         );
     }

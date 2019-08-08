@@ -25,6 +25,7 @@ interface CopyableInputProps {
     value: string;
     className?: string;
     disabled?: boolean;
+    flexibleHeight?: boolean;
 }
 
 type Props = CopyableInputProps & TranslateProps;
@@ -78,7 +79,7 @@ class CopyableInput extends Component<Props, State> {
     }
 
     public render(
-        { t, value, className, disabled }: RenderableProps<Props>,
+        { t, value, className, disabled, flexibleHeight }: RenderableProps<Props>,
         { success }: State,
     ) {
         return (
@@ -90,11 +91,11 @@ class CopyableInput extends Component<Props, State> {
                     value={value}
                     ref={this.setRef}
                     rows={1}
-                    className={style.inputField} />
+                    className={[style.inputField, flexibleHeight && style.flexibleHeight].join(' ')} />
                 <button
                     disabled={disabled}
                     onClick={this.copy}
-                    class={[style.button, success ? style.success : ''].join(' ')}
+                    class={[style.button, success && style.success].join(' ')}
                     title={t('button.copy')}>
                         <img src={success ? CheckIcon : disabled ? CopyDisabledIcon : CopyIcon} />
                 </button>

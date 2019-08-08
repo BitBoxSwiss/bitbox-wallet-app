@@ -11,12 +11,8 @@
     z-index: 1001;
 }
 
-.container.hasChildren {
-    border-bottom: solid 1px var(--color-lightgray);
-}
-
 .header {
-    padding: 0 var(--spacing-large);
+    padding: 0 var(--space-default);
     max-width: var(--content-width);
     height: var(--header-height);
     width: 100%;
@@ -28,26 +24,24 @@
     margin: 0 auto;
 }
 
-.header.hasChildren {
-    width: 100%;
-}
-
 .children {
-    padding: 0 var(--spacing-large) 20px var(--spacing-large);
-    max-width: var(--content-width);
-    width: 100%;
-    margin-top: calc(var(--space-half) * -0.75);
-    margin-left: auto;
-    margin-right: auto;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
     align-items: center;
-    flex: none;
 }
 
-.header > *:nth-child(2) {
-    flex: 1;
+.children > a {
+    display: inline-block;
+    height: 18px;
+    font-size: var(--size-default);
+    text-decoration: none;
+    font-weight: 300;
+}
+
+.children > a > svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
 }
 
 .header.narrow > *:nth-child(2) {
@@ -57,6 +51,11 @@
 .header.narrow > *:nth-child(2) > * {
     max-width: 600px;
     width: 100%;
+}
+
+.title {
+    white-space: nowrap;
+    flex: 1;
 }
 
 .title > * {
@@ -83,45 +82,28 @@
     width: 20px;
 }
 
-@media (min-width: 901px) {
+.guideIconContainer {
+    margin-left: var(--space-half);
+}
+
+.guideIcon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-blue);
+}
+
+@media (min-width: 1246px) {
     .sidebarToggler {
         display: none;
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .header {
-        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default);
-    }
-
-    .header.narrow > *:nth-child(2) > * {
-        position: relative;
-        left: calc(var(--spacing-default) * -1);
-    }
-
-    .children {
-        padding: 0 var(--spacing-default) 20px var(--spacing-default);
-    }
-}
-
-@media (max-width: 640px) {
-    .header {
-        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half);
-    }
-
-    .header.narrow > *:nth-child(2) > * {
-        position: initial;
-    }
-
-    .header.hadChildren {
-        padding: calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-half) 0 var(--spacing-half);
-    }
-
-    .children {
-        padding: 0 var(--space-half) 16px var(--space-half);
+        padding: 0 var(--space-half);
     }
 
     .sidebarToggler {
-        margin-right: var(--spacing-half);
+        margin-right: var(--space-half);
     }
 }

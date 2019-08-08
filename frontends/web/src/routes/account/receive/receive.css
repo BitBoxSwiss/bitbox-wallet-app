@@ -11,24 +11,23 @@
 
 .label {
     color: var(--color-secondary);
-    font-size: var(--size-button);
-    padding: 0 var(--spacing-half);
+    font-size: var(--size-default);
+    font-weight: 300;
+    padding: 0 var(--space-quarter);
     margin: 0;
 }
 
 .qrCodeContainer {
-    margin: var(--spacing-default) 0;
+    margin-bottom: var(--space-default);
 }
 
 .verifyContent {
-    position: absolute;
-    bottom: calc((var(--spacing-default) + 32px) * -1);
     width: 100%;
 }
 
 .verifyContent p {
     color: var(--color-brightblue);
-    font-size: var(--size-button);
+    font-size: var(--size-default);
 }
 
 pre.verifyAddress {
@@ -89,6 +88,10 @@ pre.verifyAddress {
 
 .disabled {
     color: var(--color-brightgray);
+}
+
+.arrow {
+    
 }
 
 @media (max-width: 640px) {
