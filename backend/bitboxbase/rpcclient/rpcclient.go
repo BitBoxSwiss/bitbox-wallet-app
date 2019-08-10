@@ -168,6 +168,8 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 	switch opCode {
 	case rpcmessages.OpUCanHasSampleInfo:
 		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
+	case rpcmessages.OpUCanHasVerificationProgress:
+		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
 	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -196,14 +198,25 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	return reply, nil
 }
 
-// SampleInfo make a synchronous rpc call to the base, emits an event containing the SampleInfo struct
-// to the frontend and returns the SampleInfo struct
-func (rpcClient *RPCClient) SampleInfo() (rpcmessages.SampleInfoResponse, error) {
+// GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
+func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
 	var reply rpcmessages.SampleInfoResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
+func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
+	var reply rpcmessages.VerificationProgressResponse
+	request := 1
+	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", request, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("VerificationProgress RPC call failed")
 		return reply, err
 	}
 	return reply, nil

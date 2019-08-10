@@ -49,4 +49,7 @@ const (
 
 	// EventSampleInfoChange should be emitted whenever the rpcclient gets a new SampleInfo notification
 	EventSampleInfoChange Event = "sampleInfoChanged"
+
+	// EventVerificationProgressChange should be emitted whenever the rpcclient gets a new VerificationProgress notification
+	EventVerificationProgressChange Event = "verificationProgressChanged"
 )

@@ -37,8 +37,15 @@ interface MiddlewareInfoType {
     lightningAlias: string;
 }
 
+interface VerificationProgressType {
+    blocks: number;
+    headers: number;
+    verificationProgress: number;
+}
+
 interface State {
     middlewareInfo?: MiddlewareInfoType;
+    verificationProgress?: VerificationProgressType;
     bitboxBaseID: string | null;
     bitboxBaseVerified: boolean;
     status: '' |
@@ -60,6 +67,7 @@ class BitBoxBase extends Component<Props, State> {
         this.state = {
             hash: undefined,
             middlewareInfo: undefined,
+            verificationProgress: undefined,
             bitboxBaseID: '',
             status: '',
             bitboxBaseVerified: false,
@@ -83,6 +91,8 @@ class BitBoxBase extends Component<Props, State> {
                 case 'sampleInfoChanged':
                     this.onNewMiddlewareInfo();
                     break;
+                case 'verificationProgressChanged':
+                    this.onNewVerificationProgress();
                 case 'disconnect':
                     this.onDisconnect();
                     break;
@@ -121,6 +131,7 @@ class BitBoxBase extends Component<Props, State> {
             });
             if (this.state.status === 'initialized') {
                 this.onNewMiddlewareInfo();
+                this.onNewVerificationProgress();
             }
         });
     }
@@ -129,6 +140,14 @@ class BitBoxBase extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/middlewareinfo').then(({success, middlewareInfo}) => {
             if (success) {
                 this.setState({ middlewareInfo });
+            }
+        });
+    }
+
+    private onNewVerificationProgress = () => {
+        apiGet(this.apiPrefix() + '/verificationprogress').then(({success, verificationProgress}) => {
+            if (success) {
+                this.setState({ verificationProgress });
             }
         });
     }
@@ -180,6 +199,7 @@ class BitBoxBase extends Component<Props, State> {
         }: RenderableProps<Props>,
         {
             middlewareInfo,
+            verificationProgress,
             showWizard,
             status,
             bitboxBaseVerified,
@@ -188,6 +208,9 @@ class BitBoxBase extends Component<Props, State> {
     ) {
         if (!showWizard) {
             if (!middlewareInfo) {
+                return null;
+            }
+            if (!verificationProgress) {
                 return null;
             }
             return (
@@ -200,7 +223,14 @@ class BitBoxBase extends Component<Props, State> {
                             <li>Lightning Alias: {middlewareInfo.lightningAlias}</li>
                         </ul>
                     </div>
-                    <div class="row">
+                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                        <ul>
+                            <li>Blocks: {verificationProgress.blocks}</li>
+                            <li>Headers: {verificationProgress.headers}</li>
+                            <li>VerificationProgress: {verificationProgress.verificationProgress}</li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                         <div class="buttons flex flex-row flex-end">
                             <Button onClick={this.removeBitBoxBase} danger>Disconnect Base</Button>
                         </div>
