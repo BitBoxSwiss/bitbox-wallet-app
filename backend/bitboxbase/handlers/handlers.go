@@ -27,6 +27,7 @@ import (
 //Base models the api of the base middleware
 type Base interface {
 	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
+	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
@@ -48,6 +49,7 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
+	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
@@ -101,6 +103,20 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 	return map[string]interface{}{
 		"success":        true,
 		"middlewareInfo": middlewareInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Verification Progress")
+	verificationProgress, err := handlers.base.VerificationProgress()
+	success := true
+	if err != nil {
+		handlers.log.Println(err.Error())
+		success = false
+	}
+	return map[string]interface{}{
+		"success":              success,
+		"verificationProgress": verificationProgress,
 	}, nil
 }
 

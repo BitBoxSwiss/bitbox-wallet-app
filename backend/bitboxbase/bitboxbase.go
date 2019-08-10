@@ -50,6 +50,9 @@ type Interface interface {
 	// MiddlewareInfo returns some blockchain information.
 	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 
+	// VerificationProgress returns the bitcoind verification progress.
+	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
+
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
 
@@ -217,7 +220,16 @@ func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 		err := errp.New("Attempted a call to non-active base")
 		return rpcmessages.SampleInfoResponse{}, err
 	}
-	return base.rpcClient.SampleInfo()
+	return base.rpcClient.GetSampleInfo()
+}
+
+// VerificationProgress returns the received VerificationProgress packet from the rpcClient
+func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return rpcmessages.VerificationProgressResponse{}, err
+	}
+	return base.rpcClient.GetVerificationProgress()
 }
 
 // SyncOption returns true if the chosen sync option was executed successfully

@@ -8,6 +8,8 @@ const (
 	OpRPCCall = "r"
 	// OpUCanHasSampleInfo notifies when new SampleInfo data is available.
 	OpUCanHasSampleInfo = "d"
+	// OpUCanHasVerificationProgress notifies when new VerificationProgress data is available.
+	OpUCanHasVerificationProgress = "v"
 )
 
 /*
