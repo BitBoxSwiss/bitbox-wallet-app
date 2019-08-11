@@ -31,7 +31,7 @@ import (
 )
 
 var coins = []string{"BTC", "LTC", "ETH"}
-var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB"}
+var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD"}
 
 const interval = time.Minute
 const url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
