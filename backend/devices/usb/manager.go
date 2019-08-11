@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -86,6 +87,8 @@ type Manager struct {
 
 	onlyOne bool
 
+	socksProxy socksproxy.SocksProxy
+
 	log *logrus.Entry
 }
 
@@ -97,6 +100,7 @@ type Manager struct {
 func NewManager(
 	channelConfigDir string,
 	bitbox02ConfigDir string,
+	socksProxy socksproxy.SocksProxy,
 	deviceInfos func() []DeviceInfo,
 	onRegister func(device.Interface) error,
 	onUnregister func(string),
@@ -110,6 +114,7 @@ func NewManager(
 		onRegister:        onRegister,
 		onUnregister:      onUnregister,
 		onlyOne:           onlyOne,
+		socksProxy:        socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -172,6 +177,7 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 		version,
 		manager.channelConfigDir,
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, hmac),
+		manager.socksProxy,
 	)
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to establish communication to device")

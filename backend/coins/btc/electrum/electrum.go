@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -38,11 +39,12 @@ type ConnectionError error
 type Electrum struct {
 	log        *logrus.Entry
 	serverInfo *rpc.ServerInfo
+	socksProxy socksproxy.SocksProxy
 }
 
 // NewElectrum creates a new Electrum instance.
-func NewElectrum(log *logrus.Entry, serverInfo *rpc.ServerInfo) *Electrum {
-	return &Electrum{log, serverInfo}
+func NewElectrum(log *logrus.Entry, serverInfo *rpc.ServerInfo, socksProxy socksproxy.SocksProxy) *Electrum {
+	return &Electrum{log, serverInfo, socksProxy}
 }
 
 // ServerInfo returns the server info for this backend.
@@ -56,13 +58,13 @@ func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	var conn io.ReadWriteCloser
 	if electrum.serverInfo.TLS {
 		var err error
-		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert)
+		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert, electrum.socksProxy)
 		if err != nil {
 			return nil, ConnectionError(err)
 		}
 	} else {
 		var err error
-		conn, err = newTCPConnection(electrum.serverInfo.Server)
+		conn, err = newTCPConnection(electrum.serverInfo.Server, electrum.socksProxy)
 		if err != nil {
 			return nil, ConnectionError(err)
 		}
@@ -70,12 +72,20 @@ func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 	return conn, nil
 }
 
-func newTLSConnection(address string, rootCert string) (*tls.Conn, error) {
+func newTLSConnection(address string, rootCert string, socksProxy socksproxy.SocksProxy) (*tls.Conn, error) {
 	caCertPool := x509.NewCertPool()
 	if ok := caCertPool.AppendCertsFromPEM([]byte(rootCert)); !ok {
 		return nil, errp.New("Failed to append CA cert as trusted cert")
 	}
-	conn, err := tls.Dial("tcp", address, &tls.Config{
+	dialer, err := socksProxy.GetTCPProxyDialer()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	conn, err := dialer.Dial("tcp", address)
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	tlsConn := tls.Client(conn, &tls.Config{
 		RootCAs:            caCertPool,
 		InsecureSkipVerify: true, // Not actually skipping, we check the cert in VerifyPeerCertificate
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
@@ -114,11 +124,15 @@ func newTLSConnection(address string, rootCert string) (*tls.Conn, error) {
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	return conn, nil
+	return tlsConn, nil
 }
 
-func newTCPConnection(address string) (net.Conn, error) {
-	conn, err := net.Dial("tcp", address)
+func newTCPConnection(address string, socksProxy socksproxy.SocksProxy) (net.Conn, error) {
+	dialer, err := socksProxy.GetTCPProxyDialer()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+	conn, err := dialer.Dial("tcp", address)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -127,7 +141,7 @@ func newTCPConnection(address string) (net.Conn, error) {
 
 // NewElectrumConnection connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry) blockchain.Interface {
+func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry, socksProxy socksproxy.SocksProxy) blockchain.Interface {
 	var serverList string
 	for _, serverInfo := range servers {
 		if serverList != "" {
@@ -140,16 +154,25 @@ func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry) blockch
 
 	backends := []rpc.Backend{}
 	for _, serverInfo := range servers {
-		backends = append(backends, &Electrum{log, serverInfo})
+		backends = append(backends, &Electrum{log, serverInfo, socksProxy})
 	}
 	jsonrpcClient := jsonrpc.NewRPCClient(backends, nil, log)
 	return client.NewElectrumClient(jsonrpcClient, log)
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
-func DownloadCert(server string) (string, error) {
+func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, error) {
 	var pemCert []byte
-	conn, err := tls.Dial("tcp", server, &tls.Config{
+	dialer, err := socksProxy.GetTCPProxyDialer()
+	if err != nil {
+		return "", errp.WithStack(err)
+	}
+	conn, err := dialer.Dial("tcp", server)
+	if err != nil {
+		return "", errp.WithStack(err)
+	}
+
+	tlsConn := tls.Client(conn, &tls.Config{
 		VerifyPeerCertificate: func(rawCerts [][]byte, verifiedChains [][]*x509.Certificate) error {
 			if len(rawCerts) == 0 {
 				return errp.New("no remote certs")
@@ -165,18 +188,19 @@ func DownloadCert(server string) (string, error) {
 		},
 		InsecureSkipVerify: true,
 	})
+	err = tlsConn.Handshake()
 	if err != nil {
-		return "", err
+		return "", errp.WithStack(err)
 	}
-	_ = conn.Close()
+	_ = tlsConn.Close()
 	return string(pemCert), nil
 }
 
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
-func CheckElectrumServer(server string, pemCert string, log *logrus.Entry) error {
+func CheckElectrumServer(server string, pemCert string, log *logrus.Entry, socksProxy socksproxy.SocksProxy) error {
 	backends := []rpc.Backend{
-		NewElectrum(log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}),
+		NewElectrum(log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, socksProxy),
 	}
 	conn, err := backends[0].EstablishConnection()
 	if err != nil {

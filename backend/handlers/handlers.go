@@ -101,6 +101,7 @@ type Backend interface {
 	NotifyUser(string)
 	SystemOpen(string) error
 	ReinitializeAccounts()
+	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 }
 
 // Handlers provides a web api to the backend.
@@ -348,7 +349,7 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 }
 
 func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error) {
-	return backend.CheckForUpdateIgnoringErrors(), nil
+	return handlers.backend.CheckForUpdateIgnoringErrors(), nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {

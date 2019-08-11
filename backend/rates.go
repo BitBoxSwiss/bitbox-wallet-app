@@ -17,7 +17,6 @@ package backend
 import (
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"reflect"
 	"strings"
 	"sync"
@@ -27,6 +26,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,7 +34,7 @@ var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "DAI", "
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD"}
 
 const interval = time.Minute
-const url = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
+const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
 var (
 	ratesUpdaterInstance     *RatesUpdater
@@ -44,7 +44,11 @@ var (
 // GetRatesUpdaterInstance gets a singleton instance of RatesUpdater.
 func GetRatesUpdaterInstance() *RatesUpdater {
 	ratesUpdaterInstanceOnce.Do(func() {
-		ratesUpdaterInstance = NewRatesUpdater()
+		ratesUpdaterInstance = &RatesUpdater{
+			last:       map[string]map[string]float64{},
+			log:        logging.Get().WithGroup("rates"),
+			socksProxy: socksproxy.NewSocksProxy(false, ""),
+		}
 	})
 	return ratesUpdaterInstance
 }
@@ -52,18 +56,22 @@ func GetRatesUpdaterInstance() *RatesUpdater {
 // RatesUpdater implements coin.RatesUpdater.
 type RatesUpdater struct {
 	observable.Implementation
-	last map[string]map[string]float64
-	log  *logrus.Entry
+	last       map[string]map[string]float64
+	log        *logrus.Entry
+	socksProxy socksproxy.SocksProxy
 }
 
 // NewRatesUpdater returns a new rates updater.
-func NewRatesUpdater() *RatesUpdater {
-	updater := &RatesUpdater{
-		last: map[string]map[string]float64{},
-		log:  logging.Get().WithGroup("rates"),
-	}
-	go updater.start()
-	return updater
+func NewRatesUpdater(socksProxy socksproxy.SocksProxy) *RatesUpdater {
+	ratesUpdaterInstanceOnce.Do(func() {
+		ratesUpdaterInstance = &RatesUpdater{
+			last:       map[string]map[string]float64{},
+			log:        logging.Get().WithGroup("rates"),
+			socksProxy: socksProxy,
+		}
+		go ratesUpdaterInstance.start()
+	})
+	return ratesUpdaterInstance
 }
 
 // Last returns the last rates for a given coin and fiat or nil if not available.
@@ -72,11 +80,19 @@ func (updater *RatesUpdater) Last() map[string]map[string]float64 {
 }
 
 func (updater *RatesUpdater) update() {
-	response, err := http.Get(fmt.Sprintf(url,
+	client, err := updater.socksProxy.GetHTTPClient()
+	if err != nil {
+		updater.log.Printf("Error getting http client %v\n", err)
+		updater.last = nil
+		return
+	}
+
+	response, err := client.Get(fmt.Sprintf(cryptoCompareURL,
 		strings.Join(coins, ","),
 		strings.Join(fiats, ","),
 	))
 	if err != nil {
+		updater.log.Printf("Error getting rates: %v\n", err)
 		updater.last = nil
 		return
 	}

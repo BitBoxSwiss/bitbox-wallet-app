@@ -14,6 +14,8 @@
 
 package relay
 
+import "github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+
 type configuration struct {
 	ChannelID         string `json:"channel"`
 	EncryptionKey     []byte `json:"encryption"`
@@ -29,5 +31,5 @@ func newConfiguration(channel *Channel) *configuration {
 }
 
 func (config *configuration) channel() *Channel {
-	return NewChannel(config.ChannelID, config.EncryptionKey, config.AuthenticationKey)
+	return NewChannel(config.ChannelID, config.EncryptionKey, config.AuthenticationKey, socksproxy.SocksProxy{})
 }
