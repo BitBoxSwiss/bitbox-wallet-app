@@ -26,6 +26,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -42,8 +43,8 @@ type TransactionsSource interface {
 type TransactionsSourceMaker func() TransactionsSource
 
 // TransactionsSourceEtherScan creates a etherscan transactions source maker.
-func TransactionsSourceEtherScan(etherScanURL string) TransactionsSourceMaker {
-	return func() TransactionsSource { return etherscan.NewEtherScan(etherScanURL) }
+func TransactionsSourceEtherScan(etherScanURL string, socksProxy socksproxy.SocksProxy) TransactionsSourceMaker {
+	return func() TransactionsSource { return etherscan.NewEtherScan(etherScanURL, socksProxy) }
 }
 
 // TransactionsSourceNone is used if no transactions source should be used.
@@ -64,6 +65,7 @@ type Coin struct {
 
 	makeTransactionsSource TransactionsSourceMaker
 	transactionsSource     TransactionsSource
+	socksProxy             socksproxy.SocksProxy
 
 	log *logrus.Entry
 }
@@ -80,6 +82,7 @@ func NewCoin(
 	makeTransactionsSource TransactionsSourceMaker,
 	nodeURL string,
 	erc20Token *erc20.Token,
+	socksProxy socksproxy.SocksProxy,
 ) *Coin {
 	return &Coin{
 		code:                  code,
@@ -93,6 +96,7 @@ func NewCoin(
 		transactionsSource:     nil,
 
 		erc20Token: erc20Token,
+		socksProxy: socksProxy,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -109,7 +113,7 @@ func (coin *Coin) Initialize() {
 		if strings.HasPrefix(coin.nodeURL, etherScanPrefix) {
 			nodeURL := coin.nodeURL[len(etherScanPrefix):]
 			coin.log.Infof("Using EtherScan proxy: %s", nodeURL)
-			coin.client = etherscan.NewEtherScan(nodeURL)
+			coin.client = etherscan.NewEtherScan(nodeURL, coin.socksProxy)
 		} else {
 			client, err := rpcclient.RPCDial(coin.nodeURL)
 			if err != nil {

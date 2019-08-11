@@ -16,7 +16,6 @@ package backend
 
 import (
 	"encoding/json"
-	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -44,8 +43,13 @@ type UpdateFile struct {
 
 // CheckForUpdate checks whether a newer version of this application has been released.
 // It returns the retrieved update file if a newer version has been released and nil otherwise.
-func CheckForUpdate() (*UpdateFile, error) {
-	response, err := http.Get(updateFileURL)
+func (backend *Backend) CheckForUpdate() (*UpdateFile, error) {
+	client, err := backend.socksProxy.GetHTTPClient()
+	if err != nil {
+		return nil, errp.WithStack(err)
+	}
+
+	response, err := client.Get(updateFileURL)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -68,8 +72,8 @@ func CheckForUpdate() (*UpdateFile, error) {
 }
 
 // CheckForUpdateIgnoringErrors suppresses any errors that are triggered, for example, when offline.
-func CheckForUpdateIgnoringErrors() *UpdateFile {
-	updateFile, err := CheckForUpdate()
+func (backend *Backend) CheckForUpdateIgnoringErrors() *UpdateFile {
+	updateFile, err := backend.CheckForUpdate()
 	if err != nil {
 		logging.Get().WithGroup("update").WithError(err).Warn("Check for update failed.")
 		return nil

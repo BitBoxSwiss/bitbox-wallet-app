@@ -63,12 +63,14 @@ func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
 
 // Backend holds the backend specific configuration.
 type Backend struct {
-	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
-	BitcoinP2WPKHP2SHActive  bool `json:"bitcoinP2WPKHP2SHActive"`
-	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
-	LitecoinP2WPKHP2SHActive bool `json:"litecoinP2WPKHP2SHActive"`
-	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
-	EthereumActive           bool `json:"ethereumActive"`
+	BitcoinP2PKHActive       bool   `json:"bitcoinP2PKHActive"`
+	BitcoinP2WPKHP2SHActive  bool   `json:"bitcoinP2WPKHP2SHActive"`
+	BitcoinP2WPKHActive      bool   `json:"bitcoinP2WPKHActive"`
+	LitecoinP2WPKHP2SHActive bool   `json:"litecoinP2WPKHP2SHActive"`
+	LitecoinP2WPKHActive     bool   `json:"litecoinP2WPKHActive"`
+	EthereumActive           bool   `json:"ethereumActive"`
+	UseProxy                 bool   `json:"useProxy"`
+	ProxyAddress             string `json:"proxyAddress"`
 
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
