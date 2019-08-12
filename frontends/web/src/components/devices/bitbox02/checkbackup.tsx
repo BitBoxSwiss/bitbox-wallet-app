@@ -53,7 +53,7 @@ class Check extends Component<Props, State> {
             if (silent && response.success && response.backupID) {
                 const foundBackup = backups.find((backup: Backup) => backup.id === response.backupID);
                 if (foundBackup) {
-                    this.setState({foundBackup});
+                    this.setState({ foundBackup });
                     message = this.props.t('backup.check.success');
                 } else {
                     message = this.props.t('unknownError', {errorMessage: 'Not found'});
@@ -61,9 +61,10 @@ class Check extends Component<Props, State> {
             // second non-silent call is blocking and waits for user to confirm backup on device screen
             } else if (!silent && response.success) {
                 message = this.props.t('backup.check.success');
-                this.setState({userVerified: true});
+                this.setState({ userVerified: true });
             } else {
                 message = this.props.t('backup.check.notOK');
+                this.setState({ userVerified: true });
             }
             this.setState({ message });
         });
@@ -82,7 +83,7 @@ class Check extends Component<Props, State> {
                     disabled={this.props.disabled}
                     onClick={() => {
                         this.checkBackup(silent = true, backups = backups);
-                        this.setState({ activeDialog: true });
+                        this.setState({ activeDialog: true, userVerified: false });
                         this.checkBackup(silent = false, backups = backups);
                     }}
                 >
