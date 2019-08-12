@@ -29,7 +29,7 @@ export type TestnetCoin = 'TBTC' | 'TLTC' | 'TETH' | 'RETH';
 
 export type Coin = MainnetCoin | TestnetCoin;
 
-export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB';
+export type Fiat = 'USD' | 'EUR' | 'CHF' | 'GBP' | 'JPY' | 'KRW' | 'CNY' | 'RUB' | 'CAD';
 
 export type Rates = {
     [coin in MainnetCoin]: {
