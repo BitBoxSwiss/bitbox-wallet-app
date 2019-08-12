@@ -85,10 +85,10 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
-    "list": "Found the <strong>following backups</strong> on this SD card:",
+    "list": "The <strong>following backups </strong>have been found on the microSD card:",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
-      "confirmTitle": "Restore Backup from micro SD card",
+      "confirmTitle": "Restore Backup",
       "error": {
         "e200": "SD card not found"
       },
@@ -106,7 +106,7 @@
       "confirmTitle": "Restore from BIP39 mnemonic"
     },
     "showMnemonic": {
-      "description": "You will be presented with up to 24 words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it</strong>.\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "description": "You will be presented with up to 24 words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
       "title": "Show BIP39 Mnemonic"
     },
     "title": "Manage Backups"
@@ -134,14 +134,14 @@
   "bitbox02Settings": {
     "deviceName": {
       "input": "BitBox02 Name",
-      "title": "Set BitBox02 Name"
+      "title": "Set BitBox 02 name"
     },
     "mnemonicPassphrase": {
       "description": "This allows you to enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>",
       "disable": "Disable Mnemonic Passphrase",
       "enable": "Enable Mnemonic Passphrase",
-      "successDisable": "Mnemonic Passphrase successfully disabled.",
-      "successEnable": "Mnemonic Passphrase successfully enabled.\nFrom now on, you can enter a mnemonic passphrase after unlocking your BitBox02."
+      "successDisable": "Mnemonic Passphrase successfully disabled",
+      "successEnable": "Mnemonic Passphrase successfully enabled.\n\nFrom now on you can insert a passphrase after having unlocked your BitBox 02. \n\nIf you don't know what a passphrase is, please deactivate this option. It is an advanced user's option. \n\n\n<strong>Warning:</strong> every passphrase generates a valid Wallet. \nYou need to make sure your passphrase is <strong>secure and that you don't loose it.</strong>\n\n<strong>If you loose your passphrase you will not be able to access your coins. That means your coins will be lost.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -166,7 +166,7 @@
     "initialize": {
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
-      "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. $t(bitbox02Wizard.insertSDCard)",
+      "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
       "tip": "Before continuing, it is highly recommended that you proceed in a secure environment.",
       "title": "Initialize your BitBox"
     },
@@ -688,7 +688,7 @@
       "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
       "result": "Legacy format of {{address}}:\n{{legacyAddress}}"
     },
-    "showFull": "Show and verify full address",
+    "showFull": "Show and verify full address on device",
     "title": "Get Coins",
     "verify": "Verify address securely",
     "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",

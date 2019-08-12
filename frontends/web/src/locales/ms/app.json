@@ -64,9 +64,12 @@
         "placeholder": "Kata laluan pemulihan",
         "showLabel": "Kata laluan pemulihan"
       },
+      "success": "Backup berjaya disahkan",
       "title": "Semak Backup"
     },
     "create": {
+      "alreadyExists": "Anda sudah mempunyai backup yang sah. Adakah anda ingin menciptanya kembali?",
+      "fail": "TIDAK BERJAYA membuat backup!",
       "info": "Sila masukkan kata laluan pemulihan dari wallet terkini untuk pengesahan",
       "name": {
         "label": "Nama backup",
@@ -82,6 +85,7 @@
     "description": "Pilih <strong>fail backup wallet</strong>",
     "insert": "Sila masukkan kad micro SD untuk mengurus backup.",
     "insertButton": "Saya telah memasukkan kad micro SD",
+    "list": "Telah jumpa <strong>backup berikut</strong> pada kad SD ini:",
     "noBackups": "Tiada backup pada kad microSD ini.",
     "restore": {
       "confirmTitle": "Memulihkan Backup",
@@ -100,6 +104,15 @@
     },
     "title": "Urus Backup"
   },
+  "bb02Bootloader": {
+    "abort": "Jangan naik taraf - Kembali",
+    "advanced": {
+      "toggleShowFirmwareHash": "Tunjukkan hash firmware setiap kali pada permulaan"
+    },
+    "flipscreen": "Putar skrin",
+    "orientation": "Orientasi peranti salah?",
+    "success": "Naik taraf berjaya! Meneruskan dalam {{rebootSeconds}} detik..."
+  },
   "bitbox": {
     "error": {
       "e10000": "Kata laluan peranti terkini salah",
@@ -107,6 +120,65 @@
       "e102": "Kata laluan mestilah terdiri daripada sekurang-kurangnya 8 aksara.",
       "e112": "Kata laluan peranti tersembunyi tidak boleh sama dengan kata laluan peranti utama."
     }
+  },
+  "bitbox02Interact": {
+    "followInstructions": "Sila ikuti arahan pada BitBox02 anda."
+  },
+  "bitbox02Settings": {
+    "deviceName": {
+      "input": "Nama BitBox02",
+      "title": "Tetapkan Nama BitBox02"
+    },
+    "mnemonicPassphrase": {
+      "disable": "Matikan Frasa Laluan Mnemonik",
+      "enable": "Aktifkan Frasa Laluan Mnemonik",
+      "successDisable": "Frasa Laluan Mnemonik berjaya dimatikan.",
+      "successEnable": "Frasa Sambung Mnemonik berjaya diaktifkan.\n\nMulai sekarang anda boleh memasukkan frasa laluan selepas membuka kunci BitBox 02 anda.\n\nSekiranya anda tidak tahu apa kata laluan, sila nyahaktifkan pilihan ini. Ia adalah pilihan pengguna yang maju. \n\n\n<strong>Amaran:</strong> setiap frasa laluan menjana Wallet yang sah.\nAnda perlu memastikan frasa laluan anda <strong>selamat dan jangan melupakannya.</strong>\n\n<strong>Jika anda kehilangan frasa laluan anda, anda tidak dapat mengakses syiling anda. Itu bermakna duit syiling anda akan hilang.</strong>"
+    }
+  },
+  "bitbox02Wizard": {
+    "attestationFailed": "Pengesahan peranti gagal. BitBox anda mungkin palsu atau terkompromi. Syiling di BitBox02 mungkin berisiko hilang. Sila hubungi support@shiftcrypto.ch dengan segera.",
+    "backup": {
+      "point1": "Pilih backup pada kad microSD",
+      "point2": "Tetapkan kata laluan untuk peranti anda",
+      "restoreText": "Ok, mari kita pulihkan backup!",
+      "text1": "Hebat, kata laluan BitBox02 anda sudah ditetapkan dan wallet dibuat. Kini tiba masanya untuk membuat backup pertama anda. Sila pastikan kad microSD anda dimasukkan ke dalam BitBox02 anda dan teruskan.",
+      "text2": "Sila ikuti arahan pada skrin pada peranti anda untuk membuat backup.",
+      "text3": "Selepas backup anda dicipta, sila tarik keluar kad microSD dan simpan itu di <strong>lokasi selamat</strong>. Kandungan kad microSD tidak dilindungi kata laluan. Jangan sekali-kali memasukkannya ke peranti lain selain BitBox02 anda."
+    },
+    "create": {
+      "button": "Beri Nama dan Teruskan",
+      "info": "Inilah langkah-langkah asas yang akan anda ambil untuk menyediakan BitBox anda: ",
+      "inputTitle": "Nama Wallet",
+      "point1": "Tetapkan nama untuk peranti anda",
+      "point2": "Tetapkan kata laluan untuk peranti anda",
+      "point3": "Buat backup",
+      "text": "Ok, mari buat dompet baru!"
+    },
+    "initialize": {
+      "passwordText": "Sekarang mari kita tetapkan kata laluan untuk peranti anda. Gunakan kawalan pada BitBox anda untuk memasukkan dan memilih kata laluan.",
+      "passwordTitle": "Tetapkan kata laluan untuk BitBox anda",
+      "text": "Berjaya berpasangan dengan BitBox02 anda! Sekarang mari kita inisialisasi peranti anda. Mulailah dengan memilih untuk membuat wallet baru, atau untuk memulihkan wallet dari backup yang sudah ada. <strong>Sila pastikan anda mempunyai kad microSD yang sudah dimasukkan dalam BitBox02 anda</strong>",
+      "tip": "Sebelum meneruskan, sangat disyorkan supaya anda meneruskan di persekitaran yang selamat.",
+      "title": "Inisialisasi BitBox anda"
+    },
+    "pairing": {
+      "confirmButton": "Sahkan dan Teruskan",
+      "failed": "Pasangan tidak berjaya disahkan. Sila tancap ulang BitBox02 anda.",
+      "paired": "Anda telah mengesahkan pada peranti anda bahawa kod sepadan. Jika ini betul, anda boleh meneruskan dengan mengklik butang di bawah.",
+      "title": "Sahkan Kod Pasangan",
+      "unpaired": "BitBox02 baru telah dikesan. Sila sahkan bahawa kod berikut sepadan dengan apa yang ditunjukkan pada peranti anda. Jika kod itu sepadan, sentuh di bawah tanda semak pada BitBox02 anda dan kemudian klik butang di bawah untuk meneruskan."
+    },
+    "success": {
+      "text": "Hooray! BitBox02 anda kini siap untuk digunakan.\n\nUntuk maklumat lanjut mengenai cara menggunakan aplikasi BitBox, sila gunakan panduan dalam aplikasi dengan mengklik tanda tanya di sudut kanan atas.",
+      "title": "Anda sudah bersedia untuk pergi!"
+    }
+  },
+  "bitboxBase": {
+    "connect": "Sambungkan Base",
+    "detectedBases": "Mengesan peranti berikut pada rangkaian anda:",
+    "manualInput": "Tidak dapat melihat Base BitBox anda? Sambung secara manual di bawah:",
+    "title": "Base BitBox"
   },
   "blink": {
     "button": "Berkedip"
@@ -147,6 +219,7 @@
     "info": "Pada BitBox anda",
     "infoWhenPaired": "Mula-mula pada telefon mudah alih yang dipasangkan dan kemudian BitBox anda"
   },
+  "confirmOnDevice": "Sila sahkan pada peranti anda.",
   "device": {
     "appUpradeRequired": "BitBox anda tidak sesuai dengan aplikasi desktop ini. Sila muat turun dan pasang versi terkini."
   },
@@ -325,6 +398,20 @@
       "whatIsABackup": {
         "text": "Ia adalah salinan benih pada kad micro SD. Benih bersama-sama dengan kata laluan pemulihan menjana dompet anda.",
         "title": "Apa itu backup?"
+      }
+    },
+    "backupsBB02": {
+      "check": {
+        "text": "'Semak Backup' membolehkan anda mengesahkan bahawa anda mempunyai backup kerja yang sesuai dengan dompet semasa anda.",
+        "title": "Apa itu 'Semak Backup'?"
+      },
+      "encrypt": {
+        "text": "Tidak. Sila simpan kad SD mikro dengan selamat, kerana ia mengandung benih yang tidak disenarai untuk memulihkan dompet anda.",
+        "title": "Bolehkah saya menyulitkan backup?"
+      },
+      "whatIsABackup": {
+        "text": "Ia adalah salinan benih pada kad microSD.",
+        "title": "Apakah backup itu?"
       }
     },
     "bitbox": {
@@ -586,8 +673,10 @@
       "info": "Litecoin sedang beralih dari alamat bermula dengan '3' ke alamat bermula dengan 'M'.",
       "result": "Format Legacy dari {{address}}:\n{{legacyAddress}}"
     },
+    "showFull": "Tunjukkan dan sahkan alamat lengkap",
     "title": "Dapatkan syiling",
     "verify": "Sahkan alamat dengan selamat",
+    "verifyInstruction": "Sila sahkan bahawa alamat berikut sepadan dengan yang dipaparkan pada peranti anda.",
     "warning": {
       "secureOutput": "Sila pasangkan BitBox anda dengan peranti mobile anda untuk menghidupkan pengesahan alamat selamat. Pergi ke 'Urus Peranti' pada bar sisi."
     }
@@ -595,6 +684,7 @@
   "reset": {
     "button": "Tetapkan semula peranti",
     "description": "Semua data pada peranti akan dihapus. Itu termasuk Private Key anda!",
+    "notReset": "Peranti BELUM ditetapkan semula.",
     "title": "Tetapkan semula peranti",
     "understand": "Saya mempunyai backup dan mengetahui kata laluan pemulihan saya"
   },
@@ -771,6 +861,7 @@
   "setup": "Menetapkan peranti",
   "sidebar": {
     "addAccount": "Tambah akaun",
+    "bitboxBase": "Base BitBox",
     "device": "Urus Peranti",
     "leave": "Tinggalkan",
     "settings": "Tetapan"
