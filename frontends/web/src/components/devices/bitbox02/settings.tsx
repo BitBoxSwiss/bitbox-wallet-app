@@ -118,7 +118,7 @@ class Settings extends Component<Props, State> {
                                             </div>
                                         ) || (
                                             <div>
-                                                <dt></dt>
+                                                <dt>&nbsp;</dt>
                                                 <dd>{t('deviceSettings.firmware.upToDate')}</dd>
                                             </div>
                                         )
