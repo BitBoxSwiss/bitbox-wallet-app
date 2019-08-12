@@ -64,9 +64,12 @@
         "placeholder": "Senha de recuperação",
         "showLabel": "senha de recuperação"
       },
+      "success": "Backup verificado com sucesso:",
       "title": "Checar backup"
     },
     "create": {
+      "alreadyExists": "Você já tem um backup válido. Você deseja recriá-lo?",
+      "fail": "A criação do backup FALHOU!",
       "info": "Por favor, digite a senha de recuperação da carteira atual para verificação.",
       "name": {
         "label": "Nome do backup",
@@ -82,6 +85,7 @@
     "description": "Selecione um <strong>arquivo de backup da carteira</strong>",
     "insert": "Por favor, insira o cartão micro SD para gerenciar backups.",
     "insertButton": "Eu inseri o cartão micro SD",
+    "list": "Os <strong>seguintes backups </strong>foram encontrados no cartão microSD:",
     "noBackups": "Não há backups neste cartão micro SD.",
     "restore": {
       "confirmTitle": "Restaurar backup",
@@ -100,6 +104,15 @@
     },
     "title": "Gerenciar backups"
   },
+  "bb02Bootloader": {
+    "abort": "Não atualizar - Leve-me de volta",
+    "advanced": {
+      "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
+    },
+    "flipscreen": "Girar tela",
+    "orientation": "Dispositivo orientado de maneira errada?",
+    "success": "Atualização bem sucedida! Continuando em {{rebootSeconds}} segundos..."
+  },
   "bitbox": {
     "error": {
       "e10000": "Senha atual do dispositivo incorreta.",
@@ -107,6 +120,65 @@
       "e102": "A senha deve conter pelo menos 8 caracteres.",
       "e112": "A senha do dispositivo oculto não pode ser igual à senha do dispositivo principal."
     }
+  },
+  "bitbox02Interact": {
+    "followInstructions": "Por favor, siga as instruções na sua BitBox02."
+  },
+  "bitbox02Settings": {
+    "deviceName": {
+      "input": "Nome da BitBox02",
+      "title": "Definir nome da BitBox02"
+    },
+    "mnemonicPassphrase": {
+      "disable": "Desativar frase secreta mnemônica",
+      "enable": "Ativar frase secreta mnemônica",
+      "successDisable": "Frase secreta mnemônica desativada com sucesso",
+      "successEnable": "Frase secreta mnemônica ativada com sucesso.\n\nA partir de agora você pode inserir uma frase secreta depois desbloquear a sua BitBox 02.\n\nSe você não sabe o que é uma frase secreta, desative esta opção. É uma opção de usuário avançado. \n\n\n<strong>Aviso:</strong> cada frase secreta gera uma Carteira válida.\nVocê precisa ter certeza de que sua frase secreta é <strong>segura e que você não a perca.</strong>\n\n<strong>Se você perder sua frase secreta, não poderá acessar suas moedas. Isso significa que suas moedas serão perdidas.</strong>"
+    }
+  },
+  "bitbox02Wizard": {
+    "attestationFailed": "Falha na verificação do dispositivo. Sua BitBox pode ser falsificada ou estar comprometida. Qualquer moeda na BitBox02 pode estar em risco de ser perdida. Por favor, contate support@shiftcrypto.ch imediatamente.",
+    "backup": {
+      "point1": "Selecione um backup no cartão microSD",
+      "point2": "Defina uma senha para o seu dispositivo",
+      "restoreText": "Ok, vamos restaurar um backup!",
+      "text1": "Ótimo, sua senha da BitBox02 foi definida e a carteira foi criada. Agora é hora de criar seu primeiro backup. Por favor, verifique se o seu cartão microSD está inserido na sua BitBox02 e continue.",
+      "text2": "Por favor, siga as instruções na tela do seu dispositivo para criar um backup.",
+      "text3": "Após o backup ser criado, remova o cartão microSD e armazene-o em um <strong>local seguro</strong>. O conteúdo do cartão microSD não é protegido por senha. Nunca insira em qualquer outro dispositivo além de sua BitBox02."
+    },
+    "create": {
+      "button": "Nomear dispositivo e continuar",
+      "info": "Aqui estão os passos básicos que você vai seguir para configurar a sua BitBox: ",
+      "inputTitle": "Nome da carteira",
+      "point1": "Nomear seu dispositivo",
+      "point2": "Definir uma senha para o seu dispositivo",
+      "point3": "Criar um backup",
+      "text": "Ok, vamos criar uma nova carteira!"
+    },
+    "initialize": {
+      "passwordText": "Agora vamos definir uma senha para o seu dispositivo. Use os controles da sua BitBox para entrar e escolher uma senha.",
+      "passwordTitle": "Definir uma senha para a sua BitBox",
+      "text": "Sucesso ao parear sua BitBox02! Agora vamos inicializar seu dispositivo. Comece escolhendo criar uma nova carteira ou restaurar uma carteira a partir de um backup existente. <strong>Por favor, verifique se você tem um cartão microSD inserido na sua BitBox02</strong>",
+      "tip": "Antes de continuar, é altamente recomendável que você prossiga em um ambiente seguro.",
+      "title": "Inicialize sua BitBox"
+    },
+    "pairing": {
+      "confirmButton": "Confirmar e Continuar",
+      "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
+      "paired": "Você confirmou no seu dispositivo que o código corresponde. Se isso estiver correto, você pode clicar no botão abaixo para continuar.",
+      "title": "Verificar o código de pareamento",
+      "unpaired": "Uma nova BitBox02 foi detectada. Por favor, verifique se o seguinte código corresponde ao que é mostrado no seu dispositivo. Se o código coincidir, toque abaixo da marca de seleção na sua BitBox02 e, em seguida, clique no botão abaixo para continuar."
+    },
+    "success": {
+      "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o aplicativo BitBox, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
+      "title": "Você está pronto para começar!"
+    }
+  },
+  "bitboxBase": {
+    "connect": "Conectar Base",
+    "detectedBases": "Os seguintes dispositivos foram detectados na sua rede:",
+    "manualInput": "Não consegue ver sua BitBox Base? Conecte manualmente abaixo:",
+    "title": "BitBox Base"
   },
   "blink": {
     "button": "Piscar"
@@ -147,6 +219,7 @@
     "info": "Na sua BitBox",
     "infoWhenPaired": "Primeiro no celular emparelhado e depois na sua BitBox"
   },
+  "confirmOnDevice": "Por favor, confirme no seu dispositivo.",
   "device": {
     "appUpradeRequired": "Sua BitBox não é compatível com este aplicativo. Por favor, baixe e instale a versão mais recente."
   },
@@ -324,6 +397,20 @@
       },
       "whatIsABackup": {
         "text": "É uma cópia da semente em um cartão micro SD. A semente junto com sua senha de recuperação gera sua carteira.",
+        "title": "O que é um backup?"
+      }
+    },
+    "backupsBB02": {
+      "check": {
+        "text": "'Checar backup' permite verificar se você tem um backup funcionando correspondente à sua carteira atual.",
+        "title": "O que é 'Checar backup'?"
+      },
+      "encrypt": {
+        "text": "Não. Por favor, mantenha o cartão micro SD seguro, pois ele contém a semente não criptografada para recuperar sua carteira.",
+        "title": "Posso criptografar o backup?"
+      },
+      "whatIsABackup": {
+        "text": "É uma cópia da semente em um cartão micro SD.",
         "title": "O que é um backup?"
       }
     },
@@ -587,8 +674,10 @@
       "info": "O Litecoin está transacionando de endereços que começam com '3' para endereços que começam com um 'M'.",
       "result": "Formato legacy de {{address}}:\n{{legacyAddress}}"
     },
+    "showFull": "Mostrar e verificar endereço completo no dispositivo",
     "title": "Receber moedas",
     "verify": "Verificar o endereço com segurança",
+    "verifyInstruction": "Por favor, verifique se o endereço a seguir corresponde ao exibido no seu dispositivo.",
     "warning": {
       "secureOutput": "Por favor, emparelhe a sua BitBox com o seu dispositivo móvel para permitir a verificação segura do endereço. Vá para \"Gerenciar dispositivo\" na barra lateral."
     }
@@ -596,6 +685,7 @@
   "reset": {
     "button": "Resetar dispositivo",
     "description": "Todos os dados no dispositivo serão excluídos. Isso inclui sua chave privada!",
+    "notReset": "Dispositivo NÃO redefinido.",
     "title": "Resetar dispositivo",
     "understand": "Eu tenho um backup e sei minha senha de recuperação"
   },
@@ -772,6 +862,7 @@
   "setup": "Configurar dispositivo",
   "sidebar": {
     "addAccount": "Adicionar conta",
+    "bitboxBase": "BitBox Base",
     "device": "Gerenciar dispositivo",
     "leave": "Sair",
     "settings": "Configurações"
