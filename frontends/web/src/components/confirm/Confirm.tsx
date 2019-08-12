@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import SimpleMarkup from '../../utils/simplemarkup';
 import { Dialog } from '../dialog/dialog';
 import { Button } from '../forms';
 
@@ -64,7 +65,15 @@ class Confirm extends Component<TranslateProps, State> {
         return active ? (
             <Dialog
                 onClose={this.decline}>
-                <p class="first">{message}</p>
+                {
+                    message ? message.split('\n').map((line, i) => (
+                        <p
+                            key={i}
+                            class={ i === 0 ? 'first' : '' }>
+                            <SimpleMarkup tagName="span" markup={line} />
+                        </p>
+                    )) : null
+                }
                 <div class="buttons flex flex-row flex-between">
                     <Button secondary onClick={this.decline}>{t('dialog.cancel')}</Button>
                     <Button primary onClick={this.accept}>{t('dialog.confirm')}</Button>

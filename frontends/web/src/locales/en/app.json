@@ -88,7 +88,7 @@
     "list": "Found the <strong>following backups</strong> on this SD card:",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
-      "confirmTitle": "Restore Backup",
+      "confirmTitle": "Restore Backup from micro SD card",
       "error": {
         "e200": "SD card not found"
       },
@@ -101,6 +101,13 @@
       "restoring": "Restoring backup…",
       "title": "Restore",
       "understand": "I understand that an incorrect recovery password will create a different wallet"
+    },
+    "restoreFromMnemonic": {
+      "confirmTitle": "Restore from BIP39 mnemonic"
+    },
+    "showMnemonic": {
+      "description": "You will be presented with up to 24 words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it</strong>.\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
+      "title": "Show BIP39 Mnemonic"
     },
     "title": "Manage Backups"
   },
@@ -159,16 +166,22 @@
     "initialize": {
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
-      "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
+      "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. $t(bitbox02Wizard.insertSDCard)",
       "tip": "Before continuing, it is highly recommended that you proceed in a secure environment.",
       "title": "Initialize your BitBox"
     },
+    "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
     "pairing": {
       "confirmButton": "Confirm & Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
       "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
       "title": "Verify Pairing Code",
       "unpaired": "A new BitBox02 has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch underneath the check mark on your BitBox02 and then click the button below to continue."
+    },
+    "restoreFromMnemonic": {
+      "failed": "Restoring from BIP39 mnemonic failed, please try again.",
+      "point1": "Enter words",
+      "point2": "$t(bitbox02Wizard.backup.point2)"
     },
     "success": {
       "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBox App, please use the in-app guide by clicking the question mark on the top right corner.",
