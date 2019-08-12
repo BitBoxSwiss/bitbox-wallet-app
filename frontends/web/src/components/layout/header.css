@@ -100,7 +100,7 @@
     }
 
     .children {
-        padding: 0 var(--spacing-default) calc(var(--spacing-default) + var(--spacing-half)) var(--spacing-default);
+        padding: 0 var(--spacing-default) 20px var(--spacing-default);
     }
 }
 
@@ -118,7 +118,7 @@
     }
 
     .children {
-        padding: 0 var(--space-half) calc(var(--spacing-default) + var(--spacing-half)) var(--space-half);
+        padding: 0 var(--space-half) 16px var(--space-half);
     }
 
     .sidebarToggler {
