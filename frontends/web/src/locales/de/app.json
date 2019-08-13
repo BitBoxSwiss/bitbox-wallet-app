@@ -23,11 +23,11 @@
     "verify": "Auf dem Gerät bestätigen"
   },
   "accountSummary": {
-    "balance": "Kontostand",
+    "balance": "Saldo",
     "exportSummary": "Kontozusammenfassung als CSV Datei exportieren",
     "fiatBalance": "",
     "name": "Konto Name",
-    "noAccount": "",
+    "noAccount": "Keine Konten verfügbar",
     "total": "Gesamt"
   },
   "addAccount": {
@@ -66,7 +66,7 @@
       "title": "Backup überprüfen"
     },
     "create": {
-      "alreadyExists": "Sie haben schon ein gültiges Backup. Wollen Sie es trotzdem nochmal erstellen?",
+      "alreadyExists": "Sie haben schon ein gültiges Backup. Wollen Sie es trotzdem ein weiters Backup erstellen?",
       "fail": "Erstellung des Backups FEHLGESCHLAGEN!",
       "info": "Bitte geben Sie Ihr Wiederherstellungspasswort ein, um Ihr aktuelles Wallet zu verifizieren.",
       "name": {
@@ -83,7 +83,7 @@
     "description": "Wähle eine  <strong>Wallet Backup</strong> Datei aus.",
     "insert": "Bitte stecken Sie die Micro-SD-Karte ein um Ihre Backups zu verwalten.",
     "insertButton": "Ich habe die Mikro-SD-Karte eingesteckt.",
-    "list": "Die <strong>folgenden Backups</strong> wurden auf der microSD Karte gefunden:",
+    "list": "Die <strong>folgenden Backups</strong> wurden auf der eingesteckten microSD Karte gefunden. Bitte wähle eins aus und klicke auf \"Wiederherstellen\".",
     "noBackups": "Es befinden sich keine Backups auf der microSD Karte.",
     "restore": {
       "confirmTitle": "Von Backup wiederherstellen",
@@ -99,6 +99,13 @@
       "restoring": "Wiederherstellen des Backups…",
       "title": "Wiederherstellen",
       "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort ein neues/anderes Wallet erstellt."
+    },
+    "restoreFromMnemonic": {
+      "confirmTitle": "Von BIP39 mnemonic seed wiederherstellen"
+    },
+    "showMnemonic": {
+      "description": "Dir werden 24 Wörter angezeigt, die ein Backup deines Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt. Wenn jemand das Papier  mit den 24 Seed Wörtern findet hat er Zugang zu deinem Wallet.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du sie nochmals bestätigen. \n",
+      "title": "BIP39 Mnemonic Seed anzeigen"
     },
     "title": "Backups verwalten"
   },
@@ -130,7 +137,7 @@
     "mnemonicPassphrase": {
       "disable": "Mnemonic Passphrase deaktivieren",
       "enable": "Mnemonic Passphrase aktivieren",
-      "successDisable": "Mnemonic Passphrase erfolgreich deaktiviert",
+      "successDisable": "Mnemonic Passphrase erfolgreich deaktiviert.",
       "successEnable": "Mnemonic Passphrase erfolgreich aktiviert.\nAb jetzt können Sie nach dem Entsperren der BitBox 02 eine Passphrase eingeben. \n\nFalls Sie nicht wissen, was eine Passphrase ist deaktivieren Sie diese Option bitte wieder. Dies ist eine Option für erfahrene Nutzer.\n\n<strong>Achtung:</strong> jede Passphrase generiert ein seperates Wallet. \nSie müssen Ihre Passphrase  <strong>sicher aufbewahren</strong>.\n<strong>Bei Verlust der Passphrase lässt sich das Wallet mit Ihren Coins NICHT wieder herstellen. Das heißt, der Zugang zu Ihren Coins ist verloren.</strong>"
     }
   },
@@ -139,14 +146,14 @@
     "backup": {
       "point1": "Wähle ein Backup von der microSD Karte aus",
       "point2": "Setze ein Passwort für dein Gerät",
-      "restoreText": "Ok, lass uns dein Backup wieder herstellen!",
-      "text1": "Perfekt, Ihr BitBox 02 Passwort ist jetzt festgelegt und Ihr Wallet wurde erstellt. Jetzt ist es Zeit ein Backup zu erstellen. Bitte stelle sicher, dass die microSD Karte eingesteckt ist. ",
-      "text2": "Bitte folge den Anweisungen auf dem Bildschirm deiner BitBox um ein Backup zu erstellen. ",
-      "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort </strong>auf. Der Inhalt ist nicht passwort-geschützt. Stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. "
+      "restoreText": "Ok, lass uns dein Wallet von deinem Backup wiederherstellen!",
+      "text1": "Perfekt, Ihr BitBox 02 Passwort ist jetzt festgelegt und Ihr Wallet wurde erstellt. Jetzt ist es Zeit ein Backup des Wallets zu erstellen. Bitte stelle dazu sicher, dass die microSD Karte eingesteckt ist. ",
+      "text2": "Sobald Sie \"Backup erstellen\" geklickt haben folgen Sie bitte den Anweisungen auf Ihrer BitBox um ein Backup zu erstellen. ",
+      "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort auf und stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. </strong> Das Backup auf der microSD Karte ist nicht passwort-geschützt!"
     },
     "create": {
       "button": "Gerät bennenen & weiter",
-      "info": "Hier sind die Schritte, die wir durchlaufen werden, um deine BitBox aufzusetzen: ",
+      "info": "Hier sind die Schritte, die wir dazu durchlaufen werden:",
       "inputTitle": "Wallet Name ",
       "point1": "Gerät benennen",
       "point2": "Gerätepasswort einstellen",
@@ -154,21 +161,27 @@
       "text": "Ok, lass uns ein neues Wallet erstellen!"
     },
     "initialize": {
-      "passwordText": "Lass uns nun ein Passwort für deine BitBox festlegen. Benutze die Touch Slider auf den Seiten deiner BitBox, um ein Passwort einzugeben. ",
+      "passwordText": "Lass uns nun ein Passwort für deine BitBox festlegen. Schaue dir die Animation unten an und benutze dann die Touch Slider auf den Seiten deiner BitBox, um ein Passwort einzugeben. ",
       "passwordTitle": "Setze ein Passwort für deine BitBox",
-      "text": "BitBox 02 erfolgreich gekoppelt. Jetzt initaliseren wir deine BitBox. Wähle zuerst aus, ob du ein neues Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte eingesteckt ist.</strong>",
-      "tip": "Bevor Sie weiter machen, sollten Sie sich vergewissern, dass Sie in einer sicheren Umgebung sind, z.B. zuhause. ",
+      "text": "Jetzt initaliseren wir deine BitBox. Wähle zuerst aus, ob du ein neues Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte eingesteckt ist.</strong>",
+      "tip": "Bevor Sie weiter machen, sollten Sie sich vergewissern, dass Sie in einer sicheren Umgebung sind, z.B. Zuhause in einem Raum ohne Kamera und für Andere uneinsichtig. ",
       "title": "Initialisiere deine BitBox"
     },
+    "insertSDCard": "<strong>Bitte stelle sicher, dass du die microSD Karte in der BitBox02 eingesteckt hast.</strong>",
     "pairing": {
       "confirmButton": "Bestätige & Weiter",
       "failed": "Paarungscode nicht bestätigt. Bitte BitBox 02 aus und wieder ein stecken.",
-      "paired": "Du hast auf deiner BitBox bestätigt, dass der Paarungscode übereinstimmt. Wenn das korrekt ist, clicke auf \"weiter\".",
+      "paired": "Du hast auf deiner BitBox bestätigt, dass der Paarungscode übereinstimmt. Wenn das korrekt ist, klicke auf \"Bestätige & Weiter\".",
       "title": "Paarungscode bestätigen",
-      "unpaired": "Eine neue BitBox 02 wurde eingesteckt. Bitte bestätige, dass der folgende Code mit dem auf der BitBox 02 übereinstimmt. Wenn er übereinstimmt berühre zuerst die BitBox unterhalb des Häkchens und klicke dann auf den Knopf in der App um weiter zu machen.  "
+      "unpaired": "Eine neue BitBox 02 wurde eingesteckt. Bitte bestätige, dass der folgende Code mit dem auf der BitBox 02 übereinstimmt. Wenn er übereinstimmt berühre die BitBox unterhalb des Häkchens.  "
+    },
+    "restoreFromMnemonic": {
+      "failed": "Wiederherstellung von BIP39 Mnemonic Seed fehlgeschlagen. Bitte versuche es erneut.",
+      "point1": "Gib die Wörter ein",
+      "point2": "$t(bitbox02Wizard.backup.point2)"
     },
     "success": {
-      "text": "Hurra! Deine BitBox 02 ist bereit. \n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
+      "text": "Hurra! Deine BitBox 02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
       "title": "Es kann los gehen!"
     }
   },
@@ -214,7 +227,7 @@
     "abortInfoRedText": "abbrechen",
     "approveInfo": "4 Sekunden lang halten um zu ",
     "approveInfoGreenText": "bestätigen",
-    "info": "Auf deiner BitBox ",
+    "info": "auf deiner BitBox",
     "infoWhenPaired": "Zuerst auf Ihrem gepaarten Mobiltelefon und dann auf Ihrer BitBox"
   },
   "confirmOnDevice": "Bitte bestäigen Sie auf Ihrem Gerät.",
@@ -288,7 +301,7 @@
   "genericError": "Ein Fehler ist aufgetreten. Falls Sie Probleme bemerken, starten Sie die Applikation bitte neu.",
   "goal": {
     "buttons": {
-      "create": "Wallet erstellen",
+      "create": "Neues Wallet erstellen",
       "restore": "Wallet von Backup wiederherstellen "
     },
     "paragraph": "Bitte wählen Sie eine der folgenden Optionen:",
@@ -301,7 +314,7 @@
         "title": "Gerät"
       },
       "3-create": {
-        "description": "erstellen",
+        "description": "Neues Wallet erstellen",
         "title": "Wallet"
       },
       "3-restore": {
@@ -536,7 +549,7 @@
     "waiting": {
       "deviceNotRecognized": {
         "text": "Das Gerät sollte beim Einstecken einmal blinken. Stellen Sie sicher, dass es richtig herum eingesetzt ist. Bei Problemen kontaktieren Sie uns bitte über den untenstehenden Link.",
-        "title": "Mein Gerät wurde nicht erkannt"
+        "title": "Meine BitBox01 wurde nicht erkannt"
       },
       "getDevice": {
         "link": {
@@ -672,7 +685,7 @@
       "info": "Litecoin wechselt von Adressen, die mit '3' beginnen, zu Adressen, die mit 'M' beginnen.",
       "result": "Altes Format von {{address}}:\n{{legacyAddress}}"
     },
-    "showFull": "Gesamte Adresse auf BitBox anzeigen",
+    "showFull": "Adresse auf BitBox bestätigen",
     "title": "Coins erhalten",
     "verify": "Adresse sicher verifizieren",
     "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf Ihrerm Gerät übereinstimmt.",
@@ -711,7 +724,7 @@
       "password-change": "Ich kann das Wiederherstellungspasswort später NICHT ändern.",
       "password-required": "Ich brauche mein Wiederherstellungspasswort, um mein Wallet von meinem Backup wiederherzustellen."
     },
-    "create": "Wallet erstellen",
+    "create": "Neues Wallet erstellen",
     "creating": "Wallet wird erstellt",
     "description": "Ich bestätige, dass ich folgendes zu Kenntnis genommen habe:",
     "error": {
@@ -751,11 +764,11 @@
     "abort": "Die Transaktion wurde abgebrochen",
     "address": {
       "label": "Empfangsadresse",
-      "placeholder": "Adresse eingeben"
+      "placeholder": "Adresse eingeben oder scannen"
     },
     "amount": {
-      "label": "Menge",
-      "placeholder": "Menge eingeben"
+      "label": "Betrag",
+      "placeholder": "Betrag eingeben"
     },
     "button": "Signieren und Senden",
     "coincontrol": {
@@ -765,7 +778,7 @@
     },
     "confirm": {
       "selected-coins": "Ausgewählte Coins",
-      "title": "Bestätigen der Transaktion",
+      "title": "Bestätige die Transaktion",
       "total": "Gesamt"
     },
     "customFee": {
@@ -783,7 +796,7 @@
       "invalidData": "ungültige Daten"
     },
     "fee": {
-      "customPlaceholder": "Menge eingeben",
+      "customPlaceholder": "Betrag eingeben",
       "label": "Netzwerk Gebühr",
       "placeholder": "Nicht verfügbar"
     },
@@ -930,6 +943,7 @@
     "sendPairing": "Bitte aktivieren sie 2FA  um Transaktionen sicher zu verifizieren. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
+    "insertBitBox02": "Tippen Sie auf die BitBox02 zum weiter machen. ",
     "insertDevice": "Bitte verbinden Sie Ihr Gerät, um loszulegen",
     "title": "Willkommen"
   }
