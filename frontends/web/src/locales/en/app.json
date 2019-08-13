@@ -946,6 +946,7 @@
     "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage Device' in the sidebar."
   },
   "welcome": {
+    "insertBitBox02": "For the BitBox02, please tap the device to continue.",
     "insertDevice": "Please connect your device to get started",
     "title": "Welcome"
   }
