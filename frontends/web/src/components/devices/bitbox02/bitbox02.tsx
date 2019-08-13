@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import passwordEntryGif from '../../../assets/device/bb02PwEntry.gif';
+import passwordEntryOldGif from '../../../assets/device/bb02PwEntry_old.gif';
 import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import infoIcon from '../../../assets/icons/info.svg';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
@@ -290,10 +291,10 @@ class BitBox02 extends Component<Props, State> {
         if (status === '') {
             return null;
         }
+        if (!versionInfo) {
+            return null;
+        }
         if (status === 'require_firmware_upgrade') {
-            if (!versionInfo) {
-                return null;
-            }
             return (
                 <CenteredContent>
                     <p><strong>{t('upgradeFirmware.label')}</strong></p>
@@ -310,6 +311,7 @@ class BitBox02 extends Component<Props, State> {
         if (!showWizard) {
             return <Settings deviceID={deviceID}/>;
         }
+        const passwordGif = versionInfo.currentVersion === '1.0.0' || versionInfo.currentVersion === '2.0.0' ? passwordEntryOldGif : passwordEntryGif;
         // TODO: move to wizard.tsx
         return (
             <div className="contentWithGuide">
@@ -338,7 +340,7 @@ class BitBox02 extends Component<Props, State> {
                                     <p>{t('unlock.description')}</p>
                                 </div>
                                 <div className={style.passwordGesturesGifWrapper}>
-                                    <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                    <img class={style.passwordGesturesGif} src={passwordGif}/>
                                 </div>
                             </Step>
                             <Step
@@ -447,7 +449,7 @@ class BitBox02 extends Component<Props, State> {
                                         <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
                                     </div>
                                     <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'createWallet' ?
@@ -528,7 +530,7 @@ class BitBox02 extends Component<Props, State> {
                                         <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
                                     </div>
                                     <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordEntryGif}/>
+                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
                                     </div>
                                 </Step> : ''}
                             {!unlockOnly && appStatus === 'restoreFromMnemonic' ?
