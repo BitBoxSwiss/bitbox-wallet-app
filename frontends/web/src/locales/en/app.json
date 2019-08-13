@@ -552,7 +552,7 @@
     "waiting": {
       "deviceNotRecognized": {
         "text": "The device should blink once when inserted. Make sure that it is inserted the right way around. If you are having trouble, please contact us through the link below.",
-        "title": "My device is not recognized"
+        "title": "My BitBox01 is not recognized"
       },
       "getDevice": {
         "link": {
