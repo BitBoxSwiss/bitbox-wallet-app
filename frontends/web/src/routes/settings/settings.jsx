@@ -40,6 +40,7 @@ export default class Settings extends Component {
 
     state = {
         accountSuccess: false,
+        restart: false,
         config: null,
     }
 
@@ -98,11 +99,36 @@ export default class Settings extends Component {
             .then(config => this.setState({ config }));
     }
 
+    handleToggleProxy = event => {
+        if (event.target.checked) {
+            setConfig({
+                backend: {
+                    [event.target.id]: event.target.checked,
+                    proxyAddress: '127.0.0.1:9050',
+                }
+            })
+                .then(config => this.setState({ config, restart: true }));
+        } else {
+            setConfig({
+                backend: {
+                    [event.target.id]: event.target.checked,
+                    proxyAddress: '',
+                }
+            })
+                .then(config => this.setState({ config, restart: true }));
+        }
+    }
+
+    handleRestartDismissMessage = () => {
+        this.setState({ restart: false });
+    }
+
     render({
         t,
     }, {
         config,
         accountSuccess,
+        restart,
     }) {
         const accountsList = [
             'bitcoinP2PKHActive',
@@ -128,6 +154,17 @@ export default class Settings extends Component {
                                                         align="left"
                                                         message={t('settings.success')}
                                                         onEnd={this.handleDismissMessage} />
+                                                </div>
+                                            )
+                                        }
+                                        {
+                                            restart && (
+                                                <div class="row">
+                                                    <InlineMessage
+                                                        type="success"
+                                                        align="left"
+                                                        message={t('settings.restart')}
+                                                        onEnd={this.handleRestartDismissMessage} />
                                                 </div>
                                             )
                                         }
@@ -224,6 +261,15 @@ export default class Settings extends Component {
                                                 label={t('settings.expert.coinControl')}
                                                 className="text-medium" />
                                         </div>
+                                        <div class={style.content}>
+                                            <Checkbox
+                                                checked={config.backend.useProxy}
+                                                id="useProxy"
+                                                onChange={this.handleToggleProxy}
+                                                label={t('settings.expert.useProxy')}
+                                                className="text-medium" />
+                                        </div>
+
                                         <div class="row extra">
                                             <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
                                         </div>
