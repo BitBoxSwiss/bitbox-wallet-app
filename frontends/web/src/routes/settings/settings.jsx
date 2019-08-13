@@ -19,10 +19,12 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { Badge } from '../../components/badge/badge';
+import { Button, Input } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
 import { Header, Footer } from '../../components/layout';
+import InlineMessage  from '../../components/inlineMessage/InlineMessage';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
 import { Toggle } from '../../components/toggle/toggle';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
@@ -40,11 +42,18 @@ export default class Settings extends Component {
     }
 
     state = {
+        restart: false,
         config: null,
+        proxyAddress: '127.0.0.1:9050',
     }
 
     componentDidMount() {
-        apiGet('config').then(config => this.setState({ config }));
+        apiGet('config').then(config => {
+            this.setState({ config });
+            if (config.backend.proxyAddress) {
+                this.setState({ proxyAddress: config.backend.proxyAddress });
+            }
+        });
     }
 
     handleToggleAccount = event => {
@@ -105,10 +114,54 @@ export default class Settings extends Component {
             });
     }
 
+    handleToggleProxy = event => {
+        if (event.target.checked) {
+            setConfig({
+                backend: {
+                    [event.target.id]: event.target.checked,
+                    proxyAddress: this.state.proxyAddress,
+                }
+            })
+                .then(config => { 
+                    this.setState({ config, restart: true });
+                    console.log(config);
+                });
+        } else {
+            setConfig({
+                backend: {
+                    [event.target.id]: event.target.checked,
+                    proxyAddress: '',
+                }
+            })
+                .then(config => this.setState({ config, restart: true }));
+        }
+    }
+
+    handleFormChange = event => {
+        this.setState({
+            [event.target.name]: event.target.value,
+        });
+    }
+
+    setProxyAddress = () => {
+        setConfig({
+            backend: {
+                proxyAddress: this.state.proxyAddress,
+            }
+        }).then(config => this.setState({ config, restart: true }));
+    }
+
+
+    handleRestartDismissMessage = () => {
+        this.setState({ restart: false });
+    }
+
     render({
         t,
     }, {
         config,
+        restart,
+        proxyAddress,
     }) {
         const accountsList = [
             {
@@ -230,8 +283,47 @@ export default class Settings extends Component {
                                                                 id="coinControl"
                                                                 onChange={this.handleToggleCoinControl} />
                                                         </div>
+                                                        <div className={style.currency}>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.useProxy')}</p>
+                                                                <p className="m-none">
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                checked={config.backend.useProxy}
+                                                                id="useProxy"
+                                                                onChange={this.handleToggleProxy} />
+                                                        </div>
+                                                        {
+                                                            config.backend.useProxy && (
+                                                                <div class="row extra">
+                                                                    <Input
+                                                                        name="proxyAddress"
+                                                                        onInput={this.handleFormChange}
+                                                                        value={proxyAddress}
+                                                                        placeholder="127.0.0.1:9050"
+                                                                    />
+                                                                    <Button primary
+                                                                        onClick={this.setProxyAddress}
+                                                                    >
+                                                                        {t('settings.expert.setProxyAddress')}
+                                                                    </Button>
+                                                                </div>
+                                                            )
+                                                        }
                                                         <SettingsButton link href="/settings/electrum">{t('settings.expert.electrum.title')}</SettingsButton>
                                                     </div>
+                                                    {
+                                                        restart && (
+                                                            <div class="row">
+                                                                <InlineMessage
+                                                                    type="success"
+                                                                    align="left"
+                                                                    message={t('settings.restart')}
+                                                                    onEnd={this.handleRestartDismissMessage} />
+                                                            </div>
+                                                        )
+                                                    }
                                                 </div>
                                             </div>
                                         </div>
