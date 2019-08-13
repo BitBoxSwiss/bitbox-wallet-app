@@ -53,6 +53,7 @@ import (
 const (
 	coinBTC       = "btc"
 	coinTBTC      = "tbtc"
+	coinRBTC      = "rbtc"
 	coinLTC       = "ltc"
 	coinTLTC      = "tltc"
 	coinETH       = "eth"
@@ -318,6 +319,8 @@ func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 		return backend.config.AppConfig().Backend.BTC.ElectrumServers
 	case coinTBTC:
 		return backend.config.AppConfig().Backend.TBTC.ElectrumServers
+	case coinRBTC:
+		return backend.config.AppConfig().Backend.RBTC.ElectrumServers
 	case coinLTC:
 		return backend.config.AppConfig().Backend.LTC.ElectrumServers
 	case coinTLTC:
@@ -372,6 +375,8 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 			{Server: "s1.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 			{Server: "s2.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 		}
+	case coinRBTC:
+		return []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
 	case coinLTC:
 		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
 	case coinTLTC:
@@ -398,9 +403,9 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	}
 	dbFolder := backend.arguments.CacheDirectoryPath()
 	switch code {
-	case "rbtc":
-		servers := []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
-		coin = btc.NewCoin("rbtc", "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "")
+	case coinRBTC:
+		servers := backend.defaultElectrumXServers(code)
+		coin = btc.NewCoin(coinRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "")
 	case coinTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
@@ -485,7 +490,7 @@ func (backend *Backend) initAccounts() {
 			backend.createAndAddAccount(TLTC, "tltc-multisig", "Litecoin Testnet", "m/48'/1'/0'",
 				signing.ScriptTypeP2PKH)
 		case backend.arguments.Regtest():
-			RBTC, _ := backend.Coin("rbtc")
+			RBTC, _ := backend.Coin(coinRBTC)
 			backend.createAndAddAccount(RBTC, "rbtc-p2pkh", "Bitcoin Regtest Legacy", "m/44'/1'/0'",
 				signing.ScriptTypeP2PKH)
 			backend.createAndAddAccount(RBTC, "rbtc-p2wpkh-p2sh", "Bitcoin Regtest Segwit", "m/49'/1'/0'",

@@ -46,6 +46,7 @@ type Backend struct {
 
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
+	RBTC btcCoinConfig `json:"rbtc"`
 	LTC  btcCoinConfig `json:"ltc"`
 	TLTC btcCoinConfig `json:"tltc"`
 	ETH  ethCoinConfig `json:"eth"`
@@ -155,6 +156,15 @@ func NewDefaultAppConfig() AppConfig {
 						Server:  "merkle.shiftcrypto.ch:51002",
 						TLS:     true,
 						PEMCert: shiftRootCA,
+					},
+				},
+			},
+			RBTC: btcCoinConfig{
+				ElectrumServers: []*rpc.ServerInfo{
+					{
+						Server:  "127.0.0.1:52001",
+						TLS:     false,
+						PEMCert: "",
 					},
 				},
 			},
