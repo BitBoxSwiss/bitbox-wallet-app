@@ -41,6 +41,7 @@ function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
                         <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
+                        <span style="text-align: center;">{t('welcome.insertBitBox02')}</span>
                         <SkipForTesting show={!!testing} />
                     </div>
                     <hr />
