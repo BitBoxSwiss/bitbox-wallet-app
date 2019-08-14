@@ -30,7 +30,7 @@ XCode project.
   to. See below.
 - `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
 - `backend/coins/btc/electrum/`: A json rpc client library, talking to Electrum servers.
-- `backend/devices/bitbox/`: Library to detect and talk to digital bitboxes. High level API access.
+- `backend/devices/{bitbox,bitbox02}/`: Library to detect and talk to BitBoxes. High level API access.
 - `backend/coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
 - `backend/`: The library that ties it all together. Uses the above packages to create a wallet
