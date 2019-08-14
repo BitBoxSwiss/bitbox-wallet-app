@@ -45,7 +45,7 @@ The below instructions assume a unix environment.
 
 ### Requirements
 
-- [Go](https://golang.org/doc/install) version 1.9.2.
+- [Go](https://golang.org/doc/install) version 1.12.
 - [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
 - [Qt5](https://www.qt.io)
   - Install via https://www.qt.io/download, also install WebEngine, and put `qmake` and `rcc` into
