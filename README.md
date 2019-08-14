@@ -51,7 +51,7 @@ The below instructions assume a unix environment.
   - Install via https://www.qt.io/download, also install WebEngine, and put `qmake` and `rcc` into
     your PATH.
 
-Make sure $GOPATH is set and $GOPAH/bin and $GOROOT/bin is in your $PATH
+Make sure `$GOPATH` is set and `$GOPATH/bin` and `$GOROOT/bin` is in your `$PATH`.
 
 Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
 
