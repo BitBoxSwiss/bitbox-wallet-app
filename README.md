@@ -30,7 +30,7 @@ XCode project.
   to. See below.
 - `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
 - `backend/coins/btc/electrum/`: A json rpc client library, talking to Electrum servers.
-- `backend/devices/bitbox/`: Library to detect and talk to digital bitboxes. High level API access.
+- `backend/devices/{bitbox,bitbox02}/`: Library to detect and talk to BitBoxes. High level API access.
 - `backend/coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
   backend. Manages addresses, outputs, tx creation, and everything else that a wallet needs to do.
 - `backend/`: The library that ties it all together. Uses the above packages to create a wallet
@@ -45,13 +45,13 @@ The below instructions assume a unix environment.
 
 ### Requirements
 
-- [Go](https://golang.org/doc/install) version 1.9.2.
+- [Go](https://golang.org/doc/install) version 1.12.
 - [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
 - [Qt5](https://www.qt.io)
   - Install via https://www.qt.io/download, also install WebEngine, and put `qmake` and `rcc` into
     your PATH.
 
-Make sure $GOPATH is set and $GOPAH/bin and $GOROOT/bin is in your $PATH
+Make sure `$GOPATH` is set and `$GOPATH/bin` and `$GOROOT/bin` is in your `$PATH`.
 
 Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
 
