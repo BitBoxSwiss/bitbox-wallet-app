@@ -1,0 +1,40 @@
+pipeline {
+  agent {
+    docker {
+      label 'linux'
+      image 'golang:1.12'
+    }
+  }
+
+  options {
+    /* manage how many builds we keep */
+    buildDiscarder(logRotator(
+      numToKeepStr: '20',
+      daysToKeepStr: '30',
+    ))
+    disableConcurrentBuilds()
+    /* Go requires a certain directory structure */
+    checkoutToSubdirectory('src/github.com/status-im/keycard-go')
+  }
+
+  environment {
+    PROJECT = 'src/github.com/status-im/keycard-go'
+    GOPATH  = "${env.WORKSPACE}"
+    PATH    = "${env.PATH}:${env.GOPATH}/bin"
+    GOCACHE = '/tmp/gocache'
+  }
+
+  stages {
+    stage('Prep') {
+      steps { dir(env.PROJECT) {
+        sh 'make deps'
+      } }
+    }
+
+    stage('Test') {
+      steps { dir(env.PROJECT) {
+        sh 'make test'
+      } }
+    }
+  }
+}
