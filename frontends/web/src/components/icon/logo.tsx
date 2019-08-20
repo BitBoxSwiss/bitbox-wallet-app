@@ -17,7 +17,7 @@
  /* Imported svg source (excluding BitBox logos): http://cryptoicons.co/ */
 
 import { h } from 'preact';
-import BitBoxInvertedLogo from './assets/bitbox-logo-alt.svg';
+import AppLogoInvertedImg from './assets/app-logo-inverted.png';
 import BitBoxLogo from './assets/bitbox-logo.svg';
 import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.svg';
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
@@ -37,7 +37,7 @@ interface GenericProps {
 
 export const BitBox = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxLogo} alt="BitBox" class={style.logo} />;
 export const BitBox02 = (props: GenericProps) => <img {...props} draggable={false} src={BitBox02Logo} alt="BitBox02" class={style.logo} />;
-export const BitBoxInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxInvertedLogo} alt="BitBox" className={style.logo} />;
+export const AppLogoInverted = (props: GenericProps) => <img {...props} draggable={false} src={AppLogoInvertedImg} alt="BitBox" className={style.logo} />;
 export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissLogo} alt="BitBox" className={style.logo} />;
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;

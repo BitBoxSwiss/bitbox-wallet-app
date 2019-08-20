@@ -28,7 +28,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { AccountInterface } from '../../routes/account/account';
 import { debug } from '../../utils/env';
 import { apiPost } from '../../utils/request';
-import Logo, { BitBoxInverted } from '../icon/logo';
+import Logo, { AppLogoInverted } from '../icon/logo';
 
 interface SidebarProps {
     deviceIDs: string[];
@@ -151,7 +151,7 @@ class Sidebar extends Component<Props> {
                 <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
                 <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
                     <div className="sidebarLogoContainer">
-                        <BitBoxInverted className="sidebarLogo" />
+                        <AppLogoInverted className="sidebarLogo" />
                     </div>
                     <div className="sidebarHeaderContainer">
                         <span className="sidebarHeader">Accounts</span>
