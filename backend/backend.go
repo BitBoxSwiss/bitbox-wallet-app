@@ -39,6 +39,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -139,7 +140,8 @@ type Backend struct {
 
 	log *logrus.Entry
 
-	socksProxy socksproxy.SocksProxy
+	socksProxy   socksproxy.SocksProxy
+	ratesUpdater *rates.RateUpdater
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -168,14 +170,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 	}
 	backend.notifier = notifier
 	backend.socksProxy = socksproxy.NewSocksProxy(backend.config.AppConfig().Backend.UseProxy, backend.config.AppConfig().Backend.ProxyAddress)
-	backend.log.Println("Creating updater instance")
-	_ = NewRatesUpdater(backend.socksProxy)
-	backend.log.Println("Created updater instance")
+	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	backend.log.Println("Creating updater instance")
-	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
-	backend.log.Println("Created updater instance")
+	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
 
 	return backend, nil
 }
@@ -257,11 +255,11 @@ func (backend *Backend) CreateAndAddAccount(
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
 	case *eth.Coin:
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
 	default:
 		panic("unknown coin type")
@@ -862,9 +860,9 @@ func (backend *Backend) Deregister(deviceID string) {
 	}
 }
 
-// Rates return the latest rates.
-func (backend *Backend) Rates() map[string]map[string]float64 {
-	return GetRatesUpdaterInstance().Last()
+// RatesUpdater returns the backend's ratesUpdater instance
+func (backend *Backend) RatesUpdater() *rates.RateUpdater {
+	return backend.ratesUpdater
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.

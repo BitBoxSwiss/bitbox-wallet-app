@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package backend
+package rates
 
 import (
 	"encoding/json"
 	"fmt"
 	"reflect"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -36,50 +35,31 @@ var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CA
 const interval = time.Minute
 const cryptoCompareURL = "https://min-api.cryptocompare.com/data/pricemulti?fsyms=%s&tsyms=%s"
 
-var (
-	ratesUpdaterInstance     *RatesUpdater
-	ratesUpdaterInstanceOnce sync.Once
-)
-
-// GetRatesUpdaterInstance gets a singleton instance of RatesUpdater.
-func GetRatesUpdaterInstance() *RatesUpdater {
-	ratesUpdaterInstanceOnce.Do(func() {
-		ratesUpdaterInstance = &RatesUpdater{
-			last:       map[string]map[string]float64{},
-			log:        logging.Get().WithGroup("rates"),
-			socksProxy: socksproxy.NewSocksProxy(false, ""),
-		}
-	})
-	return ratesUpdaterInstance
-}
-
-// RatesUpdater implements coin.RatesUpdater.
-type RatesUpdater struct {
+// RateUpdater implements coin.RateUpdater.
+type RateUpdater struct {
 	observable.Implementation
 	last       map[string]map[string]float64
 	log        *logrus.Entry
 	socksProxy socksproxy.SocksProxy
 }
 
-// NewRatesUpdater returns a new rates updater.
-func NewRatesUpdater(socksProxy socksproxy.SocksProxy) *RatesUpdater {
-	ratesUpdaterInstanceOnce.Do(func() {
-		ratesUpdaterInstance = &RatesUpdater{
-			last:       map[string]map[string]float64{},
-			log:        logging.Get().WithGroup("rates"),
-			socksProxy: socksProxy,
-		}
-		go ratesUpdaterInstance.start()
-	})
-	return ratesUpdaterInstance
+// NewRateUpdater returns a new rates updater.
+func NewRateUpdater(socksProxy socksproxy.SocksProxy) *RateUpdater {
+	ratesUpdater := &RateUpdater{
+		last:       map[string]map[string]float64{},
+		log:        logging.Get().WithGroup("rates"),
+		socksProxy: socksProxy,
+	}
+	go ratesUpdater.start()
+	return ratesUpdater
 }
 
 // Last returns the last rates for a given coin and fiat or nil if not available.
-func (updater *RatesUpdater) Last() map[string]map[string]float64 {
+func (updater *RateUpdater) Last() map[string]map[string]float64 {
 	return updater.last
 }
 
-func (updater *RatesUpdater) update() {
+func (updater *RateUpdater) update() {
 	client, err := updater.socksProxy.GetHTTPClient()
 	if err != nil {
 		updater.log.Printf("Error getting http client %v\n", err)
@@ -120,7 +100,7 @@ func (updater *RatesUpdater) update() {
 	})
 }
 
-func (updater *RatesUpdater) start() {
+func (updater *RateUpdater) start() {
 	for {
 		updater.update()
 		time.Sleep(interval)

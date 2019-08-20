@@ -21,13 +21,11 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -91,41 +89,11 @@ type FormattedAmount struct {
 	Conversions map[string]string `json:"conversions"`
 }
 
-func formatAsCurrency(amount float64) string {
-	formatted := strconv.FormatFloat(amount, 'f', 2, 64)
-	position := strings.Index(formatted, ".") - 3
-	for position > 0 {
-		formatted = formatted[:position] + "'" + formatted[position:]
-		position -= 3
-	}
-	return formatted
-}
-
-// Conversions handles fiat conversions
-func Conversions(amount coin.Amount, coin coin.Coin, isFee bool) map[string]string {
-	var conversions map[string]string
-	if backend.GetRatesUpdaterInstance() != nil {
-		rates := backend.GetRatesUpdaterInstance().Last()
-		if rates != nil {
-			unit := coin.Unit(isFee)
-			if len(unit) == 4 && strings.HasPrefix(unit, "T") || unit == "RETH" {
-				unit = unit[1:]
-			}
-			float := coin.ToUnit(amount, isFee)
-			conversions = map[string]string{}
-			for key, value := range rates[unit] {
-				conversions[key] = formatAsCurrency(float * value)
-			}
-		}
-	}
-	return conversions
-}
-
 func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, isFee bool) FormattedAmount {
 	return FormattedAmount{
 		Amount:      handlers.account.Coin().FormatAmount(amount, isFee),
 		Unit:        handlers.account.Coin().Unit(isFee),
-		Conversions: Conversions(amount, handlers.account.Coin(), isFee),
+		Conversions: coin.Conversions(amount, handlers.account.Coin(), isFee, handlers.account.RateUpdater()),
 	}
 }
 
