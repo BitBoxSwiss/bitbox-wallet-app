@@ -48,6 +48,7 @@ import (
 	bitbox02bootloaderHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -93,7 +94,7 @@ type Backend interface {
 	Register(device device.Interface) error
 	Deregister(deviceID string)
 	TryMakeNewBase(ip string) (bool, error)
-	Rates() map[string]map[string]float64
+	RatesUpdater() *rates.RateUpdater
 	BitBoxBaseDeregister(bitboxBaseID string)
 	DownloadCert(string) (string, error)
 	CheckElectrumServer(string, string) error
@@ -534,7 +535,7 @@ func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (in
 }
 
 func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.Rates(), nil
+	return handlers.backend.RatesUpdater().Last(), nil
 }
 
 func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{}, error) {
@@ -548,7 +549,7 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 			"errMsg":  "invalid amount",
 		}, nil
 	}
-	rate := handlers.backend.Rates()[from][to]
+	rate := handlers.backend.RatesUpdater().Last()[from][to]
 	return map[string]interface{}{
 		"success":    true,
 		"fiatAmount": strconv.FormatFloat(amountAsFloat*rate, 'f', 2, 64),
@@ -580,7 +581,7 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 	case "TBTC", "TLTC", "TETH", "RETH":
 		unit = unit[1:]
 	}
-	rate := handlers.backend.Rates()[unit][from]
+	rate := handlers.backend.RatesUpdater().Last()[unit][from]
 	result := 0.0
 	if rate != 0.0 {
 		result = amountAsFloat / rate
@@ -743,11 +744,11 @@ func (handlers *Handlers) apiMiddleware(devMode bool, h func(*http.Request) (int
 	})
 }
 
-func formatAmountAsJSON(amount coin.Amount, coin coin.Coin, isFee bool) accountHandlers.FormattedAmount {
+func (handlers *Handlers) formatAmountAsJSON(amount coin.Amount, coinInstance coin.Coin, isFee bool) accountHandlers.FormattedAmount {
 	return accountHandlers.FormattedAmount{
-		Amount:      coin.FormatAmount(amount, isFee),
-		Unit:        coin.Unit(isFee),
-		Conversions: accountHandlers.Conversions(amount, coin, isFee),
+		Amount:      coinInstance.FormatAmount(amount, isFee),
+		Unit:        coinInstance.Unit(isFee),
+		Conversions: coin.Conversions(amount, coinInstance, isFee, handlers.backend.RatesUpdater()),
 	}
 }
 
@@ -779,8 +780,8 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 			AccountCode: account.Code(),
 			Name:        account.Name(),
 			Balance: map[string]interface{}{
-				"available":   formatAmountAsJSON(balance.Available(), account.Coin(), false),
-				"incoming":    formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
+				"available":   handlers.formatAmountAsJSON(balance.Available(), account.Coin(), false),
+				"incoming":    handlers.formatAmountAsJSON(balance.Incoming(), account.Coin(), false),
 				"hasIncoming": balance.Incoming().BigInt().Sign() > 0,
 			},
 		})
@@ -795,7 +796,7 @@ func (handlers *Handlers) getAccountSummary(_ *http.Request) (interface{}, error
 
 	jsonTotals := make(map[string]accountHandlers.FormattedAmount)
 	for c, total := range totals {
-		jsonTotals[c.Code()] = formatAmountAsJSON(coin.NewAmount(total), c, false)
+		jsonTotals[c.Code()] = handlers.formatAmountAsJSON(coin.NewAmount(total), c, false)
 	}
 
 	return map[string]interface{}{

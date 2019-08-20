@@ -34,6 +34,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
@@ -75,6 +76,7 @@ type Account struct {
 	fatalError  bool
 	onEvent     func(accounts.Event)
 	log         *logrus.Entry
+	rateUpdater *rates.RateUpdater
 }
 
 // Status indicates the connection and initialization status.
@@ -109,6 +111,7 @@ func NewAccount(
 	getNotifier func(*signing.Configuration) accounts.Notifier,
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
+	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "btc").
 		WithFields(logrus.Fields{"coin": coin.String(), "code": code, "name": name})
@@ -136,6 +139,7 @@ func NewAccount(
 		initialized: false,
 		onEvent:     onEvent,
 		log:         log,
+		rateUpdater: rateUpdater,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(accounts.EventSyncStarted) },
@@ -267,6 +271,11 @@ func (account *Account) Initialize() error {
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
 	return nil
+}
+
+// RateUpdater implements interface
+func (account *Account) RateUpdater() *rates.RateUpdater {
+	return account.rateUpdater
 }
 
 // XPubVersionForScriptType returns the xpub version bytes for the given coin and script type.

@@ -121,9 +121,6 @@ func newTLSConnection(address string, rootCert string, socksProxy socksproxy.Soc
 			return err
 		},
 	})
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
 	return tlsConn, nil
 }
 

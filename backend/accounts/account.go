@@ -19,6 +19,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
@@ -50,6 +51,7 @@ type Interface interface {
 	VerifyAddress(addressID string) (bool, error)
 	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
 	Keystores() *keystore.Keystores
+	RateUpdater() *rates.RateUpdater
 }
 
 // Info holds account information.
