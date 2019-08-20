@@ -44,9 +44,9 @@ curl https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz | tar -xz -C /opt/go_d
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse
 cd /opt && \
-    wget https://github.com/probonopd/linuxdeployqt/releases/download/5/linuxdeployqt-5-x86_64.AppImage && \
-    echo "e5294433d97504a5081c354cdedfebe918dd50188c378d965f598576fcbbf5b4 /opt/linuxdeployqt-5-x86_64.AppImage" | sha256sum -c - && \
-    chmod +x /opt/linuxdeployqt-5-x86_64.AppImage
+    wget https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage && \
+    echo "562d2e4dca44767bbf2410523d50b2834aa3e8c91199716e0f7d5690de47f0d1 /opt/linuxdeployqt-6-x86_64.AppImage" | sha256sum -c - && \
+    chmod +x /opt/linuxdeployqt-6-x86_64.AppImage
 
 # Install fpm to create deb/rpm packages
 apt-get install -y --no-install-recommends \
