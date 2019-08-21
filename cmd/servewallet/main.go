@@ -49,13 +49,13 @@ func (webdevEnvironment) NotifyUser(text string) {
 	case "darwin":
 		// #nosec G204
 		err := exec.Command("osascript", "-e",
-			fmt.Sprintf(`display notification "%s" with title \"BitBox Wallet DEV\"`, text))
+			fmt.Sprintf(`display notification "%s" with title \"BitBox App DEV\"`, text))
 		if err != nil {
 			log.Error(err)
 		}
 	case "linux":
 		// #nosec G204b
-		err := exec.Command("notify-send", "BitBox Wallet DEV", text).Run()
+		err := exec.Command("notify-send", "BitBox App DEV", text).Run()
 		if err != nil {
 			log.Error(err)
 		}

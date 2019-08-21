@@ -20,7 +20,7 @@
 #include "libserver.h"
 #include "webclass.h"
 
-#define APPNAME "BitBox Wallet"
+#define APPNAME "BitBox App"
 
 static QWebEngineView* view;
 static bool pageLoaded = false;

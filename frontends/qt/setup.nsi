@@ -1,4 +1,4 @@
-Name "BitBox Wallet App"
+Name "BitBox App"
 
 RequestExecutionLevel highest
 SetCompressor /SOLID lzma
@@ -56,7 +56,7 @@ XPStyle on
 BrandingText " "
 ShowInstDetails show
 VIProductVersion ${VERSION}
-VIAddVersionKey ProductName "BitBox Wallet App"
+VIAddVersionKey ProductName "BitBox App"
 VIAddVersionKey ProductVersion "${VERSION}"
 VIAddVersionKey CompanyName "${COMPANY}"
 VIAddVersionKey CompanyWebsite "${URL}"
