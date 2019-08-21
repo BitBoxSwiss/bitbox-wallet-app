@@ -27,7 +27,8 @@ import languageFromConfig from './config';
 import Backend from 'i18next-locize-backend';
 import locizeEditor from 'locize-editor';
 
-// if a language is not officially added yet, add it through this env var to make it available.
+// if a language is not officially added yet, add it through this env var to make it available
+// (e.g. "es,fr,sl").
 export const extraLanguages = process.env.PREACT_APP_I18N_ADDLANGUAGES;
 export const i18nEditorActive = process.env.PREACT_APP_I18NEDITOR === '1';
 
