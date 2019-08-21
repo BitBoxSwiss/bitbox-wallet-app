@@ -102,6 +102,13 @@
       "title": "Restaurar",
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
+    "restoreFromMnemonic": {
+      "confirmTitle": "Restaurar a partir da semente mnemônica BIP39"
+    },
+    "showMnemonic": {
+      "description": "Serão mostradas até 24 palavras, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
+      "title": "Mostrar semente mnemônica BIP39"
+    },
     "title": "Gerenciar backups"
   },
   "bb02Bootloader": {
@@ -130,6 +137,7 @@
       "title": "Definir nome da BitBox02"
     },
     "mnemonicPassphrase": {
+      "description": "Isso permite que você insira uma frase secreta mnemônica depois de desbloquear a sua BitBox02.\n\n<strong>NOTA:</strong> qualquer frase secreta mnemônica deriva uma nova carteira separadamente.\nMantenha sua frase secreta mnemônica <strong>segura</strong>.\n<strong>A perda de uma frase secreta mnemônica NÃO É RECUPERÁVEL.</strong>",
       "disable": "Desativar frase secreta mnemônica",
       "enable": "Ativar frase secreta mnemônica",
       "successDisable": "Frase secreta mnemônica desativada com sucesso",
@@ -162,12 +170,18 @@
       "tip": "Antes de continuar, é altamente recomendável que você prossiga em um ambiente seguro.",
       "title": "Inicialize sua BitBox"
     },
+    "insertSDCard": "<strong>Por favor, verifique se você tem um cartão microSD inserido em sua BitBox02.</strong>",
     "pairing": {
       "confirmButton": "Confirmar e Continuar",
       "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
       "paired": "Você confirmou no seu dispositivo que o código corresponde. Se isso estiver correto, você pode clicar no botão abaixo para continuar.",
       "title": "Verificar o código de pareamento",
       "unpaired": "Uma nova BitBox02 foi detectada. Por favor, verifique se o seguinte código corresponde ao que é mostrado no seu dispositivo. Se o código coincidir, toque abaixo da marca de seleção na sua BitBox02 e, em seguida, clique no botão abaixo para continuar."
+    },
+    "restoreFromMnemonic": {
+      "failed": "A restauração a partir da semente mnemônica BIP39 falhou, por favor, tente novamente.",
+      "point1": "Digite as palavras",
+      "point2": "$t(bitbox02Wizard.backup.point2)"
     },
     "success": {
       "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o aplicativo BitBox, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
@@ -932,6 +946,7 @@
     "sendPairing": "Por favor, emparelhe a BitBox para verificar com segurança os detalhes da transação. Vá para \"Gerenciar dispositivo\" na barra lateral."
   },
   "welcome": {
+    "insertBitBox02": "Para a BitBox02, por favor, toque no dispositivo para continuar.",
     "insertDevice": "Por favor, conecte seu dispositivo para iniciar",
     "title": "Bem-vindo"
   }
