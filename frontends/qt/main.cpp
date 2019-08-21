@@ -14,8 +14,9 @@
 #include <QMenu>
 #include <QSystemTrayIcon>
 
-#include <string>
+#include <iostream>
 #include <set>
+#include <string>
 
 #include "libserver.h"
 #include "webclass.h"
@@ -32,7 +33,12 @@ class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
     explicit RequestInterceptor() : QWebEngineUrlRequestInterceptor() { }
     void interceptRequest(QWebEngineUrlRequestInfo& info) override {
+#ifdef QT_BITBOX_ALLOW_EXTERNAL_URLS
+        // Do not block anything.
+        return;
+#endif
         if (info.requestUrl().scheme() != "qrc" && info.requestUrl().scheme() != "blob") {
+            std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
             info.block(true);
         }
     };

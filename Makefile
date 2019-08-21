@@ -55,8 +55,6 @@ buildweb:
 	yarn --cwd=${WEBROOT} run build
 webdev:
 	cd frontends/web && $(MAKE) dev
-webdev-i18n:
-	PREACT_APP_I18NEDITOR=1 $(MAKE) webdev
 weblint:
 	cd frontends/web && $(MAKE) lint
 webtest:
