@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
+// Package light implements on-demand retrieval capable state and chain objects
+// for the Ethereum Light Client.
 package les
 
 import (
@@ -21,8 +23,6 @@ import (
 	"sync"
 	"testing"
 	"time"
-
-	"github.com/ethereum/go-ethereum/common/mclock"
 )
 
 type testDistReq struct {
@@ -87,7 +87,7 @@ const (
 	testDistBufLimit       = 10000000
 	testDistMaxCost        = 1000000
 	testDistPeerCount      = 5
-	testDistReqCount       = 5000
+	testDistReqCount       = 50000
 	testDistMaxResendCount = 3
 )
 
@@ -121,7 +121,7 @@ func testRequestDistributor(t *testing.T, resend bool) {
 	stop := make(chan struct{})
 	defer close(stop)
 
-	dist := newRequestDistributor(nil, stop, &mclock.System{})
+	dist := newRequestDistributor(nil, stop)
 	var peers [testDistPeerCount]*testDistPeer
 	for i := range peers {
 		peers[i] = &testDistPeer{}

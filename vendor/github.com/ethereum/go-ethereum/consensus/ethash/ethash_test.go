@@ -107,7 +107,7 @@ func TestRemoteSealer(t *testing.T) {
 	ethash.Seal(nil, block, results, nil)
 
 	var (
-		work [4]string
+		work [3]string
 		err  error
 	)
 	if work, err = api.GetWork(); err != nil || work[0] != sealhash.Hex() {

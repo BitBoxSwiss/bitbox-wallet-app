@@ -21,22 +21,12 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/event"
 )
-
-// Config contains the settings of the global account manager.
-//
-// TODO(rjl493456442, karalabe, holiman): Get rid of this when account management
-// is removed in favor of Clef.
-type Config struct {
-	InsecureUnlockAllowed bool // Whether account unlocking in insecure environment is allowed
-}
 
 // Manager is an overarching account manager that can communicate with various
 // backends for signing transactions.
 type Manager struct {
-	config   *Config                    // Global account manager configurations
 	backends map[reflect.Type][]Backend // Index of backends currently registered
 	updaters []event.Subscription       // Wallet update subscriptions for all backends
 	updates  chan WalletEvent           // Subscription sink for backend wallet changes
@@ -50,7 +40,7 @@ type Manager struct {
 
 // NewManager creates a generic account manager to sign transaction via various
 // supported backends.
-func NewManager(config *Config, backends ...Backend) *Manager {
+func NewManager(backends ...Backend) *Manager {
 	// Retrieve the initial list of wallets from the backends and sort by URL
 	var wallets []Wallet
 	for _, backend := range backends {
@@ -65,7 +55,6 @@ func NewManager(config *Config, backends ...Backend) *Manager {
 	}
 	// Assemble the account manager and return
 	am := &Manager{
-		config:   config,
 		backends: make(map[reflect.Type][]Backend),
 		updaters: subs,
 		updates:  updates,
@@ -86,11 +75,6 @@ func (am *Manager) Close() error {
 	errc := make(chan error)
 	am.quit <- errc
 	return <-errc
-}
-
-// Config returns the configuration of account manager.
-func (am *Manager) Config() *Config {
-	return am.config
 }
 
 // update is the wallet event loop listening for notifications from the backends
@@ -161,20 +145,6 @@ func (am *Manager) Wallet(url string) (Wallet, error) {
 		}
 	}
 	return nil, ErrUnknownWallet
-}
-
-// Accounts returns all account addresses of all wallets within the account manager
-func (am *Manager) Accounts() []common.Address {
-	am.lock.RLock()
-	defer am.lock.RUnlock()
-
-	addresses := make([]common.Address, 0) // return [] instead of nil if empty
-	for _, wallet := range am.wallets {
-		for _, account := range wallet.Accounts() {
-			addresses = append(addresses, account.Address)
-		}
-	}
-	return addresses
 }
 
 // Find attempts to locate the wallet corresponding to a specific account. Since

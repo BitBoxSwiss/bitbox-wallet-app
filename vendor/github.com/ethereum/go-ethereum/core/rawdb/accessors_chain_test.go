@@ -18,21 +18,19 @@ package rawdb
 
 import (
 	"bytes"
-	"encoding/hex"
-	"fmt"
 	"math/big"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
-	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/crypto/sha3"
+	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/rlp"
-	"golang.org/x/crypto/sha3"
 )
 
 // Tests block header storage and retrieval operations.
 func TestHeaderStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	// Create a test header to move around the database and make sure it's really new
 	header := &types.Header{Number: big.NewInt(42), Extra: []byte("test header")}
@@ -49,7 +47,7 @@ func TestHeaderStorage(t *testing.T) {
 	if entry := ReadHeaderRLP(db, header.Hash(), header.Number.Uint64()); entry == nil {
 		t.Fatalf("Stored header RLP not found")
 	} else {
-		hasher := sha3.NewLegacyKeccak256()
+		hasher := sha3.NewKeccak256()
 		hasher.Write(entry)
 
 		if hash := common.BytesToHash(hasher.Sum(nil)); hash != header.Hash() {
@@ -65,12 +63,12 @@ func TestHeaderStorage(t *testing.T) {
 
 // Tests block body storage and retrieval operations.
 func TestBodyStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	// Create a test body to move around the database and make sure it's really new
 	body := &types.Body{Uncles: []*types.Header{{Extra: []byte("test header")}}}
 
-	hasher := sha3.NewLegacyKeccak256()
+	hasher := sha3.NewKeccak256()
 	rlp.Encode(hasher, body)
 	hash := common.BytesToHash(hasher.Sum(nil))
 
@@ -87,7 +85,7 @@ func TestBodyStorage(t *testing.T) {
 	if entry := ReadBodyRLP(db, hash, 0); entry == nil {
 		t.Fatalf("Stored body RLP not found")
 	} else {
-		hasher := sha3.NewLegacyKeccak256()
+		hasher := sha3.NewKeccak256()
 		hasher.Write(entry)
 
 		if calc := common.BytesToHash(hasher.Sum(nil)); calc != hash {
@@ -103,7 +101,7 @@ func TestBodyStorage(t *testing.T) {
 
 // Tests block storage and retrieval operations.
 func TestBlockStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	// Create a test block to move around the database and make sure it's really new
 	block := types.NewBlockWithHeader(&types.Header{
@@ -153,7 +151,7 @@ func TestBlockStorage(t *testing.T) {
 
 // Tests that partial block contents don't get reassembled into full blocks.
 func TestPartialBlockStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 	block := types.NewBlockWithHeader(&types.Header{
 		Extra:       []byte("test block"),
 		UncleHash:   types.EmptyUncleHash,
@@ -187,7 +185,7 @@ func TestPartialBlockStorage(t *testing.T) {
 
 // Tests block total difficulty storage and retrieval operations.
 func TestTdStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	// Create a test TD to move around the database and make sure it's really new
 	hash, td := common.Hash{}, big.NewInt(314)
@@ -210,7 +208,7 @@ func TestTdStorage(t *testing.T) {
 
 // Tests that canonical numbers can be mapped to hashes and retrieved.
 func TestCanonicalMappingStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	// Create a test canonical number and assinged hash to move around
 	hash, number := common.Hash{0: 0xff}, uint64(314)
@@ -233,7 +231,7 @@ func TestCanonicalMappingStorage(t *testing.T) {
 
 // Tests that head headers and head blocks can be assigned, individually.
 func TestHeadStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
 	blockHead := types.NewBlockWithHeader(&types.Header{Extra: []byte("test block header")})
 	blockFull := types.NewBlockWithHeader(&types.Header{Extra: []byte("test block full")})
@@ -268,15 +266,8 @@ func TestHeadStorage(t *testing.T) {
 
 // Tests that receipts associated with a single block can be stored and retrieved.
 func TestBlockReceiptStorage(t *testing.T) {
-	db := NewMemoryDatabase()
+	db := ethdb.NewMemDatabase()
 
-	// Create a live block since we need metadata to reconstruct the receipt
-	tx1 := types.NewTransaction(1, common.HexToAddress("0x1"), big.NewInt(1), 1, big.NewInt(1), nil)
-	tx2 := types.NewTransaction(2, common.HexToAddress("0x2"), big.NewInt(2), 2, big.NewInt(2), nil)
-
-	body := &types.Body{Transactions: types.Transactions{tx1, tx2}}
-
-	// Create the two receipts to manage afterwards
 	receipt1 := &types.Receipt{
 		Status:            types.ReceiptStatusFailed,
 		CumulativeGasUsed: 1,
@@ -284,12 +275,10 @@ func TestBlockReceiptStorage(t *testing.T) {
 			{Address: common.BytesToAddress([]byte{0x11})},
 			{Address: common.BytesToAddress([]byte{0x01, 0x11})},
 		},
-		TxHash:          tx1.Hash(),
+		TxHash:          common.BytesToHash([]byte{0x11, 0x11}),
 		ContractAddress: common.BytesToAddress([]byte{0x01, 0x11, 0x11}),
 		GasUsed:         111111,
 	}
-	receipt1.Bloom = types.CreateBloom(types.Receipts{receipt1})
-
 	receipt2 := &types.Receipt{
 		PostState:         common.Hash{2}.Bytes(),
 		CumulativeGasUsed: 2,
@@ -297,64 +286,34 @@ func TestBlockReceiptStorage(t *testing.T) {
 			{Address: common.BytesToAddress([]byte{0x22})},
 			{Address: common.BytesToAddress([]byte{0x02, 0x22})},
 		},
-		TxHash:          tx2.Hash(),
+		TxHash:          common.BytesToHash([]byte{0x22, 0x22}),
 		ContractAddress: common.BytesToAddress([]byte{0x02, 0x22, 0x22}),
 		GasUsed:         222222,
 	}
-	receipt2.Bloom = types.CreateBloom(types.Receipts{receipt2})
 	receipts := []*types.Receipt{receipt1, receipt2}
 
 	// Check that no receipt entries are in a pristine database
 	hash := common.BytesToHash([]byte{0x03, 0x14})
-	if rs := ReadReceipts(db, hash, 0, params.TestChainConfig); len(rs) != 0 {
+	if rs := ReadReceipts(db, hash, 0); len(rs) != 0 {
 		t.Fatalf("non existent receipts returned: %v", rs)
 	}
-	// Insert the body that corresponds to the receipts
-	WriteBody(db, hash, 0, body)
-
 	// Insert the receipt slice into the database and check presence
 	WriteReceipts(db, hash, 0, receipts)
-	if rs := ReadReceipts(db, hash, 0, params.TestChainConfig); len(rs) == 0 {
+	if rs := ReadReceipts(db, hash, 0); len(rs) == 0 {
 		t.Fatalf("no receipts returned")
 	} else {
-		if err := checkReceiptsRLP(rs, receipts); err != nil {
-			t.Fatalf(err.Error())
+		for i := 0; i < len(receipts); i++ {
+			rlpHave, _ := rlp.EncodeToBytes(rs[i])
+			rlpWant, _ := rlp.EncodeToBytes(receipts[i])
+
+			if !bytes.Equal(rlpHave, rlpWant) {
+				t.Fatalf("receipt #%d: receipt mismatch: have %v, want %v", i, rs[i], receipts[i])
+			}
 		}
 	}
-	// Delete the body and ensure that the receipts are no longer returned (metadata can't be recomputed)
-	DeleteBody(db, hash, 0)
-	if rs := ReadReceipts(db, hash, 0, params.TestChainConfig); rs != nil {
-		t.Fatalf("receipts returned when body was deleted: %v", rs)
-	}
-	// Ensure that receipts without metadata can be returned without the block body too
-	if err := checkReceiptsRLP(ReadRawReceipts(db, hash, 0), receipts); err != nil {
-		t.Fatalf(err.Error())
-	}
-	// Sanity check that body alone without the receipt is a full purge
-	WriteBody(db, hash, 0, body)
-
+	// Delete the receipt slice and check purge
 	DeleteReceipts(db, hash, 0)
-	if rs := ReadReceipts(db, hash, 0, params.TestChainConfig); len(rs) != 0 {
+	if rs := ReadReceipts(db, hash, 0); len(rs) != 0 {
 		t.Fatalf("deleted receipts returned: %v", rs)
 	}
-}
-
-func checkReceiptsRLP(have, want types.Receipts) error {
-	if len(have) != len(want) {
-		return fmt.Errorf("receipts sizes mismatch: have %d, want %d", len(have), len(want))
-	}
-	for i := 0; i < len(want); i++ {
-		rlpHave, err := rlp.EncodeToBytes(have[i])
-		if err != nil {
-			return err
-		}
-		rlpWant, err := rlp.EncodeToBytes(want[i])
-		if err != nil {
-			return err
-		}
-		if !bytes.Equal(rlpHave, rlpWant) {
-			return fmt.Errorf("receipt #%d: receipt mismatch: have %s, want %s", i, hex.EncodeToString(rlpHave), hex.EncodeToString(rlpWant))
-		}
-	}
-	return nil
 }

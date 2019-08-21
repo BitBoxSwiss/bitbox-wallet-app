@@ -29,6 +29,7 @@ export type Content = {
 export type ChartEntries = Array<ChartEntry>;
 
 export type ChartEntry = {
+	time:  Date,
 	value: number,
 };
 
@@ -50,50 +51,7 @@ export type TxPool = {
 };
 
 export type Network = {
-	peers: Peers,
-	diff:  Array<PeerEvent>
-};
-
-export type PeerEvent = {
-	ip:           string,
-	id:           string,
-	remove:       string,
-	location:     GeoLocation,
-	connected:    Date,
-	disconnected: Date,
-	ingress:      ChartEntries,
-	egress:       ChartEntries,
-	activity:     string,
-};
-
-export type Peers = {
-	bundles: {[string]: PeerBundle},
-};
-
-export type PeerBundle = {
-	location:     GeoLocation,
-	knownPeers:   {[string]: KnownPeer},
-	attempts: Array<UnknownPeer>,
-};
-
-export type KnownPeer = {
-	connected:    Array<Date>,
-	disconnected: Array<Date>,
-	ingress:      Array<ChartEntries>,
-	egress:       Array<ChartEntries>,
-	active:       boolean,
-};
-
-export type UnknownPeer = {
-	connected:    Date,
-	disconnected: Date,
-};
-
-export type GeoLocation = {
-	country:   string,
-	city:      string,
-	latitude:  number,
-	longitude: number,
+	/* TODO (kurkomisi) */
 };
 
 export type System = {

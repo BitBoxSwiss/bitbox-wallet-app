@@ -24,8 +24,6 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/ethereum/go-ethereum/log"
 )
 
 var discard = Protocol{
@@ -47,14 +45,14 @@ var discard = Protocol{
 
 func testPeer(protos []Protocol) (func(), *conn, *Peer, <-chan error) {
 	fd1, fd2 := net.Pipe()
-	c1 := &conn{fd: fd1, node: newNode(randomID(), nil), transport: newTestTransport(&newkey().PublicKey, fd1)}
-	c2 := &conn{fd: fd2, node: newNode(randomID(), nil), transport: newTestTransport(&newkey().PublicKey, fd2)}
+	c1 := &conn{fd: fd1, transport: newTestTransport(randomID(), fd1)}
+	c2 := &conn{fd: fd2, transport: newTestTransport(randomID(), fd2)}
 	for _, p := range protos {
 		c1.caps = append(c1.caps, p.cap())
 		c2.caps = append(c2.caps, p.cap())
 	}
 
-	peer := newPeer(log.Root(), c1, protos)
+	peer := newPeer(c1, protos)
 	errc := make(chan error, 1)
 	go func() {
 		_, err := peer.run()

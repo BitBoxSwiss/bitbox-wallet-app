@@ -14,11 +14,10 @@ import (
 )
 
 const (
-	timeFormat        = "2006-01-02T15:04:05-0700"
-	termTimeFormat    = "01-02|15:04:05.000"
-	floatFormat       = 'f'
-	termMsgJust       = 40
-	termCtxMaxPadding = 40
+	timeFormat     = "2006-01-02T15:04:05-0700"
+	termTimeFormat = "01-02|15:04:05.000"
+	floatFormat    = 'f'
+	termMsgJust    = 40
 )
 
 // locationTrims are trimmed for display to avoid unwieldy log lines.
@@ -176,7 +175,7 @@ func logfmt(buf *bytes.Buffer, ctx []interface{}, color int, term bool) {
 		fieldPaddingLock.RUnlock()
 
 		length := utf8.RuneCountInString(v)
-		if padding < length && length <= termCtxMaxPadding {
+		if padding < length {
 			padding = length
 
 			fieldPaddingLock.Lock()
@@ -190,7 +189,7 @@ func logfmt(buf *bytes.Buffer, ctx []interface{}, color int, term bool) {
 			buf.WriteByte('=')
 		}
 		buf.WriteString(v)
-		if i < len(ctx)-2 && padding > length {
+		if i < len(ctx)-2 {
 			buf.Write(bytes.Repeat([]byte{' '}, padding-length))
 		}
 	}

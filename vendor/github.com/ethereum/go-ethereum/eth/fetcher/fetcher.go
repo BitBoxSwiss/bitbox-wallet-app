@@ -110,6 +110,7 @@ type Fetcher struct {
 	notify chan *announce
 	inject chan *inject
 
+	blockFilter  chan chan []*types.Block
 	headerFilter chan chan *headerFilterTask
 	bodyFilter   chan chan *bodyFilterTask
 
@@ -149,6 +150,7 @@ func New(getBlock blockRetrievalFn, verifyHeader headerVerifierFn, broadcastBloc
 	return &Fetcher{
 		notify:         make(chan *announce),
 		inject:         make(chan *inject),
+		blockFilter:    make(chan chan []*types.Block),
 		headerFilter:   make(chan chan *headerFilterTask),
 		bodyFilter:     make(chan chan *bodyFilterTask),
 		done:           make(chan common.Hash),
@@ -685,7 +687,7 @@ func (f *Fetcher) forgetHash(hash common.Hash) {
 	// Remove all pending announces and decrement DOS counters
 	for _, announce := range f.announced[hash] {
 		f.announces[announce.origin]--
-		if f.announces[announce.origin] <= 0 {
+		if f.announces[announce.origin] == 0 {
 			delete(f.announces, announce.origin)
 		}
 	}
@@ -696,7 +698,7 @@ func (f *Fetcher) forgetHash(hash common.Hash) {
 	// Remove any pending fetches and decrement the DOS counters
 	if announce := f.fetching[hash]; announce != nil {
 		f.announces[announce.origin]--
-		if f.announces[announce.origin] <= 0 {
+		if f.announces[announce.origin] == 0 {
 			delete(f.announces, announce.origin)
 		}
 		delete(f.fetching, hash)
@@ -705,7 +707,7 @@ func (f *Fetcher) forgetHash(hash common.Hash) {
 	// Remove any pending completion requests and decrement the DOS counters
 	for _, announce := range f.fetched[hash] {
 		f.announces[announce.origin]--
-		if f.announces[announce.origin] <= 0 {
+		if f.announces[announce.origin] == 0 {
 			delete(f.announces, announce.origin)
 		}
 	}
@@ -714,7 +716,7 @@ func (f *Fetcher) forgetHash(hash common.Hash) {
 	// Remove any pending completions and decrement the DOS counters
 	if announce := f.completing[hash]; announce != nil {
 		f.announces[announce.origin]--
-		if f.announces[announce.origin] <= 0 {
+		if f.announces[announce.origin] == 0 {
 			delete(f.announces, announce.origin)
 		}
 		delete(f.completing, hash)

@@ -1,5 +1,5 @@
 This directory contains accounts for testing.
-The password that unlocks them is "foobar".
+The passphrase that unlocks them is "foobar".
 
 The "good" key files which are supposed to be loadable are:
 

@@ -27,10 +27,9 @@ import (
 )
 
 var gitCommit = "" // Git SHA1 commit hash of the release (set via linker flags)
-var gitDate = ""
 
 var (
-	app = utils.NewApp(gitCommit, gitDate, "the evm command line interface")
+	app = utils.NewApp(gitCommit, "the evm command line interface")
 
 	DebugFlag = cli.BoolFlag{
 		Name:  "debug",
@@ -111,11 +110,6 @@ var (
 		Name:  "nostack",
 		Usage: "disable stack output",
 	}
-	EVMInterpreterFlag = cli.StringFlag{
-		Name:  "vm.evm",
-		Usage: "External EVM configuration (default = built-in interpreter)",
-		Value: "",
-	}
 )
 
 func init() {
@@ -139,7 +133,6 @@ func init() {
 		ReceiverFlag,
 		DisableMemoryFlag,
 		DisableStackFlag,
-		EVMInterpreterFlag,
 	}
 	app.Commands = []cli.Command{
 		compileCommand,

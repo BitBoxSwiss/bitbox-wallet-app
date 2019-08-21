@@ -56,10 +56,8 @@ services:
   faucet:
     build: .
     image: {{.Network}}/faucet
-    container_name: {{.Network}}_faucet_1
     ports:
-      - "{{.EthPort}}:{{.EthPort}}"
-      - "{{.EthPort}}:{{.EthPort}}/udp"{{if not .VHost}}
+      - "{{.EthPort}}:{{.EthPort}}"{{if not .VHost}}
       - "{{.ApiPort}}:8080"{{end}}
     volumes:
       - {{.Datadir}}:/root/.faucet
