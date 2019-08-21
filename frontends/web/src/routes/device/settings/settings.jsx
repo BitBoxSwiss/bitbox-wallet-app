@@ -212,7 +212,7 @@ export default class Settings extends Component {
                                         </div>
                                     ) || (
                                         <div>
-                                            <dt></dt>
+                                            <dt>&nbsp;</dt>
                                             <dd>{t('deviceSettings.firmware.upToDate')}</dd>
                                         </div>
                                     )}

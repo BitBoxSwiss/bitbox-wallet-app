@@ -2,7 +2,7 @@
 Type=Application
 Name=BitBox
 Exec=BitBox
-Icon=/usr/share/pixmaps/bitbox.svg
+Icon=/usr/share/pixmaps/bitbox.png
 Comment=Manage your crypto assets
 Categories=Network;Utility;Finance;
 Terminal=false

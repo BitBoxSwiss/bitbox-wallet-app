@@ -36,7 +36,7 @@ linux:
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.11.0 -C ../tmp-deb/
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.11.0 -C ../tmp-deb/
 	# create AppImage
-	sed 's+/usr/share/pixmaps/bitbox.svg+default+' resources/linux/usr/share/applications/bitbox.desktop > build/linux-tmp/bitbox.desktop
+	sed 's+/usr/share/pixmaps/bitbox.png+default+' resources/linux/usr/share/applications/bitbox.desktop > build/linux-tmp/bitbox.desktop
 	cd build/linux-tmp && /opt/linuxdeployqt-6-x86_64.AppImage BitBox -appimage
 	mv build/linux-tmp/BitBox-*-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
