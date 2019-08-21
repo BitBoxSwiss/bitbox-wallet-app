@@ -41,7 +41,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/whisper/mailserver"
 	whisper "github.com/ethereum/go-ethereum/whisper/whisperv6"
@@ -175,7 +175,7 @@ func initialize() {
 	log.Root().SetHandler(log.LvlFilterHandler(log.Lvl(*argVerbosity), log.StreamHandler(os.Stderr, log.TerminalFormat(false))))
 
 	done = make(chan struct{})
-	var peers []*enode.Node
+	var peers []*discover.Node
 	var err error
 
 	if *generateKey {
@@ -203,7 +203,7 @@ func initialize() {
 		if len(*argEnode) == 0 {
 			argEnode = scanLineA("Please enter the peer's enode: ")
 		}
-		peer := enode.MustParse(*argEnode)
+		peer := discover.MustParseNode(*argEnode)
 		peers = append(peers, peer)
 	}
 
@@ -356,7 +356,7 @@ func configureNode() {
 		if len(symPass) == 0 {
 			symPass, err = console.Stdin.PromptPassword("Please enter the password for symmetric encryption: ")
 			if err != nil {
-				utils.Fatalf("Failed to read password: %v", err)
+				utils.Fatalf("Failed to read passphrase: %v", err)
 			}
 		}
 
@@ -747,11 +747,11 @@ func requestExpiredMessagesLoop() {
 }
 
 func extractIDFromEnode(s string) []byte {
-	n, err := enode.Parse(enode.ValidSchemes, s)
+	n, err := discover.ParseNode(s)
 	if err != nil {
-		utils.Fatalf("Failed to parse node: %s", err)
+		utils.Fatalf("Failed to parse enode: %s", err)
 	}
-	return n.ID().Bytes()
+	return n.ID[:]
 }
 
 // obfuscateBloom adds 16 random bits to the bloom

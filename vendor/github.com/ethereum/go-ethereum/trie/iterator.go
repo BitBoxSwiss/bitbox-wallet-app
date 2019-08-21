@@ -34,9 +34,7 @@ type Iterator struct {
 	Err   error
 }
 
-// NewIterator creates a new key-value iterator from a node iterator.
-// Note that the value returned by the iterator is raw. If the content is encoded
-// (e.g. storage value is RLP-encoded), it's caller's duty to decode it.
+// NewIterator creates a new key-value iterator from a node iterator
 func NewIterator(it NodeIterator) *Iterator {
 	return &Iterator{
 		nodeIt: it,
@@ -182,9 +180,7 @@ func (it *nodeIterator) LeafBlob() []byte {
 func (it *nodeIterator) LeafProof() [][]byte {
 	if len(it.stack) > 0 {
 		if _, ok := it.stack[len(it.stack)-1].node.(valueNode); ok {
-			hasher := newHasher(nil)
-			defer returnHasherToPool(hasher)
-
+			hasher := newHasher(0, 0, nil)
 			proofs := make([][]byte, 0, len(it.stack))
 
 			for i, item := range it.stack[:len(it.stack)-1] {

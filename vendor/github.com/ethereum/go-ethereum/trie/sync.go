@@ -72,21 +72,19 @@ func newSyncMemBatch() *syncMemBatch {
 // unknown trie hashes to retrieve, accepts node data associated with said hashes
 // and reconstructs the trie step by step until all is done.
 type Sync struct {
-	database ethdb.KeyValueReader     // Persistent database to check for existing entries
+	database DatabaseReader           // Persistent database to check for existing entries
 	membatch *syncMemBatch            // Memory buffer to avoid frequent database writes
 	requests map[common.Hash]*request // Pending requests pertaining to a key hash
 	queue    *prque.Prque             // Priority queue with the pending requests
-	bloom    *SyncBloom               // Bloom filter for fast node existence checks
 }
 
 // NewSync creates a new trie data download scheduler.
-func NewSync(root common.Hash, database ethdb.KeyValueReader, callback LeafCallback, bloom *SyncBloom) *Sync {
+func NewSync(root common.Hash, database DatabaseReader, callback LeafCallback) *Sync {
 	ts := &Sync{
 		database: database,
 		membatch: newSyncMemBatch(),
 		requests: make(map[common.Hash]*request),
 		queue:    prque.New(nil),
-		bloom:    bloom,
 	}
 	ts.AddSubTrie(root, 0, common.Hash{}, callback)
 	return ts
@@ -101,14 +99,10 @@ func (s *Sync) AddSubTrie(root common.Hash, depth int, parent common.Hash, callb
 	if _, ok := s.membatch.batch[root]; ok {
 		return
 	}
-	if s.bloom.Contains(root[:]) {
-		// Bloom filter says this might be a duplicate, double check
-		blob, _ := s.database.Get(root[:])
-		if local, err := decodeNode(root[:], blob); local != nil && err == nil {
-			return
-		}
-		// False positive, bump fault meter
-		bloomFaultMeter.Mark(1)
+	key := root.Bytes()
+	blob, _ := s.database.Get(key)
+	if local, err := decodeNode(key, blob, 0); local != nil && err == nil {
+		return
 	}
 	// Assemble the new sub-trie sync request
 	req := &request{
@@ -140,13 +134,8 @@ func (s *Sync) AddRawEntry(hash common.Hash, depth int, parent common.Hash) {
 	if _, ok := s.membatch.batch[hash]; ok {
 		return
 	}
-	if s.bloom.Contains(hash[:]) {
-		// Bloom filter says this might be a duplicate, double check
-		if ok, _ := s.database.Has(hash[:]); ok {
-			return
-		}
-		// False positive, bump fault meter
-		bloomFaultMeter.Mark(1)
+	if ok, _ := s.database.Has(hash.Bytes()); ok {
+		return
 	}
 	// Assemble the new sub-trie sync request
 	req := &request{
@@ -168,7 +157,7 @@ func (s *Sync) AddRawEntry(hash common.Hash, depth int, parent common.Hash) {
 
 // Missing retrieves the known missing nodes from the trie for retrieval.
 func (s *Sync) Missing(max int) []common.Hash {
-	var requests []common.Hash
+	requests := []common.Hash{}
 	for !s.queue.Empty() && (max == 0 || len(requests) < max) {
 		requests = append(requests, s.queue.PopItem().(common.Hash))
 	}
@@ -198,7 +187,7 @@ func (s *Sync) Process(results []SyncResult) (bool, int, error) {
 			continue
 		}
 		// Decode the node data content and update the request
-		node, err := decodeNode(item.Hash[:], item.Data)
+		node, err := decodeNode(item.Hash[:], item.Data, 0)
 		if err != nil {
 			return committed, i, err
 		}
@@ -224,15 +213,14 @@ func (s *Sync) Process(results []SyncResult) (bool, int, error) {
 
 // Commit flushes the data stored in the internal membatch out to persistent
 // storage, returning the number of items written and any occurred error.
-func (s *Sync) Commit(dbw ethdb.KeyValueWriter) (int, error) {
+func (s *Sync) Commit(dbw ethdb.Putter) (int, error) {
 	// Dump the membatch into a database dbw
 	for i, key := range s.membatch.order {
 		if err := dbw.Put(key[:], s.membatch.batch[key]); err != nil {
 			return i, err
 		}
-		s.bloom.Add(key[:])
 	}
-	written := len(s.membatch.order) // TODO(karalabe): could an order change improve write performance?
+	written := len(s.membatch.order)
 
 	// Drop the membatch data and return
 	s.membatch = newSyncMemBatch()
@@ -266,7 +254,7 @@ func (s *Sync) children(req *request, object node) ([]*request, error) {
 		node  node
 		depth int
 	}
-	var children []child
+	children := []child{}
 
 	switch node := (object).(type) {
 	case *shortNode:
@@ -304,13 +292,8 @@ func (s *Sync) children(req *request, object node) ([]*request, error) {
 			if _, ok := s.membatch.batch[hash]; ok {
 				continue
 			}
-			if s.bloom.Contains(node) {
-				// Bloom filter says this might be a duplicate, double check
-				if ok, _ := s.database.Has(node); ok {
-					continue
-				}
-				// False positive, bump fault meter
-				bloomFaultMeter.Mark(1)
+			if ok, _ := s.database.Has(node); ok {
+				continue
 			}
 			// Locally unknown node, schedule for retrieval
 			requests = append(requests, &request{

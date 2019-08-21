@@ -35,18 +35,18 @@ It is possible to refer to a file containing the message.
 To sign a message contained in a file, use the --msgfile flag.
 
 
-### `ethkey changepassword <keyfile>`
+### `ethkey changepassphrase <keyfile>`
 
-Change the password of a keyfile.
+Change the passphrase of a keyfile.
 use the `--newpasswordfile` to point to the new password file.
 
 
-## Passwords
+## Passphrases
 
 For every command that uses a keyfile, you will be prompted to provide the 
-password for decrypting the keyfile.  To avoid this message, it is possible
-to pass the password by using the `--passwordfile` flag pointing to a file that
-contains the password.
+passphrase for decrypting the keyfile.  To avoid this message, it is possible
+to pass the passphrase by using the `--passwordfile` flag pointing to a file that
+contains the passphrase.
 
 ## JSON
 

@@ -7,5 +7,3 @@ node_modules/jss/flow-typed
 
 [options]
 include_warnings=true
-module.system.node.resolve_dirname=node_modules
-module.system.node.resolve_dirname=components

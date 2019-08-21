@@ -22,6 +22,7 @@ package main
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"fmt"
 	"io/ioutil"
 	"math/big"
 	"math/rand"
@@ -39,7 +40,7 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/enode"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -61,26 +62,32 @@ func main() {
 
 	var (
 		nodes  []*node.Node
-		enodes []*enode.Node
+		enodes []string
 	)
 	for _, sealer := range sealers {
 		// Start the node and wait until it's up
-		node, err := makeSealer(genesis)
+		node, err := makeSealer(genesis, enodes)
 		if err != nil {
 			panic(err)
 		}
-		defer node.Close()
+		defer node.Stop()
 
 		for node.Server().NodeInfo().Ports.Listener == 0 {
 			time.Sleep(250 * time.Millisecond)
 		}
 		// Connect the node to al the previous ones
-		for _, n := range enodes {
-			node.Server().AddPeer(n)
+		for _, enode := range enodes {
+			enode, err := discover.ParseNode(enode)
+			if err != nil {
+				panic(err)
+			}
+			node.Server().AddPeer(enode)
 		}
-		// Start tracking the node and it's enode
+		// Start tracking the node and it's enode url
 		nodes = append(nodes, node)
-		enodes = append(enodes, node.Server().Self())
+
+		enode := fmt.Sprintf("enode://%s@127.0.0.1:%d", node.Server().NodeInfo().ID, node.Server().NodeInfo().Ports.Listener)
+		enodes = append(enodes, enode)
 
 		// Inject the signer key and start sealing with it
 		store := node.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
@@ -170,7 +177,7 @@ func makeGenesis(faucets []*ecdsa.PrivateKey, sealers []*ecdsa.PrivateKey) *core
 	return genesis
 }
 
-func makeSealer(genesis *core.Genesis) (*node.Node, error) {
+func makeSealer(genesis *core.Genesis, nodes []string) (*node.Node, error) {
 	// Define the basic configurations for the Ethereum node
 	datadir, _ := ioutil.TempDir("", "")
 
@@ -199,12 +206,10 @@ func makeSealer(genesis *core.Genesis) (*node.Node, error) {
 			DatabaseHandles: 256,
 			TxPool:          core.DefaultTxPoolConfig,
 			GPO:             eth.DefaultConfig.GPO,
-			Miner: Config{
-				GasFloor: genesis.GasLimit * 9 / 10,
-				GasCeil:  genesis.GasLimit * 11 / 10,
-				GasPrice: big.NewInt(1),
-				Recommit: time.Second,
-			},
+			MinerGasFloor:   genesis.GasLimit * 9 / 10,
+			MinerGasCeil:    genesis.GasLimit * 11 / 10,
+			MinerGasPrice:   big.NewInt(1),
+			MinerRecommit:   time.Second,
 		})
 	}); err != nil {
 		return nil, err

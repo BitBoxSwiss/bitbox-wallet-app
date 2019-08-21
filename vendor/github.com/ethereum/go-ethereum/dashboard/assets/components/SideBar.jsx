@@ -18,14 +18,11 @@
 
 import React, {Component} from 'react';
 
-import withStyles from '@material-ui/core/styles/withStyles';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Icon from '@material-ui/core/Icon';
+import withStyles from 'material-ui/styles/withStyles';
+import List, {ListItem, ListItemIcon, ListItemText} from 'material-ui/List';
+import Icon from 'material-ui/Icon';
 import Transition from 'react-transition-group/Transition';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {Icon as FontAwesome} from 'react-fa';
 
 import {MENU, DURATION} from '../common';
 
@@ -51,7 +48,6 @@ const themeStyles = theme => ({
 	},
 	icon: {
 		fontSize: theme.spacing.unit * 3,
-		overflow: 'unset',
 	},
 });
 
@@ -61,11 +57,9 @@ export type Props = {
 	changeContent: string => void,
 };
 
-type State = {}
-
 // SideBar renders the sidebar of the dashboard.
-class SideBar extends Component<Props, State> {
-	shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, nextContext: any) {
+class SideBar extends Component<Props> {
+	shouldComponentUpdate(nextProps) {
 		return nextProps.opened !== this.props.opened;
 	}
 
@@ -84,7 +78,7 @@ class SideBar extends Component<Props, State> {
 				<ListItem button key={menu.id} onClick={this.clickOn(menu.id)} className={classes.listItem}>
 					<ListItemIcon>
 						<Icon className={classes.icon}>
-							<FontAwesomeIcon icon={menu.icon} />
+							<FontAwesome name={menu.icon} />
 						</Icon>
 					</ListItemIcon>
 					<ListItemText

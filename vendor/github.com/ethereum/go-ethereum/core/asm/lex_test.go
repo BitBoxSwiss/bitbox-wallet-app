@@ -22,7 +22,7 @@ import (
 )
 
 func lexAll(src string) []token {
-	ch := Lex([]byte(src), false)
+	ch := Lex("test.asm", []byte(src), false)
 
 	var tokens []token
 	for i := range ch {

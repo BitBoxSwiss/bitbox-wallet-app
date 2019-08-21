@@ -18,19 +18,14 @@
 
 import React, {Component} from 'react';
 
-import withStyles from '@material-ui/core/styles/withStyles';
-import Typography from '@material-ui/core/Typography';
-import Grid from '@material-ui/core/Grid';
-import ResponsiveContainer from 'recharts/es6/component/ResponsiveContainer';
-import AreaChart from 'recharts/es6/chart/AreaChart';
-import Area from 'recharts/es6/cartesian/Area';
-import ReferenceLine from 'recharts/es6/cartesian/ReferenceLine';
-import Label from 'recharts/es6/component/Label';
-import Tooltip from 'recharts/es6/component/Tooltip';
+import withStyles from 'material-ui/styles/withStyles';
+import Typography from 'material-ui/Typography';
+import Grid from 'material-ui/Grid';
+import {ResponsiveContainer, AreaChart, Area, Tooltip} from 'recharts';
 
-import ChartRow from 'ChartRow';
-import CustomTooltip, {bytePlotter, bytePerSecPlotter, percentPlotter, multiplier} from 'CustomTooltip';
-import {chartStrokeWidth, styles as commonStyles} from '../common';
+import ChartRow from './ChartRow';
+import CustomTooltip, {bytePlotter, bytePerSecPlotter, percentPlotter, multiplier} from './CustomTooltip';
+import {styles as commonStyles} from '../common';
 import type {General, System} from '../types/content';
 
 const FOOTER_SYNC_ID = 'footerSyncId';
@@ -42,15 +37,6 @@ const TRAFFIC = 'traffic';
 
 const TOP = 'Top';
 const BOTTOM = 'Bottom';
-
-const cpuLabelTop = 'Process load';
-const cpuLabelBottom = 'System load';
-const memoryLabelTop = 'Active memory';
-const memoryLabelBottom = 'Virtual memory';
-const diskLabelTop = 'Disk read';
-const diskLabelBottom = 'Disk write';
-const trafficLabelTop = 'Download';
-const trafficLabelBottom = 'Upload';
 
 // styles contains the constant styles of the component.
 const styles = {
@@ -66,10 +52,6 @@ const styles = {
 	doubleChartWrapper: {
 		height: '100%',
 		width:  '99%',
-	},
-	link: {
-		color:          'inherit',
-		textDecoration: 'none',
 	},
 };
 
@@ -91,23 +73,18 @@ export type Props = {
 	shouldUpdate: Object,
 };
 
-type State = {};
-
 // Footer renders the footer of the dashboard.
-class Footer extends Component<Props, State> {
-	shouldComponentUpdate(nextProps: Readonly<Props>, nextState: Readonly<State>, nextContext: any) {
+class Footer extends Component<Props> {
+	shouldComponentUpdate(nextProps) {
 		return typeof nextProps.shouldUpdate.general !== 'undefined' || typeof nextProps.shouldUpdate.system !== 'undefined';
 	}
 
 	// halfHeightChart renders an area chart with half of the height of its parent.
-	halfHeightChart = (chartProps, tooltip, areaProps, label, position) => (
+	halfHeightChart = (chartProps, tooltip, areaProps) => (
 		<ResponsiveContainer width='100%' height='50%'>
-			<AreaChart {...chartProps}>
+			<AreaChart {...chartProps} >
 				{!tooltip || (<Tooltip cursor={false} content={<CustomTooltip tooltip={tooltip} />} />)}
-				<Area isAnimationActive={false} strokeWidth={chartStrokeWidth} type='monotone' {...areaProps} />
-				<ReferenceLine x={0} strokeWidth={0}>
-					<Label fill={areaProps.fill} value={label} position={position} />
-				</ReferenceLine>
+				<Area isAnimationActive={false} type='monotone' {...areaProps} />
 			</AreaChart>
 		</ResponsiveContainer>
 	);
@@ -134,8 +111,6 @@ class Footer extends Component<Props, State> {
 					},
 					topChart.tooltip,
 					{dataKey: topKey, stroke: topColor, fill: topColor},
-					topChart.label,
-					'insideBottomLeft',
 				)}
 				{this.halfHeightChart(
 					{
@@ -145,8 +120,6 @@ class Footer extends Component<Props, State> {
 					},
 					bottomChart.tooltip,
 					{dataKey: bottomKey, stroke: bottomColor, fill: bottomColor},
-					bottomChart.label,
-					'insideTopLeft',
 				)}
 			</div>
 		);
@@ -162,42 +135,37 @@ class Footer extends Component<Props, State> {
 						{this.doubleChart(
 							FOOTER_SYNC_ID,
 							CPU,
-							{data: system.processCPU, tooltip: percentPlotter(cpuLabelTop), label: cpuLabelTop},
-							{data: system.systemCPU, tooltip: percentPlotter(cpuLabelBottom, multiplier(-1)), label: cpuLabelBottom},
+							{data: system.processCPU, tooltip: percentPlotter('Process load')},
+							{data: system.systemCPU, tooltip: percentPlotter('System load', multiplier(-1))},
 						)}
 						{this.doubleChart(
 							FOOTER_SYNC_ID,
 							MEMORY,
-							{data: system.activeMemory, tooltip: bytePlotter(memoryLabelTop), label: memoryLabelTop},
-							{data: system.virtualMemory, tooltip: bytePlotter(memoryLabelBottom, multiplier(-1)), label: memoryLabelBottom},
+							{data: system.activeMemory, tooltip: bytePlotter('Active memory')},
+							{data: system.virtualMemory, tooltip: bytePlotter('Virtual memory', multiplier(-1))},
 						)}
 						{this.doubleChart(
 							FOOTER_SYNC_ID,
 							DISK,
-							{data: system.diskRead, tooltip: bytePerSecPlotter(diskLabelTop), label: diskLabelTop},
-							{data: system.diskWrite, tooltip: bytePerSecPlotter(diskLabelBottom, multiplier(-1)), label: diskLabelBottom},
+							{data: system.diskRead, tooltip: bytePerSecPlotter('Disk read')},
+							{data: system.diskWrite, tooltip: bytePerSecPlotter('Disk write', multiplier(-1))},
 						)}
 						{this.doubleChart(
 							FOOTER_SYNC_ID,
 							TRAFFIC,
-							{data: system.networkIngress, tooltip: bytePerSecPlotter(trafficLabelTop), label: trafficLabelTop},
-							{data: system.networkEgress, tooltip: bytePerSecPlotter(trafficLabelBottom, multiplier(-1)), label: trafficLabelBottom},
+							{data: system.networkIngress, tooltip: bytePerSecPlotter('Download')},
+							{data: system.networkEgress, tooltip: bytePerSecPlotter('Upload', multiplier(-1))},
 						)}
 					</ChartRow>
 				</Grid>
-				<Grid item>
+				<Grid item >
 					<Typography type='caption' color='inherit'>
 						<span style={commonStyles.light}>Geth</span> {general.version}
 					</Typography>
 					{general.commit && (
 						<Typography type='caption' color='inherit'>
 							<span style={commonStyles.light}>{'Commit '}</span>
-							<a
-								href={`https://github.com/ethereum/go-ethereum/commit/${general.commit}`}
-								target='_blank'
-								rel='noopener noreferrer'
-								style={styles.link}
-							>
+							<a href={`https://github.com/ethereum/go-ethereum/commit/${general.commit}`} target='_blank' style={{color: 'inherit', textDecoration: 'none'}} >
 								{general.commit.substring(0, 8)}
 							</a>
 						</Typography>

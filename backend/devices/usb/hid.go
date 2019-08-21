@@ -18,8 +18,7 @@ import (
 	"encoding/hex"
 	"io"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	hid "github.com/karalabe/usb"
+	"github.com/karalabe/hid"
 )
 
 type hidDeviceInfo struct {
@@ -77,25 +76,17 @@ func (info hidDeviceInfo) Open() (io.ReadWriteCloser, error) {
 
 // DeviceInfos returns a slice of all recognized devices.
 func DeviceInfos() []DeviceInfo {
-	deviceInfosFiltered := []DeviceInfo{}
-
-	// The library never actually returns an error in this function.
-	deviceInfos, err := hid.EnumerateHid(0, 0)
-	if err != nil {
-		logging.Get().WithError(err).Error("EnumerateHid() returned an error")
-		return deviceInfosFiltered
-	}
-
-	for idx := range deviceInfos {
-		di := hidDeviceInfo{deviceInfos[idx]}
+	deviceInfos := []DeviceInfo{}
+	for _, deviceInfo := range hid.Enumerate(0, 0) {
+		di := hidDeviceInfo{deviceInfo}
 		// If Enumerate() is called too quickly after a device is inserted, the HID device input
 		// report is not yet ready.
 		if di.Serial() == "" || di.Product() == "" {
 			continue
 		}
 		if isBitBox(di) || isBitBox02(di) || isBitBox02Bootloader(di) {
-			deviceInfosFiltered = append(deviceInfosFiltered, di)
+			deviceInfos = append(deviceInfos, di)
 		}
 	}
-	return deviceInfosFiltered
+	return deviceInfos
 }

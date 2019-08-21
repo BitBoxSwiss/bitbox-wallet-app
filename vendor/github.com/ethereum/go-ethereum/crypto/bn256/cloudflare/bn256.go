@@ -100,10 +100,6 @@ func (e *G1) Marshal() []byte {
 	// Each value is a 256-bit number.
 	const numBytes = 256 / 8
 
-	if e.p == nil {
-		e.p = &curvePoint{}
-	}
-
 	e.p.MakeAffine()
 	ret := make([]byte, numBytes*2)
 	if e.p.IsInfinity() {
@@ -385,11 +381,6 @@ func (e *GT) Finalize() *GT {
 func (e *GT) Marshal() []byte {
 	// Each value is a 256-bit number.
 	const numBytes = 256 / 8
-
-	if e.p == nil {
-		e.p = &gfP12{}
-		e.p.SetOne()
-	}
 
 	ret := make([]byte, numBytes*12)
 	temp := &gfP{}

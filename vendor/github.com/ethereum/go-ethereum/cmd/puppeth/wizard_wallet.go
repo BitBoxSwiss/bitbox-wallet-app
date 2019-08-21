@@ -96,7 +96,7 @@ func (w *wizard) deployWallet() {
 	if existed {
 		fmt.Println()
 		fmt.Printf("Should the wallet be built from scratch (y/n)? (default = no)\n")
-		nocache = w.readDefaultYesNo(false)
+		nocache = w.readDefaultString("n") != "n"
 	}
 	if out, err := deployWallet(client, w.network, w.conf.bootnodes, infos, nocache); err != nil {
 		log.Error("Failed to deploy wallet container", "err", err)

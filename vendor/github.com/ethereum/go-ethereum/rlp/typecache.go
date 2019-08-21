@@ -29,10 +29,8 @@ var (
 )
 
 type typeinfo struct {
-	decoder    decoder
-	decoderErr error // error from makeDecoder
-	writer     writer
-	writerErr  error // error from makeWriter
+	decoder
+	writer
 }
 
 // represents struct tags
@@ -58,22 +56,12 @@ type decoder func(*Stream, reflect.Value) error
 
 type writer func(reflect.Value, *encbuf) error
 
-func cachedDecoder(typ reflect.Type) (decoder, error) {
-	info := cachedTypeInfo(typ, tags{})
-	return info.decoder, info.decoderErr
-}
-
-func cachedWriter(typ reflect.Type) (writer, error) {
-	info := cachedTypeInfo(typ, tags{})
-	return info.writer, info.writerErr
-}
-
-func cachedTypeInfo(typ reflect.Type, tags tags) *typeinfo {
+func cachedTypeInfo(typ reflect.Type, tags tags) (*typeinfo, error) {
 	typeCacheMutex.RLock()
 	info := typeCache[typekey{typ, tags}]
 	typeCacheMutex.RUnlock()
 	if info != nil {
-		return info
+		return info, nil
 	}
 	// not in the cache, need to generate info for this type.
 	typeCacheMutex.Lock()
@@ -81,20 +69,25 @@ func cachedTypeInfo(typ reflect.Type, tags tags) *typeinfo {
 	return cachedTypeInfo1(typ, tags)
 }
 
-func cachedTypeInfo1(typ reflect.Type, tags tags) *typeinfo {
+func cachedTypeInfo1(typ reflect.Type, tags tags) (*typeinfo, error) {
 	key := typekey{typ, tags}
 	info := typeCache[key]
 	if info != nil {
 		// another goroutine got the write lock first
-		return info
+		return info, nil
 	}
 	// put a dummy value into the cache before generating.
 	// if the generator tries to lookup itself, it will get
 	// the dummy value and won't call itself recursively.
-	info = new(typeinfo)
-	typeCache[key] = info
-	info.generate(typ, tags)
-	return info
+	typeCache[key] = new(typeinfo)
+	info, err := genTypeInfo(typ, tags)
+	if err != nil {
+		// remove the dummy value if the generator fails
+		delete(typeCache, key)
+		return nil, err
+	}
+	*typeCache[key] = *info
+	return typeCache[key], err
 }
 
 type field struct {
@@ -103,24 +96,26 @@ type field struct {
 }
 
 func structFields(typ reflect.Type) (fields []field, err error) {
-	lastPublic := lastPublicField(typ)
 	for i := 0; i < typ.NumField(); i++ {
 		if f := typ.Field(i); f.PkgPath == "" { // exported
-			tags, err := parseStructTag(typ, i, lastPublic)
+			tags, err := parseStructTag(typ, i)
 			if err != nil {
 				return nil, err
 			}
 			if tags.ignored {
 				continue
 			}
-			info := cachedTypeInfo1(f.Type, tags)
+			info, err := cachedTypeInfo1(f.Type, tags)
+			if err != nil {
+				return nil, err
+			}
 			fields = append(fields, field{i, info})
 		}
 	}
 	return fields, nil
 }
 
-func parseStructTag(typ reflect.Type, fi, lastPublic int) (tags, error) {
+func parseStructTag(typ reflect.Type, fi int) (tags, error) {
 	f := typ.Field(fi)
 	var ts tags
 	for _, t := range strings.Split(f.Tag.Get("rlp"), ",") {
@@ -132,7 +127,7 @@ func parseStructTag(typ reflect.Type, fi, lastPublic int) (tags, error) {
 			ts.nilOK = true
 		case "tail":
 			ts.tail = true
-			if fi != lastPublic {
+			if fi != typ.NumField()-1 {
 				return ts, fmt.Errorf(`rlp: invalid struct tag "tail" for %v.%s (must be on last field)`, typ, f.Name)
 			}
 			if f.Type.Kind() != reflect.Slice {
@@ -145,19 +140,15 @@ func parseStructTag(typ reflect.Type, fi, lastPublic int) (tags, error) {
 	return ts, nil
 }
 
-func lastPublicField(typ reflect.Type) int {
-	last := 0
-	for i := 0; i < typ.NumField(); i++ {
-		if typ.Field(i).PkgPath == "" {
-			last = i
-		}
+func genTypeInfo(typ reflect.Type, tags tags) (info *typeinfo, err error) {
+	info = new(typeinfo)
+	if info.decoder, err = makeDecoder(typ, tags); err != nil {
+		return nil, err
 	}
-	return last
-}
-
-func (i *typeinfo) generate(typ reflect.Type, tags tags) {
-	i.decoder, i.decoderErr = makeDecoder(typ, tags)
-	i.writer, i.writerErr = makeWriter(typ, tags)
+	if info.writer, err = makeWriter(typ, tags); err != nil {
+		return nil, err
+	}
+	return info, nil
 }
 
 func isUint(k reflect.Kind) bool {

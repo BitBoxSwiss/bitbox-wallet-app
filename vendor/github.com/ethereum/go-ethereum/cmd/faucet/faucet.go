@@ -54,8 +54,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/p2p/discv5"
-	"github.com/ethereum/go-ethereum/p2p/enode"
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/params"
 	"golang.org/x/net/websocket"
@@ -86,11 +86,6 @@ var (
 
 var (
 	ether = new(big.Int).Exp(big.NewInt(10), big.NewInt(18), nil)
-)
-
-var (
-	gitCommit = "" // Git SHA1 commit hash of the release (set via linker flags)
-	gitDate   = "" // Git commit date YYYYMMDD of the release (set via linker flags)
 )
 
 func main() {
@@ -221,7 +216,7 @@ func newFaucet(genesis *core.Genesis, port int, enodes []*discv5.Node, network u
 	// Assemble the raw devp2p protocol stack
 	stack, err := node.New(&node.Config{
 		Name:    "geth",
-		Version: params.VersionWithCommit(gitCommit, gitDate),
+		Version: params.VersionWithMeta,
 		DataDir: filepath.Join(os.Getenv("HOME"), ".faucet"),
 		P2P: p2p.Config{
 			NAT:              nat.Any(),
@@ -260,10 +255,8 @@ func newFaucet(genesis *core.Genesis, port int, enodes []*discv5.Node, network u
 		return nil, err
 	}
 	for _, boot := range enodes {
-		old, err := enode.Parse(enode.ValidSchemes, boot.String())
-		if err == nil {
-			stack.Server().AddPeer(old)
-		}
+		old, _ := discover.ParseNode(boot.String())
+		stack.Server().AddPeer(old)
 	}
 	// Attach to the client and retrieve and interesting metadatas
 	api, err := stack.Attach()
@@ -287,7 +280,7 @@ func newFaucet(genesis *core.Genesis, port int, enodes []*discv5.Node, network u
 
 // close terminates the Ethereum connection and tears down the faucet.
 func (f *faucet) close() error {
-	return f.stack.Close()
+	return f.stack.Stop()
 }
 
 // listenAndServe registers the HTTP handlers for the faucet and boots it up
@@ -445,14 +438,10 @@ func (f *faucet) apiHandler(conn *websocket.Conn) {
 				return
 			}
 			continue
-		case strings.HasPrefix(msg.URL, "https://plus.google.com/"):
-			if err = sendError(conn, errors.New("Google+ authentication discontinued as the service was sunset")); err != nil {
-				log.Warn("Failed to send Google+ deprecation to client", "err", err)
-				return
-			}
-			continue
 		case strings.HasPrefix(msg.URL, "https://twitter.com/"):
 			username, avatar, address, err = authTwitter(msg.URL)
+		case strings.HasPrefix(msg.URL, "https://plus.google.com/"):
+			username, avatar, address, err = authGooglePlus(msg.URL)
 		case strings.HasPrefix(msg.URL, "https://www.facebook.com/"):
 			username, avatar, address, err = authFacebook(msg.URL)
 		case *noauthFlag:
@@ -506,10 +495,7 @@ func (f *faucet) apiHandler(conn *websocket.Conn) {
 				Time:    time.Now(),
 				Tx:      signed,
 			})
-			timeout := time.Duration(*minutesFlag*int(math.Pow(3, float64(msg.Tier)))) * time.Minute
-			grace := timeout / 288 // 24h timeout => 5m grace
-
-			f.timeouts[username] = time.Now().Add(timeout - grace)
+			f.timeouts[username] = time.Now().Add(time.Duration(*minutesFlag*int(math.Pow(3, float64(msg.Tier)))) * time.Minute)
 			fund = true
 		}
 		f.lock.Unlock()
@@ -591,7 +577,7 @@ func (f *faucet) loop() {
 	go func() {
 		for head := range update {
 			// New chain head arrived, query the current stats and stream to clients
-			timestamp := time.Unix(int64(head.Time), 0)
+			timestamp := time.Unix(head.Time.Int64(), 0)
 			if time.Since(timestamp) > time.Hour {
 				log.Warn("Skipping faucet refresh, head too old", "number", head.Number, "hash", head.Hash(), "age", common.PrettyAge(timestamp))
 				continue
@@ -709,6 +695,40 @@ func authTwitter(url string) (string, string, common.Address, error) {
 		avatar = parts[1]
 	}
 	return username + "@twitter", avatar, address, nil
+}
+
+// authGooglePlus tries to authenticate a faucet request using GooglePlus posts,
+// returning the username, avatar URL and Ethereum address to fund on success.
+func authGooglePlus(url string) (string, string, common.Address, error) {
+	// Ensure the user specified a meaningful URL, no fancy nonsense
+	parts := strings.Split(url, "/")
+	if len(parts) < 4 || parts[len(parts)-2] != "posts" {
+		return "", "", common.Address{}, errors.New("Invalid Google+ post URL")
+	}
+	username := parts[len(parts)-3]
+
+	// Google's API isn't really friendly with direct links. Still, we don't
+	// want to do ask read permissions from users, so just load the public posts and
+	// scrape it for the Ethereum address and profile URL.
+	res, err := http.Get(url)
+	if err != nil {
+		return "", "", common.Address{}, err
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", "", common.Address{}, err
+	}
+	address := common.HexToAddress(string(regexp.MustCompile("0x[0-9a-fA-F]{40}").Find(body)))
+	if address == (common.Address{}) {
+		return "", "", common.Address{}, errors.New("No Ethereum address found to fund")
+	}
+	var avatar string
+	if parts = regexp.MustCompile("src=\"([^\"]+googleusercontent.com[^\"]+photo.jpg)\"").FindStringSubmatch(string(body)); len(parts) == 2 {
+		avatar = parts[1]
+	}
+	return username + "@google+", avatar, address, nil
 }
 
 // authFacebook tries to authenticate a faucet request using Facebook posts,

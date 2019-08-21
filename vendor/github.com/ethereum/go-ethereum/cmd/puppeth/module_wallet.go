@@ -57,7 +57,6 @@ services:
   wallet:
     build: .
     image: {{.Network}}/wallet
-    container_name: {{.Network}}_wallet_1
     ports:
       - "{{.NodePort}}:{{.NodePort}}"
       - "{{.NodePort}}:{{.NodePort}}/udp"

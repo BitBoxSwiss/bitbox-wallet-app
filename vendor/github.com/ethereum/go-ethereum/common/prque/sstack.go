@@ -1,11 +1,3 @@
-// CookieJar - A contestant's algorithm toolbox
-// Copyright (c) 2013 Peter Szilagyi. All rights reserved.
-//
-// CookieJar is dual licensed: use of this source code is governed by a BSD
-// license that can be found in the LICENSE file. Alternatively, the CookieJar
-// toolbox may be used in accordance with the terms and conditions contained
-// in a signed written agreement between you and the author(s).
-
 // This is a duplicated and slightly modified version of "gopkg.in/karalabe/cookiejar.v2/collections/prque".
 
 package prque
@@ -22,16 +14,16 @@ type item struct {
 	priority int64
 }
 
-// SetIndexCallback is called when the element is moved to a new index.
-// Providing SetIndexCallback is optional, it is needed only if the application needs
+// setIndexCallback is called when the element is moved to a new index.
+// Providing setIndexCallback is optional, it is needed only if the application needs
 // to delete elements other than the top one.
-type SetIndexCallback func(data interface{}, index int)
+type setIndexCallback func(a interface{}, i int)
 
 // Internal sortable stack data structure. Implements the Push and Pop ops for
 // the stack (heap) functionality and the Len, Less and Swap methods for the
 // sortability requirements of the heaps.
 type sstack struct {
-	setIndex SetIndexCallback
+	setIndex setIndexCallback
 	size     int
 	capacity int
 	offset   int
@@ -41,7 +33,7 @@ type sstack struct {
 }
 
 // Creates a new, empty stack.
-func newSstack(setIndex SetIndexCallback) *sstack {
+func newSstack(setIndex setIndexCallback) *sstack {
 	result := new(sstack)
 	result.setIndex = setIndex
 	result.active = make([]*item, blockSize)

@@ -37,8 +37,8 @@ func TestMessageSignVerify(t *testing.T) {
 	generate := runEthkey(t, "generate", keyfile)
 	generate.Expect(`
 !! Unsupported terminal, password will be echoed.
-Password: {{.InputLine "foobar"}}
-Repeat password: {{.InputLine "foobar"}}
+Passphrase: {{.InputLine "foobar"}}
+Repeat passphrase: {{.InputLine "foobar"}}
 `)
 	_, matches := generate.ExpectRegexp(`Address: (0x[0-9a-fA-F]{40})\n`)
 	address := matches[1]
@@ -48,7 +48,7 @@ Repeat password: {{.InputLine "foobar"}}
 	sign := runEthkey(t, "signmessage", keyfile, message)
 	sign.Expect(`
 !! Unsupported terminal, password will be echoed.
-Password: {{.InputLine "foobar"}}
+Passphrase: {{.InputLine "foobar"}}
 `)
 	_, matches = sign.ExpectRegexp(`Signature: ([0-9a-f]+)\n`)
 	signature := matches[1]

@@ -18,8 +18,7 @@
 
 import React, {Component} from 'react';
 
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
+import List, {ListItem} from 'material-ui/List';
 import escapeHtml from 'escape-html';
 import type {Record, Content, LogsMessage, Logs as LogsType} from '../types/content';
 
@@ -105,9 +104,9 @@ const createChunk = (records: Array<Record>) => {
 
 // ADDED, SAME and REMOVED are used to track the change of the log chunk array.
 // The scroll position is set using these values.
-export const ADDED = 1;
-export const SAME = 0;
-export const REMOVED = -1;
+const ADDED = 1;
+const SAME = 0;
+const REMOVED = -1;
 
 // inserter is a state updater function for the main component, which inserts the new log chunk into the chunk array.
 // limit is the maximum length of the chunk array, used in order to prevent the browser from OOM.
@@ -167,7 +166,7 @@ export const inserter = (limit: number) => (update: LogsMessage, prev: LogsType)
 // styles contains the constant styles of the component.
 const styles = {
 	logListItem: {
-		padding:    0,
+		padding: 0,
 		lineHeight: 1.231,
 	},
 	logChunk: {
@@ -252,15 +251,15 @@ class Logs extends Component<Props, State> {
 	// atBottom checks if the scroll position it at the bottom of the container.
 	atBottom = () => {
 		const {container} = this.props;
-		return container.scrollHeight - container.scrollTop
-			<= container.clientHeight + container.scrollHeight * requestBand;
+		return container.scrollHeight - container.scrollTop <=
+			container.clientHeight + container.scrollHeight * requestBand;
 	};
 
 	// beforeUpdate is called by the parent component, saves the previous scroll position
 	// and the height of the first log chunk, which can be deleted during the insertion.
 	beforeUpdate = () => {
 		let firstHeight = 0;
-		const chunkList = this.content.children[1];
+		let chunkList = this.content.children[1];
 		if (chunkList && chunkList.children[0]) {
 			firstHeight = chunkList.children[0].clientHeight;
 		}

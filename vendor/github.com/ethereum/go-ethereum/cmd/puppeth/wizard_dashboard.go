@@ -77,7 +77,7 @@ func (w *wizard) deployDashboard() {
 				}
 			case "explorer":
 				if infos, err := checkExplorer(client, w.network); err == nil {
-					port = infos.port
+					port = infos.webPort
 				}
 			case "wallet":
 				if infos, err := checkWallet(client, w.network); err == nil {
@@ -137,14 +137,14 @@ func (w *wizard) deployDashboard() {
 	if w.conf.ethstats != "" {
 		fmt.Println()
 		fmt.Println("Include ethstats secret on dashboard (y/n)? (default = yes)")
-		infos.trusted = w.readDefaultYesNo(true)
+		infos.trusted = w.readDefaultString("y") == "y"
 	}
 	// Try to deploy the dashboard container on the host
 	nocache := false
 	if existed {
 		fmt.Println()
 		fmt.Printf("Should the dashboard be built from scratch (y/n)? (default = no)\n")
-		nocache = w.readDefaultYesNo(false)
+		nocache = w.readDefaultString("n") != "n"
 	}
 	if out, err := deployDashboard(client, w.network, &w.conf, infos, nocache); err != nil {
 		log.Error("Failed to deploy dashboard container", "err", err)
