@@ -32,6 +32,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/db"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -45,7 +46,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var pollInterval = 10 * time.Second
+var pollInterval = 30 * time.Second
 
 // Account is an Ethereum account, with one address.
 type Account struct {
@@ -248,7 +249,7 @@ func (account *Account) pendingOutgoingTransactions(confirmedTxs []accounts.Tran
 		return nil, err
 	}
 	defer dbTx.Rollback()
-	pendingOutgoingTransactions, err := dbTx.PendingOutgoingTransactions()
+	pendingOutgoingTransactions, err := dbTx.OutgoingTransactions()
 	if err != nil {
 		return nil, err
 	}
@@ -260,13 +261,17 @@ func (account *Account) pendingOutgoingTransactions(confirmedTxs []accounts.Tran
 
 	transactions := []accounts.Transaction{}
 	for _, tx := range pendingOutgoingTransactions {
-		wrappedTx := wrappedTransaction{tx: tx}
-		// Skip already confirmed tx. TODO: remove from db if 12+ confirmations.
-		if _, ok := confirmedTxHashes[wrappedTx.ID()]; ok {
-			account.log.Infof("pending tx: skipping already confirmed tx with nonce %d", tx.Nonce())
+		if tx.Height != 0 {
 			continue
 		}
-		transactions = append(transactions, wrappedTx)
+		tx := tx
+		// Skip already confirmed tx. TODO: remove from db if 12+ confirmations.
+		if _, ok := confirmedTxHashes[tx.ID()]; ok {
+			account.log.Infof("pending tx: skipping already confirmed tx with nonce %d",
+				tx.Transaction.Nonce())
+			continue
+		}
+		transactions = append(transactions, tx)
 	}
 	return transactions, nil
 }
@@ -310,7 +315,7 @@ func (account *Account) update() error {
 	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
 	// next nonce.
 	if len(pendingOutgoingTransactions) > 0 {
-		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(wrappedTransaction).tx.Nonce() + 1
+		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(*ethtypes.TransactionWithHeight).Transaction.Nonce() + 1
 		if localNonce > account.nextNonce {
 			account.nextNonce = localNonce
 		}
@@ -509,7 +514,11 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 		return err
 	}
 	defer dbTx.Rollback()
-	if err := dbTx.PutPendingOutgoingTransaction(transaction); err != nil {
+	if err := dbTx.PutPendingOutgoingTransaction(
+		&ethtypes.TransactionWithHeight{
+			Transaction: transaction,
+			Height:      0,
+		}); err != nil {
 		return err
 	}
 	if err := dbTx.Commit(); err != nil {

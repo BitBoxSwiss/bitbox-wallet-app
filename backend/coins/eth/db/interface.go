@@ -14,7 +14,7 @@
 
 package db
 
-import "github.com/ethereum/go-ethereum/core/types"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 
 // TxInterface needs to be implemented to persist all wallet/transaction related data.
 type TxInterface interface {
@@ -26,11 +26,11 @@ type TxInterface interface {
 
 	// PutPendingOutgoingTransaction stores the transaction in the collection of pending outgoing
 	// transactions.
-	PutPendingOutgoingTransaction(*types.Transaction) error
+	PutPendingOutgoingTransaction(*types.TransactionWithHeight) error
 
-	// PendingOutgoingTransactions returns the stored list of pending outgoing transactions, sorted
-	// descending by the transaction nonce.
-	PendingOutgoingTransactions() ([]*types.Transaction, error)
+	// OutgoingTransactions returns the stored list of outgoing transactions, sorted descending by
+	// the transaction nonce.
+	OutgoingTransactions() ([]*types.TransactionWithHeight, error)
 }
 
 // Interface can be implemented by database backends to open database transactions.
