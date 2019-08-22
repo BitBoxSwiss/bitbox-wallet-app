@@ -24,9 +24,8 @@ type TxInterface interface {
 	// Rollback closes the transaction without writing anything and be called safely after Commit().
 	Rollback()
 
-	// PutPendingOutgoingTransaction stores the transaction in the collection of pending outgoing
-	// transactions.
-	PutPendingOutgoingTransaction(*types.TransactionWithHeight) error
+	// PutOutgoingTransaction stores the transaction in the collection of outgoing transactions.
+	PutOutgoingTransaction(*types.TransactionWithHeight) error
 
 	// OutgoingTransactions returns the stored list of outgoing transactions, sorted descending by
 	// the transaction nonce.

@@ -21,6 +21,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 )
@@ -36,6 +37,8 @@ type TransactionWithHeight struct {
 	Transaction *types.Transaction
 	// Height is 0 for pending tx.
 	Height uint64
+	// Only applies if Height > 0
+	GasUsed uint64
 }
 
 // MarshalJSON implements json.Marshaler. Used for DB serialization.
@@ -45,16 +48,18 @@ func (txh *TransactionWithHeight) MarshalJSON() ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(map[string]interface{}{
-		"tx":     txSerialized,
-		"height": txh.Height,
+		"tx":      txSerialized,
+		"height":  txh.Height,
+		"gasUsed": hexutil.Uint64(txh.GasUsed),
 	})
 }
 
 // UnmarshalJSON implements json.Unmarshaler. Used for DB serialization.
 func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 	m := struct {
-		TransactionRLP []byte `json:"tx"`
-		Height         uint64 `json:"height"`
+		TransactionRLP []byte         `json:"tx"`
+		Height         uint64         `json:"height"`
+		GasUsed        hexutil.Uint64 `json:"gasUsed"`
 	}{}
 	if err := json.Unmarshal(input, &m); err != nil {
 		return err
@@ -64,11 +69,9 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 		return err
 	}
 	txh.Height = m.Height
+	txh.GasUsed = uint64(m.GasUsed)
 	return nil
 }
-
-// assertion because not implementing the interface fails silently.
-var _ EthereumTransaction = &TransactionWithHeight{}
 
 // Fee implements accounts.Transaction.
 func (txh *TransactionWithHeight) Fee() *coin.Amount {
@@ -85,11 +88,6 @@ func (txh *TransactionWithHeight) Timestamp() *time.Time {
 // ID implements accounts.Transaction.
 func (txh *TransactionWithHeight) ID() string {
 	return txh.Transaction.Hash().Hex()
-}
-
-// NumConfirmations implements accounts.Transaction.
-func (txh *TransactionWithHeight) NumConfirmations() int {
-	return 0
 }
 
 // Type implements accounts.Transaction.
@@ -112,5 +110,28 @@ func (txh *TransactionWithHeight) Addresses() []accounts.AddressAndAmount {
 
 // Gas implements ethtypes.EthereumTransaction.
 func (txh *TransactionWithHeight) Gas() uint64 {
-	return txh.Transaction.Gas()
+	if txh.Height == 0 {
+		return txh.Transaction.Gas()
+	}
+	return txh.GasUsed
 }
+
+// TransactionWithConfirmations also stores the current tip height so NumConfirmations() can be
+// computed.
+type TransactionWithConfirmations struct {
+	TransactionWithHeight
+	TipHeight uint64
+}
+
+// NumConfirmations implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) NumConfirmations() int {
+	confs := 0
+	if txh.Height > 0 {
+		confs = int(txh.TipHeight - txh.Height + 1)
+	}
+	return confs
+}
+
+// assertion because not implementing the interface fails silently.
+var _ EthereumTransaction = &TransactionWithHeight{}
+var _ EthereumTransaction = &TransactionWithConfirmations{}

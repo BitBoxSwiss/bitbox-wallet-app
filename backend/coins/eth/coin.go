@@ -26,7 +26,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
@@ -53,7 +52,7 @@ var TransactionsSourceNone TransactionsSourceMaker = func() TransactionsSource {
 type Coin struct {
 	observable.Implementation
 	initOnce              sync.Once
-	client                *ethclient.Client
+	client                *rpcClient
 	code                  string
 	unit                  string
 	feeUnit               string
@@ -105,7 +104,7 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		coin.log.Infof("connecting to %s", coin.nodeURL)
-		client, err := ethclient.Dial(coin.nodeURL)
+		client, err := rpcDial(coin.nodeURL)
 		if err != nil {
 			// TODO: init conn lazily, feed error via EventStatusChanged
 			panic(err)

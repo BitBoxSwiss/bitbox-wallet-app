@@ -82,8 +82,8 @@ func (tx *Tx) Commit() error {
 	return tx.tx.Commit()
 }
 
-// PutPendingOutgoingTransaction implements DBTxInterface.
-func (tx *Tx) PutPendingOutgoingTransaction(transaction *types.TransactionWithHeight) error {
+// PutOutgoingTransaction implements DBTxInterface.
+func (tx *Tx) PutOutgoingTransaction(transaction *types.TransactionWithHeight) error {
 	return tx.bucketOutgoingTransactions.Put(
 		transaction.Transaction.Hash().Bytes(),
 		jsonp.MustMarshal(transaction))

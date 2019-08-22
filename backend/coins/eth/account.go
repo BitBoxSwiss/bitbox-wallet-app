@@ -240,38 +240,81 @@ func (account *Account) poll() {
 	}
 }
 
-// pendingOutgoingTransactions gets all locally stored pending outgoing transactions. It filters out
-// already confirmed ones.
-func (account *Account) pendingOutgoingTransactions(confirmedTxs []accounts.Transaction) (
+// updateOutgoingTransactions updates the height of the stored outgoing transactions.
+// We update heights for tx with up to 12 confirmations, so re-orgs are taken into account.
+// tipHeight is the current blockchain height.
+func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
+	defer account.synchronizer.IncRequestsCounter()()
+
+	dbTx, err := account.db.Begin()
+	if err != nil {
+		account.log.WithError(err).Error("could not open db")
+		return
+	}
+	defer dbTx.Rollback()
+
+	// Get our stored outgoing transactions.
+	outgoingTransactions, err := dbTx.OutgoingTransactions()
+	if err != nil {
+		account.log.WithError(err).Error("could not get outgoing transactions")
+		return
+	}
+
+	// Update the stored txs' metadata if up to 12 confirmations.
+	for _, tx := range outgoingTransactions {
+		remoteTx, err := account.coin.client.TransactionReceiptWithBlockNumber(context.TODO(), tx.Transaction.Hash())
+		if err != nil {
+			account.log.WithError(err).Error("could not fetch transaction")
+			continue
+		}
+		if remoteTx == nil {
+			continue
+		}
+		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < 12 {
+			tx.Height = remoteTx.BlockNumber
+			tx.GasUsed = remoteTx.GasUsed
+			if err := dbTx.PutOutgoingTransaction(tx); err != nil {
+				account.log.WithError(err).Error("could not update outgoing tx")
+				continue
+			}
+		}
+	}
+	if err := dbTx.Commit(); err != nil {
+		account.log.WithError(err).Error("could not commit db tx")
+		return
+	}
+}
+
+// outgoingTransactions gets all locally stored outgoing transactions. It filters out the ones also
+// present from the transactions source.
+func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 	[]accounts.Transaction, error) {
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer dbTx.Rollback()
-	pendingOutgoingTransactions, err := dbTx.OutgoingTransactions()
+	outgoingTransactions, err := dbTx.OutgoingTransactions()
 	if err != nil {
 		return nil, err
 	}
 
-	confirmedTxHashes := map[string]struct{}{}
-	for _, confirmedTx := range confirmedTxs {
-		confirmedTxHashes[confirmedTx.ID()] = struct{}{}
+	allTxHashes := map[string]struct{}{}
+	for _, tx := range allTxs {
+		allTxHashes[tx.ID()] = struct{}{}
 	}
 
 	transactions := []accounts.Transaction{}
-	for _, tx := range pendingOutgoingTransactions {
-		if tx.Height != 0 {
-			continue
-		}
+	for _, tx := range outgoingTransactions {
 		tx := tx
-		// Skip already confirmed tx. TODO: remove from db if 12+ confirmations.
-		if _, ok := confirmedTxHashes[tx.ID()]; ok {
-			account.log.Infof("pending tx: skipping already confirmed tx with nonce %d",
-				tx.Transaction.Nonce())
+		// Skip txs already present from transactions source.
+		if _, ok := allTxHashes[tx.ID()]; ok {
 			continue
 		}
-		transactions = append(transactions, tx)
+		transactions = append(transactions, &ethtypes.TransactionWithConfirmations{
+			TransactionWithHeight: *tx,
+			TipHeight:             account.blockNumber.Uint64(),
+		})
 	}
 	return transactions, nil
 }
@@ -287,6 +330,8 @@ func (account *Account) update() error {
 
 	transactionsSource := account.coin.TransactionsSource()
 
+	go account.updateOutgoingTransactions(account.blockNumber.Uint64())
+
 	// Get confirmed transactions.
 	var confirmedTansactions []accounts.Transaction
 	if transactionsSource != nil {
@@ -298,8 +343,9 @@ func (account *Account) update() error {
 		}
 	}
 
-	// Get our stored pending outgoing transactions. Filter out all confirmed transactions.
-	pendingOutgoingTransactions, err := account.pendingOutgoingTransactions(confirmedTansactions)
+	// Get our stored outgoing transactions. Filter out all transactions from the transactions
+	// source, which should contain all confirmed tx.
+	outgoingTransactions, err := account.outgoingTransactions(confirmedTansactions)
 	if err != nil {
 		return err
 	}
@@ -314,13 +360,13 @@ func (account *Account) update() error {
 
 	// In case the nodeNonce is not up to date, we fall back to our stored last nonce to compute the
 	// next nonce.
-	if len(pendingOutgoingTransactions) > 0 {
-		localNonce := pendingOutgoingTransactions[len(pendingOutgoingTransactions)-1].(*ethtypes.TransactionWithHeight).Transaction.Nonce() + 1
+	if len(outgoingTransactions) > 0 {
+		localNonce := outgoingTransactions[len(outgoingTransactions)-1].(*ethtypes.TransactionWithConfirmations).Transaction.Nonce() + 1
 		if localNonce > account.nextNonce {
 			account.nextNonce = localNonce
 		}
 	}
-	account.transactions = append(pendingOutgoingTransactions, confirmedTansactions...)
+	account.transactions = append(outgoingTransactions, confirmedTansactions...)
 	for _, transaction := range account.transactions {
 		if err := account.notifier.Put([]byte(transaction.ID())); err != nil {
 			return err
@@ -508,13 +554,14 @@ func (account *Account) newTx(
 	}, nil
 }
 
+// storePendingOutgoingTransaction puts an outgoing tx into the db with height 0 (pending).
 func (account *Account) storePendingOutgoingTransaction(transaction *types.Transaction) error {
 	dbTx, err := account.db.Begin()
 	if err != nil {
 		return err
 	}
 	defer dbTx.Rollback()
-	if err := dbTx.PutPendingOutgoingTransaction(
+	if err := dbTx.PutOutgoingTransaction(
 		&ethtypes.TransactionWithHeight{
 			Transaction: transaction,
 			Height:      0,
