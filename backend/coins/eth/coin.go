@@ -19,15 +19,35 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
+
+// TransactionsSource source of Ethereum transactions. An additional source for this is needed as a
+// normal ETH full node does not expose an API endpoint to get transactions per address.
+type TransactionsSource interface {
+	Transactions(address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
+		[]accounts.Transaction, error)
+}
+
+// TransactionsSourceMaker creates a transaction source.
+type TransactionsSourceMaker func() TransactionsSource
+
+// TransactionsSourceEtherScan creates a etherscan transactions source maker.
+func TransactionsSourceEtherScan(etherScanURL string) TransactionsSourceMaker {
+	return func() TransactionsSource { return etherscan.NewEtherScan(etherScanURL) }
+}
+
+// TransactionsSourceNone is used if no transactions source should be used.
+var TransactionsSourceNone TransactionsSourceMaker = func() TransactionsSource { return nil }
 
 // Coin models an Ethereum coin.
 type Coin struct {
@@ -40,14 +60,16 @@ type Coin struct {
 	net                   *params.ChainConfig
 	blockExplorerTxPrefix string
 	nodeURL               string
-	etherScanURL          string
 	erc20Token            *erc20.Token
-	etherScan             *etherscan.EtherScan
+
+	makeTransactionsSource TransactionsSourceMaker
+	transactionsSource     TransactionsSource
 
 	log *logrus.Entry
 }
 
 // NewCoin creates a new coin with the given parameters.
+// makeTransactionsSource: provide `TransactionsSourceNone` or `TransactionsSourceEtherScan()`.
 // For erc20 tokens, provide erc20Token using NewERC20Token() (otherwise keep nil).
 func NewCoin(
 	code string,
@@ -55,7 +77,7 @@ func NewCoin(
 	feeUnit string,
 	net *params.ChainConfig,
 	blockExplorerTxPrefix string,
-	etherScanURL string,
+	makeTransactionsSource TransactionsSourceMaker,
 	nodeURL string,
 	erc20Token *erc20.Token,
 ) *Coin {
@@ -66,8 +88,11 @@ func NewCoin(
 		net:                   net,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
 		nodeURL:               nodeURL,
-		etherScanURL:          etherScanURL,
-		erc20Token:            erc20Token,
+
+		makeTransactionsSource: makeTransactionsSource,
+		transactionsSource:     nil,
+
+		erc20Token: erc20Token,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -87,7 +112,7 @@ func (coin *Coin) Initialize() {
 		}
 		coin.client = client
 
-		coin.etherScan = etherscan.NewEtherScan(coin.etherScanURL)
+		coin.transactionsSource = coin.makeTransactionsSource()
 	})
 }
 
@@ -133,9 +158,9 @@ func (coin *Coin) BlockExplorerTransactionURLPrefix() string {
 	return coin.blockExplorerTxPrefix
 }
 
-// EtherScan returns an instance of EtherScan.
-func (coin *Coin) EtherScan() *etherscan.EtherScan {
-	return coin.etherScan
+// TransactionsSource returns an instance of TransactionsSource.
+func (coin *Coin) TransactionsSource() TransactionsSource {
+	return coin.transactionsSource
 }
 
 func (coin *Coin) String() string {

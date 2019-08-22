@@ -402,6 +402,22 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 		return coin, nil
 	}
 	dbFolder := backend.arguments.CacheDirectoryPath()
+
+	// ethMakeTransactionsSource selects between the provided transactions sources based on the coin
+	// config. Currently we can only switch between None and EtherScan.
+	ethMakeTransactionsSource := func(
+		source config.ETHTransactionsSource,
+		etherScan eth.TransactionsSourceMaker) eth.TransactionsSourceMaker {
+		switch source {
+		case config.ETHTransactionsSourceNone:
+			return eth.TransactionsSourceNone
+		case config.ETHTransactionsSourceEtherScan:
+			return etherScan
+		default:
+			panic(fmt.Sprintf("unknown eth transcations source: %s", source))
+		}
+	}
+
 	switch code {
 	case coinRBTC:
 		servers := backend.defaultElectrumXServers(code)
@@ -423,25 +439,45 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
 			"https://insight.litecore.io/tx/")
 	case coinETH:
+		coinConfig := backend.config.AppConfig().Backend.ETH
+		transactionsSource := ethMakeTransactionsSource(
+			coinConfig.TransactionsSource,
+			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api"),
+		)
 		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
-			"https://api.etherscan.io/api",
-			backend.config.AppConfig().Backend.ETH.NodeURL, nil)
+			transactionsSource,
+			coinConfig.NodeURL, nil)
 	case coinRETH:
+		coinConfig := backend.config.AppConfig().Backend.RETH
+		transactionsSource := ethMakeTransactionsSource(
+			coinConfig.TransactionsSource,
+			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api"),
+		)
 		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
-			"https://api-rinkeby.etherscan.io/api",
-			backend.config.AppConfig().Backend.RETH.NodeURL, nil)
+			transactionsSource,
+			coinConfig.NodeURL, nil)
 	case coinTETH:
+		coinConfig := backend.config.AppConfig().Backend.TETH
+		transactionsSource := ethMakeTransactionsSource(
+			coinConfig.TransactionsSource,
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api"),
+		)
 		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			"https://api-ropsten.etherscan.io/api",
-			backend.config.AppConfig().Backend.TETH.NodeURL, nil)
+			transactionsSource,
+			coinConfig.NodeURL, nil)
 	case coinERC20TEST:
+		coinConfig := backend.config.AppConfig().Backend.TETH
+		transactionsSource := ethMakeTransactionsSource(
+			coinConfig.TransactionsSource,
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api"),
+		)
 		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
-			"https://api-ropsten.etherscan.io/api",
-			backend.config.AppConfig().Backend.TETH.NodeURL,
+			transactionsSource,
+			coinConfig.NodeURL,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
 		)
 	default:

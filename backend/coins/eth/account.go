@@ -280,11 +280,17 @@ func (account *Account) update() error {
 	}
 	account.blockNumber = header.Number
 
-	// Get confirmed transactions from EtherScan.
-	confirmedTansactions, err := account.coin.EtherScan().Transactions(
-		account.address.Address, account.blockNumber, account.coin.erc20Token)
-	if err != nil {
-		return err
+	transactionsSource := account.coin.TransactionsSource()
+
+	// Get confirmed transactions.
+	var confirmedTansactions []accounts.Transaction
+	if transactionsSource != nil {
+		var err error
+		confirmedTansactions, err = transactionsSource.Transactions(
+			account.address.Address, account.blockNumber, account.coin.erc20Token)
+		if err != nil {
+			return err
+		}
 	}
 
 	// Get our stored pending outgoing transactions. Filter out all confirmed transactions.
