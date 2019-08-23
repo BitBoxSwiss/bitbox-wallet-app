@@ -30,9 +30,23 @@ type btcCoinConfig struct {
 	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
 }
 
+// ETHTransactionsSource  where to get Ethereum transactions from. See the list of consts
+// below.
+type ETHTransactionsSource string
+
+const (
+	// ETHTransactionsSourceNone means no source of tranasctions. Only the locally cached
+	// transactions will be shown.
+	ETHTransactionsSourceNone ETHTransactionsSource = "none"
+	// ETHTransactionsSourceEtherScan configures to get transactions from EtherScan.
+	ETHTransactionsSourceEtherScan ETHTransactionsSource = "etherScan"
+)
+
 // ethCoinConfig holds configurations for ethereum coins.
 type ethCoinConfig struct {
 	NodeURL string `json:"nodeURL"`
+
+	TransactionsSource ETHTransactionsSource `json:"transactionsSource"`
 }
 
 // Backend holds the backend specific configuration.
@@ -197,13 +211,16 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL: "https://mainnet.infura.io/" + infuraAPIKey,
+				NodeURL:            "https://mainnet.infura.io/" + infuraAPIKey,
+				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 			TETH: ethCoinConfig{
-				NodeURL: "https://ropsten.infura.io/" + infuraAPIKey,
+				NodeURL:            "https://ropsten.infura.io/" + infuraAPIKey,
+				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 			RETH: ethCoinConfig{
-				NodeURL: "https://rinkeby.infura.io/" + infuraAPIKey,
+				NodeURL:            "https://rinkeby.infura.io/" + infuraAPIKey,
+				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 		},
 	}
