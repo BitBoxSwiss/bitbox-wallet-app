@@ -17,14 +17,24 @@ package eth
 import (
 	"context"
 	"encoding/json"
+	"math/big"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/ethereum/go-ethereum/rpc"
 )
+
+type rpcClientInterface interface {
+	TransactionReceiptWithBlockNumber(
+		ctx context.Context, hash common.Hash) (*rpcTransactionReceipt, error)
+	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
+	bind.ContractBackend
+}
 
 // rpcClient wraps the high level ethclient, extending it with more functions.
 type rpcClient struct {
@@ -33,7 +43,6 @@ type rpcClient struct {
 }
 
 func rpcDial(url string) (*rpcClient, error) {
-
 	c, err := rpc.DialContext(context.Background(), url)
 	if err != nil {
 		return nil, errp.WithStack(err)

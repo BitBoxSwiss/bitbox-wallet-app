@@ -52,7 +52,7 @@ var TransactionsSourceNone TransactionsSourceMaker = func() TransactionsSource {
 type Coin struct {
 	observable.Implementation
 	initOnce              sync.Once
-	client                *rpcClient
+	client                rpcClientInterface
 	code                  string
 	unit                  string
 	feeUnit               string
