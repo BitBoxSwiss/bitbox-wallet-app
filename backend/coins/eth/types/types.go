@@ -39,6 +39,9 @@ type TransactionWithHeight struct {
 	Height uint64
 	// Only applies if Height > 0
 	GasUsed uint64
+	// Only applies if Height > 0.
+	// false if contract execution failed, otherwise true.
+	Success bool
 }
 
 // MarshalJSON implements json.Marshaler. Used for DB serialization.
@@ -51,6 +54,7 @@ func (txh *TransactionWithHeight) MarshalJSON() ([]byte, error) {
 		"tx":      txSerialized,
 		"height":  txh.Height,
 		"gasUsed": hexutil.Uint64(txh.GasUsed),
+		"success": txh.Success,
 	})
 }
 
@@ -60,6 +64,7 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 		TransactionRLP []byte         `json:"tx"`
 		Height         uint64         `json:"height"`
 		GasUsed        hexutil.Uint64 `json:"gasUsed"`
+		Success        bool           `json:"success"`
 	}{}
 	if err := json.Unmarshal(input, &m); err != nil {
 		return err
@@ -70,6 +75,7 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 	}
 	txh.Height = m.Height
 	txh.GasUsed = uint64(m.GasUsed)
+	txh.Success = m.Success
 	return nil
 }
 

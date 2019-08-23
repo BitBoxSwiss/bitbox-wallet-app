@@ -23,6 +23,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/etherscan"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/common"
@@ -52,7 +53,7 @@ var TransactionsSourceNone TransactionsSourceMaker = func() TransactionsSource {
 type Coin struct {
 	observable.Implementation
 	initOnce              sync.Once
-	client                rpcClientInterface
+	client                rpcclient.Interface
 	code                  string
 	unit                  string
 	feeUnit               string
@@ -104,12 +105,13 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		coin.log.Infof("connecting to %s", coin.nodeURL)
-		client, err := rpcDial(coin.nodeURL)
+		client, err := rpcclient.RPCDial(coin.nodeURL)
 		if err != nil {
 			// TODO: init conn lazily, feed error via EventStatusChanged
 			panic(err)
 		}
 		coin.client = client
+		coin.client = etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api")
 
 		coin.transactionsSource = coin.makeTransactionsSource()
 	})

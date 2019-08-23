@@ -270,9 +270,11 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 		if remoteTx == nil {
 			continue
 		}
-		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < 12 {
+		success := remoteTx.Status == types.ReceiptStatusSuccessful
+		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < 12 || tx.Success != success {
 			tx.Height = remoteTx.BlockNumber
 			tx.GasUsed = remoteTx.GasUsed
+			tx.Success = success
 			if err := dbTx.PutOutgoingTransaction(tx); err != nil {
 				account.log.WithError(err).Error("could not update outgoing tx")
 				continue
@@ -385,7 +387,7 @@ func (account *Account) update() error {
 		account.balance = coin.NewAmount(balance)
 	} else {
 		balance, err := account.coin.client.BalanceAt(context.TODO(),
-			account.address.Address, account.blockNumber)
+			account.address.Address, nil)
 		if err != nil {
 			return errp.WithStack(err)
 		}
