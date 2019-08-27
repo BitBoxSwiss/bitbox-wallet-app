@@ -692,6 +692,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
+		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister, onlyOne).Start()

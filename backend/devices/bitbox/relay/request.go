@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
-	"net/http"
 	"strings"
 )
 
@@ -67,7 +66,11 @@ func (request *request) encode() string {
 
 // send sends the request to the relay server and returns its response.
 func (request *request) send() (*response, error) {
-	httpResponse, err := http.Post(
+	httpClient, err := request.channel.socksProxy.GetHTTPClient()
+	if err != nil {
+		return nil, err
+	}
+	httpResponse, err := httpClient.Post(
 		string(request.server),
 		"application/x-www-form-urlencoded",
 		strings.NewReader(request.encode()),

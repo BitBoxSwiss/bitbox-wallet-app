@@ -46,7 +46,7 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 // GetTCPProxyDialer returns a tcp connection. The connection is proxied, if useProxy is true.
 func (socksProxy *SocksProxy) GetTCPProxyDialer() (proxy.Dialer, error) {
 	if socksProxy.useProxy {
-		socksProxy.log.Println("Using proxy connection")
+		socksProxy.log.Info("Using proxy connection")
 		// Create a proxy that uses Tor's SocksPort.
 		dialer, err := proxy.SOCKS5("tcp", socksProxy.proxyAddress, nil, nil)
 		if err != nil {
@@ -55,7 +55,7 @@ func (socksProxy *SocksProxy) GetTCPProxyDialer() (proxy.Dialer, error) {
 		}
 		return dialer, nil
 	}
-	socksProxy.log.Println("Using an unproxied tcp client")
+	socksProxy.log.Info("Using an unproxied tcp client")
 	return &net.Dialer{}, nil
 }
 
@@ -63,7 +63,7 @@ func (socksProxy *SocksProxy) GetTCPProxyDialer() (proxy.Dialer, error) {
 func (socksProxy *SocksProxy) GetHTTPClient() (*http.Client, error) {
 	if socksProxy.useProxy {
 		// Create a transport that uses Tor Browser's SocksPort.
-		socksProxy.log.Println("Creating new socksProxy http client")
+		socksProxy.log.Info("Creating new socksProxy http client")
 		tbProxyURL, err := url.Parse(socksProxy.fullProxyAddress)
 		if err != nil {
 			socksProxy.log.WithError(err).Error("Failed to parse proxy URL")
@@ -85,6 +85,6 @@ func (socksProxy *SocksProxy) GetHTTPClient() (*http.Client, error) {
 		client := &http.Client{Transport: tbTransport}
 		return client, nil
 	}
-	socksProxy.log.Println("Using an unproxied http connection")
+	socksProxy.log.Info("Using an unproxied http connection")
 	return &http.Client{}, nil
 }

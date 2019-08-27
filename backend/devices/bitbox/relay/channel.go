@@ -24,6 +24,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -49,39 +50,45 @@ type Channel struct {
 	// messageBufferLock guards the message buffer.
 	messageBufferLock locker.Locker
 
+	// socksProxy proxies the http requests
+	socksProxy socksproxy.SocksProxy
+
 	log *logrus.Entry
 }
 
 // NewChannel returns a new channel with the given channel ID, encryption and authentication key.
-func NewChannel(channelID string, encryptionKey []byte, authenticationKey []byte) *Channel {
+func NewChannel(channelID string, encryptionKey []byte, authenticationKey []byte, socksProxy socksproxy.SocksProxy) *Channel {
 	return &Channel{
 		ChannelID:         channelID,
 		EncryptionKey:     encryptionKey,
 		AuthenticationKey: authenticationKey,
 		log:               logging.Get().WithGroup("channel"),
+		socksProxy:        socksProxy,
 	}
 }
 
 // NewChannelWithRandomKey returns a new channel with a random encryption key and identifier.
-func NewChannelWithRandomKey() *Channel {
+func NewChannelWithRandomKey(socksProxy socksproxy.SocksProxy) *Channel {
 	channelID := random.BytesOrPanic(32)
 	encryptionKey := random.BytesOrPanic(32)
 	authenticationKey := random.BytesOrPanic(32)
 
 	// The channel identifier may not contain '=' and thus it cannot be encoded with base64.
-	return NewChannel(base58.Encode(channelID), encryptionKey, authenticationKey)
+	return NewChannel(base58.Encode(channelID), encryptionKey, authenticationKey, socksProxy)
 }
 
 // NewChannelFromConfigFile returns a new channel with the channel identifier and encryption key
 // from the config file or nil if the config file does not exist.
-func NewChannelFromConfigFile(configDir string) *Channel {
+func NewChannelFromConfigFile(configDir string, socksProxy socksproxy.SocksProxy) *Channel {
 	configFile := config.NewFile(configDir, configFileName)
 	if configFile.Exists() {
 		var configuration configuration
 		if err := configFile.ReadJSON(&configuration); err != nil {
 			return nil
 		}
-		return configuration.channel()
+		channel := configuration.channel()
+		channel.socksProxy = socksProxy
+		return channel
 	}
 	return nil
 }
