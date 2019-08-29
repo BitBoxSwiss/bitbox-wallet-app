@@ -1,5 +1,9 @@
+.buttons {
+    text-align: center;
+}
+
 .buttons > button:not(:last-child) {
-    margin-right: 24px;
+    margin-right: var(--space-half);
 }
 
 .button {
@@ -109,33 +113,30 @@
 }
 
 .passwordGesturesGifWrapper {
-  height: 60%;
-  width: 75%;
-  margin: auto;
+  height: auto;
+  width: 100%;
+  margin: var(--space-half) auto 0 auto;
 }
 
 .steps {
+    max-width: var(--content-width);
+    margin: 0 auto;
     flex: 1;
-    background-color: #F9F9F9;
-    max-width: 920px;
-    width: 100%;
-    padding: 0 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .step {
-    border-left: solid 1px #E9E9E9;
-    position: relative;
-    flex-shrink: 0;
-    flex-basis: auto;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0;
-    margin-left: 18px;
-    width: calc(100% - 18px);
     transition: all ease 0.2s;
     animation-duration: 0.2s;
+    max-width: 540px;
+    width: 100%;
+}
+
+.step:not(.active) {
+    display: none !important;
 }
 
 .step.empty {
@@ -144,8 +145,6 @@
 
 .step.empty + .step.active {
     padding-top: 0;
-    margin-top: 60px;
-    min-height: calc(100% - 336px);
 }
 
 .step.hide {
@@ -162,10 +161,7 @@
 }
 
 .step.active {
-    flex: 1;
-    padding-bottom: 60px;
-    padding-top: 60px;
-    min-height: calc(100% - 276px);
+    margin-bottom: var(--spacing-default);
 }
 
 .stepNumber {
@@ -203,13 +199,6 @@
 
 .stepContentContainer {
     flex: 1;
-    margin-left: 30px;
-    opacity: 0.5;
-}
-
-.stepContentContainer {
-    flex: 1;
-    margin-left: 30px;
     opacity: 0.5;
 }
 
@@ -234,17 +223,17 @@
 }
 
 .stepTitle h3 {
-    font-size: 18px;
+    margin-top: 0;
+    font-size: var(--size-subheader);
     line-height: 1;
     font-weight: 300;
-    margin: 9px 0 0 0;
+    text-align: center;
 }
 
 .stepContext {
     background-color: white;
-    padding: 40px 30px;
-    margin: 30px 0;
-    border-radius: 2px;
+    padding: var(--space-default);
+    margin: var(--space-default) 0;
 }
 
 .stepContext.disabled {
@@ -252,9 +241,8 @@
 }
 
 .stepContext p {
-    font-size: 14px;
+    font-size: var(--size-default);
     font-weight: 300;
-    margin: 18px 0;
 }
 
 .stepContext p:first-child {
@@ -277,25 +265,14 @@
     margin-bottom: 0;
 }
 
-.stepContext ul {
-    list-style-type: none;
-    padding-left: 24px;
+.stepContext ul, ol {
+    padding-left: var(--space-half);
 }
 
-.stepContext ul li {
+.stepContext ul li,
+.stepContext ol li {
     font-weight: 300;
-    font-size: 14px;
-}
-
-.stepContext ul li::before {
-    content: "\2b21";
-    display: inline-block;
-    color: #55A4D0;
-    position: relative;
-    top: -2px;
-    left: -24px;
-    margin-right: -12px;
-    transform: rotate(12deg);
+    font-size: var(--size-default);
 }
 
 .stepContext ul li:not(:last-child) {
@@ -303,8 +280,6 @@
 }
 
 .standOut {
-    margin-top: 30px;
-    margin-bottom: 30px;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -317,40 +292,29 @@
 
 .standOut > img {
     width: 18px;
-    margin-right: 12px;
+    margin-right: var(--space-half);
 }
 
-.standOut > span {
-    font-size: 14px;
+.standOut > p {
+    font-size: var(--size-default);
+    font-weight: 300;
 }
 
-.standOut > span.error {
+.standOut > .error {
     color: #f62459;
 }
 
-.standOut > span.info {
-    color: #55A4D0;
+.standOut > .info {
+    color: var(--color-blue);
 }
 
 .table {
     width: 100%;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
-.warningBlockContainer {
-    padding: 0 60px;
-    width: 100%;
-    max-width: 920px;
-}
-
-.warningBlock {
-    margin-top: var(--spacing-large);
-    border: solid 1px var(--color-danger);
-    padding: 40px 30px;
-    color: var(--color-danger);
-    font-weight: 300;
-    font-size: var(--size-default);
-    border-radius: 2px;
+.table:last-child {
+    margin-bottom: 0;
 }
 
 @media (max-width: 1240px) {

@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { Radio } from '../forms';
+import * as style from './backups.css';
 
 interface BackupsListItemProps {
     disabled?: boolean;
@@ -63,6 +64,7 @@ class BackupsListItem extends Component<Props> {
                 label={backup.name && backup.name !== '' ? backup.name : backup.id}
                 value={backup.id}
                 onFocus={onFocus}
+                className={style.backupItem}
                 sizeMedium>
                 <span className="text-small text-gray">{date}</span>
             </Radio> :

@@ -20,6 +20,7 @@ import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../alert/Alert';
 import { Dialog } from '../../dialog/dialog';
 import { Button, Checkbox } from '../../forms';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 import * as style from './bitbox02.css';
 
@@ -89,9 +90,11 @@ class Reset extends Component<Props, State> {
         }: State) {
         return (
             <div>
-                <Button danger onClick={() => this.setState({ activeDialog: true })}>
+                <SettingsButton
+                    danger
+                    onClick={() => this.setState({ activeDialog: true })}>
                     {t('reset.button')}
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog

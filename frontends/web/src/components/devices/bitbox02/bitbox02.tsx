@@ -19,7 +19,6 @@ import { route } from 'preact-router';
 import passwordEntryGif from '../../../assets/device/bb02PwEntry.gif';
 import passwordEntryOldGif from '../../../assets/device/bb02PwEntry_old.gif';
 import alertOctagon from '../../../assets/icons/alert-octagon.svg';
-import infoIcon from '../../../assets/icons/info.svg';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Input } from '../../../components/forms';
@@ -31,7 +30,10 @@ import { apiGet, apiPost } from '../../../utils/request';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
+import { store as panelStore } from '../../guide/guide';
 import { Header } from '../../layout/header';
+import { toggleForceHide } from '../../sidebar/sidebar';
+import Status from '../../status/status';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 import { BackupsV2 } from './backups';
 import { Settings } from './settings';
@@ -99,6 +101,7 @@ class BitBox02 extends Component<Props, State> {
     private unsubscribe!: () => void;
 
     public componentDidMount() {
+        toggleForceHide();
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
@@ -142,6 +145,11 @@ class BitBox02 extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(status => {
+            if (status !== 'initialized' && !panelStore.state.forceHiddenSidebar) {
+                toggleForceHide();
+            } else if (status === 'initialized' && panelStore.state.forceHiddenSidebar) {
+                toggleForceHide();
+            }
             if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
             }
@@ -159,6 +167,9 @@ class BitBox02 extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
+        if (this.state.status === 'initialized' && panelStore.state.forceHiddenSidebar) {
+            toggleForceHide();
+        }
         this.unsubscribe();
     }
 
@@ -270,23 +281,25 @@ class BitBox02 extends Component<Props, State> {
 
     public render(
         { t, deviceID }: RenderableProps<Props>,
-        { attestationResult,
-          versionInfo,
-          hash,
-          deviceVerified,
-          status,
-          appStatus,
-          createWalletStatus,
-          restoreBackupStatus,
-          settingPassword,
-          creatingBackup,
-          restoringFromMnemonic,
-          errorText,
-          unlockOnly,
-          showWizard,
-          sdCardInserted,
-          deviceName,
-          waitDialog }: State,
+        {
+            attestationResult,
+            versionInfo,
+            hash,
+            deviceVerified,
+            status,
+            appStatus,
+            createWalletStatus,
+            restoreBackupStatus,
+            settingPassword,
+            creatingBackup,
+            restoringFromMnemonic,
+            errorText,
+            unlockOnly,
+            showWizard,
+            sdCardInserted,
+            deviceName,
+            waitDialog,
+        }: State,
     ) {
         if (status === '') {
             return null;
@@ -315,46 +328,38 @@ class BitBox02 extends Component<Props, State> {
         // TODO: move to wizard.tsx
         return (
             <div className="contentWithGuide">
-                { waitDialog && (
-                      <WaitDialog
-                          title={waitDialog.title}
-                      >
+                {
+                    waitDialog && (
+                      <WaitDialog title={waitDialog.title}>
                           {t('bitbox02Interact.followInstructions')}
                       </WaitDialog>
-                )}
+                    )
+                }
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
-
-                    <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer" style="background-color: #F9F9F9;">
-                        { attestationResult === false && (
-                            <div className={style.warningBlockContainer}>
-                                <div className={style.warningBlock}>
-                                    {t('bitbox02Wizard.attestationFailed')}
-                                </div>
-                            </div>
-                        )}
+                    <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer">
                         <Steps>
-                            <Step active={status === 'connected'}
-                                  title={t('button.unlock')}>
+                            <Step active={status === 'connected'} title={t('button.unlock')}>
                                 <div className={style.stepContext}>
                                     <p>{t('unlock.description')}</p>
-                                </div>
-                                <div className={style.passwordGesturesGifWrapper}>
-                                    <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                    <div className={style.passwordGesturesGifWrapper}>
+                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
+                                    </div>
                                 </div>
                             </Step>
+
                             <Step
                                 active={status === 'unpaired' || status === 'pairingFailed'}
                                 title={t('bitbox02Wizard.pairing.title')}>
-                                {
-                                    status === 'pairingFailed' && (
-                                        <div className={style.standOut}>
-                                            <img src={alertOctagon} />
-                                            <span className={style.error}>{t('bitbox02Wizard.pairing.failed')}</span>
-                                        </div>
-                                    )
-                                }
                                 <div className={[style.stepContext, status === 'pairingFailed' ? style.disabled : ''].join(' ')}>
+                                    {
+                                        status === 'pairingFailed' && (
+                                            <div className={style.standOut}>
+                                                <img src={alertOctagon} />
+                                                <span className={style.error}>{t('bitbox02Wizard.pairing.failed')}</span>
+                                            </div>
+                                        )
+                                    }
                                     <p>{t('bitbox02Wizard.pairing.unpaired')}</p>
                                     <pre>{hash}</pre>
                                     {
@@ -363,57 +368,63 @@ class BitBox02 extends Component<Props, State> {
                                         )
                                     }
                                 </div>
-                                <div className={style.buttons}>
-                                    <button className={[style.button, style.primary].join(' ')} onClick={() => this.channelVerify(true)} disabled={!deviceVerified}>
+                                <div className="buttons text-center">
+                                    <Button
+                                        primary
+                                        onClick={() => this.channelVerify(true)}
+                                        disabled={!deviceVerified}>
                                         {t('bitbox02Wizard.pairing.confirmButton')}
-                                    </button>
+                                    </Button>
                                 </div>
                             </Step>
-                            {!unlockOnly ?
-                                <Step
-                                    active={status === 'uninitialized' && appStatus === ''}
-                                    title={t('bitbox02Wizard.initialize.title')}>
-                                    <div className={style.standOut}>
-                                        <img src={infoIcon} />
-                                        <span className={style.info}>{t('bitbox02Wizard.initialize.tip')}</span>
-                                    </div>
-                                    <div className={style.stepContext}>
-                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} />
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            className={[style.button, style.primary].join(' ')}
-                                            onClick={this.createWalletStep}
-                                            disabled={settingPassword}>
-                                            {t('seed.create')}
-                                        </button>
-                                        <button
-                                            className={[style.button, style.secondary].join(' ')}
-                                            onClick={this.restoreBackupStep}>
-                                            {t('backup.restore.confirmTitle')}
-                                        </button>
-                                        <br/><br/>
-                                        <button
-                                            className={[style.button, style.secondary].join(' ')}
-                                            onClick={this.restoreFromMnemonicStep}>
-                                            {t('backup.restoreFromMnemonic.confirmTitle')}
-                                        </button>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'createWallet' ?
-                                <Step
-                                    active={createWalletStatus === 'intro'}
-                                    title={t('seed.create')}>
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.create.text')}</p>
-                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
-                                        <p>{t('bitbox02Wizard.create.info')}</p>
-                                        <ul>
-                                            <li>{t('bitbox02Wizard.create.point1')}</li>
-                                            <li>{t('bitbox02Wizard.create.point2')}</li>
-                                            <li>{t('bitbox02Wizard.create.point3')}</li>
-                                        </ul>
-                                        <div className={style.inputGroup}>
+
+                            {
+                                !unlockOnly && (
+                                    <Step
+                                        active={status === 'uninitialized' && appStatus === ''}
+                                        title={t('bitbox02Wizard.initialize.title')}>
+                                        <div className={style.stepContext}>
+                                            <div className={style.standOut}>
+                                                <p className={style.info}>* {t('bitbox02Wizard.initialize.tip')}</p>
+                                            </div>
+                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} />
+                                        </div>
+                                        <div className="buttons text-center">
+                                            <Button
+                                                secondary
+                                                onClick={this.restoreBackupStep}>
+                                                {t('backup.restore.confirmTitle')}
+                                            </Button>
+                                            <Button
+                                                secondary
+                                                onClick={this.restoreFromMnemonicStep}>
+                                                {t('backup.restoreFromMnemonic.confirmTitle')}
+                                            </Button>
+                                            <Button
+                                                primary
+                                                onClick={this.createWalletStep}
+                                                disabled={settingPassword}>
+                                                {t('seed.create')}
+                                            </Button>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                !unlockOnly && appStatus === 'createWallet' && (
+                                    <Step
+                                        active={createWalletStatus === 'intro'}
+                                        title={t('seed.create')}>
+                                        <div className={style.stepContext}>
+                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
+                                            <p>{t('bitbox02Wizard.create.text')} {t('bitbox02Wizard.create.info')}</p>
+                                            <ul>
+                                                <li>{t('bitbox02Wizard.create.point1')}</li>
+                                                <li>{t('bitbox02Wizard.create.point2')}</li>
+                                                <li>{t('bitbox02Wizard.create.point3')}</li>
+                                            </ul>
+                                            <hr />
                                             <Input
                                                 label={t('bitbox02Settings.deviceName.title')}
                                                 pattern="^.{0,63}$"
@@ -423,149 +434,180 @@ class BitBox02 extends Component<Props, State> {
                                                 id="deviceName"
                                             />
                                         </div>
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            disabled={!deviceName || !sdCardInserted}
-                                            className={[style.button, style.primary].join(' ')}
-                                            onClick={this.setDeviceName}>
-                                            {t('bitbox02Wizard.create.button')}
-                                    </button>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'createWallet' ?
-                                <Step
-                                    active={createWalletStatus === 'setPassword'}
-                                    title={t('bitbox02Wizard.initialize.passwordTitle')}>
-                                    {
-                                        errorText && (
-                                            <div className={style.standOut}>
-                                                <img src={alertOctagon} />
-                                                <span className={style.error}>{errorText}</span>
+                                        <div className={style.buttons}>
+                                            <Button
+                                                primary
+                                                disabled={!deviceName || !sdCardInserted}
+                                                onClick={this.setDeviceName}>
+                                                {t('bitbox02Wizard.create.button')}
+                                            </Button>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'createWallet') && (
+                                    <Step
+                                        active={createWalletStatus === 'setPassword'}
+                                        title={t('bitbox02Wizard.initialize.passwordTitle')}>
+                                        <div className={style.stepContext}>
+                                            {
+                                                errorText && (
+                                                    <div className={style.standOut}>
+                                                        <img src={alertOctagon} />
+                                                        <span className={style.error}>{errorText}</span>
+                                                    </div>
+                                                )
+                                            }
+                                            <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
+                                            <div className={style.passwordGesturesGifWrapper}>
+                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
-                                        )
-                                    }
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
-                                    </div>
-                                    <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'createWallet' ?
-                                <Step
-                                    active={status === 'seeded' && createWalletStatus === 'createBackup'}
-                                    title={t('backup.create.title')}>
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.backup.text1')}</p>
-                                        <p>{t('bitbox02Wizard.backup.text2')}</p>
-                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.backup.text3')} />
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            className={[style.button, style.primary].join(' ')}
-                                            onClick={this.createBackup}
-                                            disabled={creatingBackup}>
-                                            {t('backup.create.title')}
-                                        </button>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'restoreBackup' ?
-                                <Step
-                                    active={status !== 'initialized' && restoreBackupStatus === 'intro'}
-                                    title={t('backup.restore.confirmTitle')}>
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.backup.restoreText')}</p>
-                                        <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
-                                        <p>{t('bitbox02Wizard.create.info')}</p>
-                                        <ul>
-                                            <li>{t('bitbox02Wizard.backup.point1')}</li>
-                                            <li>{t('bitbox02Wizard.backup.point2')}</li>
-                                        </ul>
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            className={[style.button, style.primary].join(' ')}
-                                            onClick={this.restoreBackup}
-                                            disabled={!sdCardInserted}>
-                                            {t('seedRestore.info.button')}
-                                        </button>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'restoreBackup' ?
-                                <Step
-                                    active={status !== 'initialized' && restoreBackupStatus === 'restore'}
-                                    title={t('backup.restore.confirmTitle')}>
-                                    <div className={style.stepContext}>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'createWallet') && (
+                                    <Step
+                                        active={status === 'seeded' && createWalletStatus === 'createBackup'}
+                                        title={t('backup.create.title')}>
+                                        <div className={style.stepContext}>
+                                            <p>{t('bitbox02Wizard.backup.text1')}</p>
+                                            <p>{t('bitbox02Wizard.backup.text2')}</p>
+                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.backup.text3')} />
+                                        </div>
+                                        <div className="buttons text-center">
+                                            <Button
+                                                primary
+                                                onClick={this.createBackup}
+                                                disabled={creatingBackup}>
+                                                {t('backup.create.title')}
+                                            </Button>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'restoreBackup') && (
+                                    <Step
+                                        active={status !== 'initialized' && restoreBackupStatus === 'intro'}
+                                        title={t('backup.restore.confirmTitle')}>
+                                        <div className={style.stepContext}>
+                                            <p>{t('bitbox02Wizard.backup.restoreText')}</p>
+                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
+                                            <p>{t('bitbox02Wizard.create.info')}</p>
+                                            <ul>
+                                                <li>{t('bitbox02Wizard.backup.point1')}</li>
+                                                <li>{t('bitbox02Wizard.backup.point2')}</li>
+                                            </ul>
+                                        </div>
+                                        <div className="buttons text-center">
+                                            <Button
+                                                primary
+                                                onClick={this.restoreBackup}
+                                                disabled={!sdCardInserted}>
+                                                {t('seedRestore.info.button')}
+                                            </Button>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'restoreBackup') && (
+                                    <Step
+                                        active={status !== 'initialized' && restoreBackupStatus === 'restore'}
+                                        title={t('backup.restore.confirmTitle')}>
                                         <BackupsV2
                                             deviceID={deviceID}
                                             showRestore={true}
                                             showRadio={true}
                                             backupOnBeforeRestore={this.backupOnBeforeRestore}
-                                            backupOnAfterRestore={this.backupOnAfterRestore}
-                                        />
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            className={[style.button, style.primary].join(' ')}
-                                            onClick={this.uninitializedStep}
-                                            disabled={settingPassword}>
-                                            {t('button.back')}
-                                        </button>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'restoreBackup' ?
-                                <Step
-                                    active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
-                                    title={t('bitbox02Wizard.initialize.passwordTitle')}>
-                                    {
-                                        errorText && (
-                                            <div className={style.standOut}>
-                                                <img src={alertOctagon} />
-                                                <span className={style.error}>{errorText}</span>
+                                            backupOnAfterRestore={this.backupOnAfterRestore}>
+                                            <Button
+                                                secondary
+                                                onClick={this.uninitializedStep}
+                                                disabled={settingPassword}>
+                                                {t('button.back')}
+                                            </Button>
+                                        </BackupsV2>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'restoreBackup') && (
+                                    <Step
+                                        active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
+                                        title={t('bitbox02Wizard.initialize.passwordTitle')}>
+                                        <div className={style.stepContext}>
+                                            {
+                                                errorText && (
+                                                    <div className={style.standOut}>
+                                                        <img src={alertOctagon} />
+                                                        <span className={style.error}>{errorText}</span>
+                                                    </div>
+                                                )
+                                            }
+                                            <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
+                                            <div className={style.passwordGesturesGifWrapper}>
+                                                <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
-                                        )
-                                    }
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.initialize.passwordText')}</p>
-                                    </div>
-                                    <div className={style.passwordGesturesGifWrapper}>
-                                        <img class={style.passwordGesturesGif} src={passwordGif}/>
-                                    </div>
-                                </Step> : ''}
-                            {!unlockOnly && appStatus === 'restoreFromMnemonic' ?
-                                <Step
-                                    active={status !== 'initialized'}
-                                    title={t('backup.restoreFromMnemonic.confirmTitle')}>
-                                    <div className={style.stepContext}>
-                                        <p>{t('bitbox02Wizard.backup.restoreText')}</p>
-                                        <p>{t('bitbox02Wizard.create.info')}</p>
-                                        <ul>
-                                            <li>{t('bitbox02Wizard.restoreFromMnemonic.point1')}</li>
-                                            <li>{t('bitbox02Wizard.restoreFromMnemonic.point2')}</li>
-                                        </ul>
-                                    </div>
-                                    <div className={style.buttons}>
-                                        <button
-                                            className={[style.button, style.primary].join(' ')}
-                                            disabled={restoringFromMnemonic}
-                                            onClick={this.restoreFromMnemonic}>
-                                            {t('backup.restoreFromMnemonic.confirmTitle')}
-                                        </button>
-                                    </div>
-                                </Step> : ''}
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                (!unlockOnly && appStatus === 'restoreFromMnemonic') && (
+                                    <Step
+                                        active={status !== 'initialized'}
+                                        title={t('backup.restoreFromMnemonic.confirmTitle')}>
+                                        <div className={style.stepContext}>
+                                            <p>{t('bitbox02Wizard.backup.restoreText')}</p>
+                                            <p>{t('bitbox02Wizard.create.info')}</p>
+                                            <ul>
+                                                <li>{t('bitbox02Wizard.restoreFromMnemonic.point1')}</li>
+                                                <li>{t('bitbox02Wizard.restoreFromMnemonic.point2')}</li>
+                                            </ul>
+                                        </div>
+                                        <div className="buttons text-center">
+                                            <Button
+                                                primary
+                                                disabled={restoringFromMnemonic}
+                                                onClick={this.restoreFromMnemonic}>
+                                                {t('backup.restoreFromMnemonic.confirmTitle')}
+                                            </Button>
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
                             <Step
                                 active={status === 'initialized'}
                                 title={t('bitbox02Wizard.success.title')}>
                                 <div className={style.stepContext}>
                                     <p>{t('bitbox02Wizard.success.text')}</p>
                                 </div>
-                                <Button primary onClick={this.handleGetStarted}>
-                                    {t('success.getstarted')}
-                                </Button>
+                                <div className="buttons text-center">
+                                    <Button primary onClick={this.handleGetStarted}>
+                                        {t('success.getstarted')}
+                                    </Button>
+                                </div>
                             </Step>
                         </Steps>
                     </div>
+                    {
+                        attestationResult === false && (
+                            <Status>
+                                {t('bitbox02Wizard.attestationFailed')}
+                            </Status>
+                        )
+                    }
                 </div>
             </div>
         );

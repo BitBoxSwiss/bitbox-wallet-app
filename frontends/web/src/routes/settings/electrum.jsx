@@ -24,6 +24,7 @@ import { Header } from '../../components/layout';
 import { confirmation } from '../../components/confirm/Confirm';
 import { alertUser } from '../../components/alert/Alert';
 import * as style from './settings.css';
+import A from '../../components/anchor/anchor';
 
 @translate()
 class ElectrumServer extends Component {
@@ -173,7 +174,7 @@ class ElectrumServer extends Component {
                         <p>{t('settings.electrum.step3-text')}</p>
                     </div>
                 </div>
-                <div class="buttons flex flex-row flex-end">
+                <div class={['flex flex-row flex-end spaced', style.block].join(' ')}>
                     <Button primary disabled={electrumServer === '' || loadingCheck} onClick={this.check}>
                         {
                             loadingCheck && (
@@ -245,7 +246,6 @@ class ElectrumServers extends Component {
 
     render({
         t,
-        coin,
     }, {
         electrumServers,
     }) {
@@ -256,16 +256,12 @@ class ElectrumServers extends Component {
         });
         return (
             <div class={style.serversContainer}>
-                <div class="subHeaderContainer">
-                    <div class="subHeader">
-                        <h3>{t(`settings.electrum.title-${coin}`)}</h3>
-                    </div>
-                </div>
-                <div class="flex flex-row flex-between flex-items-center row">
-                </div>
                 <div class="row">
-                    <h4 class={style.title}>{t('settings.electrum.servers')}</h4>
-                    <ol class={style.servers}>
+                    <div className={['flex flex-row flex-between flex-items-center', style.titleContainer].join(' ')}>
+                        <h4 class={style.title}>{t('settings.electrum.servers')}</h4>
+                        <A href="#" className={['labelLarge labelLink', style.resetLink].join(' ')} onClick={this.resetToDefault}>{t('settings.electrum.reset')}</A>
+                    </div>
+                    <ul class={style.servers}>
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
@@ -275,10 +271,7 @@ class ElectrumServers extends Component {
                                 />
                             ))
                         }
-                    </ol>
-                    <div class="buttons flex flex-row flex-end">
-                        <Button onClick={this.resetToDefault} danger>{t('settings.electrum.reset')}</Button>
-                    </div>
+                    </ul>
                 </div>
                 <hr />
                 <div class="row">
@@ -317,15 +310,15 @@ export default class ElectrumSettings extends Component {
                 <div class="container">
                     <Header title={<h2>{t('settings.expert.electrum.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
-                        <div class="flex flex-row flex-between flex-items-center tabs">
-                            <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
-                                <a href="#" onClick={this.handleTab} data-tab="btc">{testing ? 'TBTC' : 'BTC'}</a>
-                            </div>
-                            <div class={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
-                                <a href="#" onClick={this.handleTab} data-tab="ltc">{testing ? 'TLTC' : 'LTC'}</a>
-                            </div>
-                        </div>
                         <div class="content padded">
+                            <div class="flex flex-row flex-between flex-items-center tabs">
+                                <div class={['tab', activeTab === 'btc' ? 'active' : ''].join(' ')}>
+                                    <a href="#" onClick={this.handleTab} data-tab="btc">{t(`settings.electrum.title-${testing ? 'tbtc' : 'btc'}`)}</a>
+                                </div>
+                                <div class={['tab', activeTab === 'ltc' ? 'active' : ''].join(' ')}>
+                                    <a href="#" onClick={this.handleTab} data-tab="ltc">{t(`settings.electrum.title-${testing ? 'tltc' : 'ltc'}`)}</a>
+                                </div>
+                            </div>
                             {
                                 activeTab === 'btc' && (
                                     <ElectrumServers

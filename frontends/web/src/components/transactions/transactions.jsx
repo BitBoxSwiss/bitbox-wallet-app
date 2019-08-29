@@ -69,8 +69,8 @@ export default class Transactions extends Component {
                             fiatCode={fiatCode}
                             {...props} />
                     )) : (
-                        <div class="flex flex-row flex-center">
-                            <p class="text-gray">
+                        <div class={['flex flex-row flex-center', style.empty].join(' ')}>
+                            <p>
                                 {t('transactions.placeholder')}
                             </p>
                         </div>

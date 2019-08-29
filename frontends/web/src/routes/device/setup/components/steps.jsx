@@ -29,7 +29,7 @@ export function Steps({
     children
 }) {
     return (
-        <div className={style.steps}>
+        <div className="content padded">
             {
                 children.map((child, index) => {
                     if (!child) return null;

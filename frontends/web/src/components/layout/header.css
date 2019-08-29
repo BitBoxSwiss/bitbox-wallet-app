@@ -93,17 +93,17 @@
 }
 
 @media (min-width: 1246px) {
-    .sidebarToggler {
+    .container:not(.forceCollapsed) .sidebarToggler {
         display: none;
     }
 }
 
 @media (max-width: 768px) {
-    .header {
+    .container .header {
         padding: 0 var(--space-half);
     }
 
-    .sidebarToggler {
+    .container .sidebarToggler {
         margin-right: var(--space-half);
     }
 }

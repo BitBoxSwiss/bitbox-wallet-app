@@ -50,6 +50,11 @@ export function toggleSidebar() {
     panelStore.setState({ activeSidebar: toggled });
 }
 
+export function toggleForceHide() {
+    const toggleHide = !panelStore.state.forceHiddenSidebar;
+    panelStore.setState({ forceHiddenSidebar: toggleHide });
+}
+
 class Sidebar extends Component<Props> {
     private swipe!: SwipeAttributes;
 
@@ -151,8 +156,9 @@ class Sidebar extends Component<Props> {
             activeSidebar,
         }: RenderableProps<Props>,
     ) {
+        const forceHide = panelStore.state.forceHiddenSidebar;
         return (
-            <div className="sidebarContainer">
+            <div className={['sidebarContainer', forceHide ? 'forceHide' : ''].join(' ')}>
                 <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
                 <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
                     <div className="sidebarLogoContainer">

@@ -67,7 +67,9 @@ class SigningConfiguration extends Component<Props, State> {
                 <div>
                     <label className="labelLarge">{t('accountInfo.address')}</label>
                     <QRCode data={info.address} />
-                    <CopyableInput value={info.address} />
+                    <div className={style.textareaContainer}>
+                        <CopyableInput flexibleHeight value={info.address} />
+                    </div>
                 </div>
                     :
                 info.xpubs.map((xpub, index) => {

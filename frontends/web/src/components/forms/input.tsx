@@ -36,6 +36,7 @@ export interface Props {
     transparent?: boolean;
     type?: 'text' | 'password';
     value?: string | number;
+    labelSection?: JSX.Element | undefined;
     // [property: string]: any;
 }
 
@@ -49,20 +50,24 @@ export default function Input({
     getRef,
     transparent = false,
     type = 'text',
+    labelSection,
     ...props
 }: RenderableProps<Props>): JSX.Element {
     return (
         <div className={[styles.input, className, transparent ? styles.isTransparent : ''].join(' ')} style={style}>
             {
                 label && (
-                    <label for={id} class={error ? styles.errorText : ''}>
-                        {label}
-                        {
-                            error && (
-                                <span>:<span>{error}</span></span>
-                            )
-                        }
-                    </label>
+                    <div className="flex flex-row flex-between">
+                        <label for={id} className={error ? styles.errorText : ''}>
+                            {label}
+                            {
+                                error && (
+                                    <span>:<span>{error}</span></span>
+                                )
+                            }
+                        </label>
+                        {labelSection && labelSection}
+                    </div>
                 )
             }
             <input

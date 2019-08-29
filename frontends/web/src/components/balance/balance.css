@@ -14,7 +14,7 @@
 
 .pendingBalance {
     margin: 0;
-    padding-top: 5px;
+    padding-top: var(--space-half);
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: 1;
@@ -88,27 +88,6 @@
     .balanceTable td {
         font-size: var(--size-subheader);
     }
-}
-
-@media (max-width: 560px) {
-    /* .balanceTable tr {
-        display: flex;
-        flex-direction: column-reverse;
-    }
-
-    .balanceTable tr:first-child {
-        margin-right: var(--space-quarter);
-    }
-
-    .balanceTable td {
-        display: block;
-        font-size: var(--size-subheader);
-        font-weight: normal;
-    }
-
-    .balanceTable td:last-child {
-        margin-bottom: calc(var(--space-quarter) / 2);
-    } */
 }
 
 .accountName {

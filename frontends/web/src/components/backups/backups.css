@@ -2,10 +2,19 @@
     display: flex;
     flex-direction: column;
     overflow: auto;
-    padding: 0 0 var(--spacing-default) 0;
     position: relative;
     text-align: left;
     flex: 1;
+}
+
+.listContainer {
+    margin-top: var(--space-default);
+    max-height: 480px;
+    overflow: scroll;
+}
+
+.listContainer > *:not(:first-child) {
+    margin-top: var(--space-half);
 }
 
 .agreements {
@@ -20,4 +29,8 @@
     text-align: center;
     color: var(--color-secondary);
     padding: var(--spacing-large) 0;
+}
+
+.backupItem + label {
+    color: var(--color-softblack);
 }

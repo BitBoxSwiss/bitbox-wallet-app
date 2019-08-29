@@ -1,7 +1,9 @@
 .manageBackups {
-    margin-top: var(--spacing-default);
+    margin: var(--space-default) auto 0 auto;
     padding: 0 var(--spacing-large);
     display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 @media (max-width: 640px) {
