@@ -271,7 +271,7 @@ func (account *Account) updateOutgoingTransactions(tipHeight uint64) {
 			continue
 		}
 		success := remoteTx.Status == types.ReceiptStatusSuccessful
-		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < 12 || tx.Success != success {
+		if tx.Height == 0 || (tipHeight-remoteTx.BlockNumber) < ethtypes.NumConfirmationsComplete || tx.Success != success {
 			tx.Height = remoteTx.BlockNumber
 			tx.GasUsed = remoteTx.GasUsed
 			tx.Success = success

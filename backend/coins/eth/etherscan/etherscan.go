@@ -117,6 +117,7 @@ type jsonTransaction struct {
 	Timestamp     timestamp      `json:"timeStamp"`
 	Confirmations jsonBigInt     `json:"confirmations"`
 	From          common.Address `json:"from"`
+	Failed        string         `json:"isError"`
 
 	// One of them is an empty string / nil, the other is an address.
 	ToAsString              string `json:"to"`
@@ -186,6 +187,17 @@ func (tx *Transaction) NumConfirmations() int {
 // Type implements accounts.Transaction.
 func (tx *Transaction) Type() accounts.TxType {
 	return tx.txType
+}
+
+// Status implements accounts.Transaction.
+func (tx *Transaction) Status() accounts.TxStatus {
+	if tx.jsonTransaction.Failed == "1" {
+		return accounts.TxStatusFailed
+	}
+	if tx.NumConfirmations() >= ethtypes.NumConfirmationsComplete {
+		return accounts.TxStatusComplete
+	}
+	return accounts.TxStatusPending
 }
 
 // Amount implements accounts.Transaction.

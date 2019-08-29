@@ -26,6 +26,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
+// NumConfirmationsComplete indicates after how many confs the tx is considered complete.
+const NumConfirmationsComplete = 12
+
 // EthereumTransaction holds information specific to Ethereum.
 type EthereumTransaction interface {
 	// Gas returns the gas limit for pending tx, and the gas used for confirmed tx.
@@ -136,6 +139,17 @@ func (txh *TransactionWithConfirmations) NumConfirmations() int {
 		confs = int(txh.TipHeight - txh.Height + 1)
 	}
 	return confs
+}
+
+// Status implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
+	if !txh.Success {
+		return accounts.TxStatusFailed
+	}
+	if txh.NumConfirmations() >= NumConfirmationsComplete {
+		return accounts.TxStatusComplete
+	}
+	return accounts.TxStatusPending
 }
 
 // assertion because not implementing the interface fails silently.
