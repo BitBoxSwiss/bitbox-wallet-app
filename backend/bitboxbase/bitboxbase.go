@@ -73,8 +73,19 @@ type Interface interface {
 	Deregister() (bool, error)
 
 	// SyncOption returns true if the bitcoin resync rpc call executed successfully
-	SyncOption(string) (bool, error)
+	SyncWithOption(SyncOption) (bool, error)
 }
+
+// SyncOption is a user provided blockchain sync option during BBB initialization
+type SyncOption string
+
+// SyncOption iota has three options:
+// Accept pre-synchronized blockchain; delete the chainstate and reindex; resync bitcon from scratch with an IBD
+const (
+	SyncOptionPresynced            SyncOption = "preSynced"
+	SyncOptionReindex              SyncOption = "reindex"
+	SyncOptionInitialBlockDownload SyncOption = "initialBlockDownload"
+)
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
@@ -232,22 +243,22 @@ func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgress
 	return base.rpcClient.GetVerificationProgress()
 }
 
-// SyncOption returns true if the chosen sync option was executed successfully
-func (base *BitBoxBase) SyncOption(option string) (bool, error) {
+// SyncWithOption returns true if the chosen sync option was executed successfully
+func (base *BitBoxBase) SyncWithOption(option SyncOption) (bool, error) {
 	if !base.active {
 		err := errp.New("Attempted a call to non-active base")
 		return false, err
 	}
 	switch option {
-	case "pre-synced":
+	case SyncOptionPresynced:
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return true, nil
-	case "reindex":
+	case SyncOptionReindex:
 		base.log.Println("bitboxbase is making a ReindexResyncOption call")
 		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Reindex)
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
-	case "scratch":
+	case SyncOptionInitialBlockDownload:
 		base.log.Println("bitboxbase is making a IBDResyncOption call")
 		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Resync)
 		base.changeStatus(bitboxbasestatus.StatusInitialized)

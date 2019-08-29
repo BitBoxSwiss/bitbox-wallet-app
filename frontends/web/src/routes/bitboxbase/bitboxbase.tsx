@@ -58,6 +58,8 @@ interface State {
     showWizard: boolean;
 }
 
+type SyncOption = 'preSynced' | 'reindex' | 'initialBlockDownload';
+
 type Props = BitBoxBaseProps & TranslateProps;
 
 class BitBoxBase extends Component<Props, State> {
@@ -182,7 +184,7 @@ class BitBoxBase extends Component<Props, State> {
         route('/bitboxbase', true);
     }
 
-    private syncOption = (syncOption: 'pre-synced' | 'reindex' | 'scratch') => {
+    private syncOption = (syncOption: SyncOption) => {
         apiPost(this.apiPrefix() + '/syncoption', {
             option: syncOption,
         }).then(success => {
@@ -279,7 +281,7 @@ class BitBoxBase extends Component<Props, State> {
                                 title={t('bitboxBaseWizard.bitcoin.title')}>
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                    <div class="buttons flex flex-row flex-end">
-                                       <Button onClick={() => this.syncOption('pre-synced')} danger>{t('bitboxBaseWizard.bitcoin.pre')}</Button>
+                                       <Button onClick={() => this.syncOption('preSynced')} danger>{t('bitboxBaseWizard.bitcoin.pre')}</Button>
                                    </div>
                                    <div className={style.stepContext}>
                                      <p>{t('bitboxBaseWizard.bitcoin.preInfo')}</p>
@@ -295,7 +297,7 @@ class BitBoxBase extends Component<Props, State> {
                                 </div>
                                 <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
                                    <div class="buttons flex flex-row flex-end">
-                                       <Button onClick={() => this.syncOption('scratch')} danger>{t('bitboxBaseWizard.bitcoin.syncFromScratch')}</Button>
+                                       <Button onClick={() => this.syncOption('initialBlockDownload')} danger>{t('bitboxBaseWizard.bitcoin.syncFromScratch')}</Button>
                                    </div>
                                    <div className={style.stepContext}>
                                       <p>{t('bitboxBaseWizard.bitcoin.syncFromScratchInfo')}</p>

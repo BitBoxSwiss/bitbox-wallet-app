@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/gorilla/mux"
@@ -32,7 +33,7 @@ type Base interface {
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
 	Deregister() (bool, error)
-	SyncOption(string) (bool, error)
+	SyncWithOption(bitboxbase.SyncOption) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -130,12 +131,12 @@ func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface
 
 func (handlers *Handlers) postSyncOptionHandler(r *http.Request) (interface{}, error) {
 	payload := struct {
-		Option string `json:"option"`
+		Option bitboxbase.SyncOption `json:"option"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		return nil, err
 	}
 
-	success, err := handlers.base.SyncOption(payload.Option)
+	success, err := handlers.base.SyncWithOption(payload.Option)
 	return map[string]interface{}{"success": success}, err
 }
