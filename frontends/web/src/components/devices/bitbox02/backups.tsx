@@ -80,7 +80,8 @@ class Backups extends Component<Props, State> {
                 if (this.props.backupOnAfterRestore) {
                     this.props.backupOnAfterRestore(success);
                 }
-            });
+            }
+        );
     }
 
     public render(
@@ -101,42 +102,44 @@ class Backups extends Component<Props, State> {
         }
         return (
             <div>
-                {
-                    errorText && (
-                        <div className={style.standOut}>
-                            <img src={alertOctagon} />
-                            <span className={style.error}>{errorText}</span>
-                        </div>
-                    )
-                }
-                <div class={backupStyle.backupsList}>
+                <div className={style.stepContext}>
                     {
-                    backups.backups!.length ?
-                        (
-                            <div>
-                                <SimpleMarkup tagName="p" markup={t('backup.list')} />
-                                {backups.backups!.map(backup => (
-                                    <table className={style.table}>
-                                        <BackupsListItem
-                                            key={backup.id}
-                                            disabled={restoring}
-                                            backup={backup}
-                                            selectedBackup={selectedBackup}
-                                            handleChange={(b => this.setState({ selectedBackup: b }))}
-                                            onFocus={() => undefined}
-                                            radio={showRadio} />
-                                    </table>
-                                )) }
+                        errorText && (
+                            <div className={style.standOut}>
+                                <img src={alertOctagon} />
+                                <span className={style.error}>{errorText}</span>
                             </div>
-                        ) :
-                        (
-                            <p>
-                                {t('backup.noBackups')}
-                            </p>
                         )
                     }
+                    <div class={backupStyle.backupsList}>
+                        {
+                            backups.backups!.length ? (
+                                <div>
+                                    <SimpleMarkup tagName="p" markup={t('backup.list')} />
+                                    <div className={backupStyle.listContainer}>
+                                        {
+                                            backups.backups!.map(backup => (
+                                                <table className={style.table}>
+                                                    <BackupsListItem
+                                                        key={backup.id}
+                                                        disabled={restoring}
+                                                        backup={backup}
+                                                        selectedBackup={selectedBackup}
+                                                        handleChange={(b => this.setState({ selectedBackup: b }))}
+                                                        onFocus={() => undefined}
+                                                        radio={showRadio} />
+                                                </table>
+                                            ))
+                                        }
+                                    </div>
+                                </div>
+                            ) : (
+                                <p>{t('backup.noBackups')}</p>
+                            )
+                        }
+                    </div>
                 </div>
-                <div class="buttons bottom flex flex-row flex-between">
+                <div class="buttons text-center">
                     {children}
                     {
                         showRestore && (

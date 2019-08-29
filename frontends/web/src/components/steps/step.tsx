@@ -1,5 +1,5 @@
 import { Component, h, RenderableProps } from 'preact';
-import checkIcon from '../../assets/icons/check.svg';
+// import checkIcon from '../../assets/icons/check.svg';
 import { animate } from '../../utils/animation';
 import * as style from './steps.css';
 
@@ -48,8 +48,9 @@ class Step extends Component<StepProps, State> {
     }
 
     private isVisible = () => {
-        const { empty, activeStep, order } = this.props;
-        return (empty && activeStep === 1) || [activeStep! - 1, activeStep, activeStep! + 1].includes(order);
+        // const { empty, activeStep, order } = this.props;
+        // return (empty && activeStep === 1) || [activeStep! - 1, activeStep, activeStep! + 1].includes(order);
+        return [this.props.activeStep].includes(this.props.order);
     }
 
     private setRef = (ref: Element) => {
@@ -57,7 +58,7 @@ class Step extends Component<StepProps, State> {
     }
 
     public render(
-        { active, empty, title, order, children }: RenderableProps<StepProps>,
+        { active, empty, title, children }: RenderableProps<StepProps>,
         { isComplete, visible }: State,
     ) {
         return (
@@ -69,7 +70,7 @@ class Step extends Component<StepProps, State> {
                     visible ? '' : style.hide,
                 ].join(' ')}
                 ref={this.setRef}>
-                <div className={style.stepNumber}>
+                {/* <div className={style.stepNumber}>
                     {
                         isComplete ? (
                             <span><img src={checkIcon} /></span>
@@ -77,7 +78,7 @@ class Step extends Component<StepProps, State> {
                             <span>{order}</span>
                         )
                     }
-                </div>
+                </div> */}
                 <div className={style.stepContentContainer}>
                     <div className={style.stepContent}>
                         <div className={style.stepTitle}>

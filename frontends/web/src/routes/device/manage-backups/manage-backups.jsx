@@ -30,7 +30,7 @@ import { Dialog } from '../../../components/dialog/dialog';
 @translate()
 export default class ManageBackups extends Component {
     constructor(props) {
-        super(props);
+        super(props);   
         this.state = {
             sdCardInserted: this.props.sdCardInserted === 'true',
             activeDialog: !this.state.sdCardInserted,
@@ -77,25 +77,27 @@ export default class ManageBackups extends Component {
                         showRestore={false}
                         showRadio={false}>
                         {this.backButton()}
-                    </BackupsV2> :
-                    <div>
-                        {
-                            this.state.activeDialog &&
-                            <Dialog>
-                                <div>
-                                    <p style="text-align:center; min-height: 3rem;">{this.props.t('backup.insert')}</p>
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                                        {this.backButton()}
-                                        <Button
-                                            primary
-                                            onClick={this.checkBB02SDCard}>
-                                            {this.props.t('button.ok')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Dialog>
-                        }
-                    </div>
+                    </BackupsV2> : (
+                        <div>
+                            {
+                                this.state.activeDialog && (
+                                    <Dialog>
+                                        <div>
+                                            <p style="text-align:center; min-height: 3rem;">{this.props.t('backup.insert')}</p>
+                                            <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
+                                                {this.backButton()}
+                                                <Button
+                                                    primary
+                                                    onClick={this.checkBB02SDCard}>
+                                                    {this.props.t('button.ok')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Dialog>
+                                )
+                            }
+                        </div>
+                    )
             );
         default:
             return;
@@ -140,6 +142,11 @@ export default class ManageBackups extends Component {
                 <div class="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className={styles.manageBackups}>
+                        <div className="subHeaderContainer" style="justify-content: center; margin: 0;">
+                            <div className="subHeader">
+                                <h3 className="text-center">Your Backups</h3>
+                            </div>
+                        </div>
                         {this.listBackups()}
                     </div>
                 </div>

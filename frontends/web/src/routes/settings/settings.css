@@ -1,55 +1,50 @@
+.titleContainer {
+    margin-bottom: var(--space-half);
+}
+
+.titleContainer > span {
+    margin-bottom: 0 !important;
+}
+
 .title {
-    margin: var(--spacing-default) 0;
+    margin: 0;
     font-size: var(--size-subheader);
-    font-weight: normal;
+    font-weight: 300;
+}
+
+.resetLink {
+    color: var(--color-swissred) !important;
 }
 
 .serversContainer {
-    padding-bottom: var(--spacing-default);
+    margin-top: var(--space-default);
 }
 
 .servers {
+    background-color: var(--color-white);
     list-style: none;
-    padding-left: calc(var(--spacing-half) + 16px);
-    margin-bottom: var(--spacing-large);
-    counter-reset: li;
-}
-
-.servers li {
-    counter-increment: li;
-}
-
-.servers li::before {
-    content: counter(li);
-    display: inline-block;
-    width: 16px;
-    margin-left: calc(-16px - var(--spacing-half));
-    padding-right: var(--spacing-half);
-    color: var(--color-secondary);
-    text-align: center;
-}
-
-.servers li:not(:last-child) {
-    margin-bottom: var(--spacing-half);
+    padding: 0 var(--space-half);
+    margin: 0;
 }
 
 .servers li .server {
-    display: inline-flex;
+    display: flex;
     width: 100%;
     align-items: center;
-    flex-wrap: wrap;
+    font-weight: 300;
+    font-size: var(--size-default);
+    height: 52px;
 }
 
 .servers li .server > div:last-child {
     margin-left: auto;
-    align-self: flex-end;
 }
 
 .servers li .server > div:last-child button {
     border: none;
     border-radius: 2px;
-    line-height: 22px;
-    padding: 0 var(--spacing-half);
+    font-size: var(--size-small);
+    padding: var(--space-quarter) var(--space-half);
 }
 
 .servers .server > div button[disabled] {
@@ -62,25 +57,39 @@
 }
 
 .servers .server > div button:not(:last-child) {
-    margin-right: var(--spacing-half);
+    margin-right: var(--space-quarter);
+}
+
+@media (max-width: 768px) {
+    .servers {
+        padding: 0 var(--space-quarter);
+    }
+
+    .servers li .server > div:last-child button {
+        padding: var(--space-quarter);
+    }
 }
 
 .primary {
-    background-color: var(--color-default);
+    background-color: var(--color-blue);
     color: var(--color-white);
+    transition: background-color 0.2s ease-in-out;
+    will-change: background-color;
 }
 
 .primary:hover {
-    background-color: var(--color-dark);
+    background-color: var(--color-lightblue);
 }
 
 .warning {
-    background-color: var(--color-softred);
+    background-color: var(--color-swissred);
     color: var(--color-white);
+    transition: background-color 0.2s ease-in-out;
+    will-change: background-color;
 }
 
 .warning:hover {
-    background-color: var(--color-swissred);
+    background-color: var(--color-softred);
 }
 
 .textarea {
@@ -95,20 +104,34 @@
     margin-bottom: var(--spacing-default);
 }
 
+.addServer {
+    margin-top: var(--space-half);
+    margin-bottom: var(--space-default);
+    background-color: var(--color-white);
+    padding: var(--space-half);
+}
+
 .addServer p {
-    font-size: var(--size-medium);
-    margin-top:var(--spacing-large);
-    margin-bottom: var(--spacing-default);
+    font-size: var(--size-default);
+    font-weight: 300;
+    margin-top: var(--space-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .addServer > div:first-child p {
     margin-top: var(--spacing-default);
 }
 
+@media (max-width: 768px) {
+    .addServer {
+        padding: var(--space-half) var(--space-quarter);
+    }
+}
+
 .badge {
     color: var(--color-secondary);
     border-radius: 2px;
-    margin-right: var(--spacing-half);
+    margin-right: var(--space-quarter);
     width: 16px;
     text-align: center;
 }

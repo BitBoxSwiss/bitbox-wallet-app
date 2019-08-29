@@ -18,7 +18,6 @@
 .row * {
     font-size: var(--size-default);
     font-weight: 300;
-    color: var(--color-softblack);
 }
 
 .type {
@@ -73,6 +72,10 @@
 
 .fiat {
 
+}
+
+.send {
+    color: var(--color-swissred) !important;
 }
 
 .currency {

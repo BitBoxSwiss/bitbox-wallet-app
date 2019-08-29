@@ -19,7 +19,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { confirmation } from '../../confirm/Confirm';
-import { Button } from '../../forms';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 
 interface ShowMnemonicProps {
@@ -59,11 +59,10 @@ class ShowMnemonic extends Component<Props, State> {
         }: State) {
         return (
             <div>
-                <Button
-                    primary
+                <SettingsButton
                     onClick={this.askShowMnemonic}>
                     {t('backup.showMnemonic.title')}
-                </Button>
+                </SettingsButton>
                 { inProgress && (
                       <WaitDialog
                           title={t('backup.showMnemonic.title')}

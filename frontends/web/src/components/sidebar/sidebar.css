@@ -222,13 +222,13 @@ a.sidebar-active .single img,
 }
 
 @media (min-width: 1246px) {
-    .sidebar {
+    .sidebarContainer:not(.forceHide) .sidebar {
         position: relative;
         margin-left: 0;
         width: var(--sidebar-width-large);
     }
 
-    .sidebar .sidebarLogoContainer a {
+    .sidebarContainer:not(.forceHide) .sidebar .sidebarLogoContainer a {
         display: none !important;
     }
 }

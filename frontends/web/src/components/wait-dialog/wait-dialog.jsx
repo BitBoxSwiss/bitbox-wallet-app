@@ -112,6 +112,7 @@ export default class WaitDialog extends Component {
             <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
                 <div class={[style.modal, isActive].join(' ')}>
                     <h3 class={style.modalHeader}>{title}</h3>
+                    <div class={[style.modalContent, title ? '' : 'first'].join(' ')}>
                     {
                         (children.length > 0 && includeDefault) && defaultContent
                     }
@@ -122,6 +123,7 @@ export default class WaitDialog extends Component {
                             </div>
                         ) : defaultContent
                     }
+                    </div>
                 </div>
             </div>
         );

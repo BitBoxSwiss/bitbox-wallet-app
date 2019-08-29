@@ -19,7 +19,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { alertUser } from '../../alert/Alert';
-import { Button } from '../../forms';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
@@ -62,7 +62,7 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
         const message = t('bitbox02Settings.mnemonicPassphrase.description');
         return (
             <div>
-                <Button primary onClick={this.toggle}>{title}</Button>
+                <SettingsButton onClick={this.toggle}>{title}</SettingsButton>
                 { inProgress && (
                       <WaitDialog title={title} >
                           { !mnemonicPassphraseEnabled && message && (

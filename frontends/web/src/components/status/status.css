@@ -39,7 +39,11 @@
 
 @media (max-width: 768px) {
     .status {
-        padding: var(--space-half);
+        padding: var(--space-half) var(--space-default) var(--space-half) var(--space-half);
         font-size: var(--size-default);
+    }
+
+    .close {
+        right: var(--space-half);
     }
 }

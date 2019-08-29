@@ -61,7 +61,7 @@ export default class Transaction extends Component {
     }) {
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
-        const sDate = time ? this.parseTimeShort(time) : (numConfirmations <= 0 ? t('transaction.pending') : '---');
+        const sDate = time ? this.parseTimeShort(time) : '---';
         return (
             <div className={[style.container, collapsed ? style.collapsed : ''].join(' ')}>
                 <div className={[parentStyle.columns, style.row].join(' ')}>
@@ -121,12 +121,14 @@ export default class Transaction extends Component {
                             <span className={[style.statusIndicator, (time && numConfirmations >= 6) ? style.statusIndicatorComplete : style.statusIndicatorPending].join(' ')}></span>
                             <span className={style.status}>{(time && numConfirmations >= 6) ? "Complete" : "Pending"}</span>
                         </div>
-                        <div className={parentStyle.fiat}><span className={style.fiat}>
-                            <FiatConversion amount={amount} skipUnit>{type === 'send' && sign} </FiatConversion></span>
+                        <div className={parentStyle.fiat}>
+                            <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
+                                <FiatConversion amount={amount} skipUnit>{type === 'send' && sign} </FiatConversion>
+                            </span>
                             <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>{fiatCode}</span>
                         </div>
                         <div className={parentStyle.currency}>
-                            <span className={style.currency}>{type === 'send' && sign} {amount.amount}</span>
+                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount}</span>
                             <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>BTC</span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>

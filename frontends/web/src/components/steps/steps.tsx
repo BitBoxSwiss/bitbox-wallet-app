@@ -1,5 +1,4 @@
 import { cloneElement, Component, h, RenderableProps } from 'preact';
-import { Step } from './step';
 import * as style from './steps.css';
 
 interface State {
@@ -31,12 +30,6 @@ class Steps extends Component<{}, State> {
     ) {
         return (
             <div className={style.steps}>
-                <Step
-                    empty={true}
-                    active={false}
-                    order={0}
-                    activeStep={activeStep}
-                />
                 {(children as JSX.Element[]).filter(child => child).map((child, i) => cloneElement(child, { order: i + 1, activeStep }))}
             </div>
         );

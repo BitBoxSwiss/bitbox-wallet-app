@@ -24,6 +24,7 @@ import { PasswordInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 import { alertUser } from '../../../../components/alert/Alert';
 import * as style from '../../device.css';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 
 @translate()
 export default class Reset extends Component {
@@ -94,9 +95,9 @@ export default class Reset extends Component {
     }) {
         return (
             <div>
-                <Button danger onClick={() => this.setState({ activeDialog: true })}>
+                <SettingsButton danger onClick={() => this.setState({ activeDialog: true })}>
                     {t('reset.button')}
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog

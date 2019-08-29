@@ -46,13 +46,15 @@
 }
 
 .modal .modalHeader {
-    margin: 0;
+    margin: 0 0 var(--space-half) 0;
     font-size: var(--size-subheader);
     font-weight: 300;
 }
 
 .modal .modalContent {
     margin-top: var(--space-half);
+    font-size: var(--size-default);
+    font-weight: 300;
 }
 
 .modal .modalContent .buttons button:not(:last-child) {
