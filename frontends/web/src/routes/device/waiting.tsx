@@ -19,6 +19,7 @@ import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { Shift } from '../../components/icon';
+import { AppLogo } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { PasswordSingleInput } from '../../components/password';
 import { load } from '../../decorators/load';
@@ -40,9 +41,18 @@ function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
                 <Header title={<h2>{t('welcome.title')}</h2>} />
                 <div className={style.content}>
                     <div className="flex-1 flex flex-column flex-center">
-                        <h3 style="text-align: center;">{t('welcome.insertDevice')}</h3>
-                        <span style="text-align: center;">{t('welcome.insertBitBox02')}</span>
-                        <SkipForTesting show={!!testing} />
+                        <AppLogo />
+                        <div className={style.waitingContent}>
+                            <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+                            <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
+                        </div>
+                        {
+                            !!testing && (
+                                <div className={style.testingContainer}>
+                                    <SkipForTesting show={!!testing} />
+                                </div>
+                            )
+                        }
                     </div>
                     <hr />
                     <Footer>

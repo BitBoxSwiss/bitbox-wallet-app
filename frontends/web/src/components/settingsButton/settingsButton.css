@@ -1,0 +1,32 @@
+.container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;;
+    align-items: center;
+    height: var(--item-height);
+    text-decoration: none;
+    border: none;
+    color: var(--color-blue);
+    font-size: var(--size-default);
+    font-weight: 300;
+    padding: 0 var(--space-half);
+    cursor: pointer;
+}
+
+.container svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-rock);
+}
+
+.danger {
+    color: var(--color-swissred);
+}
+
+.optionalText {
+    margin-left: auto;
+    margin-right: var(--space-quarter);
+    font-size: var(--size-small);
+    color: var(--color-rock);
+}

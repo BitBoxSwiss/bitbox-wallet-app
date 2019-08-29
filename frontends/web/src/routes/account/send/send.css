@@ -117,19 +117,24 @@
     direction: rtl;
 }
 
-.maxAmount {
-    position: relative;
-    top: -.5rem;
+.maxAmount label {
+    display: block !important;
+    margin-right: 0 !important;
+}
+
+.maxAmount label::before {
+    top: -2px !important;
+}
+
+.maxAmount label::after {
+    margin-top: -3px !important;
 }
 
 .action {
-    color: var(--color-primary);
+    color: var(--color-blue);
     font-size: var(--size-small);
-    font-weight: bold;
-    text-transform: uppercase;
-    top: -.5rem;
-    position: relative;
-    margin-bottom: calc(var(--spacing-half) / 2);
+    font-weight: 300;
+    line-height: 1;
     cursor: pointer;
     user-select: none;
 }

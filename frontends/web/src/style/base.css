@@ -41,6 +41,11 @@ h1, h2, h3, h4, h5 {
     display: none;
 }
 
+p {
+    font-weight: 300;
+    font-size: var(--size-default);
+}
+
 a {
     color: var(--color-blue);
 }
@@ -69,4 +74,8 @@ button,
 label,
 .label {
     user-select: none;
+}
+
+svg {
+    stroke-width: 1.6 !important;
 }

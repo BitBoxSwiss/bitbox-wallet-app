@@ -20,6 +20,7 @@ import { Button } from '../../../../components/forms';
 import { apiPost } from '../../../../utils/request';
 import { Dialog } from '../../../../components/dialog/dialog';
 import { CopyableInput } from '../../../../components/copy/Copy';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 
 @translate()
 export default class RandomNumber extends Component {
@@ -50,9 +51,9 @@ export default class RandomNumber extends Component {
     render({ t }, { number, active }) {
         return (
             <div>
-                <Button primary onClick={this.getRandomNumber}>
+                <SettingsButton onClick={this.getRandomNumber}>
                     {t('random.button')}
-                </Button>
+                </SettingsButton>
                 {
                     active && number ? (
                         <Dialog onClose={this.abort}>

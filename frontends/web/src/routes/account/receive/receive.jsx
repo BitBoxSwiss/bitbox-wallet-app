@@ -274,7 +274,7 @@ export default class Receive extends Component {
                         </div>
                         <div class={style.bottomButtons}>
                             <ButtonLink
-                                secondary
+                                transparent
                                 href={`/account/${code}`}>
                                 {t('button.back')}
                             </ButtonLink>

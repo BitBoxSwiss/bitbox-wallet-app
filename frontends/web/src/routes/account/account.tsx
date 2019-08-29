@@ -278,11 +278,7 @@ class Account extends Component<Props, State> {
                         ) : null
                     }
                     <Header
-                        title={
-                            <h2>
-                                <span>{account.name}</span>
-                            </h2>
-                        }>
+                        title={<h2><span>{account.name}</span></h2>}>
                         <a href={`/account/${code}/info`} title={t('accountInfo.title')}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
@@ -296,24 +292,19 @@ class Account extends Component<Props, State> {
                         <div className="content padded">
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelLarge">Available Balance</label>
-                                <div className="flex flex-row spaced">
-                                    <a href={`/account/${code}/send`} className={['labelLarge labelLink', style.accountLink].join(' ')}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="12" y1="19" x2="12" y2="5"></line>
-                                            <polyline points="5 12 12 5 19 12"></polyline>
-                                        </svg>
-                                        <span>Send</span>
+                                <div className={style.actions}>
+                                    <a href={`/account/${code}/send`} className={['labelLarge labelLink', style.accountLink, style.send].join(' ')}>
+                                        <span>{t('button.send')}</span>
                                     </a>
-                                    <a href={`/account/${code}/receive`} className={['labelLarge labelLink', style.accountLink].join(' ')}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                                            <polyline points="19 12 12 19 5 12"></polyline>
-                                        </svg>
-                                        <span>Receive</span>
+                                    <span className={style.separator}>/</span>
+                                    <a href={`/account/${code}/receive`} className={['labelLarge labelLink', style.accountLink, style.receive].join(' ')}>
+                                        <span>{t('button.receive')}</span>
                                     </a>
                                 </div>
                             </div>
-                            <Balance balance={balance} />
+                            <div className="box large">
+                                <Balance balance={balance} />
+                            </div>
                             {
                                 !initialized || !connected || !this.dataLoaded() || fatalError ? (
                                     <Spinner text={

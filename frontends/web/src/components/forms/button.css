@@ -11,9 +11,9 @@
     font-size: var(--size-default);
     font-weight: 400;
     justify-content: center;
-    line-height: 50px;
+    line-height: 46px;
     min-width: 100px !important;
-    height: 50px;
+    height: 46px;
     padding: 0 var(--space-half);
     position: relative;
     outline: none;
@@ -22,6 +22,10 @@
     -webkit-appearance: none;
     transition: background-color .2s ease-out;
     will-change: background-color;
+}
+
+.button:focus {
+    outline: none !important;
 }
 
 .primary {
@@ -37,14 +41,14 @@
 
 .secondary {
     composes: button;
-    background-color: var(--color-rock);
-    border-color: var(--color-rock);
+    background-color: var(--color-orange);
+    border-color: var(--color-orange);
     color: var(--color-white);
 }
 
 .secondary:hover {
-    background-color: var(--color-gray);
-    border-color: var(--color-gray);
+    border-color: var(--color-lightorange);
+    background-color: var(--color-lightorange);
 }
 
 .danger {
@@ -57,10 +61,6 @@
 .danger:hover {
     background-color: var(--color-softred);
     border-color: var(--color-softred);
-}
-
-.danger:focus {
-    outline-color: var(--color-swissred);
 }
 
 .transparent {

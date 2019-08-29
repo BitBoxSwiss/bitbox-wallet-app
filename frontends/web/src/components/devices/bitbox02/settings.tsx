@@ -15,13 +15,13 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import * as style from '../../../components/steps/steps.css';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import { apiGet } from '../../../utils/request';
-import { ButtonLink } from '../../forms';
 import { Header } from '../../layout/header';
+import { SettingsButton } from '../../settingsButton/settingsButton';
+import * as settingsStyle from '../settings.css';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
@@ -83,80 +83,91 @@ class Settings extends Component<Props, State> {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('sidebar.device')}{ deviceInfo && deviceInfo.name && `: ${deviceInfo.name}` }</h2>} />
+                    <Header title={<h2>{t('sidebar.device')}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div className={style.buttons}>
-                                <div class="subHeaderContainer first">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.secrets.title')}</h3>
-                                    </div>
-                                </div>
-                                <div className="items">
-                                    <ButtonLink primary href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
-                                        {t('deviceSettings.secrets.manageBackups')}
-                                    </ButtonLink>
-                                    <ShowMnemonic apiPrefix={this.apiPrefix()} />
-                                    <Reset apiPrefix={this.apiPrefix()} />
-                                </div>
-                                <hr />
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.firmware.title')}</h3>
-                                    </div>
-                                </div>
-                                <dl class="items marginBottom">
-                                    <div>
-                                        <dt>{t('deviceSettings.firmware.version.label')}</dt>
-                                        <dd>{versionInfo ? versionInfo.currentVersion : t('loading')}</dd>
-                                    </div>
-                                    {
-                                        versionInfo && versionInfo.canUpgrade && (
-                                            <div>
-                                                <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
-                                                <dd>{versionInfo.newVersion}</dd>
+                            <div className="columnsContainer">
+                                <div className="columns">
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer first">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.secrets.title')}</h3>
                                             </div>
-                                        ) || (
-                                            <div>
-                                                <dt>&nbsp;</dt>
-                                                <dd>{t('deviceSettings.firmware.upToDate')}</dd>
-                                            </div>
-                                        )
-                                    }
-                                </dl>
-                                {
-                                    versionInfo && versionInfo.canUpgrade && (
-                                        <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
-                                            <UpgradeButton
-                                                apiPrefix={this.apiPrefix()}
-                                                versionInfo={versionInfo}
-                                            />
                                         </div>
-                                    )
-                                }
-                                <hr />
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.hardware.title')}</h3>
+                                        <div className="box slim divide">
+                                            <SettingsButton link href={`/manage-backups/${deviceID}/${sdCardInserted}`}>
+                                                {t('deviceSettings.secrets.manageBackups')}
+                                            </SettingsButton>
+                                            <ShowMnemonic apiPrefix={this.apiPrefix()} />
+                                            <Reset apiPrefix={this.apiPrefix()} />
+                                        </div>
+                                    </div>
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.hardware.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="box slim divide">
+                                            <SetDeviceName
+                                                apiPrefix={this.apiPrefix()}
+                                                getInfo={this.getInfo}
+                                                name={(deviceInfo && deviceInfo.name) ? deviceInfo.name : undefined} />
+                                            <RandomNumber apiPrefix={this.apiPrefix()} />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="items">
-                                    <SetDeviceName
-                                        apiPrefix={this.apiPrefix()}
-                                        getInfo={this.getInfo} />
-                                    <RandomNumber apiPrefix={this.apiPrefix()} />
-                                </div>
-                                <hr />
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('settings.expert.title')}</h3>
+                                <div className="columns">
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.firmware.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div class="box slim divide">
+                                            <div className={settingsStyle.firmwareBlock}>
+                                                <div className="flex flex-row flex-items-end m-right-half">
+                                                    <span className="text-small text-gray m-right-quarter">{t('deviceSettings.firmware.version.label')}</span>
+                                                    <span className="text-medium">{versionInfo ? versionInfo.currentVersion : t('loading')}</span>
+                                                </div>
+                                                {
+                                                    versionInfo && versionInfo.canUpgrade && (
+                                                        <div>
+                                                            <label>{t('deviceSettings.firmware.newVersion.label')}</label>
+                                                            <p>{versionInfo.newVersion}</p>
+                                                        </div>
+                                                    ) || (
+                                                        <div>
+                                                            <p>{t('deviceSettings.firmware.upToDate')}</p>
+                                                        </div>
+                                                    )
+                                                }
+                                            </div>
+                                        </div>
+                                        {
+                                            versionInfo && versionInfo.canUpgrade && (
+                                                <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
+                                                    <UpgradeButton
+                                                        apiPrefix={this.apiPrefix()}
+                                                        versionInfo={versionInfo}
+                                                    />
+                                                </div>
+                                            )
+                                        }
                                     </div>
-                                </div>
-                                <div className="items">
-                                    <MnemonicPassphraseButton
-                                        apiPrefix={this.apiPrefix()}
-                                        mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
-                                        getInfo={this.getInfo} />
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('settings.expert.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="box slim divide">
+                                            <MnemonicPassphraseButton
+                                                apiPrefix={this.apiPrefix()}
+                                                mnemonicPassphraseEnabled={deviceInfo.mnemonicPassphraseEnabled}
+                                                getInfo={this.getInfo} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

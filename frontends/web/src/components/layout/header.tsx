@@ -17,8 +17,7 @@
 import { h, RenderableProps } from 'preact';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
-import { SharedProps as SharedPanelProps, store as panelStore } from '../guide/guide';
-import { shown as guideShown, toggle as toggleGuide } from '../guide/guide';
+import { SharedProps as SharedPanelProps, shown as guideShown, store as panelStore, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
 import * as style from './header.css';
 
@@ -33,8 +32,9 @@ function Header(
     { title, narrow, children }: RenderableProps<Props>,
 ): JSX.Element {
     const hasChildren = Array.isArray(children) && children.length > 0;
+    const forceCollapsed = panelStore.state.forceHiddenSidebar;
     return (
-        <div className={[style.container].join(' ')}>
+        <div className={[style.container, forceCollapsed ? style.forceCollapsed : ''].join(' ')}>
             <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
                 <div className={style.sidebarToggler} onClick={toggleSidebar}>
                     <img src={MenuIcon} />

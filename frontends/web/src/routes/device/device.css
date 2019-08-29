@@ -51,7 +51,7 @@
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 1;
-    max-width: 600px;
+    max-width: var(--content-width);
     width: 100%;
     padding: var(--spacing-large) var(--spacing-default) 0 var(--spacing-default);
 }
@@ -107,6 +107,40 @@
 .badge {
     max-height: 40px;
     height: 40px;
+}
+
+.waitingLogo {
+    margin-bottom: var(--space-default);
+}
+
+.waitingContent {
+    max-width: 540px;
+    width: 100%;
+    background-color: var(--color-white);
+    padding: var(--space-default);
+    margin: 0 auto;
+    text-align: center;
+}
+
+.waitingText {
+    margin-top: 0;
+    font-weight: 300;
+    text-align: center;
+}
+
+.waitingDescription {
+    font-size: var(--size-default);
+    font-weight: 300;
+    text-align: center;
+    color: var(--color-secondary);
+}
+
+.testingContainer {
+    margin-top: var(--space-default);
+}
+
+.testingContainer > * {
+    margin: 0 auto;
 }
 
 @media screen and (max-width: 640px) {

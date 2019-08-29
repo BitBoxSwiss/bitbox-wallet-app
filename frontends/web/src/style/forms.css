@@ -27,6 +27,30 @@ dt {
     line-height: 1;
 }
 
+.labelButton {
+    padding: var(--space-quarter) var(--space-half);
+    border-radius: 2px;
+    color: var(--color-white);
+    transition: background-color ease-in-out 0.2s;
+    will-change: background-color;
+}
+
+.labelButton.primary {
+    background-color: var(--color-blue);
+}
+
+.labelButton.primary:hover {
+    background-color: var(--color-lightblue);
+}
+
+.labelButton.secondary {
+    background-color: var(--color-orange);
+}
+
+.labelButton.secondary:hover {
+    background-color: var(--color-lightorange);
+}
+
 input:invalid,
 input:invalid:focus {
     border-color: var(--color-error);
