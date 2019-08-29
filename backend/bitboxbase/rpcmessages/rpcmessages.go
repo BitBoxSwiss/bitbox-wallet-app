@@ -19,7 +19,7 @@ Put Incoming Args below this line. They should have the format of 'RPC Method Na
 // ResyncBitcoinArgs is an iota that holds the options for the ResyncBitcoin rpc call
 type ResyncBitcoinArgs int
 
-// The ResyncBitcoinArgs has two options. Other resync bitcon from scratch with an IBD, or delete the chainstate and reindex.
+// The ResyncBitcoinArgs has two options. Either resync bitcon from scratch with an IBD, or delete the chainstate and reindex.
 const (
 	Resync ResyncBitcoinArgs = iota
 	Reindex
