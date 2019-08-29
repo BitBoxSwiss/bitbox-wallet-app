@@ -18,23 +18,18 @@
 package rpcclient
 
 import (
-	"fmt"
 	"net/http"
 	"net/rpc"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+
 	"github.com/flynn/noise"
 	"github.com/gorilla/websocket"
 
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	opRPCCall     = byte('r')
-	opUCanHasDemo = byte('d')
 )
 
 type rpcConn struct {
@@ -83,23 +78,8 @@ func (conn *rpcConn) Close() error {
 	return nil
 }
 
-// GetEnvResponse holds the information from the rpc call reply to get some environment data from the base
-type GetEnvResponse struct {
-	Network        string
-	ElectrsRPCPort string
-}
-
-// SampleInfoResponse holds some sample information from the BitBox Base
-type SampleInfoResponse struct {
-	Blocks         int64   `json:"blocks"`
-	Difficulty     float64 `json:"difficulty"`
-	LightningAlias string  `json:"lightningAlias"`
-}
-
-// RPCClient implements observable blockchainInfo.
+// RPCClient handles communication with the BitBox Base's rpc server
 type RPCClient struct {
-	observable.Implementation
-	sampleInfo          *SampleInfoResponse
 	log                 *logrus.Entry
 	address             string
 	bitboxBaseConfigDir string
@@ -109,9 +89,9 @@ type RPCClient struct {
 	channelHashAppVerified        bool
 	channelHashBitBoxBaseVerified bool
 	sendCipher, receiveCipher     *noise.CipherState
-
-	onUnregister func(string)
-	bitboxBaseID string
+	onChangeStatus                func(bitboxbasestatus.Status)
+	onEvent                       func(bitboxbasestatus.Event)
+	onUnregister                  func() (bool, error)
 
 	//rpc stuff
 	client        *rpc.Client
@@ -119,17 +99,30 @@ type RPCClient struct {
 }
 
 // NewRPCClient returns a new bitboxbase rpcClient.
-func NewRPCClient(address string, bitboxBaseConfigDir string, onUnregister func(string), bitboxBaseID string) *RPCClient {
+func NewRPCClient(address string,
+	bitboxBaseConfigDir string,
+	onChangeStatus func(bitboxbasestatus.Status),
+	onEvent func(bitboxbasestatus.Event),
+	onUnregister func() (bool, error)) (*RPCClient, error) {
+
 	rpcClient := &RPCClient{
-		bitboxBaseID:        bitboxBaseID,
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		address:             address,
-		sampleInfo:          &SampleInfoResponse{},
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		rpcConnection:       newRPCConn(),
+		onChangeStatus:      onChangeStatus,
+		onEvent:             onEvent,
 		onUnregister:        onUnregister,
 	}
-	return rpcClient
+	if success, err := rpcClient.Ping(); !success {
+		return nil, err
+	}
+	return rpcClient, nil
+}
+
+// ChannelHash returns the noise channel and a boolean to indicate if it is verified
+func (rpcClient *RPCClient) ChannelHash() (string, bool) {
+	return rpcClient.channelHash, rpcClient.channelHashBitBoxBaseVerified
 }
 
 // Ping sends a get request to the bitbox base's middleware root handler and returns true if successful
@@ -149,21 +142,16 @@ func (rpcClient *RPCClient) Ping() (bool, error) {
 
 // Connect starts the websocket go routine, first checking if the middleware is reachable,
 // then establishing a websocket connection, then authenticating and encrypting all further traffic with noise.
-func (rpcClient *RPCClient) Connect(bitboxBaseID string) error {
-	rpcClient.bitboxBaseID = bitboxBaseID
-	rpcClient.log.Infof("connecting to bitbox base websocket with id %q", bitboxBaseID)
-	connected, err := rpcClient.Ping()
-	if err != nil {
+func (rpcClient *RPCClient) Connect() error {
+	rpcClient.log.Printf("connecting to base websocket")
+	if success, err := rpcClient.Ping(); !success {
 		return err
-	}
-	if !connected {
-		return errp.New("rpcClient: Failed to connect with the bitboxbase middleware")
 	}
 	ws, _, err := websocket.DefaultDialer.Dial("ws://"+rpcClient.address+"/ws", nil)
 	if err != nil {
 		return errp.New("rpcClient: failed to create new websocket client")
 	}
-	if err = rpcClient.initializeNoise(ws, bitboxBaseID); err != nil {
+	if err = rpcClient.initializeNoise(ws); err != nil {
 		return err
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
@@ -176,16 +164,13 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.log.Error("Received empty message, dropping.")
 		return
 	}
-	opCode := message[0]
+	opCode := string(message[0])
 	switch opCode {
-	case opUCanHasDemo:
-		go func() {
-			_, err := rpcClient.SampleInfo()
-			if err != nil {
-				rpcClient.log.WithError(err).Error("GetSampleInfo notification triggered rpc call failed")
-			}
-		}()
-	case opRPCCall:
+	case rpcmessages.OpUCanHasSampleInfo:
+		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
+	case rpcmessages.OpUCanHasVerificationProgress:
+		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
+	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
 	default:
@@ -202,8 +187,8 @@ func (rpcClient *RPCClient) Stop() {
 }
 
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
-func (rpcClient *RPCClient) GetEnv() (GetEnvResponse, error) {
-	var reply GetEnvResponse
+func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
+	var reply rpcmessages.GetEnvResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSystemEnv", request, &reply)
 	if err != nil {
@@ -213,21 +198,39 @@ func (rpcClient *RPCClient) GetEnv() (GetEnvResponse, error) {
 	return reply, nil
 }
 
-// SampleInfo make a synchronous rpc call to the base, emits an event containing the SampleInfo struct
-// to the frontend and returns the SampleInfo struct
-func (rpcClient *RPCClient) SampleInfo() (SampleInfoResponse, error) {
-	var reply SampleInfoResponse
+// GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
+func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
+	var reply rpcmessages.SampleInfoResponse
 	request := 1
 	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
 		return reply, err
 	}
-	rpcClient.Notify(observable.Event{
-		Subject: fmt.Sprintf("/bitboxbases/%s/middlewareinfo", rpcClient.bitboxBaseID),
-		Action:  action.Replace,
-		Object:  reply,
-	})
+	return reply, nil
+}
 
+// GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
+func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
+	var reply rpcmessages.VerificationProgressResponse
+	request := 1
+	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", request, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("VerificationProgress RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// ResyncBitcoin makes a synchronous rpc call to the base and returns wether the resync bitcoin script on
+// the BitBox Base was executed successfully.
+func (rpcClient *RPCClient) ResyncBitcoin(options rpcmessages.ResyncBitcoinArgs) (rpcmessages.ResyncBitcoinResponse, error) {
+	rpcClient.log.Println("Executing ResyncBitcoin rpc call")
+	var reply rpcmessages.ResyncBitcoinResponse
+	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", options, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("ResyncBitcoin RPC call failed")
+		return reply, err
+	}
 	return reply, nil
 }

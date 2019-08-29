@@ -15,21 +15,25 @@
 package bitboxbase
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 
 	"github.com/sirupsen/logrus"
 )
 
 // Interface represents bitbox base.
 type Interface interface {
-	Init(testing bool)
 
 	// Identifier returns the bitboxBaseID.
 	Identifier() string
@@ -44,17 +48,49 @@ type Interface interface {
 	GetRegisterTime() time.Time
 
 	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
+	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
+
+	// VerificationProgress returns the bitcoind verification progress.
+	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
 
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
 
 	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
 	Ping() (bool, error)
+
+	// Self returns an instance of the base
+	Self() *BitBoxBase
+
+	// Status returns the current status of the base
+	Status() bitboxbasestatus.Status
+
+	// ChannelHash returns the hash of the noise channel
+	ChannelHash() (string, bool)
+
+	// Deregister calls the backend's BitBoxBase Deregister callback and sends a notification to the frontend, if bitboxbase is active.
+	// If bitboxbase is not active, an error is returned.
+	Deregister() (bool, error)
+
+	// SyncOption returns true if the bitcoin resync rpc call executed successfully
+	SyncWithOption(SyncOption) (bool, error)
 }
+
+// SyncOption is a user provided blockchain sync option during BBB initialization
+type SyncOption string
+
+// SyncOption iota has three options:
+// Accept pre-synchronized blockchain; delete the chainstate and reindex; resync bitcon from scratch with an IBD
+const (
+	SyncOptionPresynced            SyncOption = "preSynced"
+	SyncOptionReindex              SyncOption = "reindex"
+	SyncOptionInitialBlockDownload SyncOption = "initialBlockDownload"
+)
 
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
+	observable.Implementation
+
 	bitboxBaseID        string //This is just the ip currently
 	registerTime        time.Time
 	address             string
@@ -64,6 +100,10 @@ type BitBoxBase struct {
 	log                 *logrus.Entry
 	config              *config.Config
 	bitboxBaseConfigDir string
+	status              bitboxbasestatus.Status
+	active              bool //this indicates if the bitboxbase is in use, or being disconnected
+
+	onUnregister func(string)
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
@@ -72,27 +112,44 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
 		address:             strings.Split(address, ":")[0],
-		rpcClient:           rpcclient.NewRPCClient(address, bitboxBaseConfigDir, onUnregister, id),
 		registerTime:        time.Now(),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
+		status:              bitboxbasestatus.StatusConnected,
+		onUnregister:        onUnregister,
+		active:              false,
 	}
-	err := bitboxBase.rpcClient.Connect(bitboxBase.bitboxBaseID)
-	if err != nil {
-		return nil, err
-	}
+	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister)
+	bitboxBase.rpcClient = rpcClient
 
-	response, err := bitboxBase.rpcClient.GetEnv()
-	if err != nil {
-		return nil, err
-	}
-	bitboxBase.network = response.Network
-	bitboxBase.electrsRPCPort = response.ElectrsRPCPort
 	return bitboxBase, err
+}
+
+// Self returns the current bitbox base instance.
+func (base *BitBoxBase) Self() *BitBoxBase {
+	return base
+}
+
+// ConnectRPCClient starts the connection with the remote bitbox base middleware
+func (base *BitBoxBase) ConnectRPCClient() error {
+	if err := base.rpcClient.Connect(); err != nil {
+		return err
+	}
+	response, err := base.rpcClient.GetEnv()
+	if err != nil {
+		return err
+	}
+	base.network = response.Network
+	base.electrsRPCPort = response.ElectrsRPCPort
+	base.active = true
+	return nil
 }
 
 // ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 func (base *BitBoxBase) ConnectElectrum() error {
+	if !base.active {
+		return errp.New("Attempted call to non-active base")
+	}
 	electrumAddress := base.address + ":" + base.electrsRPCPort
 
 	electrumCert, err := electrum.DownloadCert(electrumAddress)
@@ -126,19 +183,89 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	return nil
 }
 
+// Deregister calls the backend's BitBoxBaseDeregister callback and sends a notification to the frontend, if bitboxbase is active.
+// If bitboxbase is not active, an error is returned.
+func (base *BitBoxBase) Deregister() (bool, error) {
+	if base.active {
+		// let the frontend know that the base is disconnected
+		base.fireEvent("disconnect")
+		base.onUnregister(base.bitboxBaseID)
+		base.active = false
+		return true, nil
+	}
+	return false, errp.New("Attempted call to non-active base")
+}
+
+// ChannelHash returns the bitboxbase's rpcClient noise channel hash
+func (base *BitBoxBase) ChannelHash() (string, bool) {
+	return base.rpcClient.ChannelHash()
+}
+
+// Status returns the current state of the bitboxbase.
+func (base *BitBoxBase) Status() bitboxbasestatus.Status {
+	return base.status
+}
+
+// fireEvent notifies the frontend of an event in the bitboxbase
+func (base *BitBoxBase) fireEvent(event bitboxbasestatus.Event) {
+	base.Notify(observable.Event{
+		Subject: fmt.Sprintf("/bitboxbases/%s/event", base.bitboxBaseID),
+		Action:  action.Replace,
+		Object:  event,
+	})
+}
+
+func (base *BitBoxBase) changeStatus(status bitboxbasestatus.Status) {
+	base.status = status
+	base.fireEvent(bitboxbasestatus.EventStatusChange)
+}
+
 // RPCClient returns ths current instance of the rpcClient
 func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 	return base.rpcClient
 }
 
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() (rpcclient.SampleInfoResponse, error) {
-	response, err := base.rpcClient.SampleInfo()
-	if err != nil {
-		// intercept error so the user is not confronted with weird rpc error message
-		return response, errp.New("error received from sample info rpc call client")
+func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return rpcmessages.SampleInfoResponse{}, err
 	}
-	return response, nil
+	return base.rpcClient.GetSampleInfo()
+}
+
+// VerificationProgress returns the received VerificationProgress packet from the rpcClient
+func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return rpcmessages.VerificationProgressResponse{}, err
+	}
+	return base.rpcClient.GetVerificationProgress()
+}
+
+// SyncWithOption returns true if the chosen sync option was executed successfully
+func (base *BitBoxBase) SyncWithOption(option SyncOption) (bool, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	switch option {
+	case SyncOptionPresynced:
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return true, nil
+	case SyncOptionReindex:
+		base.log.Println("bitboxbase is making a ReindexResyncOption call")
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Reindex)
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return replySuccess.Success, err
+	case SyncOptionInitialBlockDownload:
+		base.log.Println("bitboxbase is making a IBDResyncOption call")
+		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Resync)
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
+		return replySuccess.Success, err
+	default:
+		return true, nil
+	}
 }
 
 // Identifier implements a getter for the bitboxBase ID
@@ -164,8 +291,4 @@ func (base *BitBoxBase) Close() {
 // Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
 func (base *BitBoxBase) Ping() (bool, error) {
 	return base.rpcClient.Ping()
-}
-
-// Init initializes the bitboxBase
-func (base *BitBoxBase) Init(testing bool) {
 }

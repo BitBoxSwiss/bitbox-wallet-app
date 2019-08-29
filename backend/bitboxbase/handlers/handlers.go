@@ -15,18 +15,25 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
 //Base models the api of the base middleware
 type Base interface {
-	MiddlewareInfo() (rpcclient.SampleInfoResponse, error)
+	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
+	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
 	ConnectElectrum() error
+	Status() bitboxbasestatus.Status
+	ChannelHash() (string, bool)
+	Deregister() (bool, error)
+	SyncWithOption(bitboxbase.SyncOption) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -43,7 +50,12 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
+	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
+	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
+	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
+	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
+	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
 
 	return handlers
 }
@@ -61,19 +73,81 @@ func (handlers *Handlers) Uninit() {
 	handlers.base = nil
 }
 
-func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Middleware Info")
+func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
+	log.WithField("bbBaseError", err.Error()).Warning("Received an error from BitBox Base")
+	return map[string]interface{}{
+		"success": false,
+		"message": err.Error(),
+	}
+}
+
+func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Println("Disconnecting base...")
+	success, err := handlers.base.Deregister()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	return map[string]interface{}{"success": success}, nil
+}
+
+func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Println("Sending Status: ", handlers.base.Status())
+	return map[string]interface{}{"status": handlers.base.Status()}, nil
+}
+
+func (handlers *Handlers) getChannelHashHandler(r *http.Request) (interface{}, error) {
+	hash, bitboxBaseVerified := handlers.base.ChannelHash()
+	return map[string]interface{}{
+		"hash":               hash,
+		"bitboxBaseVerified": bitboxBaseVerified,
+	}, nil
+
+}
+
+func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Block Info")
 	middlewareInfo, err := handlers.base.MiddlewareInfo()
 	if err != nil {
-		return nil, err
+		return bbBaseError(err, handlers.log), nil
 	}
-	return jsonp.MustMarshal(middlewareInfo), nil
+	return map[string]interface{}{
+		"success":        true,
+		"middlewareInfo": middlewareInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Verification Progress")
+	verificationProgress, err := handlers.base.VerificationProgress()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":              true,
+		"verificationProgress": verificationProgress,
+	}, nil
 }
 
 func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {
 	err := handlers.base.ConnectElectrum()
 	if err != nil {
-		return map[string]interface{}{"success": false}, nil
+		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
+}
+
+func (handlers *Handlers) postSyncOptionHandler(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Option bitboxbase.SyncOption `json:"option"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	success, err := handlers.base.SyncWithOption(payload.Option)
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": success}, nil
 }

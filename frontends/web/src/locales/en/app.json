@@ -194,6 +194,27 @@
     "manualInput": "Can't see your BitBox Base? Connect manually below:",
     "title": "BitBox Base"
   },
+  "bitboxBaseWizard": {
+    "bitcoin": {
+      "pre": "Start syncing from pre-synced state",
+      "preInfo": "Fastest way to get started. You start syncing from the latest block that was pre-synced on the SSD. However, you need to trust the chain is validated correctly. \n\n You can choose to sync/validate from scratch later.",
+      "reindex": "Delete Chainstate and validate from Genesis",
+      "reindexInfo": "Lets you validate from the genesis block without needing to re-download the whole blockchain. Good for slow/expensive internet connections. \n\n Takes approx. 1 day.",
+      "syncFromScratch": "Delete all Chainstate Data and sync from scratch",
+      "syncFromScratchInfo": "Download and validate all blocks from scratch. Recommended for those with fast/unlimited internet plans. \n\n Takes approx. 1 day (clearnet) \n\n Takes approx. 15 days (tor)",
+      "title": "Choose your syncing option"
+    },
+    "pairing": {
+      "failed": "Unconfirmed pairing. Please try to disconnect and connect to the BitBox Base again",
+      "paired": "You have confirmed on your BitBox Base that the code matches",
+      "title": "Verify Pairing Code",
+      "unpaired": "A new BitBox Base has been connected. Please verify that the following code matches what is shown on your BitBox Base. If the code matches, touch underneath the check mark on your BitBox Base and then click the button below to continue."
+    },
+    "success": {
+      "text": "Hooray! Your BitBox Base is now ready to use. \n\nFor further information on how to use the BitBox App, please use the in-app guide by clicking the question mark on the top right corner.",
+      "title": "You're ready to go!"
+    }
+  },
   "blink": {
     "button": "Blink"
   },
@@ -877,6 +898,7 @@
   "sidebar": {
     "addAccount": "Add Account",
     "bitboxBase": "BitBox Base",
+    "bitboxBaseConnect": "Connect BitBox Base",
     "device": "Manage Device",
     "leave": "Leave",
     "settings": "Settings"

@@ -19,9 +19,8 @@ import (
 	"encoding/base32"
 	"fmt"
 
+	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/flynn/noise"
 	"github.com/gorilla/websocket"
 )
@@ -55,8 +54,9 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 			if err != nil {
 				rpcClient.log.WithError(err).Error("failed to close websocket client")
 			}
-			rpcClient.log.Info("Closing websocket read loop")
-			rpcClient.onUnregister(rpcClient.bitboxBaseID)
+			// it might be the case that we are closing the websocket on an already de-regitstered base, so do not check the errors here.
+			_, _ = rpcClient.onUnregister()
+			rpcClient.log.Println("Closing websocket read loop")
 		}()
 		client.SetReadLimit(maxMessageSize)
 		for {
@@ -118,7 +118,7 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 // initializeNoise sets up a new noise connection. First a fresh keypair is generated if none is locally found.
 // Afterwards a XX handshake is performed. This is a three part handshake required to authenticate both parties.
 // The resulting pairing code is then displayed to the user to check if it matches what is displayed on the other party's device.
-func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn, bitboxBaseID string) error {
+func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
 	keypair := rpcClient.configGetAppNoiseStaticKeypair()
 	if keypair == nil {
@@ -208,11 +208,9 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn, bitboxBaseID
 			channelHashBase32[5:10],
 			channelHashBase32[10:15],
 			channelHashBase32[15:20])
-		rpcClient.Notify(observable.Event{
-			Subject: fmt.Sprintf("/bitboxbases/%s/pairinghash", bitboxBaseID),
-			Action:  action.Replace,
-			Object:  rpcClient.channelHash,
-		})
+		rpcClient.onEvent(bitboxbasestatus.EventChannelHashChange)
+		rpcClient.onChangeStatus(bitboxbasestatus.StatusUnpaired)
+
 		err = client.WriteMessage(websocket.BinaryMessage, []byte(opICanHasPairinVerificashun))
 		if err != nil {
 			return errp.New("the websocket failed writing the pairingVerificationRequiredByApp message at the verification stage of the noise handshake")
@@ -233,9 +231,19 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn, bitboxBaseID
 			rpcClient.sendCipher = nil
 			rpcClient.receiveCipher = nil
 			rpcClient.channelHash = ""
+			rpcClient.onChangeStatus(bitboxbasestatus.StatusPairingFailed)
 			return errp.New("pairing with BitBox Base failed")
 		}
+		rpcClient.channelHashAppVerified = true
+		rpcClient.onChangeStatus(bitboxbasestatus.StatusBitcoinPre)
+	} else {
+		err = client.WriteMessage(websocket.BinaryMessage, []byte(responseSuccess))
+		if err != nil {
+			return errp.New("the websocket failed writing the success message at the verification stage of the noise handshake")
+		}
+		rpcClient.channelHashAppVerified = true
+		rpcClient.onChangeStatus(bitboxbasestatus.StatusInitialized)
 	}
-	rpcClient.channelHashAppVerified = true
+
 	return nil
 }
