@@ -73,11 +73,22 @@ func (handlers *Handlers) Uninit() {
 	handlers.base = nil
 }
 
+func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
+	log.WithField("bbBaseError", err.Error()).Warning("Received an error from BitBox Base")
+	return map[string]interface{}{
+		"success": false,
+		"message": err.Error(),
+	}
+}
+
 func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Println("Disconnecting base...")
 	success, err := handlers.base.Deregister()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
 
-	return map[string]interface{}{"success": success}, err
+	return map[string]interface{}{"success": success}, nil
 }
 
 func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
@@ -98,8 +109,7 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 	handlers.log.Debug("Block Info")
 	middlewareInfo, err := handlers.base.MiddlewareInfo()
 	if err != nil {
-		handlers.log.Println(err.Error())
-		return nil, err
+		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
 		"success":        true,
@@ -110,13 +120,11 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Verification Progress")
 	verificationProgress, err := handlers.base.VerificationProgress()
-	success := true
 	if err != nil {
-		handlers.log.Println(err.Error())
-		success = false
+		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success":              success,
+		"success":              true,
 		"verificationProgress": verificationProgress,
 	}, nil
 }
@@ -124,7 +132,7 @@ func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (inter
 func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {
 	err := handlers.base.ConnectElectrum()
 	if err != nil {
-		return map[string]interface{}{"success": false}, nil
+		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{"success": true}, nil
 }
@@ -134,9 +142,12 @@ func (handlers *Handlers) postSyncOptionHandler(r *http.Request) (interface{}, e
 		Option bitboxbase.SyncOption `json:"option"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		return nil, err
+		return bbBaseError(err, handlers.log), nil
 	}
 
 	success, err := handlers.base.SyncWithOption(payload.Option)
-	return map[string]interface{}{"success": success}, err
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": success}, nil
 }
