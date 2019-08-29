@@ -105,13 +105,19 @@ func (coin *Coin) Net() *params.ChainConfig { return coin.net }
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		coin.log.Infof("connecting to %s", coin.nodeURL)
-		client, err := rpcclient.RPCDial(coin.nodeURL)
-		if err != nil {
-			// TODO: init conn lazily, feed error via EventStatusChanged
-			panic(err)
+		const etherScanPrefix = "etherscan+"
+		if strings.HasPrefix(coin.nodeURL, etherScanPrefix) {
+			nodeURL := coin.nodeURL[len(etherScanPrefix):]
+			coin.log.Infof("Using EtherScan proxy: %s", nodeURL)
+			coin.client = etherscan.NewEtherScan(nodeURL)
+		} else {
+			client, err := rpcclient.RPCDial(coin.nodeURL)
+			if err != nil {
+				// TODO: init conn lazily, feed error via EventStatusChanged
+				panic(err)
+			}
+			coin.client = client
 		}
-		coin.client = client
-		coin.client = etherscan.NewEtherScan("https://api-ropsten.etherscan.io/api")
 
 		coin.transactionsSource = coin.makeTransactionsSource()
 	})
