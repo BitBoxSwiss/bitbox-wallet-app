@@ -13,7 +13,7 @@ import (
 )
 
 func TestTransactionWithHeightJSON(t *testing.T) {
-	tx := &ethtypes.TransactionWithHeight{
+	tx := &ethtypes.TransactionWithMetadata{
 		Transaction: types.NewTransaction(
 			123,
 			common.BytesToAddress([]byte("12345678901234567890")),
@@ -26,7 +26,7 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 		GasUsed: 21000,
 		Success: true,
 	}
-	tx2 := new(ethtypes.TransactionWithHeight)
+	tx2 := new(ethtypes.TransactionWithMetadata)
 	require.NoError(t, json.Unmarshal(jsonp.MustMarshal(tx), tx2))
 	require.Equal(t, tx.Height, tx2.Height)
 	require.Equal(t, tx.GasUsed, tx2.GasUsed)

@@ -314,8 +314,8 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 			continue
 		}
 		transactions = append(transactions, &ethtypes.TransactionWithConfirmations{
-			TransactionWithHeight: *tx,
-			TipHeight:             account.blockNumber.Uint64(),
+			TransactionWithMetadata: *tx,
+			TipHeight:               account.blockNumber.Uint64(),
 		})
 	}
 	return transactions, nil
@@ -564,7 +564,7 @@ func (account *Account) storePendingOutgoingTransaction(transaction *types.Trans
 	}
 	defer dbTx.Rollback()
 	if err := dbTx.PutOutgoingTransaction(
-		&ethtypes.TransactionWithHeight{
+		&ethtypes.TransactionWithMetadata{
 			Transaction: transaction,
 			Height:      0,
 		}); err != nil {

@@ -83,24 +83,24 @@ func (tx *Tx) Commit() error {
 }
 
 // PutOutgoingTransaction implements DBTxInterface.
-func (tx *Tx) PutOutgoingTransaction(transaction *types.TransactionWithHeight) error {
+func (tx *Tx) PutOutgoingTransaction(transaction *types.TransactionWithMetadata) error {
 	return tx.bucketOutgoingTransactions.Put(
 		transaction.Transaction.Hash().Bytes(),
 		jsonp.MustMarshal(transaction))
 }
 
-type byNonce []*types.TransactionWithHeight
+type byNonce []*types.TransactionWithMetadata
 
 func (txs byNonce) Len() int           { return len(txs) }
 func (txs byNonce) Less(i, j int) bool { return txs[i].Transaction.Nonce() < txs[j].Transaction.Nonce() }
 func (txs byNonce) Swap(i, j int)      { txs[i], txs[j] = txs[j], txs[i] }
 
 // OutgoingTransactions implements DBTxInterface.
-func (tx *Tx) OutgoingTransactions() ([]*types.TransactionWithHeight, error) {
-	transactions := []*types.TransactionWithHeight{}
+func (tx *Tx) OutgoingTransactions() ([]*types.TransactionWithMetadata, error) {
+	transactions := []*types.TransactionWithMetadata{}
 	cursor := tx.bucketOutgoingTransactions.Cursor()
 	for txHash, txSerialized := cursor.First(); txSerialized != nil; txHash, txSerialized = cursor.Next() {
-		transaction := new(types.TransactionWithHeight)
+		transaction := new(types.TransactionWithMetadata)
 		if err := json.Unmarshal(txSerialized, transaction); err != nil {
 			return nil, errp.WithStack(err)
 		}

@@ -35,8 +35,8 @@ type EthereumTransaction interface {
 	Gas() uint64
 }
 
-// TransactionWithHeight wraps an outgoing transaction and implements accounts.Transaction.
-type TransactionWithHeight struct {
+// TransactionWithMetadata wraps an outgoing transaction and implements accounts.Transaction.
+type TransactionWithMetadata struct {
 	Transaction *types.Transaction
 	// Height is 0 for pending tx.
 	Height uint64
@@ -48,7 +48,7 @@ type TransactionWithHeight struct {
 }
 
 // MarshalJSON implements json.Marshaler. Used for DB serialization.
-func (txh *TransactionWithHeight) MarshalJSON() ([]byte, error) {
+func (txh *TransactionWithMetadata) MarshalJSON() ([]byte, error) {
 	txSerialized, err := rlp.EncodeToBytes(txh.Transaction)
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (txh *TransactionWithHeight) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler. Used for DB serialization.
-func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
+func (txh *TransactionWithMetadata) UnmarshalJSON(input []byte) error {
 	m := struct {
 		TransactionRLP []byte         `json:"tx"`
 		Height         uint64         `json:"height"`
@@ -83,34 +83,34 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 }
 
 // Fee implements accounts.Transaction.
-func (txh *TransactionWithHeight) Fee() *coin.Amount {
+func (txh *TransactionWithMetadata) Fee() *coin.Amount {
 	fee := new(big.Int).Mul(big.NewInt(int64(txh.Transaction.Gas())), txh.Transaction.GasPrice())
 	amount := coin.NewAmount(fee)
 	return &amount
 }
 
 // Timestamp implements accounts.Transaction.
-func (txh *TransactionWithHeight) Timestamp() *time.Time {
+func (txh *TransactionWithMetadata) Timestamp() *time.Time {
 	return nil
 }
 
 // ID implements accounts.Transaction.
-func (txh *TransactionWithHeight) ID() string {
+func (txh *TransactionWithMetadata) ID() string {
 	return txh.Transaction.Hash().Hex()
 }
 
 // Type implements accounts.Transaction.
-func (txh *TransactionWithHeight) Type() accounts.TxType {
+func (txh *TransactionWithMetadata) Type() accounts.TxType {
 	return accounts.TxTypeSend
 }
 
 // Amount implements accounts.Transaction.
-func (txh *TransactionWithHeight) Amount() coin.Amount {
+func (txh *TransactionWithMetadata) Amount() coin.Amount {
 	return coin.NewAmount(txh.Transaction.Value())
 }
 
 // Addresses implements accounts.Transaction.
-func (txh *TransactionWithHeight) Addresses() []accounts.AddressAndAmount {
+func (txh *TransactionWithMetadata) Addresses() []accounts.AddressAndAmount {
 	return []accounts.AddressAndAmount{{
 		Address: txh.Transaction.To().Hex(),
 		Amount:  txh.Amount(),
@@ -118,7 +118,7 @@ func (txh *TransactionWithHeight) Addresses() []accounts.AddressAndAmount {
 }
 
 // Gas implements ethtypes.EthereumTransaction.
-func (txh *TransactionWithHeight) Gas() uint64 {
+func (txh *TransactionWithMetadata) Gas() uint64 {
 	if txh.Height == 0 {
 		return txh.Transaction.Gas()
 	}
@@ -128,7 +128,7 @@ func (txh *TransactionWithHeight) Gas() uint64 {
 // TransactionWithConfirmations also stores the current tip height so NumConfirmations() can be
 // computed.
 type TransactionWithConfirmations struct {
-	TransactionWithHeight
+	TransactionWithMetadata
 	TipHeight uint64
 }
 
@@ -153,5 +153,5 @@ func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
 }
 
 // assertion because not implementing the interface fails silently.
-var _ EthereumTransaction = &TransactionWithHeight{}
+var _ EthereumTransaction = &TransactionWithMetadata{}
 var _ EthereumTransaction = &TransactionWithConfirmations{}
