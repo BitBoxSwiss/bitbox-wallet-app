@@ -25,11 +25,11 @@ type TxInterface interface {
 	Rollback()
 
 	// PutOutgoingTransaction stores the transaction in the collection of outgoing transactions.
-	PutOutgoingTransaction(*types.TransactionWithHeight) error
+	PutOutgoingTransaction(*types.TransactionWithMetadata) error
 
 	// OutgoingTransactions returns the stored list of outgoing transactions, sorted descending by
 	// the transaction nonce.
-	OutgoingTransactions() ([]*types.TransactionWithHeight, error)
+	OutgoingTransactions() ([]*types.TransactionWithMetadata, error)
 }
 
 // Interface can be implemented by database backends to open database transactions.
