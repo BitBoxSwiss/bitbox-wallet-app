@@ -12,13 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package eth
+package rpcclient
 
 import (
 	"context"
 	"encoding/json"
+	"math/big"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -26,31 +28,42 @@ import (
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-// rpcClient wraps the high level ethclient, extending it with more functions.
-type rpcClient struct {
+// Interface can be implemented to provide an Ethereum rpc client.
+type Interface interface {
+	TransactionReceiptWithBlockNumber(
+		ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error)
+	HeaderByNumber(ctx context.Context, number *big.Int) (*types.Header, error)
+	BalanceAt(ctx context.Context, account common.Address, blockNumber *big.Int) (*big.Int, error)
+	bind.ContractBackend
+}
+
+// RPCClient wraps the high level ethclient, extending it with more functions. Implements Interface.
+type RPCClient struct {
 	*ethclient.Client
 	c *rpc.Client
 }
 
-func rpcDial(url string) (*rpcClient, error) {
-
+// RPCDial connects to a backend.
+func RPCDial(url string) (*RPCClient, error) {
 	c, err := rpc.DialContext(context.Background(), url)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	return &rpcClient{
+	return &RPCClient{
 		Client: ethclient.NewClient(c),
 		c:      c,
 	}, nil
 }
 
-type rpcTransactionReceipt struct {
+// RPCTransactionReceipt is a receipt extended with the block number.
+type RPCTransactionReceipt struct {
 	types.Receipt
 	BlockNumber uint64
 }
 
-func (rpcTR *rpcTransactionReceipt) UnmarshalJSON(msg []byte) error {
+// UnmarshalJSON implements json.Unmarshaler.
+func (rpcTR *RPCTransactionReceipt) UnmarshalJSON(msg []byte) error {
 	if err := json.Unmarshal(msg, &rpcTR.Receipt); err != nil {
 		return err
 	}
@@ -66,9 +79,9 @@ func (rpcTR *rpcTransactionReceipt) UnmarshalJSON(msg []byte) error {
 
 // TransactionReceiptWithBlockNumber is like rpc.TransactionReceipt, but exposes the block number as
 // well. If no receipt was found, `nil, nil` is returned.
-func (rpc *rpcClient) TransactionReceiptWithBlockNumber(
-	ctx context.Context, hash common.Hash) (*rpcTransactionReceipt, error) {
-	var r *rpcTransactionReceipt
+func (rpc *RPCClient) TransactionReceiptWithBlockNumber(
+	ctx context.Context, hash common.Hash) (*RPCTransactionReceipt, error) {
+	var r *RPCTransactionReceipt
 	err := rpc.c.CallContext(ctx, &r, "eth_getTransactionReceipt", hash)
 	return r, err
 }

@@ -493,6 +493,14 @@ func (txInfo *TxInfo) Type() accounts.TxType {
 	return txInfo.txType
 }
 
+// Status implements accounts.Transaction.
+func (txInfo *TxInfo) Status() accounts.TxStatus {
+	if txInfo.NumConfirmations() >= 6 {
+		return accounts.TxStatusComplete
+	}
+	return accounts.TxStatusPending
+}
+
 // Amount implements accounts.Transaction.
 func (txInfo *TxInfo) Amount() coin.Amount {
 	return coin.NewAmountFromInt64(int64(txInfo.amount))

@@ -24,10 +24,12 @@ func TestTransactionWithHeightJSON(t *testing.T) {
 		),
 		Height:  352,
 		GasUsed: 21000,
+		Success: true,
 	}
 	tx2 := new(ethtypes.TransactionWithHeight)
 	require.NoError(t, json.Unmarshal(jsonp.MustMarshal(tx), tx2))
 	require.Equal(t, tx.Height, tx2.Height)
 	require.Equal(t, tx.GasUsed, tx2.GasUsed)
+	require.Equal(t, tx.Success, tx2.Success)
 	require.Equal(t, tx.Transaction.Hash(), tx2.Transaction.Hash())
 }

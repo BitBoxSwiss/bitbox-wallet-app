@@ -26,6 +26,9 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
+// NumConfirmationsComplete indicates after how many confs the tx is considered complete.
+const NumConfirmationsComplete = 12
+
 // EthereumTransaction holds information specific to Ethereum.
 type EthereumTransaction interface {
 	// Gas returns the gas limit for pending tx, and the gas used for confirmed tx.
@@ -39,6 +42,9 @@ type TransactionWithHeight struct {
 	Height uint64
 	// Only applies if Height > 0
 	GasUsed uint64
+	// Only applies if Height > 0.
+	// false if contract execution failed, otherwise true.
+	Success bool
 }
 
 // MarshalJSON implements json.Marshaler. Used for DB serialization.
@@ -51,6 +57,7 @@ func (txh *TransactionWithHeight) MarshalJSON() ([]byte, error) {
 		"tx":      txSerialized,
 		"height":  txh.Height,
 		"gasUsed": hexutil.Uint64(txh.GasUsed),
+		"success": txh.Success,
 	})
 }
 
@@ -60,6 +67,7 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 		TransactionRLP []byte         `json:"tx"`
 		Height         uint64         `json:"height"`
 		GasUsed        hexutil.Uint64 `json:"gasUsed"`
+		Success        bool           `json:"success"`
 	}{}
 	if err := json.Unmarshal(input, &m); err != nil {
 		return err
@@ -70,6 +78,7 @@ func (txh *TransactionWithHeight) UnmarshalJSON(input []byte) error {
 	}
 	txh.Height = m.Height
 	txh.GasUsed = uint64(m.GasUsed)
+	txh.Success = m.Success
 	return nil
 }
 
@@ -130,6 +139,17 @@ func (txh *TransactionWithConfirmations) NumConfirmations() int {
 		confs = int(txh.TipHeight - txh.Height + 1)
 	}
 	return confs
+}
+
+// Status implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
+	if !txh.Success {
+		return accounts.TxStatusFailed
+	}
+	if txh.NumConfirmations() >= NumConfirmationsComplete {
+		return accounts.TxStatusComplete
+	}
+	return accounts.TxStatusPending
 }
 
 // assertion because not implementing the interface fails silently.

@@ -94,9 +94,6 @@ type AppConfig struct {
 	Frontend interface{} `json:"frontend"`
 }
 
-// infuraAPIKey is used to handle ethereum full-node requests
-const infuraAPIKey = "v3/2ce516f67c0b48e8af5387b714ab8a61"
-
 const shiftRootCA = `
 -----BEGIN CERTIFICATE-----
 MIIGGjCCBAKgAwIBAgIJAKRWPF0NRtHyMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
@@ -211,15 +208,15 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			ETH: ethCoinConfig{
-				NodeURL:            "https://mainnet.infura.io/" + infuraAPIKey,
+				NodeURL:            "etherscan+https://api.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 			TETH: ethCoinConfig{
-				NodeURL:            "https://ropsten.infura.io/" + infuraAPIKey,
+				NodeURL:            "etherscan+https://api-ropsten.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 			RETH: ethCoinConfig{
-				NodeURL:            "https://rinkeby.infura.io/" + infuraAPIKey,
+				NodeURL:            "etherscan+https://api-rinkeby.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
 			},
 		},
@@ -248,7 +245,7 @@ func NewConfig(appConfigFilename string, accountsConfigFilename string) (*Config
 		accountsConfig:         newDefaultAccountsonfig(),
 	}
 	config.load()
-	appConfig := config.updateInfuraAPIKeys(config.appConfig)
+	appConfig := config.migrateInfura(config.appConfig)
 	if err := config.SetAppConfig(appConfig); err != nil {
 		return nil, errp.WithStack(err)
 	}
@@ -339,11 +336,15 @@ func (config *Config) save(filename string, conf interface{}) error {
 	return errp.WithStack(ioutil.WriteFile(filename, jsonBytes, 0644))
 }
 
-func (config *Config) updateInfuraAPIKeys(appConfig AppConfig) AppConfig {
-	for _, ethConfig := range []*ethCoinConfig{&appConfig.Backend.ETH, &appConfig.Backend.TETH, &appConfig.Backend.RETH} {
-		if strings.HasSuffix(ethConfig.NodeURL, "infura.io/") {
-			ethConfig.NodeURL += infuraAPIKey
+func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {
+	migrate := func(ethConfig *ethCoinConfig, newURL string) {
+		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
+			ethConfig.NodeURL = newURL
 		}
 	}
+
+	migrate(&appConfig.Backend.ETH, "etherscan+https://api.etherscan.io/api")
+	migrate(&appConfig.Backend.TETH, "etherscan+https://api-ropsten.etherscan.io/api")
+	migrate(&appConfig.Backend.RETH, "etherscan+https://api-rinkeby.etherscan.io/api")
 	return appConfig
 }

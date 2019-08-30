@@ -32,6 +32,19 @@ const (
 	TxTypeSendSelf TxType = "sendSelf"
 )
 
+// TxStatus is the the status of the tx and helps the frontend show the appropriate information.
+type TxStatus string
+
+const (
+	// TxStatusPending means the tx is unconfirmed.
+	TxStatusPending TxStatus = "pending"
+	// TxStatusComplete means the tx is complete, depending on the number of confirmations needed
+	// for the respective coin.
+	TxStatusComplete TxStatus = "complete"
+	// TxStatusFailed means the tx is confirmed but considered failed, e.g. a ETH transaction which
+	TxStatusFailed TxStatus = "failed"
+)
+
 // AddressAndAmount holds an address and the corresponding amount.
 type AddressAndAmount struct {
 	Address string
@@ -55,6 +68,9 @@ type Transaction interface {
 
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
 	NumConfirmations() int
+
+	// Status is the tx status. See TxStatus docs for details.
+	Status() TxStatus
 
 	// Type returns the type of the transaction.
 	Type() TxType
