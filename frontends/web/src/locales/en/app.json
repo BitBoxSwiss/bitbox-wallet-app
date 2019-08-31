@@ -890,6 +890,7 @@
       "electrum": {
         "title": "Connect your own full node"
       },
+      "setProxyAddress": "Set Proxy Address",
       "title": "Expert Settings",
       "useProxy": "Enable tor proxy"
     },

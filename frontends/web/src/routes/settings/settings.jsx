@@ -18,7 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
-import { ButtonLink, Checkbox } from '../../components/forms';
+import { ButtonLink, Button, Input, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
@@ -42,10 +42,16 @@ export default class Settings extends Component {
         accountSuccess: false,
         restart: false,
         config: null,
+        proxyAddress: '127.0.0.1:9050',
     }
 
     componentDidMount() {
-        apiGet('config').then(config => this.setState({ config }));
+        apiGet('config').then(config => {
+            this.setState({ config });
+            if (config.backend.proxyAddress) {
+                this.setState({ proxyAddress: config.backend.proxyAddress });
+            }
+        });
     }
 
     handleToggleAccount = event => {
@@ -104,7 +110,7 @@ export default class Settings extends Component {
             setConfig({
                 backend: {
                     [event.target.id]: event.target.checked,
-                    proxyAddress: '127.0.0.1:9050',
+                    proxyAddress: this.state.proxyAddress,
                 }
             })
                 .then(config => this.setState({ config, restart: true }));
@@ -119,6 +125,22 @@ export default class Settings extends Component {
         }
     }
 
+    handleFormChange = event => {
+        this.setState({
+            [event.target.name]: event.target.value,
+        });
+    }
+
+
+    setProxyAddress = () => {
+        setConfig({
+            backend: {
+                proxyAddress: this.state.proxyAddress,
+            }
+        }).then(config => this.setState({ config, restart: true }));
+    }
+
+
     handleRestartDismissMessage = () => {
         this.setState({ restart: false });
     }
@@ -129,6 +151,7 @@ export default class Settings extends Component {
         config,
         accountSuccess,
         restart,
+        proxyAddress,
     }) {
         const accountsList = [
             'bitcoinP2PKHActive',
@@ -269,7 +292,23 @@ export default class Settings extends Component {
                                                 label={t('settings.expert.useProxy')}
                                                 className="text-medium" />
                                         </div>
-
+                                        {
+                                            config.backend.useProxy && (
+                                                <div class="row extra">
+                                                    <Input
+                                                        name="proxyAddress"
+                                                        onInput={this.handleFormChange}
+                                                        value={proxyAddress}
+                                                        placeholder="127.0.0.1:9050"
+                                                    />
+                                                    <Button primary
+                                                        onClick={this.setProxyAddress}
+                                                    >
+                                                        {t('settings.expert.setProxyAddress')}
+                                                    </Button>
+                                                </div>
+                                            )
+                                        }
                                         <div class="row extra">
                                             <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
                                         </div>
