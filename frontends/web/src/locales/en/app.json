@@ -845,8 +845,16 @@
       "text": "Something went wrong. Please start again.",
       "title": "Error"
     },
+    "pullFailed": {
+      "text": "Failed to pull a message from your mobile through the relay server. The relay server might be offline, please contact support.",
+      "title": "Pull failed"
+    },
     "reconnectOnly": {
       "button": "Reconnect mobile app"
+    },
+    "scanningFailed": {
+      "text": "Mobile was not able to scan the message successfully. Please try again.",
+      "title": "Scanning Failed"
     },
     "start": {
       "hideAppQRCode": "Hide QR code",

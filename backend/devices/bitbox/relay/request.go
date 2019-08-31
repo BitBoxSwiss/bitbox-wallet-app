@@ -18,7 +18,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"io/ioutil"
+	"net/http"
 	"strings"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // request models a request to the relay server.
@@ -77,6 +80,9 @@ func (request *request) send() (*response, error) {
 	)
 	if err != nil {
 		return nil, err
+	}
+	if httpResponse.StatusCode != http.StatusOK {
+		return nil, errp.New("Proxy Server did not respond with OK http status code, it is probably offline")
 	}
 	defer func() { _ = httpResponse.Body.Close() }()
 	body, err := ioutil.ReadAll(httpResponse.Body)
