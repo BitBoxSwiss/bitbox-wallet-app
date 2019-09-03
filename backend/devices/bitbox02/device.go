@@ -46,7 +46,7 @@ import (
 
 var (
 	lowestSupportedFirmwareVersion    = semver.NewSemVer(3, 0, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(4, 0, 0)
+	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.
@@ -74,6 +74,7 @@ const (
 const (
 	opICanHasHandShaek          = "h"
 	opICanHasPairinVerificashun = "v"
+	opNoiseMsg                  = "n"
 	opAttestation               = "a"
 	opUnlock                    = "u"
 
@@ -366,6 +367,9 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 		return nil, errp.WithStack(err)
 	}
 	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
+	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
+		requestBytesEncrypted = append([]byte(opNoiseMsg), requestBytesEncrypted...)
+	}
 	responseBytes, err := device.queryRaw(requestBytesEncrypted)
 	if err != nil {
 		return nil, err
