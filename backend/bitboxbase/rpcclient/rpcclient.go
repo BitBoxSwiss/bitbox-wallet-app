@@ -242,3 +242,27 @@ func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) 
 	}
 	return reply, nil
 }
+
+// SetHostname makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing SetHostname rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.SetHostname", args, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("SetHostname RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// GetHostname makes a synchronous rpc call to the base and returns a GetHostnameResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, error) {
+	rpcClient.log.Println("Executing GetHostname rpc call")
+	var reply rpcmessages.GetHostnameResponse
+	err := rpcClient.client.Call("RPCServer.GetHostname", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetHostname RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}

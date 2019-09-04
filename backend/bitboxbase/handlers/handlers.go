@@ -34,6 +34,8 @@ type Base interface {
 	ChannelHash() (string, bool)
 	Deregister() (bool, error)
 	SyncWithOption(bitboxbase.SyncOption) (bool, error)
+	GetHostname() (string, error)
+	SetHostname(string) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -49,13 +51,16 @@ func NewHandlers(
 ) *Handlers {
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
+	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
+	handleFunc("/gethostname", handlers.getGetHostnameHandler).Methods("GET")
+	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
-	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
-	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
-	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
-	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
+
+	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
+	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
+	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
 
 	return handlers
 }
@@ -115,6 +120,33 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 		"success":        true,
 		"middlewareInfo": middlewareInfo,
 	}, nil
+}
+
+func (handlers *Handlers) getGetHostnameHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getGetHostnameHandler")
+	hostname, err := handlers.base.GetHostname()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":  true,
+		"hostname": hostname,
+	}, nil
+}
+
+func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Hostname string `json:"hostname"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	success, err := handlers.base.SetHostname(payload.Hostname)
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": success}, nil
 }
 
 func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (interface{}, error) {

@@ -74,6 +74,12 @@ type Interface interface {
 
 	// SyncOption returns true if the bitcoin resync rpc call executed successfully
 	SyncWithOption(SyncOption) (bool, error)
+
+	// GetHostname returns the hostname of the BitBox Base
+	GetHostname() (string, error)
+
+	// SetHostname sets the hostname of the BitBox Base
+	SetHostname(string) (bool, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -254,18 +260,55 @@ func (base *BitBoxBase) SyncWithOption(option SyncOption) (bool, error) {
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return true, nil
 	case SyncOptionReindex:
-		base.log.Println("bitboxbase is making a Reindex call")
+		base.log.Println("bitboxbase is making a ReindexBitcoin call")
 		replySuccess, err := base.rpcClient.ReindexBitcoin()
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	case SyncOptionInitialBlockDownload:
-		base.log.Println("bitboxbase is making a Resync call")
+		base.log.Println("bitboxbase is making a ResyncBitcoin call")
 		replySuccess, err := base.rpcClient.ResyncBitcoin()
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	default:
 		return true, nil
 	}
+}
+
+// GetHostname returns the hostname of the bitboxbase
+func (base *BitBoxBase) GetHostname() (hostname string, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return "", err
+	}
+	base.log.Println("bitboxbase is making a GetHostname call")
+	reply, err := base.rpcClient.GetHostname()
+	if err != nil {
+		return "", err
+	}
+	if !reply.Success {
+		err := errp.Newf("GetHostname was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		return "", err
+	}
+	return reply.Hostname, nil
+}
+
+// SetHostname sets the hostname of the bitboxbase
+func (base *BitBoxBase) SetHostname(hostname string) (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a SetHostname call")
+	args := rpcmessages.SetHostnameArgs{Hostname: hostname}
+	reply, err := base.rpcClient.SetHostname(args)
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("SetHostname was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
 }
 
 // Identifier implements a getter for the bitboxBase ID
