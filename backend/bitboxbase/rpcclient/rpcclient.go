@@ -255,6 +255,30 @@ func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcme
 	return reply, nil
 }
 
+// UserAuthenticate makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the user is successfully authenticated.
+func (rpcClient *RPCClient) UserAuthenticate(args rpcmessages.UserAuthenticateArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UserAuthenticate rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UserAuthenticate", args, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("UserAuthenticate RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// UserChangePassword makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the password has been successfully changed .
+func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswordArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UserChangePassword rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UserChangePassword", args, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("UserChangePassword RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
 // GetHostname makes a synchronous rpc call to the base and returns a GetHostnameResponse indicating if the called script was successfully executed.
 func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, error) {
 	rpcClient.log.Println("Executing GetHostname rpc call")

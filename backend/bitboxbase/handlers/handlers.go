@@ -36,6 +36,8 @@ type Base interface {
 	SyncWithOption(bitboxbase.SyncOption) (bool, error)
 	GetHostname() (string, error)
 	SetHostname(string) (bool, error)
+	UserAuthenticate(string, string) (bool, error)
+	UserChangePassword(string, string) (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -57,6 +59,9 @@ func NewHandlers(
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 
+	handleFunc("/userauthenticate", handlers.postUserAuthenticate).Methods("POST")
+	handleFunc("/userchangepassword", handlers.postUserChangePassword).Methods("POST")
+	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
 	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
@@ -132,6 +137,37 @@ func (handlers *Handlers) getGetHostnameHandler(r *http.Request) (interface{}, e
 		"success":  true,
 		"hostname": hostname,
 	}, nil
+}
+
+func (handlers *Handlers) postUserAuthenticate(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	success, err := handlers.base.UserAuthenticate(payload.Username, payload.Password)
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": success}, nil
+}
+
+func (handlers *Handlers) postUserChangePassword(r *http.Request) (interface{}, error) {
+	payload := struct {
+		Username    string `json:"username"`
+		NewPassword string `json:"newPassword"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	success, err := handlers.base.UserChangePassword(payload.Username, payload.NewPassword)
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{"success": success}, nil
 }
 
 func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) {

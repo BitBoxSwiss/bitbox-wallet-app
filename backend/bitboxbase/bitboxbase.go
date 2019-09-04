@@ -80,6 +80,14 @@ type Interface interface {
 
 	// SetHostname sets the hostname of the BitBox Base
 	SetHostname(string) (bool, error)
+
+	// UserChangePassword sets a new password for a given user
+	// TODO: this is a dummy
+	UserChangePassword(string, string) (bool, error)
+
+	// UserAuthenticate returns is the authentication with a username and password was successful
+	// TODO: this is a dummy
+	UserAuthenticate(string, string) (bool, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -306,6 +314,46 @@ func (base *BitBoxBase) SetHostname(hostname string) (success bool, err error) {
 	}
 	if !reply.Success {
 		err := errp.Newf("SetHostname was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// UserAuthenticate returns if a given Username and Password are valid
+// TODO: This is a dummy.
+func (base *BitBoxBase) UserAuthenticate(username string, password string) (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UserAuthenticate call")
+	args := rpcmessages.UserAuthenticateArgs{Username: username, Password: password}
+	reply, err := base.rpcClient.UserAuthenticate(args)
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("UserAuthenticate was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// UserChangePassword returns if the password change for a username was successful
+// TODO: This is a dummy.
+func (base *BitBoxBase) UserChangePassword(username string, newPassword string) (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UserChangePassword call")
+	args := rpcmessages.UserChangePasswordArgs{Username: username, NewPassword: newPassword}
+	reply, err := base.rpcClient.UserChangePassword(args)
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("UserChangePassword was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
 		return false, err
 	}
 	return true, nil
