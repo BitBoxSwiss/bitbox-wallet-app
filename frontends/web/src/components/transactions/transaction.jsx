@@ -56,12 +56,24 @@ export default class Transaction extends Component {
         time,
         fiatCode,
         addresses,
+        status,
     }, {
         collapsed,
     }) {
+        console.log(status);
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const sDate = time ? this.parseTimeShort(time) : '---';
+        const statusStyle = {
+            'complete': style.statusIndicatorComplete,
+            'pending': style.statusIndicatorPending,
+            'failed': style.statusIndicatorFailed,
+        }[status];
+        const statusText = {
+            'complete': "Complete",
+            'pending': "Pending",
+            'failed': "Failed",
+        }[status];
         return (
             <div className={[style.container, collapsed ? style.collapsed : ''].join(' ')}>
                 <div className={[parentStyle.columns, style.row].join(' ')}>
@@ -118,8 +130,8 @@ export default class Transaction extends Component {
                     <div className={[parentStyle.columnGroup].join(' ')}>
                         <div className={parentStyle.status}>
                             <span className={style.columnLabel}>Status:</span>
-                            <span className={[style.statusIndicator, (time && numConfirmations >= 6) ? style.statusIndicatorComplete : style.statusIndicatorPending].join(' ')}></span>
-                            <span className={style.status}>{(time && numConfirmations >= 6) ? "Complete" : "Pending"}</span>
+                            <span className={[style.statusIndicator, statusStyle].join(' ')}></span>
+                            <span className={style.status}>{statusText}</span>
                         </div>
                         <div className={parentStyle.fiat}>
                             <span className={[style.fiat, type === 'send' && style.send].join(' ')}>

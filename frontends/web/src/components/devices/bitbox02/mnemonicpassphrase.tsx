@@ -63,19 +63,32 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
         return (
             <div>
                 <SettingsButton onClick={this.toggle}>{title}</SettingsButton>
-                { inProgress && (
-                      <WaitDialog title={title} >
-                          { !mnemonicPassphraseEnabled && message && (
-                                <p>{
-                                    message.split('\n').map(line => (
-                                        <span>
-                                            <SimpleMarkup tagName="span" markup={line} /><br/>
-                                        </span>
-                                    ))}
-                                </p>)}
-                          <p>{t('bitbox02Interact.followInstructions')}</p>
-                      </WaitDialog>
-                )}
+                {
+                    inProgress && (
+                        <WaitDialog title={title}>
+                            <div className="columnsContainer half">
+                                <div className="columns">
+                                    <div className="column">
+                                        {
+                                            !mnemonicPassphraseEnabled && message && (
+                                                <p>
+                                                    {
+                                                        message.split('\n').map(line => (
+                                                            <span>
+                                                                <SimpleMarkup tagName="span" markup={line} /><br/>
+                                                            </span>
+                                                        ))
+                                                    }
+                                                </p>
+                                            )
+                                        }
+                                        <p>{t('bitbox02Interact.followInstructions')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </WaitDialog>
+                    )
+                }
             </div>
         );
     }

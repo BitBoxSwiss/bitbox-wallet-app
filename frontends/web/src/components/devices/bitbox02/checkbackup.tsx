@@ -19,6 +19,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../../backups/backup';
 import { Dialog } from '../../dialog/dialog';
+import * as dialogStyle from '../../dialog/dialog.css';
 import { Button } from '../../forms';
 
 interface CheckProps {
@@ -91,19 +92,23 @@ class Check extends Component<Props, State> {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog
-                        title={message}
-                        large={true}>
+                        <Dialog title={message}>
                             {
-                                <div>
-                                    { foundBackup !== undefined &&
-                                    <BackupsListItem
-                                        backup={foundBackup}
-                                        handleChange={() => undefined}
-                                        onFocus={() => undefined}
-                                        radio={false}
-                                    /> }
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className="column">
+                                            {
+                                                foundBackup !== undefined && (
+                                                    <BackupsListItem
+                                                        backup={foundBackup}
+                                                        handleChange={() => undefined}
+                                                        onFocus={() => undefined}
+                                                        radio={false} />
+                                                )
+                                            }
+                                        </div>
+                                    </div>
+                                    <div className={dialogStyle.actions}>
                                         <Button
                                             primary
                                             onClick={this.abort}

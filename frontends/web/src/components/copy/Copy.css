@@ -35,7 +35,6 @@
 }
 
 .container {
-    margin-bottom: var(--space-default);
     position: relative;
 }
 

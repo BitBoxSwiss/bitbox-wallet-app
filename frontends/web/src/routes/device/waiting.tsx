@@ -18,10 +18,12 @@ import { Component, h, RenderableProps } from 'preact';
 import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
+import { store as panelStore } from '../../components/guide/guide';
 import { Shift } from '../../components/icon';
 import { AppLogo } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { PasswordSingleInput } from '../../components/password';
+import { toggleForceHide } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
@@ -34,42 +36,52 @@ interface TestingProps {
 
 type WaitingProps = TestingProps & TranslateProps;
 
-function Waiting({ t, testing }: RenderableProps<WaitingProps>) {
-    return (
-        <div class="contentWithGuide">
-            <div className={style.container}>
-                <Header title={<h2>{t('welcome.title')}</h2>} />
-                <div className={style.content}>
-                    <div className="flex-1 flex flex-column flex-center">
-                        <AppLogo />
-                        <div className={style.waitingContent}>
-                            <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                            <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
+class Waiting extends Component<WaitingProps> {
+    public componentWillMount() {
+        if (!panelStore.state.forceHiddenSidebar) {
+            toggleForceHide();
+        }
+    }
+
+    public render(
+        { t, testing }: RenderableProps<WaitingProps>,
+    ) {
+        return (
+            <div class="contentWithGuide">
+                <div className={style.container}>
+                    <Header title={<h2>{t('welcome.title')}</h2>} />
+                    <div className={style.content}>
+                        <div className="flex-1 flex flex-column flex-center">
+                            <AppLogo />
+                            <div className={style.waitingContent}>
+                                <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
+                                <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
+                            </div>
+                            {
+                                !!testing && (
+                                    <div className={style.testingContainer}>
+                                        <SkipForTesting show={!!testing} />
+                                    </div>
+                                )
+                            }
                         </div>
-                        {
-                            !!testing && (
-                                <div className={style.testingContainer}>
-                                    <SkipForTesting show={!!testing} />
-                                </div>
-                            )
-                        }
+                        <hr />
+                        <Footer>
+                            <Shift />
+                        </Footer>
                     </div>
-                    <hr />
-                    <Footer>
-                        <Shift />
-                    </Footer>
                 </div>
+                <Guide>
+                    <Entry entry={t('guide.waiting.welcome')} shown={true} />
+                    <Entry entry={t('guide.waiting.getDevice')} />
+                    <Entry entry={t('guide.waiting.lostDevice')} />
+                    <Entry entry={t('guide.waiting.internet')} />
+                    <Entry entry={t('guide.waiting.deviceNotRecognized')} />
+                    <Entry entry={t('guide.waiting.useWithoutDevice')} />
+                </Guide>
             </div>
-            <Guide>
-                <Entry entry={t('guide.waiting.welcome')} shown={true} />
-                <Entry entry={t('guide.waiting.getDevice')} />
-                <Entry entry={t('guide.waiting.lostDevice')} />
-                <Entry entry={t('guide.waiting.internet')} />
-                <Entry entry={t('guide.waiting.deviceNotRecognized')} />
-                <Entry entry={t('guide.waiting.useWithoutDevice')} />
-            </Guide>
-        </div>
-    );
+        );
+    }
 }
 
 interface SkipForTestingProps {
@@ -115,7 +127,5 @@ class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState>
 }
 
 const loadHOC = load<TestingProps, TranslateProps>(() => debug ? { testing: 'testing' } : {})(Waiting);
-
 const translateHOC = translate()(loadHOC);
-
 export { translateHOC as Waiting };
