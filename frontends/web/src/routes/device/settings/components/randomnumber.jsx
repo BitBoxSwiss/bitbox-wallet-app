@@ -21,6 +21,7 @@ import { apiPost } from '../../../../utils/request';
 import { Dialog } from '../../../../components/dialog/dialog';
 import { CopyableInput } from '../../../../components/copy/Copy';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 @translate()
 export default class RandomNumber extends Component {
@@ -56,10 +57,16 @@ export default class RandomNumber extends Component {
                 </SettingsButton>
                 {
                     active && number ? (
-                        <Dialog onClose={this.abort}>
-                            <p>{t('random.description', { bits: number.length * 4 })}</p>
-                            <CopyableInput value={number} />
-                            <div class="flex flex-row flex-end flex-items-center">
+                        <Dialog title="Generate Random Number" onClose={this.abort}>
+                            <div className="columnsContainer half">
+                                <div className="columns">
+                                    <div className="column">
+                                        <p>{t('random.description', { bits: number.length * 4 })}</p>
+                                        <CopyableInput value={number} flexibleHeight />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class={dialogStyle.actions}>
                                 <Button primary onClick={this.abort}>{t('button.ok')}</Button>
                             </div>
                         </Dialog>

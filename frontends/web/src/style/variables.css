@@ -50,14 +50,19 @@
     --size-extra-large: 2.2rem;
     --size-large: 2rem;
     --size-large-mobile: 1.4rem;
-    --size-subheader: 22px;
+    --size-subheader: 18px;
     --size-subheader-mobile: 1.2rem;
     --size-medium: 1rem;
+    --size-default: 14px;
     --size-small: 12px;
     --size-xsmall: 11px;
     --size-label: var(--size-small);
-    --size-button: 14px;
-    --size-default: 14px;
+    --size-button: var(--size-default);
+
+    /* wizard */
+    --size-wizard-header: 32px;
+    --size-wizard-text: 16px;
+    --wizard-item-height: 70px;
 
     /* spacing */
     --spacing-large: 2rem;

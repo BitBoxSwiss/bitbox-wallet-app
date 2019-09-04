@@ -19,10 +19,10 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { alertUser } from '../../alert/Alert';
 import { Dialog } from '../../dialog/dialog';
+import * as dialogStyle from '../../dialog/dialog.css';
 import { Button, Checkbox } from '../../forms';
 import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
-import * as style from './bitbox02.css';
 
 interface ResetProps {
     apiPrefix: string;
@@ -99,21 +99,24 @@ class Reset extends Component<Props, State> {
                     activeDialog && (
                         <Dialog
                             title={t('reset.title')}
-                            onClose={this.abort}>
-                            <p>
-                                {t('reset.description')}
-                            </p>
-                            <div className={style.agreements}>
-                                <Checkbox
-                                    id="reset_understand"
-                                    label={t('reset.understand')}
-                                    checked={understand}
-                                    onChange={this.handleUnderstandChange} />
+                            onClose={this.abort}
+                            disabledClose={isConfirming}
+                            small>
+                            <div className="columnsContainer half">
+                                <div className="columns">
+                                    <div className="column">
+                                        <p>{t('reset.description')}</p>
+                                        <div>
+                                            <Checkbox
+                                                id="reset_understand"
+                                                label={t('reset.understand')}
+                                                checked={understand}
+                                                onChange={this.handleUnderstandChange} />
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div className={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                    {t('button.back')}
-                                </Button>
+                            <div className={dialogStyle.actions}>
                                 <Button danger disabled={!understand} onClick={this.reset}>
                                     {t('reset.button')}
                                 </Button>

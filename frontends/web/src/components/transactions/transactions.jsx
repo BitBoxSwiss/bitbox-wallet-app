@@ -70,9 +70,7 @@ export default class Transactions extends Component {
                             {...props} />
                     )) : (
                         <div class={['flex flex-row flex-center', style.empty].join(' ')}>
-                            <p>
-                                {t('transactions.placeholder')}
-                            </p>
+                            <p>{t('transactions.placeholder')}</p>
                         </div>
                     )
                 }

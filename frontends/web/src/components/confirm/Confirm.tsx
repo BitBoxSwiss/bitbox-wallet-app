@@ -18,6 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { Dialog } from '../dialog/dialog';
+import * as dialogStyle from '../dialog/dialog.css';
 import { Button } from '../forms';
 
 let confirmation: (message: string, callback: (response: boolean) => void) => void;
@@ -63,18 +64,23 @@ class Confirm extends Component<TranslateProps, State> {
 
     public render({ t }: RenderableProps<TranslateProps>, { message, active }: State) {
         return active ? (
-            <Dialog
-                onClose={this.decline}>
-                {
-                    message ? message.split('\n').map((line, i) => (
-                        <p
-                            key={i}
-                            class={ i === 0 ? 'first' : '' }>
-                            <SimpleMarkup tagName="span" markup={line} />
-                        </p>
-                    )) : null
-                }
-                <div class="buttons flex flex-row flex-between">
+            <Dialog title="Confirmation" onClose={this.decline}>
+                <div className="columnsContainer half">
+                    <div className="columns">
+                        <div className="column">
+                            {
+                                message ? message.split('\n').map((line, i) => (
+                                    <p
+                                        key={i}
+                                        class={ i === 0 ? 'first' : '' }>
+                                        <SimpleMarkup tagName="span" markup={line} />
+                                    </p>
+                                )) : null
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class={dialogStyle.actions}>
                     <Button secondary onClick={this.decline}>{t('dialog.cancel')}</Button>
                     <Button primary onClick={this.accept}>{t('dialog.confirm')}</Button>
                 </div>
