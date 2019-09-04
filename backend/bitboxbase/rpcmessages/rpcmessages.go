@@ -16,14 +16,22 @@ const (
 Put Incoming Args below this line. They should have the format of 'RPC Method Name' + 'Args'.
 */
 
-// ResyncBitcoinArgs is an iota that holds the options for the ResyncBitcoin rpc call
-type ResyncBitcoinArgs int
+// UserAuthenticateArgs is an struct that holds the arguments for the UserAuthenticate RPC call
+type UserAuthenticateArgs struct {
+	Username string
+	Password string
+}
 
-// The ResyncBitcoinArgs has two options. Either resync bitcon from scratch with an IBD, or delete the chainstate and reindex.
-const (
-	Resync ResyncBitcoinArgs = iota
-	Reindex
-)
+// UserChangePasswordArgs is an struct that holds the arguments for the UserChangePassword RPC call
+type UserChangePasswordArgs struct {
+	Username    string
+	NewPassword string
+}
+
+// SetHostnameArgs is a struct that holds the to be set hostname
+type SetHostnameArgs struct {
+	Hostname string
+}
 
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.
@@ -33,11 +41,6 @@ Put Response structs below this line. They should have the format of 'RPC Method
 type GetEnvResponse struct {
 	Network        string
 	ElectrsRPCPort string
-}
-
-// ResyncBitcoinResponse is the struct that gets sent by the rpc server during a ResyncBitcoin call
-type ResyncBitcoinResponse struct {
-	Success bool
 }
 
 // SampleInfoResponse holds sample information from c-lightning and bitcoind. It is temporary for testing purposes
@@ -52,4 +55,19 @@ type VerificationProgressResponse struct {
 	Blocks               int64   `json:"blocks"`
 	Headers              int64   `json:"headers"`
 	VerificationProgress float64 `json:"verificationProgress"`
+}
+
+// GetHostnameResponse is the struct that get sent by the rpc server during a GetHostname rpc call
+type GetHostnameResponse struct {
+	ErrorResponse
+	Hostname string
+}
+
+// ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
+// It can be embedded into other RPC responses that return values.
+// In any case the ErrorResponse should be checked first, so that, if an error is returned, we ignore everything else in the response.
+type ErrorResponse struct {
+	Success bool
+	Code    string
+	Message string
 }

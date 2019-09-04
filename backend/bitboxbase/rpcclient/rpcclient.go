@@ -189,8 +189,7 @@ func (rpcClient *RPCClient) Stop() {
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
 func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	var reply rpcmessages.GetEnvResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetSystemEnv", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSystemEnv", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
 		return reply, err
@@ -201,8 +200,7 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 // GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
 func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
 	var reply rpcmessages.SampleInfoResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSampleInfo", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
 		return reply, err
@@ -213,8 +211,7 @@ func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, err
 // GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
 func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
 	var reply rpcmessages.VerificationProgressResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("VerificationProgress RPC call failed")
 		return reply, err
@@ -222,14 +219,25 @@ func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationP
 	return reply, nil
 }
 
-// ResyncBitcoin makes a synchronous rpc call to the base and returns wether the resync bitcoin script on
-// the BitBox Base was executed successfully.
-func (rpcClient *RPCClient) ResyncBitcoin(options rpcmessages.ResyncBitcoinArgs) (rpcmessages.ResyncBitcoinResponse, error) {
+// ResyncBitcoin makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) ResyncBitcoin() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ResyncBitcoin rpc call")
-	var reply rpcmessages.ResyncBitcoinResponse
-	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", options, &reply)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("ResyncBitcoin RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// ReindexBitcoin makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing ReindexBitcoin rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.ReindexBitcoin", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("ReindexBitcoin RPC call failed")
 		return reply, err
 	}
 	return reply, nil

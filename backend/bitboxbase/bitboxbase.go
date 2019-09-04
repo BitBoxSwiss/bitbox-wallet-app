@@ -254,13 +254,13 @@ func (base *BitBoxBase) SyncWithOption(option SyncOption) (bool, error) {
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return true, nil
 	case SyncOptionReindex:
-		base.log.Println("bitboxbase is making a ReindexResyncOption call")
-		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Reindex)
+		base.log.Println("bitboxbase is making a Reindex call")
+		replySuccess, err := base.rpcClient.ReindexBitcoin()
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	case SyncOptionInitialBlockDownload:
-		base.log.Println("bitboxbase is making a IBDResyncOption call")
-		replySuccess, err := base.rpcClient.ResyncBitcoin(rpcmessages.Resync)
+		base.log.Println("bitboxbase is making a Resync call")
+		replySuccess, err := base.rpcClient.ResyncBitcoin()
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 		return replySuccess.Success, err
 	default:
