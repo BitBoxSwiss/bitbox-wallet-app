@@ -88,6 +88,24 @@ type Interface interface {
 	// UserAuthenticate returns is the authentication with a username and password was successful
 	// TODO: this is a dummy
 	UserAuthenticate(string, string) (bool, error)
+
+	// MountFlashdrive checks for a flashdrive and then mounts it
+	MountFlashdrive() (bool, error)
+
+	// UnmountFlashdrive unmounts a mounted flashdrive
+	UnmountFlashdrive() (bool, error)
+
+	// BackupSysconfig backups the system config to the flashdrive
+	BackupSysconfig() (bool, error)
+
+	// BackupHSMSecret backups the lightning hsm_secret
+	BackupHSMSecret() (bool, error)
+
+	// RestoreSysconfig restores the system config from the flashdrive
+	RestoreSysconfig() (bool, error)
+
+	// RestoreHSMSecret restores the lightning hsm_secret
+	RestoreHSMSecret() (bool, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -294,7 +312,7 @@ func (base *BitBoxBase) GetHostname() (hostname string, err error) {
 		return "", err
 	}
 	if !reply.Success {
-		err := errp.Newf("GetHostname was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		err := errp.Newf("GetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 		return "", err
 	}
 	return reply.Hostname, nil
@@ -313,7 +331,7 @@ func (base *BitBoxBase) SetHostname(hostname string) (success bool, err error) {
 		return false, err
 	}
 	if !reply.Success {
-		err := errp.Newf("SetHostname was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		err := errp.Newf("SetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 		return false, err
 	}
 	return true, nil
@@ -333,7 +351,7 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) (succ
 		return false, err
 	}
 	if !reply.Success {
-		err := errp.Newf("UserAuthenticate was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		err := errp.Newf("UserAuthenticate was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 		return false, err
 	}
 	return true, nil
@@ -353,7 +371,115 @@ func (base *BitBoxBase) UserChangePassword(username string, newPassword string) 
 		return false, err
 	}
 	if !reply.Success {
-		err := errp.Newf("UserChangePassword was not successful. Message: %s. Code: %s", reply.Message, reply.Code)
+		err := errp.Newf("UserChangePassword was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// MountFlashdrive checks for and then mounts a flashdrive
+func (base *BitBoxBase) MountFlashdrive() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a MountFlashdrive call")
+	reply, err := base.rpcClient.MountFlashdrive()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("MountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// UnmountFlashdrive checks for and then mounts a flashdrive
+func (base *BitBoxBase) UnmountFlashdrive() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	reply, err := base.rpcClient.UnmountFlashdrive()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("UnmountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// BackupSysconfig checks for and then mounts a flashdrive
+func (base *BitBoxBase) BackupSysconfig() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	reply, err := base.rpcClient.BackupSysconfig()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("BackupSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// BackupHSMSecret checks for and then mounts a flashdrive
+func (base *BitBoxBase) BackupHSMSecret() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	reply, err := base.rpcClient.BackupHSMSecret()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("BackupHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// RestoreHSMSecret checks for and then mounts a flashdrive
+func (base *BitBoxBase) RestoreHSMSecret() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	reply, err := base.rpcClient.RestoreHSMSecret()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("RestoreHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// RestoreSysconfig checks for and then mounts a flashdrive
+func (base *BitBoxBase) RestoreSysconfig() (success bool, err error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	reply, err := base.rpcClient.RestoreSysconfig()
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("RestoreSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 		return false, err
 	}
 	return true, nil

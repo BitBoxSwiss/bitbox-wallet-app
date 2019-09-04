@@ -290,3 +290,75 @@ func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, erro
 	}
 	return reply, nil
 }
+
+// MountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) MountFlashdrive() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing MountFlashdrive rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.MountFlashdrive", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("MountFlashdrive RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// UnmountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) UnmountFlashdrive() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UnmountFlashdrive rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UnmountFlashdrive", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("UnmountFlashdrive RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// BackupSysconfig makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing BackupSysconfig rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.BackupSysconfig", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("BackupSysconfig RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// BackupHSMSecret makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) BackupHSMSecret() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing BackupHSMSecret rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.BackupHSMSecret", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("BackupHSMSecret RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// RestoreSysconfig makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) RestoreSysconfig() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing RestoreSysconfig rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.RestoreSysconfig", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("RestoreSysconfig RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// RestoreHSMSecret makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing RestoreHSMSecret rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("RestoreHSMSecret RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}

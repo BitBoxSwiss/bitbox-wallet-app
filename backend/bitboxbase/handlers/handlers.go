@@ -38,6 +38,12 @@ type Base interface {
 	SetHostname(string) (bool, error)
 	UserAuthenticate(string, string) (bool, error)
 	UserChangePassword(string, string) (bool, error)
+	MountFlashdrive() (bool, error)
+	UnmountFlashdrive() (bool, error)
+	BackupSysconfig() (bool, error)
+	BackupHSMSecret() (bool, error)
+	RestoreSysconfig() (bool, error)
+	RestoreHSMSecret() (bool, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -56,12 +62,17 @@ func NewHandlers(
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/gethostname", handlers.getGetHostnameHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
+	handleFunc("/mountflashdrive", handlers.getMountFlashdriveHandler).Methods("GET")
+	handleFunc("/unmountflashdrive", handlers.getUnmountFlashdriveHandler).Methods("GET")
+	handleFunc("/backupsysconfig", handlers.getBackupSysconfigHandler).Methods("GET")
+	handleFunc("/backuphsmsecret", handlers.getBackupHSMSecretHandler).Methods("GET")
+	handleFunc("/restoresysconfig", handlers.getRestoreSysconfigHandler).Methods("GET")
+	handleFunc("/restorehsmsecret", handlers.getRestoreHSMSecretHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 
 	handleFunc("/userauthenticate", handlers.postUserAuthenticate).Methods("POST")
 	handleFunc("/userchangepassword", handlers.postUserChangePassword).Methods("POST")
-	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
 	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
@@ -131,11 +142,77 @@ func (handlers *Handlers) getGetHostnameHandler(r *http.Request) (interface{}, e
 	handlers.log.Debug("getGetHostnameHandler")
 	hostname, err := handlers.base.GetHostname()
 	if err != nil {
-		return bbBaseError(err, handlers.log), nil
+		return bbBaseError(err, handlers.log), err
 	}
 	return map[string]interface{}{
 		"success":  true,
 		"hostname": hostname,
+	}, nil
+}
+
+func (handlers *Handlers) getMountFlashdriveHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getMountFlashdriveHandler")
+	success, err := handlers.base.MountFlashdrive()
+	if err != nil {
+		return bbBaseError(err, handlers.log), err
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getUnmountFlashdriveHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getUnmountFlashdriveHandler")
+	success, err := handlers.base.UnmountFlashdrive()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getBackupSysconfigHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getBackupSysconfigHandler")
+	success, err := handlers.base.BackupSysconfig()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getBackupHSMSecretHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getBackupHSMSecretHandler")
+	success, err := handlers.base.BackupHSMSecret()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getRestoreSysconfigHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getRestoreSysconfigHandler")
+	success, err := handlers.base.RestoreSysconfig()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getRestoreHSMSecretHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getRestoreHSMSecretHandler")
+	success, err := handlers.base.RestoreHSMSecret()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
 	}, nil
 }
 
