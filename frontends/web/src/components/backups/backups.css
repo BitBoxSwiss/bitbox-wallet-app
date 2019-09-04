@@ -34,3 +34,10 @@
 .backupItem + label {
     color: var(--color-softblack);
 }
+
+.backupID {
+    word-break: break-all;
+    margin-bottom: var(--space-quarter);
+    font-size: var(--size-small);
+    color: var(--color-rock);
+}

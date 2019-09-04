@@ -11,9 +11,9 @@
     font-size: var(--size-default);
     font-weight: 400;
     justify-content: center;
-    line-height: 46px;
+    line-height: 50px;
     min-width: 100px !important;
-    height: 46px;
+    height: 50px;
     padding: 0 var(--space-half);
     position: relative;
     outline: none;

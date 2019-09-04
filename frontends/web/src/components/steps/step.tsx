@@ -1,5 +1,4 @@
 import { Component, h, RenderableProps } from 'preact';
-// import checkIcon from '../../assets/icons/check.svg';
 import { animate } from '../../utils/animation';
 import * as style from './steps.css';
 
@@ -9,6 +8,7 @@ interface StepProps {
   order?: number;
   activeStep?: number;
   empty?: boolean;
+  large?: boolean;
 }
 
 interface State {
@@ -58,7 +58,7 @@ class Step extends Component<StepProps, State> {
     }
 
     public render(
-        { active, empty, title, children }: RenderableProps<StepProps>,
+        { active, empty, title, large, children }: RenderableProps<StepProps>,
         { isComplete, visible }: State,
     ) {
         return (
@@ -68,6 +68,7 @@ class Step extends Component<StepProps, State> {
                     empty ? style.empty : '',
                     isComplete ? style.complete : '',
                     visible ? '' : style.hide,
+                    large ? style.large : '',
                 ].join(' ')}
                 ref={this.setRef}>
                 {/* <div className={style.stepNumber}>

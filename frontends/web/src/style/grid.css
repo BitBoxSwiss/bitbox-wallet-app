@@ -1,0 +1,99 @@
+.columnsContainer {
+    margin-right: calc(var(--space-default) * -1);
+    /* margin-bottom: calc(var(--space-default) * -1); */
+}
+
+.columnsContainer.half {
+    margin-right: calc(var(--space-half) * -1);
+    /* margin-bottom: calc(var(--space-half) * -1); */
+}
+
+.columnsContainer > * {
+    margin-right: var(--space-default);
+    /* margin-bottom: var(--space-default); */
+}
+
+.columnsContainer.half > * {
+    margin-right: var(--space-half);
+    /* margin-bottom: var(--space-half); */
+}
+
+.columns {
+    display: block;
+    margin-right: calc(var(--space-default) * -1);
+}
+
+.columnsContainer.half .columns {
+    margin-right: calc(var(--space-half) * -1);
+}
+
+.columns > * {
+    margin-right: var(--space-default);
+    margin-bottom: var(--space-default);
+    display: inline-block;
+    vertical-align: top;
+}
+
+.columnsContainer.half .columns > * {
+    margin-right: var(--space-half);
+    margin-bottom: var(--space-half);
+}
+
+.columns.quarter > * {
+    margin-bottom: var(--space-quarter) !important;
+}
+
+.columnsContainer.half .columns .column {
+    width: calc(100% - (var(--space-half) * 2));
+}
+
+.columns .column .subHeaderContainer {
+    margin-top: 0;
+}
+
+.columns .column-1-2 {
+    width: calc((100% - (var(--space-default) * 3)) / 2);
+}
+
+.columnsContainer.half .columns .column-1-2 {
+    width: calc((100% - (var(--space-half) * 3)) / 2);
+}
+
+.column > *:first-child {
+    margin-top: 0;
+}
+
+.column > *:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .columnsContainer {
+        margin-right: calc(var(--space-half) * -1);
+    }
+
+    .columnsContainer > * {
+        margin-right: var(--space-half);
+    }
+
+    .columns {
+        margin-right: calc(var(--space-half) * -1);
+    }
+
+    .columns > * {
+        margin-right: var(--space-half);
+        margin-bottom: var(--space-half);
+    }
+
+    .columnsContainer.half .columns > * {
+        margin-bottom: var(--space-quarter);
+    }
+
+    .columns .column {
+        width: calc(100% - (var(--space-half) * 2)) !important;
+    }
+
+    .columns .column-1-2 {
+        width: calc((100% - (var(--space-half) * 2)) / 2);
+    }
+}

@@ -66,6 +66,10 @@
     background-color: var(--color-yellow);
 }
 
+.statusIndicatorFailed {
+    background-color: var(--color-danger);
+}
+
 .status {
     
 }

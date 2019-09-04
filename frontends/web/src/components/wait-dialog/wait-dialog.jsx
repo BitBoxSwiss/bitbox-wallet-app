@@ -60,6 +60,7 @@ export default class WaitDialog extends Component {
     }, {
         active,
     }) {
+        console.log('poop');
         const isActive = active ? style.active : '';
         const defaultContent = (
             <div class="flex flex-column flex-start">
@@ -109,20 +110,24 @@ export default class WaitDialog extends Component {
             </div>
         );
         return (
-            <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
-                <div class={[style.modal, isActive].join(' ')}>
-                    <h3 class={style.modalHeader}>{title}</h3>
-                    <div class={[style.modalContent, title ? '' : 'first'].join(' ')}>
-                    {
-                        (children.length > 0 && includeDefault) && defaultContent
-                    }
-                    {
-                        children.length > 0 ? (
-                            <div class="flex flex-column flex-start">
-                                {children}
-                            </div>
-                        ) : defaultContent
-                    }
+            <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
+                <div className={[style.modal, isActive].join(' ')}>
+                    <div className={style.header}>
+                        <h3 className={style.title}>{title}</h3>
+                    </div>
+                    <div className={style.contentContainer}>
+                        <div className={style.content}>
+                            {
+                                (children.length > 0 && includeDefault) && defaultContent
+                            }
+                            {
+                                children.length > 0 ? (
+                                    <div class="flex flex-column flex-start">
+                                        {children}
+                                    </div>
+                                ) : defaultContent
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
