@@ -1,5 +1,5 @@
 .infoContent {
-    width: 420px;
+    width: var(--content-width-small);
     margin: 0 auto;
     text-align: center;
 }

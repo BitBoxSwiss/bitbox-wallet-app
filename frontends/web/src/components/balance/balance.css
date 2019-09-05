@@ -78,9 +78,14 @@
     font-size: var(--size-small) !important;
 }
 
-@media (max-width: 640px) {
-    .balanceTable .availableUnit {
-        /* padding-right: var(--spacw-half); */
+@media (max-width: 768px) {
+    .balance {
+        text-align: center;
+    }
+
+    .balanceTable {
+        display: inline-block;
+        margin: 0 auto;
     }
 }
 

@@ -81,12 +81,7 @@ class SigningConfiguration extends Component<Props, State> {
                             <div className={style.textareaContainer}>
                                 <CopyableInput value={xpub} flexibleHeight />
                             </div>
-                            <div className="flex flex-row flex-between">
-                                <ButtonLink
-                                    transparent
-                                    href={`/account/${code}`}>
-                                    {t('button.back')}
-                                </ButtonLink>
+                            <div className="buttons">
                                 {
                                     canVerifyExtendedPublicKey.includes(index) && (
                                         <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
@@ -94,6 +89,11 @@ class SigningConfiguration extends Component<Props, State> {
                                         </Button>
                                     )
                                 }
+                                <ButtonLink
+                                    transparent
+                                    href={`/account/${code}`}>
+                                    {t('button.back')}
+                                </ButtonLink>
                             </div>
                         </div>
                     );

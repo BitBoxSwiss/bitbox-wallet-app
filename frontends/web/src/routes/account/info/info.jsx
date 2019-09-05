@@ -73,7 +73,7 @@ export default class Info extends Component {
                     <Header title={<h2>{t('accountInfo.title')}</h2>} />
                     <div class="innerContainer">
                         <div class="content padded flex flex-column flex-center">
-                            <div class={style.infoContent}>
+                            <div class={[style.infoContent, 'box large'].join(' ')}>
                                 <SigningConfiguration info={info.signingConfiguration} code={code} />
                             </div>
                         </div>

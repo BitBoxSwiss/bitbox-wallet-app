@@ -8,6 +8,7 @@
     text-decoration: none;
     border: none;
     color: var(--color-blue);
+    background-color: var(--color-white);
     font-size: var(--size-default);
     font-weight: 300;
     padding: 0 var(--space-half);
@@ -29,4 +30,8 @@
     margin-right: var(--space-quarter);
     font-size: var(--size-small);
     color: var(--color-rock);
+    white-space: nowrap;
+    max-width: 120px;
+    text-overflow: ellipsis;
+    overflow: hidden;
 }

@@ -20,7 +20,7 @@ import * as style from '../../../components/steps/steps.css';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-import SimpleMarkup from '../../../utils/simplemarkup';
+// import SimpleMarkup from '../../../utils/simplemarkup';
 import { Backup, BackupsListItem } from '../../backups/backup';
 import * as backupStyle from '../../backups/backups.css';
 import { Button } from '../../forms';
@@ -115,7 +115,8 @@ class Backups extends Component<Props, State> {
                         {
                             backups.backups!.length ? (
                                 <div>
-                                    <SimpleMarkup tagName="p" markup={t('backup.list')} />
+                                    {/* <SimpleMarkup tagName="p" markup={t('backup.list')} /> */}
+                                    <p>The following backups have been found. Please select which backup to restore.</p>
                                     <div className={backupStyle.listContainer}>
                                         {
                                             backups.backups!.map(backup => (
@@ -138,33 +139,33 @@ class Backups extends Component<Props, State> {
                             )
                         }
                     </div>
-                </div>
-                <div class="buttons text-center">
-                    {children}
-                    {
-                        showRestore && (
-                            <Button
-                                primary={true}
-                                disabled={!selectedBackup || restoring}
-                                onClick={this.restore}>
-                                {t('button.restore')}
-                            </Button>
-                        )
-                    }
-                    {
-                        showCreate && (
-                            <Check
-                                deviceID={deviceID}
-                                backups={backups.backups ? backups.backups : []}
-                                disabled={backups.backups!.length === 0}
-                            />
-                        )
-                    }
-                    {
-                        showCreate && (
-                            <Create deviceID={deviceID} />
-                        )
-                    }
+                    <div className={['buttons text-center', style.fullWidth].join(' ')}>
+                        {
+                            showRestore && (
+                                <Button
+                                    primary={true}
+                                    disabled={!selectedBackup || restoring}
+                                    onClick={this.restore}>
+                                    {t('button.restore')}
+                                </Button>
+                            )
+                        }
+                        {
+                            showCreate && (
+                                <Create deviceID={deviceID} />
+                            )
+                        }
+                        {
+                            showCreate && (
+                                <Check
+                                    deviceID={deviceID}
+                                    backups={backups.backups ? backups.backups : []}
+                                    disabled={backups.backups!.length === 0}
+                                />
+                            )
+                        }
+                        {children}
+                    </div>
                 </div>
             </div>
         );
