@@ -19,7 +19,6 @@ import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { store as panelStore } from '../../components/guide/guide';
-import { Shift } from '../../components/icon';
 import { AppLogo } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { PasswordSingleInput } from '../../components/password';
@@ -58,17 +57,14 @@ class Waiting extends Component<WaitingProps> {
                                 <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
                             </div>
                             {
-                                !!testing && (
+                                !testing&& (
                                     <div className={style.testingContainer}>
                                         <SkipForTesting show={!!testing} />
                                     </div>
                                 )
                             }
                         </div>
-                        <hr />
-                        <Footer>
-                            <Shift />
-                        </Footer>
+                        <Footer />
                     </div>
                 </div>
                 <Guide>

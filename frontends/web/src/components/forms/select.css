@@ -4,7 +4,7 @@
 
 .select label {
     display: block;
-    margin-bottom: var(--spacing-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .select select {
@@ -16,7 +16,6 @@
     font-size: var(--size-default);
     font-weight: 300;
     height: 52px;
-    margin-bottom: var(--spacing-default);
     padding: 0 var(--space-half);
     width: 100%;
 }

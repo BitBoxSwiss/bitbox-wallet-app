@@ -92,7 +92,7 @@
     --header-default-font-size: 24px;
 
     /* content */
-    --content-width: 1004px;
+    --content-width: 1080px;
     --content-width-small: 540px;
 
     /* guide */
@@ -103,5 +103,8 @@
     :root {
         --header-default-font-size: 20px;
         --size-subheader: 18px;
+
+        --size-wizard-header: 24px;
+        --size-wizard-text: 14px;
     }
 }

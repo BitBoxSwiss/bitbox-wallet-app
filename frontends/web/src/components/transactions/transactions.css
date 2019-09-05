@@ -25,6 +25,7 @@
 
 .headers {
   height: 48px;
+  color: var(--color-rock);
 }
 
 .columns >  *,
@@ -53,7 +54,7 @@
 }
 
 .address {
-  min-width: 332px;
+  min-width: 362px;
   width: 362px;
   text-align: left;
 }
@@ -64,14 +65,14 @@
 }
 
 .fiat {
-  min-width: 130px;
-  width: 130px;
+  min-width: 168px;
+  width: 166px;
   justify-content: flex-end;
 }
 
 .currency {
-  min-width: 130px;
-  width: 130px;
+  min-width: 168px;
+  width: 168px;
   justify-content: flex-end;
 }
 
@@ -97,13 +98,13 @@
   color: var(--color-rock);
 }
 
-@media (min-width: 1005px) {
+@media (min-width: 1081px) {
   .showOnMedium {
     display: none;
   }
 }
 
-@media (max-width: 1004px) {
+@media (max-width: 1080px) {
   .showOnMedium {
     display: block;
   }
