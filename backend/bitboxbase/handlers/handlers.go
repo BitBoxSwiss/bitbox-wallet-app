@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/gorilla/mux"
@@ -33,7 +32,8 @@ type Base interface {
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
 	Deregister() (bool, error)
-	SyncWithOption(bitboxbase.SyncOption) (bool, error)
+	ReindexBitcoin() (bool, error)
+	ResyncBitcoin() (bool, error)
 	GetHostname() (string, error)
 	SetHostname(string) (bool, error)
 	UserAuthenticate(string, string) (bool, error)
@@ -68,13 +68,14 @@ func NewHandlers(
 	handleFunc("/backuphsmsecret", handlers.getBackupHSMSecretHandler).Methods("GET")
 	handleFunc("/restoresysconfig", handlers.getRestoreSysconfigHandler).Methods("GET")
 	handleFunc("/restorehsmsecret", handlers.getRestoreHSMSecretHandler).Methods("GET")
+	handleFunc("/resyncbitcoin", handlers.getResyncBitcoinHandler).Methods("GET")
+	handleFunc("/reindexbitcoin", handlers.getReindexBitcoinHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 
 	handleFunc("/userauthenticate", handlers.postUserAuthenticate).Methods("POST")
 	handleFunc("/userchangepassword", handlers.postUserChangePassword).Methods("POST")
 	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
-	handleFunc("/syncoption", handlers.postSyncOptionHandler).Methods("POST")
 	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
 
@@ -282,17 +283,24 @@ func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface
 	return map[string]interface{}{"success": true}, nil
 }
 
-func (handlers *Handlers) postSyncOptionHandler(r *http.Request) (interface{}, error) {
-	payload := struct {
-		Option bitboxbase.SyncOption `json:"option"`
-	}{}
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-
-	success, err := handlers.base.SyncWithOption(payload.Option)
+func (handlers *Handlers) getResyncBitcoinHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getResyncBitcoinHandler")
+	success, err := handlers.base.ResyncBitcoin()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": success}, nil
+	return map[string]interface{}{
+		"success": success,
+	}, nil
+}
+
+func (handlers *Handlers) getReindexBitcoinHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("getReindexBitcoinHandler")
+	success, err := handlers.base.ReindexBitcoin()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": success,
+	}, nil
 }

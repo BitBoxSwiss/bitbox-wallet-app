@@ -72,8 +72,11 @@ type Interface interface {
 	// If bitboxbase is not active, an error is returned.
 	Deregister() (bool, error)
 
-	// SyncOption returns true if the bitcoin resync rpc call executed successfully
-	SyncWithOption(SyncOption) (bool, error)
+	// ReindexBitcoin starts a bitcoin reindex on the base.
+	ReindexBitcoin() (bool, error)
+
+	// ResyncBitcoin starts a bitcoin resync on the base.
+	ResyncBitcoin() (bool, error)
 
 	// GetHostname returns the hostname of the BitBox Base
 	GetHostname() (string, error)
@@ -275,29 +278,42 @@ func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgress
 	return base.rpcClient.GetVerificationProgress()
 }
 
-// SyncWithOption returns true if the chosen sync option was executed successfully
-func (base *BitBoxBase) SyncWithOption(option SyncOption) (bool, error) {
+// ReindexBitcoin returns true if the chosen sync option was executed successfully
+func (base *BitBoxBase) ReindexBitcoin() (bool, error) {
 	if !base.active {
 		err := errp.New("Attempted a call to non-active base")
 		return false, err
 	}
-	switch option {
-	case SyncOptionPresynced:
-		base.changeStatus(bitboxbasestatus.StatusInitialized)
-		return true, nil
-	case SyncOptionReindex:
-		base.log.Println("bitboxbase is making a ReindexBitcoin call")
-		replySuccess, err := base.rpcClient.ReindexBitcoin()
-		base.changeStatus(bitboxbasestatus.StatusInitialized)
-		return replySuccess.Success, err
-	case SyncOptionInitialBlockDownload:
-		base.log.Println("bitboxbase is making a ResyncBitcoin call")
-		replySuccess, err := base.rpcClient.ResyncBitcoin()
-		base.changeStatus(bitboxbasestatus.StatusInitialized)
-		return replySuccess.Success, err
-	default:
-		return true, nil
+	base.log.Println("bitboxbase is making a ReindexBitcoin call")
+	reply, err := base.rpcClient.ReindexBitcoin()
+	base.changeStatus(bitboxbasestatus.StatusInitialized)
+	if err != nil {
+		return false, err
 	}
+	if !reply.Success {
+		err := errp.Newf("ReindexBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
+}
+
+// ResyncBitcoin returns true if the chosen sync option was executed successfully
+func (base *BitBoxBase) ResyncBitcoin() (bool, error) {
+	if !base.active {
+		err := errp.New("Attempted a call to non-active base")
+		return false, err
+	}
+	base.log.Println("bitboxbase is making a ResyncBitcoin call")
+	reply, err := base.rpcClient.ResyncBitcoin()
+	base.changeStatus(bitboxbasestatus.StatusInitialized)
+	if err != nil {
+		return false, err
+	}
+	if !reply.Success {
+		err := errp.Newf("ResyncBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return false, err
+	}
+	return true, nil
 }
 
 // GetHostname returns the hostname of the bitboxbase
