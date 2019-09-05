@@ -51,7 +51,7 @@ export default class ManageBackups extends Component {
     backButton = () => {
         return (
             <ButtonLink
-                secondary
+                transparent
                 href={`/device/${this.props.deviceID}`}>
                 {this.props.t('button.back')}
             </ButtonLink>

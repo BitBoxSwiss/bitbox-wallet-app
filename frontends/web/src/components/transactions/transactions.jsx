@@ -37,8 +37,6 @@ export default class Transactions extends Component {
         unit,
         exported,
         handleExport,
-    }, {
-        fiatCode,
     }) {
         return (
             <div className={style.container}>
@@ -57,16 +55,16 @@ export default class Transactions extends Component {
                     <div className={style.date}>Date</div>
                     <div className={style.address}>Address</div>
                     <div className={style.status}>Status</div>
-                    <div className={style.fiat}>{fiatCode}</div>
+                    <div className={style.fiat}>Fiat</div>
                     <div className={style.currency}>{unit}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {
-                    transactions.length > 0 ? transactions.map(props => (
+                    transactions.length > 0 ? transactions.map((props, index) => (
                         <Transaction
                             key={props.id}
                             explorerURL={explorerURL}
-                            fiatCode={fiatCode}
+                            index={index}
                             {...props} />
                     )) : (
                         <div class={['flex flex-row flex-center', style.empty].join(' ')}>

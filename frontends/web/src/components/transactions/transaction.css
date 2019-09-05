@@ -185,7 +185,7 @@
     cursor: pointer;
 }
 
-@media (max-width: 1004px) {
+@media (max-width: 1080px) {
     .container {
         margin: var(--space-half) 0;
         height: 199px;
@@ -193,8 +193,8 @@
         will-change: height, margin;
     }
 
-    .container:first-child {
-        margin-top: 0;
+    .container.first {
+        margin-top: 0 !important;
     }
     
     .container.collapsed {
@@ -236,6 +236,10 @@
         height: 149px;
     }
 
+    .expandedItems > *:not(:last-child) {
+        margin-right: var(--space-half);
+    }
+
     .inlineLabel {
         display: block;
         margin-bottom: var(--space-quarter);
@@ -265,6 +269,10 @@
     .expandedContent {
         padding-left: calc(var(--space-half) + (var(--space-quarter) / 2));
         padding-right: calc(var(--space-half));
+    }
+
+    .expandedItems > *:not(:last-child) {
+        margin-right: var(--space-quarter);
     }
 
     .inlineLabel {

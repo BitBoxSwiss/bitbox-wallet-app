@@ -467,6 +467,10 @@ class Send extends Component<Props, State> {
         });
     }
 
+    private deactivateCoinControl = () => {
+        this.setState({ activeCoinControl: false });
+    }
+
     private handleVideoLoad = () => {
         this.setState({ videoLoading: false });
     }
@@ -525,7 +529,7 @@ class Send extends Component<Props, State> {
                     </Status>
                     <Header title={<h2>{t('send.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
+                        <div class="content narrow padded">
                             <div className="flex flex-row flex-between">
                                 <label className="labelLarge">Available Balance</label>
                                 {
@@ -542,6 +546,7 @@ class Send extends Component<Props, State> {
                                     <UTXOs
                                         accountCode={account.code}
                                         active={activeCoinControl}
+                                        onClose={this.deactivateCoinControl}
                                         onChange={this.onSelectedUTXOsChange}
                                         ref={this.setUTXOsRef}
                                     />
@@ -579,7 +584,7 @@ class Send extends Component<Props, State> {
                                         </div>
                                     </div>
                                     <div className="columns">
-                                        <div className="column column-1-2">
+                                        <div className="column">
                                             <Input
                                                 label={t('send.amount.label')}
                                                 id="amount"
@@ -597,7 +602,7 @@ class Send extends Component<Props, State> {
                                                         className={style.maxAmount} />
                                                 } />
                                         </div>
-                                        <div className="column column-1-2">
+                                        <div className="column">
                                             <Input
                                                 label={fiatUnit}
                                                 id="fiatAmount"
@@ -617,11 +622,6 @@ class Send extends Component<Props, State> {
                                                 accountCode={account.code}
                                                 disabled={!amount && !sendAll}
                                                 onFeeTargetChange={this.feeTargetChange} />
-                                            {
-                                                feeTarget && (
-                                                    <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
-                                                )
-                                            }
                                         </div>
                                         <div className="column column-1-2">
                                             <Input
@@ -633,6 +633,11 @@ class Send extends Component<Props, State> {
                                                 transparent />
                                         </div>
                                     </div>
+                                    {
+                                        feeTarget && (
+                                            <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                                        )
+                                    }
                                 </div>
                                 {
                                     (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
@@ -647,16 +652,16 @@ class Send extends Component<Props, State> {
                                         </div>
                                     )
                                 }
-                            </div>
-                            <div class="buttons flex flex-row flex-between flex-start">
-                                <ButtonLink
-                                    secondary
-                                    href={`/account/${code}`}>
-                                    {t('button.back')}
-                                </ButtonLink>
-                                <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
-                                    {t('send.button')}
-                                </Button>
+                                <div class="buttons">
+                                    <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
+                                        {t('send.button')}
+                                    </Button>
+                                    <ButtonLink
+                                        transparent
+                                        href={`/account/${code}`}>
+                                        {t('button.back')}
+                                    </ButtonLink>
+                                </div>
                             </div>
                         </div>
                     </div>

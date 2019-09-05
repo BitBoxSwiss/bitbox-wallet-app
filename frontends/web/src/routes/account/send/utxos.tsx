@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { Dialog } from '../../../components/dialog/dialog';
 import { Checkbox } from '../../../components/forms';
 import { Coin, FiatConversion } from '../../../components/rates/rates';
 import { translate, TranslateProps } from '../../../decorators/translate';
@@ -25,6 +26,7 @@ interface UTXOsProps {
     accountCode: string;
     active: boolean;
     onChange: (SelectedUTXO) => void;
+    onClose: () => void;
 }
 
 interface UTXO {
@@ -84,47 +86,48 @@ class UTXOs extends Component<Props, State> {
     }
 
     public render(
-        { t, active }: RenderableProps<Props>,
+        { t, active, onClose }: RenderableProps<Props>,
         { utxos, selectedUTXOs }: State,
     ) {
         if (!active) {
             return null;
         }
         return (
-            <div class={[style.container, active ? style.expanded : style.collapsed].join(' ')}>
-                <label className="labelLarge">{t('send.coincontrol.title')}</label>
-                <div class={style.tableContainer}>
-                    <table className={style.table}>
-                        {
-                            utxos.map(utxo => (
-                                <tr key={'utxo-' + utxo.outPoint}>
-                                    <td>
-                                        <Checkbox
-                                            checked={!!selectedUTXOs[utxo.outPoint]}
-                                            id={'utxo-' + utxo.outPoint}
-                                            data-outpoint={utxo.outPoint}
-                                            onChange={this.handleUTXOChange}
-                                        />
-                                    </td>
-                                    <td>
-                                        <span><label>{t('send.coincontrol.outpoint')}:</label> {utxo.outPoint}</span>
-                                        <span><label>{t('send.coincontrol.address')}:</label> {utxo.address}</span>
-                                    </td>
-                                    <td class={style.right}>
-                                        <table class={style.amountTable} align="right">
-                                            <tr>
-                                                <td><span>{utxo.amount.amount}</span></td>
-                                                <td><span>{utxo.amount.unit}</span></td>
-                                            </tr>
-                                            <FiatConversion amount={utxo.amount} tableRow unstyled />
-                                        </table>
-                                    </td>
-                                </tr>
-                            ))
-                        }
-                    </table>
+            <Dialog title={t('send.coincontrol.title')} large onClose={onClose}>
+                <div class={[active ? style.expanded : style.collapsed].join(' ')}>
+                    <div class={style.tableContainer}>
+                        <table className={style.table}>
+                            {
+                                utxos.map(utxo => (
+                                    <tr key={'utxo-' + utxo.outPoint}>
+                                        <td>
+                                            <Checkbox
+                                                checked={!!selectedUTXOs[utxo.outPoint]}
+                                                id={'utxo-' + utxo.outPoint}
+                                                data-outpoint={utxo.outPoint}
+                                                onChange={this.handleUTXOChange}
+                                            />
+                                        </td>
+                                        <td>
+                                            <span><label>{t('send.coincontrol.outpoint')}:</label> {utxo.outPoint}</span>
+                                            <span><label>{t('send.coincontrol.address')}:</label> {utxo.address}</span>
+                                        </td>
+                                        <td class={style.right}>
+                                            <table class={style.amountTable} align="right">
+                                                <tr>
+                                                    <td><span>{utxo.amount.amount}</span></td>
+                                                    <td><span>{utxo.amount.unit}</span></td>
+                                                </tr>
+                                                <FiatConversion amount={utxo.amount} tableRow unstyled />
+                                            </table>
+                                        </td>
+                                    </tr>
+                                ))
+                            }
+                        </table>
+                    </div>
                 </div>
-            </div>
+            </Dialog>
         );
     }
 }

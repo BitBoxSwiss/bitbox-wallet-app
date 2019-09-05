@@ -214,46 +214,47 @@ export default class Receive extends Component {
                         )
                     }
                 </div>
-                <div>
-                    {
-                        forceVerification ? (
-                            <div style="position: relative;">
-                                <CopyableInput disabled={!enableCopy} value={address} />
-                                {
-                                    verifying && (
-                                        <Dialog
-                                            title={t('receive.verify')}
-                                            disableEscape={true}>
-                                            <p>{t('receive.verifyInstruction')}</p>
-                                            <pre className={style.verifyAddress}>{address}</pre>
-                                        </Dialog>
-                                    )
-                                }
-                                <div className={style.verifyContent}>
-                                    <Button
-                                        primary
-                                        disabled={verifying || secureOutput === undefined}
-                                        onClick={this.verifyAddress}>
-                                        {t('receive.showFull')}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : <CopyableInput disabled={!enableCopy} value={address} />
-                    }
-                </div>
+                <CopyableInput disabled={!enableCopy} value={address} />
                 {
-                    code === 'ltc-p2wpkh-p2sh' && (
-                        <div style="margin-top:60px;">
-                            <p>{t('receive.ltcLegacy.info')}</p>
-                            <Button
-                                primary
-                                onClick={this.ltcConvertToLegacy}
-                                className={style.button}>
-                                {t('receive.ltcLegacy.button')}
-                            </Button>
-                        </div>
+                    forceVerification && verifying && (
+                        <Dialog
+                            title={t('receive.verify')}
+                            disableEscape={true}>
+                            <p>{t('receive.verifyInstruction')}</p>
+                            <pre className={style.verifyAddress}>{address}</pre>
+                        </Dialog>
                     )
                 }
+                <div className="buttons">
+                    {
+                        forceVerification && (
+                            <Button
+                                primary
+                                disabled={verifying || secureOutput === undefined}
+                                onClick={this.verifyAddress}>
+                                {t('receive.showFull')}
+                            </Button>
+                        )
+                    }
+                    {
+                        code === 'ltc-p2wpkh-p2sh' && (
+                            <div style="margin-top:60px;">
+                                <p>{t('receive.ltcLegacy.info')}</p>
+                                <Button
+                                    primary
+                                    onClick={this.ltcConvertToLegacy}
+                                    className={style.button}>
+                                    {t('receive.ltcLegacy.button')}
+                                </Button>
+                            </div>
+                        )
+                    }
+                    <ButtonLink
+                        transparent
+                        href={`/account/${code}`}>
+                        {t('button.back')}
+                    </ButtonLink>
+                </div>
             </div>
         ) : (
             t('loading')
@@ -267,17 +268,12 @@ export default class Receive extends Component {
                     </Status>
                     <Header title={<h2>{t('receive.title')}</h2>} />
                     <div class="innerContainer">
-                        <div class="content isVerticallyCentered">
-                            <div class={style.receiveContent}>
+                        <div class="content narrow isVerticallyCentered">
+                            <div class="box large text-center">
                                 {content}
                             </div>
                         </div>
                         <div class={style.bottomButtons}>
-                            <ButtonLink
-                                transparent
-                                href={`/account/${code}`}>
-                                {t('button.back')}
-                            </ButtonLink>
                             {
                                 !forceVerification ? (
                                     <Button

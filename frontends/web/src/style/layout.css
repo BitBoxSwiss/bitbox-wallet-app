@@ -251,6 +251,17 @@
     border-top: solid 1px var(--color-lightgray);
 }
 
+.box .buttons {
+    margin-top: var(--space-default);
+    width: 100%;
+}
+
+.box .buttons button:not(.ignore),
+.box .buttons button:not(.ignore),
+.box .buttons a:not(.ignore) {
+    width: 100%;
+}
+
 @media (max-width: 768px) {
     .row:not(:first-child) {
         margin-top: var(--space-quarter);
@@ -258,6 +269,10 @@
 
     .box.large {
         padding: var(--space-half);
+    }
+
+    .box .buttons {
+        margin-top: var(--space-half);
     }
 }
 

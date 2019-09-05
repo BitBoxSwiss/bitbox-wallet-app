@@ -115,7 +115,7 @@
 .passwordGesturesGifWrapper {
   height: auto;
   width: 100%;
-  margin: var(--space-half) auto 0 auto;
+  margin: var(--space-default) auto 0 auto;
 }
 
 .steps {
@@ -342,12 +342,26 @@
     width: 100%;
 }
 
-.fullWidth > * {
+.fullWidth > *,
+.fullWidth button {
     width: 100%;
 }
 
-.wizardLabel {
-    
+.wizardLabel label {
+    font-size: var(--size-wizard-text) !important;
+}
+
+.wizardCheckbox label {
+    font-size: var(--size-wizard-text) !important;
+    line-height: 1.4;
+}
+
+.wizardCheckbox label::before {
+    top: 2px !important;
+}
+
+.wizardCheckbox label::after {
+    top: 6px !important;
 }
 
 .table {

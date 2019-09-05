@@ -42,6 +42,7 @@ export default class Transaction extends Component {
 
     render({
         t,
+        index,
         explorerURL,
         type,
         id,
@@ -54,13 +55,11 @@ export default class Transaction extends Component {
         weight,
         numConfirmations,
         time,
-        fiatCode,
         addresses,
         status,
     }, {
         collapsed,
     }) {
-        console.log(status);
         const badge = t(`transaction.badge.${type}`);
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const sDate = time ? this.parseTimeShort(time) : '---';
@@ -75,7 +74,7 @@ export default class Transaction extends Component {
             'failed': "Failed",
         }[status];
         return (
-            <div className={[style.container, collapsed ? style.collapsed : ''].join(' ')}>
+            <div className={[style.container, collapsed ? style.collapsed : '', index === 0 ? style.first : ''].join(' ')}>
                 <div className={[parentStyle.columns, style.row].join(' ')}>
                     <div className={parentStyle.columnGroup}>
                         <div className={parentStyle.type}>
@@ -135,13 +134,11 @@ export default class Transaction extends Component {
                         </div>
                         <div className={parentStyle.fiat}>
                             <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
-                                <FiatConversion amount={amount} skipUnit>{type === 'send' && sign} </FiatConversion>
+                                <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
                             </span>
-                            <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>{fiatCode}</span>
                         </div>
                         <div className={parentStyle.currency}>
-                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount}</span>
-                            <span className={[style.columnLabel, style.keepVisible, style.reverse].join(' ')}>BTC</span>
+                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.onUncollapse}>
