@@ -31,19 +31,19 @@ type Base interface {
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
-	Deregister() (bool, error)
-	ReindexBitcoin() (bool, error)
-	ResyncBitcoin() (bool, error)
+	Deregister() error
+	ReindexBitcoin() error
+	ResyncBitcoin() error
 	GetHostname() (string, error)
-	SetHostname(string) (bool, error)
-	UserAuthenticate(string, string) (bool, error)
-	UserChangePassword(string, string) (bool, error)
-	MountFlashdrive() (bool, error)
-	UnmountFlashdrive() (bool, error)
-	BackupSysconfig() (bool, error)
-	BackupHSMSecret() (bool, error)
-	RestoreSysconfig() (bool, error)
-	RestoreHSMSecret() (bool, error)
+	SetHostname(string) error
+	UserAuthenticate(string, string) error
+	UserChangePassword(string, string) error
+	MountFlashdrive() error
+	UnmountFlashdrive() error
+	BackupSysconfig() error
+	BackupHSMSecret() error
+	RestoreSysconfig() error
+	RestoreHSMSecret() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -60,19 +60,19 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
-	handleFunc("/gethostname", handlers.getGetHostnameHandler).Methods("GET")
+	handleFunc("/gethostname", handlers.getHostnameHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
-	handleFunc("/mountflashdrive", handlers.getMountFlashdriveHandler).Methods("GET")
-	handleFunc("/unmountflashdrive", handlers.getUnmountFlashdriveHandler).Methods("GET")
-	handleFunc("/backupsysconfig", handlers.getBackupSysconfigHandler).Methods("GET")
-	handleFunc("/backuphsmsecret", handlers.getBackupHSMSecretHandler).Methods("GET")
-	handleFunc("/restoresysconfig", handlers.getRestoreSysconfigHandler).Methods("GET")
-	handleFunc("/restorehsmsecret", handlers.getRestoreHSMSecretHandler).Methods("GET")
-	handleFunc("/resyncbitcoin", handlers.getResyncBitcoinHandler).Methods("GET")
-	handleFunc("/reindexbitcoin", handlers.getReindexBitcoinHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
 
+	handleFunc("/mountflashdrive", handlers.postMountFlashdriveHandler).Methods("POST")
+	handleFunc("/unmountflashdrive", handlers.postUnmountFlashdriveHandler).Methods("POST")
+	handleFunc("/backupsysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
+	handleFunc("/backuphsmsecret", handlers.postBackupHSMSecretHandler).Methods("POST")
+	handleFunc("/restoresysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
+	handleFunc("/restorehsmsecret", handlers.postRestoreHSMSecretHandler).Methods("POST")
+	handleFunc("/resyncbitcoin", handlers.postResyncBitcoinHandler).Methods("POST")
+	handleFunc("/reindexbitcoin", handlers.postReindexBitcoinHandler).Methods("POST")
 	handleFunc("/userauthenticate", handlers.postUserAuthenticate).Methods("POST")
 	handleFunc("/userchangepassword", handlers.postUserChangePassword).Methods("POST")
 	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
@@ -105,12 +105,13 @@ func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
 
 func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Println("Disconnecting base...")
-	success, err := handlers.base.Deregister()
+	err := handlers.base.Deregister()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-
-	return map[string]interface{}{"success": success}, nil
+	return map[string]interface{}{
+		"success": true,
+	}, nil
 }
 
 func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error) {
@@ -118,16 +119,15 @@ func (handlers *Handlers) getStatusHandler(_ *http.Request) (interface{}, error)
 	return map[string]interface{}{"status": handlers.base.Status()}, nil
 }
 
-func (handlers *Handlers) getChannelHashHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getChannelHashHandler(_ *http.Request) (interface{}, error) {
 	hash, bitboxBaseVerified := handlers.base.ChannelHash()
 	return map[string]interface{}{
 		"hash":               hash,
 		"bitboxBaseVerified": bitboxBaseVerified,
 	}, nil
-
 }
 
-func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Block Info")
 	middlewareInfo, err := handlers.base.MiddlewareInfo()
 	if err != nil {
@@ -139,8 +139,8 @@ func (handlers *Handlers) getMiddlewareInfoHandler(r *http.Request) (interface{}
 	}, nil
 }
 
-func (handlers *Handlers) getGetHostnameHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getGetHostnameHandler")
+func (handlers *Handlers) getHostnameHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("getHostnameHandler")
 	hostname, err := handlers.base.GetHostname()
 	if err != nil {
 		return bbBaseError(err, handlers.log), err
@@ -151,69 +151,69 @@ func (handlers *Handlers) getGetHostnameHandler(r *http.Request) (interface{}, e
 	}, nil
 }
 
-func (handlers *Handlers) getMountFlashdriveHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getMountFlashdriveHandler")
-	success, err := handlers.base.MountFlashdrive()
+func (handlers *Handlers) postMountFlashdriveHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postMountFlashdriveHandler")
+	err := handlers.base.MountFlashdrive()
 	if err != nil {
 		return bbBaseError(err, handlers.log), err
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getUnmountFlashdriveHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getUnmountFlashdriveHandler")
-	success, err := handlers.base.UnmountFlashdrive()
+func (handlers *Handlers) postUnmountFlashdriveHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postUnmountFlashdriveHandler")
+	err := handlers.base.UnmountFlashdrive()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getBackupSysconfigHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getBackupSysconfigHandler")
-	success, err := handlers.base.BackupSysconfig()
+func (handlers *Handlers) postBackupSysconfigHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postBackupSysconfigHandler")
+	err := handlers.base.BackupSysconfig()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getBackupHSMSecretHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getBackupHSMSecretHandler")
-	success, err := handlers.base.BackupHSMSecret()
+func (handlers *Handlers) postBackupHSMSecretHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postBackupHSMSecretHandler")
+	err := handlers.base.BackupHSMSecret()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getRestoreSysconfigHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getRestoreSysconfigHandler")
-	success, err := handlers.base.RestoreSysconfig()
+func (handlers *Handlers) postRestoreSysconfigHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postRestoreSysconfigHandler")
+	err := handlers.base.RestoreSysconfig()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getRestoreHSMSecretHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getRestoreHSMSecretHandler")
-	success, err := handlers.base.RestoreHSMSecret()
+func (handlers *Handlers) postRestoreHSMSecretHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postRestoreHSMSecretHandler")
+	err := handlers.base.RestoreHSMSecret()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
@@ -225,11 +225,13 @@ func (handlers *Handlers) postUserAuthenticate(r *http.Request) (interface{}, er
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	success, err := handlers.base.UserAuthenticate(payload.Username, payload.Password)
+	err := handlers.base.UserAuthenticate(payload.Username, payload.Password)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": success}, nil
+	return map[string]interface{}{
+		"success": true,
+	}, nil
 }
 
 func (handlers *Handlers) postUserChangePassword(r *http.Request) (interface{}, error) {
@@ -241,11 +243,13 @@ func (handlers *Handlers) postUserChangePassword(r *http.Request) (interface{}, 
 		return bbBaseError(err, handlers.log), nil
 	}
 
-	success, err := handlers.base.UserChangePassword(payload.Username, payload.NewPassword)
+	err := handlers.base.UserChangePassword(payload.Username, payload.NewPassword)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": success}, nil
+	return map[string]interface{}{
+		"success": true,
+	}, nil
 }
 
 func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) {
@@ -255,15 +259,16 @@ func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) 
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-
-	success, err := handlers.base.SetHostname(payload.Hostname)
+	err := handlers.base.SetHostname(payload.Hostname)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": success}, nil
+	return map[string]interface{}{
+		"success": true,
+	}, nil
 }
 
-func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) getVerificationProgressHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Verification Progress")
 	verificationProgress, err := handlers.base.VerificationProgress()
 	if err != nil {
@@ -275,32 +280,34 @@ func (handlers *Handlers) getVerificationProgressHandler(r *http.Request) (inter
 	}, nil
 }
 
-func (handlers *Handlers) postConnectElectrumHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postConnectElectrumHandler(_ *http.Request) (interface{}, error) {
 	err := handlers.base.ConnectElectrum()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
-	return map[string]interface{}{"success": true}, nil
-}
-
-func (handlers *Handlers) getResyncBitcoinHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getResyncBitcoinHandler")
-	success, err := handlers.base.ResyncBitcoin()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
 	}, nil
 }
 
-func (handlers *Handlers) getReindexBitcoinHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("getReindexBitcoinHandler")
-	success, err := handlers.base.ReindexBitcoin()
+func (handlers *Handlers) postResyncBitcoinHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postResyncBitcoinHandler")
+	err := handlers.base.ResyncBitcoin()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success": success,
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postReindexBitcoinHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("postReindexBitcoinHandler")
+	err := handlers.base.ReindexBitcoin()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
 	}, nil
 }

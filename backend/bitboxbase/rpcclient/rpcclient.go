@@ -91,7 +91,7 @@ type RPCClient struct {
 	sendCipher, receiveCipher     *noise.CipherState
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
-	onUnregister                  func() (bool, error)
+	onUnregister                  func() error
 
 	//rpc stuff
 	client        *rpc.Client
@@ -103,7 +103,7 @@ func NewRPCClient(address string,
 	bitboxBaseConfigDir string,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
-	onUnregister func() (bool, error)) (*RPCClient, error) {
+	onUnregister func() error) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -213,8 +213,7 @@ func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationP
 	var reply rpcmessages.VerificationProgressResponse
 	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("VerificationProgress RPC call failed")
-		return reply, err
+		return rpcmessages.VerificationProgressResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -225,8 +224,7 @@ func (rpcClient *RPCClient) ResyncBitcoin() (rpcmessages.ErrorResponse, error) {
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("ResyncBitcoin RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -237,8 +235,7 @@ func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) 
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.ReindexBitcoin", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("ReindexBitcoin RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -249,8 +246,7 @@ func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcme
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.SetHostname", args, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("SetHostname RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -261,8 +257,7 @@ func (rpcClient *RPCClient) UserAuthenticate(args rpcmessages.UserAuthenticateAr
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.UserAuthenticate", args, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("UserAuthenticate RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -273,8 +268,7 @@ func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswo
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.UserChangePassword", args, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("UserChangePassword RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -285,8 +279,7 @@ func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, erro
 	var reply rpcmessages.GetHostnameResponse
 	err := rpcClient.client.Call("RPCServer.GetHostname", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("GetHostname RPC call failed")
-		return reply, err
+		return rpcmessages.GetHostnameResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -297,8 +290,7 @@ func (rpcClient *RPCClient) MountFlashdrive() (rpcmessages.ErrorResponse, error)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.MountFlashdrive", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("MountFlashdrive RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -309,8 +301,7 @@ func (rpcClient *RPCClient) UnmountFlashdrive() (rpcmessages.ErrorResponse, erro
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.UnmountFlashdrive", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("UnmountFlashdrive RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -321,8 +312,7 @@ func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.BackupSysconfig", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("BackupSysconfig RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -333,8 +323,7 @@ func (rpcClient *RPCClient) BackupHSMSecret() (rpcmessages.ErrorResponse, error)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.BackupHSMSecret", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("BackupHSMSecret RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -345,8 +334,7 @@ func (rpcClient *RPCClient) RestoreSysconfig() (rpcmessages.ErrorResponse, error
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.RestoreSysconfig", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("RestoreSysconfig RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -357,8 +345,7 @@ func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("RestoreHSMSecret RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }

@@ -70,45 +70,45 @@ type Interface interface {
 
 	// Deregister calls the backend's BitBoxBase Deregister callback and sends a notification to the frontend, if bitboxbase is active.
 	// If bitboxbase is not active, an error is returned.
-	Deregister() (bool, error)
+	Deregister() error
 
 	// ReindexBitcoin starts a bitcoin reindex on the base.
-	ReindexBitcoin() (bool, error)
+	ReindexBitcoin() error
 
 	// ResyncBitcoin starts a bitcoin resync on the base.
-	ResyncBitcoin() (bool, error)
+	ResyncBitcoin() error
 
 	// GetHostname returns the hostname of the BitBox Base
 	GetHostname() (string, error)
 
 	// SetHostname sets the hostname of the BitBox Base
-	SetHostname(string) (bool, error)
+	SetHostname(string) error
 
 	// UserChangePassword sets a new password for a given user
 	// TODO: this is a dummy
-	UserChangePassword(string, string) (bool, error)
+	UserChangePassword(string, string) error
 
 	// UserAuthenticate returns is the authentication with a username and password was successful
 	// TODO: this is a dummy
-	UserAuthenticate(string, string) (bool, error)
+	UserAuthenticate(string, string) error
 
 	// MountFlashdrive checks for a flashdrive and then mounts it
-	MountFlashdrive() (bool, error)
+	MountFlashdrive() error
 
 	// UnmountFlashdrive unmounts a mounted flashdrive
-	UnmountFlashdrive() (bool, error)
+	UnmountFlashdrive() error
 
 	// BackupSysconfig backups the system config to the flashdrive
-	BackupSysconfig() (bool, error)
+	BackupSysconfig() error
 
 	// BackupHSMSecret backups the lightning hsm_secret
-	BackupHSMSecret() (bool, error)
+	BackupHSMSecret() error
 
 	// RestoreSysconfig restores the system config from the flashdrive
-	RestoreSysconfig() (bool, error)
+	RestoreSysconfig() error
 
 	// RestoreHSMSecret restores the lightning hsm_secret
-	RestoreHSMSecret() (bool, error)
+	RestoreHSMSecret() error
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -220,15 +220,15 @@ func (base *BitBoxBase) ConnectElectrum() error {
 
 // Deregister calls the backend's BitBoxBaseDeregister callback and sends a notification to the frontend, if bitboxbase is active.
 // If bitboxbase is not active, an error is returned.
-func (base *BitBoxBase) Deregister() (bool, error) {
-	if base.active {
-		// let the frontend know that the base is disconnected
-		base.fireEvent("disconnect")
-		base.onUnregister(base.bitboxBaseID)
-		base.active = false
-		return true, nil
+func (base *BitBoxBase) Deregister() error {
+	if !base.active {
+		return errp.New("Attempted call to non-active base")
 	}
-	return false, errp.New("Attempted call to non-active base")
+	// let the frontend know that the base is disconnected
+	base.fireEvent("disconnect")
+	base.onUnregister(base.bitboxBaseID)
+	base.active = false
+	return nil
 }
 
 // ChannelHash returns the bitboxbase's rpcClient noise channel hash
@@ -263,8 +263,7 @@ func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 // MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
 func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error) {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return rpcmessages.SampleInfoResponse{}, err
+		return rpcmessages.SampleInfoResponse{}, errp.New("Attempted a call to non-active base")
 	}
 	return base.rpcClient.GetSampleInfo()
 }
@@ -272,55 +271,53 @@ func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 // VerificationProgress returns the received VerificationProgress packet from the rpcClient
 func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return rpcmessages.VerificationProgressResponse{}, err
+		return rpcmessages.VerificationProgressResponse{}, errp.New("Attempted a call to non-active base")
 	}
 	return base.rpcClient.GetVerificationProgress()
 }
 
 // ReindexBitcoin returns true if the chosen sync option was executed successfully
-func (base *BitBoxBase) ReindexBitcoin() (bool, error) {
+func (base *BitBoxBase) ReindexBitcoin() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a ReindexBitcoin call")
 	reply, err := base.rpcClient.ReindexBitcoin()
 	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
-		return false, err
+		base.log.WithError(err)
+		// if the rpc client throws an error we don't want to pass that on to the frontend, because its probably junk
+		return nil
 	}
 	if !reply.Success {
-		err := errp.Newf("ReindexBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("ReindexBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // ResyncBitcoin returns true if the chosen sync option was executed successfully
-func (base *BitBoxBase) ResyncBitcoin() (bool, error) {
+func (base *BitBoxBase) ResyncBitcoin() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a ResyncBitcoin call")
 	reply, err := base.rpcClient.ResyncBitcoin()
 	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
-		return false, err
+		base.log.WithError(err)
+		// if the rpc client throws an error we don't want to pass that on to the frontend, because its probably junk
+		return nil
 	}
 	if !reply.Success {
-		err := errp.Newf("ResyncBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("ResyncBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // GetHostname returns the hostname of the bitboxbase
 func (base *BitBoxBase) GetHostname() (hostname string, err error) {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return "", err
+		return "", errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a GetHostname call")
 	reply, err := base.rpcClient.GetHostname()
@@ -328,177 +325,158 @@ func (base *BitBoxBase) GetHostname() (hostname string, err error) {
 		return "", err
 	}
 	if !reply.Success {
-		err := errp.Newf("GetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return "", err
+		return "", errp.Newf("GetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
 	return reply.Hostname, nil
 }
 
 // SetHostname sets the hostname of the bitboxbase
-func (base *BitBoxBase) SetHostname(hostname string) (success bool, err error) {
+func (base *BitBoxBase) SetHostname(hostname string) error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a SetHostname call")
 	args := rpcmessages.SetHostnameArgs{Hostname: hostname}
 	reply, err := base.rpcClient.SetHostname(args)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("SetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("SetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // UserAuthenticate returns if a given Username and Password are valid
 // TODO: This is a dummy.
-func (base *BitBoxBase) UserAuthenticate(username string, password string) (success bool, err error) {
+func (base *BitBoxBase) UserAuthenticate(username string, password string) error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UserAuthenticate call")
 	args := rpcmessages.UserAuthenticateArgs{Username: username, Password: password}
 	reply, err := base.rpcClient.UserAuthenticate(args)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("UserAuthenticate was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("UserAuthenticate was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // UserChangePassword returns if the password change for a username was successful
 // TODO: This is a dummy.
-func (base *BitBoxBase) UserChangePassword(username string, newPassword string) (success bool, err error) {
+func (base *BitBoxBase) UserChangePassword(username string, newPassword string) error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UserChangePassword call")
 	args := rpcmessages.UserChangePasswordArgs{Username: username, NewPassword: newPassword}
 	reply, err := base.rpcClient.UserChangePassword(args)
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("UserChangePassword was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("UserChangePassword was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // MountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) MountFlashdrive() (success bool, err error) {
+func (base *BitBoxBase) MountFlashdrive() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a MountFlashdrive call")
 	reply, err := base.rpcClient.MountFlashdrive()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("MountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("MountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // UnmountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) UnmountFlashdrive() (success bool, err error) {
+func (base *BitBoxBase) UnmountFlashdrive() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
 	reply, err := base.rpcClient.UnmountFlashdrive()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("UnmountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("UnmountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // BackupSysconfig checks for and then mounts a flashdrive
-func (base *BitBoxBase) BackupSysconfig() (success bool, err error) {
+func (base *BitBoxBase) BackupSysconfig() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
 	reply, err := base.rpcClient.BackupSysconfig()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("BackupSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("BackupSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // BackupHSMSecret checks for and then mounts a flashdrive
-func (base *BitBoxBase) BackupHSMSecret() (success bool, err error) {
+func (base *BitBoxBase) BackupHSMSecret() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
 	reply, err := base.rpcClient.BackupHSMSecret()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("BackupHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("BackupHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // RestoreHSMSecret checks for and then mounts a flashdrive
-func (base *BitBoxBase) RestoreHSMSecret() (success bool, err error) {
+func (base *BitBoxBase) RestoreHSMSecret() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
 	reply, err := base.rpcClient.RestoreHSMSecret()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("RestoreHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("RestoreHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // RestoreSysconfig checks for and then mounts a flashdrive
-func (base *BitBoxBase) RestoreSysconfig() (success bool, err error) {
+func (base *BitBoxBase) RestoreSysconfig() error {
 	if !base.active {
-		err := errp.New("Attempted a call to non-active base")
-		return false, err
+		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
 	reply, err := base.rpcClient.RestoreSysconfig()
 	if err != nil {
-		return false, err
+		return err
 	}
 	if !reply.Success {
-		err := errp.Newf("RestoreSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
-		return false, err
+		return errp.Newf("RestoreSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
 	}
-	return true, nil
+	return nil
 }
 
 // Identifier implements a getter for the bitboxBase ID
