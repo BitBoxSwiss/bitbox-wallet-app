@@ -50,7 +50,7 @@ export class Entry extends Component<Props, State> {
     }
 
     private toggle = () => {
-        this.setState((state: State): State => ({
+        this.setState(state => ({
             shown: !state.shown,
             highlighted: false,
         }));
