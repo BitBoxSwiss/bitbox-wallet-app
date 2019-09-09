@@ -38,7 +38,7 @@ linux:
 	# create AppImage
 	sed 's+/usr/share/pixmaps/bitbox.png+default+' resources/linux/usr/share/applications/bitbox.desktop > build/linux-tmp/bitbox.desktop
 	cd build/linux-tmp && /opt/linuxdeployqt-6-x86_64.AppImage BitBox -appimage
-	mv build/linux-tmp/BitBox-*-x86_64.AppImage build/linux/
+	mv build/linux-tmp/BitBox_App-*-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
 	$(MAKE) clean

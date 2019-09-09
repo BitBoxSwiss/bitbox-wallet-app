@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=BitBox
+Name=BitBox App
 Exec=BitBox
 Icon=/usr/share/pixmaps/bitbox.png
 Comment=Manage your crypto assets
