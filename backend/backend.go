@@ -546,14 +546,12 @@ func (backend *Backend) initAccounts() {
 			backend.createAndAddAccount(TLTC, "tltc-p2wpkh", "Litecoin Testnet: bech32", "m/84'/1'/0'",
 				signing.ScriptTypeP2WPKH)
 
-			if backend.arguments.DevMode() {
-				TETH, _ := backend.Coin(coinTETH)
-				backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
-				RETH, _ := backend.Coin(coinRETH)
-				backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
-				erc20TEST, _ := backend.Coin(coinERC20TEST)
-				backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
-			}
+			TETH, _ := backend.Coin(coinTETH)
+			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			RETH, _ := backend.Coin(coinRETH)
+			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			erc20TEST, _ := backend.Coin(coinERC20TEST)
+			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 		}
 	} else {
 		if backend.arguments.Multisig() {
@@ -578,10 +576,8 @@ func (backend *Backend) initAccounts() {
 			backend.createAndAddAccount(LTC, "ltc-p2wpkh", "Litecoin: bech32", "m/84'/2'/0'",
 				signing.ScriptTypeP2WPKH)
 
-			if backend.arguments.DevMode() {
-				ETH, _ := backend.Coin(coinETH)
-				backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
-			}
+			ETH, _ := backend.Coin(coinETH)
+			backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
 		}
 	}
 	backend.initPersistedAccounts()
