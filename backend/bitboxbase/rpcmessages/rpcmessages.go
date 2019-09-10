@@ -1,5 +1,7 @@
 package rpcmessages
 
+import "fmt"
+
 /*
 Put notification constants here. Notifications for new rpc data should have the format 'OpUCanHas' + 'RPC Method Name'.
 */
@@ -59,8 +61,8 @@ type VerificationProgressResponse struct {
 
 // GetHostnameResponse is the struct that get sent by the rpc server during a GetHostname rpc call
 type GetHostnameResponse struct {
-	ErrorResponse
-	Hostname string
+	ErrorResponse *ErrorResponse
+	Hostname      string
 }
 
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
@@ -70,4 +72,8 @@ type ErrorResponse struct {
 	Success bool
 	Code    string
 	Message string
+}
+
+func (err *ErrorResponse) Error() string {
+	return fmt.Sprintf("bbBaseError: Code: %s | Message: %s", err.Code, err.Message)
 }

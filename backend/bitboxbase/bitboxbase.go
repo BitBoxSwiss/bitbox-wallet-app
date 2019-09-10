@@ -285,12 +285,10 @@ func (base *BitBoxBase) ReindexBitcoin() error {
 	reply, err := base.rpcClient.ReindexBitcoin()
 	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
-		base.log.WithError(err)
-		// if the rpc client throws an error we don't want to pass that on to the frontend, because its probably junk
-		return nil
+		return err
 	}
 	if !reply.Success {
-		return errp.Newf("ReindexBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -304,12 +302,10 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 	reply, err := base.rpcClient.ResyncBitcoin()
 	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
-		base.log.WithError(err)
-		// if the rpc client throws an error we don't want to pass that on to the frontend, because its probably junk
-		return nil
+		return err
 	}
 	if !reply.Success {
-		return errp.Newf("ResyncBitcoin was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -324,8 +320,8 @@ func (base *BitBoxBase) GetHostname() (hostname string, err error) {
 	if err != nil {
 		return "", err
 	}
-	if !reply.Success {
-		return "", errp.Newf("GetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+	if !reply.ErrorResponse.Success {
+		return "", reply.ErrorResponse
 	}
 	return reply.Hostname, nil
 }
@@ -342,7 +338,7 @@ func (base *BitBoxBase) SetHostname(hostname string) error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("SetHostname was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -360,7 +356,7 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) error
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("UserAuthenticate was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -378,7 +374,7 @@ func (base *BitBoxBase) UserChangePassword(username string, newPassword string) 
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("UserChangePassword was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -394,7 +390,7 @@ func (base *BitBoxBase) MountFlashdrive() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("MountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -410,7 +406,7 @@ func (base *BitBoxBase) UnmountFlashdrive() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("UnmountFlashdrive was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -426,7 +422,7 @@ func (base *BitBoxBase) BackupSysconfig() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("BackupSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -442,7 +438,7 @@ func (base *BitBoxBase) BackupHSMSecret() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("BackupHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -458,7 +454,7 @@ func (base *BitBoxBase) RestoreHSMSecret() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("RestoreHSMSecret was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }
@@ -474,7 +470,7 @@ func (base *BitBoxBase) RestoreSysconfig() error {
 		return err
 	}
 	if !reply.Success {
-		return errp.Newf("RestoreSysconfig was not successful. Message: '%s'. Code: '%s'", reply.Message, reply.Code)
+		return &reply
 	}
 	return nil
 }

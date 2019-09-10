@@ -20,6 +20,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -96,10 +97,16 @@ func (handlers *Handlers) Uninit() {
 }
 
 func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
-	log.WithField("bbBaseError", err.Error()).Warning("Received an error from BitBox Base")
+	log.WithError(err).Error("Received an error from BitBox Base.")
+	if bbBaseError, ok := errp.Cause(err).(*rpcmessages.ErrorResponse); ok {
+		return map[string]interface{}{
+			"success": false,
+			"code":    bbBaseError.Code,
+			"message": bbBaseError.Message,
+		}
+	}
 	return map[string]interface{}{
 		"success": false,
-		"message": err.Error(),
 	}
 }
 
