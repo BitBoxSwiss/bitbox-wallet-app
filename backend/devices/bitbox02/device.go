@@ -249,6 +249,10 @@ func (device *Device) pair() {
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
 	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {
+		device.log.
+			WithField("byDevice", pairingVerificationRequiredByDevice).
+			WithField("byApp", pairingVerificationRequiredByApp).
+			Info("pairing required")
 		channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
 		device.channelHash = fmt.Sprintf(
 			"%s %s\n%s %s",
@@ -342,6 +346,7 @@ func (device *Device) fireEvent(event device.Event) {
 	f := device.onEvent
 	device.mu.RUnlock()
 	if f != nil {
+		device.log.Infof("fire event: %s", event)
 		f(event, nil)
 	}
 }
@@ -602,6 +607,7 @@ func (device *Device) ChannelHash() (string, bool) {
 
 // ChannelHashVerify verifies the ChannelHash
 func (device *Device) ChannelHashVerify(ok bool) {
+	device.log.Infof("channelHashVerify: %v", ok)
 	if ok && !device.channelHashDeviceVerified {
 		return
 	}
