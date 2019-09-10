@@ -67,13 +67,13 @@ export function subscribe<LoadedProps extends ObjectButNotFunction, ProvidedProp
                         this.setState({ [key]: event.object } as Pick<LoadedProps, keyof LoadedProps>);
                         break;
                     case 'prepend':
-                        this.setState((state: LoadedProps) => ({ [key]: [event.object, ...state[key] as any] }));
+                        this.setState(state => ({ [key]: [event.object, ...state[key] as any] } as any));
                         break;
                     case 'append':
-                        this.setState((state: LoadedProps) => ({ [key]: [...state[key] as any, event.object] }));
+                        this.setState(state => ({ [key]: [...state[key] as any, event.object] } as any));
                         break;
                     case 'remove':
-                        this.setState((state: LoadedProps) => ({ [key]: (state[key] as any).filter((item: any) => !equal(item, event.object)) }));
+                        this.setState(state => ({ [key]: (state[key] as any).filter((item: any) => !equal(item, event.object)) } as any));
                         break;
                     case 'reload':
                         apiGet(event.subject).then(object => this.setState({ [key]: object } as Pick<LoadedProps, keyof LoadedProps>));

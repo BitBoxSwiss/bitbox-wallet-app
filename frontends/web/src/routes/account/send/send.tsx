@@ -91,7 +91,7 @@ interface State {
     amountError?: string;
     dataError?: string;
     paired?: boolean;
-    noMobileChannelError: boolean;
+    noMobileChannelError?: boolean;
     signProgress?: SignProgress;
     // show visual BitBox in dialog when instructed to sign.
     // can't be undefined because of the default touchConfirm param in the wait dialog.

@@ -170,7 +170,7 @@ class App extends Component<Props, State> {
     }
 
     private toggleSidebar = () => {
-        this.setState(({ activeSidebar }) => ({ activeSidebar: !activeSidebar }));
+        panelStore.setState({ activeSidebar: !panelStore.state.activeSidebar });
     }
 
     public render(
