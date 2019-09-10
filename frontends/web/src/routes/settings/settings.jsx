@@ -29,6 +29,15 @@ import * as style from '../../components/fiat/fiat.css';
 
 @translate()
 export default class Settings extends Component {
+    erc20TokenCodes = {
+        'usdt': 'Tether USD',
+        'link': 'Chainlink',
+        'bat': 'Basic Attention Token',
+        'mkr': 'Maker',
+        'zrx': 'ZRX',
+        'dai': 'Dai v1.0',
+    }
+
     state = {
         accountSuccess: false,
         config: null,
@@ -60,6 +69,35 @@ export default class Settings extends Component {
             .then(config => this.setState({ config }));
     }
 
+    handleToggleEthereum = event => {
+        setConfig({
+            backend: {
+                ethereumActive: event.target.checked
+            }
+        })
+            .then(config => this.setState({ config }));
+    }
+
+    handleToggleERC20Token = event => {
+        let config = this.state.config
+        if (!config || !config.backend.eth) {
+            return;
+        }
+        const tokenCode = event.target.dataset["tokencode"];
+        let eth = config.backend.eth;
+        let activeTokens = eth.activeERC20Tokens.filter(val => val != tokenCode);
+        if (event.target.checked) {
+            activeTokens.push(tokenCode);
+        }
+        eth.activeERC20Tokens = activeTokens;
+        setConfig({
+            backend: {
+                eth: eth,
+            }
+        })
+            .then(config => this.setState({ config }));
+    }
+
     render({
         t,
     }, {
@@ -72,7 +110,6 @@ export default class Settings extends Component {
             'bitcoinP2WPKHP2SHActive',
             'litecoinP2WPKHActive',
             'litecoinP2WPKHP2SHActive',
-            'ethereumActive',
         ];
         return (
             <div class="contentWithGuide">
@@ -140,6 +177,40 @@ export default class Settings extends Component {
                                             </div>
                                         </div>
                                         <hr />
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>
+                                                    {t('settings.accounts.ethereum')}
+                                                    &nbsp; (powered by Etherscan.io APIs)
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class={style.content}>
+                                            <Checkbox
+                                                checked={config.backend.ethereumActive}
+                                                id="ethereumActive"
+                                                onChange={this.handleToggleEthereum}
+                                                label={'Active'}
+                                                className="text-medium" />
+                                        </div>
+                                        <div class={style.content}>
+                                            <label className="labelLarge">ERC20-Tokens (BETA):</label>
+                                            { Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => {
+                                                  return (
+                                                      <Checkbox
+                                                          checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
+                                                          disabled={!config.backend.ethereumActive}
+                                                          id={'erc20-' + tokenCode}
+                                                          data-tokencode={tokenCode}
+                                                          onChange={this.handleToggleERC20Token}
+                                                          label={tokenName}
+                                                          className="text-medium" />
+                                                  );
+                                            })
+                                            }
+                                        </div>
+
+                                        <hr/>
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
                                                 <h3>{t('settings.expert.title')}</h3>
