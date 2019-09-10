@@ -160,11 +160,11 @@ export default class Receive extends Component {
         if (account === undefined) {
             return null;
         }
-        let uriPrefix = 'bitcoin:';
-        if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
+        let uriPrefix = '';
+        if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
+            uriPrefix = 'bitcoin:';
+        } else if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
-        } else if (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') {
-            uriPrefix = '';
         }
         // enable copying only after verification has been invoked if verification is possible and not optional.
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
