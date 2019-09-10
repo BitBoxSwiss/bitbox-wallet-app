@@ -103,7 +103,7 @@ export default class Settings extends Component {
                                         </div>
                                         <div className={style.container}>
                                             <div className={style.left}>
-                                                <label className="labelLarge">Avaiable Accounts</label>
+                                                <label className="labelLarge">Available Accounts</label>
                                                 <div className={style.content}>
                                                     {
                                                         accountsList.map((account, index) => {
