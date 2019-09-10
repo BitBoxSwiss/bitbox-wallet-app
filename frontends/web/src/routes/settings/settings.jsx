@@ -16,7 +16,6 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { debug } from '../../utils/env';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { ButtonLink, Checkbox } from '../../components/forms';
@@ -73,6 +72,7 @@ export default class Settings extends Component {
             'bitcoinP2WPKHP2SHActive',
             'litecoinP2WPKHActive',
             'litecoinP2WPKHP2SHActive',
+            'ethereumActive',
         ];
         return (
             <div class="contentWithGuide">
@@ -135,16 +135,6 @@ export default class Settings extends Component {
                                                                     className="text-medium" />
                                                             ) : null
                                                         })
-                                                    }
-                                                    {
-                                                        debug && (
-                                                            <Checkbox
-                                                                checked={config.backend.ethereumActive}
-                                                                id="ethereumActive"
-                                                                onChange={this.handleToggleAccount}
-                                                                label="Ethereum"
-                                                                className="text-medium" />
-                                                        )
                                                     }
                                                 </div>
                                             </div>
