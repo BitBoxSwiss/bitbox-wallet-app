@@ -30,7 +30,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var coins = []string{"BTC", "LTC", "ETH"}
+var coins = []string{"BTC", "LTC", "ETH", "USDT", "LINK", "MKR", "ZRX", "DAI", "BAT"}
 var fiats = []string{"USD", "EUR", "CHF", "GBP", "JPY", "KRW", "CNY", "RUB", "CAD"}
 
 const interval = time.Minute

@@ -915,8 +915,20 @@ func (device *Device) Edition() bitbox02common.Edition {
 	return device.edition
 }
 
-func (device *Device) supportsETH() bool {
-	return device.edition == bitbox02common.EditionStandard
+// coinCode is eth/teth/reth or eth-erc20-xyz, ...
+func (device *Device) supportsETH(coinCode string) bool {
+	if device.edition != bitbox02common.EditionStandard {
+		return false
+	}
+	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
+		switch coinCode {
+		case "eth", "reth", "teth":
+			return true
+		case "eth-erc20-usdt", "eth-erc20-link", "eth-erc20-bat", "eth-erc20-mkr", "eth-erc20-zrx", "eth-erc20-dai":
+			return true
+		}
+	}
+	return false
 }
 
 func (device *Device) supportsLTC() bool {
