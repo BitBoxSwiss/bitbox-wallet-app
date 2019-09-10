@@ -313,10 +313,8 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 		if _, ok := allTxHashes[tx.ID()]; ok {
 			continue
 		}
-		transactions = append(transactions, &ethtypes.TransactionWithConfirmations{
-			TransactionWithMetadata: *tx,
-			TipHeight:               account.blockNumber.Uint64(),
-		})
+		transactions = append(transactions,
+			ethtypes.NewTransactionWithConfirmations(tx, account.blockNumber.Uint64(), account.coin.erc20Token))
 	}
 	return transactions, nil
 }
