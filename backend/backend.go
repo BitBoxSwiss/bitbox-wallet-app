@@ -547,9 +547,9 @@ func (backend *Backend) initAccounts() {
 				signing.ScriptTypeP2WPKH)
 
 			TETH, _ := backend.Coin(coinTETH)
-			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			RETH, _ := backend.Coin(coinRETH)
-			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 			erc20TEST, _ := backend.Coin(coinERC20TEST)
 			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
 		}
@@ -577,7 +577,7 @@ func (backend *Backend) initAccounts() {
 				signing.ScriptTypeP2WPKH)
 
 			ETH, _ := backend.Coin(coinETH)
-			backend.createAndAddAccount(ETH, "eth", "Ethereum", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(ETH, "eth", "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
 		}
 	}
 	backend.initPersistedAccounts()
