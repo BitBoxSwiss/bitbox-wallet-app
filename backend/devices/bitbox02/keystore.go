@@ -52,7 +52,7 @@ func (keystore *keystore) SupportsAccount(
 		scriptType := meta.(signing.ScriptType)
 		return !multisig && scriptType != signing.ScriptTypeP2PKH
 	case *eth.Coin:
-		return keystore.device.supportsETH()
+		return keystore.device.supportsETH(coin.Code())
 	default:
 		return false
 	}
