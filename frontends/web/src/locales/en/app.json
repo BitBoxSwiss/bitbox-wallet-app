@@ -134,7 +134,7 @@
   "bitbox02Settings": {
     "deviceName": {
       "input": "BitBox02 Name",
-      "title": "Set BitBox 02 name"
+      "title": "Set BitBox02 name"
     },
     "mnemonicPassphrase": {
       "description": "This allows you to enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>",
@@ -441,7 +441,7 @@
         "title": "What is 'Check Backup'?"
       },
       "encrypt": {
-        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet.",
+        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to encrypt your seed you can enable a mnemonic passphrase in the ManageDevice's expert settings",
         "title": "Can I encrypt the backup?"
       },
       "whatIsABackup": {
@@ -718,6 +718,7 @@
     }
   },
   "reset": {
+    "bb02Understand": "I have a backup on my SD card or have the BIP39 mnemonic written down",
     "button": "Reset Device",
     "description": "All data on the device will be deleted. That includes your Private Key!",
     "notReset": "Device NOT reset.",

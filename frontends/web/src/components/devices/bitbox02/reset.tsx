@@ -103,7 +103,7 @@ class Reset extends Component<Props, State> {
                             <div className={style.agreements}>
                                 <Checkbox
                                     id="reset_understand"
-                                    label={t('reset.understand')}
+                                    label={t('reset.bb02Understand')}
                                     checked={understand}
                                     onChange={this.handleUnderstandChange} />
                             </div>
