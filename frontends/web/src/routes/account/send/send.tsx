@@ -485,7 +485,7 @@ class Send extends Component<Props, State> {
             proposedAmount,
             valid,
             amount,
-            data,
+            /* data, */
             fiatAmount,
             fiatUnit,
             sendAll,
@@ -495,7 +495,7 @@ class Send extends Component<Props, State> {
             isAborted,
             addressError,
             amountError,
-            dataError,
+            /* dataError, */
             paired,
             signProgress,
             signConfirm,
@@ -640,6 +640,7 @@ class Send extends Component<Props, State> {
                                     }
                                 </div>
                                 {
+                                    /*
                                     (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') && (
                                         <div class="row">
                                             <Input
@@ -651,6 +652,7 @@ class Send extends Component<Props, State> {
                                                 value={data} />
                                         </div>
                                     )
+                                    */
                                 }
                                 <div class="buttons ignore reverse">
                                     <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
