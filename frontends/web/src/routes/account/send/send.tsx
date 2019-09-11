@@ -52,6 +52,7 @@ interface SendProps {
 interface Account {
     code: string;
     coinCode: string;
+    coinUnit: string;
 }
 
 interface ProposedAmount {
@@ -336,7 +337,7 @@ class Send extends Component<Props, State> {
 
     private convertToFiat = (value?: string | boolean) => {
         if (value) {
-            let coinUnit = this.getAccount()!.coinCode.toUpperCase();
+            let coinUnit = this.getAccount()!.coinUnit;
             if (coinUnit.length === 4 && coinUnit.startsWith('T') || coinUnit === 'RETH') {
                 coinUnit = coinUnit.substring(1);
             }
