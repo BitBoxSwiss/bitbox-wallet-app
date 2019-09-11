@@ -34,6 +34,7 @@ import { isBitcoinBased } from './utils';
 
 export interface AccountInterface {
     coinCode: 'btc' | 'tbtc' | 'ltc' | 'tltc' | 'eth' | 'teth' | 'reth';
+    coinUnit: string;
     code: string;
     name: string;
     blockExplorerTxPrefix: string;
