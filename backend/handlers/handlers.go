@@ -447,6 +447,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {
 	type accountJSON struct {
 		CoinCode              string `json:"coinCode"`
+		CoinUnit              string `json:"coinUnit"`
 		Code                  string `json:"code"`
 		Name                  string `json:"name"`
 		BlockExplorerTxPrefix string `json:"blockExplorerTxPrefix"`
@@ -455,6 +456,7 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 	for _, account := range handlers.backend.Accounts() {
 		accounts = append(accounts, &accountJSON{
 			CoinCode:              account.Coin().Code(),
+			CoinUnit:              account.Coin().Unit(false),
 			Code:                  account.Code(),
 			Name:                  account.Name(),
 			BlockExplorerTxPrefix: account.Coin().BlockExplorerTransactionURLPrefix(),
