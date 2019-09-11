@@ -513,6 +513,16 @@ func (account *Account) newTx(
 		}
 	}
 
+	// For ERC20 transfers, the EstimateGas call fails if we try to spend more than we have and we
+	// do not have enough ether to pay the fee.
+	// We make some checks upfront to catch this before calling out to the node and failing.
+	if !amount.SendAll() {
+		if account.coin.erc20Token != nil {
+			if value.Cmp(account.balance.BigInt()) == 1 {
+				return nil, errp.WithStack(errors.ErrInsufficientFunds)
+			}
+		}
+	}
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
@@ -525,6 +535,10 @@ func (account *Account) newTx(
 	if account.coin.erc20Token != nil {
 		// in erc 20 tokens, the amount is in the token unit, while the fee is in ETH, so there is
 		// no issue withSendAll.
+
+		if !amount.SendAll() && value.Cmp(account.balance.BigInt()) == 1 {
+			return nil, errp.WithStack(errors.ErrInsufficientFunds)
+		}
 	} else {
 		if amount.SendAll() {
 			// Set the value correctly and check that the fee is smaller than or equal to the balance.
