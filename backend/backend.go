@@ -596,11 +596,14 @@ func (backend *Backend) initAccounts() {
 				signing.ScriptTypeP2WPKH)
 
 			ETH, _ := backend.Coin(coinETH)
-			backend.createAndAddAccount(ETH, "eth", "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			const ethAccountCode = "eth"
+			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
 
-			for _, erc20Token := range erc20Tokens {
-				token, _ := backend.Coin(erc20Token.code)
-				backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
+				for _, erc20Token := range erc20Tokens {
+					token, _ := backend.Coin(erc20Token.code)
+					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+				}
 			}
 		}
 	}
