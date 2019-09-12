@@ -120,32 +120,30 @@ export class PasswordSingleInput extends Component {
                 title={t('password.warning.caps')}>⇪</span>
         );
         return (
-            <div>
-                <Input
-                    autoFocus
-                    disabled={disabled}
-                    type={seePlaintext ? 'text' : 'password'}
-                    pattern={pattern}
-                    title={title}
-                    id={this.idPrefix() + 'password'}
-                    label={label}
-                    placeholder={placeholder}
-                    onInput={this.handleFormChange}
-                    onPaste={this.tryPaste}
-                    getRef={ref => this.password = ref}
-                    value={password}>
-                    {warning}
-                </Input>
-                <Field>
+            <Input
+                autoFocus
+                disabled={disabled}
+                type={seePlaintext ? 'text' : 'password'}
+                pattern={pattern}
+                title={title}
+                id={this.idPrefix() + 'password'}
+                label={label}
+                placeholder={placeholder}
+                onInput={this.handleFormChange}
+                onPaste={this.tryPaste}
+                getRef={ref => this.password = ref}
+                value={password}
+                labelSection={
                     <Checkbox
                         id={this.idPrefix() + 'seePlaintext'}
                         onChange={this.handleFormChange}
                         checked={seePlaintext}
                         label={t('password.show', {
                             label: showLabel || label
-                        })} />
-                </Field>
-            </div>
+                        })} /> 
+                }>
+                {warning}
+            </Input>
         );
     }
 

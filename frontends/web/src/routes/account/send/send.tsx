@@ -529,7 +529,7 @@ class Send extends Component<Props, State> {
                     </Status>
                     <Header title={<h2>{t('send.title')}</h2>} />
                     <div class="innerContainer scrollableContainer">
-                        <div class="content narrow padded">
+                        <div class="content padded">
                             <div className="flex flex-row flex-between">
                                 <label className="labelLarge">Available Balance</label>
                                 {
@@ -556,7 +556,7 @@ class Send extends Component<Props, State> {
                                 <label className="labelLarge">Transaction Details</label>
                             </div>
                             <div className="box large m-bottom-default">
-                                <div className="columnsContainer half">
+                                <div className="columnsContainer">
                                     <div class="columns">
                                         <div className="column">
                                             <Input
@@ -566,7 +566,7 @@ class Send extends Component<Props, State> {
                                                 error={addressError}
                                                 onInput={this.handleFormChange}
                                                 value={recipientAddress}
-                                                className={style.inputWithIcon}
+                                                className={hasCamera ? style.inputWithIcon : ''}
                                                 labelSection={debug ? (
                                                     <span id="sendToSelf" className={style.action} onClick={this.sendToSelf}>
                                                         Send to self
@@ -584,7 +584,7 @@ class Send extends Component<Props, State> {
                                         </div>
                                     </div>
                                     <div className="columns">
-                                        <div className="column">
+                                        <div className="column column-1-2">
                                             <Input
                                                 label={t('send.amount.label')}
                                                 id="amount"
@@ -602,7 +602,7 @@ class Send extends Component<Props, State> {
                                                         className={style.maxAmount} />
                                                 } />
                                         </div>
-                                        <div className="column">
+                                        <div className="column column-1-2">
                                             <Input
                                                 label={fiatUnit}
                                                 id="fiatAmount"
@@ -652,7 +652,7 @@ class Send extends Component<Props, State> {
                                         </div>
                                     )
                                 }
-                                <div class="buttons">
+                                <div class="buttons ignore reverse">
                                     <Button primary onClick={this.send} disabled={this.sendDisabled() || !valid}>
                                         {t('send.button')}
                                     </Button>

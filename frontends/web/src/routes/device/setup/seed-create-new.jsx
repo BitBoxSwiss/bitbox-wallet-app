@@ -23,7 +23,6 @@ import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
 import { Header, Footer } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
-import { Steps, Step } from './components/steps';
 import warning from '../../../assets/icons/warning.png';
 import * as style from '../device.css';
 
@@ -149,29 +148,29 @@ export default class SeedCreateNew extends Component {
         agreements,
     }) {
         const content = showInfo ? (
-            <div class={style.block}>
+            <div class="box large">
                 <ol class="first">
                     <li>{t('seed.info.description1')}</li>
                     <li>{t('seed.info.description2')}</li>
                 </ol>
                 <p>{t('seed.info.description3')}</p>
                 <p>{t('seed.info.description4')}</p>
-                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
-                    <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                    </Button>
+                <div className="buttons">
                     <Button
                         primary
                         onClick={this.handleStart}
                         disabled={status !== STATUS.DEFAULT}>
                         {t('seed.info.button')}
                     </Button>
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.abort')}
+                    </Button>
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} className="box large">
                 <div>
                     <Input
                         pattern="^[0-9a-zA-Z-_]{1,31}$"
@@ -210,17 +209,17 @@ export default class SeedCreateNew extends Component {
                         checked={agreements.funds_access}
                         onChange={this.handleAgreementChange} />
                 </div>
-                <div className="buttons flex flex-row flex-between">
-                    <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                    </Button>
+                <div className="buttons">
                     <Button
                         type="submit"
                         primary
                         disabled={!this.validate() || status === STATUS.CREATING}>
                         {t('seed.create')}
+                    </Button>
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.abort')}
                     </Button>
                 </div>
             </form>
@@ -228,35 +227,26 @@ export default class SeedCreateNew extends Component {
 
         return (
             <div class="contentWithGuide">
-                <div className={[style.container, style.scrollable].join(' ')}>
-                    <Header title={
-                        <Steps current={2}>
-                            <Step title={t('goal.step.1.title')} />
-                            <Step divider />
-                            <Step title={t(`goal.step.2.title`)} description={t(`goal.step.2.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.3-create.title`)} description={t(`goal.step.3-create.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.4-create.title`)} />
-                        </Steps>
-                    } narrow={true} />
-                    <div className={style.content}>
-                        {
-                            error && (
-                                <Message type={status === STATUS.ERROR ? 'error' : undefined}>
-                                    <Alert />
-                                    { error }
-                                </Message>
-                            )
-                        }
-                        <h1 className={style.title}>{t('seed.info.title')}</h1>
-                        {content}
-                        <hr />
-                        <Footer>
-                            <Shift />
-                        </Footer>
+                <div className="container">
+                    <Header title={<h2>{t('setup')}</h2>} />
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded narrow isVerticallyCentered">
+                            <h1 className={[style.title, 'text-center'].join(' ')}>{t('seed.info.title')}</h1>
+                            {
+                                error && (
+                                    <Message type={status === STATUS.ERROR ? 'error' : undefined}>
+                                        <Alert />
+                                        { error }
+                                    </Message>
+                                )
+                            }
+                            {content}
+                        </div>
+                        { this.renderSpinner() }
                     </div>
-                    { this.renderSpinner() }
+                    <Footer>
+                        <Shift />
+                    </Footer>
                 </div>
             </div>
         );

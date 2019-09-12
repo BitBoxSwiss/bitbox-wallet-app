@@ -10,7 +10,7 @@
 .select select {
     appearance: none;
     background-color: var(--color-white);
-    border: solid 1px var(--color-brightgray);
+    border: solid 1px var(--color-lightergray);
     border-radius: 2px;
     font-family: var(--font-family);
     font-size: var(--size-default);

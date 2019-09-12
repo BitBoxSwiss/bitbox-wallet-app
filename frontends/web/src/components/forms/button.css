@@ -14,14 +14,14 @@
     line-height: 50px;
     min-width: 100px !important;
     height: 50px;
-    padding: 0 var(--space-half);
+    padding: 0 var(--space-default);
     position: relative;
     outline: none;
     text-align: center;
     text-decoration: none;
     -webkit-appearance: none;
-    transition: background-color .2s ease-out;
-    will-change: background-color;
+    transition: background-color .2s ease-out, color .2s ease-out;
+    will-change: background-color, color;
 }
 
 .button:focus {
@@ -64,22 +64,22 @@
 }
 
 .transparent {
-    background-color: transparent;
     composes: button;
-    color: var(--color-brightblue);
+    background-color: transparent;
+    color: var(--color-blue);
+    border-color: var(--color-blue);
 }
 
 .transparent:hover {
-    color: var(--color-darkblue);
+    color: var(--color-lightblue);
+    border-color: var(--color-lightblue);
 }
 
 .button[disabled] {
-    background-color: var(--color-white) !important;
-    border-color: var(--color-brightgray) !important;
-    color: var(--color-brightgray) !important;
+    opacity: 0.4;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .button {
         min-width: 90px;
     }

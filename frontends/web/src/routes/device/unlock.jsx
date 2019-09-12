@@ -26,7 +26,7 @@ import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Header, Footer } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
-import * as style from './device.css';
+import { AppLogo } from '../../components/icon/logo';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
@@ -113,7 +113,7 @@ export default class Unlock extends Component {
         let submissionState = null;
         switch (status) {
         case stateEnum.DEFAULT:
-            submissionState = <p style="max-width: 420px; width: 100%; align-self: center;">{t('unlock.description')}</p>;
+            submissionState = <p>{t('unlock.description')}</p>;
             break;
         case stateEnum.WAITING:
             submissionState = <Spinner text={t('unlock.unlocking')} showLogo />;
@@ -132,35 +132,40 @@ export default class Unlock extends Component {
 
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
+                <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className={style.content}>
-                        <div className="flex-1 flex flex-column flex-center">
-                            {submissionState}
-                            {status !== stateEnum.WAITING && (
-                                <form onSubmit={this.handleSubmit} style="max-width: 420px; width: 100%; align-self: center;">
-                                    <div>
-                                        <PasswordSingleInput
-                                            autoFocus
-                                            getRef={ref => this.passwordInput = ref}
-                                            id="password"
-                                            type="password"
-                                            label={t('unlock.input.label')}
-                                            disabled={status === stateEnum.WAITING}
-                                            placeholder={t('unlock.input.placeholder')}
-                                            onValidPassword={this.handleFormChange}
-                                            value={password} />
-                                    </div>
-                                    <div>
-                                        <Button
-                                            primary
-                                            type="submit"
-                                            disabled={!this.validate() || status === stateEnum.WAITING}>
-                                            {t('button.unlock')}
-                                        </Button>
-                                    </div>
-                                </form>
-                            )}
+                    <div className="innerContainer">
+                        <div className="content narrow padded isVerticallyCentered">
+                            <AppLogo />
+                            <div class="box large">
+                                {submissionState}
+                                {
+                                    status !== stateEnum.WAITING && (
+                                        <form onSubmit={this.handleSubmit}>
+                                            <div className="m-top-default">
+                                                <PasswordSingleInput
+                                                    autoFocus
+                                                    getRef={ref => this.passwordInput = ref}
+                                                    id="password"
+                                                    type="password"
+                                                    label={t('unlock.input.label')}
+                                                    disabled={status === stateEnum.WAITING}
+                                                    placeholder={t('unlock.input.placeholder')}
+                                                    onValidPassword={this.handleFormChange}
+                                                    value={password} />
+                                            </div>
+                                            <div className="buttons">
+                                                <Button
+                                                    primary
+                                                    type="submit"
+                                                    disabled={!this.validate() || status === stateEnum.WAITING}>
+                                                    {t('button.unlock')}
+                                                </Button>
+                                            </div>
+                                        </form>
+                                    )
+                                }
+                            </div>
                         </div>
                         <hr />
                         <Footer>

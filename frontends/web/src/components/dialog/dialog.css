@@ -64,6 +64,7 @@
 .closeButton {
     border: none;
     padding: 0;
+    width: auto !important;
 }
 
 .closeButton:focus {
