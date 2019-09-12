@@ -20,7 +20,6 @@ import { translate } from 'react-i18next';
 import { Shift } from '../../../components/icon';
 import { Footer ,Header } from '../../../components/layout';
 import { Button } from '../../../components/forms';
-import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
 
 @translate()
@@ -38,43 +37,32 @@ export default class Success extends Component {
     }) {
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
-                    <Header title={
-                        <Steps current={3}>
-                            <Step title={t('goal.step.1.title')} />
-                            <Step divider />
-                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
-                            <Step divider />
-                            <Step title={t(`goal.step.3-${goal}.title`)} description={t(`goal.step.3-${goal}.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.4-${goal}.title`)} />
-                        </Steps>
-                    } narrow={true} />
-                    <div className={style.content}>
-                        <h1 className={style.title} style="text-align: center;">
-                            {t(`success.${goal}.title`)}
-                        </h1>
-                        <div className={style.block}>
-                            <p style="text-align: center;">
-                                {t(`success.${goal}.summary`)}
-                            </p>
-                            { goal === 'create' ? (
-                                <ul class={style.summary}>
-                                    <li>{t('success.create.info1')}</li>
-                                    <li>{t('success.create.info2')}</li>
-                                    <li>{t('success.create.info3')}</li>
-                                </ul>
-                            ) : null}
-                            <div class={style.verticalButtons} style="margin-top: var(--spacing-large);">
-                                <Button primary onClick={this.handleGetStarted}>
-                                    {t('success.getstarted')}
-                                </Button>
-                                <Button secondary onClick={handleHideSuccess}>
-                                    {t('sidebar.device')}
-                                </Button>
+                <div className="container">
+                    <Header title={<h2>{t('setup')}</h2>} />
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded narrow isVerticallyCentered">
+                            <h1 className={[style.title, 'text-center'].join(' ')}>{t(`success.${goal}.title`)}</h1>
+                            <div className="box large">
+                                <p style="text-align: center;">
+                                    {t(`success.${goal}.summary`)}
+                                </p>
+                                { goal === 'create' ? (
+                                    <ul class={style.summary}>
+                                        <li>{t('success.create.info1')}</li>
+                                        <li>{t('success.create.info2')}</li>
+                                        <li>{t('success.create.info3')}</li>
+                                    </ul>
+                                ) : null}
+                                <div class="buttons">
+                                    <Button primary onClick={this.handleGetStarted}>
+                                        {t('success.getstarted')}
+                                    </Button>
+                                    <Button secondary onClick={handleHideSuccess}>
+                                        {t('sidebar.device')}
+                                    </Button>
+                                </div>
                             </div>
                         </div>
-                        <hr />
                         <Footer>
                             <Shift />
                         </Footer>

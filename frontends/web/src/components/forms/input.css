@@ -5,7 +5,7 @@
 }
 
 .input label {
-    display: block;
+    display: block !important;
     margin: 0 0 var(--space-quarter) 0;
 }
 
@@ -36,13 +36,13 @@
 
 .input input[disabled] {
     background-color: var(--color-white) !important;
-    border-color: var(--color-disabled) !important;
+    border-color: var(--color-lightgray) !important;
     color: var(--color-rock) !important;
     cursor: not-allowed;
 }
 
 .isTransparent input[disabled] {
-    border: none;
+    border-color: var(--color-lightgray);
     color: var(--color-default) !important;
     cursor: default;
 }
