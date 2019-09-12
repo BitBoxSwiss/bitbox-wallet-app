@@ -25,6 +25,7 @@ dt {
     color: var(--color-blue);
     cursor: pointer;
     line-height: 1;
+    font-weight: 300;
 }
 
 .labelButton {
@@ -54,7 +55,6 @@ dt {
 input:invalid,
 input:invalid:focus {
     border-color: var(--color-error);
-    outline: 3px solid var(--color-error);
 }
 
 input::-webkit-credentials-auto-fill-button {

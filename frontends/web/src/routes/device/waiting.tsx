@@ -57,7 +57,7 @@ class Waiting extends Component<WaitingProps> {
                                 <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
                             </div>
                             {
-                                !testing&& (
+                                testing && (
                                     <div className={style.testingContainer}>
                                         <SkipForTesting show={!!testing} />
                                     </div>

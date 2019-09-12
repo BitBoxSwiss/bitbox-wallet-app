@@ -239,6 +239,10 @@
     padding: var(--space-half);
 }
 
+.box > *:first-child {
+    margin-top: 0;
+}
+
 .box.large {
     padding: var(--space-default);
 }
@@ -256,9 +260,34 @@
     width: 100%;
 }
 
-.box .buttons button:not(.ignore),
-.box .buttons button:not(.ignore),
-.box .buttons a:not(.ignore) {
+.box .buttons.ignore {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.box .buttons.ignore.reverse {
+    flex-direction: row-reverse;
+}
+
+.box .buttons.ignore > *:not(:first-child) {
+    margin-left: var(--space-half);
+    margin-right: 0;
+}
+
+.box .buttons.ignore.reverse > *:not(:first-child) {
+    margin-right: var(--space-half);
+    margin-left: 0;
+}
+
+.box .buttons:not(.ignore) > *:not(:first-child) {
+    margin-top: var(--space-half);
+}
+
+.box .buttons:not(.ignore) button,
+.box .buttons:not(.ignore) button,
+.box .buttons:not(.ignore) a {
     width: 100%;
 }
 
@@ -269,10 +298,6 @@
 
     .box.large {
         padding: var(--space-half);
-    }
-
-    .box .buttons {
-        margin-top: var(--space-half);
     }
 }
 
@@ -302,14 +327,12 @@
     margin-top: var(--spacing-half);
 }
 
-.buttons,
 .items {
     flex-shrink: 0;
     position: relative;
     margin: calc(var(--space-quarter) * -1);
 }
 
-.buttons.marginBottom,
 .items.marginBottom {
     margin-bottom: var(--space-half);
 }
@@ -318,7 +341,6 @@
     text-align: right;
 }
 
-.buttons > *,
 .items > * {
     display: inline-block;
     margin: var(--space-quarter);

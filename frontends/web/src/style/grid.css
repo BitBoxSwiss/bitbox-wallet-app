@@ -1,21 +1,17 @@
 .columnsContainer {
-    margin-right: calc(var(--space-default) * -1);
-    /* margin-bottom: calc(var(--space-default) * -1); */
+    
 }
 
 .columnsContainer.half {
-    margin-right: calc(var(--space-half) * -1);
-    /* margin-bottom: calc(var(--space-half) * -1); */
+    
 }
 
 .columnsContainer > * {
-    margin-right: var(--space-default);
-    /* margin-bottom: var(--space-default); */
+    
 }
 
 .columnsContainer.half > * {
-    margin-right: var(--space-half);
-    /* margin-bottom: var(--space-half); */
+    
 }
 
 .columns {
@@ -43,20 +39,24 @@
     margin-bottom: var(--space-quarter) !important;
 }
 
-.columnsContainer.half .columns .column {
-    width: calc(100% - (var(--space-half) * 2));
-}
-
 .columns .column .subHeaderContainer {
     margin-top: 0;
 }
 
-.columns .column-1-2 {
-    width: calc((100% - (var(--space-default) * 3)) / 2);
+.columnsContainer .columns .column {
+    width: calc(100% - var(--space-default));
 }
 
-.columnsContainer.half .columns .column-1-2 {
-    width: calc((100% - (var(--space-half) * 3)) / 2);
+.columnsContainer.half .columns .column {
+    width: calc(100% - var(--space-half));
+}
+
+.columnsContainer .columns .column.column-1-2 {
+    width: calc((100% - (var(--space-default) * 2)) / 2);
+}
+
+.columnsContainer.half .columns .column.column-1-2 {
+    width: calc((100% - (var(--space-half) * 2)) / 2);
 }
 
 .column > *:first-child {

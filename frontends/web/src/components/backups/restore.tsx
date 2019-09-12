@@ -20,6 +20,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
 import { alertUser } from '../alert/Alert';
 import { Dialog } from '../dialog/dialog';
+import * as dialogStyle from '../dialog/dialog.css';
 import { Button, Checkbox } from '../forms';
 import { PasswordRepeatInput } from '../password';
 import Spinner from '../spinner/Spinner';
@@ -170,19 +171,19 @@ class Restore extends Component<Props, State> {
                                         checked={understand}
                                         onChange={this.handleUnderstandChange} />
                                 </div>
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                                    <Button
-                                        secondary
-                                        onClick={this.abort}
-                                        disabled={isConfirming}>
-                                        {t('button.back')}
-                                    </Button>
+                                <div class={dialogStyle.actions}>
                                     <Button
                                         type="submit"
                                         danger={requireConfirmation}
                                         primary={!requireConfirmation}
                                         disabled={!understand || !this.validate() || isConfirming}>
                                         {t('button.restore')}
+                                    </Button>
+                                    <Button
+                                        transparent
+                                        onClick={this.abort}
+                                        disabled={isConfirming}>
+                                        {t('button.back')}
                                     </Button>
                                 </div>
                             </form>

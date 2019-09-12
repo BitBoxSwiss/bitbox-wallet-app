@@ -22,7 +22,6 @@ import { Message } from '../../../components/message/message';
 import { translate,  TranslateProps } from '../../../decorators/translate';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import * as style from '../device.css';
-import { Step, Steps } from './components/steps';
 
 interface SecurityInformationProps {
     goBack: () => void;
@@ -56,66 +55,57 @@ class SecurityInformation extends Component<Props, State> {
         }
         return (
             <div class="contentWithGuide">
-                <div className={[style.container, 'scrollableContainer'].join(' ')}>
-                    <Header title={
-                        <Steps current={0}>
-                            <Step title={t('goal.step.1.title')} />
-                            <Step divider />
-                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
-                            <Step divider />
-                            <Step title={t(`goal.step.3-${goal}.title`)} description={t(`goal.step.3-${goal}.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.4-${goal}.title`)} />
-                        </Steps>
-                    } narrow={true} />
-                    <div className={style.content}>
-                        <h1 class={style.title}>{t(`securityInformation.${goal}.title`)}</h1>
-                        {
-                            goal === 'create' ? (
-                                <div class={style.block}>
-                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description1')} />
-                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description2')} />
-                                    <ul class={[style.list, 'first'].join(' ')}>
-                                        <SimpleMarkup tagName="li" markup={t('securityInformation.create.description3')} />
-                                        <SimpleMarkup tagName="li" markup={t('securityInformation.create.description4')} />
-                                    </ul>
-                                    <SimpleMarkup tagName="p" markup={t('securityInformation.create.description5')} />
-                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
-                                        <Button
-                                            secondary
-                                            onClick={goBack}>
-                                            {t('button.abort')}
-                                        </Button>
-                                        <Button primary onClick={this.handleStart}>
-                                            {t('securityInformation.create.button')}
-                                        </Button>
+                <div className="container">
+                    <Header title={<h2>{t('setup')}</h2>} />
+                    <div className="innerContainer">
+                        <div className="content padded narrow isVerticallyCentered">
+                            <h1 class={[style.title, 'text-center'].join(' ')}>{t(`securityInformation.${goal}.title`)}</h1>
+                            {
+                                goal === 'create' ? (
+                                    <div class="box large">
+                                        <SimpleMarkup tagName="p" markup={t('securityInformation.create.description1')} />
+                                        <SimpleMarkup tagName="p" markup={t('securityInformation.create.description2')} />
+                                        <ul class={[style.list, 'first'].join(' ')}>
+                                            <SimpleMarkup tagName="li" markup={t('securityInformation.create.description3')} />
+                                            <SimpleMarkup tagName="li" markup={t('securityInformation.create.description4')} />
+                                        </ul>
+                                        <SimpleMarkup tagName="p" markup={t('securityInformation.create.description5')} />
+                                        <div className="buttons">
+                                            <Button primary onClick={this.handleStart}>
+                                                {t('securityInformation.create.button')}
+                                            </Button>
+                                            <Button
+                                                transparent
+                                                onClick={goBack}>
+                                                {t('button.abort')}
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            ) : (
-                                <div class={style.block}>
-                                    <ul class={[style.list, 'first'].join(' ')}>
-                                        <li>{t('securityInformation.restore.description1')}</li>
-                                        <li>{t('securityInformation.restore.description2')}</li>
-                                    </ul>
-                                    <p>{t('securityInformation.restore.description3')}</p>
-                                    <Message type="warning">
-                                        <Alert />
-                                        <p class="first">{t('deviceTampered')}</p>
-                                    </Message>
-                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
-                                        <Button
-                                            secondary
-                                            onClick={goBack}>
-                                            {t('button.abort')}
-                                        </Button>
-                                        <Button primary onClick={this.handleStart}>
-                                            {t('securityInformation.restore.button')}
-                                        </Button>
+                                ) : (
+                                    <div class="box large">
+                                        <ul class={[style.list, 'first'].join(' ')}>
+                                            <li>{t('securityInformation.restore.description1')}</li>
+                                            <li>{t('securityInformation.restore.description2')}</li>
+                                        </ul>
+                                        <p>{t('securityInformation.restore.description3')}</p>
+                                        <Message type="warning">
+                                            <Alert />
+                                            <p class="first">{t('deviceTampered')}</p>
+                                        </Message>
+                                        <div className="buttons">
+                                            <Button primary onClick={this.handleStart}>
+                                                {t('securityInformation.restore.button')}
+                                            </Button>
+                                            <Button
+                                                transparent
+                                                onClick={goBack}>
+                                                {t('button.abort')}
+                                            </Button>
+                                        </div>
                                     </div>
-                                </div>
-                            )
-                        }
-                        <hr />
+                                )
+                            }
+                        </div>
                         <Footer>
                             <Shift />
                         </Footer>

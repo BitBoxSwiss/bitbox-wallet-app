@@ -98,7 +98,6 @@ class Backups extends Component<Props, State> {
             showRestore = true,
             deviceID,
             requireConfirmation = true,
-            fillSpace,
             onRestore,
         }: RenderableProps<Props>,
         { backupList, selectedBackup, sdCardInserted }: State,
@@ -120,7 +119,7 @@ class Backups extends Component<Props, State> {
         }
 
         return (
-            <div class={['innerContainer', fillSpace ? style.fillSpace : ''].join(' ')}>
+            <div className="box large">
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
                 <div class={style.backupsList} ref={this.setScrollableContainerRef}>
                     {
@@ -139,8 +138,7 @@ class Backups extends Component<Props, State> {
                         )
                     }
                 </div>
-                <div class="buttons bottom flex flex-row flex-between">
-                    {children}
+                <div class="buttons">
                     {
                         showCreate && (
                             <Check
@@ -171,6 +169,7 @@ class Backups extends Component<Props, State> {
                       deviceID={deviceID}
                     />
                     */}
+                    {children}
                 </div>
             </div>
         );
