@@ -29,6 +29,20 @@ import ETH from './assets/eth-color.svg';
 import ETH_GREY from './assets/eth-white.svg';
 import LTC from './assets/ltc-color.svg';
 import LTC_GREY from './assets/ltc-white.svg';
+
+import BAT from './assets/bat-color.svg';
+import BAT_GREY from './assets/bat-white.svg';
+import MKR from './assets/mkr-color.svg';
+import MKR_GREY from './assets/mkr-white.svg';
+import ZRX from './assets/zrx-color.svg';
+import ZRX_GREY from './assets/zrx-white.svg';
+import USDT from './assets/usdt-color.svg';
+import USDT_GREY from './assets/usdt-white.svg';
+import DAI from './assets/dai-color.svg';
+import DAI_GREY from './assets/dai-white.svg';
+import LINK from './assets/link-color.svg';
+import LINK_GREY from './assets/link-white.svg';
+
 import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
 import * as style from './logo.css';
 
@@ -54,6 +68,13 @@ const logoMap = {
     teth: [ETH, ETH_GREY],
     reth: [ETH, ETH_GREY],
     erc20Test: [ETH, ETH_GREY],
+
+    'eth-erc20-usdt': [USDT, USDT_GREY],
+    'eth-erc20-dai': [DAI, DAI_GREY],
+    'eth-erc20-link': [LINK, LINK_GREY],
+    'eth-erc20-bat': [BAT, BAT_GREY],
+    'eth-erc20-mkr': [MKR, MKR_GREY],
+    'eth-erc20-zrx': [ZRX, ZRX_GREY],
 };
 
 interface Props {
