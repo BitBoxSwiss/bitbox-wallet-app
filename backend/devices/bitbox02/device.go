@@ -29,6 +29,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -87,6 +88,7 @@ type Device struct {
 	communication Communication
 	// firmware version.
 	version *semver.SemVer
+	edition bitbox02common.Edition
 
 	configDir string
 
@@ -117,6 +119,7 @@ type DeviceInfo struct {
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
+	edition bitbox02common.Edition,
 	configDir string,
 	communication Communication,
 ) *Device {
@@ -126,6 +129,7 @@ func NewDevice(
 		deviceID:      deviceID,
 		communication: communication,
 		version:       version,
+		edition:       edition,
 		configDir:     configDir,
 		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
@@ -904,4 +908,17 @@ func (device *Device) RestoreFromMnemonic() error {
 	}
 	device.changeStatus(StatusInitialized)
 	return nil
+}
+
+// Edition returns the device edition.
+func (device *Device) Edition() bitbox02common.Edition {
+	return device.edition
+}
+
+func (device *Device) supportsETH() bool {
+	return device.edition == bitbox02common.EditionStandard
+}
+
+func (device *Device) supportsLTC() bool {
+	return device.edition == bitbox02common.EditionStandard
 }

@@ -24,6 +24,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -43,13 +44,17 @@ const (
 	numRootKeys    = 3
 	numSigningKeys = 3
 
-	sigDataMagic          uint32 = 0x653f362b
-	magicLen                     = 4
-	versionLen                   = 4
-	signingPubkeysDataLen        = versionLen + numSigningKeys*64 + numRootKeys*64
-	firmwareDataLen              = versionLen + numSigningKeys*64
-	sigDataLen                   = signingPubkeysDataLen + firmwareDataLen
+	magicLen              = 4
+	versionLen            = 4
+	signingPubkeysDataLen = versionLen + numSigningKeys*64 + numRootKeys*64
+	firmwareDataLen       = versionLen + numSigningKeys*64
+	sigDataLen            = signingPubkeysDataLen + firmwareDataLen
 )
+
+var sigDataMagic = map[bitbox02common.Edition]uint32{
+	bitbox02common.EditionStandard: 0x653f362b,
+	bitbox02common.EditionBTCOnly:  0x11233B0B,
+}
 
 // ProductName is the name of the BitBox02 bootloader product.
 const ProductName = "bitbox02-bootloader"
@@ -84,6 +89,7 @@ func toByte(b bool) byte {
 type Device struct {
 	deviceID      string
 	communication Communication
+	edition       bitbox02common.Edition
 	status        *Status
 
 	mu      sync.RWMutex
@@ -95,6 +101,7 @@ type Device struct {
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
+	edition bitbox02common.Edition,
 	communication Communication,
 ) *Device {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
@@ -102,6 +109,7 @@ func NewDevice(
 	return &Device{
 		deviceID:      deviceID,
 		communication: communication,
+		edition:       edition,
 		status:        &Status{},
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -281,7 +289,12 @@ func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func
 	}
 	magic, firmware := firmware[:magicLen], firmware[magicLen:]
 	sigData, firmware := firmware[:sigDataLen], firmware[sigDataLen:]
-	if binary.BigEndian.Uint32(magic) != sigDataMagic {
+
+	expectedMagic, ok := sigDataMagic[device.edition]
+	if !ok {
+		return errp.New("unrecognozed edition")
+	}
+	if binary.BigEndian.Uint32(magic) != expectedMagic {
 		return errp.New("invalid signing pubkeys data magic")
 	}
 	if err := device.flashUnsignedFirmware(firmware, progressCallback); err != nil {
@@ -306,7 +319,7 @@ func (device *Device) UpgradeFirmware() error {
 		device.status.Progress = progress
 		device.fireEvent()
 	}
-	err := device.flashSignedFirmware(bundledFirmware(), onProgress)
+	err := device.flashSignedFirmware(bundledFirmware(device.edition), onProgress)
 	if err != nil {
 		device.status.Upgrading = false
 		device.status.ErrMsg = err.Error()

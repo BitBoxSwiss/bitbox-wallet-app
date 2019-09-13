@@ -23,6 +23,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -58,11 +59,19 @@ func isBitBox(deviceInfo DeviceInfo) bool {
 }
 
 func isBitBox02(deviceInfo DeviceInfo) bool {
-	return deviceInfo.Product() == "BitBox02" && deviceInfo.VendorID() == bitbox02VendorID && deviceInfo.ProductID() == bitbox02ProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
+	return (deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringStandard ||
+		deviceInfo.Product() == bitbox02common.FirmwareHIDProductStringBTCOnly) &&
+		deviceInfo.VendorID() == bitbox02VendorID &&
+		deviceInfo.ProductID() == bitbox02ProductID &&
+		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
 func isBitBox02Bootloader(deviceInfo DeviceInfo) bool {
-	return deviceInfo.Product() == "bb02-bootloader" && deviceInfo.VendorID() == bitbox02VendorID && deviceInfo.ProductID() == bitbox02ProductID && (deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
+	return (deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringStandard ||
+		deviceInfo.Product() == bitbox02common.BootloaderHIDProductStringBTCOnly) &&
+		deviceInfo.VendorID() == bitbox02VendorID &&
+		deviceInfo.ProductID() == bitbox02ProductID &&
+		(deviceInfo.UsagePage() == 0xffff || deviceInfo.Interface() == 0)
 }
 
 // Manager listens for devices and notifies when a device has been inserted or removed.
@@ -190,6 +199,10 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, err
 	}
+	edition, err := bitbox02common.EditionFromHIDProductString(deviceInfo.Product())
+	if err != nil {
+		return nil, err
+	}
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
@@ -200,6 +213,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	return bitbox02.NewDevice(
 		deviceID,
 		version,
+		edition,
 		manager.bitbox02ConfigDir,
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, false),
 	), nil
@@ -216,7 +230,10 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, err
 	}
-
+	edition, err := bitbox02common.EditionFromHIDProductString(deviceInfo.Product())
+	if err != nil {
+		return nil, err
+	}
 	hidDevice, err := deviceInfo.Open()
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
@@ -224,10 +241,12 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 
 	usbWriteReportSize := 64
 	usbReadReportSize := 64
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
+	manager.log.Infof(
+		"usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02bootloader.NewDevice(
 		deviceID,
 		version,
+		edition,
 		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD, false),
 	), nil
 }

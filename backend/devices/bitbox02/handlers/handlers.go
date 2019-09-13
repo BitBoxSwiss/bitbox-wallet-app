@@ -23,6 +23,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/gorilla/mux"
@@ -51,6 +52,7 @@ type BitBox02 interface {
 	Reset() error
 	ShowMnemonic() error
 	RestoreFromMnemonic() error
+	Edition() bitbox02common.Edition
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -273,7 +275,7 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
 	currentVersion := handlers.device.Version()
-	newVersion := bitbox02bootloader.BundledFirmwareVersion()
+	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Edition())
 	return map[string]interface{}{
 		"currentVersion": currentVersion.String(),
 		"newVersion":     newVersion.String(),
