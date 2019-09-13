@@ -17,23 +17,44 @@ package bitbox02bootloader
 import (
 	"fmt"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
 
 //go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets
 
-var bundledFirmwareVersion = semver.NewSemVer(3, 0, 0)
+type firmwareInfo struct {
+	version  *semver.SemVer
+	filename string
+}
+
+var bundledFirmwares = map[bitbox02common.Edition]firmwareInfo{
+	bitbox02common.EditionStandard: {
+		version:  semver.NewSemVer(3, 0, 0),
+		filename: "assets/firmware.v%s.signed.bin",
+	},
+	bitbox02common.EditionBTCOnly: {
+		version:  semver.NewSemVer(4, 0, 0),
+		filename: "assets/firmware.v%s.btconly.signed.bin",
+	},
+}
 
 // BundledFirmwareVersion returns the version of the bundled firmware.
-func BundledFirmwareVersion() *semver.SemVer {
-	return bundledFirmwareVersion
+func BundledFirmwareVersion(edition bitbox02common.Edition) *semver.SemVer {
+	info, ok := bundledFirmwares[edition]
+	if !ok {
+		panic("unrecognized edition")
+	}
+	return info.version
 }
 
 // bundledFirmware returns the binary of the bundled firmware.
-func bundledFirmware() []byte {
-	binary, err := Asset(fmt.Sprintf(
-		"assets/firmware.v%s.signed.bin",
-		bundledFirmwareVersion.String()))
+func bundledFirmware(edition bitbox02common.Edition) []byte {
+	info, ok := bundledFirmwares[edition]
+	if !ok {
+		panic("unrecognized edition")
+	}
+	binary, err := Asset(fmt.Sprintf(info.filename, BundledFirmwareVersion(edition).String()))
 	if err != nil {
 		panic(err)
 	}

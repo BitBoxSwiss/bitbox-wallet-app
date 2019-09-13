@@ -46,10 +46,13 @@ func (keystore *keystore) SupportsAccount(
 	coin coin.Coin, multisig bool, meta interface{}) bool {
 	switch coin.(type) {
 	case *btc.Coin:
+		if (coin.Code() == "ltc" || coin.Code() == "tltc") && !keystore.device.supportsLTC() {
+			return false
+		}
 		scriptType := meta.(signing.ScriptType)
 		return !multisig && scriptType != signing.ScriptTypeP2PKH
 	case *eth.Coin:
-		return true
+		return keystore.device.supportsETH()
 	default:
 		return false
 	}
