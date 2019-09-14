@@ -9,7 +9,7 @@
 .button {
     border: none;
     font-size: 14px;
-    font-weight: 300;
+    font-weight: 400;
     height: 52px;
     min-width: 180px;
     cursor: pointer;
@@ -43,7 +43,7 @@
 .label {
     color: #999999;
     font-size: 12px;
-    font-weight: 300;
+    font-weight: 400;
     margin-bottom: 18px;
 }
 
@@ -54,7 +54,7 @@
     padding: 0 30px;
     min-width: 280px;
     font-size: 14px;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .input::placeholder {
@@ -95,7 +95,7 @@
 
 .header h1 {
     margin: 0;
-    font-weight: 300;
+    font-weight: 400;
     font-size: 24px;
 }
 
@@ -185,7 +185,7 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    font-weight: 300;
+    font-weight: 400;
     font-size: 14px;
 }
 
@@ -232,7 +232,7 @@
     margin-bottom: calc(var(--space-default) * 1.5) !important;
     font-size: var(--size-wizard-header);
     line-height: 1;
-    font-weight: 300;
+    font-weight: 400;
     text-align: center;
 }
 
@@ -240,7 +240,7 @@
     margin-top: 0;
     margin-bottom: var(--space-default);
     font-size: var(--size-wizard-header);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     text-align: center;
 }
@@ -258,7 +258,7 @@
 .stepContext p {
     font-size: var(--size-wizard-text);
     line-height: 1.4;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .stepContext p:first-child {
@@ -287,7 +287,7 @@
 
 .stepContext ul li,
 .stepContext ol li {
-    font-weight: 300;
+    font-weight: 400;
     font-size: var(--size-default);
 }
 
@@ -303,7 +303,7 @@
     padding: var(--space-half) var(--space-default);
     border-radius: 2px;
     font-size: var(--size-wizard-text);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1.4;
 }
 
@@ -328,7 +328,7 @@
 
 .standOut > p {
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .step button {

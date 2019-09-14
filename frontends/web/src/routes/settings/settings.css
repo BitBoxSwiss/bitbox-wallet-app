@@ -9,7 +9,7 @@
 .title {
     margin: 0;
     font-size: var(--size-subheader);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .resetLink {
@@ -31,7 +31,7 @@
     display: flex;
     width: 100%;
     align-items: center;
-    font-weight: 300;
+    font-weight: 400;
     font-size: var(--size-default);
     height: 52px;
 }
@@ -113,7 +113,7 @@
 
 .addServer p {
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     margin-top: var(--space-half);
     margin-bottom: var(--space-quarter);
 }

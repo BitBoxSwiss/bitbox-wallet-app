@@ -80,7 +80,7 @@
 .confirmationValueTable {
     border-collapse: collapse;
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .confirmationValueTable tr:first-child td {
@@ -104,13 +104,13 @@
 }
 
 .confirmationValueTable.total td {
-    font-weight: 300;
+    font-weight: 400;
     font-size: var(--size-large);
 }
 
 .confirmationValue {
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -133,7 +133,7 @@
 .action {
     color: var(--color-blue);
     font-size: var(--size-small);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     cursor: pointer;
     user-select: none;
@@ -142,7 +142,7 @@
 .feeDescription {
     margin-top: 0;
     font-size: var(--size-small);
-    font-weight: 300;
+    font-weight: 400;
     color: var(--color-secondary);
 }
 

@@ -17,7 +17,7 @@
 
 .row * {
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .type {
@@ -110,7 +110,7 @@
     background-color: var(--color-white);
     font-size: var(--size-default);
     color: var(--color-softblack);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .collapsed .expandedContent {
