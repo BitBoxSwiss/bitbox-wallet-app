@@ -29,7 +29,7 @@
 .title {
     margin-top: 0;
     margin-bottom: var(--spacing-large);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .summary {
@@ -101,7 +101,7 @@
     color: var(--color-rock);
     font-size: var(--size-extra-large);
     line-height: var(--size-extra-large);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .badge {
@@ -124,13 +124,13 @@
 
 .waitingText {
     margin-top: 0;
-    font-weight: 300;
+    font-weight: 400;
     text-align: center;
 }
 
 .waitingDescription {
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     text-align: center;
     color: var(--color-secondary);
 }

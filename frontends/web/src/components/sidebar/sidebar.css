@@ -197,7 +197,7 @@ a.sidebar-active .single img,
     flex: 1;
     padding-top: 0;
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     transition: all 0.2s ease;
 }
 
