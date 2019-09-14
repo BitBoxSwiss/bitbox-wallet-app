@@ -45,3 +45,7 @@
     color: var(--color-default);
     cursor: default;
 }
+
+.container:focus {
+    outline: solid 1px var(--color-blue);
+}

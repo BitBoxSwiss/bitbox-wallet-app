@@ -85,7 +85,7 @@ export class SetDeviceName extends Component {
                     active ? (
                         <Dialog onClose={this.abort} title={t('bitbox02Settings.deviceName.title')} small>
                             <div className="columnsContainer half">
-                                <div className="columns quarter">
+                                <div className="columns half">
                                     <div className="column">
                                         <Input
                                             label="Current Device Name"

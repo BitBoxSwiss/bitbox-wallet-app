@@ -87,6 +87,10 @@
     padding: var(--space-half);
 }
 
+.contentContainer.slim {
+    padding: 0;
+}
+
 .content {
     
 }
