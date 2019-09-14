@@ -138,9 +138,6 @@ class Sidebar extends Component<Props> {
                 title={name}>
                 <Logo coinCode={coinCode} className="sidebar_icon" alt={name} />
                 <span className="sidebar_label">{name}</span>
-                {/* <svg className="sidebarArrow" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="18" height="18" viewBox="0, 0, 18, 18">
-                    <path d="M0,4.5 L9,13.5 L18,4.5" fill="#FFFFFF"/>
-                </svg> */}
             </Link>
         );
     }
@@ -184,6 +181,33 @@ class Sidebar extends Component<Props> {
                             )
                         }
                     </div>
+                    {/* <div className="activeGroup">
+                        <div className="sidebarItem">
+                            <a href="#" className="sidebar-active">
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                </div>
+                                <span className="sidebar_label">Hello</span>
+                                <svg className="sidebarArrow" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="18" height="18" viewBox="0, 0, 18, 18">
+                                    <path d="M0,4.5 L9,13.5 L18,4.5" fill="#FFFFFF"/>
+                                </svg>
+                            </a>
+                            <div className="sidebarSubmenu">
+                                <a href="#">
+                                    <div className="single">
+                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                    </div>
+                                    <span className="sidebar_label">One</span>
+                                </a>
+                                <a href="#">
+                                    <div className="single">
+                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                    </div>
+                                    <span className="sidebar_label">Two</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div> */}
                     {debug &&
                         <div className="sidebarItem">
                             <Link

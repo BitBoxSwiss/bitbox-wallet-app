@@ -85,7 +85,7 @@ export default class Settings extends Component {
                                     <div class="flex-1">
                                         {
                                             accountSuccess && (
-                                                <div class="row">
+                                                <div class="m-bottom-default">
                                                     <InlineMessage
                                                         type="success"
                                                         align="left"

@@ -249,6 +249,16 @@ export default class Receive extends Component {
                             </div>
                         )
                     }
+                    {
+                        !forceVerification && (
+                            <Button
+                                primary
+                                disabled={verifying || secureOutput === undefined}
+                                onClick={this.verifyAddress}>
+                                {t('receive.verify')}
+                            </Button>
+                        )
+                    }
                     <ButtonLink
                         transparent
                         href={`/account/${code}`}>
@@ -274,16 +284,7 @@ export default class Receive extends Component {
                             </div>
                         </div>
                         <div class={style.bottomButtons}>
-                            {
-                                !forceVerification ? (
-                                    <Button
-                                        primary
-                                        disabled={verifying || secureOutput === undefined}
-                                        onClick={this.verifyAddress}>
-                                        {t('receive.verify')}
-                                    </Button>
-                                ) : ''
-                            }
+                            
                         </div>
                     </div>
                 </div>

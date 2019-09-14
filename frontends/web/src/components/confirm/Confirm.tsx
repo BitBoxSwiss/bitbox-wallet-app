@@ -81,8 +81,8 @@ class Confirm extends Component<TranslateProps, State> {
                     </div>
                 </div>
                 <div class={dialogStyle.actions}>
-                    <Button secondary onClick={this.decline}>{t('dialog.cancel')}</Button>
                     <Button primary onClick={this.accept}>{t('dialog.confirm')}</Button>
+                    <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
                 </div>
             </Dialog>
         ) : null;

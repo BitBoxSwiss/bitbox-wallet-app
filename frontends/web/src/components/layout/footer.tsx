@@ -23,7 +23,9 @@ export function Footer({ children }: RenderableProps<{}>) {
     return (
         <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
             {children}
-            <Version />
+            <div className="m-right-default">
+                <Version />
+            </div>
             <LanguageSwitch />
         </footer>
     );
