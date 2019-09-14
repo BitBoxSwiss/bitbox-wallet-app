@@ -23,6 +23,8 @@ import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
 import SimpleMarkup from '../../../../utils/simplemarkup';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 
 @translate()
@@ -104,13 +106,12 @@ export default class HiddenWallet extends Component {
         activeDialog,
     }) {
         return (
-            <span>
-                <Button
-                    primary
+            <div>
+                <SettingsButton
                     disabled={disabled}
-                    onclick={() => this.setState({ activeDialog: true })}>
+                    onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.hiddenwallet')}
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog title={t('button.hiddenwallet')}
@@ -131,12 +132,12 @@ export default class HiddenWallet extends Component {
                                     repeatPlaceholder={t('hiddenWallet.passwordPlaceholder')}
                                     onValidPassword={this.setValidPassword}
                                 />
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                        {t('button.abort')}
-                                    </Button>
+                                <div class={dialogStyle.actions}>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.hiddenwallet')}
+                                    </Button>
+                                    <Button transparent onClick={this.abort} disabled={isConfirming}>
+                                        {t('button.abort')}
                                     </Button>
                                 </div>
                             </form>
@@ -148,7 +149,7 @@ export default class HiddenWallet extends Component {
                         <WaitDialog title={t('button.hiddenwallet')} />
                     )
                 }
-            </span>
+            </div>
         );
     }
 }

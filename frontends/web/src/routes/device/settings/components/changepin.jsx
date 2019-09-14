@@ -22,6 +22,8 @@ import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { PasswordInput, PasswordRepeatInput } from '../../../../components/password';
 import { apiPost } from '../../../../utils/request';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 
 @translate()
@@ -98,13 +100,12 @@ export default class ChangePIN extends Component {
         activeDialog,
     }) {
         return (
-            <span>
-                <Button
-                    primary
+            <div>
+                <SettingsButton
                     disabled={disabled}
-                    onclick={() => this.setState({ activeDialog: true })}>
+                    onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.changepin')}
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog
@@ -124,12 +125,12 @@ export default class ChangePIN extends Component {
                                     repeatLabel={t('initialize.input.labelRepeat')}
                                     repeatPlaceholder={t('initialize.input.placeholderRepeat')}
                                     onValidPassword={this.setValidNewPIN} />
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                        {t('button.back')}
-                                    </Button>
+                                <div className={dialogStyle.actions}>
                                     <Button type="submit" danger disabled={!this.validate() || isConfirming}>
                                         {t('button.changepin')}
+                                    </Button>
+                                    <Button transparent onClick={this.abort} disabled={isConfirming}>
+                                        {t('button.back')}
                                     </Button>
                                 </div>
                             </form>
@@ -141,7 +142,7 @@ export default class ChangePIN extends Component {
                         <WaitDialog title={t('button.changepin')} />
                     )
                 }
-            </span>
+            </div>
         );
     }
 }

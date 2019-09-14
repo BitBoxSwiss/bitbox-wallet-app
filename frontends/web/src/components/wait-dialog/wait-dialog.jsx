@@ -61,7 +61,6 @@ export default class WaitDialog extends Component {
         active,
     }) {
         const isActive = active ? style.active : '';
-        const titleText = title || 'Action needed on your BitBox02';
         const defaultContent = (
             <div class="flex flex-column flex-start">
                 {
@@ -112,9 +111,13 @@ export default class WaitDialog extends Component {
         return (
             <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
                 <div className={[style.modal, isActive].join(' ')}>
-                    <div className={style.header}>
-                        <h3 className={style.title}>{titleText}</h3>
-                    </div>
+                    {
+                        title && (
+                            <div className={style.header}>
+                                <h3 className={style.title}>{title}</h3>
+                            </div>
+                        )
+                    }
                     <div className={style.contentContainer}>
                         <div className={style.content}>
                             {
