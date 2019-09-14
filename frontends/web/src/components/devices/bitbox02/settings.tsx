@@ -21,7 +21,7 @@ import RandomNumber from '../../../routes/device/settings/components/randomnumbe
 import { apiGet } from '../../../utils/request';
 import { Header } from '../../layout/header';
 import { SettingsButton } from '../../settingsButton/settingsButton';
-import * as settingsStyle from '../settings.css';
+import { SettingsItem } from '../../settingsButton/settingsItem';
 import { MnemonicPassphraseButton } from './mnemonicpassphrase';
 import { Reset } from './reset';
 import { SetDeviceName } from './setdevicename';
@@ -125,35 +125,18 @@ class Settings extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div class="box slim divide">
-                                            <div className={settingsStyle.firmwareBlock}>
-                                                <div className="flex flex-row flex-items-end m-right-half">
-                                                    <span className="text-small text-gray m-right-quarter">{t('deviceSettings.firmware.version.label')}</span>
-                                                    <span className="text-medium">{versionInfo ? versionInfo.currentVersion : t('loading')}</span>
-                                                </div>
-                                                {
-                                                    versionInfo && versionInfo.canUpgrade && (
-                                                        <div>
-                                                            <label>{t('deviceSettings.firmware.newVersion.label')}</label>
-                                                            <p>{versionInfo.newVersion}</p>
-                                                        </div>
-                                                    ) || (
-                                                        <div>
-                                                            <p>{t('deviceSettings.firmware.upToDate')}</p>
-                                                        </div>
-                                                    )
-                                                }
-                                            </div>
-                                        </div>
-                                        {
-                                            versionInfo && versionInfo.canUpgrade && (
-                                                <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
+                                            {
+                                                versionInfo && versionInfo.canUpgrade ? (
                                                     <UpgradeButton
                                                         apiPrefix={this.apiPrefix()}
-                                                        versionInfo={versionInfo}
-                                                    />
-                                                </div>
-                                            )
-                                        }
+                                                        versionInfo={versionInfo}/>
+                                                ) : versionInfo && (
+                                                    <SettingsItem optionalText={versionInfo.newVersion}>
+                                                        {t('deviceSettings.firmware.upToDate')}
+                                                    </SettingsItem>
+                                                )
+                                            }
+                                        </div>
                                     </div>
                                     <div className="column column-1-2">
                                         <div class="subHeaderContainer">

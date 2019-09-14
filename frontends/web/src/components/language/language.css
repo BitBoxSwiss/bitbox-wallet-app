@@ -4,21 +4,34 @@
 }
 
 .language {
-  display: block;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  padding: var(--spacing-quarter) 0;
-  color: var(--color-rock);
+  height: var(--item-height);
+  padding: 0 var(--space-half);
+  color: var(--color-blue);
   border: none;
   background-color: transparent;
   font-size: var(--size-default);
 }
 
+.language:focus {
+  outline: none;
+}
+
 .language.selected {
-  color: var(--color-softblack);
+  color: var(--color-default);
 }
 
 .language:hover {
   background-color: var(--color-lightgray);
+}
+
+.checked {
+  width: 18px;
+  height: 18px;
 }
 
 @media (max-width: 768px) {

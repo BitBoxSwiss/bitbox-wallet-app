@@ -120,7 +120,7 @@ export default class LanguageSwitcher extends Component {
                 </Button>
                 {
                     activeDialog && (
-                        <Dialog small title={t('language.title')} onClose={this.abort}>
+                        <Dialog small slim title={t('language.title')} onClose={this.abort}>
                             {
                                 languages.map((language, i) => {
                                     const selected = selectedIndex === i;
@@ -132,6 +132,13 @@ export default class LanguageSwitcher extends Component {
                                             data-index={i}
                                             data-code={language.code}>
                                             {language.display}
+                                            {
+                                                selected && (
+                                                    <svg className={style.checked} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                )
+                                            }
                                         </button>
                                     );
                                 })

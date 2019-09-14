@@ -21,6 +21,7 @@ interface Props {
     title?: string;
     small?: boolean;
     large?: boolean;
+    slim?: boolean;
     disableEscape?: boolean;
     onClose?: (e: Event) => void;
     disabledClose?: boolean;
@@ -131,15 +132,23 @@ class Dialog extends Component<Props, State> {
     }
 
     public render(
-        { title, small, large, onClose, disabledClose, children }: RenderableProps<Props>,
+        {
+            title,
+            small,
+            large,
+            slim,
+            onClose,
+            disabledClose,
+            children,
+        }: RenderableProps<Props>,
         { active }: State,
     ) {
         const activeClass = active ? style.active : '';
         const isSmall = small ? style.small : '';
         const isLarge = large ? style.large : '';
         return (
-            <div class={[style.overlay, activeClass].join(' ')}>
-                <div class={[style.modal, activeClass, isSmall, isLarge].join(' ')}>
+            <div className={[style.overlay, activeClass].join(' ')}>
+                <div className={[style.modal, activeClass, isSmall, isLarge].join(' ')}>
                     {
                         title && (
                             <div className={style.header}>
@@ -157,7 +166,7 @@ class Dialog extends Component<Props, State> {
                             </div>
                         )
                     }
-                    <div class={style.contentContainer} ref={this.setModalContent}>
+                    <div className={[style.contentContainer, slim ? style.slim : ''].join(' ')} ref={this.setModalContent}>
                         <div className={style.content}>
                             {children}
                         </div>

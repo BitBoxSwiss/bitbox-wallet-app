@@ -18,8 +18,9 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
+import * as dialogStyle from '../../dialog/dialog.css';
 import { Button } from '../../forms';
-import * as style from '../../style.css';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 
 export interface VersionInfo {
     newVersion: string;
@@ -65,34 +66,32 @@ class UpgradeButton extends Component<Props, State> {
         }
         return (
             <div>
-                <Button primary onClick={() => this.setState({ activeDialog: true })}>
+                <SettingsButton optionalText={versionInfo.newVersion} onClick={() => this.setState({ activeDialog: true })}>
                     {t('button.upgrade')}
-                    <div class={style.badge}>1</div>
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog
-                        title={t('upgradeFirmware.title')}
-                        onClose={this.abort}>
-                        { confirming ? t('confirmOnDevice') : (
-                            <p>{t('upgradeFirmware.description', {
-                                    currentVersion: versionInfo.currentVersion,
-                                    newVersion: versionInfo.newVersion,
-                            })}</p>
-                        )}
-                        { !confirming && (
-                            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-
-                                <Button secondary onClick={this.abort}>
-                                    {t('button.back')}
-                                </Button>
-                                <Button
-                                    primary
-                                    onClick={this.upgradeFirmware}>
-                                    {t('button.upgrade')}
-                                </Button>
-                            </div>
-                        )}
+                            title={t('upgradeFirmware.title')}
+                            onClose={this.abort}>
+                            {confirming ? t('confirmOnDevice') : (
+                                <p>{t('upgradeFirmware.description', {
+                                        currentVersion: versionInfo.currentVersion,
+                                        newVersion: versionInfo.newVersion,
+                                })}</p>
+                            )}
+                            { !confirming && (
+                                <div className={dialogStyle.actions}>
+                                    <Button
+                                        primary
+                                        onClick={this.upgradeFirmware}>
+                                        {t('button.upgrade')}
+                                    </Button>
+                                    <Button transparent onClick={this.abort}>
+                                        {t('button.back')}
+                                    </Button>
+                                </div>
+                            )}
                         </Dialog>
                     )
                 }
