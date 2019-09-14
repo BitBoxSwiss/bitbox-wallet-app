@@ -20,8 +20,10 @@ import playStoreBadge from '../../../../assets/badges/google-play-badge.png';
 import { alertUser } from '../../../../components/alert/Alert';
 import { confirmation } from '../../../../components/confirm/Confirm';
 import { Dialog } from '../../../../components/dialog/dialog';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 import { Button } from '../../../../components/forms';
 import { QRCode } from '../../../../components/qrcode/qrcode';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../../../decorators/translate';
 import { apiPost } from '../../../../utils/request';
 import { apiWebsocket } from '../../../../utils/websocket';
@@ -203,13 +205,15 @@ class MobilePairing extends Component<Props, State> {
         }
         return (
             <div>
-                <Button primary onClick={hasMobileChannel && !paired ? this.reconnectUnpaired : this.startPairing}>
+                <SettingsButton
+                    onClick={hasMobileChannel && !paired ? this.reconnectUnpaired : this.startPairing}
+                    optionalText={t(`deviceSettings.pairing.status.${paired}`)}>
                     { deviceLocked ? (
                           hasMobileChannel ? t(`pairing.reconnectOnly.button`) : t(`pairing.connectOnly.button`)
                     ) : (
                           (hasMobileChannel && !paired) ? t(`pairing.reconnectOnly.button`) : t('pairing.button')
                     )}
-                </Button>
+                </SettingsButton>
                 {
                     status && (
                         <Dialog
@@ -224,8 +228,8 @@ class MobilePairing extends Component<Props, State> {
                                     )
                                 }
                             </div>
-                            <div class="buttons flex flex-row flex-between" style="margin-top: var(--spacing-default)">
-                                <Button secondary onClick={this.abort}>
+                            <div className={dialogStyle.actions}>
+                                <Button transparent onClick={this.abort}>
                                     {t('button.back')}
                                 </Button>
                             </div>

@@ -35,3 +35,13 @@
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.item {
+    color: var(--color-default);
+    cursor: default;
+}

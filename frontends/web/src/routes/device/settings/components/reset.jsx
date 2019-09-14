@@ -25,6 +25,7 @@ import { apiPost } from '../../../../utils/request';
 import { alertUser } from '../../../../components/alert/Alert';
 import * as style from '../../device.css';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 @translate()
 export default class Reset extends Component {
@@ -118,12 +119,12 @@ export default class Reset extends Component {
                                     checked={understand}
                                     onChange={this.handleUnderstandChange} />
                             </div>
-                            <div className={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={this.abort} disabled={isConfirming}>
-                                    {t('button.back')}
-                                </Button>
+                            <div className={dialogStyle.actions}>
                                 <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
                                     {t('reset.button')}
+                                </Button>
+                                <Button transparent onClick={this.abort} disabled={isConfirming}>
+                                    {t('button.back')}
                                 </Button>
                             </div>
                         </Dialog>

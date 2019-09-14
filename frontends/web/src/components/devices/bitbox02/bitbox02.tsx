@@ -79,7 +79,7 @@ interface State {
 }
 
 class BitBox02 extends Component<Props, State> {
-    private disclaimerForm!: HTMLElement; 
+    private disclaimerForm!: HTMLElement;
 
     constructor(props) {
         super(props);
@@ -313,10 +313,10 @@ class BitBox02 extends Component<Props, State> {
     private handleDisclaimerCheck = () => {
         const checkboxes = this.disclaimerForm.querySelectorAll('input');
         let result = true;
-        for (let i = 0; i < checkboxes.length; i++) {
-            if (!checkboxes[i].checked) {
+        for (const checkbox of checkboxes) {
+            if (!checkbox.checked) {
                 result = false;
-            };
+            }
         }
         this.setState({ readDisclaimers: result });
     }

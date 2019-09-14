@@ -20,6 +20,7 @@ import { Button } from '../../../../components/forms';
 import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 
 @translate()
 export default class DeviveLock extends Component {
@@ -50,15 +51,20 @@ export default class DeviveLock extends Component {
     render({
         t,
         disabled,
+        lock,
     }, {
         isConfirming,
         activeDialog,
     }) {
         return (
             <div>
-                <Button danger onClick={() => this.setState({ activeDialog: true })} disabled={disabled}>
+                <SettingsButton
+                    danger
+                    onClick={() => this.setState({ activeDialog: true })}
+                    disabled={disabled}
+                    optionalText={t(`deviceSettings.pairing.lock.${lock}`)}>
                     {t('deviceLock.button')}
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog
