@@ -12,7 +12,7 @@
 .label {
     color: var(--color-secondary);
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     padding: 0 var(--space-quarter);
     margin: 0;
 }

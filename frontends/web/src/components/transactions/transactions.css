@@ -94,7 +94,7 @@
 
 .empty p {
   font-size: var(--size-default);
-  font-weight: 300;
+  font-weight: 400;
   color: var(--color-rock);
 }
 

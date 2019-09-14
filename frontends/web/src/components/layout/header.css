@@ -35,7 +35,7 @@
     height: 18px;
     font-size: var(--size-default);
     text-decoration: none;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .children > a > svg {
@@ -61,7 +61,7 @@
 .title > * {
     margin: 0;
     font-size: var(--header-default-font-size);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     display: inline-flex;
     align-items: center;

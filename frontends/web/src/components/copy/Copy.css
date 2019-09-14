@@ -42,7 +42,7 @@
     flex: 1;
     margin-bottom: 0;
     font-size: var(--size-default);
-    font-weight: 300;
+    font-weight: 400;
     min-width: 200px !important;
     width: 100%;
     padding: var(--space-half) calc(var(--space-half) * 3) var(--space-half) var(--space-half);

@@ -41,7 +41,7 @@
 .header h2 {
     margin: 0;
     font-size: var(--header-default-font-size);
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .header a {
@@ -62,7 +62,7 @@
     margin: 0px;
     font-size: 1.1em;
     line-height: 1.2em;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .guide p {
