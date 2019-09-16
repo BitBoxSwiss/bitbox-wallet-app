@@ -92,7 +92,7 @@
     color: var(--color-blue);
 }
 
-@media (min-width: 1246px) {
+@media (min-width: 1322px) {
     .container:not(.forceCollapsed) .sidebarToggler {
         display: none;
     }
