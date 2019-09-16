@@ -82,7 +82,7 @@ func (keystore *keystore) VerifyAddress(
 	if !canVerifyAddress {
 		panic("CanVerifyAddress must be true")
 	}
-	switch coin.(type) {
+	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		msgScriptType, ok := map[signing.ScriptType]messages.BTCScriptType{
 			signing.ScriptTypeP2PKH:      messages.BTCScriptType_SCRIPT_P2PKH,
@@ -100,9 +100,15 @@ func (keystore *keystore) VerifyAddress(
 		if !ok {
 			return errp.New("unsupported coin")
 		}
+		// No contract address, displays 'Ethereum' etc. depending on `msgCoin`.
+		contractAddress := []byte{}
+		if specificCoin.ERC20Token() != nil {
+			// Displays the erc20 unit based on the contract.
+			contractAddress = specificCoin.ERC20Token().ContractAddress().Bytes()
+		}
 		_, err := keystore.device.ETHPub(
 			msgCoin, configuration.AbsoluteKeypath().ToUInt32(),
-			messages.ETHPubRequest_ADDRESS, true)
+			messages.ETHPubRequest_ADDRESS, true, contractAddress)
 		if err != nil {
 			return err
 		}
@@ -178,7 +184,7 @@ func (keystore *keystore) ExtendedPublicKey(
 			return nil, errp.New("unsupported coin")
 		}
 		xpubStr, err := keystore.device.ETHPub(
-			msgCoin, keyPath.ToUInt32(), messages.ETHPubRequest_XPUB, false)
+			msgCoin, keyPath.ToUInt32(), messages.ETHPubRequest_XPUB, false, []byte{})
 		if err != nil {
 			return nil, err
 		}

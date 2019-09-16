@@ -43,14 +43,17 @@ func (device *Device) ETHPub(
 	coin messages.ETHCoin,
 	keypath []uint32,
 	outputType messages.ETHPubRequest_OutputType,
-	display bool) (string, error) {
+	display bool,
+	contractAddress []byte,
+) (string, error) {
 	request := &messages.ETHRequest{
 		Request: &messages.ETHRequest_Pub{
 			Pub: &messages.ETHPubRequest{
-				Coin:       coin,
-				Keypath:    keypath,
-				OutputType: outputType,
-				Display:    display,
+				Coin:            coin,
+				Keypath:         keypath,
+				OutputType:      outputType,
+				Display:         display,
+				ContractAddress: contractAddress,
 			},
 		},
 	}
