@@ -412,6 +412,8 @@ func (account *Account) FatalError() bool {
 
 // Close implements accounts.Interface.
 func (account *Account) Close() {
+	account.log.Info("Waiting to close account")
+	account.synchronizer.WaitSynchronized()
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -420,6 +422,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	account.initialized = false
+	close(account.quitChan)
 	account.onEvent(accounts.EventStatusChanged)
 }
 
