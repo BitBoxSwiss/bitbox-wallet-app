@@ -473,7 +473,17 @@ func (account *Account) newTx(
 		value = account.balance.BigInt() // set here only temporarily to estimate the gas
 	} else {
 		allowZero := true
-		parsedAmount, err := amount.Amount(big.NewInt(params.Ether), allowZero)
+
+		var factor *big.Int
+		if account.coin.erc20Token != nil {
+			factor = new(big.Int).Exp(
+				big.NewInt(10),
+				new(big.Int).SetUint64(uint64(account.coin.erc20Token.Decimals())), nil)
+		} else {
+			factor = big.NewInt(params.Ether)
+		}
+
+		parsedAmount, err := amount.Amount(factor, allowZero)
 		if err != nil {
 			return nil, err
 		}
