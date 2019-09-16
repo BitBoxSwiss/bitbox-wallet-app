@@ -676,89 +676,54 @@ class Send extends Component<Props, State> {
                                 paired={paired}
                                 touchConfirm={signConfirm}
                                 includeDefault>
-                                <div class={style.confirmationBox}>
-                                    <div class={style.block}>
-                                        <p class={['label', style.confirmationLabel, 'first'].join(' ')}>
-                                            {t('send.address.label')}
-                                        </p>
-                                        <p class={style.confirmationValue}>{recipientAddress || 'N/A'}</p>
-                                    </div>
-                                    <div class={['flex flex-row flex-start', style.block, style.ignorePadding].join(' ')}>
-                                        <div class={style.half}>
-                                            <p class={['label', style.confirmationLabel].join(' ')}>
-                                                {t('send.amount.label')}
-                                            </p>
-                                            <table class={style.confirmationValueTable} align="right">
-                                                <tr>
-                                                    <td>{proposedAmount && proposedAmount.amount || 'N/A'}</td>
-                                                    <td>{proposedAmount && proposedAmount.unit || 'N/A'}</td>
-                                                </tr>
-                                                {
-                                                    proposedAmount && proposedAmount.conversions && (
-                                                        <tr>
-                                                            <td>{proposedAmount.conversions[fiatUnit]}</td>
-                                                            <td>{fiatUnit}</td>
-                                                        </tr>
-                                                    )
-                                                }
-                                            </table>
+                                <div className={style.confirmItem}>
+                                    <label>{t('send.address.label')}</label>
+                                    <p>{recipientAddress || 'N/A'}</p>
+                                </div>
+                                <div className={style.confirmItem}>
+                                    <label>{t('send.amount.label')}</label>
+                                    <p>
+                                        <span>{proposedAmount && proposedAmount.amount || 'N/A'} {proposedAmount && proposedAmount.unit || 'N/A'}</span>
+                                        {
+                                            proposedAmount && proposedAmount.conversions && (
+                                                <span> <span className="text-gray">/</span> {proposedAmount.conversions[fiatUnit]} {fiatUnit}</span>
+                                            )
+                                        }
+                                    </p>
+                                </div>
+                                <div className={style.confirmItem}>
+                                    <label>{t('send.fee.label')}{feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}</label>
+                                    <p>
+                                        <span>{proposedFee && proposedFee.amount || 'N/A'} {proposedFee && proposedFee.unit || 'N/A'}</span>
+                                        {
+                                            proposedFee && proposedFee.conversions && (
+                                                <span> <span className="text-gray">/</span> {proposedFee.conversions[fiatUnit]} {fiatUnit}</span>
+                                            )
+                                        }
+                                    </p>
+                                </div>
+                                {
+                                    Object.keys(this.selectedUTXOs).length !== 0 && (
+                                        <div className={[style.confirmItem].join(' ')}>
+                                            <label>{t('send.confirm.selected-coins')}</label>
+                                            {
+                                                Object.keys(this.selectedUTXOs).map((uxto, i) => (
+                                                    <p class={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
+                                                ))
+                                            }
                                         </div>
-                                        <div class={style.half}>
-                                            <p class={['label', style.confirmationLabel].join(' ')}>
-                                                {t('send.fee.label')}
-                                                {feeTarget ? ' (' + t(`send.feeTarget.label.${feeTarget}`) + ')' : ''}
-                                            </p>
-                                            <table class={style.confirmationValueTable} align="right">
-                                                <tr>
-                                                    <td>{proposedFee && proposedFee.amount || 'N/A'}</td>
-                                                    <td>{proposedFee && proposedFee.unit || 'N/A'}</td>
-                                                </tr>
-                                                {
-                                                    proposedFee && proposedFee.conversions && (
-                                                        <tr>
-                                                            <td>{proposedFee.conversions[fiatUnit]}</td>
-                                                            <td>{fiatUnit}</td>
-                                                        </tr>
-                                                    )
-                                                }
-                                            </table>
-                                        </div>
-                                    </div>
-                                    {
-                                        Object.keys(this.selectedUTXOs).length !== 0 && (
-                                            <div class={style.block}>
-                                                <p class={['label', style.confirmationLabel].join(' ')}>
-                                                    {t('send.confirm.selected-coins')}
-                                                </p>
-                                                {
-                                                    Object.keys(this.selectedUTXOs).map((uxto, i) => (
-                                                        <p class={style.confirmationValue} key={`selectedCoin-${i}`}>{uxto}</p>
-                                                    ))
-                                                }
-                                            </div>
-                                        )
-                                    }
-                                    <div class={style.block}>
-                                        <p class={['label', style.confirmationLabel].join(' ')}>
-                                            {t('send.confirm.total')}
-                                        </p>
-                                        <div>
-                                            <table class={[style.confirmationValueTable, style.total].join(' ')} align="right">
-                                                <tr>
-                                                    <td>{proposedTotal && proposedTotal.amount || 'N/A'}</td>
-                                                    <td>{proposedTotal && proposedTotal.unit || 'N/A'}</td>
-                                                </tr>
-                                                {
-                                                    (proposedTotal && proposedTotal.conversions) && (
-                                                        <tr>
-                                                            <td>{proposedTotal.conversions[fiatUnit]}</td>
-                                                            <td>{fiatUnit}</td>
-                                                        </tr>
-                                                    )
-                                                }
-                                            </table>
-                                        </div>
-                                    </div>
+                                    )
+                                }
+                                <div className={[style.confirmItem, style.total].join(' ')}>
+                                    <label>{t('send.confirm.total')}</label>
+                                    <p>
+                                        <span>{proposedTotal && proposedTotal.amount || 'N/A'} {proposedTotal && proposedTotal.unit || 'N/A'}</span>
+                                        {
+                                            (proposedTotal && proposedTotal.conversions) && (
+                                                <span> <span className="text-gray">/</span> {proposedTotal.conversions[fiatUnit]} {fiatUnit}</span>
+                                            )
+                                        }
+                                    </p>
                                 </div>
                             </WaitDialog>
                         )
@@ -766,8 +731,8 @@ class Send extends Component<Props, State> {
                     {
                         isSent && (
                             <WaitDialog>
-                                <div class="flex flex-row flex-center flex-items-center text-bold">
-                                    <img src={approve} alt="Success" style="height: 40px; margin-right: 1rem;" />{t('send.success')}
+                                <div class="flex flex-row flex-center flex-items-center">
+                                    <img src={approve} alt="Success" style="height: 18px; margin-right: 1rem;" />{t('send.success')}
                                 </div>
                             </WaitDialog>
                         )
@@ -775,8 +740,8 @@ class Send extends Component<Props, State> {
                     {
                         isAborted && (
                             <WaitDialog>
-                                <div class="flex flex-row flex-center flex-items-center text-bold">
-                                    <img src={reject} alt="Abort" style="height: 40px; margin-right: 1rem;" />{t('send.abort')}
+                                <div class="flex flex-row flex-center flex-items-center">
+                                    <img src={reject} alt="Abort" style="height: 18px; margin-right: 1rem;" />{t('send.abort')}
                                 </div>
                             </WaitDialog>
                         )
