@@ -62,16 +62,16 @@ export default class WaitDialog extends Component {
     }) {
         const isActive = active ? style.active : '';
         const defaultContent = (
-            <div class="flex flex-column flex-start">
+            <div>
                 {
                     prequel && (
-                        <p>{prequel}</p>
+                        <p className="m-top-none">{prequel}</p>
                     )
                 }
                 {
                     paired ? (
                         <div>
-                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
+                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
                                 <span class={style.confirmationLabelNumber}>1.</span>
                                 {t('confirm.infoWhenPaired')}
                             </p>
@@ -81,7 +81,7 @@ export default class WaitDialog extends Component {
                             </p>
                         </div>
                     ) : (
-                        <p class={[style.confirmationLabel, style.noStep].join(' ')}>
+                        <p class={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
                             {t('confirm.info')}
                         </p>
                     )
