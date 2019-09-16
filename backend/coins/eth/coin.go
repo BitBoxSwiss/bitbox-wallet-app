@@ -178,3 +178,8 @@ func (coin *Coin) String() string {
 func (coin *Coin) SmallestUnit() string {
 	return "wei"
 }
+
+// ERC20Token returns nil for a normal Ethereum coin, or the erc20 token details for an erc20 token.
+func (coin *Coin) ERC20Token() *erc20.Token {
+	return coin.erc20Token
+}
