@@ -46,7 +46,7 @@ import (
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(3, 0, 0)
+	lowestSupportedFirmwareVersion    = semver.NewSemVer(4, 0, 0)
 	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
 )
 
