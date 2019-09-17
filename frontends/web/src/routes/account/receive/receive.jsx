@@ -276,7 +276,7 @@ export default class Receive extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.receivePairing')}
                     </Status>
-                    <Header title={<h2>{t('receive.title')}</h2>} />
+                    <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer">
                         <div class="content narrow isVerticallyCentered">
                             <div class="box large text-center">
