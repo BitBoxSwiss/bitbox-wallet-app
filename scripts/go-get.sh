@@ -9,7 +9,7 @@
 
 REVISION=$1
 shift
-go get -u $@
+go get -d -u $@
 cd "$GOPATH/src/$1"
 git checkout "$REVISION"
 go install ./...
