@@ -53,7 +53,7 @@ func (keystore *keystore) SupportsAccount(
 	case *btc.Coin:
 		return true
 	default:
-		return !multisig
+		return false
 	}
 }
 
