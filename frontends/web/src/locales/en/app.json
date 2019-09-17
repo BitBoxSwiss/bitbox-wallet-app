@@ -6,7 +6,7 @@
     "incoming": "Incoming",
     "info": {
       "btc-p2pkh": "This is a legacy Bitcoin account. It is recommended that you use the Segwit Bitcoin account instead, as it incurs lower network fees.",
-      "btc-p2wpkh": "This is a Native Segwit Bitcoin account, which incurs even lower network fees. It uses Bech32 address format, which is not yet widely supported. Use this only if you want to try bleeding edge technology.",
+      "btc-p2wpkh": "This Native Segwit Bitcoin account incurs even lower network fees through the bech32 address format. It's bleeding edge technology but not yet widely supported.",
       "btc-p2wpkh-p2sh": "This is a Segwit Bitcoin account, and is recommended for lower network fees. If you have just upgraded from the previous app, you can find your funds in the Bitcoin Legacy account, which you can enable in the settings. If you want to try cutting edge technology and save even more network fees, go to Settings and enable a Native Segwit Bitcoin account, which uses the Bech32 address format.",
       "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
       "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
@@ -134,7 +134,7 @@
   "bitbox02Settings": {
     "deviceName": {
       "input": "BitBox02 Name",
-      "title": "Set BitBox 02 name"
+      "title": "Set BitBox02 name"
     },
     "mnemonicPassphrase": {
       "description": "This allows you to enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>",
@@ -441,7 +441,7 @@
         "title": "What is 'Check Backup'?"
       },
       "encrypt": {
-        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet.",
+        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to password-protect your seed, you can enable a mnemonic passphrase in the expert settings under \"Manage Device\".",
         "title": "Can I encrypt the backup?"
       },
       "whatIsABackup": {
@@ -954,7 +954,7 @@
   "upgradeFirmware": {
     "button": "Upgrade Firmware",
     "description": "Do you want to Upgrade the Firmware from version {{currentVersion}} to {{newVersion}}?",
-    "label": "A firmware upgrade is required for your BitBox.",
+    "label": "Your BitBox requires a firmware upgrade.",
     "locked": "To upgrade from {{currentVersion}} to {{newVersion}}, please do a long touch.",
     "title": "Upgrade Firmware",
     "unlocked": "The bootloader is unlocked. To continue, please:",
