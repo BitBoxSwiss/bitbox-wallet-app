@@ -180,6 +180,6 @@
     margin-top: var(--space-quarter);
 }
 
-.total {
+.total p {
     font-size: var(--size-subheader) !important;
 }
