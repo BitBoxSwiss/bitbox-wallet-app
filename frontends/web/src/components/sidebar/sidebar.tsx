@@ -123,16 +123,17 @@ class Sidebar extends Component<Props> {
         return (
             <div key={code} className="sidebarItem">
                 <Match>
-                    {() => this.getBackLink(coinCode, code, name)}
+                    {({ url }) => this.getBackLink(coinCode, code, name, url === `/account/${code}` || url.startsWith(`/account/${code}/`))}
                 </Match>
             </div>
         );
     }
 
-    private getBackLink = (coinCode: string, code: string, name: string): JSX.Element => {
+    private getBackLink = (coinCode: string, code: string, name: string, active: boolean): JSX.Element => {
         return (
             <Link
                 activeClassName="sidebar-active"
+                className={active ? 'sidebar-active' : ''}
                 href={`/account/${code}`}
                 onClick={this.handleSidebarItemClick}
                 title={name}>
