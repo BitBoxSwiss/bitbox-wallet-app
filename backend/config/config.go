@@ -353,7 +353,7 @@ func (config *Config) save(filename string, conf interface{}) error {
 
 func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {
 	migrate := func(ethConfig *ethCoinConfig, newURL string) {
-		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
+		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
 			ethConfig.NodeURL = newURL
 		}
 	}
