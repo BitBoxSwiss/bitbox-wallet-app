@@ -353,11 +353,16 @@ class BitBox02 extends Component<Props, State> {
         if (status === 'require_firmware_upgrade') {
             return (
                 <CenteredContent>
-                    <p><strong>{t('upgradeFirmware.label')}</strong></p>
-                    <UpgradeButton
-                        apiPrefix={this.apiPrefix()}
-                        versionInfo={versionInfo}
-                    />
+                    <div className="box large">
+                        <p>{t('upgradeFirmware.label')}</p>
+                        <div className="buttons">
+                            <UpgradeButton
+                                asButton
+                                apiPrefix={this.apiPrefix()}
+                                versionInfo={versionInfo}
+                            />
+                        </div>
+                    </div>
                 </CenteredContent>
             );
         }
