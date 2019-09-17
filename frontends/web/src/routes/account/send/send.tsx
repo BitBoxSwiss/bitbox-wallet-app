@@ -53,6 +53,7 @@ interface Account {
     code: string;
     coinCode: string;
     coinUnit: string;
+    name: string;
 }
 
 interface ProposedAmount {
@@ -528,7 +529,7 @@ class Send extends Component<Props, State> {
                     <Status type="warning">
                         {paired === false && t('warning.sendPairing')}
                     </Status>
-                    <Header title={<h2>{t('send.title')}</h2>} />
+                    <Header title={<h2>{t('send.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className="flex flex-row flex-between">
