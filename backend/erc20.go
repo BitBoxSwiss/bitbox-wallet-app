@@ -65,6 +65,7 @@ var erc20Tokens = []erc20Token{
 func erc20TokenByCode(code string) *erc20Token {
 	for _, token := range erc20Tokens {
 		if code == token.code {
+			token := token
 			return &token
 		}
 	}
