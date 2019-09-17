@@ -31,6 +31,7 @@ export interface VersionInfo {
 interface UpgradeButtonProps {
     apiPrefix: string;
     versionInfo?: VersionInfo;
+    asButton?: boolean;
 }
 
 type Props = UpgradeButtonProps & TranslateProps;
@@ -56,6 +57,7 @@ class UpgradeButton extends Component<Props, State> {
     public render(
         { t,
           versionInfo,
+          asButton,
         }: RenderableProps<Props>,
         { activeDialog,
           confirming,
@@ -66,9 +68,17 @@ class UpgradeButton extends Component<Props, State> {
         }
         return (
             <div>
-                <SettingsButton optionalText={versionInfo.newVersion} onClick={() => this.setState({ activeDialog: true })}>
-                    {t('button.upgrade')}
-                </SettingsButton>
+                {
+                    asButton ? (
+                        <Button primary onClick={() => this.setState({ activeDialog: true })}>
+                            {t('button.upgrade')}
+                        </Button>
+                    ) : (
+                        <SettingsButton optionalText={versionInfo.newVersion} onClick={() => this.setState({ activeDialog: true })}>
+                            {t('button.upgrade')}
+                        </SettingsButton>
+                    )
+                }
                 {
                     activeDialog && (
                         <Dialog

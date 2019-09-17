@@ -114,13 +114,17 @@ class BitBox02Bootloader extends Component<Props, State> {
         let contents;
         if (status.upgrading) {
             if (status.upgradeSuccessful) {
-                contents = <p>{t('bb02Bootloader.success', { rebootSeconds: status.rebootSeconds.toString() })}</p>;
+                contents = (
+                    <div className="box large">
+                        <p style="margin-bottom: 0;">{t('bb02Bootloader.success', { rebootSeconds: status.rebootSeconds.toString() })}</p>
+                    </div>
+                );
             } else {
                 const value = Math.round(status.progress * 100);
                 contents = (
-                    <div>
+                    <div className="box large">
                         <progress value={value} max="100">{value}%</progress>
-                        <p>{t('bootloader.progress', {
+                        <p style="margin-bottom: 0;">{t('bootloader.progress', {
                             progress: value.toString(),
                         })}</p>
                     </div>
@@ -128,21 +132,21 @@ class BitBox02Bootloader extends Component<Props, State> {
             }
         } else {
             contents = (
-                <div style="text-align:center;">
-                    <Button
-                        primary
-                        onClick={this.upgradeFirmware}>
-                        {t('bootloader.button')}
-                    </Button>
-                    <br/><br/>
-                    { !erased && (
-                          <Button
-                              secondary
-                              onClick={this.reboot}>
-                              {t('bb02Bootloader.abort')}
-                          </Button>
-                    )}
-                    <br/><br/>
+                <div className="box large">
+                    <div className="buttons">
+                        <Button
+                            primary
+                            onClick={this.upgradeFirmware}>
+                            {t('bootloader.button')}
+                        </Button>
+                        { !erased && (
+                            <Button
+                                transparent
+                                onClick={this.reboot}>
+                                {t('bb02Bootloader.abort')}
+                            </Button>
+                        )}
+                    </div>
                     <div>
                         {t('bb02Bootloader.orientation')}&nbsp;
                         <a
@@ -171,10 +175,8 @@ class BitBox02Bootloader extends Component<Props, State> {
         return (
             <CenteredContent>
                 <BitBox02 />
-                <div style="margin: 1rem; min-height: 5rem;">
-                    {contents}
-                    <p>{status.errMsg}</p>
-                </div>
+                {contents}
+                <p className="text-center">{status.errMsg}</p>
             </CenteredContent>
         );
     }
