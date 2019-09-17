@@ -175,3 +175,11 @@
     width: 100%;
     margin-bottom: var(--spacing-default);
 }
+
+.confirmItem p {
+    margin-top: var(--space-quarter);
+}
+
+.total p {
+    font-size: var(--size-subheader) !important;
+}
