@@ -18,7 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { store as panelStore } from '../../components/guide/guide';
-import { AppLogo } from '../../components/icon/logo';
+import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
 import { toggleForceHide } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
@@ -45,9 +45,9 @@ class Waiting extends Component<WaitingProps> {
     ) {
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
+                <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className={style.content}>
+                    <div className="content padded narrow">
                         <div className="flex-1 flex flex-column flex-center">
                             <AppLogo />
                             <div className={style.waitingContent}>
@@ -62,8 +62,10 @@ class Waiting extends Component<WaitingProps> {
                                 )
                             }
                         </div>
-                        <Footer />
                     </div>
+                    <Footer>
+                        <SwissMadeOpenSource />
+                    </Footer>
                 </div>
                 <Guide>
                     <Entry entry={t('guide.waiting.welcome')} shown={true} />

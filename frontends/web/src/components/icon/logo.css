@@ -3,3 +3,14 @@
     margin: 0 auto var(--space-default) auto;
     max-width: 160px;
 }
+
+.swissOpenSource {
+    max-width: 240px !important;
+    width: 100% !important;
+}
+
+@media (max-width: 768px) {
+    .swissOpenSource {
+        max-width: 180px !important;
+    }
+}

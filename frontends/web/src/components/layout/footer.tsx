@@ -23,7 +23,7 @@ export function Footer({ children }: RenderableProps<{}>) {
     return (
         <footer class={[style.footer, 'flex flex-row flex-items-center flex-end'].join(' ')}>
             {children}
-            <div className="m-right-default">
+            <div className="m-right-default hide-on-small">
                 <Version />
             </div>
             <LanguageSwitch />

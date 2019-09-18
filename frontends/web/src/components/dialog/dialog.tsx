@@ -20,6 +20,7 @@ import * as style from './dialog.css';
 interface Props {
     title?: string;
     small?: boolean;
+    medium?: boolean;
     large?: boolean;
     slim?: boolean;
     disableEscape?: boolean;
@@ -135,6 +136,7 @@ class Dialog extends Component<Props, State> {
         {
             title,
             small,
+            medium,
             large,
             slim,
             onClose,
@@ -145,10 +147,11 @@ class Dialog extends Component<Props, State> {
     ) {
         const activeClass = active ? style.active : '';
         const isSmall = small ? style.small : '';
+        const isMedium = medium ? style.medium : '';
         const isLarge = large ? style.large : '';
         return (
             <div className={[style.overlay, activeClass].join(' ')}>
-                <div className={[style.modal, activeClass, isSmall, isLarge].join(' ')}>
+                <div className={[style.modal, activeClass, isSmall, isMedium, isLarge].join(' ')}>
                     {
                         title && (
                             <div className={style.header}>
