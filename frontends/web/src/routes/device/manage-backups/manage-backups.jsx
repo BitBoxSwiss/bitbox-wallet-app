@@ -22,7 +22,6 @@ import { Guide } from '../../../components/guide/guide';
 import { Entry } from '../../../components/guide/entry';
 import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
-import * as styles from './manage-backups.css';
 import * as dialogStyle from '../../../components/dialog/dialog.css';
 import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
 import { apiGet } from '../../../utils/request';
@@ -91,12 +90,12 @@ export default class ManageBackups extends Component {
                                             </div>
                                         </div>
                                         <div className={dialogStyle.actions}>
-                                            {this.backButton()}
                                             <Button
                                                 primary
                                                 onClick={this.checkBB02SDCard}>
                                                 {this.props.t('button.ok')}
                                             </Button>
+                                            {this.backButton()}
                                         </div>
                                     </Dialog>
                                 )
@@ -146,13 +145,15 @@ export default class ManageBackups extends Component {
             <div class="contentWithGuide">
                 <div class="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
-                    <div className={styles.manageBackups}>
-                        <div className="subHeaderContainer" style="justify-content: center; margin: 0;">
-                            <div className="subHeader">
-                                <h3 className="text-center">Your Backups</h3>
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded narrow">
+                            <div className="subHeaderContainer" style="justify-content: center; margin: 0;">
+                                <div className="subHeader">
+                                    <h3 className="text-center">{t('backup.list')}</h3>
+                                </div>
                             </div>
+                            {this.listBackups()}
                         </div>
-                        {this.listBackups()}
                     </div>
                 </div>
                 {this.renderGuide(t)}
