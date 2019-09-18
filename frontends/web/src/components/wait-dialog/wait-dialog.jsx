@@ -62,16 +62,16 @@ export default class WaitDialog extends Component {
     }) {
         const isActive = active ? style.active : '';
         const defaultContent = (
-            <div class="flex flex-column flex-start">
+            <div>
                 {
                     prequel && (
-                        <p>{prequel}</p>
+                        <p className="m-top-none">{prequel}</p>
                     )
                 }
                 {
                     paired ? (
                         <div>
-                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : ''].join(' ')}>
+                            <p class={[style.confirmationLabel, touchConfirm && paired ? style.disabledLabel : '', 'm-top-none'].join(' ')}>
                                 <span class={style.confirmationLabelNumber}>1.</span>
                                 {t('confirm.infoWhenPaired')}
                             </p>
@@ -81,7 +81,7 @@ export default class WaitDialog extends Component {
                             </p>
                         </div>
                     ) : (
-                        <p class={[style.confirmationLabel, style.noStep].join(' ')}>
+                        <p class={[style.confirmationLabel, style.noStep, 'm-top-none'].join(' ')}>
                             {t('confirm.info')}
                         </p>
                     )
@@ -91,14 +91,14 @@ export default class WaitDialog extends Component {
                         <div class={['flex flex-row flex-between flex-items-stretch', style.confirmationInstructions].join(' ')}>
                             <div class="flex flex-column flex-center flex-items-center">
                                 <img class={style.image} src={reject} alt="Reject" />
-                                <p class="text-bold">
+                                <p>
                                     {t('confirm.abortInfo')}
                                     <span class="text-red">{t('confirm.abortInfoRedText')}</span>
                                 </p>
                             </div>
                             <div class="flex flex-column flex-center flex-items-center">
                                 <img class={style.image} src={approve} alt="Approve" />
-                                <p class="text-bold">
+                                <p>
                                     {t('confirm.approveInfo')}
                                     <span class="text-green">{t('confirm.approveInfoGreenText')}</span>
                                 </p>
@@ -109,19 +109,29 @@ export default class WaitDialog extends Component {
             </div>
         );
         return (
-            <div class={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
-                <div class={[style.modal, isActive].join(' ')}>
-                    <h3 class={style.modalHeader}>{title}</h3>
+            <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
+                <div className={[style.modal, isActive].join(' ')}>
                     {
-                        (children.length > 0 && includeDefault) && defaultContent
-                    }
-                    {
-                        children.length > 0 ? (
-                            <div class="flex flex-column flex-start">
-                                {children}
+                        title && (
+                            <div className={style.header}>
+                                <h3 className={style.title}>{title}</h3>
                             </div>
-                        ) : defaultContent
+                        )
                     }
+                    <div className={style.contentContainer}>
+                        <div className={style.content}>
+                            {
+                                (children.length > 0 && includeDefault) && defaultContent
+                            }
+                            {
+                                children.length > 0 ? (
+                                    <div class="flex flex-column flex-start">
+                                        {children}
+                                    </div>
+                                ) : defaultContent
+                            }
+                        </div>
+                    </div>
                 </div>
             </div>
         );

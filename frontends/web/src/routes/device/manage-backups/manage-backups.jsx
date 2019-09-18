@@ -23,6 +23,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Backups } from '../../../components/backups/backups';
 import { Header } from '../../../components/layout';
 import * as styles from './manage-backups.css';
+import * as dialogStyle from '../../../components/dialog/dialog.css';
 import { BackupsV2 } from '../../../components/devices/bitbox02/backups';
 import { apiGet } from '../../../utils/request';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -50,7 +51,7 @@ export default class ManageBackups extends Component {
     backButton = () => {
         return (
             <ButtonLink
-                secondary
+                transparent
                 href={`/device/${this.props.deviceID}`}>
                 {this.props.t('button.back')}
             </ButtonLink>
@@ -75,27 +76,33 @@ export default class ManageBackups extends Component {
                         deviceID={this.props.deviceID}
                         showCreate={true}
                         showRestore={false}
-                        showRadio={false}>
+                        showRadio={true}>
                         {this.backButton()}
-                    </BackupsV2> :
-                    <div>
-                        {
-                            this.state.activeDialog &&
-                            <Dialog>
-                                <div>
-                                    <p style="text-align:center; min-height: 3rem;">{this.props.t('backup.insert')}</p>
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                                        {this.backButton()}
-                                        <Button
-                                            primary
-                                            onClick={this.checkBB02SDCard}>
-                                            {this.props.t('button.ok')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Dialog>
-                        }
-                    </div>
+                    </BackupsV2> : (
+                        <div>
+                            {
+                                this.state.activeDialog && (
+                                    <Dialog title="Check your device" small>
+                                        <div className="columnsContainer half">
+                                            <div className="columns">
+                                                <div className="column">
+                                                    <p>{this.props.t('backup.insert')}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className={dialogStyle.actions}>
+                                            {this.backButton()}
+                                            <Button
+                                                primary
+                                                onClick={this.checkBB02SDCard}>
+                                                {this.props.t('button.ok')}
+                                            </Button>
+                                        </div>
+                                    </Dialog>
+                                )
+                            }
+                        </div>
+                    )
             );
         default:
             return;
@@ -140,6 +147,11 @@ export default class ManageBackups extends Component {
                 <div class="container">
                     <Header title={<h2>{t('backup.title')}</h2>} />
                     <div className={styles.manageBackups}>
+                        <div className="subHeaderContainer" style="justify-content: center; margin: 0;">
+                            <div className="subHeader">
+                                <h3 className="text-center">Your Backups</h3>
+                            </div>
+                        </div>
                         {this.listBackups()}
                     </div>
                 </div>

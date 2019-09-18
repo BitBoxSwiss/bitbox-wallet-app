@@ -1,41 +1,49 @@
 .input {
     width: 100%;
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
     position: relative;
 }
 
 .input label {
-    display: block;
-    margin-bottom: var(--space-quarter);
+    display: block !important;
+    margin: 0 0 var(--space-quarter) 0;
 }
 
 .input input {
     background-color: var(--color-white);
-    border-color: var(--color-brightgray);
+    border-color: var(--color-lightergray);
     border-radius: 2px;
     border-style: solid;
     border-width: 1px;
     font-family: var(--font-family);
-    font-size: 1rem;
-    font-weight: normal;
-    height: 2.75em;
-    padding: var(--spacing-half) var(--spacing-default);
+    font-size: var(--size-default);
+    font-weight: 400;
+    height: 52px;
+    padding: 0 var(--space-half);
     width: 100%;
-    transition: outline-color .2s ease-out, border-color .2s ease-out;
-    will-change: outline-color, border-color;
+    transition: border-color .2s ease-out;
+    will-change: border-color;
+}
+
+.input input:focus {
+    border-color: var(--color-blue);
+    outline: none;
+}
+
+.input input::placeholder {
+    color: var(--color-rock);
 }
 
 .input input[disabled] {
     background-color: var(--color-white) !important;
-    border-color: var(--color-disabled) !important;
+    border-color: var(--color-lightgray) !important;
     color: var(--color-rock) !important;
     cursor: not-allowed;
 }
 
 .isTransparent input[disabled] {
-    border: none;
+    border-color: var(--color-lightgray);
     color: var(--color-default) !important;
-    padding: var(--spacing-half) 0;
     cursor: default;
 }
 

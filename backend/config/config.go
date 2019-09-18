@@ -47,6 +47,18 @@ type ethCoinConfig struct {
 	NodeURL string `json:"nodeURL"`
 
 	TransactionsSource ETHTransactionsSource `json:"transactionsSource"`
+	ActiveERC20Tokens  []string              `json:"activeERC20Tokens"`
+}
+
+// ERC20TokenActive returns true if this token is configured to be active.
+// code is the token id, e.g. "usdt".
+func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
+	for _, tokenCode := range eth.ActiveERC20Tokens {
+		if tokenCode == code {
+			return true
+		}
+	}
+	return false
 }
 
 // Backend holds the backend specific configuration.
@@ -210,14 +222,17 @@ func NewDefaultAppConfig() AppConfig {
 			ETH: ethCoinConfig{
 				NodeURL:            "etherscan+https://api.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
+				ActiveERC20Tokens:  []string{},
 			},
 			TETH: ethCoinConfig{
 				NodeURL:            "etherscan+https://api-ropsten.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
+				ActiveERC20Tokens:  []string{},
 			},
 			RETH: ethCoinConfig{
 				NodeURL:            "etherscan+https://api-rinkeby.etherscan.io/api",
 				TransactionsSource: ETHTransactionsSourceEtherScan,
+				ActiveERC20Tokens:  []string{},
 			},
 		},
 	}
@@ -338,7 +353,7 @@ func (config *Config) save(filename string, conf interface{}) error {
 
 func (config *Config) migrateInfura(appConfig AppConfig) AppConfig {
 	migrate := func(ethConfig *ethCoinConfig, newURL string) {
-		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
+		if strings.HasSuffix(ethConfig.NodeURL, ".infura.io") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/") || strings.HasSuffix(ethConfig.NodeURL, ".infura.io/v3/2ce516f67c0b48e8af5387b714ab8a61") {
 			ethConfig.NodeURL = newURL
 		}
 	}

@@ -21,8 +21,10 @@ interface Props {
     title?: string;
     small?: boolean;
     large?: boolean;
+    slim?: boolean;
     disableEscape?: boolean;
     onClose?: (e: Event) => void;
+    disabledClose?: boolean;
 }
 
 interface State {
@@ -130,20 +132,44 @@ class Dialog extends Component<Props, State> {
     }
 
     public render(
-        { title, small, large, children }: RenderableProps<Props>,
+        {
+            title,
+            small,
+            large,
+            slim,
+            onClose,
+            disabledClose,
+            children,
+        }: RenderableProps<Props>,
         { active }: State,
     ) {
         const activeClass = active ? style.active : '';
+        const isSmall = small ? style.small : '';
+        const isLarge = large ? style.large : '';
         return (
-            <div class={[style.overlay, activeClass].join(' ')}>
-                <div class={[style.modal, activeClass, small ? style.small : '', large ? style.large : ''].join(' ')}>
+            <div className={[style.overlay, activeClass].join(' ')}>
+                <div className={[style.modal, activeClass, isSmall, isLarge].join(' ')}>
                     {
                         title && (
-                            <h3 class={style.modalHeader}>{title}</h3>
+                            <div className={style.header}>
+                                <h3 class={style.title}>{title}</h3>
+                                {
+                                    onClose && (
+                                        <button className={style.closeButton} onClick={onClose} disabled={disabledClose}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    )
+                                }
+                            </div>
                         )
                     }
-                    <div class={[style.modalContent, title ? '' : 'first'].join(' ')} ref={this.setModalContent}>
-                        {children}
+                    <div className={[style.contentContainer, slim ? style.slim : ''].join(' ')} ref={this.setModalContent}>
+                        <div className={style.content}>
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>

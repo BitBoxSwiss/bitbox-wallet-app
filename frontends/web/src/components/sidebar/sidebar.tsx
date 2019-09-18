@@ -50,6 +50,11 @@ export function toggleSidebar() {
     panelStore.setState({ activeSidebar: toggled });
 }
 
+export function toggleForceHide() {
+    const toggleHide = !panelStore.state.forceHiddenSidebar;
+    panelStore.setState({ forceHiddenSidebar: toggleHide });
+}
+
 class Sidebar extends Component<Props> {
     private swipe!: SwipeAttributes;
 
@@ -118,16 +123,17 @@ class Sidebar extends Component<Props> {
         return (
             <div key={code} className="sidebarItem">
                 <Match>
-                    {() => this.getBackLink(coinCode, code, name)}
+                    {({ url }) => this.getBackLink(coinCode, code, name, url === `/account/${code}` || url.startsWith(`/account/${code}/`))}
                 </Match>
             </div>
         );
     }
 
-    private getBackLink = (coinCode: string, code: string, name: string): JSX.Element => {
+    private getBackLink = (coinCode: string, code: string, name: string, active: boolean): JSX.Element => {
         return (
             <Link
                 activeClassName="sidebar-active"
+                className={active ? 'sidebar-active' : ''}
                 href={`/account/${code}`}
                 onClick={this.handleSidebarItemClick}
                 title={name}>
@@ -148,8 +154,9 @@ class Sidebar extends Component<Props> {
             activeSidebar,
         }: RenderableProps<Props>,
     ) {
+        const forceHide = panelStore.state.forceHiddenSidebar;
         return (
-            <div className="sidebarContainer">
+            <div className={['sidebarContainer', forceHide ? 'forceHide' : ''].join(' ')}>
                 <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
                 <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
                     <div className="sidebarLogoContainer">
@@ -175,6 +182,33 @@ class Sidebar extends Component<Props> {
                             )
                         }
                     </div>
+                    {/* <div className="activeGroup">
+                        <div className="sidebarItem">
+                            <a href="#" className="sidebar-active">
+                                <div className="single">
+                                    <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                </div>
+                                <span className="sidebar_label">Hello</span>
+                                <svg className="sidebarArrow" xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="18" height="18" viewBox="0, 0, 18, 18">
+                                    <path d="M0,4.5 L9,13.5 L18,4.5" fill="#FFFFFF"/>
+                                </svg>
+                            </a>
+                            <div className="sidebarSubmenu">
+                                <a href="#">
+                                    <div className="single">
+                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                    </div>
+                                    <span className="sidebar_label">One</span>
+                                </a>
+                                <a href="#">
+                                    <div className="single">
+                                        <img draggable={false} className="sidebar_settings" src={info} alt={t('sidebar.addAccount')} />
+                                    </div>
+                                    <span className="sidebar_label">Two</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div> */}
                     {debug &&
                         <div className="sidebarItem">
                             <Link

@@ -4,19 +4,19 @@
 
 .select label {
     display: block;
-    margin-bottom: var(--spacing-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .select select {
     appearance: none;
     background-color: var(--color-white);
-    border: solid 1px var(--color-brightgray);
+    border: solid 1px var(--color-lightergray);
     border-radius: 2px;
     font-family: var(--font-family);
-    font-size: var(--size-medium);
-    height: 2.75em;
-    margin-bottom: var(--spacing-default);
-    padding: var(--spacing-half) var(--spacing-default);
+    font-size: var(--size-default);
+    font-weight: 400;
+    height: 52px;
+    padding: 0 var(--space-half);
     width: 100%;
 }
 

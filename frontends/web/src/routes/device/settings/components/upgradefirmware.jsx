@@ -20,7 +20,9 @@ import { Button } from '../../../../components/forms';
 import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import * as style from '../../../../components/style.css';
+import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 @translate()
 export default class UpgradeFirmware extends Component {
@@ -70,8 +72,7 @@ export default class UpgradeFirmware extends Component {
     }) {
         return (
             <div>
-                <Button
-                    primary
+                <SettingsButton
                     onClick={() => this.setState({ activeDialog: true })}
                     disabled={disabled}>
                     {t('upgradeFirmware.button')}
@@ -80,7 +81,7 @@ export default class UpgradeFirmware extends Component {
                             <div class={style.badge}>1</div>
                         )
                     }
-                </Button>
+                </SettingsButton>
                 {
                     activeDialog && (
                         <Dialog
@@ -89,12 +90,12 @@ export default class UpgradeFirmware extends Component {
                             <p>{t('upgradeFirmware.description', {
                                 currentVersion, newVersion
                             })}</p>
-                            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={this.abort}>
-                                    {t('button.back')}
-                                </Button>
+                            <div class={dialogStyle.actions}>
                                 <Button primary onClick={this.upgradeFirmware}>
                                     {t('button.upgrade')}
+                                </Button>
+                                <Button transparent onClick={this.abort}>
+                                    {t('button.back')}
                                 </Button>
                             </div>
                         </Dialog>

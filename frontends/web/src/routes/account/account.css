@@ -19,3 +19,45 @@
     padding: var(--spacing-large) var(--spacing-large) 0 var(--spacing-large);
     width: 800px;
 }
+
+.accountLink {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    text-decoration: none;
+}
+
+.accountLink svg {
+    width: 18px;
+    height: 18px;
+    margin-right: calc(var(--space-quarter) / 2);
+}
+
+.send {
+    /* color: var(--color-softred) !important; */
+}
+
+.receive {
+    /* color: var(--color-success) !important; */
+}
+
+.actions {
+    display: flex;
+    flex-direction: row;
+}
+
+.actions > *:not(:last-child) {
+    margin-right: var(--space-half);
+}
+
+.actions .separator {
+    font-size: var(--size-default);
+    line-height: 1;
+    color: var(--color-rock);
+}
+
+@media (max-width: 768px) {
+    .actions .separator {
+        font-size: var(--size-small);
+    }
+}

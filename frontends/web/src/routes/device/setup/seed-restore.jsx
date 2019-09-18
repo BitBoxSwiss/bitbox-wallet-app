@@ -23,7 +23,6 @@ import { Message } from '../../../components/message/message';
 import { Shift, Alert } from '../../../components/icon';
 import { Header, Footer } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
-import { Steps, Step } from './components/steps';
 import * as style from '../device.css';
 
 const STATUS = Object.freeze({
@@ -93,68 +92,59 @@ export default class SeedRestore extends Component {
     }) {
         return (
             <div class="contentWithGuide">
-                <div className={[style.container, style.scrollable].join(' ')}>
-                    <Header title={
-                        <Steps current={2}>
-                            <Step title={t('goal.step.1.title')} />
-                            <Step divider />
-                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
-                            <Step divider />
-                            <Step title={t(`goal.step.3-restore.title`)} description={t(`goal.step.3-restore.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.4-restore.title`)} />
-                        </Steps>
-                    } narrow={true} />
-                    <div className={style.content}>
-                        {
-                            error ? (
-                                <Message type={status === STATUS.ERROR ? 'error' : undefined}>
-                                    <Alert />
-                                    { error }
-                                </Message>
-                            ) : null
-                        }
-                        <h1 className={style.title}>{t('seedRestore.info.title')}</h1>
-                        {
-                            showInfo ? (
-                                <div class={style.block}>
-                                    <ol class="first">
-                                        <li>{t('seedRestore.info.description1')}</li>
-                                        <li>{t('seedRestore.info.description2')}</li>
-                                        <li>{t('seedRestore.info.description3')}</li>
-                                    </ol>
-                                    <p>{t('seedRestore.info.description4')}</p>
-                                    <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
+                <div className="container">
+                    <Header title={<h2>{t('setup')}</h2>} />
+                    <div className="innerContainer scrollableContainer">
+                        <div className="content padded narrow isVerticallyCentered">
+                            <h1 className={[style.title, 'text-center'].join(' ')}>{t('seedRestore.info.title')}</h1>
+                            {
+                                error ? (
+                                    <Message type={status === STATUS.ERROR ? 'error' : undefined}>
+                                        <Alert />
+                                        { error }
+                                    </Message>
+                                ) : null
+                            }
+                            {
+                                showInfo ? (
+                                    <div class="box large">
+                                        <ol class="first">
+                                            <li>{t('seedRestore.info.description1')}</li>
+                                            <li>{t('seedRestore.info.description2')}</li>
+                                            <li>{t('seedRestore.info.description3')}</li>
+                                        </ol>
+                                        <p>{t('seedRestore.info.description4')}</p>
+                                        <div className="buttons">
+                                            <Button
+                                                primary
+                                                onClick={this.handleStart}
+                                                disabled={status !== STATUS.DEFAULT}>
+                                                {t('seedRestore.info.button')}
+                                            </Button>
+                                            <Button
+                                                transparent
+                                                onClick={goBack}>
+                                                {t('button.abort')}
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Backups
+                                        showCreate={false}
+                                        displayError={this.displayError}
+                                        deviceID={deviceID}
+                                        requireConfirmation={false}
+                                        onRestore={onSuccess}
+                                        fillSpace>
                                         <Button
-                                            secondary
+                                            transparent
                                             onClick={goBack}>
                                             {t('button.abort')}
                                         </Button>
-                                        <Button
-                                            primary
-                                            onClick={this.handleStart}
-                                            disabled={status !== STATUS.DEFAULT}>
-                                            {t('seedRestore.info.button')}
-                                        </Button>
-                                    </div>
-                                </div>
-                            ) : (
-                                <Backups
-                                    showCreate={false}
-                                    displayError={this.displayError}
-                                    deviceID={deviceID}
-                                    requireConfirmation={false}
-                                    onRestore={onSuccess}
-                                    fillSpace>
-                                    <Button
-                                        secondary
-                                        onClick={goBack}>
-                                        {t('button.abort')}
-                                    </Button>
-                                </Backups>
-                            )
-                        }
-                        <hr />
+                                    </Backups>
+                                )
+                            }
+                        </div>
                         <Footer>
                             <Shift />
                         </Footer>

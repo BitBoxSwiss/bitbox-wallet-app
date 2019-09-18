@@ -14,7 +14,7 @@
 
 .pendingBalance {
     margin: 0;
-    padding-top: 5px;
+    padding-top: var(--space-half);
     color: var(--color-secondary);
     font-size: var(--size-small);
     line-height: 1;
@@ -50,24 +50,24 @@
 
 .balanceTable td {
     font-size: var(--size-large);
-    font-weight: 300;
+    font-weight: 400;
     line-height: 1;
     vertical-align: baseline;
     padding: 0;
 }
 
 .balanceTable td:last-child {
-    font-size: var(--size-label);
+    font-size: var(--size-default);
 }
 
 .balanceTable .availableAmount {
-    padding-right: 4px;
+    padding-right: var(--space-quarter);
     text-align: right;
 }
 
 .balanceTable .availableUnit {
     color: var(--color-secondary);
-    padding-right: var(--spacing-default);
+    padding-right: var(--space-half);
 }
 
 .balanceTable .incomingRow {
@@ -78,38 +78,20 @@
     font-size: var(--size-small) !important;
 }
 
-@media (max-width: 640px) {
-    .balanceTable .availableUnit {
-        padding-right: var(--spacing-half);
+@media (max-width: 768px) {
+    .balance {
+        text-align: center;
+    }
+
+    .balanceTable {
+        display: inline-block;
+        margin: 0 auto;
     }
 }
 
 @media (max-width: 560px) {
     .balanceTable td {
         font-size: var(--size-subheader);
-        font-weight: normal;
-    }
-}
-
-@media (max-width: 560px) {
-
-    .balanceTable tr {
-        display: flex;
-        flex-direction: column-reverse;
-    }
-
-    .balanceTable tr:first-child {
-        margin-right: var(--space-quarter);
-    }
-
-    .balanceTable td {
-        display: block;
-        font-size: var(--size-subheader);
-        font-weight: normal;
-    }
-
-    .balanceTable td:last-child {
-        margin-bottom: calc(var(--space-quarter) / 2);
     }
 }
 

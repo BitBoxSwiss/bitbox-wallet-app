@@ -17,12 +17,10 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate } from 'react-i18next';
 import checkIcon from '../../../assets/icons/check.svg';
-import exportIcon from '../../../assets/icons/download.svg';
 import A from '../../../components/anchor/anchor';
 import { BalanceInterface } from '../../../components/balance/balance';
 import { Header } from '../../../components/layout';
 import { Amount } from '../../../components/rates/rates';
-import * as componentStyle from '../../../components/style.css';
 import { load } from '../../../decorators/load';
 import { TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -83,24 +81,26 @@ class AccountsSummary extends Component<Props, State> {
             return (
                 <div className="contentWithGuide">
                     <div className="container">
-                        <Header title={
-                            <h2>{t('accountSummary.title')}
-                                {
-                                    exported ? (
-                                        <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
-                                            <span className={componentStyle.exportedButton} style="margin-right: 5px;">
-                                                <img src={checkIcon} style="margin-right: 5px !important;" />
-                                                <span className={componentStyle.exportedText}>{t('account.openFile')}</span>
-                                            </span>
-                                        </A>
-                                    ) : (
-                                            <a onClick={this.export} className={componentStyle.exportButton} title={t('accountSummary.exportSummary')}>
-                                                <img src={exportIcon} />
-                                            </a>
-                                        )
-                                }
-                            </h2>
-                            } />
+                        <Header title={<h2>{t('accountSummary.title')}</h2>}>
+                            {
+                                exported ? (
+                                    <A href={exported} title={exported} className="flex flex-row flex-start flex-items-center">
+                                        <span>
+                                            <img src={checkIcon} style="margin-right: 5px !important;" />
+                                            <span>{t('account.openFile')}</span>
+                                        </span>
+                                    </A>
+                                ) : (
+                                        <a onClick={this.export} title={t('accountSummary.exportSummary')}>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#699ec6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                <polyline points="7 10 12 15 17 10"></polyline>
+                                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                                            </svg>
+                                        </a>
+                                    )
+                            }
+                        </Header>
                         <div className="innerContainer scrollableContainer">
                             <div className="content padded">
                                 {

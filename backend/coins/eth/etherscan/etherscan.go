@@ -312,7 +312,7 @@ func (etherScan *EtherScan) rpcCall(params url.Values, result interface{}) error
 		return nil
 	}
 	if wrapped.Error != nil {
-		return errp.New("unexpected error")
+		return errp.WithMessage(errp.New("unexpected error"), string(*wrapped.Error))
 	}
 	if result == nil {
 		return nil

@@ -26,7 +26,7 @@
     height: 52px;
     padding: var(--space-half);
     text-align: left;
-    font-weight: 300;
+    font-weight: 400;
 }
 
 .table tr > td:not(:first-child),

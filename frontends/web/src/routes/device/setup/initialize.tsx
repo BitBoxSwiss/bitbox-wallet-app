@@ -24,7 +24,6 @@ import Spinner from '../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import * as style from '../device.css';
-import { Step, Steps } from './components/steps';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
@@ -103,7 +102,7 @@ class Initialize extends Component<Props, State> {
     }
 
     public render(
-        { t, goal, goBack }: RenderableProps<Props>,
+        { t, goBack }: RenderableProps<Props>,
         { showInfo, password, status, errorCode, errorMessage }: State,
     ) {
         let formSubmissionState;
@@ -125,7 +124,7 @@ class Initialize extends Component<Props, State> {
         }
 
         const content = showInfo ? (
-            <div className={style.block}>
+            <div className="box large">
                 <div class="subHeaderContainer first">
                     <div class="subHeader">
                         <h3>{t('initialize.info.subtitle')}</h3>
@@ -136,19 +135,19 @@ class Initialize extends Component<Props, State> {
                     <li>{t('initialize.info.description2')}</li>
                 </ul>
                 <p>{t('initialize.info.description3')}</p>
-                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
-                    <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                    </Button>
+                <div className="buttons">
                     <Button primary onClick={this.handleStart}>
                         {t('initialize.info.button')}
+                    </Button>
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.abort')}
                     </Button>
                 </div>
             </div>
         ) : (
-            <form onSubmit={this.handleSubmit} class="flex-1">
+            <form onSubmit={this.handleSubmit} class="box large">
                 <PasswordRepeatInput
                     pattern="^.{4,}$"
                     label={t('initialize.input.label')}
@@ -157,17 +156,17 @@ class Initialize extends Component<Props, State> {
                     ref={this.setPasswordInputRef}
                     disabled={status === stateEnum.WAITING}
                     onValidPassword={this.setValidPassword} />
-                <div className={['buttons flex flex-row flex-between', style.buttons].join(' ')}>
-                    <Button
-                        secondary
-                        onClick={goBack}>
-                        {t('button.abort')}
-                    </Button>
+                <div className="buttons">
                     <Button
                         type="submit"
                         primary
                         disabled={!password || status === stateEnum.WAITING}>
                         {t('initialize.create')}
+                    </Button>
+                    <Button
+                        transparent
+                        onClick={goBack}>
+                        {t('button.abort')}
                     </Button>
                 </div>
             </form>
@@ -175,32 +174,23 @@ class Initialize extends Component<Props, State> {
 
         return (
             <div class="contentWithGuide">
-                <div className={style.container}>
-                    <Header title={
-                        <Steps current={1}>
-                            <Step title={t('goal.step.1.title')} />
-                            <Step divider />
-                            <Step title={t('goal.step.2.title')} description={t('goal.step.2.description')} />
-                            <Step divider />
-                            <Step title={t(`goal.step.3-${goal}.title`)} description={t(`goal.step.3-${goal}.description`)} />
-                            <Step divider />
-                            <Step title={t(`goal.step.4-${goal}.title`)} />
-                        </Steps>
-                    } narrow={true} />
-                    <div className={style.content}>
-                        {formSubmissionState}
-                        <h1 className={style.title}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
-                        {content}
-                        <hr />
-                        <Footer>
-                            <Shift />
-                        </Footer>
+                <div className="container">
+                <Header title={<h2>{t('setup')}</h2>} />
+                    <div className="innerContainer">
+                        <div className="content padded narrow isVerticallyCentered">
+                            <h1 className={[style.title, 'text-center'].join(' ')}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
+                            {formSubmissionState}
+                            {content}
+                        </div>
+                        {
+                            status === stateEnum.WAITING && (
+                                <Spinner text={t('initialize.creating')} showLogo />
+                            )
+                        }
                     </div>
-                    {
-                        status === stateEnum.WAITING && (
-                            <Spinner text={t('initialize.creating')} showLogo />
-                        )
-                    }
+                    <Footer>
+                        <Shift />
+                    </Footer>
                 </div>
             </div>
         );

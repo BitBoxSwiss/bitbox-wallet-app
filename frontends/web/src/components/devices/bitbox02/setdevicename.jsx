@@ -21,6 +21,7 @@ import { apiPost } from '../../../utils/request';
 import { Dialog } from '../../dialog/dialog';
 import { alertUser } from '../../alert/Alert';
 import * as dialogStyles from '../../dialog/dialog.css';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 
 @translate()
@@ -74,28 +75,36 @@ export class SetDeviceName extends Component {
         return true;
     }
 
-    render({ t }, { deviceName, active, inProgress }) {
+    render({ t, name }, { deviceName, active, inProgress }) {
         return (
             <div>
-                <Button primary onClick={this.setNameDialog}>
+                <SettingsButton onClick={this.setNameDialog} optionalText={name}>
                     {t('bitbox02Settings.deviceName.title')}
-                </Button>
+                </SettingsButton>
                 {
                     active ? (
-                        <Dialog onClose={this.abort} title={t('bitbox02Settings.deviceName.title')}>
-                            <Input
-                                pattern="^.{0,63}$"
-                                label={t('bitbox02Settings.deviceName.input')}
-                                onInput={this.handleChange}
-                                getRef={ref => this.nameInput = ref}
-                                value={deviceName}
-                                id="deviceName" />
-                            <div class={[dialogStyles.buttons, 'buttons', 'flex', 'flex-row', 'flex-between'].join(' ')}>
-                                <Button
-                                    secondary
-                                    onClick={this.abort}>
-                                    {t('button.back')}
-                                </Button>
+                        <Dialog onClose={this.abort} title={t('bitbox02Settings.deviceName.title')} small>
+                            <div className="columnsContainer half">
+                                <div className="columns half">
+                                    <div className="column">
+                                        <Input
+                                            label="Current Device Name"
+                                            disabled={true}
+                                            value={name} />
+                                    </div>
+                                    <div className="column">
+                                        <Input
+                                            pattern="^.{0,63}$"
+                                            label={t('bitbox02Settings.deviceName.input')}
+                                            onInput={this.handleChange}
+                                            getRef={ref => this.nameInput = ref}
+                                            placeholder="New Device Name"
+                                            value={deviceName}
+                                            id="deviceName" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className={dialogStyles.actions}>
                                 <Button
                                     primary
                                     disabled={!this.validate()}
@@ -107,7 +116,7 @@ export class SetDeviceName extends Component {
                     ) : null
                 }
                 { inProgress && (
-                    <WaitDialog title={t('bitbox02Settings.deviceName.title')} >
+                    <WaitDialog>
                         {t('bitbox02Interact.followInstructions')}
                     </WaitDialog>
                 )}

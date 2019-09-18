@@ -107,6 +107,8 @@ interface ProvidedProps {
     amount: Amount;
     tableRow?: boolean;
     unstyled?: boolean;
+    skipUnit?: boolean;
+    noAction?: boolean;
 }
 
 type Props = ProvidedProps & SharedProps;
@@ -115,8 +117,10 @@ function Conversion({
     amount,
     tableRow,
     unstyled,
+    skipUnit,
     rates,
     active,
+    noAction,
     children,
 }: RenderableProps<Props>): JSX.Element | null {
     if (!rates) {
@@ -146,7 +150,16 @@ function Conversion({
             {children}
             {formattedValue}
             {' '}
-            <span className={style.unit} onClick={rotateFiat}>{active}</span>
+            {
+                !skipUnit && !noAction && (
+                    <span className={style.unit} onClick={rotateFiat}>{active}</span>
+                )
+            }
+            {
+                !skipUnit && noAction && (
+                    <span>{active}</span>
+                )
+            }
         </span>
     );
 }

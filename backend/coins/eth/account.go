@@ -313,10 +313,8 @@ func (account *Account) outgoingTransactions(allTxs []accounts.Transaction) (
 		if _, ok := allTxHashes[tx.ID()]; ok {
 			continue
 		}
-		transactions = append(transactions, &ethtypes.TransactionWithConfirmations{
-			TransactionWithMetadata: *tx,
-			TipHeight:               account.blockNumber.Uint64(),
-		})
+		transactions = append(transactions,
+			ethtypes.NewTransactionWithConfirmations(tx, account.blockNumber.Uint64(), account.coin.erc20Token))
 	}
 	return transactions, nil
 }
@@ -414,6 +412,8 @@ func (account *Account) FatalError() bool {
 
 // Close implements accounts.Interface.
 func (account *Account) Close() {
+	account.log.Info("Waiting to close account")
+	account.synchronizer.WaitSynchronized()
 	account.log.Info("Closed account")
 	if account.db != nil {
 		if err := account.db.Close(); err != nil {
@@ -422,6 +422,7 @@ func (account *Account) Close() {
 		account.log.Info("Closed DB")
 	}
 	account.initialized = false
+	close(account.quitChan)
 	account.onEvent(accounts.EventStatusChanged)
 }
 
@@ -475,7 +476,17 @@ func (account *Account) newTx(
 		value = account.balance.BigInt() // set here only temporarily to estimate the gas
 	} else {
 		allowZero := true
-		parsedAmount, err := amount.Amount(big.NewInt(params.Ether), allowZero)
+
+		var factor *big.Int
+		if account.coin.erc20Token != nil {
+			factor = new(big.Int).Exp(
+				big.NewInt(10),
+				new(big.Int).SetUint64(uint64(account.coin.erc20Token.Decimals())), nil)
+		} else {
+			factor = big.NewInt(params.Ether)
+		}
+
+		parsedAmount, err := amount.Amount(factor, allowZero)
 		if err != nil {
 			return nil, err
 		}
@@ -515,6 +526,16 @@ func (account *Account) newTx(
 		}
 	}
 
+	// For ERC20 transfers, the EstimateGas call fails if we try to spend more than we have and we
+	// do not have enough ether to pay the fee.
+	// We make some checks upfront to catch this before calling out to the node and failing.
+	if !amount.SendAll() {
+		if account.coin.erc20Token != nil {
+			if value.Cmp(account.balance.BigInt()) == 1 {
+				return nil, errp.WithStack(errors.ErrInsufficientFunds)
+			}
+		}
+	}
 	gasLimit, err := account.coin.client.EstimateGas(context.TODO(), message)
 	if err != nil {
 		account.log.WithError(err).Error("Could not estimate the gas limit.")
@@ -527,6 +548,10 @@ func (account *Account) newTx(
 	if account.coin.erc20Token != nil {
 		// in erc 20 tokens, the amount is in the token unit, while the fee is in ETH, so there is
 		// no issue withSendAll.
+
+		if !amount.SendAll() && value.Cmp(account.balance.BigInt()) == 1 {
+			return nil, errp.WithStack(errors.ErrInsufficientFunds)
+		}
 	} else {
 		if amount.SendAll() {
 			// Set the value correctly and check that the fee is smaller than or equal to the balance.

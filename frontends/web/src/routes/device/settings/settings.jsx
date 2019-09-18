@@ -15,7 +15,6 @@
  */
 
 import { Component, h } from 'preact';
-import { ButtonLink } from '../../../components/forms';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
@@ -32,6 +31,8 @@ import Reset from './components/reset';
 import { MobilePairing } from './components/mobile-pairing';
 import DeviceLock from './components/device-lock';
 import UpgradeFirmware from './components/upgradefirmware';
+import { SettingsButton } from '../../../components/settingsButton/settingsButton';
+import { SettingsItem } from '../../../components/settingsButton/settingsItem';
 
 @translate()
 export default class Settings extends Component {
@@ -126,124 +127,93 @@ export default class Settings extends Component {
                     <Header title={<h2>{name === null ? '' : name || 'BitBox'}</h2>} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
-                            <div class="flex-1">
-                                <div class="subHeaderContainer first">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.secrets.title')}</h3>
+                            <div className="columnsContainer">
+                                <div className="columns">
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer first">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.secrets.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="box slim divide">
+                                            <SettingsButton href={`/manage-backups/${deviceID}`} disabled={lock}>
+                                                {t('deviceSettings.secrets.manageBackups')}
+                                            </SettingsButton>
+                                            <ChangePIN deviceID={deviceID} />
+                                            {
+                                                newHiddenWallet ? (
+                                                    <HiddenWallet deviceID={deviceID} disabled={lock} />
+                                                ) : (
+                                                    <LegacyHiddenWallet
+                                                        deviceID={deviceID}
+                                                        newHiddenWallet={newHiddenWallet}
+                                                        disabled={lock}
+                                                        onChange={value => this.setState({ newHiddenWallet: value })}
+                                                    />
+                                                )
+                                            }
+                                            <Reset deviceID={deviceID} />
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="buttons flex-row flex-start flex-items-baseline flex-wrap">
-                                    <ButtonLink primary href={`/manage-backups/${deviceID}`} disabled={lock}>
-                                        {t('deviceSettings.secrets.manageBackups')}
-                                    </ButtonLink>
-                                    <ChangePIN deviceID={deviceID} />
-                                    {
-                                        newHiddenWallet ? (
-                                            <HiddenWallet deviceID={deviceID} disabled={lock} />
-                                        ) : (
-                                            <LegacyHiddenWallet
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.pairing.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="box slim divide">
+                                            <SettingsItem optionalText={t(`deviceSettings.pairing.mobile.${connected}`)}>
+                                                {t('deviceSettings.pairing.mobile.label')}
+                                            </SettingsItem>
+                                            <MobilePairing
                                                 deviceID={deviceID}
-                                                newHiddenWallet={newHiddenWallet}
-                                                disabled={lock}
-                                                onChange={value => this.setState({ newHiddenWallet: value })}
+                                                deviceLocked={lock}
+                                                hasMobileChannel={mobileChannel}
+                                                paired={paired}
+                                                onPairingEnabled={() => this.setState({ pairing: true })}
                                             />
-                                        )
-                                    }
-                                    <Reset deviceID={deviceID} />
-                                </div>
-
-                                <hr />
-
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.pairing.title')}</h3>
-                                    </div>
-                                </div>
-                                <dl class="items marginBottom">
-                                    <div>
-                                        <dt>{t('deviceSettings.pairing.status.label')}</dt>
-                                        <dd>
-                                            {t(`deviceSettings.pairing.status.${paired}`)}
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt>{t('deviceSettings.pairing.mobile.label')}</dt>
-                                        <dd>
-                                            {t(`deviceSettings.pairing.mobile.${connected}`)}
-                                        </dd>
-                                    </div>
-                                    <div>
-                                        <dt>{t('deviceSettings.pairing.lock.label')}</dt>
-                                        <dd>
-                                            {t(`deviceSettings.pairing.lock.${lock}`)}
-                                        </dd>
-                                    </div>
-                                </dl>
-                                <div class="buttons flex flex-row flex-start flex-wrap">
-                                    <MobilePairing
-                                        deviceID={deviceID}
-                                        deviceLocked={lock}
-                                        hasMobileChannel={mobileChannel}
-                                        paired={paired}
-                                        onPairingEnabled={() => this.setState({ pairing: true })}
-                                    />
-                                    <DeviceLock
-                                        deviceID={deviceID}
-                                        onLock={() => this.setState({ lock: true })}
-                                        disabled={lock || !paired} />
-                                </div>
-
-                                <hr />
-
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.firmware.title')}</h3>
-                                    </div>
-                                </div>
-                                <dl class="items">
-                                    <div>
-                                        <dt>{t('deviceSettings.firmware.version.label')}</dt>
-                                        <dd>{firmwareVersion ? firmwareVersion : t('loading')}</dd>
-                                    </div>
-                                    {canUpgrade && (
-                                        <div>
-                                            <dt>{t('deviceSettings.firmware.newVersion.label')}</dt>
-                                            <dd>{newVersion}</dd>
+                                            <DeviceLock
+                                                lock={lock}
+                                                deviceID={deviceID}
+                                                onLock={() => this.setState({ lock: true })}
+                                                disabled={lock || !paired} />
                                         </div>
-                                    ) || (
-                                        <div>
-                                            <dt>&nbsp;</dt>
-                                            <dd>{t('deviceSettings.firmware.upToDate')}</dd>
+                                    </div>
+                                </div>
+                                <div className="columns">
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.firmware.title')}</h3>
+                                            </div>
                                         </div>
-                                    )}
-                                </dl>
-                                {canUpgrade && (
-                                    <div class="buttons flex flex-row flex-start flex-baseline flex-wrap">
-                                        <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                        <div className="box slim divide">
+                                            {
+                                                canUpgrade ? (
+                                                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                                                ) : (
+                                                    <SettingsItem optionalText={`${t('deviceSettings.firmware.version.label')} ${firmwareVersion ? firmwareVersion : t('loading')}`}>
+                                                        {t('deviceSettings.firmware.upToDate')}
+                                                    </SettingsItem>
+                                                )
+                                            }
+                                        </div>
                                     </div>
-                                )}
-
-                                <hr />
-
-                                <div class="subHeaderContainer">
-                                    <div class="subHeader">
-                                        <h3>{t('deviceSettings.hardware.title')}</h3>
+                                    <div className="column column-1-2">
+                                        <div class="subHeaderContainer">
+                                            <div class="subHeader">
+                                                <h3>{t('deviceSettings.hardware.title')}</h3>
+                                            </div>
+                                        </div>
+                                        <div className="box slim divide">
+                                            <SettingsItem optionalText={t(`deviceSettings.hardware.sdcard.${sdcard}`)}>
+                                                {t('deviceSettings.hardware.sdcard.label')}
+                                            </SettingsItem>
+                                            <RandomNumber apiPrefix={'devices/' + deviceID} />
+                                            <Blink deviceID={deviceID} />
+                                        </div>
                                     </div>
                                 </div>
-                                <dl class="items marginBottom">
-                                    <div>
-                                        <dt>{t('deviceSettings.hardware.sdcard.label')}</dt>
-                                        <dd>{t(`deviceSettings.hardware.sdcard.${sdcard}`)}</dd>
-                                    </div>
-                                </dl>
-
-                                <div class="buttons flex flex-row flex-start flex-wrap">
-                                    <RandomNumber apiPrefix={'devices/' + deviceID} />
-                                    <Blink deviceID={deviceID} />
-                                </div>
-
-                                <hr />
-
                             </div>
                         </div>
                         { spinner && <Spinner text={t('deviceSettings.loading')} /> }

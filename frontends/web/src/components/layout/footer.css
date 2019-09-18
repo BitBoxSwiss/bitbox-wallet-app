@@ -1,13 +1,12 @@
 .footer {
     min-height: 2rem;
-    padding: var(--spacing-half) var(--spacing-default) var(--spacing-large) var(--spacing-default);
+    padding-bottom: var(--space-half);
 }
 
 .footer p {
     color: var(--color-secondary);
     font-size: var(--size-small);
     margin: 0;
-    text-transform: uppercase;
 }
 
 .footer img {

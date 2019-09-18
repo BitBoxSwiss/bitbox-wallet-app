@@ -19,7 +19,7 @@ import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import SimpleMarkup from '../../../utils/simplemarkup';
 import { alertUser } from '../../alert/Alert';
-import { Button } from '../../forms';
+import { SettingsButton } from '../../settingsButton/settingsButton';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 
 interface MnemonicPassphraseButtonProps {
@@ -62,20 +62,33 @@ class MnemonicPassphraseButton  extends Component<Props, State> {
         const message = t('bitbox02Settings.mnemonicPassphrase.description');
         return (
             <div>
-                <Button primary onClick={this.toggle}>{title}</Button>
-                { inProgress && (
-                      <WaitDialog title={title} >
-                          { !mnemonicPassphraseEnabled && message && (
-                                <p>{
-                                    message.split('\n').map(line => (
-                                        <span>
-                                            <SimpleMarkup tagName="span" markup={line} /><br/>
-                                        </span>
-                                    ))}
-                                </p>)}
-                          <p>{t('bitbox02Interact.followInstructions')}</p>
-                      </WaitDialog>
-                )}
+                <SettingsButton onClick={this.toggle}>{title}</SettingsButton>
+                {
+                    inProgress && (
+                        <WaitDialog title={title}>
+                            <div className="columnsContainer half">
+                                <div className="columns">
+                                    <div className="column">
+                                        {
+                                            !mnemonicPassphraseEnabled && message && (
+                                                <p>
+                                                    {
+                                                        message.split('\n').map(line => (
+                                                            <span>
+                                                                <SimpleMarkup tagName="span" markup={line} /><br/>
+                                                            </span>
+                                                        ))
+                                                    }
+                                                </p>
+                                            )
+                                        }
+                                        <p>{t('bitbox02Interact.followInstructions')}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </WaitDialog>
+                    )
+                }
             </div>
         );
     }

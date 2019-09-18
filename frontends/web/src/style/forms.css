@@ -11,14 +11,50 @@ dt {
     color: var(--color-secondary);
     display: block;
     font-size: var(--size-small);
+    font-weight: 400;
     line-height: 1;
     margin-bottom: 5px;
+}
+
+.labelLarge {
+    font-size: var(--size-default);
+    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+}
+
+.labelLink {
+    color: var(--color-blue);
+    cursor: pointer;
+    line-height: 1;
+    font-weight: 400;
+}
+
+.labelButton {
+    padding: var(--space-quarter) var(--space-half);
+    border-radius: 2px;
+    color: var(--color-white);
+    transition: background-color ease-in-out 0.2s;
+    will-change: background-color;
+}
+
+.labelButton.primary {
+    background-color: var(--color-blue);
+}
+
+.labelButton.primary:hover {
+    background-color: var(--color-lightblue);
+}
+
+.labelButton.secondary {
+    background-color: var(--color-orange);
+}
+
+.labelButton.secondary:hover {
+    background-color: var(--color-lightorange);
 }
 
 input:invalid,
 input:invalid:focus {
     border-color: var(--color-error);
-    outline: 3px solid var(--color-error);
 }
 
 input::-webkit-credentials-auto-fill-button {
@@ -38,4 +74,14 @@ input[type="checkbox"]:focus + label::before {
     outline-offset: -2px;
     outline-style: auto;
     outline-width: 4px;
+}
+
+@media (max-width: 768px) {
+    .labelLarge {
+        margin-bottom: var(--space-half);
+    }
+
+    .labelLink {
+        font-size: var(--size-small);
+    }
 }

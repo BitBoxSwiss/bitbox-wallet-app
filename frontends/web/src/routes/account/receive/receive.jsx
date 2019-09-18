@@ -27,10 +27,6 @@ import { Header } from '../../../components/layout';
 import Status from '../../../components/status/status';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';
-import ArrowLeft from '../../../assets/icons/arrow-left-active.svg';
-import ArrowLeftDisabled from '../../../assets/icons/arrow-left-disabled.svg';
-import ArrowRight from '../../../assets/icons/arrow-right-active.svg';
-import ArrowRightDisabled from '../../../assets/icons/arrow-right-disabled.svg';
 import * as style from './receive.css';
 
 @translate()
@@ -164,11 +160,11 @@ export default class Receive extends Component {
         if (account === undefined) {
             return null;
         }
-        let uriPrefix = 'bitcoin:';
-        if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
+        let uriPrefix = '';
+        if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
+            uriPrefix = 'bitcoin:';
+        } else if (account.coinCode === 'ltc' || account.coinCode === 'tltc') {
             uriPrefix = 'litecoin:';
-        } else if (account.coinCode === 'eth' || account.coinCode === 'teth' || account.coinCode === 'reth') {
-            uriPrefix = '';
         }
         // enable copying only after verification has been invoked if verification is possible and not optional.
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
@@ -192,8 +188,14 @@ export default class Receive extends Component {
                                 href="#"
                                 className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.previous].join(' ')}
                                 onClick={this.previous}>
-                                <img src={verifying ? ArrowLeftDisabled : ArrowLeft} />
-                                {t('button.previous')}
+                                <svg className={[style.arrow, verifying ? style.disabled : ''].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 8 8 12 12 16"></polyline>
+                                    <line x1="16" y1="12" x2="8" y2="12"></line>
+                                </svg>
+                                {/* {t('button.previous')} */}
                             </a>
                         )
                     }
@@ -204,52 +206,69 @@ export default class Receive extends Component {
                                 href="#"
                                 className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.next].join(' ')}
                                 onClick={this.next}>
-                                {t('button.next')}
-                                <img src={verifying ? ArrowRightDisabled : ArrowRight} />
+                                {/* {t('button.next')} */}
+                                <svg className={[style.arrow, verifying ? style.disabled : ''].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 16 16 12 12 8"></polyline>
+                                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                                </svg>
                             </a>
                         )
                     }
                 </div>
-                <div>
-                    {
-                        forceVerification ? (
-                            <div style="position: relative;">
-                                <CopyableInput disabled={!enableCopy} value={address} />
-                                {
-                                    verifying && (
-                                        <Dialog
-                                            title={t('receive.verify')}
-                                            disableEscape={true}>
-                                            <p>{t('receive.verifyInstruction')}</p>
-                                            <pre className={style.verifyAddress}>{address}</pre>
-                                        </Dialog>
-                                    )
-                                }
-                                <div className={style.verifyContent}>
-                                    <Button
-                                        primary
-                                        disabled={verifying || secureOutput === undefined}
-                                        onClick={this.verifyAddress}>
-                                        {t('receive.showFull')}
-                                    </Button>
-                                </div>
-                            </div>
-                        ) : <CopyableInput disabled={!enableCopy} value={address} />
-                    }
-                </div>
+                <CopyableInput disabled={!enableCopy} value={address} />
                 {
-                    code === 'ltc-p2wpkh-p2sh' && (
-                        <div style="margin-top:60px;">
-                            <p>{t('receive.ltcLegacy.info')}</p>
-                            <Button
-                                primary
-                                onClick={this.ltcConvertToLegacy}
-                                className={style.button}>
-                                {t('receive.ltcLegacy.button')}
-                            </Button>
-                        </div>
+                    forceVerification && verifying && (
+                        <Dialog
+                            title={t('receive.verify')}
+                            disableEscape={true}>
+                            <p>{t('receive.verifyInstruction')}</p>
+                            <pre className={style.verifyAddress}>{address}</pre>
+                        </Dialog>
                     )
                 }
+                <div className="buttons">
+                    {
+                        forceVerification && (
+                            <Button
+                                primary
+                                disabled={verifying || secureOutput === undefined}
+                                onClick={this.verifyAddress}>
+                                {t('receive.showFull')}
+                            </Button>
+                        )
+                    }
+                    {
+                        code === 'ltc-p2wpkh-p2sh' && (
+                            <div style="margin-top:60px;">
+                                <p>{t('receive.ltcLegacy.info')}</p>
+                                <Button
+                                    primary
+                                    onClick={this.ltcConvertToLegacy}
+                                    className={style.button}>
+                                    {t('receive.ltcLegacy.button')}
+                                </Button>
+                            </div>
+                        )
+                    }
+                    {
+                        !forceVerification && (
+                            <Button
+                                primary
+                                disabled={verifying || secureOutput === undefined}
+                                onClick={this.verifyAddress}>
+                                {t('receive.verify')}
+                            </Button>
+                        )
+                    }
+                    <ButtonLink
+                        transparent
+                        href={`/account/${code}`}>
+                        {t('button.back')}
+                    </ButtonLink>
+                </div>
             </div>
         ) : (
             t('loading')
@@ -261,29 +280,15 @@ export default class Receive extends Component {
                     <Status type="warning">
                         {paired === false && t('warning.receivePairing')}
                     </Status>
-                    <Header title={<h2>{t('receive.title')}</h2>} />
+                    <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
                     <div class="innerContainer">
-                        <div class="content isVerticallyCentered">
-                            <div class={style.receiveContent}>
+                        <div class="content narrow isVerticallyCentered">
+                            <div class="box large text-center">
                                 {content}
                             </div>
                         </div>
                         <div class={style.bottomButtons}>
-                            <ButtonLink
-                                secondary
-                                href={`/account/${code}`}>
-                                {t('button.back')}
-                            </ButtonLink>
-                            {
-                                !forceVerification ? (
-                                    <Button
-                                        primary
-                                        disabled={verifying || secureOutput === undefined}
-                                        onClick={this.verifyAddress}>
-                                        {t('receive.verify')}
-                                    </Button>
-                                ) : ''
-                            }
+                            
                         </div>
                     </div>
                 </div>

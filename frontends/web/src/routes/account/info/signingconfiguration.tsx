@@ -17,9 +17,11 @@
 import { Component, h, RenderableProps } from 'preact';
 import { CopyableInput } from '../../../components/copy/Copy';
 import { Button } from '../../../components/forms';
+import { ButtonLink } from '../../../components/forms';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
+import * as style from './info.css';
 
 interface ProvidedProps {
     info: SigningConfigurationInterface;
@@ -57,32 +59,42 @@ class SigningConfiguration extends Component<Props, State> {
         apiPost(`account/${this.props.code}/verify-extended-public-key`, index);
     }
 
-    public render({ t, info }: RenderableProps<Props>, { canVerifyExtendedPublicKey }: State) {
+    public render({ t, info, code }: RenderableProps<Props>, { canVerifyExtendedPublicKey }: State) {
         return (
         // TODO: add info if single or multisig, and threshold.
         <div>
             { info.address ?
                 <div>
-                    <strong>
-                        {t('accountInfo.address')}
-                    </strong><br />
+                    <label className="labelLarge">{t('accountInfo.address')}</label>
                     <QRCode data={info.address} />
-                    <CopyableInput value={info.address} />
+                    <div className={style.textareaContainer}>
+                        <CopyableInput flexibleHeight value={info.address} />
+                    </div>
                 </div>
                     :
                 info.xpubs.map((xpub, index) => {
                     return (
                         <div key={xpub}>
-                            <strong>
-                                {t('accountInfo.extendedPublicKey')}
-                                {info.xpubs.length > 1 && (' #' + (index + 1))}
-                            </strong><br />
+                            <label className="labelLarge">{t('accountInfo.extendedPublicKey')}</label>
+                            {info.xpubs.length > 1 && (' #' + (index + 1))}
                             <QRCode data={xpub} />
-                            <CopyableInput value={xpub} />
-                            { canVerifyExtendedPublicKey.includes(index) ?
-                                <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
-                                    {t('accountInfo.verify')}
-                                </Button> : '' }
+                            <div className={style.textareaContainer}>
+                                <CopyableInput value={xpub} flexibleHeight />
+                            </div>
+                            <div className="buttons">
+                                {
+                                    canVerifyExtendedPublicKey.includes(index) && (
+                                        <Button primary onClick={() => this.verifyExtendedPublicKey(index)}>
+                                            {t('accountInfo.verify')}
+                                        </Button>
+                                    )
+                                }
+                                <ButtonLink
+                                    transparent
+                                    href={`/account/${code}`}>
+                                    {t('button.back')}
+                                </ButtonLink>
+                            </div>
                         </div>
                     );
                 })

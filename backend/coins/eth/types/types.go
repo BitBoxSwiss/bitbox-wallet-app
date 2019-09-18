@@ -15,12 +15,15 @@
 package types
 
 import (
+	"bytes"
 	"encoding/json"
 	"math/big"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -125,24 +128,53 @@ func (txh *TransactionWithMetadata) Gas() uint64 {
 	return txh.GasUsed
 }
 
+// NewTransactionWithConfirmations creates a tx with additional data needed to be able to display it
+// in the frontend.
+func NewTransactionWithConfirmations(
+	tx *TransactionWithMetadata,
+	tipHeight uint64,
+	erc20Token *erc20.Token) *TransactionWithConfirmations {
+	data := tx.Transaction.Data()
+	if erc20Token == nil && len(data) > 0 {
+		panic("invalid config")
+	}
+	if erc20Token != nil {
+		if *tx.Transaction.To() != erc20Token.ContractAddress() ||
+			len(data) != 68 ||
+			!bytes.Equal(data[:4], []byte{0xa9, 0x05, 0x9c, 0xbb}) ||
+			tx.Transaction.Value().Cmp(big.NewInt(0)) != 0 {
+			panic("invalid erc20 tx")
+		}
+	}
+	return &TransactionWithConfirmations{
+		TransactionWithMetadata: *tx,
+		tipHeight:               tipHeight,
+		erc20Token:              erc20Token,
+	}
+}
+
 // TransactionWithConfirmations also stores the current tip height so NumConfirmations() can be
 // computed.
 type TransactionWithConfirmations struct {
 	TransactionWithMetadata
-	TipHeight uint64
+	tipHeight  uint64
+	erc20Token *erc20.Token
 }
 
 // NumConfirmations implements accounts.Transaction.
 func (txh *TransactionWithConfirmations) NumConfirmations() int {
 	confs := 0
 	if txh.Height > 0 {
-		confs = int(txh.TipHeight - txh.Height + 1)
+		confs = int(txh.tipHeight - txh.Height + 1)
 	}
 	return confs
 }
 
 // Status implements accounts.Transaction.
 func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
+	if txh.NumConfirmations() == 0 {
+		return accounts.TxStatusPending
+	}
 	if !txh.Success {
 		return accounts.TxStatusFailed
 	}
@@ -150,6 +182,29 @@ func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending
+}
+
+// Amount implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) Amount() coin.Amount {
+	if txh.erc20Token != nil {
+		data := txh.Transaction.Data()
+		return coin.NewAmount(new(big.Int).SetBytes(data[len(data)-32:]))
+	}
+	return txh.TransactionWithMetadata.Amount()
+}
+
+// Addresses implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) Addresses() []accounts.AddressAndAmount {
+	if txh.erc20Token != nil {
+		data := txh.Transaction.Data()
+		// ERC20 transfer.
+		return []accounts.AddressAndAmount{{
+			Address: common.BytesToAddress(data[4+32-common.AddressLength : 4+32]).Hex(),
+			Amount:  txh.Amount(),
+		}}
+	}
+
+	return txh.TransactionWithMetadata.Addresses()
 }
 
 // assertion because not implementing the interface fails silently.

@@ -6,14 +6,14 @@
 .radio input + label {
     display: inline-flex;
     flex-direction: column;
-    line-height: 1.64;
-    margin-right: 1em;
-    padding-left: 2em;
+    line-height: 1.5;
+    margin-right: var(--space-half);
+    padding-left: calc(var(--space-half) + var(--space-quarter));
     position: relative;
 }
 
 .radio.textMedium input + label {
-    font-size: var(--size-medium);
+    font-size: var(--size-default);
 }
 
 .radio input + label::before,
@@ -21,20 +21,17 @@
     background: rgb(255, 255, 255);
     content: '';
     display: inline-block;
-    width: 1em;
-    height: 1em;
+    width: 12px;
+    height: 12px;
     position: absolute;
-    top: .19em;
+    top: 4px;
     left: 0;
-    vertical-align: top;
-    text-align: center;
     transition: all 100ms ease;
 }
 
 .radio input + label::before {
     border: 1px solid rgb(220, 220, 220);
     border-radius: 1em;
-    margin-left: 3px;
 }
 
 .radio input + label::after {
@@ -44,7 +41,7 @@
     height: 6px;
     position: absolute;
     top: 6px;
-    left: 7px;
+    left: 2px;
     opacity: 0;
     transform: scale(0);
 }
@@ -52,7 +49,6 @@
 .radio.textMedium input + label::after {
     width: 10px;
     height: 10px;
-    top:  7px;
 }
 
 /* checked */
@@ -67,10 +63,8 @@
 }
 
 /* focus */
-
-.radio input:focus + label::before {
-    background-color: var(--color-white);
-    box-shadow: 0 0 2px 2px var(--color-focus);
+.radio input:focus {
+    outline: none;
 }
 
 

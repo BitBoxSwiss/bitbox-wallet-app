@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../../../../components/forms';
+import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
 import { apiPost } from '../../../../utils/request';
 
 @translate()
@@ -27,7 +27,7 @@ export default class Blink extends Component {
 
     render({ t }, {}) {
         return (
-            <Button primary onClick={this.blinkDevice}>{t('blink.button')}</Button>
+            <SettingsButton onClick={this.blinkDevice}>{t('blink.button')}</SettingsButton>
         );
     }
 }
