@@ -20,15 +20,12 @@ import { FiatConversion } from '../rates/rates';
 import A from '../anchor/anchor';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
+import { Dialog } from '../dialog/dialog';
 
 @translate()
 export default class Transaction extends Component {
     state = {
-        collapsed: true,
-    }
-
-    onUncollapse = () => {
-        this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
+        transactionDialog: false,
     }
 
     parseTimeShort = time => {
@@ -38,6 +35,14 @@ export default class Transaction extends Component {
             day: 'numeric',
         };
         return new Date(Date.parse(time)).toLocaleString(this.context.i18n.language, options);
+    }
+
+    showDetails = () => {
+        this.setState({ transactionDialog: true });
+    }
+
+    hideDetails = () => {
+        this.setState({ transactionDialog: false });
     }
 
     render({
@@ -58,9 +63,25 @@ export default class Transaction extends Component {
         addresses,
         status,
     }, {
-        collapsed,
+        transactionDialog,
     }) {
         const badge = t(`transaction.badge.${type}`);
+        const arrow =  badge === 'In' ? (
+            <svg className={[style.type, style.typeIn].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
+        ) : badge === 'Out' ? (
+            <svg className={[style.type, style.typeOut].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="19" x2="12" y2="5"></line>
+                <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+        ) : (
+            <svg className={[style.type, style.typeSelf].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+        );
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const sDate = time ? this.parseTimeShort(time) : '---';
         const statusStyle = {
@@ -74,50 +95,32 @@ export default class Transaction extends Component {
             failed: 'Failed',
         }[status];
         return (
-            <div className={[style.container, collapsed ? style.collapsed : '', index === 0 ? style.first : ''].join(' ')}>
+            <div className={[style.container, style.collapsed, index === 0 ? style.first : ''].join(' ')}>
                 <div className={[parentStyle.columns, style.row].join(' ')}>
                     <div className={parentStyle.columnGroup}>
-                        <div className={parentStyle.type}>
-                            {
-                                badge === 'In' ? (
-                                    <svg className={[style.type, style.typeIn].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <polyline points="19 12 12 19 5 12"></polyline>
-                                    </svg>
-                                ) : badge === 'Out' ? (
-                                    <svg className={[style.type, style.typeOut].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <line x1="12" y1="19" x2="12" y2="5"></line>
-                                        <polyline points="5 12 12 5 19 12"></polyline>
-                                    </svg>
-                                ) : (
-                                    <svg className={[style.type, style.typeSelf].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                        viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                        <polyline points="12 5 19 12 12 19"></polyline>
-                                    </svg>
-                                )
-                            }
-                        </div>
+                        <div className={parentStyle.type}>{arrow}</div>
                         <div className={parentStyle.date}>
                             <span className={style.columnLabel}>Date:</span>
                             <span className={style.date}>{sDate}</span>
                         </div>
                         <div className={[parentStyle.address].join(' ')}>
                             <span className={style.columnLabel}>Address:</span>
-                            <span className={style.address}>{addresses.join(', ')}</span>
+                            <span className={style.address}>
+                                {addresses[0]}
+                                {
+                                    addresses.length > 1 && (
+                                        <span className={style.badge}>
+                                            (+{addresses.length - 1})
+                                        </span>
+                                    )
+                                }
+                            </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
-                            <a href="#" className={style.action} onClick={this.onUncollapse}>
+                            <a href="#" className={style.action} onClick={this.showDetails}>
                                 {
-                                    collapsed ? (
-                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
+                                    !transactionDialog ? (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="11" cy="11" r="8"></circle>
                                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                             <line x1="11" y1="8" x2="11" y2="14"></line>
@@ -151,12 +154,10 @@ export default class Transaction extends Component {
                             <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
-                            <a href="#" className={style.action} onClick={this.onUncollapse}>
+                            <a href="#" className={style.action} onClick={this.showDetails}>
                                 {
-                                    collapsed ? (
-                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round">
+                                    !transactionDialog ? (
+                                        <svg className={style.expandIcon} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <circle cx="11" cy="11" r="8"></circle>
                                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                             <line x1="11" y1="8" x2="11" y2="14"></line>
@@ -177,58 +178,100 @@ export default class Transaction extends Component {
                     </div>
                 </div>
                 {
-                    !collapsed && (
-                        <div className={style.expandedContent}>
-                            <div className={style.expandedItems}>
-                                <div className={style.confirmations}>
-                                    <span className={style.inlineLabel}>{t('transaction.confirmation')}:</span><span className={style.inlineValue}>{numConfirmations}</span>
-                                </div>
+                    transactionDialog && (
+                        <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
+                            <div className={style.detail}>
+                                <label>Type</label>
+                                <p>{arrow}</p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>Date</label>
+                                <p>{sDate}</p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>Status</label>
+                                <p>
+                                    <span className={[style.statusIndicator, statusStyle].join(' ')} style="display: inline-block;"></span>
+                                    <span className={style.status}>{statusText}</span>
+                                </p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>Fiat</label>
+                                <p>
+                                    <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
+                                        <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
+                                    </span>
+                                </p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>Amount</label>
+                                <p>
+                                    <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
+                                </p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>{t('transaction.fee')}</label>
                                 {
-                                    gas ? (
-                                        <div className={style.gas}>
-                                            <span className={style.inlineLabel}>{t('transaction.gas')}:</span><span className={style.inlineValue}>{gas}</span>
-                                        </div>
-                                    ) : null
+                                    fee && fee.amount ? (
+                                        <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>{fee.amount} {fee.unit}</p>
+                                    ) : (
+                                        <p>---</p>
+                                    )
                                 }
-                                {
-                                    weight ? (
-                                        <div className={style.weight}>
-                                            <span className={style.inlineLabel}>{t('transaction.weight')}:</span><span className={style.inlineValue}>{weight}</span>
-                                        </div>
-                                    ) : null
-                                }
-                                {
-                                    vsize ? (
-                                        <div className={style.virtualSize}>
-                                            <span className={style.inlineLabel}>{t('transaction.vsize')}:</span><span className={style.inlineValue}>{vsize}</span>
-                                        </div>
-                                    ) : null
-                                }
-                                {
-                                    size ? (
-                                        <div className={style.size}>
-                                            <span className={style.inlineLabel}>{t('transaction.size')}:</span><span className={style.inlineValue}>{size}</span>
-                                        </div>
-                                    ) : null
-                                }
-                                <div className={style.fee}>
-                                    <span className={style.inlineLabel}>{t('transaction.fee')}:</span>
+                            </div>
+                            <div className={[style.detail, style.addresses, addresses.length > 1 ? style.multi : ''].join(' ')}>
+                                <label>Address</label>
+                                <div>
                                     {
-                                        fee && fee.amount ? (
-                                            <span title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''} className={style.inlineValue}>{fee.amount} {fee.unit}</span>
-                                        ) : (
-                                            <span className={style.inlineValue}>---</span>
-                                        )
+                                        addresses.map(address => (
+                                            <p>{address}</p>
+                                        ))
                                     }
                                 </div>
                             </div>
-                            <div className={style.expandedTransactionContainer}>
-                                <div className={style.transactionId}>
-                                    <span className={style.inlineLabel}>{t('transaction.explorer')}:</span>
-                                    <span className={style.inlineValue}><A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A></span>
-                                </div>
+                            <div className={style.detail}>
+                                <label>{t('transaction.confirmation')}</label>
+                                <p>{numConfirmations}</p>
                             </div>
-                        </div>
+                            {
+                                gas ? (
+                                    <div className={style.detail}>
+                                        <label>{t('transaction.gas')}</label>
+                                        <p>{gas}</p>
+                                    </div>
+                                ) : null
+                            }
+                            {
+                                weight ? (
+                                    <div className={style.detail}>
+                                        <label>{t('transaction.weight')}</label>
+                                        <p>{weight}</p>
+                                    </div>
+                                ) : null
+                            }
+                            {
+                                vsize ? (
+                                    <div className={style.detail}>
+                                        <label>{t('transaction.vsize')}</label>
+                                        <p>{vsize}</p>
+                                    </div>
+                                ) : null
+                            }
+                            {
+                                size ? (
+                                    <div className={style.detail}>
+                                        <label>{t('transaction.size')}</label>
+                                        <p>{size}</p>
+                                    </div>
+                                ) : null
+                            }
+                            <div className={style.detail}>
+                                <label>{t('transaction.explorer')}</label>
+                                <p className="text-ellipsis">
+                                    <A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A>
+                                </p>
+                            </div>
+                        </Dialog>
                     )
                 }
             </div>
