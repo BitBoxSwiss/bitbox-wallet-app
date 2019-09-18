@@ -353,4 +353,8 @@
     .m-top-quarter-on-small {
         margin-top: var(--space-quarter);
     }
+
+    .hide-on-small {
+        display: none;
+    }
 }

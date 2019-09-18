@@ -31,6 +31,8 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
+import { SwissMadeOpenSource } from '../../icon/logo';
+import { Footer } from '../../layout/footer';
 import { Header } from '../../layout/header';
 import { toggleForceHide } from '../../sidebar/sidebar';
 import Status from '../../status/status';
@@ -701,6 +703,9 @@ class BitBox02 extends Component<Props, State> {
                                 </div>
                             </Step>
                         </Steps>
+                        <Footer>
+                            <SwissMadeOpenSource />
+                        </Footer>
                     </div>
                     {
                         attestationResult === false && (

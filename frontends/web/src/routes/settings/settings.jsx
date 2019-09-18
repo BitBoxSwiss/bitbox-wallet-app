@@ -23,7 +23,7 @@ import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
 import { Header, Footer } from '../../components/layout';
-import { Shift } from '../../components/icon/logo';
+import { SwissMadeOpenSource } from '../../components/icon/logo';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import * as style from '../../components/fiat/fiat.css';
 
@@ -230,9 +230,8 @@ export default class Settings extends Component {
                                     </div>
                                 )
                             }
-                            <hr />
                             <Footer>
-                                <Shift />
+                                <SwissMadeOpenSource />
                             </Footer>
                         </div>
                     </div>

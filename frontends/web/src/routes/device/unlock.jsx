@@ -21,7 +21,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
 import { Message } from '../../components/message/message';
-import { Shift } from '../../components/icon/logo';
+import { SwissMadeOpenSource } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Header, Footer } from '../../components/layout';
@@ -134,7 +134,7 @@ export default class Unlock extends Component {
             <div class="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className="innerContainer">
+                    <div className="innerContainer scrollableContainer">
                         <div className="content narrow padded isVerticallyCentered">
                             <AppLogo />
                             <div class="box large">
@@ -167,9 +167,8 @@ export default class Unlock extends Component {
                                 }
                             </div>
                         </div>
-                        <hr />
                         <Footer>
-                            <Shift />
+                            <SwissMadeOpenSource />
                         </Footer>
                     </div>
                 </div>

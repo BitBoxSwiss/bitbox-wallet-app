@@ -21,7 +21,6 @@ import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiGet, apiPost } from '../../../../utils/request';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
-import * as style from '../../../../components/style.css';
 import * as dialogStyle from '../../../../components/dialog/dialog.css';
 
 @translate()
@@ -74,13 +73,9 @@ export default class UpgradeFirmware extends Component {
             <div>
                 <SettingsButton
                     onClick={() => this.setState({ activeDialog: true })}
-                    disabled={disabled}>
+                    disabled={disabled}
+                    optionalText={newVersion}>
                     {t('upgradeFirmware.button')}
-                    {
-                        currentVersion !== null && newVersion !== currentVersion && (
-                            <div class={style.badge}>1</div>
-                        )
-                    }
                 </SettingsButton>
                 {
                     activeDialog && (
