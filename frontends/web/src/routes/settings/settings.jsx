@@ -91,9 +91,7 @@ export default class Settings extends Component {
         }
         eth.activeERC20Tokens = activeTokens;
         setConfig({
-            backend: {
-                eth,
-            }
+            backend: { eth }
         })
             .then(config => this.setState({ config }));
     }
