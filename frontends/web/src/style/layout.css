@@ -35,6 +35,11 @@
     color: var(--color-softblack);
 }
 
+.text-ellipsis {
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+
 .first {
     margin-top: 0 !important;
 }
