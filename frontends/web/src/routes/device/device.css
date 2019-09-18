@@ -11,6 +11,7 @@
     margin: 0 auto;
     max-height: 100vh;
     overflow: auto;
+    padding: 0 var(--space-half);
 }
 
 .scrollable {
