@@ -20,7 +20,6 @@ import * as style from '../../../components/steps/steps.css';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-// import SimpleMarkup from '../../../utils/simplemarkup';
 import { Backup, BackupsListItem } from '../../backups/backup';
 import * as backupStyle from '../../backups/backups.css';
 import { Button } from '../../forms';
@@ -80,7 +79,7 @@ class Backups extends Component<Props, State> {
                 if (this.props.backupOnAfterRestore) {
                     this.props.backupOnAfterRestore(success);
                 }
-            }
+            },
         );
     }
 

@@ -15,19 +15,17 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { Button } from '../../components/forms';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import { store as panelStore } from '../../components/guide/guide';
 import { AppLogo } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
-import { PasswordSingleInput } from '../../components/password';
 import { toggleForceHide } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
-import { apiPost } from '../../utils/request';
 import * as style from './device.css';
+import { SkipForTesting } from './skipfortesting';
 
 interface TestingProps {
     testing?: boolean;
@@ -76,48 +74,6 @@ class Waiting extends Component<WaitingProps> {
                     <Entry entry={t('guide.waiting.useWithoutDevice')} />
                 </Guide>
             </div>
-        );
-    }
-}
-
-interface SkipForTestingProps {
-    show: boolean;
-}
-
-interface SkipForTestingState {
-    testPIN: string;
-}
-
-class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState> {
-    public state = {
-        testPIN: '',
-    };
-
-    private registerTestingDevice = (e: Event) => {
-        apiPost('test/register', { pin: this.state.testPIN });
-        e.preventDefault();
-    }
-
-    private handleFormChange = (value: string) => {
-        this.setState({ testPIN: value });
-    }
-
-    public render({ show }: RenderableProps<SkipForTestingProps>, { testPIN }: SkipForTestingState) {
-        if (!show) {
-            return null;
-        }
-        return (
-            <form onSubmit={this.registerTestingDevice} style="flex-grow: 0; max-width: 400px; width: 100%; align-self: center;">
-                <PasswordSingleInput
-                    type="password"
-                    autoFocus
-                    label="Test Password"
-                    onValidPassword={this.handleFormChange}
-                    value={testPIN} />
-                <Button type="submit" secondary>
-                    Skip for Testing
-                </Button>
-            </form>
         );
     }
 }

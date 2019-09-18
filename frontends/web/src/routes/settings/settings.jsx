@@ -30,12 +30,12 @@ import * as style from '../../components/fiat/fiat.css';
 @translate()
 export default class Settings extends Component {
     erc20TokenCodes = {
-        'usdt': 'Tether USD',
-        'link': 'Chainlink',
-        'bat': 'Basic Attention Token',
-        'mkr': 'Maker',
-        'zrx': 'ZRX',
-        'dai': 'Dai v1.0',
+        usdt: 'Tether USD',
+        link: 'Chainlink',
+        bat: 'Basic Attention Token',
+        mkr: 'Maker',
+        zrx: 'ZRX',
+        dai: 'Dai v1.0',
     }
 
     state = {
@@ -79,20 +79,20 @@ export default class Settings extends Component {
     }
 
     handleToggleERC20Token = event => {
-        let config = this.state.config
+        let config = this.state.config;
         if (!config || !config.backend.eth) {
             return;
         }
-        const tokenCode = event.target.dataset["tokencode"];
+        const tokenCode = event.target.dataset.tokencode;
         let eth = config.backend.eth;
-        let activeTokens = eth.activeERC20Tokens.filter(val => val != tokenCode);
+        let activeTokens = eth.activeERC20Tokens.filter(val => val !== tokenCode);
         if (event.target.checked) {
             activeTokens.push(tokenCode);
         }
         eth.activeERC20Tokens = activeTokens;
         setConfig({
             backend: {
-                eth: eth,
+                eth,
             }
         })
             .then(config => this.setState({ config }));
@@ -152,7 +152,7 @@ export default class Settings extends Component {
                                                                     onChange={this.handleToggleAccount}
                                                                     label={t(`settings.accounts.${account.replace('Active', '')}`)}
                                                                     className="text-medium" />
-                                                            ) : null
+                                                            ) : null;
                                                         })
                                                     }
                                                 </div>
@@ -170,7 +170,7 @@ export default class Settings extends Component {
                                                                     onChange={this.handleToggleAccount}
                                                                     label={t(`settings.accounts.${account.replace('Active', '')}`)}
                                                                     className="text-medium" />
-                                                            ) : null
+                                                            ) : null;
                                                         })
                                                     }
                                                 </div>
@@ -196,21 +196,22 @@ export default class Settings extends Component {
                                         <div class={style.content}>
                                             <label className="labelLarge">ERC20-Tokens (BETA):</label>
                                             { Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => {
-                                                  return (
-                                                      <Checkbox
-                                                          checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
-                                                          disabled={!config.backend.ethereumActive}
-                                                          id={'erc20-' + tokenCode}
-                                                          data-tokencode={tokenCode}
-                                                          onChange={this.handleToggleERC20Token}
-                                                          label={tokenName}
-                                                          className="text-medium" />
-                                                  );
+                                                return (
+                                                    <Checkbox
+                                                        key={tokenCode}
+                                                        checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
+                                                        disabled={!config.backend.ethereumActive}
+                                                        id={'erc20-' + tokenCode}
+                                                        data-tokencode={tokenCode}
+                                                        onChange={this.handleToggleERC20Token}
+                                                        label={tokenName}
+                                                        className="text-medium" />
+                                                );
                                             })
                                             }
                                         </div>
 
-                                        <hr/>
+                                        <hr />
                                         <div class="subHeaderContainer">
                                             <div class="subHeader">
                                                 <h3>{t('settings.expert.title')}</h3>

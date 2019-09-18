@@ -27,7 +27,7 @@ export default class Transactions extends Component {
         super(props);
         this.state = {
             fiatCode: store.state.active,
-        }
+        };
     }
 
     render({
