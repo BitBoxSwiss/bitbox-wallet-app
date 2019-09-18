@@ -80,7 +80,7 @@ class Backups extends Component<Props, State> {
                 if (this.props.backupOnAfterRestore) {
                     this.props.backupOnAfterRestore(success);
                 }
-            }
+            },
         );
     }
 

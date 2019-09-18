@@ -140,7 +140,7 @@ export class PasswordSingleInput extends Component {
                         checked={seePlaintext}
                         label={t('password.show', {
                             label: showLabel || label
-                        })} /> 
+                        })} />
                 }>
                 {warning}
             </Input>

@@ -32,16 +32,16 @@ import LTC_GREY from './assets/ltc-white.svg';
 
 import BAT from './assets/bat-color.svg';
 import BAT_GREY from './assets/bat-white.svg';
-import MKR from './assets/mkr-color.svg';
-import MKR_GREY from './assets/mkr-white.svg';
-import ZRX from './assets/zrx-color.svg';
-import ZRX_GREY from './assets/zrx-white.svg';
-import USDT from './assets/usdt-color.svg';
-import USDT_GREY from './assets/usdt-white.svg';
 import DAI from './assets/dai-color.svg';
 import DAI_GREY from './assets/dai-white.svg';
 import LINK from './assets/link-color.svg';
 import LINK_GREY from './assets/link-white.svg';
+import MKR from './assets/mkr-color.svg';
+import MKR_GREY from './assets/mkr-white.svg';
+import USDT from './assets/usdt-color.svg';
+import USDT_GREY from './assets/usdt-white.svg';
+import ZRX from './assets/zrx-color.svg';
+import ZRX_GREY from './assets/zrx-white.svg';
 
 import ShiftLogo from './assets/shift-cryptosecurity-logo.svg';
 import * as style from './logo.css';
@@ -59,15 +59,15 @@ export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} drag
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
 
 const logoMap = {
-    btc: [BTC, BTC_GREY],
-    tbtc: [BTC, BTC_GREY],
-    rbtc: [BTC, BTC_GREY],
-    ltc: [LTC, LTC_GREY],
-    tltc: [LTC, LTC_GREY],
-    eth: [ETH, ETH_GREY],
-    teth: [ETH, ETH_GREY],
-    reth: [ETH, ETH_GREY],
-    erc20Test: [ETH, ETH_GREY],
+    'btc': [BTC, BTC_GREY],
+    'tbtc': [BTC, BTC_GREY],
+    'rbtc': [BTC, BTC_GREY],
+    'ltc': [LTC, LTC_GREY],
+    'tltc': [LTC, LTC_GREY],
+    'eth': [ETH, ETH_GREY],
+    'teth': [ETH, ETH_GREY],
+    'reth': [ETH, ETH_GREY],
+    'erc20Test': [ETH, ETH_GREY],
 
     'eth-erc20-usdt': [USDT, USDT_GREY],
     'eth-erc20-dai': [DAI, DAI_GREY],

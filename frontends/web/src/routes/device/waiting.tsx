@@ -88,6 +88,7 @@ interface SkipForTestingState {
     testPIN: string;
 }
 
+// tslint:disable-next-line:max-classes-per-file
 class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState> {
     public state = {
         testPIN: '',

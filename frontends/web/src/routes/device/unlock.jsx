@@ -21,12 +21,11 @@ import { apiGet, apiPost } from '../../utils/request';
 import { Button } from '../../components/forms';
 import { PasswordSingleInput } from '../../components/password';
 import { Message } from '../../components/message/message';
-import { Shift } from '../../components/icon/logo';
+import { Shift, AppLogo } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Header, Footer } from '../../components/layout';
 import Spinner from '../../components/spinner/Spinner';
-import { AppLogo } from '../../components/icon/logo';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',

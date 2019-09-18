@@ -19,17 +19,9 @@ import { translate } from 'react-i18next';
 import Transaction from './transaction';
 import A from '../../components/anchor/anchor';
 import * as style from './transactions.css';
-import { store } from '../rates/rates';
 
 @translate()
 export default class Transactions extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            fiatCode: store.state.active,
-        }
-    }
-
     render({
         t,
         explorerURL,

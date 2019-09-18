@@ -31,7 +31,7 @@ import { Dialog } from '../../../components/dialog/dialog';
 @translate()
 export default class ManageBackups extends Component {
     constructor(props) {
-        super(props);   
+        super(props);
         this.state = {
             sdCardInserted: this.props.sdCardInserted === 'true',
             activeDialog: !this.state.sdCardInserted,

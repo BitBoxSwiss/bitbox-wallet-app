@@ -188,7 +188,17 @@ export default class Receive extends Component {
                                 href="#"
                                 className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.previous].join(' ')}
                                 onClick={this.previous}>
-                                <svg className={[style.arrow, verifying ? style.disabled : ''].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg
+                                    className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 8 8 12 12 16"></polyline>
                                     <line x1="16" y1="12" x2="8" y2="12"></line>
@@ -205,7 +215,17 @@ export default class Receive extends Component {
                                 className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.next].join(' ')}
                                 onClick={this.next}>
                                 {/* {t('button.next')} */}
-                                <svg className={[style.arrow, verifying ? style.disabled : ''].join(' ')} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg
+                                    className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <polyline points="12 16 16 12 12 8"></polyline>
                                     <line x1="8" y1="12" x2="16" y2="12"></line>
