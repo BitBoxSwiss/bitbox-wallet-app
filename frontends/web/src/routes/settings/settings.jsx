@@ -229,10 +229,10 @@ export default class Settings extends Component {
                                     </div>
                                 )
                             }
-                            <Footer>
-                                <SwissMadeOpenSource />
-                            </Footer>
                         </div>
+                        <Footer>
+                            <SwissMadeOpenSource />
+                        </Footer>
                     </div>
                 </div>
                 <Guide>

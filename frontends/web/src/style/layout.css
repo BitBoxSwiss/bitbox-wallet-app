@@ -137,12 +137,11 @@
 
 .content {
     display: flex;
-    flex: 1 1 auto;
+    flex: 1;
     flex-direction: column;
     margin: 0 auto;
     max-width: var(--content-width);
     padding: 0 var(--space-default);
-    height: 100%;
     width: 100%;
 }
 
