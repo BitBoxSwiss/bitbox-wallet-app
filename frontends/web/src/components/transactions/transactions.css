@@ -25,7 +25,7 @@
 
 .headers {
   height: 48px;
-  color: var(--color-gray);
+  color: var(--color-softblack);
 }
 
 .columns >  *,

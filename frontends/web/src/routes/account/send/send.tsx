@@ -533,7 +533,7 @@ class Send extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className="flex flex-row flex-between">
-                                <label className="labelLarge">Available Balance</label>
+                                <label className="labelXLarge">Available Balance</label>
                                 {
                                     coinControl && (
                                         <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
@@ -555,7 +555,7 @@ class Send extends Component<Props, State> {
                                 )
                             }
                             <div className={style.container}>
-                                <label className="labelLarge">Transaction Details</label>
+                                <label className="labelXLarge">Transaction Details</label>
                             </div>
                             <div className="box large m-bottom-default">
                                 <div className="columnsContainer">
@@ -637,7 +637,10 @@ class Send extends Component<Props, State> {
                                     </div>
                                     {
                                         feeTarget && (
-                                            <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                                            <div>
+                                                <label>{t('send.feeTarget.estimate')}</label>
+                                                <p class={style.feeDescription}>{t('send.feeTarget.description.' + feeTarget)}</p>
+                                            </div>
                                         )
                                     }
                                 </div>

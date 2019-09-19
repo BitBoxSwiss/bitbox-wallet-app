@@ -295,7 +295,7 @@ class Account extends Component<Props, State> {
                                 {t(`account.info.${code}`, { defaultValue: '' })}
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center">
-                                <label className="labelLarge">Available Balance</label>
+                                <label className="labelXLarge">Available Balance</label>
                                 <div className={style.actions}>
                                     <a href={`/account/${code}/send`} className={['labelLarge labelLink', style.accountLink, style.send].join(' ')}>
                                         <span>{t('button.send')}</span>

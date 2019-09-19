@@ -14,7 +14,7 @@
     --color-rock: #aaa;
     --color-gray: #777777;
     --color-lightergray: #E5E5E5;
-    --color-softblack: #3d3935;
+    --color-softblack: #333333;
     --color-dark: #323230;
     --color-yellow: #fef160;
     --color-blue: #5E94BF;
@@ -69,6 +69,7 @@
     --spacing-default: 1rem;
     --spacing-half: .5rem;
 
+    --space-large: 64px;
     --space-default: 32px;
     --space-half: 16px;
     --space-quarter: 8px;
@@ -91,6 +92,7 @@
     /* header */
     --header-height: 70px;
     --header-default-font-size: 24px;
+    --header-small-font-size: 20px;
 
     /* content */
     --content-width: 1080px;

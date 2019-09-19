@@ -33,7 +33,7 @@ export default class Transactions extends Component {
         return (
             <div className={style.container}>
                 <div className="flex flex-row flex-between flex-items-center">
-                    <label className="labelLarge">Transaction History</label>
+                    <label className="labelXLarge">Transaction History</label>
                     {
                         exported ? (
                             <A href={exported} className="labelLarge labelLink">{t('account.openFile')}</A>
@@ -43,11 +43,11 @@ export default class Transactions extends Component {
                     }
                 </div>
                 <div className={[style.columns, style.headers, style.hideOnMedium].join(' ')}>
-                    <div className={style.type}>Type</div>
-                    <div className={style.date}>Date</div>
-                    <div className={style.address}>Address</div>
-                    <div className={style.status}>Status</div>
-                    <div className={style.fiat}>Fiat</div>
+                    <div className={style.type}>TYPE</div>
+                    <div className={style.date}>DATE</div>
+                    <div className={style.address}>ADDRESS</div>
+                    <div className={style.status}>STATUS</div>
+                    <div className={style.fiat}>FIAT</div>
                     <div className={style.currency}>{unit}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
