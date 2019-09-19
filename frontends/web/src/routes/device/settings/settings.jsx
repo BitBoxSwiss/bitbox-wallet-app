@@ -136,7 +136,7 @@ export default class Settings extends Component {
                                             </div>
                                         </div>
                                         <div className="box slim divide">
-                                            <SettingsButton href={`/manage-backups/${deviceID}`} disabled={lock}>
+                                            <SettingsButton href={`/manage-backups/${deviceID}`} disabled={lock} link>
                                                 {t('deviceSettings.secrets.manageBackups')}
                                             </SettingsButton>
                                             <ChangePIN deviceID={deviceID} />

@@ -104,13 +104,13 @@ class Backups extends Component<Props, State> {
     ) {
         if (sdCardInserted === false) {
             return (
-                <div class={['content', !requireConfirmation ? 'noSpace' : ''].join(' ')}>
+                <div className="box m-top-default">
                     <p class="first">{t('backup.insert')}</p>
                     <div class="buttons">
-                        {children}
-                        <Button secondary onClick={this.refresh}>
+                        <Button primary onClick={this.refresh}>
                             {t('backup.insertButton')}
                         </Button>
+                        {children}
                     </div>
                 </div>
             );
@@ -119,7 +119,7 @@ class Backups extends Component<Props, State> {
         }
 
         return (
-            <div className="box large">
+            <div className="box large m-top-default">
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
                 <div class={style.backupsList} ref={this.setScrollableContainerRef}>
                     {
@@ -141,15 +141,15 @@ class Backups extends Component<Props, State> {
                 <div class="buttons">
                     {
                         showCreate && (
-                            <Check
-                                selectedBackup={selectedBackup}
+                            <Create
+                                onCreate={this.refresh}
                                 deviceID={deviceID} />
                         )
                     }
                     {
                         showCreate && (
-                            <Create
-                                onCreate={this.refresh}
+                            <Check
+                                selectedBackup={selectedBackup}
                                 deviceID={deviceID} />
                         )
                     }

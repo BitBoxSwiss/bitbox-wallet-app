@@ -21,6 +21,7 @@ import { PasswordInput } from '../password';
 import { alertUser } from '../alert/Alert';
 import { apiPost } from '../../utils/request';
 import { Dialog } from '../dialog/dialog';
+import * as style from '../dialog/dialog.css';
 
 @translate()
 export default class Create extends Component {
@@ -89,7 +90,7 @@ export default class Create extends Component {
         activeDialog,
     }) {
         return (
-            <span>
+            <div>
                 <Button
                     primary
                     onClick={() => this.setState({ activeDialog: true })}>
@@ -116,19 +117,19 @@ export default class Create extends Component {
                                     placeholder={t('backup.create.password.placeholder')}
                                     onInput={this.handleFormChange}
                                     value={recoveryPassword} />
-                                <div class={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                    <Button secondary onClick={this.abort}>
-                                        {t('button.abort')}
-                                    </Button>
+                                <div class={style.actions}>
                                     <Button type="submit" primary disabled={waiting || !this.validate()}>
                                         {t('button.create')}
+                                    </Button>
+                                    <Button transparent onClick={this.abort}>
+                                        {t('button.abort')}
                                     </Button>
                                 </div>
                             </form>
                         </Dialog>
                     )
                 }
-            </span>
+            </div>
         );
     }
 }

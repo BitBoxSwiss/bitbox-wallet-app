@@ -20,6 +20,7 @@ import { Button } from '../forms';
 import { Dialog } from '../dialog/dialog';
 import { PasswordSingleInput } from '../password';
 import { apiPost } from '../../utils/request';
+import * as style from '../dialog/dialog.css';
 
 @translate()
 export default class Check extends Component {
@@ -94,7 +95,7 @@ export default class Check extends Component {
         message,
     }) {
         return (
-            <span>
+            <div>
                 <Button
                     secondary
                     disabled={selectedBackup === null}
@@ -109,8 +110,8 @@ export default class Check extends Component {
                             { message ? (
                                 <div>
                                     <p style="min-height: 3rem;">{message}</p>
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                        <Button primary onClick={this.abort}>
+                                    <div className={style.actions}>
+                                        <Button transparent onClick={this.abort}>
                                             {t('button.back')}
                                         </Button>
                                     </div>
@@ -122,12 +123,12 @@ export default class Check extends Component {
                                         placeholder={t('backup.check.password.placeholder')}
                                         showLabel={t('backup.check.password.showLabel')}
                                         onValidPassword={this.setValidPassword} />
-                                    <div className={['buttons', 'flex', 'flex-row', 'flex-end'].join(' ')}>
-                                        <Button secondary onClick={this.abort}>
-                                            {t('button.back')}
-                                        </Button>
+                                    <div className={style.actions}>
                                         <Button type="submit" primary disabled={!this.validate()}>
                                             {t('button.check')}
+                                        </Button>
+                                        <Button transparent onClick={this.abort}>
+                                            {t('button.back')}
                                         </Button>
                                     </div>
                                 </form>
@@ -135,7 +136,7 @@ export default class Check extends Component {
                         </Dialog>
                     )
                 }
-            </span>
+            </div>
         );
     }
 }
