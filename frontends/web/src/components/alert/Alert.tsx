@@ -18,6 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { Dialog } from '../dialog/dialog';
+import * as style from '../dialog/dialog.css';
 import { Button } from '../forms';
 
 let alertUser: (message: string, callback?: () => void) => void;
@@ -76,7 +77,7 @@ class Alert extends Component<TranslateProps, State> {
                         </p>
                     )) : null
                 }
-                <div class="buttons flex flex-row flex-end">
+                <div class={style.actions}>
                     <Button
                         primary
                         ref={this.setButtonRef}
