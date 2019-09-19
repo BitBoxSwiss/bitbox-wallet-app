@@ -26,14 +26,14 @@ import * as style from './guide.css';
 export interface SharedProps {
     shown: boolean;
     activeSidebar: boolean;
-    forceHiddenSidebar: boolean;
+    sidebarStatus: string;
     guideExists: boolean;
 }
 
 export const store = new Store<SharedProps>({
     shown: false,
     activeSidebar: false,
-    forceHiddenSidebar: false,
+    sidebarStatus: '',
     guideExists: false,
 });
 

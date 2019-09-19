@@ -20,7 +20,7 @@ import { Guide } from '../../components/guide/guide';
 import { store as panelStore } from '../../components/guide/guide';
 import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
 import { Footer, Header } from '../../components/layout';
-import { toggleForceHide } from '../../components/sidebar/sidebar';
+import { setSidebarStatus } from '../../components/sidebar/sidebar';
 import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { debug } from '../../utils/env';
@@ -35,8 +35,9 @@ type WaitingProps = TestingProps & TranslateProps;
 
 class Waiting extends Component<WaitingProps> {
     public componentWillMount() {
-        if (!panelStore.state.forceHiddenSidebar) {
-            toggleForceHide();
+        const { sidebarStatus } = panelStore.state;
+        if (sidebarStatus === '') {
+            setSidebarStatus('forceCollapsed');
         }
     }
 

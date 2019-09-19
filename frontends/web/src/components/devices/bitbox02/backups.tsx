@@ -114,8 +114,6 @@ class Backups extends Component<Props, State> {
                         {
                             backups.backups!.length ? (
                                 <div>
-                                    {/* <SimpleMarkup tagName="p" markup={t('backup.list')} /> */}
-                                    <p>The following backups have been found. Please select which backup to restore.</p>
                                     <div className={backupStyle.listContainer}>
                                         {
                                             backups.backups!.map(backup => (

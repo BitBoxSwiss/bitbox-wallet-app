@@ -9,7 +9,8 @@
 
 .listContainer {
     margin-top: var(--space-default);
-    max-height: 480px;
+    max-height: 380px;
+    min-width: 512px;
     overflow: scroll;
 }
 
