@@ -109,7 +109,7 @@ export default class WaitDialog extends Component {
             </div>
         );
         return (
-            <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001; background-color: #ccc;">
+            <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001;">
                 <div className={[style.modal, isActive].join(' ')}>
                     {
                         title && (
