@@ -10,7 +10,7 @@ label,
 dt {
     color: var(--color-secondary);
     display: block;
-    font-size: var(--size-small);
+    font-size: var(--size-default);
     font-weight: 400;
     line-height: 1;
     margin-bottom: 5px;
@@ -18,7 +18,12 @@ dt {
 
 .labelLarge {
     font-size: var(--size-default);
-    margin-bottom: calc(var(--space-half) + var(--space-quarter));
+    margin-bottom: calc(var(--space-half));
+}
+
+.labelXLarge {
+    font-size: var(--header-small-font-size);
+    margin-bottom: calc(var(--space-half));
 }
 
 .labelLink {

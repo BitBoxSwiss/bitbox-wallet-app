@@ -154,7 +154,7 @@
 }
 
 .content.padded {
-    padding-top: var(--space-default);
+    padding-top: var(--space-large);
 }
 
 @media (max-width: 768px) {

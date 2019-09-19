@@ -19,6 +19,8 @@ import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import { apiGet } from '../../../utils/request';
+import { SwissMadeOpenSource } from '../../icon/logo';
+import { Footer } from '../../layout';
 import { Header } from '../../layout/header';
 import { SettingsButton } from '../../settingsButton/settingsButton';
 import { SettingsItem } from '../../settingsButton/settingsItem';
@@ -154,6 +156,9 @@ class Settings extends Component<Props, State> {
                                 </div>
                             </div>
                         </div>
+                        <Footer>
+                            <SwissMadeOpenSource />
+                        </Footer>
                     </div>
                 </div>
             </div>
