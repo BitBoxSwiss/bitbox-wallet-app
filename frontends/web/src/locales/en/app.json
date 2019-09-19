@@ -85,7 +85,7 @@
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the micro SD card to manage backups.",
     "insertButton": "I have inserted the micro SD card",
-    "list": "The <strong>following backups </strong>have been found on the microSD card:",
+    "list": "Your microSD card backups",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
       "confirmTitle": "Restore Backup",
@@ -172,7 +172,7 @@
     },
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
     "pairing": {
-      "confirmButton": "Confirm & Continue",
+      "confirmButton": "Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
       "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
       "title": "Verify Pairing Code",
@@ -355,15 +355,15 @@
   },
   "guide": {
     "accountDescription": {
-      "text": "This is your account overview. It shows incoming and outgoing transactions. The balance is displayed for each account separately. Consult the guide in settings to learn more about the different account types.",
-      "title": "What is displayed here?"
+      "text": "Your account overview shows your available balance as well as incoming and outgoing transactions. Our guide in ‘Settings’ has more information about each account type. ",
+      "title": "What does this page show me?"
     },
     "accountFiat": {
-      "text": "Yes, you can click on any ticker to rotate through several fiat currencies. You can also change the list of currencies in the settings.",
+      "text": "Yes. Click on any ticker to rotate through fiat currencies. You can change the list of currencies in the settings.",
       "title": "Can I display other conversion rates?"
     },
     "accountIncomingBalance": {
-      "text": "Incoming sums up the amounts that are being transferred to you but have not yet been confirmed by the network.",
+      "text": "Incoming sums up the amounts transferred to you but not yet confirmed by the network.",
       "title": "What does incoming mean?"
     },
     "accountInfo": {
@@ -381,35 +381,35 @@
         "text": "www.cryptocompare.com",
         "url": "https://www.cryptocompare.com"
       },
-      "text": "The exchange rates are updated every minute from CryptoCompare.",
-      "title": "Which rates are used?"
+      "text": "We update exchange rates every minute from CryptoCompare. www.cryptocompare.com\n",
+      "title": "Which exchange rates apply?"
     },
     "accountReload": {
-      "text": "All transaction information is updated automatically.",
-      "title": "How can I reload the transaction history?"
+      "text": "There’s no need. Your transaction information is updated automatically.",
+      "title": "Can I reload the transaction history?"
     },
     "accountSendDisabled": {
       "text": "The ‘Send’ button is activated when your balance is more than zero.",
       "title": "Why can't I send any {{unit}}?"
     },
     "accountTransactionAttributesBTC": {
-      "text": "Virtual size: Used to determine network fee. You have successfully saved on fees if it is smaller than the size of the transaction.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: Introduced with Segwit, it is a new metric to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
-      "title": "Bitcoin-related transaction details"
+      "text": "Virtual size: Determines the network fee. You successfully saved on fees if it is smaller than the transaction size.\nSize: Actual transaction size in bytes when serialized according to the underlying blockchain.\nWeight: A new metric introduced with Segwit to evaluate transaction and block sizes. Each segregated witness byte counts as one, everything else as four weight units. Instead of one megabyte in actual size, the block size limit is now four million weight units.",
+      "title": "What about the Bitcoin-specific transaction details?"
     },
     "accountTransactionAttributesGeneric": {
-      "text": "Confirmations: When your transaction is first broadcast it will be unconfirmed. You will need to wait for it to be included in to a block by a miner, after which it will have 1 confirmation. Each block broadcast on the network thereafter will add another confirmation to your transaction. Generally merchants and other network actors will only accept transactions with between 3-6 confirmations before considering the transaction as settled. \nTransaction ID: A unique identification number that can be used to lookup a transaction in a block explorer.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
-      "title": "What is the information shown in the transaction details?"
+      "text": "Confirmations: Your first transaction broadcast is unconfirmed until a miner includes it in a block, after which it has one confirmation. Each block broadcast on the network adds another confirmation to your transaction. Generally merchants and other network actors will only settle transactions with between three to six confirmations.\nTransaction ID: A unique identification number that allows you to look up a transaction in a block explorer.\nFee: Miners are paid a transaction fee as an incentive to include transactions in the blocks they mine. To learn more, click on the send button.",
+      "title": "What’s the information in the transaction details?"
     },
     "accountTransactionConfirmation": {
-      "text": "This is a transaction that has been broadcasted to the network and is waiting to be confirmed.",
+      "text": "A transaction broadcast to the network but not yet confirmed.",
       "title": "What is a pending transaction?"
     },
     "accountTransactionLabel": {
-      "text": "It is the address where you received the coins or sent the coins to. An address encodes how (and thus by whom) the coins can be spent.",
+      "text": "It’s the address you received coins from or sent coins to.",
       "title": "Which address is displayed for each transaction?"
     },
     "accountTransactionTime": {
-      "text": "The time the transaction has been confirmed on the blockchain.",
+      "text": "The blockchain transaction confirmation time.",
       "title": "What time is displayed?"
     },
     "appendix": {
@@ -481,23 +481,23 @@
     },
     "receive": {
       "address": {
-        "text": "Give it to others to send you some coins.\n(Try to independently verify the address, for example with a phone call.)",
+        "text": "You can give the address  to others to send you some coins. Just make you you are sending to the correct address.",
         "title": "What do I do with an address?"
       },
       "addressChange": {
-        "text": "As soon as an address is used in a transaction a new address is added to the list to replace it. There will always be 20 unused addresses available in the list.",
+        "text": "As soon as you transact,  a new address is automatically added to the list so there are always 20 unused addresses available.",
         "title": "When do the addresses change?"
       },
       "howVerify": {
-        "text": "Click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.",
+        "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
         "title": "How can I verify an address securely?"
       },
       "whyMany": {
-        "text": "For privacy and security reasons, you should never hand out the same address twice. Click on 'Next' to get a new address for a different purpose. You can generate up to 20 addresses at a time. All addresses are derived from your single backup seed. (Think of addresses like invoice numbers.)",
-        "title": "Why are there many addresses?"
+        "text": "To maintain privacy and security, never hand out the same address twice. If you have used an address, click on 'Next' for a new address. You can generate up to 20 addresses at a time. Think of addresses like invoice numbers. All addresses are derived from your single backup seed.",
+        "title": "Why so many addresses?"
       },
       "whyVerify": {
-        "text": "One of the reasons for buying a hardware wallet like the BitBox is that you should not trust your computer due to its big attack surface. Consequently, you should not trust your computer to generate and display authentic addresses. The button to verify the address securely makes the BitBox send the address to a paired mobile phone, from which you can also scan and verify the QR code.",
+        "text": "You shouldn’t trust your computer to generate and display authentic addresses. It’s big attack surface makes it significantly more vulnerable than a hardware wallet. For the BitBox01, The button to verify the address securely sends the address to a paired mobile phone, from which you can also scan and verify the QR code. For the BitBox02, the address can be verified directly on the BitBox02 display.",
         "title": "Why should I verify the address securely?"
       }
     },
@@ -527,7 +527,7 @@
     },
     "settings": {
       "btc-p2pkh": {
-        "text": "This uses an old transaction format, which has been superseded by the Segwit address and transaction formats. If you used the BitBox with the old desktop app before, this is the account containing your coins currently. To save fees in the future transfer them to the Bitcoin account with a transaction to an address in the Bitcoin or Bitcoin bech32 account.",
+        "text": "An account that uses an old transaction format, now superseded by the Segwit address and transaction formats. If you used the BitBox with the old desktop app then this account will contain your coins. We recommend transferring your coins to a Bitcoin or Bitcoin bech32 account to save transaction fees.",
         "title": "What is Bitcoin Legacy?"
       },
       "btc-p2sh": {
@@ -543,7 +543,7 @@
           "text": "Bech32 adoption",
           "url": "https://en.bitcoin.it/wiki/Bech32_adoption"
         },
-        "text": "To reap the full benefits of segwit's cheaper network fees, Bitcoin bech32 should be used. It uses a new address format called bech32, but this format is not accepted everywhere yet.",
+        "text": "Use the new Bitcoin bech32 address format to reap the full benefits of segwit's cheaper network fees. Remember that this format is not accepted everywhere yet.",
         "title": "What is Bitcoin bech32?"
       },
       "moreCoins": {
@@ -551,7 +551,7 @@
         "title": "Can you add more coins?"
       },
       "servers": {
-        "text": "This app communicates with servers of Shift Cryptosecurity to check for updates, load transactions, and send information to paired mobile apps.\nAdditionally, it retrieves the latest exchange rates from CryptoCompare. (The conversions are calculated locally, no amounts of yours are transmitted.)",
+        "text": "This app communicates with the Shift Cryptosecurity servers to check for updates, load transactions, and send information to paired mobile apps.\nThe app also retrieves the latest exchange rates from CryptoCompare. All conversions are calculated locally which means no data about the amount of your transaction is ever transmitted.\nNote: For Ethereum and ERC20 Tokens, we use Etherscan.io APIs.",
         "title": "Which servers does this app talk to?"
       },
       "whyMultipleAccounts": {
@@ -711,7 +711,7 @@
     },
     "showFull": "Show and verify full address on device",
     "title": "Get Coins",
-    "verify": "Verify address securely",
+    "verify": "Verify address on BitBox02",
     "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
     "warning": {
       "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage Device' in the sidebar."
@@ -831,7 +831,6 @@
         "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
         "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)"
       },
-      "estimate": "Estimated waiting time:",
       "label": {
         "economy": "economy",
         "high": "high",
@@ -855,7 +854,6 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum BETA",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Active accounts"
