@@ -82,6 +82,10 @@
     width: 20px;
 }
 
+.forceHidden .sidebarToggler {
+    display: none !important;
+}
+
 .guideIconContainer {
     margin-left: var(--space-half);
 }

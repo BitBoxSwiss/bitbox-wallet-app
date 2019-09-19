@@ -29,7 +29,7 @@ import SeedRestore from './setup/seed-restore';
 import { Initialize } from './setup/initialize';
 import Success from './setup/success';
 import Settings from './settings/settings';
-import { store as panelStore } from '../../components/guide/guide';
+import { setSidebarStatus } from '../../components/sidebar/sidebar';
 
 const DeviceStatus = Object.freeze({
     BOOTLOADER: 'bootloader',
@@ -100,10 +100,12 @@ export default class Device extends Component {
     onDeviceStatusChanged = () => {
         if (this.state.deviceRegistered) {
             apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
-                this.setState({ deviceStatus });
                 if (deviceStatus === 'seeded') {
-                    panelStore.setState({ forceHiddenSidebar: false });
+                    setSidebarStatus('');
+                } else {
+                    setSidebarStatus('forceHidden');
                 }
+                this.setState({ deviceStatus });
             });
         }
     }

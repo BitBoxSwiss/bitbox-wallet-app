@@ -34,7 +34,7 @@ import { store as panelStore } from '../../guide/guide';
 import { SwissMadeOpenSource } from '../../icon/logo';
 import { Footer } from '../../layout/footer';
 import { Header } from '../../layout/header';
-import { toggleForceHide } from '../../sidebar/sidebar';
+import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
 import WaitDialog from '../../wait-dialog/wait-dialog';
 import { BackupsV2 } from './backups';
@@ -108,8 +108,9 @@ class BitBox02 extends Component<Props, State> {
     private unsubscribe!: () => void;
 
     public componentWillMount() {
-        if (!panelStore.state.forceHiddenSidebar) {
-            toggleForceHide();
+        const { sidebarStatus } = panelStore.state;
+        if (['', 'forceCollapsed'].includes(sidebarStatus)) {
+            setSidebarStatus('forceHidden');
         }
     }
 
@@ -156,12 +157,13 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private onStatusChanged = () => {
-        const { showWizard, unlockOnly } = this.state;
+        const { showWizard, unlockOnly, appStatus } = this.state;
+        const { sidebarStatus } = panelStore.state;
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (status !== 'initialized' && !panelStore.state.forceHiddenSidebar) {
-                toggleForceHide();
-            } else if (status === 'initialized' && panelStore.state.forceHiddenSidebar) {
-                toggleForceHide();
+            if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
+                setSidebarStatus('forceHidden');
+            } else if (status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '') {
+                setSidebarStatus('');
             }
             if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
@@ -183,8 +185,9 @@ class BitBox02 extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        if (this.state.status === 'initialized' && panelStore.state.forceHiddenSidebar) {
-            toggleForceHide();
+        const { sidebarStatus } = panelStore.state;
+        if (this.state.status === 'initialized' && ['forceHidden', 'forceCollapsed'].includes(sidebarStatus)) {
+            setSidebarStatus('');
         }
         this.unsubscribe();
     }
@@ -514,7 +517,7 @@ class BitBox02 extends Component<Props, State> {
                                                     Continue
                                                 </Button>
                                                 <Button
-                                                    secondary
+                                                    transparent
                                                     onClick={() => this.setState({ appStatus: '' })}>
                                                     Go Back
                                                 </Button>
