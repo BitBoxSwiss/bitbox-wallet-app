@@ -831,6 +831,7 @@
         "low": "12 blocks (around 2 hours for Bitcoin, 30 minutes for Litecoin)",
         "normal": "6 blocks (around 1 hour for Bitcoin, 15 minutes for Litecoin)"
       },
+      "estimate": "Estimated wait time:",
       "label": {
         "economy": "economy",
         "high": "high",
@@ -854,6 +855,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
+      "ethereum": "Ethereum BETA",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Active accounts"
