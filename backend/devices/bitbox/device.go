@@ -74,6 +74,8 @@ const (
 	signatureBatchSize = 15
 
 	// ProductName is the name of the bitbox.
+	// If you change this, be sure to check the frontend and other places which assume this is a
+	// constant.
 	ProductName = "bitbox"
 
 	// backupDateFormat is the date format used in the backup name.

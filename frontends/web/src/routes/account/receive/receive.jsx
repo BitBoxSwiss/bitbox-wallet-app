@@ -52,7 +52,7 @@ export default class Receive extends Component {
         apiGet('account/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
             this.setState({ receiveAddresses, activeIndex: 0 });
         });
-        if (this.props.deviceIDs.length > 0 && this.props.devices[this.props.deviceIDs[0]] === 'bitbox') {
+        if (this.getDevice() === 'bitbox') {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(paired => {
                 this.setState({ paired });
             });
@@ -139,6 +139,13 @@ export default class Receive extends Component {
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
+    getDevice() {
+        if (this.props.deviceIDs.length === 0) {
+            return undefined;
+        }
+        return this.props.devices[this.props.deviceIDs[0]];
+    }
+
     render({
         t,
         code,
@@ -156,6 +163,10 @@ export default class Receive extends Component {
         if (account === undefined) {
             return null;
         }
+        const device = this.getDevice();
+        if (device === undefined) {
+            return null;
+        }
         let uriPrefix = '';
         if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
             uriPrefix = 'bitcoin:';
@@ -171,6 +182,12 @@ export default class Receive extends Component {
             if (!enableCopy && !verifying) {
                 address = address.substring(0, 8) + '...';
             }
+        }
+        let verifyLabel = t('receive.verify'); // fallback
+        if (device === 'bitbox') {
+            verifyLabel = t('receive.verifyBitBox01');
+        } else if (device === 'bitbox02') {
+            verifyLabel = t('receive.verifyBitBox02');
         }
         const content = receiveAddresses ? (
             <div style="position: relative;">
@@ -261,7 +278,7 @@ export default class Receive extends Component {
                                 primary
                                 disabled={verifying || secureOutput === undefined}
                                 onClick={this.verifyAddress}>
-                                {t('receive.verify')}
+                                {verifyLabel}
                             </Button>
                         )
                     }
@@ -279,7 +296,7 @@ export default class Receive extends Component {
                 {
                     forceVerification && verifying && (
                         <Dialog
-                            title={t('receive.verify')}
+                            title={verifyLabel}
                             disableEscape={true}
                             medium centered>
                             <div className="text-center">
