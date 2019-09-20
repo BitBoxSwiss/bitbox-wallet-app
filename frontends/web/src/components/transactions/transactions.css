@@ -26,6 +26,7 @@
 .headers {
   height: 48px;
   color: var(--color-softblack);
+  text-transform: uppercase;
 }
 
 .columns >  *,

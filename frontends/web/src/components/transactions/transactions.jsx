@@ -43,11 +43,11 @@ export default class Transactions extends Component {
                     }
                 </div>
                 <div className={[style.columns, style.headers, style.hideOnMedium].join(' ')}>
-                    <div className={style.type}>TYPE</div>
-                    <div className={style.date}>DATE</div>
-                    <div className={style.address}>ADDRESS</div>
-                    <div className={style.status}>STATUS</div>
-                    <div className={style.fiat}>FIAT</div>
+                    <div className={style.type}>Type</div>
+                    <div className={style.date}>Date</div>
+                    <div className={style.address}>Address</div>
+                    <div className={style.status}>Status</div>
+                    <div className={style.fiat}>Fiat</div>
                     <div className={style.currency}>{unit}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
