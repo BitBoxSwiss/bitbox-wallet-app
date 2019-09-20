@@ -1,7 +1,7 @@
 .footer {
     max-width: var(--content-width);
     width: 100%;
-    padding-bottom: var(--space-half);
+    padding: 0 var(--space-default) var(--space-half) var(--space-default);
     margin: var(--space-default) auto 0 auto;
 }
 
