@@ -154,12 +154,16 @@
 }
 
 .content.padded {
-    padding-top: var(--space-large);
+    padding-top: calc(var(--space-default) * 1.5);
 }
 
 @media (max-width: 768px) {
     .content {
         padding: 0 var(--space-half);
+    }
+
+    .content.padded {
+        padding-top: var(--space-default);
     }
 
     .bottom {
