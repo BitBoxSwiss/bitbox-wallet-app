@@ -23,6 +23,7 @@ interface Props {
     medium?: boolean;
     large?: boolean;
     slim?: boolean;
+    centered?: boolean;
     disableEscape?: boolean;
     onClose?: (e: Event) => void;
     disabledClose?: boolean;
@@ -139,6 +140,7 @@ class Dialog extends Component<Props, State> {
             medium,
             large,
             slim,
+            centered,
             onClose,
             disabledClose,
             children,
@@ -149,12 +151,14 @@ class Dialog extends Component<Props, State> {
         const isSmall = small ? style.small : '';
         const isMedium = medium ? style.medium : '';
         const isLarge = large ? style.large : '';
+        const isSlim = slim ? style.slim : '';
+        const isCentered = centered && !onClose ? style.centered : '';
         return (
             <div className={[style.overlay, activeClass].join(' ')}>
                 <div className={[style.modal, activeClass, isSmall, isMedium, isLarge].join(' ')}>
                     {
                         title && (
-                            <div className={style.header}>
+                            <div className={[style.header, isCentered].join(' ')}>
                                 <h3 class={style.title}>{title}</h3>
                                 {
                                     onClose && (
@@ -169,7 +173,7 @@ class Dialog extends Component<Props, State> {
                             </div>
                         )
                     }
-                    <div className={[style.contentContainer, slim ? style.slim : ''].join(' ')} ref={this.setModalContent}>
+                    <div className={[style.contentContainer, isSlim].join(' ')} ref={this.setModalContent}>
                         <div className={style.content}>
                             {children}
                         </div>

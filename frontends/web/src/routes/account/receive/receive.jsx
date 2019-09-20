@@ -177,7 +177,7 @@ export default class Receive extends Component {
             }
         }
         const content = receiveAddresses ? (
-            <div>
+            <div style="position: relative;">
                 <div class={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
                 </div>
@@ -235,16 +235,6 @@ export default class Receive extends Component {
                     }
                 </div>
                 <CopyableInput disabled={!enableCopy} value={address} />
-                {
-                    forceVerification && verifying && (
-                        <Dialog
-                            title={t('receive.verify')}
-                            disableEscape={true}>
-                            <p>{t('receive.verifyInstruction')}</p>
-                            <pre className={style.verifyAddress}>{address}</pre>
-                        </Dialog>
-                    )
-                }
                 <div className="buttons">
                     {
                         forceVerification && (
@@ -285,6 +275,27 @@ export default class Receive extends Component {
                         {t('button.back')}
                     </ButtonLink>
                 </div>
+                {
+                    forceVerification && verifying && (
+                        <div className={style.hide}></div>
+                    )
+                }
+                {
+                    forceVerification && verifying && (
+                        <Dialog
+                            title={t('receive.verify')}
+                            disableEscape={true}
+                            medium centered>
+                            <div className="text-center">
+                                <QRCode data={uriPrefix + address} />
+                                <p>{t('receive.verifyInstruction')}</p>
+                            </div>
+                            <div className="m-bottom-half">
+                                <CopyableInput value={address} />
+                            </div>
+                        </Dialog>
+                    )
+                }
             </div>
         ) : (
             t('loading')
@@ -302,9 +313,6 @@ export default class Receive extends Component {
                             <div class="box large text-center">
                                 {content}
                             </div>
-                        </div>
-                        <div class={style.bottomButtons}>
-                            
                         </div>
                     </div>
                 </div>

@@ -63,6 +63,10 @@
     border-bottom: solid 1px var(--color-lightgray);
 }
 
+.header.centered {
+    justify-content: center;
+}
+
 .header .title {
     margin: 0;
     font-size: var(--size-subheader);
@@ -97,6 +101,10 @@
 
 .contentContainer.slim {
     padding: 0;
+}
+
+.contentContainer.padded {
+    padding: var(--space-default);
 }
 
 .content {
@@ -176,5 +184,9 @@
 @media (max-width: 768px) {
     .modal {
         padding: 0;
+    }
+
+    .contentContainer.padded {
+        padding: var(--space-half);
     }
 }
