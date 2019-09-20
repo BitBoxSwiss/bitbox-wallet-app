@@ -18,12 +18,13 @@ dt {
 
 .labelLarge {
     font-size: var(--size-default);
-    margin-bottom: calc(var(--space-half));
+    margin-bottom: var(--space-half);
 }
 
 .labelXLarge {
-    font-size: var(--header-small-font-size);
-    margin-bottom: calc(var(--space-half));
+    font-size: var(--size-subheader);
+    margin-bottom: var(--space-default);
+    color: var(--color-dark);
 }
 
 .labelLink {
@@ -31,6 +32,11 @@ dt {
     cursor: pointer;
     line-height: 1;
     font-weight: 400;
+}
+
+.labelXLarge.labelLink {
+    font-size: var(--size-default);
+    margin-bottom: var(--space-default);
 }
 
 .labelButton {
@@ -86,7 +92,17 @@ input[type="checkbox"]:focus + label::before {
         margin-bottom: var(--space-half);
     }
 
+    .labelXLarge {
+        font-size: var(--size-default);
+        margin-bottom: var(--space-half);
+    }
+
     .labelLink {
         font-size: var(--size-small);
+    }
+
+    .labelXLarge.labelLink {
+        font-size: var(--size-small);
+        margin-bottom: var(--space-half);
     }
 }

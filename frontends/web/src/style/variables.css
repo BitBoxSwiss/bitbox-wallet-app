@@ -18,7 +18,7 @@
     --color-lightorange: #FFC580;
 
     /* font colors */
-    --color-default: var(--color-softblack);
+    --color-default: var(--color-dark);
     --color-primary: var(--color-blue);
     --color-secondary: var(--color-gray);
     --color-light: var(--color-mediumgray);
