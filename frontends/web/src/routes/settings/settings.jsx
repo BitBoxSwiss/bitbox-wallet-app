@@ -75,7 +75,7 @@ export default class Settings extends Component {
                 ethereumActive: event.target.checked
             }
         })
-            .then(config => this.setState({ config }));
+            .then(config => this.setState({ config, accountSuccess: true }));
     }
 
     handleToggleERC20Token = event => {
@@ -93,7 +93,7 @@ export default class Settings extends Component {
         setConfig({
             backend: { eth }
         })
-            .then(config => this.setState({ config }));
+            .then(config => this.setState({ config, accountSuccess: true }));
     }
 
     render({
