@@ -35,7 +35,10 @@ const (
 // Interface represents a hardware wallet device.
 type Interface interface {
 	Init(testing bool) error
-	// ProductName returns the product name of the device in lowercase.
+	// ProductName returns the product name of the device in lowercase/no spaces.
+	// It acts as an identifier for the device type, not for display.
+	// If you change a device's product name, be sure to check the frontend and other places which
+	// assume this is a constant.
 	ProductName() string
 
 	// Identifier returns the hash of the type and the serial number.

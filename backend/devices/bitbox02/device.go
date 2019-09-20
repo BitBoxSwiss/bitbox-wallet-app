@@ -51,6 +51,8 @@ var (
 )
 
 // ProductName is the name of the BitBox02 product.
+// If you change this, be sure to check the frontend and other places which assume this is a
+// constant.
 const ProductName = "bitbox02"
 
 // Communication contains functions needed to communicate with the device.

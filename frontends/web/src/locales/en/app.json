@@ -711,7 +711,9 @@
     },
     "showFull": "Show and verify full address on device",
     "title": "Get Coins",
-    "verify": "Verify address on BitBox02",
+    "verify": "Verify address securely",
+    "verifyBitBox01": "Verify address on mobile app",
+    "verifyBitBox02": "Verify address on BitBox02",
     "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
     "warning": {
       "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage Device' in the sidebar."
