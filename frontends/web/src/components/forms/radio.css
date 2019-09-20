@@ -35,7 +35,7 @@
 }
 
 .radio input + label::after {
-    background: var(--color-focus);
+    background: var(--color-blue);
     border-radius: 1em;
     width: 6px;
     height: 6px;

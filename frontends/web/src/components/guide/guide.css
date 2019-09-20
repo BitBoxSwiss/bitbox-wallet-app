@@ -25,7 +25,7 @@
     height: 100vh;
     width: var(--guide-width);
     color: white;
-    background-color: #89BFDE;
+    background-color: var(--color-lightblue);
     overflow-y: auto;
     transition: margin-right 0.2s ease, transform 0.2s ease;
     will-change: margin-right, transform;
@@ -35,7 +35,7 @@
     margin-bottom: var(--space-default);
     height: var(--header-height);
     padding: 0 var(--space-default);
-    background-color: var(--color-brightblue);
+    background-color: var(--color-blue);
 }
 
 .header h2 {

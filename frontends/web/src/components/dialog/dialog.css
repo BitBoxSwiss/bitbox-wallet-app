@@ -60,7 +60,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 var(--space-half);
-    border-bottom: solid 1px var(--background);
+    border-bottom: solid 1px var(--color-lightgray);
 }
 
 .header .title {
@@ -80,7 +80,7 @@
 }
 
 .closeButton:disabled {
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 .header .closeButton,
@@ -138,7 +138,7 @@
 
 .disabledLabel,
 .disabledLabel span {
-    color: var(--color-brightgray) !important;
+    color: var(--color-mediumgray) !important;
 }
 
 .noStep {

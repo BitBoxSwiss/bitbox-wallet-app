@@ -5,7 +5,7 @@
 .input {
     padding: var(--spacing-default);
     border-radius: 2px;
-    border: solid 1px var(--color-brightgray);
+    border: solid 1px var(--color-mediumgray);
     font-size: var(--size-medium);
 }
 

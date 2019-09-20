@@ -30,9 +30,9 @@
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-secondary); }
 .text-darkgray { color: var(--color-gray); }
-.text-black { color: var(--color-softblack); }
+.text-black { color: var(--color-dark); }
 .text-black + label {
-    color: var(--color-softblack);
+    color: var(--color-dark);
 }
 
 .text-ellipsis {
@@ -204,7 +204,7 @@
 }
 
 .tabs .tab.active a {
-    color: var(--color-brightblue);
+    color: var(--color-blue);
     background-color: var(--color-white);
 }
 
@@ -286,7 +286,7 @@
 }
 
 .box .buttons:not(.ignore) > *:not(:first-child) {
-    margin-top: var(--space-half);
+    margin-top: var(--space-quarter);
 }
 
 .box .buttons:not(.ignore) button,

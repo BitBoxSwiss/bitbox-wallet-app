@@ -53,7 +53,7 @@
 .actions .separator {
     font-size: var(--size-default);
     line-height: 1;
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 @media (max-width: 768px) {

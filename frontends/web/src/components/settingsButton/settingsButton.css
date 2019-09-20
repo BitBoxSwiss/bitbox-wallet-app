@@ -19,7 +19,7 @@
 .container svg {
     width: 18px;
     height: 18px;
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 .danger {
@@ -30,7 +30,7 @@
     margin-left: auto;
     margin-right: var(--space-quarter);
     font-size: var(--size-small);
-    color: var(--color-rock);
+    color: var(--color-secondary);
     white-space: nowrap;
     max-width: 120px;
     text-overflow: ellipsis;

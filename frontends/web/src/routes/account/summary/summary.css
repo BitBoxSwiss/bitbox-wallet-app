@@ -18,7 +18,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-bottom: var(--spacing-default);
-    border: solid 1px var(--color-brightgray);
+    border: solid 1px var(--color-mediumgray);
 }
 
 .table tr td,
@@ -36,7 +36,7 @@
 
 .table thead th {
     font-size: var(--size-small);
-    background-color: var(--color-lightergray);
+    background-color: var(--color-mediumgray);
     color: var(--color-black);
 }
 
@@ -50,7 +50,7 @@
 }
 
 .table tfoot th {
-    background-color: var(--color-lightergray);
+    background-color: var(--color-mediumgray);
 }
 
 @media (max-width: 640px) {

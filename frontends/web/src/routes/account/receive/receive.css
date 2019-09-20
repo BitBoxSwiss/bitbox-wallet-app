@@ -26,7 +26,7 @@
 }
 
 .verifyContent p {
-    color: var(--color-brightblue);
+    color: var(--color-blue);
     font-size: var(--size-default);
 }
 
@@ -73,7 +73,7 @@ pre.verifyAddress {
     text-decoration: none;
     font-size: var(--size-button);
     line-height: 1;
-    color: var(--color-brightblue);
+    color: var(--color-blue);
 }
 
 .next img {
@@ -87,7 +87,7 @@ pre.verifyAddress {
 }
 
 .disabled {
-    color: var(--color-brightgray);
+    color: var(--color-mediumgray);
 }
 
 .arrow {

@@ -11,7 +11,7 @@
 
 .input input {
     background-color: var(--color-white);
-    border-color: var(--color-lightergray);
+    border-color: var(--color-mediumgray);
     border-radius: 2px;
     border-style: solid;
     border-width: 1px;
@@ -31,13 +31,13 @@
 }
 
 .input input::placeholder {
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 .input input[disabled] {
     background-color: var(--color-white) !important;
     border-color: var(--color-lightgray) !important;
-    color: var(--color-rock) !important;
+    color: var(--color-secondary) !important;
     cursor: not-allowed;
 }
 

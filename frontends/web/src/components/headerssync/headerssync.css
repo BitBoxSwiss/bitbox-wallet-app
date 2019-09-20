@@ -12,7 +12,7 @@
 
 .progressValue {
     height: 100%;
-    background-color: var(--color-brightblue);
+    background-color: var(--color-blue);
     transition: width 1s ease;
     will-change: width;
 }
@@ -40,7 +40,7 @@
 }
 
 .spinner {
-    color: var(--color-brightblue);
+    color: var(--color-blue);
 }
 
 .spinner:after {

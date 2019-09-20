@@ -20,7 +20,7 @@
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
-  background-color: var(--color-lightergray);
+  background-color: var(--color-mediumgray);
 }
 
 .headers {
@@ -95,7 +95,7 @@
 .empty p {
   font-size: var(--size-default);
   font-weight: 400;
-  color: var(--color-rock);
+  color: var(--color-secondary);
 }
 
 @media (min-width: 1081px) {

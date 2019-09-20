@@ -155,11 +155,11 @@
 }
 
 .collapsedContent a {
-    color: var(--color-coolblue);
+    color: var(--color-blue);
 }
 
 .collapsedContent a:hover {
-    color: var(--color-brightblue);
+    color: var(--color-lightblue);
 }
 
 @media (max-width: 900px) {

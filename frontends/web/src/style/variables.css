@@ -1,50 +1,38 @@
 :root {
     /* colors */
     --color-greentea: #91B496;
-    --color-brightblue: #699ec6;
-    --color-coolblue: #7b98a3;
-    --color-darkblue: #4f7998;
-    --color-coolgold: #a39771;
-    --color-softgreen: #60d45f;
     --color-softred: #EC644B;
-    --color-swissred: #e10000;
-    --color-white: #fff;
-    --color-lightgray: #F1F1F1;
-    --color-brightgray: #dfdfdf;
-    --color-rock: #aaa;
+    --color-lightred: #F28E72;
+    --color-swissred: #E30613;
+    --color-white: #FFFFFF;
+    --color-lightgray: #F5F5F5;
+    --color-mediumgray: #E5E5E5;
     --color-gray: #777777;
-    --color-lightergray: #E5E5E5;
     --color-softblack: #333333;
-    --color-dark: #323230;
+    --color-dark: #1D1D1B;
     --color-yellow: #fef160;
+    --color-darkblue: #4f7998;
     --color-blue: #5E94BF;
-    --color-lightblue: #7faacc;
-    --color-orange: #FFB761;
-    --color-lightorange: #ffc580;
+    --color-lightblue: #91BFCF;
+    --color-orange: #F5A04C;
+    --color-lightorange: #FFC580;
 
     /* font colors */
     --color-default: var(--color-softblack);
     --color-primary: var(--color-blue);
     --color-secondary: var(--color-gray);
-    --color-light: var(--color-brightgray);
+    --color-light: var(--color-mediumgray);
 
     /* status colors */
     --color-success: var(--color-greentea);
-    --color-info: var(--color-brightblue);
-    --color-warn: var(--color-softred);
-    --color-warning: var(--color-warn);
-    --color-warning-experimental: #ffab0b;
+    --color-info: var(--color-blue);
+    --color-warning: var(--color-softred);
     --color-error: var(--color-swissred);
     --color-danger: var(--color-error);
-    --color-disabled: var(--color-brightgray);
-    --color-focus: rgb(59, 153, 252);
+    --color-disabled: var(--color-mediumgray);
 
     /* background colors */
-    --background: #F5F5F5;
-    --background-hover: var(--background);
-    --background-active: var(--color-white);
-    --background-sidebar: var(--color-lightgray);
-    --fat-border-color: #eee;
+    --background: var(--color-lightgray);
 
     /* font sizes */
     --size-extra-large: 2.2rem;

@@ -2,7 +2,7 @@
   width: 49%;
   height: 52px;
   background-color: white;
-  border: solid 1px var(--color-brightgray);
+  border: solid 1px var(--color-mediumgray);
   border-radius: 2px;
 }
 
@@ -13,7 +13,7 @@
   appearance: none;
   border: 0;
   background-color: white;
-  font-size: var(--size-medium);
+  font-size: var(--size-default);
 }
 
 .feeTargets select:focus {
@@ -22,7 +22,7 @@
 
 .feeTargets select option {
   width: 100%;
-  padding: var(--spacing-default);
+  padding: var(--space-half);
   border-radius: 2px;
   border: solid 1px var(--color-lightgray);
   background-color: white;
