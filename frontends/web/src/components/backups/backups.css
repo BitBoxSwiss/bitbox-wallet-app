@@ -33,12 +33,12 @@
 }
 
 .backupItem + label {
-    color: var(--color-softblack);
+    color: var(--color-dark);
 }
 
 .backupID {
     word-break: break-all;
     margin-bottom: var(--space-quarter);
     font-size: var(--size-small);
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }

@@ -1,13 +1,13 @@
 .footer {
     max-width: var(--content-width);
     width: 100%;
-    padding-bottom: var(--space-half);
+    padding: 0 var(--space-default) var(--space-half) var(--space-default);
     margin: var(--space-default) auto 0 auto;
 }
 
 .footer p {
     color: var(--color-secondary);
-    font-size: var(--size-small);
+    font-size: var(--size-default);
     margin: 0;
 }
 
@@ -23,7 +23,7 @@
 
     .footer p {
         text-align: right;
-        font-size: 11px;
+        font-size: var(--size-small);
     }
 
     .footer img {

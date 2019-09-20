@@ -49,7 +49,7 @@
 
 .servers .server > div button[disabled] {
     background-color: var(--color-disabled);
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 .servers .server > div button:focus {
@@ -95,13 +95,13 @@
 .textarea {
     width: 100%;
     border-radius: 2px;
-    border-color: var(--color-brightgray);
-    padding: var(--spacing-default) var(--spacing-default);
-    margin-bottom: var(--spacing-half);
+    border-color: var(--color-mediumgray);
+    padding: var(--space-half) var(--space-half);
+    margin-bottom: var(--space-quarter);
 }
 
 .block {
-    margin-bottom: var(--spacing-default);
+    margin-bottom: var(--space-half);
 }
 
 .addServer {
@@ -147,7 +147,7 @@
 }
 
 .miniSpinner {
-    color: var(--color-brightblue);
+    color: var(--color-blue);
 }
 
 .miniSpinner:after {

@@ -685,10 +685,17 @@ class BitBox02 extends Component<Props, State> {
                                     <p>I understand the following:</p>
                                     <form ref={this.setDisclaimerRef}>
                                         <div>
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label="If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup." />
+                                            <Checkbox
+                                                onChange={this.handleDisclaimerCheck}
+                                                className={style.wizardCheckbox}
+                                                id="agreement1" label="If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup." />
                                         </div>
                                         <div className="m-top-quarter">
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement2" label="If I lose my backup and lose/damage my device, my funds will be lost." />
+                                            <Checkbox
+                                                onChange={this.handleDisclaimerCheck}
+                                                className={style.wizardCheckbox}
+                                                id="agreement2"
+                                                label="If I lose my backup and lose/damage my device, my funds will be lost." />
                                         </div>
                                         <div className="m-top-quarter">
                                             <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement3" label="My backup is NOT protected with my BitBox02 password. Anyone with access to my backup has access to my wallet." />

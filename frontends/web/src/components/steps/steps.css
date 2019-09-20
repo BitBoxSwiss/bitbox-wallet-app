@@ -349,7 +349,7 @@
 
 .fullWidth > *:not(:first-child),
 .fullWidth button:not(:first-child) {
-    margin-top: var(--space-half);
+    margin-top: var(--space-quarter);
 }
 
 .wizardLabel label {

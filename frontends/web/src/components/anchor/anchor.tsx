@@ -23,9 +23,10 @@ interface Props {
     [property: string]: any;
 }
 
-export default function A({ href, children, ...props }: RenderableProps<Props>): JSX.Element {
+export default function A({ href, icon, children, ...props }: RenderableProps<Props>): JSX.Element {
     return (
         <span className={style.link} onClick={() => apiPost('open', href)} title={href} {...props}>
+            {icon ? icon : null}
             {children}
         </span>
     );

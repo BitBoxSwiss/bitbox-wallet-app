@@ -17,9 +17,9 @@
 import { /* i18nEditorActive, */ extraLanguages } from '../../i18n/i18n';
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { Button } from '../forms';
+// import { Button } from '../forms';
 import { Dialog } from '../dialog/dialog';
-import globe from '../../assets/icons/globe.svg';
+import A from '../anchor/anchor';
 import * as style from './language.css';
 
 @translate()
@@ -110,14 +110,29 @@ export default class LanguageSwitcher extends Component {
         }
         return (
             <div>
-                <Button
-                    type="button"
-                    transparent
-                    className={[style.button, 'flex flex-row flex-items-center'].join(' ')}
-                    onClick={() => this.setState({ activeDialog: true })}>
-                    <img src={globe} />
+                <A
+                    href="#"
+                    title="Select Language"
+                    className={style.link}
+                    onClick={() => this.setState({ activeDialog: true })}
+                    icon={
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    }>
                     {languages[selectedIndex].code === 'en' ? 'Other languages' : 'English'}
-                </Button>
+                </A>
                 {
                     activeDialog && (
                         <Dialog small slim title={t('language.title')} onClose={this.abort}>

@@ -60,7 +60,11 @@
     justify-content: space-between;
     align-items: center;
     padding: 0 var(--space-half);
-    border-bottom: solid 1px var(--background);
+    border-bottom: solid 1px var(--color-lightgray);
+}
+
+.header.centered {
+    justify-content: center;
 }
 
 .header .title {
@@ -80,7 +84,7 @@
 }
 
 .closeButton:disabled {
-    color: var(--color-rock);
+    color: var(--color-secondary);
 }
 
 .header .closeButton,
@@ -97,6 +101,10 @@
 
 .contentContainer.slim {
     padding: 0;
+}
+
+.contentContainer.padded {
+    padding: var(--space-default);
 }
 
 .content {
@@ -138,7 +146,7 @@
 
 .disabledLabel,
 .disabledLabel span {
-    color: var(--color-brightgray) !important;
+    color: var(--color-mediumgray) !important;
 }
 
 .noStep {
@@ -176,5 +184,9 @@
 @media (max-width: 768px) {
     .modal {
         padding: 0;
+    }
+
+    .contentContainer.padded {
+        padding: var(--space-half);
     }
 }
