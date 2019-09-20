@@ -112,7 +112,7 @@
 }
 
 .subHeaderContainer {
-    margin: var(--space-default) 0;
+    margin: calc(var(--space-half) * 1.5) 0;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -154,16 +154,12 @@
 }
 
 .content.padded {
-    padding-top: calc(var(--space-default) * 1.5);
+    padding-top: var(--space-default);
 }
 
 @media (max-width: 768px) {
     .content {
         padding: 0 var(--space-half);
-    }
-
-    .content.padded {
-        padding-top: var(--space-default);
     }
 
     .bottom {

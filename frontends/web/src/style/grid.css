@@ -90,7 +90,7 @@
 
     .columns > * {
         margin-right: var(--space-half);
-        margin-bottom: var(--space-half);
+        margin-bottom: calc(var(--space-half) * 1.5);
     }
 
     .columnsContainer.half .columns > * {

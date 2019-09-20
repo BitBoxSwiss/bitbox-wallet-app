@@ -13,7 +13,7 @@ dt {
     font-size: var(--size-default);
     font-weight: 400;
     line-height: 1;
-    margin-bottom: 5px;
+    margin-bottom: var(--space-quarter);
 }
 
 .labelLarge {
@@ -23,7 +23,7 @@ dt {
 
 .labelXLarge {
     font-size: var(--size-subheader);
-    margin-bottom: var(--space-default);
+    margin-bottom: calc(var(--space-half) * 1.5);
     color: var(--color-dark);
 }
 
@@ -36,7 +36,7 @@ dt {
 
 .labelXLarge.labelLink {
     font-size: var(--size-default);
-    margin-bottom: var(--space-default);
+    margin-bottom: calc(var(--space-half) * 1.5);
 }
 
 .labelButton {
@@ -93,7 +93,6 @@ input[type="checkbox"]:focus + label::before {
     }
 
     .labelXLarge {
-        font-size: var(--size-default);
         margin-bottom: var(--space-half);
     }
 
@@ -102,7 +101,6 @@ input[type="checkbox"]:focus + label::before {
     }
 
     .labelXLarge.labelLink {
-        font-size: var(--size-small);
         margin-bottom: var(--space-half);
     }
 }

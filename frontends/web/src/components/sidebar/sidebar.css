@@ -20,7 +20,7 @@
     position: fixed;
     margin-left: calc(var(--sidebar-width-large) * -1);
     align-content: stretch;
-    background-color: #444444;
+    background-color: var(--color-softblack);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;

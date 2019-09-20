@@ -74,7 +74,6 @@
     margin-right: var(--spacing-default);
     display: flex;
     flex-direction: row;
-    justify-content: center;
     align-items: center;
 }
 
@@ -108,6 +107,6 @@
     }
 
     .container .sidebarToggler {
-        margin-right: var(--space-half);
+        margin-right: var(--space-quarter);
     }
 }
