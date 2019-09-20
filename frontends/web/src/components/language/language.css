@@ -1,41 +1,56 @@
-.button img {
-  width: 18px !important;
-  margin-right: 5px !important;
+.link {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    font-size: var(--size-default);
+    color: var(--color-blue);
+    cursor: default;
+}
+
+.link svg {
+    width: 18px;
+    height: 18px;
+    margin-right: calc(var(--space-quarter) / 2);
 }
 
 .language {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: var(--item-height);
-  padding: 0 var(--space-half);
-  color: var(--color-blue);
-  border: none;
-  background-color: transparent;
-  font-size: var(--size-default);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: var(--item-height);
+    padding: 0 var(--space-half);
+    color: var(--color-blue);
+    border: none;
+    background-color: transparent;
+    font-size: var(--size-default);
 }
 
 .language:focus {
-  outline: none;
+    outline: none;
 }
 
 .language.selected {
-  color: var(--color-default);
+    color: var(--color-default);
 }
 
 .language:hover {
-  background-color: var(--color-lightgray);
+    background-color: var(--color-lightgray);
 }
 
 .checked {
-  width: 18px;
-  height: 18px;
+    width: 18px;
+    height: 18px;
 }
 
 @media (max-width: 768px) {
-  .language {
-    font-size: var(--size-small) !important;
-  }
+    .link {
+        font-size: var(--size-small);
+    }
+
+    .language {
+        font-size: var(--size-small) !important;
+    }
 }
