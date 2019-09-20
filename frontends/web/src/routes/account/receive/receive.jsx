@@ -43,7 +43,6 @@ export default class Receive extends Component {
 
         /** @type {{ hasSecureOutput: boolean, optional: boolean } | undefined} */
         secureOutput: undefined,
-        verified: false,
     }
 
     componentDidMount() {
@@ -97,7 +96,7 @@ export default class Receive extends Component {
         if (receiveAddresses !== null && activeIndex !== null) {
             this.setState({ verifying: true });
             apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
-                this.setState({ verifying: false, verified: true });
+                this.setState({ verifying: false });
             });
         }
     }
@@ -107,7 +106,6 @@ export default class Receive extends Component {
         if (!this.state.verifying) {
             this.setState(({ activeIndex, receiveAddresses }) => ({
                 activeIndex: (activeIndex + receiveAddresses.length - 1) % receiveAddresses.length,
-                verified: false,
             }));
         }
     };
@@ -117,7 +115,6 @@ export default class Receive extends Component {
         if (!this.state.verifying) {
             this.setState(({ activeIndex, receiveAddresses }) => ({
                 activeIndex: (activeIndex + 1) % receiveAddresses.length,
-                verified: false,
             }));
         }
     };
@@ -147,7 +144,6 @@ export default class Receive extends Component {
         code,
     }, {
         verifying,
-        verified,
         secureOutput,
         activeIndex,
         receiveAddresses,
@@ -168,7 +164,7 @@ export default class Receive extends Component {
         }
         // enable copying only after verification has been invoked if verification is possible and not optional.
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
-        let enableCopy = !forceVerification || verified;
+        let enableCopy = !forceVerification;
         let address;
         if (receiveAddresses) {
             address = receiveAddresses[activeIndex].address;
