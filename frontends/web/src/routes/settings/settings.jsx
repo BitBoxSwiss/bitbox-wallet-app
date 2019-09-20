@@ -34,7 +34,7 @@ export default class Settings extends Component {
         link: 'Chainlink',
         bat: 'Basic Attention Token',
         mkr: 'Maker',
-        zrx: 'ZRX',
+        zrx: '0x',
         dai: 'Dai v1.0',
     }
 

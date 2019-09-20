@@ -56,7 +56,7 @@ var erc20Tokens = []erc20Token{
 	},
 	{
 		code:  "eth-erc20-zrx",
-		name:  "ZRX BETA",
+		name:  "0x BETA",
 		unit:  "ZRX",
 		token: erc20.NewToken("0xe41d2489571d322189246dafa5ebde1f4699f498", 18),
 	},
