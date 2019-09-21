@@ -36,8 +36,8 @@ type WaitingProps = TestingProps & TranslateProps;
 class Waiting extends Component<WaitingProps> {
     public componentWillMount() {
         const { sidebarStatus } = panelStore.state;
-        if (sidebarStatus === '') {
-            setSidebarStatus('forceCollapsed');
+        if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
+            setSidebarStatus('');
         }
     }
 
