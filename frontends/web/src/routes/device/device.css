@@ -125,15 +125,15 @@
 
 .waitingText {
     margin-top: 0;
-    font-weight: 400;
+    margin-bottom: var(--space-half);
     text-align: center;
+    font-weight: 400;
+    font-size: var(--size-subheader);
 }
 
 .waitingDescription {
-    font-size: var(--size-default);
-    font-weight: 400;
     text-align: center;
-    color: var(--color-secondary);
+    margin-bottom: 0;
 }
 
 .testingContainer {
