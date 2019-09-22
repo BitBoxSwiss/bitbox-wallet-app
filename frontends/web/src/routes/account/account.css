@@ -45,8 +45,12 @@
     margin-right: var(--space-quarter);
 }
 
-.send:hover {
+.send:not(.disabled):hover {
     background-color: var(--color-lightorange);
+}
+
+.send.disabled {
+    opacity: 0.4;
 }
 
 .receive {

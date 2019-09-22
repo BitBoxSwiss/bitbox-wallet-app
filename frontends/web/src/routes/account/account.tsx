@@ -265,6 +265,7 @@ class Account extends Component<Props, State> {
             return null;
         }
         const noTransactions = (initialized && transactions !== undefined && transactions.length <= 0);
+        const canSend = balance && balance.available.amount !== '0';
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -297,7 +298,13 @@ class Account extends Component<Props, State> {
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">Available Balance</label>
                                 <div className={style.actionsContainer}>
-                                    <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                    {
+                                        canSend ? (
+                                            <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                        ) : (
+                                            <a className={[style.send, style.disabled].join(' ')}><span>{t('button.send')}</span></a>
+                                        )
+                                    }
                                     <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
                                 </div>
                             </div>

@@ -615,7 +615,7 @@ class BitBox02 extends Component<Props, State> {
                                             backupOnBeforeRestore={this.backupOnBeforeRestore}
                                             backupOnAfterRestore={this.backupOnAfterRestore}>
                                             <Button
-                                                secondary
+                                                transparent
                                                 onClick={this.uninitializedStep}
                                                 disabled={settingPassword}>
                                                 {t('button.back')}
