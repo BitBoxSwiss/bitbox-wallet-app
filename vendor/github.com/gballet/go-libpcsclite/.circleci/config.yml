@@ -1,0 +1,34 @@
+version: 2
+jobs:
+  build19:
+    docker:
+      - image: circleci/golang:1.9
+    steps:
+      - checkout
+      - run: go build
+  build110:
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - checkout
+      - run: go build
+  build111:
+    docker:
+      - image: circleci/golang:1.11
+    steps:
+      - checkout
+      - run: go build
+  build112:
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - checkout
+      - run: go build
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build19
+      - build110
+      - build111
+      - build112
