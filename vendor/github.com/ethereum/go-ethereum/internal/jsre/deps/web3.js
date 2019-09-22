@@ -1021,7 +1021,7 @@ var formatOutputInt = function (param) {
     var value = param.staticPart() || "0";
 
     // check if it's negative number
-    // it it is, return two's complement
+    // it is, return two's complement
     if (signedIsNegative(value)) {
         return new BigNumber(value, 16).minus(new BigNumber('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff', 16)).minus(1);
     }
@@ -2231,7 +2231,7 @@ var toTwosComplement = function (number) {
  * Checks if the given string is strictly an address
  *
  * @method isStrictAddress
- * @param {String} address the given HEX adress
+ * @param {String} address the given HEX address
  * @return {Boolean}
 */
 var isStrictAddress = function (address) {
@@ -2242,7 +2242,7 @@ var isStrictAddress = function (address) {
  * Checks if the given string is an address
  *
  * @method isAddress
- * @param {String} address the given HEX adress
+ * @param {String} address the given HEX address
  * @return {Boolean}
 */
 var isAddress = function (address) {
@@ -2250,7 +2250,7 @@ var isAddress = function (address) {
         // check if it has the basic requirements of an address
         return false;
     } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
-        // If it's all small caps or all all caps, return true
+        // If it's all small caps or all caps, return true
         return true;
     } else {
         // Otherwise check each case
@@ -2262,7 +2262,7 @@ var isAddress = function (address) {
  * Checks if the given string is a checksummed address
  *
  * @method isChecksumAddress
- * @param {String} address the given HEX adress
+ * @param {String} address the given HEX address
  * @return {Boolean}
 */
 var isChecksumAddress = function (address) {
@@ -2285,7 +2285,7 @@ var isChecksumAddress = function (address) {
  * Makes a checksum address
  *
  * @method toChecksumAddress
- * @param {String} address the given HEX adress
+ * @param {String} address the given HEX address
  * @return {String}
 */
 var toChecksumAddress = function (address) {
@@ -3003,7 +3003,7 @@ var ContractFactory = function (eth, abi) {
 
         if (callback) {
 
-            // wait for the contract address adn check if the code was deployed
+            // wait for the contract address and check if the code was deployed
             this.eth.sendTransaction(options, function (err, hash) {
                 if (err) {
                     callback(err);
@@ -6735,7 +6735,7 @@ var transferToAddress = function (eth, from, to, value, callback) {
  * @method deposit
  * @param {String} from
  * @param {String} to
- * @param {Value} value to be transfered
+ * @param {Value} value to be transferred
  * @param {String} client unique identifier
  * @param {Function} callback, callback
  */
