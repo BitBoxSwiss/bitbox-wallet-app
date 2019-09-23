@@ -31,8 +31,7 @@ function changeSelected(event: Event): void {
 }
 
 function setDefault(event: Event): void {
-    const el = event.target as HTMLElement;
-    const target = el.tagName === 'svg' ? el.parentElement : el;
+    const target = event.currentTarget as HTMLElement;
     setActiveFiat(target!.dataset.code as Fiat);
     event.preventDefault();
 }
