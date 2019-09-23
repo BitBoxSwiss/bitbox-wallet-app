@@ -32,7 +32,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
 import { SwissMadeOpenSource } from '../../icon/logo';
-import { Footer } from '../../layout/footer';
+import LanguageSwitch from '../../language/language';
 import { Header } from '../../layout/header';
 import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
@@ -390,7 +390,9 @@ class BitBox02 extends Component<Props, State> {
                     )
                 }
                 <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer">
                         <Steps>
                             <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
@@ -400,6 +402,9 @@ class BitBox02 extends Component<Props, State> {
                                     <div className={style.passwordGesturesGifWrapper}>
                                         <img class={style.passwordGesturesGif} src={passwordGif}/>
                                     </div>
+                                </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -429,6 +434,9 @@ class BitBox02 extends Component<Props, State> {
                                             </div>
                                         )
                                     }
+                                </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -482,6 +490,9 @@ class BitBox02 extends Component<Props, State> {
                                                 </div>
                                             </div>
                                         </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -524,6 +535,9 @@ class BitBox02 extends Component<Props, State> {
                                                 </Button>
                                             </div>
                                         </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -550,6 +564,9 @@ class BitBox02 extends Component<Props, State> {
                                                 <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
                                         </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -572,6 +589,9 @@ class BitBox02 extends Component<Props, State> {
                                                     {t('backup.create.title')}
                                                 </Button>
                                             </div>
+                                        </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
                                     </Step>
                                 )
@@ -606,6 +626,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'restoreBackup') && (
                                     <Step
+                                        width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'restore'}
                                         title={t('backup.restore.confirmTitle')}>
                                         <BackupsV2
@@ -621,6 +642,9 @@ class BitBox02 extends Component<Props, State> {
                                                 {t('button.back')}
                                             </Button>
                                         </BackupsV2>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -646,6 +670,9 @@ class BitBox02 extends Component<Props, State> {
                                             <div className={style.passwordGesturesGifWrapper}>
                                                 <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
+                                        </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
                                     </Step>
                                 )
@@ -712,11 +739,11 @@ class BitBox02 extends Component<Props, State> {
                                         </Button>
                                     </div>
                                 </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
                         </Steps>
-                        <Footer>
-                            <SwissMadeOpenSource />
-                        </Footer>
                     </div>
                     {
                         attestationResult === false && (

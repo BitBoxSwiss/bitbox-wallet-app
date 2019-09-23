@@ -17,8 +17,9 @@
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { Button } from '../../../components/forms';
-import { Shift } from '../../../components/icon/logo';
-import { Header, Footer } from '../../../components/layout';
+import { SwissMadeOpenSource } from '../../../components/icon/logo';
+import { Header } from '../../../components/layout';
+import LanguageSwitch from '../../../components/language/language';
 
 @translate()
 export default class Goal extends Component {
@@ -30,12 +31,14 @@ export default class Goal extends Component {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('setup')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <div className="box large">
-                                <p class="first">{t('goal.paragraph')}</p>
-                                <div class="buttons">
+                                <p className="first">{t('goal.paragraph')}</p>
+                                <div className="buttons">
                                     <Button primary onClick={onCreate}>
                                         {t('goal.buttons.create')}
                                     </Button>
@@ -44,11 +47,11 @@ export default class Goal extends Component {
                                     </Button>
                                 </div>
                             </div>
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
                     </div>
-                    <Footer>
-                        <Shift />
-                    </Footer>
                 </div>
             </div>
         );

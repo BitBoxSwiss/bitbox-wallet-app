@@ -16,8 +16,9 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Button } from '../../../components/forms';
-import { Alert, Shift } from '../../../components/icon';
-import { Footer, Header } from '../../../components/layout';
+import { Alert, SwissMadeOpenSource } from '../../../components/icon';
+import LanguageSwitch from '../../../components/language/language';
+import { Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { translate,  TranslateProps } from '../../../decorators/translate';
 import SimpleMarkup from '../../../utils/simplemarkup';
@@ -56,7 +57,9 @@ class SecurityInformation extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('setup')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 class={[style.title, 'text-center'].join(' ')}>{t(`securityInformation.${goal}.title`)}</h1>
@@ -105,10 +108,10 @@ class SecurityInformation extends Component<Props, State> {
                                     </div>
                                 )
                             }
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
-                        <Footer>
-                            <Shift />
-                        </Footer>
                     </div>
                 </div>
             </div>

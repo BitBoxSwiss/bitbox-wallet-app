@@ -100,7 +100,7 @@ export default class Device extends Component {
     onDeviceStatusChanged = () => {
         if (this.state.deviceRegistered) {
             apiGet('devices/' + this.props.deviceID + '/status').then(deviceStatus => {
-                if (deviceStatus === 'seeded') {
+                if (['seeded', 'initialized'].includes(deviceStatus)) {
                     setSidebarStatus('');
                 } else {
                     setSidebarStatus('forceHidden');

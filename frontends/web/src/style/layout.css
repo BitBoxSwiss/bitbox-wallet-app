@@ -305,6 +305,7 @@
 .m-top-quarter { margin-top: var(--space-quarter); }
 .m-top-half { margin-top: var(--space-half); }
 .m-top-default { margin-top: var(--space-default); }
+.m-top-large { margin-top: var(--space-large); }
 .m-right-quarter { margin-right: var(--space-quarter); }
 .m-right-half { margin-right: var(--space-half); }
 .m-right-default { margin-right: var(--space-default); }

@@ -17,8 +17,9 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
-import { Shift } from '../../../components/icon';
-import { Footer ,Header } from '../../../components/layout';
+import { SwissMadeOpenSource } from '../../../components/icon';
+import LanguageSwitch from '../../../components/language/language';
+import { Header } from '../../../components/layout';
 import { Button } from '../../../components/forms';
 import * as style from '../device.css';
 
@@ -38,7 +39,9 @@ export default class Success extends Component {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('setup')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t(`success.${goal}.title`)}</h1>
@@ -62,10 +65,10 @@ export default class Success extends Component {
                                     </Button>
                                 </div>
                             </div>
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
-                        <Footer>
-                            <Shift />
-                        </Footer>
                     </div>
                 </div>
             </div>
