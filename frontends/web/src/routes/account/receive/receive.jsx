@@ -163,10 +163,6 @@ export default class Receive extends Component {
         if (account === undefined) {
             return null;
         }
-        const device = this.getDevice();
-        if (device === undefined) {
-            return null;
-        }
         let uriPrefix = '';
         if (account.coinCode === 'btc' || account.coinCode === 'tbtc') {
             uriPrefix = 'bitcoin:';
@@ -184,6 +180,7 @@ export default class Receive extends Component {
             }
         }
         let verifyLabel = t('receive.verify'); // fallback
+        const device = this.getDevice();
         if (device === 'bitbox') {
             verifyLabel = t('receive.verifyBitBox01');
         } else if (device === 'bitbox02') {
