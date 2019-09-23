@@ -531,10 +531,12 @@ func (backend *Backend) initPersistedAccounts() {
 	}
 }
 
-func (backend *Backend) initAccounts() {
-	// Since initAccounts replaces all previous accounts, we need to properly close them first.
-	backend.uninitAccounts()
-
+// initDefaultAccounts creates a bunch of default accounts for a set of keystores (not manually
+// user-added). Currently the first bip44 account for all supported and active account types.
+func (backend *Backend) initDefaultAccounts() {
+	if backend.keystores.Count() == 0 {
+		return
+	}
 	if backend.arguments.Testing() {
 		switch {
 		case backend.arguments.Multisig():
@@ -607,7 +609,22 @@ func (backend *Backend) initAccounts() {
 			}
 		}
 	}
+}
+
+func (backend *Backend) initAccounts() {
+	// Since initAccounts replaces all previous accounts, we need to properly close them first.
+	backend.uninitAccounts()
+
+	backend.initDefaultAccounts()
 	backend.initPersistedAccounts()
+}
+
+// ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
+// if the configuration changed (e.g. which accounts are active). This is a stopgap measure until
+// accounts can be added and removed individually.
+func (backend *Backend) ReinitializeAccounts() {
+	backend.log.Info("Reinitializing accounts")
+	backend.initAccounts()
 }
 
 // AccountsStatus returns whether the accounts have been initialized.

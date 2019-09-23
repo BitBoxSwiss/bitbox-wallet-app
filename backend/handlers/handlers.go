@@ -100,6 +100,7 @@ type Backend interface {
 	RegisterTestKeystore(string)
 	NotifyUser(string)
 	SystemOpen(string) error
+	ReinitializeAccounts()
 }
 
 // Handlers provides a web api to the backend.
@@ -174,6 +175,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
@@ -463,6 +465,11 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 		})
 	}
 	return accounts, nil
+}
+
+func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) (interface{}, error) {
+	handlers.backend.ReinitializeAccounts()
+	return nil, nil
 }
 
 func (handlers *Handlers) getAccountsStatusHandler(_ *http.Request) (interface{}, error) {
