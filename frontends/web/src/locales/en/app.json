@@ -137,11 +137,11 @@
       "title": "Set BitBox02 name"
     },
     "mnemonicPassphrase": {
-      "description": "This allows you to enter a mnemonic passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any mnemonic passphrase derives a new separate wallet.\nKeep your mnemonic passphrase <strong>secure</strong>.\n<strong>A loss of a mnemonic passphrase is NOT RECOVERABLE.</strong>",
-      "disable": "Disable Mnemonic Passphrase",
-      "enable": "Enable Mnemonic Passphrase",
-      "successDisable": "Mnemonic Passphrase successfully disabled",
-      "successEnable": "Mnemonic Passphrase successfully enabled.\n\nFrom now on you can insert a passphrase after having unlocked your BitBox 02. \n\nIf you don't know what a passphrase is, please deactivate this option. It is an advanced user's option. \n\n\n<strong>Warning:</strong> every passphrase generates a valid Wallet. \nYou need to make sure your passphrase is <strong>secure and that you don't loose it.</strong>\n\n<strong>If you loose your passphrase you will not be able to access your coins. That means your coins will be lost.</strong>"
+      "description": "This allows you to enter an optional passphrase after unlocking your BitBox02.\n\n<strong>NOTE:</strong> any passphrase derives a new separate wallet.\nKeep your passphrase <strong>secure</strong>.\n<strong>A loss of the passphrase is NOT RECOVERABLE.</strong>",
+      "disable": "Disable optional passphrase",
+      "enable": "Enable optional passphrase",
+      "successDisable": "Optional passphrase successfully disabled",
+      "successEnable": "Optional passphrase successfully enabled.\n\nFrom now on you can insert a passphrase after having unlocked your BitBox02. \n\nIf you don't know what a passphrase is, please deactivate this option. It is an advanced user's option. \n\n\n<strong>Warning:</strong> every passphrase generates a valid Wallet. \nYou need to make sure your passphrase is <strong>secure and that you don't loose it.</strong>\n\n<strong>If you loose your passphrase you will not be able to access your coins. That means your coins will be lost.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -485,7 +485,7 @@
         "title": "What do I do with an address?"
       },
       "addressChange": {
-        "text": "As soon as you transact,  a new address is automatically added to the list so there are always 20 unused addresses available.",
+        "text": "As soon as you transact, a new address is automatically added to the list so there are always 20 addresses available which have never received any coins.",
         "title": "When do the addresses change?"
       },
       "howVerify": {
@@ -493,7 +493,7 @@
         "title": "How can I verify an address securely?"
       },
       "whyMany": {
-        "text": "To maintain privacy and security, never hand out the same address twice. If you have used an address, click on 'Next' for a new address. You can generate up to 20 addresses at a time. Think of addresses like invoice numbers. All addresses are derived from your single backup seed.",
+        "text": "To maintain privacy and security, never hand out the same address twice. If you have used an address, click on on the right arrow for a new address. You can generate up to 20 addresses at a time. Think of addresses like invoice numbers. All addresses are derived from your single backup seed.",
         "title": "Why so many addresses?"
       },
       "whyVerify": {
