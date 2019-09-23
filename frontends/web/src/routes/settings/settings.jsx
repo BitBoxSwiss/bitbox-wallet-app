@@ -16,7 +16,7 @@
 
 import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
-import { apiGet } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
@@ -25,7 +25,6 @@ import { Header, Footer } from '../../components/layout';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
 import { Toggle } from '../../components/toggle/toggle';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
-import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import * as style from '../../components/fiat/fiat.css';
 
 @translate()
@@ -40,7 +39,6 @@ export default class Settings extends Component {
     }
 
     state = {
-        accountSuccess: false,
         config: null,
     }
 
@@ -54,11 +52,10 @@ export default class Settings extends Component {
                 [event.target.id]: event.target.checked
             }
         })
-            .then(config => this.setState({ config, accountSuccess: true }));
-    }
-
-    handleDismissMessage = () => {
-        this.setState({ accountSuccess: false });
+            .then(config => {
+                this.setState({ config });
+                this.reinitializeAccounts();
+            });
     }
 
     handleToggleCoinControl = event => {
@@ -70,13 +67,20 @@ export default class Settings extends Component {
             .then(config => this.setState({ config }));
     }
 
+    reinitializeAccounts = () => {
+        apiPost('accounts/reinitialize');
+    }
+
     handleToggleEthereum = event => {
         setConfig({
             backend: {
                 ethereumActive: event.target.checked
             }
         })
-            .then(config => this.setState({ config, accountSuccess: true }));
+            .then(config => {
+                this.setState({ config });
+                this.reinitializeAccounts();
+            });
     }
 
     handleToggleERC20Token = event => {
@@ -94,14 +98,16 @@ export default class Settings extends Component {
         setConfig({
             backend: { eth }
         })
-            .then(config => this.setState({ config, accountSuccess: true }));
+            .then(config => {
+                this.setState({ config });
+                this.reinitializeAccounts();
+            });
     }
 
     render({
         t,
     }, {
         config,
-        accountSuccess,
     }) {
         const accountsList = [
             'bitcoinP2PKHActive',
@@ -119,17 +125,6 @@ export default class Settings extends Component {
                             {
                                 config && (
                                     <div class="flex-1">
-                                        {
-                                            accountSuccess && (
-                                                <div class="m-bottom-default">
-                                                    <InlineMessage
-                                                        type="success"
-                                                        align="left"
-                                                        message={t('settings.success')}
-                                                        onEnd={this.handleDismissMessage} />
-                                                </div>
-                                            )
-                                        }
                                         <div className="columnsContainer">
                                             <div className="columns">
                                                 <div className="column column-1-3">
