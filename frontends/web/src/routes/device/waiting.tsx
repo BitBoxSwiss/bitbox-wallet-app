@@ -36,8 +36,8 @@ type WaitingProps = TestingProps & TranslateProps;
 class Waiting extends Component<WaitingProps> {
     public componentWillMount() {
         const { sidebarStatus } = panelStore.state;
-        if (sidebarStatus === '') {
-            setSidebarStatus('forceCollapsed');
+        if (['forceCollapsed', 'forceHidden'].includes(sidebarStatus)) {
+            setSidebarStatus('');
         }
     }
 
@@ -48,12 +48,12 @@ class Waiting extends Component<WaitingProps> {
             <div class="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
-                    <div className="content padded narrow">
-                        <div className="flex-1 flex flex-column flex-center">
+                    <div className="content padded narrow isVerticallyCentered">
+                        <div>
                             <AppLogo />
-                            <div className={style.waitingContent}>
+                            <div className="box large">
                                 <h3 className={style.waitingText}>{t('welcome.insertDevice')}</h3>
-                                <span className={style.waitingDescription}>{t('welcome.insertBitBox02')}</span>
+                                <p className={style.waitingDescription}>{t('welcome.insertBitBox02')}</p>
                             </div>
                             {
                                 testing && (

@@ -1,5 +1,5 @@
 .container {
-  margin-top: calc(var(--space-default) * 1.5);
+  margin: calc(var(--space-default) * 1.5) 0;
 }
 
 .header {

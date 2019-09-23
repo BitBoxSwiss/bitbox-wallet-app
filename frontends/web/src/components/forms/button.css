@@ -37,7 +37,7 @@
 }
 
 .primary:focus,
-.primary:hover {
+.primary:not([disabled]):hover {
     background-color: var(--color-lightblue);
 }
 
@@ -48,7 +48,7 @@
     color: var(--color-white);
 }
 
-.secondary:hover {
+.secondary:not([diabled]):hover {
     border-color: var(--color-lightorange);
     background-color: var(--color-lightorange);
 }
@@ -60,7 +60,7 @@
     color: var(--color-white);
 }
 
-.danger:hover {
+.danger:not([disabled]):hover {
     background-color: var(--color-softred);
     border-color: var(--color-softred);
 }
@@ -72,7 +72,7 @@
     border-color: var(--color-blue);
 }
 
-.transparent:hover {
+.transparent:not([disabled]):hover {
     color: var(--color-lightblue);
     border-color: var(--color-lightblue);
 }

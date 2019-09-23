@@ -265,6 +265,7 @@ class Account extends Component<Props, State> {
             return null;
         }
         const noTransactions = (initialized && transactions !== undefined && transactions.length <= 0);
+        const canSend = balance && balance.available.amount !== '0';
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -296,14 +297,15 @@ class Account extends Component<Props, State> {
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">Available Balance</label>
-                                <div className={style.actions}>
-                                    <a href={`/account/${code}/send`} className={['labelXLarge labelLink', style.accountLink, style.send].join(' ')}>
-                                        <span>{t('button.send')}</span>
-                                    </a>
-                                    <span className={style.separator}>/</span>
-                                    <a href={`/account/${code}/receive`} className={['labelXLarge labelLink', style.accountLink, style.receive].join(' ')}>
-                                        <span>{t('button.receive')}</span>
-                                    </a>
+                                <div className={style.actionsContainer}>
+                                    {
+                                        canSend ? (
+                                            <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
+                                        ) : (
+                                            <a className={[style.send, style.disabled].join(' ')}><span>{t('button.send')}</span></a>
+                                        )
+                                    }
+                                    <a href={`/account/${code}/receive`} className={style.receive}><span>{t('button.receive')}</span></a>
                                 </div>
                             </div>
                             <div className="box large">

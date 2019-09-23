@@ -160,10 +160,11 @@ class BitBox02 extends Component<Props, State> {
         const { showWizard, unlockOnly, appStatus } = this.state;
         const { sidebarStatus } = panelStore.state;
         apiGet(this.apiPrefix() + '/status').then(status => {
-            if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
-                setSidebarStatus('forceHidden');
-            } else if (status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '') {
+            const restoreSidebar = status === 'initialized' && !['createWallet', 'restoreBackup'].includes(appStatus) && sidebarStatus !== '';
+            if (restoreSidebar || status === 'connected') {
                 setSidebarStatus('');
+            } else if (status !== 'initialized' && ['', 'forceCollapsed'].includes(sidebarStatus)) {
+                setSidebarStatus('forceHidden');
             }
             if (!showWizard && ['connected', 'unpaired', 'pairingFailed', 'uninitialized', 'seeded'].includes(status)) {
                 this.setState({ showWizard: true });
@@ -614,7 +615,7 @@ class BitBox02 extends Component<Props, State> {
                                             backupOnBeforeRestore={this.backupOnBeforeRestore}
                                             backupOnAfterRestore={this.backupOnAfterRestore}>
                                             <Button
-                                                secondary
+                                                transparent
                                                 onClick={this.uninitializedStep}
                                                 disabled={settingPassword}>
                                                 {t('button.back')}

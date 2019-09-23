@@ -88,11 +88,7 @@
 .innerContainer {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
-    justify-content: flex-start;
-    margin: 0 auto;
-    position: relative;
-    width: 100%;
+    height: 100%;
 }
 
 .fluid {
@@ -108,7 +104,7 @@
 }
 
 .scrollableContainer .content {
-    overflow: visible;
+    /* overflow: visible; */
 }
 
 .subHeaderContainer {
@@ -116,7 +112,11 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+}
+
+.subHeaderContainer.withToggler {
+    position: relative;
 }
 
 .subHeaderContainer.first {
@@ -135,10 +135,15 @@
     display: inline-block;
 }
 
+.subHeaderContainer .subHeaderToggler {
+    display: inherit;
+    position: absolute;
+    right: 0;
+    top: -3px;
+}
+
 .content {
-    display: flex;
     flex: 1;
-    flex-direction: column;
     margin: 0 auto;
     max-width: var(--content-width);
     padding: 0 var(--space-default);
@@ -233,7 +238,6 @@
 
 .isVerticallyCentered {
     display: flex;
-    flex: 1 1 auto;
     flex-direction: column;
     justify-content: center;
 }
@@ -296,6 +300,7 @@
 }
 
 /* UTILITIES */
+.m-none { margin: 0 !important; }
 .m-top-none { margin-top: 0 !important;}
 .m-top-quarter { margin-top: var(--space-quarter); }
 .m-top-half { margin-top: var(--space-half); }
