@@ -710,7 +710,7 @@
       "result": "Legacy format of {{address}}:\n{{legacyAddress}}"
     },
     "showFull": "Show and verify full address on device",
-    "title": "Get Coins",
+    "title": "Get {{accountName}}",
     "verify": "Verify address securely",
     "verifyBitBox01": "Verify address on mobile app",
     "verifyBitBox02": "Verify address on BitBox02",
@@ -849,7 +849,7 @@
       "label": "Progress"
     },
     "success": "The transaction has been signed and sent.",
-    "title": "Send Coins",
+    "title": "Send {{accountName}}",
     "toggleCoinControl": "Toggle Coin Control"
   },
   "settings": {
