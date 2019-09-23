@@ -42,7 +42,6 @@ interface State {
         upgradeSuccessful: boolean;
         rebootSeconds: number;
     };
-    advancedSettings: boolean;
 }
 
 class BitBox02Bootloader extends Component<Props, State> {
@@ -56,7 +55,6 @@ class BitBox02Bootloader extends Component<Props, State> {
                 upgradeSuccessful: false,
                 rebootSeconds: 0,
             },
-            advancedSettings: false,
         };
     }
 
@@ -108,7 +106,6 @@ class BitBox02Bootloader extends Component<Props, State> {
           erased,
         }: RenderableProps<Props>,
         { status,
-          advancedSettings,
         }: State,
     ) {
         let contents;
@@ -132,7 +129,7 @@ class BitBox02Bootloader extends Component<Props, State> {
             }
         } else {
             contents = (
-                <div className="box large">
+                <div className="box large" style="min-height: 390px">
                     <div className="buttons">
                         <Button
                             primary
@@ -147,7 +144,7 @@ class BitBox02Bootloader extends Component<Props, State> {
                             </Button>
                         )}
                     </div>
-                    <div>
+                    <div className="flex flex-center" style="margin-top: 32px">
                         {t('bb02Bootloader.orientation')}&nbsp;
                         <a
                             onClick={this.screenRotate}
@@ -156,19 +153,15 @@ class BitBox02Bootloader extends Component<Props, State> {
                         </a>
                     </div>
                     <hr/>
-                    <div>
-                        <a
-                            onClick={() => { this.setState({ advancedSettings: !advancedSettings }); }}
-                            style="text-decoration: underline; cursor: pointer;" >
-                            { advancedSettings ? '-' : '+' } Advanced Settings
-                        </a>
-                    </div>
-                    { advancedSettings && (
+                    <details>
+                        <summary>
+                            {t('bb02Bootloader.advanced.label')}
+                        </summary>
                           <div>
                               <br />
                               <ToggleShowFirmwareHash deviceID={deviceID} />
                           </div>
-                    )}
+                    </details>
                 </div>
             );
         }

@@ -18,7 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
-import { Checkbox } from '../../forms';
+import { Toggle } from '../../toggle/toggle';
 
 interface ToggleProps {
     deviceID: string;
@@ -30,7 +30,7 @@ interface LoadedProps {
 
 type Props = ToggleProps & LoadedProps & TranslateProps;
 
-class Toggle extends Component<Props, {}> {
+class ToggleFWHash extends Component<Props, {}> {
     private handleToggle = event => {
         apiPost(
             'devices/bitbox02-bootloader/' + this.props.deviceID + '/set-firmware-hash-enabled',
@@ -45,16 +45,20 @@ class Toggle extends Component<Props, {}> {
         {}: {},
     ) {
         return (
-            <Checkbox
-                checked={enabled}
-                id="togggle-show-firmware-hash"
-                onChange={this.handleToggle}
-                label={t('bb02Bootloader.advanced.toggleShowFirmwareHash')}
-                className="text-medium" />
+            <div className="box slim divide">
+                <div class="flex flex-row flex-between flex-items-center">
+                    <p className="m-none">{t('bb02Bootloader.advanced.toggleShowFirmwareHash')}</p>
+                    <Toggle
+                        checked={enabled}
+                        id="togggle-show-firmware-hash"
+                        onChange={this.handleToggle}
+                        className="text-medium" />
+                </div>
+            </div>
         );
     }
 }
 
-const loadHOC = load<LoadedProps, ToggleProps & TranslateProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(Toggle);
+const loadHOC = load<LoadedProps, ToggleProps & TranslateProps>(({ deviceID }) => ({ enabled: 'devices/bitbox02-bootloader/' + deviceID + '/show-firmware-hash-enabled' }))(ToggleFWHash);
 const HOC = translate<ToggleProps>()(loadHOC);
 export { HOC as ToggleShowFirmwareHash };
