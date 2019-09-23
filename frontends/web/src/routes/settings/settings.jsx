@@ -158,10 +158,7 @@ export default class Settings extends Component {
                                                 <div className="column column-1-3">
                                                     <div class="subHeaderContainer withToggler">
                                                         <div class="subHeader">
-                                                            <h3>
-                                                                {t('settings.accounts.ethereum')}
-                                                                {/* &nbsp; (powered by Etherscan.io APIs) */}
-                                                            </h3>
+                                                            <h3>{t('settings.accounts.ethereum')}</h3>
                                                         </div>
                                                         <div className="subHeaderToggler">
                                                             <Toggle
@@ -185,6 +182,7 @@ export default class Settings extends Component {
                                                             ))
                                                         }
                                                     </div>
+                                                    <p className="text-gray text-small">powered by Etherscan.io APIs</p>
                                                 </div>
                                                 <div className="column column-1-3">
                                                     <div class="subHeaderContainer">
