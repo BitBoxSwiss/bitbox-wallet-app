@@ -18,12 +18,13 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet } from '../../utils/request';
 import { setConfig } from '../../utils/config';
-import { ButtonLink, Checkbox } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
 import { Header, Footer } from '../../components/layout';
 import { SwissMadeOpenSource } from '../../components/icon/logo';
+import { Toggle } from '../../components/toggle/toggle';
+import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import InlineMessage from '../../components/inlineMessage/InlineMessage';
 import * as style from '../../components/fiat/fiat.css';
 
@@ -129,102 +130,80 @@ export default class Settings extends Component {
                                                 </div>
                                             )
                                         }
-                                        <FiatSelection />
-                                        <hr />
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('settings.accounts.title')}</h3>
-                                            </div>
-                                        </div>
-                                        <div className={style.container}>
-                                            <div className={style.left}>
-                                                <label className="labelLarge">Available Accounts</label>
-                                                <div className={style.content}>
-                                                    {
-                                                        accountsList.map((account, index) => {
-                                                            return !config.backend[account] ? (
-                                                                <Checkbox
-                                                                    key={`available-account-${index}`}
-                                                                    checked={config.backend[account]}
-                                                                    id={account}
-                                                                    onChange={this.handleToggleAccount}
-                                                                    label={t(`settings.accounts.${account.replace('Active', '')}`)}
-                                                                    className="text-medium" />
-                                                            ) : null;
-                                                        })
-                                                    }
+                                        <div className="columnsContainer">
+                                            <div className="columns">
+                                                <div className="column column-1-3">
+                                                    <FiatSelection />
+                                                </div>
+                                                <div className="column column-1-3">
+                                                    <div class="subHeaderContainer">
+                                                        <div class="subHeader">
+                                                            <h3>{t('settings.accounts.title')}</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div className="box slim">
+                                                        {
+                                                            accountsList.map((account, index) => (
+                                                                <div className={style.currency} key={`available-fiat-${index}`}>
+                                                                    <p className="m-none">{t(`settings.accounts.${account.replace('Active', '')}`)}</p>
+                                                                    <Toggle
+                                                                        id={account}
+                                                                        checked={config.backend[account]}
+                                                                        onChange={this.handleToggleAccount} />
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div className="column column-1-3">
+                                                    <div class="subHeaderContainer withToggler">
+                                                        <div class="subHeader">
+                                                            <h3>
+                                                                {t('settings.accounts.ethereum')}
+                                                                {/* &nbsp; (powered by Etherscan.io APIs) */}
+                                                            </h3>
+                                                        </div>
+                                                        <div className="subHeaderToggler">
+                                                            <Toggle
+                                                                checked={config.backend.ethereumActive}
+                                                                id="ethereumActive"
+                                                                onChange={this.handleToggleEthereum} />
+                                                        </div>
+                                                    </div>
+                                                    <div className="box slim">
+                                                        {
+                                                            Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => (
+                                                                <div className={[style.currency, !config.backend.ethereumActive ? style.disabled : ''].join(' ')} key={tokenCode}>
+                                                                    <p className="m-none">{tokenName}</p>
+                                                                    <Toggle
+                                                                        checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
+                                                                        disabled={!config.backend.ethereumActive}
+                                                                        id={'erc20-' + tokenCode}
+                                                                        data-tokencode={tokenCode}
+                                                                        onChange={this.handleToggleERC20Token} />
+                                                                </div>
+                                                            ))
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div className="column column-1-3">
+                                                    <div class="subHeaderContainer">
+                                                        <div class="subHeader">
+                                                            <h3>{t('settings.expert.title')}</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div className="box slim divide">
+                                                        <div className={style.currency}>
+                                                            <p className="m-none">{t('settings.expert.coinControl')}</p>
+                                                            <Toggle
+                                                                checked={config.frontend.coinControl}
+                                                                id="coinControl"
+                                                                onChange={this.handleToggleCoinControl} />
+                                                        </div>
+                                                        <SettingsButton link href="/settings/electrum">{t('settings.expert.electrum.title')}</SettingsButton>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className={style.right}>
-                                                <label className="labelLarge">Active Accounts</label>
-                                                <div className={style.content}>
-                                                    {
-                                                        accountsList.map((account, index) => {
-                                                            return config.backend[account] ? (
-                                                                <Checkbox
-                                                                    key={`available-account-${index}`}
-                                                                    checked={config.backend[account]}
-                                                                    id={account}
-                                                                    onChange={this.handleToggleAccount}
-                                                                    label={t(`settings.accounts.${account.replace('Active', '')}`)}
-                                                                    className="text-medium" />
-                                                            ) : null;
-                                                        })
-                                                    }
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr />
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>
-                                                    {t('settings.accounts.ethereum')}
-                                                    &nbsp; (powered by Etherscan.io APIs)
-                                                </h3>
-                                            </div>
-                                        </div>
-                                        <div class={style.content}>
-                                            <Checkbox
-                                                checked={config.backend.ethereumActive}
-                                                id="ethereumActive"
-                                                onChange={this.handleToggleEthereum}
-                                                label={'Active'}
-                                                className="text-medium" />
-                                        </div>
-                                        <div class={style.content}>
-                                            <label className="labelLarge">ERC20-Tokens (BETA):</label>
-                                            { Object.entries(this.erc20TokenCodes).map(([tokenCode, tokenName]) => {
-                                                return (
-                                                    <Checkbox
-                                                        key={tokenCode}
-                                                        checked={config.backend.eth.activeERC20Tokens.indexOf(tokenCode) > -1}
-                                                        disabled={!config.backend.ethereumActive}
-                                                        id={'erc20-' + tokenCode}
-                                                        data-tokencode={tokenCode}
-                                                        onChange={this.handleToggleERC20Token}
-                                                        label={tokenName}
-                                                        className="text-medium" />
-                                                );
-                                            })
-                                            }
-                                        </div>
-
-                                        <hr />
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('settings.expert.title')}</h3>
-                                            </div>
-                                        </div>
-                                        <div class={style.content}>
-                                            <Checkbox
-                                                checked={config.frontend.coinControl}
-                                                id="coinControl"
-                                                onChange={this.handleToggleCoinControl}
-                                                label={t('settings.expert.coinControl')}
-                                                className="text-medium" />
-                                        </div>
-                                        <div class="row extra">
-                                            <ButtonLink primary href="/settings/electrum">{t('settings.expert.electrum.title')}</ButtonLink>
                                         </div>
                                     </div>
                                 )

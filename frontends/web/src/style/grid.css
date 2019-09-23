@@ -1,5 +1,5 @@
 .columnsContainer {
-    
+    width: 100%;
 }
 
 .columnsContainer.half {
@@ -98,15 +98,11 @@
     }
 
     .columns .column {
-        width: calc(100% - (var(--space-half) * 2)) !important;
+        width: calc(100% - (var(--space-half))) !important;
     }
 
     .columns .column-1-2 {
         width: calc((100% - (var(--space-half) * 2)) / 2);
-    }
-
-    .columns .column-1-2 {
-        width: calc((100% - (var(--space-half) * 2)) / 3);
     }
 
     .columns .column.column-1-3 {

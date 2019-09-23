@@ -17,8 +17,8 @@
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Checkbox } from '../forms';
 import { Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
+import { Toggle } from '../toggle/toggle';
 import * as style from './fiat.css';
 
 function changeSelected(event: Event): void {
@@ -31,8 +31,9 @@ function changeSelected(event: Event): void {
 }
 
 function setDefault(event: Event): void {
-    const target = event.target as HTMLInputElement;
-    setActiveFiat(target.dataset.code as Fiat);
+    const el = event.target as HTMLElement;
+    const target = el.tagName === 'svg' ? el.parentElement : el;
+    setActiveFiat(target!.dataset.code as Fiat);
     event.preventDefault();
 }
 
@@ -55,61 +56,50 @@ function Selection({
                     <h3>{t('fiat.title')}</h3>
                 </div>
             </div>
-            <div className={style.container}>
-                <div className={style.left}>
-                    <label className="labelLarge">Available Currencies</label>
-                    <div className={[style.content, style.fiatList].join(' ')}>
-                        {
-                            currencies.map((currency, index) => {
-                                const main = currency === active;
-                                return !selected.includes(currency) ? (
-                                    <Checkbox
-                                        key={currency}
-                                        name="fiat"
-                                        id={`fiat-${index}`}
-                                        label={currency}
-                                        checked={selected.includes(currency)}
-                                        disabled={main}
-                                        onChange={changeSelected}
-                                        value={currency}
-                                        className="text-medium" />
-                                ) : null;
-                            })
-                        }
-                    </div>
-                </div>
-                <div className={style.right}>
-                    <label className="labelLarge">Active Currencies</label>
-                    <div className={[style.content, style.fiatList].join(' ')}>
-                        {
-                            currencies.map((currency, index) => {
-                                const main = currency === active;
-                                return selected.includes(currency) ? (
-                                    <Checkbox
-                                        key={currency}
-                                        name="fiat"
-                                        id={`fiat-${index}`}
-                                        label={currency}
-                                        checked={selected.includes(currency)}
-                                        disabled={main}
-                                        onChange={changeSelected}
-                                        value={currency}
-                                        className="text-medium">
-                                        <span
-                                            tabIndex={0}
-                                            className={[style.button, main ? style.show : ''].join(' ')}
-                                            onClick={setDefault}
-                                            data-code={currency}>
-                                            {t(main ? 'fiat.default' : 'fiat.setDefault', {
-                                                code: currency,
-                                            })}
-                                        </span>
-                                    </Checkbox>
-                                ) : null;
-                            })
-                        }
-                    </div>
-                </div>
+            <div className="box slim">
+                {
+                    currencies.map((currency, index) => {
+                        const main = currency === active;
+                        const toggled = selected.includes(currency);
+                        return (
+                            <div className={style.currency}>
+                                <p className="m-none">{currency}</p>
+                                {
+                                    toggled && (
+                                        <a
+                                            className={[style.star, main ? style.active : ''].join(' ')}
+                                            href="#"
+                                            title={t(main ? 'fiat.default' : 'fiat.setDefault', { code: currency })}
+                                            data-code={currency}
+                                            onClick={setDefault}>
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                            </svg>
+                                        </a>
+                                    )
+                                }
+                                <Toggle
+                                    key={currency}
+                                    name="fiat"
+                                    id={`fiat-${index}`}
+                                    // label={currency}
+                                    checked={toggled}
+                                    disabled={main}
+                                    onChange={changeSelected}
+                                    value={currency} />
+                            </div>
+                        );
+                    })
+                }
             </div>
         </div>
     );

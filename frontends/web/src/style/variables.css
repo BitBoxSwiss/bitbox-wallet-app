@@ -7,6 +7,7 @@
     --color-white: #FFFFFF;
     --color-lightgray: #F5F5F5;
     --color-mediumgray: #E5E5E5;
+    --color-gray-alt: #999999;
     --color-gray: #777777;
     --color-softblack: #333333;
     --color-dark: #1D1D1B;
@@ -62,6 +63,8 @@
     --space-half: 16px;
     --space-quarter: 8px;
 
+    --item-height-xsmall: 24px;
+    --item-height-small: 36px;
     --item-height: 52px;
     --item-height-large: 72px;
 
