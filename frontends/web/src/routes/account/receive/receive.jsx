@@ -103,19 +103,20 @@ export default class Receive extends Component {
 
     previous = e => {
         e.preventDefault();
-        if (!this.state.verifying) {
-            this.setState(({ activeIndex, receiveAddresses }) => ({
-                activeIndex: (activeIndex + receiveAddresses.length - 1) % receiveAddresses.length,
-            }));
+        if (!this.state.verifying && this.state.activeIndex !== null && this.state.activeIndex > 0) {
+            this.setState({
+                activeIndex: this.state.activeIndex - 1,
+            });
         }
     };
 
     next = e => {
         e.preventDefault();
-        if (!this.state.verifying) {
-            this.setState(({ activeIndex, receiveAddresses }) => ({
-                activeIndex: (activeIndex + 1) % receiveAddresses.length,
-            }));
+        const { verifying, activeIndex, receiveAddresses } = this.state;
+        if (!verifying && receiveAddresses !== null && activeIndex !== null && activeIndex < receiveAddresses.length - 1) {
+            this.setState({
+                activeIndex: activeIndex + 1,
+            });
         }
     };
 
@@ -196,7 +197,7 @@ export default class Receive extends Component {
                         receiveAddresses.length > 1 && (
                             <a
                                 href="#"
-                                className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.previous].join(' ')}
+                                className={['flex flex-row flex-items-center', verifying || activeIndex === 0 ? style.disabled : '', style.previous].join(' ')}
                                 onClick={this.previous}>
                                 <svg
                                     className={[style.arrow, verifying ? style.disabled : ''].join(' ')}
@@ -222,7 +223,7 @@ export default class Receive extends Component {
                         receiveAddresses.length > 1 && (
                             <a
                                 href="#"
-                                className={['flex flex-row flex-items-center', verifying ? style.disabled : '', style.next].join(' ')}
+                                className={['flex flex-row flex-items-center', verifying || activeIndex >= receiveAddresses.length - 1 ? style.disabled : '', style.next].join(' ')}
                                 onClick={this.next}>
                                 {/* {t('button.next')} */}
                                 <svg
