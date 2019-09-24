@@ -387,6 +387,7 @@
 
 @media (max-width: 768px) {
     .stepTitle h3 {
+        margin-top: var(--space-large) !important;
         margin-bottom: var(--space-default) !important;
     }
 }

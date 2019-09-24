@@ -26,18 +26,15 @@ export default class Toast extends Component {
         setTimeout(this.show, 5);
     }
 
-    componentWillUnmount() {
-        this.setState({ active: true });
-    }
-
     show = () => {
         this.setState({ active: true });
-        // setTimeout(this.hide, 5000);
     }
 
     hide = () => {
         this.setState({ active: false });
-        this.props.onHide && this.props.onHide();
+        if (this.props.onHide) {
+            this.props.onHide();
+        }
     }
 
     setRef = ref => {

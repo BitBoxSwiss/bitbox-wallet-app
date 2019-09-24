@@ -162,6 +162,7 @@ export default class Settings extends Component {
                                                                             {
                                                                                 account.badges.map((badge, i) => (
                                                                                     <Badge
+                                                                                        key={`badge-${i}`}
                                                                                         type={badge.includes('BTC') ? 'secondary' : 'primary'}
                                                                                         className={i > 0 ? 'm-left-quarter': ''}>
                                                                                         {badge}
