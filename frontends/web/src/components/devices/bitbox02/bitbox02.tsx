@@ -122,6 +122,9 @@ class BitBox02 extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/attestation').then(attestationResult => {
             this.setState({ attestationResult });
         });
+        this.checkSDCard().then(sdCardInserted => {
+            this.setState({ sdCardInserted });
+        });
         this.onChannelHashChanged();
         this.onStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, deviceID }) => {
@@ -203,32 +206,49 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private createWalletStep = () => {
-        this.insertSDCard();
+        this.checkSDCard().then(sdCardInserted => {
+            this.setState({ sdCardInserted });
+        });
         this.setState({ appStatus: 'createWallet' });
     }
 
     private restoreBackupStep = () => {
-        this.insertSDCard();
-        if (!this.state.sdCardInserted) {
-            this.setState({ waitDialog: {
-                title: 'Insert microSD card',
-                text: 'Please insert a microSD card into your BitBox02 to continue.',
-            }});
-        }
-        this.setState({
-            appStatus: 'restoreBackup',
-            restoreBackupStatus: 'restore',
+        this.insertSDCard().then(success => {
+            if (success) {
+                this.setState({
+                    appStatus: 'restoreBackup',
+                    restoreBackupStatus: 'restore',
+                });
+            }
+        });
+    }
+
+    private checkSDCard = () => {
+        return apiGet('devices/bitbox02/' + this.props.deviceID + '/check-sdcard').then(sdCardInserted => {
+            return sdCardInserted;
         });
     }
 
     private insertSDCard = () => {
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
-            if (success) {
-                this.setState({ sdCardInserted: true, waitDialog: undefined });
-            } else if (errorMessage) {
-                this.setState({ sdCardInserted: false });
-                alertUser(errorMessage);
+        return this.checkSDCard().then(sdCardInserted => {
+            this.setState({ sdCardInserted });
+            if (sdCardInserted) {
+                return true;
             }
+            this.setState({ waitDialog: {
+                title: 'Insert microSD card',
+                text: 'Please insert a microSD card into your BitBox02 to continue.',
+            }});
+            return apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
+                this.setState({ sdCardInserted: success, waitDialog: undefined });
+                if (success) {
+                    return true;
+                }
+                if (errorMessage) {
+                    alertUser(errorMessage);
+                }
+                return false;
+            });
         });
     }
 
@@ -270,15 +290,22 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private createBackup = () => {
-        this.setState({ creatingBackup: true, waitDialog: {
-            title: "Confirm today's date on your BitBox02",
-            text: 'This date will be used to create your backup.',
-        }});
-        apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
-            if (!success) {
+        this.insertSDCard().then(success1 => {
+            if (!success1) {
                 alertUser('creating backup failed, try again');
+                return;
             }
-            this.setState({ creatingBackup: false, waitDialog: undefined });
+
+            this.setState({ creatingBackup: true, waitDialog: {
+                title: "Confirm today's date on your BitBox02",
+                text: 'This date will be used to create your backup.',
+            }});
+            apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success2 }) => {
+                if (!success2) {
+                    alertUser('creating backup failed, try again');
+                }
+                this.setState({ creatingBackup: false, waitDialog: undefined });
+            });
         });
     }
 
@@ -531,7 +558,7 @@ class BitBox02 extends Component<Props, State> {
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button
                                                     primary
-                                                    disabled={!deviceName || !sdCardInserted}
+                                                    disabled={!deviceName}
                                                     onClick={this.setDeviceName}>
                                                     {/* {t('bitbox02Wizard.create.button')} */}
                                                     Continue
