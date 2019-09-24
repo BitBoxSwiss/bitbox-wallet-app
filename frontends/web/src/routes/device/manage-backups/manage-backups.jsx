@@ -75,7 +75,7 @@ export default class ManageBackups extends Component {
                         deviceID={this.props.deviceID}
                         showCreate={true}
                         showRestore={false}
-                        showRadio={true}>
+                        showRadio={false}>
                         {this.backButton()}
                     </BackupsV2> : (
                         <div>
