@@ -9,6 +9,10 @@
     width: 100% !important;
 }
 
+.swissOpenSource.large {
+    max-width: 280px !important;
+}
+
 @media (max-width: 768px) {
     .swissOpenSource {
         max-width: 180px !important;

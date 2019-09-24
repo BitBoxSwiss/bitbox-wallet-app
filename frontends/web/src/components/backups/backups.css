@@ -1,21 +1,28 @@
 .backupsList {
     display: flex;
     flex-direction: column;
-    overflow: auto;
-    position: relative;
     text-align: left;
     flex: 1;
 }
 
 .listContainer {
-    margin-top: var(--space-default);
-    max-height: 380px;
-    min-width: 512px;
+    max-height: 320px;
+    width: 100%;
     overflow: scroll;
+    border: solid 1px var(--color-lightgray);
 }
 
-.listContainer > *:not(:first-child) {
-    margin-top: var(--space-half);
+.table {
+    width: 100%;
+    padding: var(--space-quarter) var(--space-half);
+}
+
+.table:not(:first-child) {
+    border-top: solid 1px var(--color-lightgray);
+}
+
+.table label {
+    margin-bottom: 0 !important;
 }
 
 .agreements {

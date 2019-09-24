@@ -16,8 +16,9 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { Button } from '../../../components/forms';
-import { Shift } from '../../../components/icon/logo';
-import { Footer, Header } from '../../../components/layout';
+import { SwissMadeOpenSource } from '../../../components/icon/logo';
+import LanguageSwitch from '../../../components/language/language';
+import { Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { PasswordRepeatInput } from '../../../components/password';
 import Spinner from '../../../components/spinner/Spinner';
@@ -175,12 +176,17 @@ class Initialize extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                <Header title={<h2>{t('setup')}</h2>} />
+                <Header title={<h2>{t('welcome.title')}</h2>}>
+                    <LanguageSwitch />
+                </Header>
                     <div className="innerContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
                             {formSubmissionState}
                             {content}
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
                         {
                             status === stateEnum.WAITING && (
@@ -188,9 +194,6 @@ class Initialize extends Component<Props, State> {
                             )
                         }
                     </div>
-                    <Footer>
-                        <Shift />
-                    </Footer>
                 </div>
             </div>
         );

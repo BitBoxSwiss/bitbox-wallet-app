@@ -20,9 +20,10 @@ import { apiGet } from '../../../utils/request';
 import { Button } from '../../../components/forms';
 import { Backups } from '../../../components/backups/backups';
 import { Message } from '../../../components/message/message';
-import { Shift, Alert } from '../../../components/icon';
-import { Header, Footer } from '../../../components/layout';
+import { SwissMadeOpenSource, Alert } from '../../../components/icon';
+import { Header } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
+import LanguageSwitch from '../../../components/language/language';
 import * as style from '../device.css';
 
 const STATUS = Object.freeze({
@@ -93,7 +94,9 @@ export default class SeedRestore extends Component {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('setup')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t('seedRestore.info.title')}</h1>
@@ -144,10 +147,10 @@ export default class SeedRestore extends Component {
                                     </Backups>
                                 )
                             }
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
-                        <Footer>
-                            <Shift />
-                        </Footer>
                     </div>
                     { this.renderSpinner() }
                 </div>

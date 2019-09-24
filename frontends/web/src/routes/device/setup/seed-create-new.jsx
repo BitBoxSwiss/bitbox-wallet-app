@@ -20,10 +20,11 @@ import { apiGet, apiPost } from '../../../utils/request';
 import { PasswordRepeatInput } from '../../../components/password';
 import { Button, Input, Checkbox } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
-import { Shift, Alert } from '../../../components/icon';
-import { Header, Footer } from '../../../components/layout';
+import { SwissMadeOpenSource, Alert } from '../../../components/icon';
+import { Header } from '../../../components/layout';
 import Spinner from '../../../components/spinner/Spinner';
 import warning from '../../../assets/icons/warning.png';
+import LanguageSwitch from '../../../components/language/language';
 import * as style from '../device.css';
 
 const STATUS = Object.freeze({
@@ -228,7 +229,9 @@ export default class SeedCreateNew extends Component {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('setup')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer scrollableContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t('seed.info.title')}</h1>
@@ -241,12 +244,12 @@ export default class SeedCreateNew extends Component {
                                 )
                             }
                             {content}
+                            <div className="text-center m-top-large">
+                                <SwissMadeOpenSource large />
+                            </div>
                         </div>
                         { this.renderSpinner() }
                     </div>
-                    <Footer>
-                        <Shift />
-                    </Footer>
                 </div>
             </div>
         );

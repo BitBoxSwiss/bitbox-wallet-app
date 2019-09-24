@@ -122,21 +122,25 @@ class Backups extends Component<Props, State> {
             <div className="box large m-top-default">
                 <SimpleMarkup tagName="p" markup={t('backup.description')} />
                 <div class={style.backupsList} ref={this.setScrollableContainerRef}>
-                    {
-                        backupList.length ? backupList.map(backup => (
-                            <BackupsListItem
-                                key={backup.id}
-                                backup={backup}
-                                selectedBackup={selectedBackup}
-                                handleChange={this.handleBackuplistChange}
-                                onFocus={this.scrollIntoView}
-                                radio={true} />
-                        )) : (
-                            <p class={style.emptyText}>
-                                {t('backup.noBackups')}
-                            </p>
-                        )
-                    }
+                    <div className={style.listContainer}>
+                        {
+                            backupList.length ? backupList.map(backup => (
+                                <table className={style.table}>
+                                    <BackupsListItem
+                                        key={backup.id}
+                                        backup={backup}
+                                        selectedBackup={selectedBackup}
+                                        handleChange={this.handleBackuplistChange}
+                                        onFocus={this.scrollIntoView}
+                                        radio={true} />
+                                </table>
+                            )) : (
+                                <p class={style.emptyText}>
+                                    {t('backup.noBackups')}
+                                </p>
+                            )
+                        }
+                    </div>
                 </div>
                 <div class="buttons">
                     {

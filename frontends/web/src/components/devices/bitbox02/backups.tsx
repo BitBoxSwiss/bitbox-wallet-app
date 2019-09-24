@@ -113,23 +113,21 @@ class Backups extends Component<Props, State> {
                     <div class={backupStyle.backupsList}>
                         {
                             backups.backups!.length ? (
-                                <div>
-                                    <div className={backupStyle.listContainer}>
-                                        {
-                                            backups.backups!.map(backup => (
-                                                <table className={style.table}>
-                                                    <BackupsListItem
-                                                        key={backup.id}
-                                                        disabled={restoring}
-                                                        backup={backup}
-                                                        selectedBackup={selectedBackup}
-                                                        handleChange={(b => this.setState({ selectedBackup: b }))}
-                                                        onFocus={() => undefined}
-                                                        radio={showRadio} />
-                                                </table>
-                                            ))
-                                        }
-                                    </div>
+                                <div className={backupStyle.listContainer}>
+                                    {
+                                        backups.backups!.map(backup => (
+                                            <table className={backupStyle.table}>
+                                                <BackupsListItem
+                                                    key={backup.id}
+                                                    disabled={restoring}
+                                                    backup={backup}
+                                                    selectedBackup={selectedBackup}
+                                                    handleChange={(b => this.setState({ selectedBackup: b }))}
+                                                    onFocus={() => undefined}
+                                                    radio={showRadio} />
+                                            </table>
+                                        ))
+                                    }
                                 </div>
                             ) : (
                                 <p>{t('backup.noBackups')}</p>

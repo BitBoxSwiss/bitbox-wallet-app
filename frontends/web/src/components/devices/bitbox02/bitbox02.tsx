@@ -32,7 +32,7 @@ import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
 import { SwissMadeOpenSource } from '../../icon/logo';
-import { Footer } from '../../layout/footer';
+import LanguageSwitch from '../../language/language';
 import { Header } from '../../layout/header';
 import { setSidebarStatus } from '../../sidebar/sidebar';
 import Status from '../../status/status';
@@ -390,7 +390,9 @@ class BitBox02 extends Component<Props, State> {
                     )
                 }
                 <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="flex flex-column flex-start flex-items-center flex-1 scrollableContainer">
                         <Steps>
                             <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
@@ -400,6 +402,9 @@ class BitBox02 extends Component<Props, State> {
                                     <div className={style.passwordGesturesGifWrapper}>
                                         <img class={style.passwordGesturesGif} src={passwordGif}/>
                                     </div>
+                                </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -430,6 +435,9 @@ class BitBox02 extends Component<Props, State> {
                                         )
                                     }
                                 </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
 
                             {
@@ -445,7 +453,7 @@ class BitBox02 extends Component<Props, State> {
                                         <div className="columnsContainer m-top-default">
                                             <div className="columns">
                                                 <div className="column column-1-2">
-                                                    <div className={style.stepContext}>
+                                                    <div className={style.stepContext} style="min-height: 330px">
                                                         <h3 className={style.stepSubHeader}>Create</h3>
                                                         {/* <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} /> */}
                                                         <p className="text-center">I want to setup a new BitBox02.</p>
@@ -460,19 +468,19 @@ class BitBox02 extends Component<Props, State> {
                                                     </div>
                                                 </div>
                                                 <div className="column column-1-2">
-                                                    <div className={style.stepContext}>
+                                                    <div className={style.stepContext} style="min-height: 330px">
                                                         <h3 className={style.stepSubHeader}>Restore</h3>
                                                         {/* <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} /> */}
                                                         <p className="text-center">I want to restore my wallet from a backup.</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                             <Button
-                                                                secondary
+                                                                primary
                                                                 onClick={this.restoreBackupStep}>
                                                                 {/* {t('backup.restore.confirmTitle')} */}
                                                                 Restore from microSD card
                                                             </Button>
                                                             <Button
-                                                                secondary
+                                                                primary
                                                                 onClick={this.restoreFromMnemonic}>
                                                                 {/* {t('backup.restoreFromMnemonic.confirmTitle')} */}
                                                                 Restore from mnemonic
@@ -481,6 +489,9 @@ class BitBox02 extends Component<Props, State> {
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
                                     </Step>
                                 )
@@ -524,6 +535,9 @@ class BitBox02 extends Component<Props, State> {
                                                 </Button>
                                             </div>
                                         </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -550,6 +564,9 @@ class BitBox02 extends Component<Props, State> {
                                                 <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
                                         </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
                                     </Step>
                                 )
                             }
@@ -572,6 +589,9 @@ class BitBox02 extends Component<Props, State> {
                                                     {t('backup.create.title')}
                                                 </Button>
                                             </div>
+                                        </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
                                     </Step>
                                 )
@@ -606,6 +626,7 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'restoreBackup') && (
                                     <Step
+                                        width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'restore'}
                                         title={t('backup.restore.confirmTitle')}>
                                         <BackupsV2
@@ -685,24 +706,24 @@ class BitBox02 extends Component<Props, State> {
                                     <p>Your backup has been created and your BitBox02 is ready to use. Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
                                     <p>I understand the following:</p>
                                     <form ref={this.setDisclaimerRef}>
+                                        <div className="m-top-quarter">
+                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label="I should store my backup in a secure location." />
+                                        </div>
                                         <div>
                                             <Checkbox
                                                 onChange={this.handleDisclaimerCheck}
                                                 className={style.wizardCheckbox}
-                                                id="agreement1" label="If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup." />
+                                                id="agreement2" label="If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup." />
                                         </div>
                                         <div className="m-top-quarter">
                                             <Checkbox
                                                 onChange={this.handleDisclaimerCheck}
                                                 className={style.wizardCheckbox}
-                                                id="agreement2"
+                                                id="agreement3"
                                                 label="If I lose my backup and lose/damage my device, my funds will be lost." />
                                         </div>
                                         <div className="m-top-quarter">
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement3" label="My backup is NOT protected with my BitBox02 password. Anyone with access to my backup has access to my wallet." />
-                                        </div>
-                                        <div className="m-top-quarter">
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label="I should store my backup in a secure location." />
+                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label="My backup is NOT protected with my BitBox02 password. Anyone with access to my backup has access to my wallet." />
                                         </div>
                                     </form>
                                     <div className={['buttons text-center', style.fullWidth].join(' ')}>
@@ -712,11 +733,11 @@ class BitBox02 extends Component<Props, State> {
                                         </Button>
                                     </div>
                                 </div>
+                                <div className="text-center m-top-large">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
                         </Steps>
-                        <Footer>
-                            <SwissMadeOpenSource />
-                        </Footer>
                     </div>
                     {
                         attestationResult === false && (
