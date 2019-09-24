@@ -333,9 +333,12 @@ class BitBox02 extends Component<Props, State> {
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
             if (!success) {
                 alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'));
+            } else {
+                this.setState({
+                    appStatus: 'restoreFromMnemonic',
+                });
             }
             this.setState({
-                appStatus: 'restoreFromMnemonic',
                 waitDialog: undefined,
             });
         });
