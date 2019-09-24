@@ -309,7 +309,11 @@ class BitBox02 extends Component<Props, State> {
             if (!success) {
                 alertUser(this.props.t('bitbox02Wizard.restoreFromMnemonic.failed'));
             }
-            this.setState({ restoringFromMnemonic: false, waitDialog: undefined });
+            this.setState({
+                appStatus: 'restoreFromMnemonic',
+                restoringFromMnemonic: false,
+                waitDialog: undefined,
+            });
         });
     }
 
@@ -756,11 +760,38 @@ class BitBox02 extends Component<Props, State> {
                                         title="Backup Restored!">
                                         <div className={style.stepContext}>
                                             {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
-                                            <p>If a microSD card is inserted in your BitBox02, remove it and store it in a secure location.</p>
+                                            <p>Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
                                             <p className="m-bottom-default">To keep your funds safe, please remember the following:</p>
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
+                                                <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
+                                                <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
+                                            </ul>
+                                            <div className={['buttons text-center', style.fullWidth].join(' ')}>
+                                                <Button primary onClick={this.handleGetStarted}>
+                                                    {t('success.getstarted')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
+                                        </div>
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                appStatus === 'restoreFromMnemonic' && (
+                                    <Step
+                                        width={700}
+                                        active={status === 'initialized'}
+                                        title="Backup Restored!">
+                                        <div className={style.stepContext}>
+                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
+                                            <p className="m-bottom-default">To keep your funds safe, please remember the following:</p>
+                                            <ul>
+                                                <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation4')}</li>
                                             </ul>
