@@ -109,7 +109,7 @@ class Reset extends Component<Props, State> {
                                         <div>
                                             <Checkbox
                                                 id="reset_understand"
-                                                label={t('reset.understand')}
+                                                label={t('reset.understandBB02')}
                                                 checked={understand}
                                                 onChange={this.handleUnderstandChange} />
                                         </div>
