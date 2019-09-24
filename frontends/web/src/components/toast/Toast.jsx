@@ -26,27 +26,36 @@ export default class Toast extends Component {
         setTimeout(this.show, 5);
     }
 
+    componentWillUnmount() {
+        this.setState({ active: true });
+    }
+
     show = () => {
         this.setState({ active: true });
-        setTimeout(this.hide, 5000);
+        // setTimeout(this.hide, 5000);
     }
 
     hide = () => {
         this.setState({ active: false });
-        this.props.onHide();
+        this.props.onHide && this.props.onHide();
+    }
+
+    setRef = ref => {
+        this.toast = ref;
     }
 
     render({
         theme,
-        message,
+        children,
         withGuide,
     }, {
         active,
     }) {
         return (
             <div
+                ref = {this.setRef}
                 class={[style.toast, style[theme], active ? style.active : '', withGuide ? style.shifted : ''].join(' ')}>
-                {message}
+                <p>{children}</p>
             </div>
         );
     }

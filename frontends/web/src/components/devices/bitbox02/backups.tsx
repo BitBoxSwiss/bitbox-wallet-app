@@ -15,8 +15,8 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import * as style from '../../../components/steps/steps.css';
+import Toast from '../../../components/toast/Toast';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
@@ -104,10 +104,9 @@ class Backups extends Component<Props, State> {
                 <div className={style.stepContext}>
                     {
                         errorText && (
-                            <div className={style.standOut}>
-                                <img src={alertOctagon} />
-                                <span className={style.error}>{errorText}</span>
-                            </div>
+                            <Toast theme="warning">
+                                {errorText}
+                            </Toast>
                         )
                     }
                     <div class={backupStyle.backupsList}>
