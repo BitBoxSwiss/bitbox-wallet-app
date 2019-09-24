@@ -153,7 +153,11 @@
       "restoreText": "Ok, let's restore a backup!",
       "text1": "Great, your BitBox02 password is now set and wallet created. Now it's time to create your first backup. Please make sure your microSD card is inserted into your BitBox02 and continue.",
       "text2": "Please follow the on-screen instruction on your device to create a backup.",
-      "text3": "After your backup is created, please remove the microSD card and store it in a <strong>secure location</strong>. The contents of the microSD card is not password-protected. Never insert it into any other device but your BitBox02."
+      "text3": "After your backup is created, please remove the microSD card and store it in a <strong>secure location</strong>. The contents of the microSD card is not password-protected. Never insert it into any other device but your BitBox02.",
+      "userConfirmation1": "I should store my backup in a secure location.",
+      "userConfirmation2": "My backup is not password protected. Anyone with access to it can access my wallet.",
+      "userConfirmation3": "If I lose or damage my BitBox02, the only way to recover my funds is to restore from my backup.",
+      "userConfirmation4": "If I lose or damage both my backup and my BitBox02 then my funds will be lost."
     },
     "create": {
       "button": "Name Device & Continue",
@@ -168,7 +172,7 @@
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
       "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
-      "tip": "Before continuing, it is highly recommended that you proceed in a secure environment.",
+      "tip": "We recommend that you proceed in a secure environment.",
       "title": "Initialize your BitBox"
     },
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",

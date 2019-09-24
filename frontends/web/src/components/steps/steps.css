@@ -288,8 +288,9 @@
 
 .stepContext ul li,
 .stepContext ol li {
+    color: var(--color-secondary);
     font-weight: 400;
-    font-size: var(--size-default);
+    font-size: var(--size-wizard-text);
 }
 
 .stepContext ul li:not(:last-child) {
