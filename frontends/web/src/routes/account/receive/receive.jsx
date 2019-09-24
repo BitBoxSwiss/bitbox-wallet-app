@@ -328,9 +328,10 @@ export default class Receive extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
-                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} /> }
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
+                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} /> }
+                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} /> }
                     { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} /> }
                 </Guide>
             </div>

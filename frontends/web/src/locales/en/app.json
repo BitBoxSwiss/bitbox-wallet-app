@@ -492,6 +492,10 @@
         "text": "For the BitBox01, click on the BitBox icon in the sidebar on the left and see the Pairing section. The guide will update and you can continue following the instructions from there.\nFor the BitBox02, you can verify addresses directly on the device during the send/receive process.",
         "title": "How can I verify an address securely?"
       },
+      "why20": {
+        "text": "During start-up the app generates addresses derived from your seed to see if they have received funds. As the app can generate an almost infinite number of addresses, it could spend years determining the balance. To limit this search it stops after it sees 20 addresses that have never received funds. This is the \"gap limit\" and 20 is a de-facto standard though the number is arbitrary. These are the 20 addresses you can choose from.",
+        "title": "Why only 20 addresses?"
+      },
       "whyMany": {
         "text": "To maintain privacy and security, never hand out the same address twice. If you have used an address, click on on the right arrow for a new address. You can generate up to 20 addresses at a time. Think of addresses like invoice numbers. All addresses are derived from your single backup seed.",
         "title": "Why so many addresses?"
