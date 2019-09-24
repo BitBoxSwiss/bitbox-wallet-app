@@ -67,7 +67,6 @@ interface State {
     restoreBackupStatus: 'intro' | 'restore' | 'setPassword';
     settingPassword: boolean;
     creatingBackup: boolean;
-    restoringFromMnemonic: boolean;
     sdCardInserted?: boolean;
     errorText?: string;
     deviceName: string;
@@ -93,7 +92,6 @@ class BitBox02 extends Component<Props, State> {
             status: '',
             settingPassword: false,
             creatingBackup: false,
-            restoringFromMnemonic: false,
             sdCardInserted: undefined,
             appStatus: '',
             createWalletStatus: 'intro',
@@ -328,7 +326,7 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private restoreFromMnemonic = () => {
-        this.setState({ restoringFromMnemonic: true, waitDialog: {
+        this.setState({ waitDialog: {
             title: 'Follow Instructions on BitBox02',
             text: 'Please follow instructions on BitBox02 to restore from mnemonic.',
         }});
@@ -338,7 +336,6 @@ class BitBox02 extends Component<Props, State> {
             }
             this.setState({
                 appStatus: 'restoreFromMnemonic',
-                restoringFromMnemonic: false,
                 waitDialog: undefined,
             });
         });
@@ -372,7 +369,6 @@ class BitBox02 extends Component<Props, State> {
             settingPassword,
             creatingBackup,
             deviceVerified,
-            // restoringFromMnemonic,
             errorText,
             unlockOnly,
             showWizard,
