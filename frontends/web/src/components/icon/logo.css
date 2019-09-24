@@ -17,4 +17,8 @@
     .swissOpenSource {
         max-width: 180px !important;
     }
+
+    .swissOpenSource.large {
+        max-width: 210px !important;
+    }
 }

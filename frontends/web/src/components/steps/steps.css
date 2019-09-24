@@ -120,6 +120,7 @@
 
 .steps {
     max-width: var(--content-width);
+    width: 100%;
     margin: 0 auto;
     flex: 1;
     display: flex;
@@ -381,5 +382,11 @@
 @media (max-width: 1240px) {
     .stepContentContainer {
         margin-left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .stepTitle h3 {
+        margin-bottom: var(--space-default) !important;
     }
 }
