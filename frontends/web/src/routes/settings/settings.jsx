@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { setConfig } from '../../utils/config';
+import { Badge } from '../../components/badge/badge';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { FiatSelection } from '../../components/fiat/fiat';
@@ -110,11 +111,26 @@ export default class Settings extends Component {
         config,
     }) {
         const accountsList = [
-            'bitcoinP2PKHActive',
-            'bitcoinP2WPKHActive',
-            'bitcoinP2WPKHP2SHActive',
-            'litecoinP2WPKHActive',
-            'litecoinP2WPKHP2SHActive',
+            {
+                name: 'bitcoinP2PKHActive',
+                badges: ['BB01'],
+            },
+            {
+                name: 'bitcoinP2WPKHActive',
+                badges: ['BB01', 'BB02', 'BB02-BTC'],
+            },
+            {
+                name: 'bitcoinP2WPKHP2SHActive',
+                badges: ['BB01', 'BB02', 'BB02-BTC'],
+            },
+            {
+                name: 'litecoinP2WPKHActive',
+                badges: ['BB01', 'BB02'],
+            },
+            {
+                name: 'litecoinP2WPKHP2SHActive',
+                badges: ['BB01', 'BB02'],
+            },
         ];
         return (
             <div class="contentWithGuide">
@@ -140,10 +156,24 @@ export default class Settings extends Component {
                                                         {
                                                             accountsList.map((account, index) => (
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
-                                                                    <p className="m-none">{t(`settings.accounts.${account.replace('Active', '')}`)}</p>
+                                                                    <div>
+                                                                        <p className="m-none">{t(`settings.accounts.${account.name.replace('Active', '')}`)}</p>
+                                                                        <p className="m-none">
+                                                                            {
+                                                                                account.badges.map((badge, i) => (
+                                                                                    <Badge
+                                                                                        key={`badge-${i}`}
+                                                                                        type={badge.includes('BTC') ? 'secondary' : 'primary'}
+                                                                                        className={i > 0 ? 'm-left-quarter': ''}>
+                                                                                        {badge}
+                                                                                    </Badge>
+                                                                                ))
+                                                                            }
+                                                                        </p>
+                                                                    </div>
                                                                     <Toggle
-                                                                        id={account}
-                                                                        checked={config.backend[account]}
+                                                                        id={account.name}
+                                                                        checked={config.backend[account.name]}
                                                                         onChange={this.handleToggleAccount} />
                                                                 </div>
                                                             ))
@@ -154,6 +184,7 @@ export default class Settings extends Component {
                                                     <div class="subHeaderContainer withToggler">
                                                         <div class="subHeader">
                                                             <h3>{t('settings.accounts.ethereum')}</h3>
+                                                            <Badge type="primary" className="m-left-quarter">BB02</Badge>
                                                         </div>
                                                         <div className="subHeaderToggler">
                                                             <Toggle
@@ -187,7 +218,13 @@ export default class Settings extends Component {
                                                     </div>
                                                     <div className="box slim divide">
                                                         <div className={style.currency}>
-                                                            <p className="m-none">{t('settings.expert.coinControl')}</p>
+                                                            <div>
+                                                                <p className="m-none">{t('settings.expert.coinControl')}</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BTC</Badge>
+                                                                    <Badge type="generic" className="m-left-quarter">LTC</Badge>
+                                                                </p>
+                                                            </div>
                                                             <Toggle
                                                                 checked={config.frontend.coinControl}
                                                                 id="coinControl"

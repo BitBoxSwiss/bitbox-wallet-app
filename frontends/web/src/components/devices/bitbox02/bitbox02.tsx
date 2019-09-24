@@ -18,12 +18,12 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import passwordEntryGif from '../../../assets/device/bb02PwEntry.gif';
 import passwordEntryOldGif from '../../../assets/device/bb02PwEntry_old.gif';
-import alertOctagon from '../../../assets/icons/alert-octagon.svg';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input  } from '../../../components/forms';
 import { Step, Steps } from '../../../components/steps';
 import * as style from '../../../components/steps/steps.css';
+import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
@@ -413,9 +413,9 @@ class BitBox02 extends Component<Props, State> {
                                 title={t('bitbox02Wizard.pairing.title')}>
                                 {
                                     status === 'pairingFailed' && (
-                                        <div className={[style.standOut, style.error].join(' ')}>
+                                        <Toast theme="warning">
                                             <span>{t('bitbox02Wizard.pairing.failed')}</span>
-                                        </div>
+                                        </Toast>
                                     )
                                 }
                                 <div className={[style.stepContext, status === 'pairingFailed' ? style.disabled : ''].join(' ')}>
@@ -447,9 +447,9 @@ class BitBox02 extends Component<Props, State> {
                                         // title={t('bitbox02Wizard.initialize.title')}
                                         title="Setup your BitBox02"
                                         large>
-                                        <div className={[style.standOut, style.info].join(' ')}>
-                                            <span>{t('bitbox02Wizard.initialize.tip')}</span>
-                                        </div>
+                                        <Toast theme="info">
+                                            {t('bitbox02Wizard.initialize.tip')}
+                                        </Toast>
                                         <div className="columnsContainer m-top-default">
                                             <div className="columns">
                                                 <div className="column column-1-2">
@@ -503,10 +503,14 @@ class BitBox02 extends Component<Props, State> {
                                         active={createWalletStatus === 'intro'}
                                         // title={t('seed.create')}
                                         title="Choose BitBox02 Name">
-                                        <div className={[style.standOut, style.info].join(' ')}>
-                                            {/* <SimpleMarkup tagName="span" markup={t('bitbox02Wizard.insertSDCard')} /> */}
-                                            <span>Please make sure your microSD card is inserted in your BitBox02.</span>
-                                        </div>
+                                        {
+                                            !sdCardInserted && (
+                                                <Toast theme="info">
+                                                    {/* <SimpleMarkup tagName="span" markup={t('bitbox02Wizard.insertSDCard')} /> */}
+                                                    <span>Please make sure your microSD card is inserted in your BitBox02.</span>
+                                                </Toast>
+                                            )
+                                        }
                                         <div className={style.stepContext}>
                                             {/* <p>{t('bitbox02Wizard.create.text')} {t('bitbox02Wizard.create.info')}</p> */}
                                             <Input
@@ -552,10 +556,9 @@ class BitBox02 extends Component<Props, State> {
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (
-                                                    <div className={style.standOut}>
-                                                        <img src={alertOctagon} />
+                                                    <Toast theme="warning">
                                                         <span className={style.error}>{errorText}</span>
-                                                    </div>
+                                                    </Toast>
                                                 )
                                             }
                                             {/* <p>{t('bitbox02Wizard.initialize.passwordText')}</p> */}
@@ -656,10 +659,9 @@ class BitBox02 extends Component<Props, State> {
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (
-                                                    <div className={style.standOut}>
-                                                        <img src={alertOctagon} />
-                                                        <span className={style.error}>{errorText}</span>
-                                                    </div>
+                                                    <Toast theme="warning">
+                                                        {errorText}
+                                                    </Toast>
                                                 )
                                             }
                                             {/* <p>{t('bitbox02Wizard.initialize.passwordText')}</p> */}

@@ -1,23 +1,29 @@
 .toast {
     position: fixed;
     display: block;
-    top: var(--spacing-half);
-    right: -100%;
-    max-width: calc(100% - (var(--guide-width) + var(--sidebar-width) + var(--spacing-large)));
-    min-width: 180px;
+    top: calc(var(--header-height) + var(--space-half));
+    right: calc((100% - var(--content-width)) / 2);
+    transform: translateY(-300%);
+    max-width: 360px;
+    width: 100%;
     min-height: 20px;
     border-radius: 2px;
-    padding: var(--spacing-default);
-    color: var(--color-white);
+    padding: var(--space-half);
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
+    transition: transform ease-out 0.2s;
+    margin-right: var(--space-default);
 }
 
 .active {
-    right: calc(var(--spacing-large) + 38px);
+    transform: translateY(0%);
 }
 
 .active.shifted {
     right: calc(var(--spacing-default) + 350px);
+}
+
+.info {
+    background-color: var(--color-darkblue);
 }
 
 .success {
@@ -25,5 +31,24 @@
 }
 
 .warning {
-    background-color: var(--color-swissred);
+    background-color: var(--color-softred);
+}
+
+.toast p {
+    margin: 0;
+    color: var(--color-white);
+}
+
+@media (max-width: 1080px) {
+    .toast {
+        right: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .toast {
+        top: calc(var(--header-height) + var(--space-quarter));
+        max-width: calc(100% - var(--space-default));
+        margin-right: var(--space-half);
+    }
 }
