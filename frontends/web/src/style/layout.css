@@ -124,6 +124,7 @@
 }
 
 .subHeaderContainer .subHeader h3 {
+    display: inline-block;
     margin: 0;
     font-size: var(--size-subheader);
     font-weight: 400;
