@@ -168,7 +168,7 @@
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
       "text": "Successfully paired your BitBox02! Now let's initialize your device. Get started by choosing to create a new wallet, or to restore a wallet from an existing backup. <strong>Please make sure you have a microSD card inserted in your BitBox02</strong>",
-      "tip": "Before continuing, it is highly recommended that you proceed in a secure environment.",
+      "tip": "We recommend that you proceed in a secure environment.",
       "title": "Initialize your BitBox"
     },
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
