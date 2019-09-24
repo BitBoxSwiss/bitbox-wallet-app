@@ -108,6 +108,7 @@ class Account extends Component<Props, State> {
         }
         if (this.props.code !== prevProps.code) {
             this.onStatusChanged();
+            this.checkSDCards();
         }
         if (this.deviceIDs(this.props.devices).length !== this.deviceIDs(prevProps.devices).length) {
             this.checkSDCards();
@@ -116,27 +117,24 @@ class Account extends Component<Props, State> {
 
     private checkSDCards() {
         Promise.all(this.deviceIDs(this.props.devices).map(deviceID => {
-            let apiPrefix;
             switch (this.props.devices[deviceID]) {
-            case 'bitbox':
-                apiPrefix = 'devices/';
-                break;
-            case 'bitbox02':
-                apiPrefix = 'devices/bitbox02/';
-                break;
-            default:
-                return;
+                case 'bitbox':
+                    return apiGet(`devices/${deviceID}/info`)
+                        .then(info => {
+                            if (!info) {
+                                return false;
+                            }
+                            return info.sdcard;
+                        });
+                case 'bitbox02':
+                    return apiGet(`devices/bitbox02/${deviceID}/check-sdcard`)
+                        .then(sdcard => sdcard);
+                default:
+                    return;
             }
-            return apiGet(`${apiPrefix}${deviceID}/info`)
-                .then(info => {
-                    if (!info) {
-                        return false;
-                    }
-                    return info.sdcard;
-                });
         }))
-            .then(sdcards => sdcards.some(sdcard => sdcard))
-            .then(hasCard => this.setState({ hasCard }));
+               .then(sdcards => sdcards.some(sdcard => sdcard))
+               .then(hasCard => this.setState({ hasCard }));
     }
 
     private onEvent = data => {
