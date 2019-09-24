@@ -133,7 +133,7 @@ class Settings extends Component<Props, State> {
                                                         apiPrefix={this.apiPrefix()}
                                                         versionInfo={versionInfo}/>
                                                 ) : versionInfo && (
-                                                    <SettingsItem optionalText={versionInfo.newVersion}>
+                                                    <SettingsItem optionalText={versionInfo.currentVersion}>
                                                         {t('deviceSettings.firmware.upToDate')}
                                                     </SettingsItem>
                                                 )
