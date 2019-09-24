@@ -18,6 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import passwordEntryGif from '../../../assets/device/bb02PwEntry.gif';
 import passwordEntryOldGif from '../../../assets/device/bb02PwEntry_old.gif';
+import warning from '../../../assets/icons/warning.png';
 import { AppUpgradeRequired } from '../../../components/appupgraderequired';
 import { CenteredContent } from '../../../components/centeredcontent/centeredcontent';
 import { Button, Checkbox, Input  } from '../../../components/forms';
@@ -448,7 +449,10 @@ class BitBox02 extends Component<Props, State> {
                                         title="Setup your BitBox02"
                                         large>
                                         <Toast theme="info">
-                                            {t('bitbox02Wizard.initialize.tip')}
+                                            <div class="flex flex-items-center">
+                                                <img src={warning} style="width: 18px; margin-right: 10px" />
+                                                {t('bitbox02Wizard.initialize.tip')}
+                                            </div>
                                         </Toast>
                                         <div className="columnsContainer m-top-default">
                                             <div className="columns">
