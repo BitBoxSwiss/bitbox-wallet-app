@@ -577,19 +577,41 @@ class BitBox02 extends Component<Props, State> {
                             {
                                 (!unlockOnly && appStatus === 'createWallet') && (
                                     <Step
+                                        width={700}
                                         active={status === 'seeded' && createWalletStatus === 'createBackup'}
                                         title={t('backup.create.title')}>
                                         <div className={style.stepContext}>
                                             {/* <p>{t('bitbox02Wizard.backup.text1')}</p>
                                             <p>{t('bitbox02Wizard.backup.text2')}</p>
                                             <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.backup.text3')} /> */}
-                                            <p>Now a backup of your wallet will be created on your microSD card.</p>
+                                            <p>Before we create your microSD card backup, please read these important security considerations:</p>
+                                            <form ref={this.setDisclaimerRef}>
+                                                <div className="m-top-quarter">
+                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label="I should store my backup in a secure location." />
+                                                </div>
+                                                <div>
+                                                    <Checkbox
+                                                        onChange={this.handleDisclaimerCheck}
+                                                        className={style.wizardCheckbox}
+                                                        id="agreement2" label="My backup is not password protected. Anyone with access to it can access my wallet." />
+                                                </div>
+                                                <div className="m-top-quarter">
+                                                    <Checkbox
+                                                        onChange={this.handleDisclaimerCheck}
+                                                        className={style.wizardCheckbox}
+                                                        id="agreement3"
+                                                        label="If I lose or damage my BitBox02, the only way to recover my funds is to restore from my backup." />
+                                                </div>
+                                                <div className="m-top-quarter">
+                                                    <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label="If I lose or damage both my backup and my BitBox02 then my funds will be lost." />
+                                                </div>
+                                            </form>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button
                                                     primary
                                                     onClick={this.createBackup}
-                                                    disabled={creatingBackup}>
-                                                    {t('backup.create.title')}
+                                                    disabled={creatingBackup || !readDisclaimers}>
+                                                    {t('securityInformation.create.button')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -699,46 +721,59 @@ class BitBox02 extends Component<Props, State> {
                                 )
                             } */}
 
-                            <Step
-                                width={700}
-                                active={status === 'initialized'}
-                                title={t('bitbox02Wizard.success.title')}>
-                                <div className={style.stepContext}>
-                                    {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
-                                    <p>Your backup has been created and your BitBox02 is ready to use. Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
-                                    <p>I understand the following:</p>
-                                    <form ref={this.setDisclaimerRef}>
-                                        <div className="m-top-quarter">
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label="I should store my backup in a secure location." />
+                            {
+                                appStatus === 'createWallet' && (
+                                    <Step
+                                        active={status === 'initialized'}
+                                        title={t('bitbox02Wizard.success.title')}>
+                                        <div className={style.stepContext}>
+                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
+                                            <p>You’ve sucessfully created your backup.</p>
+                                            <p>Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
+                                            <p>Your BitBox02 is now ready.</p>
+                                            <div className={['buttons text-center', style.fullWidth].join(' ')}>
+                                                <Button primary onClick={this.handleGetStarted}>
+                                                    {t('success.getstarted')}
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <Checkbox
-                                                onChange={this.handleDisclaimerCheck}
-                                                className={style.wizardCheckbox}
-                                                id="agreement2" label="If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup." />
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
-                                        <div className="m-top-quarter">
-                                            <Checkbox
-                                                onChange={this.handleDisclaimerCheck}
-                                                className={style.wizardCheckbox}
-                                                id="agreement3"
-                                                label="If I lose my backup and lose/damage my device, my funds will be lost." />
+                                    </Step>
+                                )
+                            }
+
+                            {
+                                appStatus === 'restoreBackup' && (
+                                    <Step
+                                        width={700}
+                                        active={status === 'initialized'}
+                                        title={t('bitbox02Wizard.success.title')}>
+                                        <div className={style.stepContext}>
+                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
+                                            <p>You've sucessfully restored your backup.</p>
+                                            <p>If a microSD card is inserted in your BitBox02, remove it and store it in a secure location.</p>
+                                            <p></p>
+                                            <p>To always keep your funds safe, please remind yourself of the following:</p>
+                                            <ul>
+                                                <li>I should store my backup in a secure location.</li>
+                                                <li>If I lose or damage my BitBox02, the only way to recover my funds is by restoring from my backup.</li>
+                                                <li>If I lose my backup and lose/damage my device, my funds will be lost.</li>
+                                                <li>My backup is NOT protected with my BitBox02 password. Anyone with access to my backup has access to my wallet.</li>
+                                            </ul>
+                                            <div className={['buttons text-center', style.fullWidth].join(' ')}>
+                                                <Button primary onClick={this.handleGetStarted}>
+                                                    {t('success.getstarted')}
+                                                </Button>
+                                            </div>
                                         </div>
-                                        <div className="m-top-quarter">
-                                            <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement4" label="My backup is NOT protected with my BitBox02 password. Anyone with access to my backup has access to my wallet." />
+                                        <div className="text-center m-top-large">
+                                            <SwissMadeOpenSource large />
                                         </div>
-                                    </form>
-                                    <div className={['buttons text-center', style.fullWidth].join(' ')}>
-                                        <Button primary onClick={this.handleGetStarted} disabled={!readDisclaimers}>
-                                            {/* {t('success.getstarted')} */}
-                                            Confirm and get started
-                                        </Button>
-                                    </div>
-                                </div>
-                                <div className="text-center m-top-large">
-                                    <SwissMadeOpenSource large />
-                                </div>
-                            </Step>
+                                    </Step>
+                                )
+                            }
                         </Steps>
                     </div>
                     {
