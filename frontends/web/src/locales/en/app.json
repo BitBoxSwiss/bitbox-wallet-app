@@ -114,6 +114,7 @@
   "bb02Bootloader": {
     "abort": "Don't upgrade – Take me back",
     "advanced": {
+      "label": "Advanced Settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
