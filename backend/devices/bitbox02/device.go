@@ -587,10 +587,14 @@ func (device *Device) CheckBackup(silent bool) (string, error) {
 
 // RestoreBackup restores a backup returned by ListBackups (id).
 func (device *Device) RestoreBackup(id string) error {
+	now := time.Now()
+	_, offset := now.Zone()
 	request := &messages.Request{
 		Request: &messages.Request_RestoreBackup{
 			RestoreBackup: &messages.RestoreBackupRequest{
-				Id: id,
+				Id:             id,
+				Timestamp:      uint32(now.Unix()),
+				TimezoneOffset: int32(offset),
 			},
 		},
 	}
@@ -895,9 +899,14 @@ func (device *Device) ShowMnemonic() error {
 
 // RestoreFromMnemonic invokes the mnemonic phrase import workflow.
 func (device *Device) RestoreFromMnemonic() error {
+	now := time.Now()
+	_, offset := now.Zone()
 	request := &messages.Request{
 		Request: &messages.Request_RestoreFromMnemonic{
-			RestoreFromMnemonic: &messages.RestoreFromMnemonicRequest{},
+			RestoreFromMnemonic: &messages.RestoreFromMnemonicRequest{
+				Timestamp:      uint32(now.Unix()),
+				TimezoneOffset: int32(offset),
+			},
 		},
 	}
 	response, err := device.query(request)
