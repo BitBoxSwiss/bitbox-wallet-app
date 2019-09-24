@@ -38,7 +38,7 @@ var erc20Tokens = []erc20Token{
 	},
 	{
 		code:  "eth-erc20-dai",
-		name:  "Dai v1.0 BETA",
+		name:  "Dai BETA",
 		unit:  "DAI",
 		token: erc20.NewToken("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359", 18),
 	},

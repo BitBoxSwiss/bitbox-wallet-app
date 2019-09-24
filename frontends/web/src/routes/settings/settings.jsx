@@ -35,7 +35,7 @@ export default class Settings extends Component {
         bat: 'Basic Attention Token',
         mkr: 'Maker',
         zrx: '0x',
-        dai: 'Dai v1.0',
+        dai: 'Dai',
     }
 
     state = {
