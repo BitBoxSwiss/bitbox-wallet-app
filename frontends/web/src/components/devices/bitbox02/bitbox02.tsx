@@ -428,7 +428,6 @@ class BitBox02 extends Component<Props, State> {
                                     <p>Please verify the pairing code matches what is shown on your BitBox02.</p>
                                     <pre>{hash}</pre>
                                     {
-                                        deviceVerified && (
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button
                                                     primary
@@ -437,7 +436,6 @@ class BitBox02 extends Component<Props, State> {
                                                     {t('bitbox02Wizard.pairing.confirmButton')}
                                                 </Button>
                                             </div>
-                                        )
                                     }
                                 </div>
                                 <div className="text-center m-top-large">
