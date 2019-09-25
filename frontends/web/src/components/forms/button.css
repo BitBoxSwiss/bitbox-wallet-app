@@ -27,7 +27,7 @@
 }
 
 .button:focus {
-    outline: solid 2px skyblue;
+    outline: solid 2px mediumblue;
 }
 
 .primary {

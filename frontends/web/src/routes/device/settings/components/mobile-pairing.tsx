@@ -201,7 +201,7 @@ class MobilePairing extends Component<Props, State> {
         } else if (status === 'connectOnly') {
             content = (<QRCode data={JSON.stringify({ channel, connectOnly: true })} />);
         } else {
-            content = (<p>{t(`pairing.${status}.text`)}</p>);
+            content = (<p className="m-top-none">{t(`pairing.${status}.text`)}</p>);
         }
         return (
             <div>

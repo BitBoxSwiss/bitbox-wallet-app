@@ -21,6 +21,7 @@ import { Dialog } from '../../../../components/dialog/dialog';
 import WaitDialog from '../../../../components/wait-dialog/wait-dialog';
 import { apiPost } from '../../../../utils/request';
 import { SettingsButton } from '../../../../components/settingsButton/settingsButton';
+import * as style from '../../../../components/dialog/dialog.css';
 
 @translate()
 export default class DeviveLock extends Component {
@@ -73,12 +74,12 @@ export default class DeviveLock extends Component {
                             <p>{t('deviceLock.condition1')}</p>
                             <p>{t('deviceLock.condition2')}</p>
                             <p>{t('deviceLock.condition3')}</p>
-                            <div class={['flex', 'flex-row', 'flex-end', 'buttons'].join(' ')}>
-                                <Button secondary onClick={this.abort}>
-                                    {t('button.back')}
-                                </Button>
+                            <div class={style.actions}>
                                 <Button danger onClick={this.resetDevice}>
                                     {t('deviceLock.confirm')}
+                                </Button>
+                                <Button transparent onClick={this.abort}>
+                                    {t('button.back')}
                                 </Button>
                             </div>
                         </Dialog>
