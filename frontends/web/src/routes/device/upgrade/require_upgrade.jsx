@@ -40,8 +40,12 @@ export default class RequireUpgrade extends Component {
             <div class="contentWithGuide">
                 <div className={style.container}>
                     <BitBox />
-                    <p><strong>{t('upgradeFirmware.label')}</strong></p>
-                    <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} />
+                    <div className="box">
+                        <p className="m-top-none">{t('upgradeFirmware.label')}</p>
+                        <div className="buttons m-top-half">
+                            <UpgradeFirmware deviceID={deviceID} currentVersion={firmwareVersion} asButton />
+                        </div>
+                    </div>
                 </div>
             </div>
         );

@@ -157,29 +157,30 @@ class MobilePairing extends Component<Props, State> {
             content = (
                 <div>
                     <div class="flex flex-row flex-start">
-                        <div class={style.stepNumber}>1</div>
                         <div>
-                            <p style="margin-top: 0;">{t('pairing.start.step1')}</p>
+                            <p className="m-top-none"><strong className="m-right-quarter">1.</strong> {t('pairing.start.step1')}</p>
                             <p>
-                                <Button primary onClick={this.toggleQRCode}>
+                                <Button primary onClick={this.toggleQRCode} className="width-1-1">
                                     {t(`pairing.start.${showQRCode ? 'hideAppQRCode' : 'revealAppQRCode'}`)}
                                 </Button>
                             </p>
                             {
                                 showQRCode ? (
-                                    <div class="flex flex-row flex-between">
-                                        <div class={style.qrcodeContainer}>
-                                            <p className="label" style="text-align: center;">Apple App Store</p>
-                                            <QRCode data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={192} />
-                                            <div style="text-align: center;">
-                                                <a target="_blank" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} class={style.badge} /></a>
+                                    <div className="columnsContainer m-top-default">
+                                        <div className="columns">
+                                            <div className="column column-1-2">
+                                                <label className="text-center">Apple App Store</label>
+                                                <div className="flex flex-column flex-center flex-items-center">
+                                                    <QRCode data="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740" size={148} />
+                                                    <a target="_blank" href="https://itunes.apple.com/us/app/digital-bitbox-2fa/id1079896740"><img src={appStoreBadge} class={style.badge} /></a>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class={style.qrcodeContainer}>
-                                            <p className="label" style="text-align: center;">Google Play Store</p>
-                                            <QRCode data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={192} />
-                                            <div style="text-align: center;">
-                                                <a target="_blank" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} class={style.badge} /></a>
+                                            <div className="column column-1-2">
+                                                <label className="text-center">Google Play Store</label>
+                                                <div className="flex flex-column flex-center flex-items-center">
+                                                    <QRCode data="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa" size={148} />
+                                                    <a target="_blank" href="https://play.google.com/store/apps/details?id=com.digitalbitbox.tfa"><img src={playStoreBadge} class={style.badge} /></a>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -187,12 +188,11 @@ class MobilePairing extends Component<Props, State> {
                             }
                         </div>
                     </div>
-                    <div class="flex flex-row flex-start" style="margin-top: 40px;">
-                        <div class={style.stepNumber}>2</div>
+                    <div class="flex flex-row flex-start m-top-default">
                         <div>
-                            <p style="margin-top: 0;">{t('pairing.start.step2')}</p>
-                            <div style="text-align: center;">
-                                <QRCode data={JSON.stringify(channel)} />
+                            <p className="m-top-none"><strong className="m-right-quarter">2.</strong>{t('pairing.start.step2')}</p>
+                            <div className="text-center">
+                                <QRCode data={JSON.stringify(channel)} size={196} />
                             </div>
                         </div>
                     </div>
@@ -201,7 +201,7 @@ class MobilePairing extends Component<Props, State> {
         } else if (status === 'connectOnly') {
             content = (<QRCode data={JSON.stringify({ channel, connectOnly: true })} />);
         } else {
-            content = (<p>{t(`pairing.${status}.text`)}</p>);
+            content = (<p className="m-top-none">{t(`pairing.${status}.text`)}</p>);
         }
         return (
             <div>
@@ -218,7 +218,8 @@ class MobilePairing extends Component<Props, State> {
                     status && (
                         <Dialog
                             title={t('pairing.title')}
-                            onClose={this.abort}>
+                            onClose={this.abort}
+                            medium>
                             <div class="flex flex-column flex-center flex-items-center">
                                 {
                                     channel ? (

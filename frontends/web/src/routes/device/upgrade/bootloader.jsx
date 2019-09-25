@@ -84,13 +84,13 @@ export default class Bootloader extends Component {
 
         if (upgrading) {
             if (upgradeSuccessful) {
-                UpgradeOrStatus = <p>{t('bootloader.success')}</p>;
+                UpgradeOrStatus = <p className="m-none">{t('bootloader.success')}</p>;
             } else {
                 const value = Math.round(progress * 100);
                 UpgradeOrStatus = (
                     <div>
                         <progress value={value} max="100">{value}%</progress>
-                        <p>{t('bootloader.progress', {
+                        <p className="m-bottom-none text-center">{t('bootloader.progress', {
                             progress: value
                         })}</p>
                     </div>
@@ -98,20 +98,32 @@ export default class Bootloader extends Component {
             }
         } else {
             UpgradeOrStatus = (
-                <Button
-                    primary
-                    onClick={this.upgradeFirmware}>
-                    {t('bootloader.button')}
-                </Button>
+                <div className="buttons m-top-none">
+                    <Button
+                        primary
+                        onClick={this.upgradeFirmware}>
+                        {t('bootloader.button')}
+                    </Button>
+                </div>
             );
         }
         return (
-            <div class="content">
-                <div className={[style.container, style.scrollable].join(' ')}>
-                    <BitBox />
-                    <div style="margin: 1rem; min-height: 5rem;">
-                        {UpgradeOrStatus}
-                        <p>{ errMsg }</p>
+            <div className="contentWithGuide">
+                <div className="container">
+                    <div className="innerContainer">
+                        <div class="content narrow isVerticallyCentered">
+                            <div className={[style.container, style.scrollable].join(' ')}>
+                                <BitBox />
+                                <div className="box large">
+                                    {UpgradeOrStatus}
+                                    {
+                                        errMsg && (
+                                            <p className="m-bottom-none">{ errMsg }</p>
+                                        )
+                                    }
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

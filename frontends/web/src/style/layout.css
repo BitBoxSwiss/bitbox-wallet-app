@@ -26,6 +26,7 @@
     text-transform: none;
 }
 .text-bold { font-weight: bold; }
+.text-blue { color: var(--color-blue); }
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-secondary); }
@@ -303,19 +304,24 @@
 /* UTILITIES */
 .m-none { margin: 0 !important; }
 .m-top-none { margin-top: 0 !important;}
-.m-top-quarter { margin-top: var(--space-quarter); }
-.m-top-half { margin-top: var(--space-half); }
-.m-top-default { margin-top: var(--space-default); }
-.m-top-large { margin-top: var(--space-large); }
-.m-right-quarter { margin-right: var(--space-quarter); }
-.m-right-half { margin-right: var(--space-half); }
-.m-right-default { margin-right: var(--space-default); }
-.m-bottom-quarter { margin-bottom: var(--space-quarter); }
-.m-bottom-half { margin-bottom: var(--space-half); }
-.m-bottom-default { margin-bottom: var(--space-default); }
-.m-left-quarter { margin-left: var(--space-quarter); }
-.m-left-half { margin-left: var(--space-half); }
-.m-left-default { margin-left: var(--space-default); }
+.m-top-quarter { margin-top: var(--space-quarter) !important; }
+.m-top-half { margin-top: var(--space-half) !important; }
+.m-top-default { margin-top: var(--space-default) !important; }
+.m-top-large { margin-top: var(--space-large) !important; }
+.m-right-quarter { margin-right: var(--space-quarter) !important; }
+.m-right-half { margin-right: var(--space-half) !important; }
+.m-right-default { margin-right: var(--space-default) !important; }
+.m-bottom-none { margin-bottom: 0 !important; }
+.m-bottom-quarter { margin-bottom: var(--space-quarter) !important; }
+.m-bottom-half { margin-bottom: var(--space-half) !important; }
+.m-bottom-default { margin-bottom: var(--space-default) !important; }
+.m-left-quarter { margin-left: var(--space-quarter) !important; }
+.m-left-half { margin-left: var(--space-half) !important; }
+.m-left-default { margin-left: var(--space-default) !important; }
+
+.width-1-1 {
+    width: 100% !important;
+}
 
 .noPadding {
     padding: 0 !important;

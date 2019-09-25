@@ -7,6 +7,7 @@
     align-items: center;
     height: var(--item-height);
     text-decoration: none;
+    text-align:left;
     border: none;
     color: var(--color-blue);
     background-color: var(--color-white);
