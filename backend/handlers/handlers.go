@@ -555,8 +555,17 @@ func (handlers *Handlers) getConvertToFiatHandler(r *http.Request) (interface{},
 }
 
 func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{}, error) {
+	isFee := false
 	from := r.URL.Query().Get("from")
 	to := r.URL.Query().Get("to")
+	coin, err := handlers.backend.Coin(to)
+	if err != nil {
+		return map[string]interface{}{
+			"success": false,
+			"errMsg":  "internal error",
+		}, nil
+	}
+
 	amount := r.URL.Query().Get("amount")
 	amountAsFloat, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
@@ -565,14 +574,19 @@ func (handlers *Handlers) getConvertFromFiatHandler(r *http.Request) (interface{
 			"errMsg":  "invalid amount",
 		}, nil
 	}
-	rate := handlers.backend.Rates()[to][from]
+	unit := coin.Unit(isFee)
+	switch unit { // HACK: fake rates for testnet coins
+	case "TBTC", "TLTC", "TETH", "RETH":
+		unit = unit[1:]
+	}
+	rate := handlers.backend.Rates()[unit][from]
 	result := 0.0
 	if rate != 0.0 {
 		result = amountAsFloat / rate
 	}
 	return map[string]interface{}{
 		"success": true,
-		"amount":  strconv.FormatFloat(result, 'f', 8, 64),
+		"amount":  strconv.FormatFloat(result, 'f', int(coin.Decimals(isFee)), 64),
 	}, nil
 }
 
