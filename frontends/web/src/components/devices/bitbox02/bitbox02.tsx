@@ -298,8 +298,8 @@ class BitBox02 extends Component<Props, State> {
                 title: "Confirm today's date on your BitBox02",
                 text: 'This date will be used to create your backup.',
             }});
-            apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success2 }) => {
-                if (!success2) {
+            apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
+                if (!success) {
                     alertUser('creating backup failed, try again');
                 }
                 this.setState({ creatingBackup: false, waitDialog: undefined });
