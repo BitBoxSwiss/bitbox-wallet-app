@@ -214,19 +214,7 @@
     line-height: 1;
 }
 
-.detail.addresses {
-    flex-wrap: wrap;
-}
-
-.detail.addresses.multi {
-    align-items: flex-start;
-}
-
-.detail.addresses.multi > label {
-    /* margin-bottom: var(--space-quarter); */
-}
-
-.detail.addresses > div {
+.detail.addresses > span {
     margin-left: auto;
     max-width: 100%;
 }

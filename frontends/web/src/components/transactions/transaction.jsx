@@ -282,15 +282,15 @@ export default class Transaction extends Component {
                                     )
                                 }
                             </div>
-                            <div className={[style.detail, style.addresses, addresses.length > 1 ? style.multi : ''].join(' ')}>
+                            <div className={[style.detail, style.addresses].join(' ')}>
                                 <label>Address</label>
-                                <div>
+                                <span>
                                     {
                                         addresses.map(address => (
-                                            <p key={address}>{address}</p>
+                                            <p key={address} className="text-break">{address}</p>
                                         ))
                                     }
-                                </div>
+                                </span>
                             </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.confirmation')}</label>
@@ -330,7 +330,7 @@ export default class Transaction extends Component {
                             }
                             <div className={style.detail}>
                                 <label>{t('transaction.explorer')}</label>
-                                <p className="text-ellipsis">
+                                <p className="text-break">
                                     <A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A>
                                 </p>
                             </div>
