@@ -40,6 +40,10 @@
     text-overflow: ellipsis;
 }
 
+.text-break {
+    word-break: break-all;
+}
+
 .first {
     margin-top: 0 !important;
 }
