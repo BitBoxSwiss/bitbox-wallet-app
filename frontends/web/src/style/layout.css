@@ -317,6 +317,10 @@
 .m-left-half { margin-left: var(--space-half); }
 .m-left-default { margin-left: var(--space-default); }
 
+.width-1-1 {
+    width: 100% !important;
+}
+
 .noPadding {
     padding: 0 !important;
 }
