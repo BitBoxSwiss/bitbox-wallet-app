@@ -26,10 +26,6 @@
     will-change: background-color, color;
 }
 
-.button:focus {
-    outline: solid 2px mediumblue;
-}
-
 .primary {
     composes: button;
     background: var(--color-blue);
@@ -38,10 +34,6 @@
 
 .primary:not([disabled]):hover {
     background-color: var(--color-lightblue);
-}
-
-.primary:focus {
-    border-color: var(--color-lightblue);
 }
 
 .secondary {
@@ -56,10 +48,6 @@
     background-color: var(--color-lightorange);
 }
 
-.secondary:focus {
-    border-color: var(--color-lightorange);
-}
-
 .danger {
     composes: button;
     background-color: var(--color-swissred);
@@ -72,10 +60,6 @@
     border-color: var(--color-softred);
 }
 
-.danger:focus {
-    border-color: var(--color-softred);
-}
-
 .transparent {
     composes: button;
     background-color: transparent;
@@ -85,10 +69,6 @@
 
 .transparent:not([disabled]):hover {
     color: var(--color-lightblue);
-    border-color: var(--color-lightblue);
-}
-
-.transparent:focus {
     border-color: var(--color-lightblue);
 }
 

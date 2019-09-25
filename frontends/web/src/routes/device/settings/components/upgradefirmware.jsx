@@ -63,6 +63,7 @@ export default class UpgradeFirmware extends Component {
         t,
         currentVersion,
         disabled,
+        asButton,
     }, {
         unlocked,
         newVersion,
@@ -71,18 +72,28 @@ export default class UpgradeFirmware extends Component {
     }) {
         return (
             <div>
-                <SettingsButton
-                    onClick={() => this.setState({ activeDialog: true })}
-                    disabled={disabled}
-                    optionalText={newVersion}>
-                    {t('upgradeFirmware.button')}
-                </SettingsButton>
+                {
+                    asButton ? (
+                        <Button
+                            primary
+                            onClick={() => this.setState({ activeDialog: true })}>
+                            {t('upgradeFirmware.button')}    
+                        </Button>
+                    ) : (
+                        <SettingsButton
+                            onClick={() => this.setState({ activeDialog: true })}
+                            disabled={disabled}
+                            optionalText={newVersion}>
+                            {t('upgradeFirmware.button')}
+                        </SettingsButton>
+                    )
+                }
                 {
                     activeDialog && (
                         <Dialog
                             title={t('upgradeFirmware.title')}
                             onClose={this.abort}>
-                            <p>{t('upgradeFirmware.description', {
+                            <p className="m-top-none">{t('upgradeFirmware.description', {
                                 currentVersion, newVersion
                             })}</p>
                             <div class={dialogStyle.actions}>
@@ -102,7 +113,7 @@ export default class UpgradeFirmware extends Component {
                             {
                                 unlocked ? (
                                     <div>
-                                        <p>{t('upgradeFirmware.unlocked')}</p>
+                                        <p className="m-top-none">{t('upgradeFirmware.unlocked')}</p>
                                         <ol style="line-height: 1.5;">
                                             <li>{t('upgradeFirmware.unlocked1')}</li>
                                             <li>{t('upgradeFirmware.unlocked2')}</li>
@@ -110,7 +121,7 @@ export default class UpgradeFirmware extends Component {
                                         </ol>
                                     </div>
                                 ) : (
-                                    <p>{t('upgradeFirmware.locked', {
+                                    <p className="m-top-none">{t('upgradeFirmware.locked', {
                                         currentVersion, newVersion
                                     })}</p>
                                 )
