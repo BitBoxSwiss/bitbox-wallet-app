@@ -134,6 +134,11 @@ func (coin *Coin) Unit(bool) string {
 	return coin.unit
 }
 
+// Decimals implements coin.Coin.
+func (coin *Coin) Decimals(isFee bool) uint {
+	return 8
+}
+
 // FormatAmount implements coin.Coin.
 func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
 	return strings.TrimRight(strings.TrimRight(

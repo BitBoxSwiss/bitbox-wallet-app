@@ -136,15 +136,20 @@ func (coin *Coin) Unit(isFee bool) string {
 	return coin.unit
 }
 
-func (coin *Coin) unitFactor(isFee bool) *big.Int {
+// Decimals implements coin.Coin.
+func (coin *Coin) Decimals(isFee bool) uint {
 	if !isFee && coin.erc20Token != nil {
-		// 10^decimals
-		return new(big.Int).Exp(
-			big.NewInt(10),
-			new(big.Int).SetUint64(uint64(coin.erc20Token.Decimals())), nil)
+		return coin.erc20Token.Decimals()
 	}
 	// Standard Ethereum
-	return big.NewInt(params.Ether)
+	return 18
+}
+
+// unitFactor returns 10^coin.Decimals()
+func (coin *Coin) unitFactor(isFee bool) *big.Int {
+	return new(big.Int).Exp(
+		big.NewInt(10),
+		new(big.Int).SetUint64(uint64(coin.Decimals(isFee))), nil)
 }
 
 // FormatAmount implements coin.Coin.

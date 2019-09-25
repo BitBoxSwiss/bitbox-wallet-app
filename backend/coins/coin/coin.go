@@ -34,6 +34,10 @@ type Coin interface {
 	// The fee unit is usually the same as the main unit, but can differ.
 	Unit(isFee bool) string
 
+	// Number of decimal places in the standard unit, e.g. 8 for Bitcoin. Must be in the range
+	// [0..31].
+	Decimals(isFee bool) uint
+
 	// FormatAmount formats the given amount as a number.
 	FormatAmount(amount Amount, isFee bool) string
 
