@@ -77,7 +77,7 @@ export default class UpgradeFirmware extends Component {
                         <Button
                             primary
                             onClick={() => this.setState({ activeDialog: true })}>
-                            {t('upgradeFirmware.button')}    
+                            {t('upgradeFirmware.button')}
                         </Button>
                     ) : (
                         <SettingsButton

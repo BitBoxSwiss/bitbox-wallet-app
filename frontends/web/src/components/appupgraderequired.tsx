@@ -17,18 +17,27 @@
 import { h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../decorators/translate';
 import A from './anchor/anchor';
-import { CenteredContent } from './centeredcontent/centeredcontent';
 
 type Props = TranslateProps;
 
 function AppUpgradeRequired({ t }: RenderableProps<Props>): JSX.Element {
     return (
-        <CenteredContent>
-            {t('device.appUpradeRequired')}
-            <A href="https://shiftcrypto.ch/start">
-                {t('button.download')}
-            </A>
-        </CenteredContent>
+        <div className="contentWithGuide">
+            <div className="container">
+                <div className="innerContainer">
+                    <div className="content narrow isVerticallyCentered">
+                        <div className="box large">
+                            <p className="m-top-none">{t('device.appUpradeRequired')}</p>
+                            <div className="buttons m-top-half">
+                                <A href="https://shiftcrypto.ch/start" className="text-medium text-blue">
+                                    {t('button.download')}
+                                </A>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 

@@ -26,6 +26,7 @@
     text-transform: none;
 }
 .text-bold { font-weight: bold; }
+.text-blue { color: var(--color-blue); }
 .text-red { color: var(--color-danger); }
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-secondary); }
