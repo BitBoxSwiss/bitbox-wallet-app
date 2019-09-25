@@ -136,18 +136,20 @@ func (coin *Coin) Unit(isFee bool) string {
 	return coin.unit
 }
 
-// FormatAmount implements coin.Coin.
-func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
-	var factor *big.Int
+func (coin *Coin) unitFactor(isFee bool) *big.Int {
 	if !isFee && coin.erc20Token != nil {
 		// 10^decimals
-		factor = new(big.Int).Exp(
+		return new(big.Int).Exp(
 			big.NewInt(10),
 			new(big.Int).SetUint64(uint64(coin.erc20Token.Decimals())), nil)
-	} else {
-		// Standard Ethereum
-		factor = big.NewInt(1e18)
 	}
+	// Standard Ethereum
+	return big.NewInt(params.Ether)
+}
+
+// FormatAmount implements coin.Coin.
+func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
+	factor := coin.unitFactor(isFee)
 	return strings.TrimRight(strings.TrimRight(
 		new(big.Rat).SetFrac(amount.BigInt(), factor).FloatString(18),
 		"0"), ".")
@@ -155,8 +157,8 @@ func (coin *Coin) FormatAmount(amount coin.Amount, isFee bool) string {
 
 // ToUnit implements coin.Coin.
 func (coin *Coin) ToUnit(amount coin.Amount, isFee bool) float64 {
-	ether := big.NewInt(1e18)
-	result, _ := new(big.Rat).SetFrac(amount.BigInt(), ether).Float64()
+	factor := coin.unitFactor(isFee)
+	result, _ := new(big.Rat).SetFrac(amount.BigInt(), factor).Float64()
 	return result
 }
 

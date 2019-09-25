@@ -42,7 +42,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
-	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 )
 
@@ -477,16 +476,7 @@ func (account *Account) newTx(
 	} else {
 		allowZero := true
 
-		var factor *big.Int
-		if account.coin.erc20Token != nil {
-			factor = new(big.Int).Exp(
-				big.NewInt(10),
-				new(big.Int).SetUint64(uint64(account.coin.erc20Token.Decimals())), nil)
-		} else {
-			factor = big.NewInt(params.Ether)
-		}
-
-		parsedAmount, err := amount.Amount(factor, allowZero)
+		parsedAmount, err := amount.Amount(account.coin.unitFactor(false), allowZero)
 		if err != nil {
 			return nil, err
 		}
