@@ -13,7 +13,7 @@
 }
 
 .resetLink {
-    color: var(--color-swissred) !important;
+    color: var(--color-softred) !important;
 }
 
 .serversContainer {
@@ -82,14 +82,14 @@
 }
 
 .warning {
-    background-color: var(--color-swissred);
+    background-color: var(--color-softred);
     color: var(--color-white);
     transition: background-color 0.2s ease-in-out;
     will-change: background-color;
 }
 
 .warning:hover {
-    background-color: var(--color-softred);
+    background-color: var(--color-lightred);
 }
 
 .textarea {
