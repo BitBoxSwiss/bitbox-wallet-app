@@ -172,11 +172,14 @@ class Send extends Component<Props, State> {
 
     public componentWillMount() {
         this.registerEvents();
-        this.qrCodeReader
-            .getVideoInputDevices()
-            .then(videoInputDevices => {
-                this.setState({ hasCamera: videoInputDevices.length > 0 });
-            });
+        const account = this.getAccount();
+        if (account && !account.coinCode.startsWith('eth-erc20-') && account.coinCode !== 'eth') {
+            this.qrCodeReader
+                .getVideoInputDevices()
+                .then(videoInputDevices => {
+                    this.setState({ hasCamera: videoInputDevices.length > 0 });
+                });
+        }
     }
 
     public componentWillUnmount() {
