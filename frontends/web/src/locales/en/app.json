@@ -446,7 +446,7 @@
         "title": "What is 'Check Backup'?"
       },
       "encrypt": {
-        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to password-protect your seed, you can enable a mnemonic passphrase in the expert settings under \"Manage Device\".",
+        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to password-protect your seed, you can enable an optional passphrase in the expert settings under \"Manage Device\".",
         "title": "Can I encrypt the backup?"
       },
       "whatIsABackup": {

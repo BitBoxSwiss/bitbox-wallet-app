@@ -114,6 +114,7 @@
   "bb02Bootloader": {
     "abort": "Não atualizar - Leve-me de volta",
     "advanced": {
+      "label": "Configurações avançadas",
       "toggleShowFirmwareHash": "Mostrar o hash de firmware toda vez na inicialização"
     },
     "flipscreen": "Girar tela",
@@ -193,6 +194,19 @@
     "detectedBases": "Os seguintes dispositivos foram detectados na sua rede:",
     "manualInput": "Não consegue ver sua BitBox Base? Conecte manualmente abaixo:",
     "title": "BitBox Base"
+  },
+  "bitboxBaseWizard": {
+    "bitcoin": {
+      "pre": "Iniciar a sincronização a partir do estado pré-sincronizado",
+      "preInfo": "A maneira mais rápida de começar. Você começa a sincronizar a partir do bloco mais recente pré-sincronizado no SSD. No entanto, você precisa confiar na validação da cadeia.\n\n Você pode optar por sincronizar/validar do zero posteriormente.",
+      "reindex": "",
+      "reindexInfo": "",
+      "syncFromScratchInfo": "Baixar e validar todos os blocos do zero. Recomendado para pessoas com planos de internet rápidos/ilimitados.\n\n Leva aprox. 1 dia (clearnet)\n\n Leva aprox. 15 dias (tor)",
+      "title": "Escolha sua opção de sincronização"
+    },
+    "pairing": {
+      "title": "Verificar código de emparelhamento"
+    }
   },
   "blink": {
     "button": "Piscar"
@@ -471,6 +485,9 @@
         "text": "Clique no ícone da BitBox na barra lateral à esquerda e veja a seção de emparelhamento. O guia será atualizado e você poderá continuar seguindo as instruções de lá.",
         "title": "Como posso verificar um endereço com segurança?"
       },
+      "why20": {
+        "title": "Por que apenas 20 endereços?"
+      },
       "whyMany": {
         "text": "Por motivos de privacidade e segurança, você nunca deve distribuir o mesmo endereço duas vezes. Clique em \"Próximo\" para obter um novo endereço para um propósito diferente. Você pode gerar até 20 endereços por vez. Todos os endereços são derivados de sua única semente do backup. (Pense nos endereços como números de um boleto.)",
         "title": "Por que há muitos endereços?"
@@ -691,6 +708,8 @@
     "showFull": "Mostrar e verificar endereço completo no dispositivo",
     "title": "Receber moedas",
     "verify": "Verificar o endereço com segurança",
+    "verifyBitBox01": "Verifique o endereço no aplicativo móvel",
+    "verifyBitBox02": "Verifique o endereço na BitBox02",
     "verifyInstruction": "Por favor, verifique se o endereço a seguir corresponde ao exibido no seu dispositivo.",
     "warning": {
       "secureOutput": "Por favor, emparelhe a sua BitBox com o seu dispositivo móvel para permitir a verificação segura do endereço. Vá para \"Gerenciar dispositivo\" na barra lateral."
@@ -701,7 +720,8 @@
     "description": "Todos os dados no dispositivo serão excluídos. Isso inclui sua chave privada!",
     "notReset": "Dispositivo NÃO redefinido.",
     "title": "Resetar dispositivo",
-    "understand": "Eu tenho um backup e sei minha senha de recuperação"
+    "understand": "Eu tenho um backup e sei minha senha de recuperação",
+    "understandBB02": "Eu tenho um backup válido"
   },
   "securityInformation": {
     "create": {
@@ -810,6 +830,7 @@
         "low": "12 blocos (cerca de 2 horas para Bitcoin, 30 minutos para Litecoin)",
         "normal": "6 blocos (cerca de 1 hora para Bitcoin, 15 minutos para Litecoin)"
       },
+      "estimate": "Tempo de espera estimado:",
       "label": {
         "economy": "econômica",
         "high": "alta",
@@ -833,6 +854,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
+      "ethereum": "Ethereum BETA",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Contas ativas"
