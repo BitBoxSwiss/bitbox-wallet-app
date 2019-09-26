@@ -23,7 +23,7 @@ const (
 	StatusConnected Status = "connected"
 
 	// StatusUnpaired means the pairing has not been confirmed yet. After the pairing screen has
-	// been confirmed, we move to StatusInitialized.
+	// been confirmed, we move to StatusBitcoinPre.
 	StatusUnpaired Status = "unpaired"
 
 	// StatusPairingFailed is when the pairing code was rejected on the app or on the BitBox Base.
