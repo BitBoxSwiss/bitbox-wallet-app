@@ -95,6 +95,7 @@ linters:
     - whitespace
     - bodyclose
     - stylecheck
+    - dupl
   disable-all: false
 
 issues:
