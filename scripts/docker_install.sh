@@ -39,7 +39,7 @@ npm install -g yarn
 npm install -g locize-cli
 
 mkdir -p /opt/go_dist
-curl https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
+curl https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz | tar -xz -C /opt/go_dist
 
 # Needed for qt5. fuse is needed to run the linuxdeployqt appimage.
 apt-get install -y --no-install-recommends fuse

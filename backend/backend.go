@@ -421,7 +421,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 		case config.ETHTransactionsSourceEtherScan:
 			return etherScan
 		default:
-			panic(fmt.Sprintf("unknown eth transcations source: %s", source))
+			panic(fmt.Sprintf("unknown eth transactions source: %s", source))
 		}
 	}
 	erc20Token := erc20TokenByCode(code)

@@ -89,6 +89,12 @@ linters:
     - lll
     - gochecknoinits
     - gochecknoglobals
+    - godox
+    - funlen
+    - dogsled
+    - whitespace
+    - bodyclose
+    - stylecheck
   disable-all: false
 
 issues:
