@@ -89,10 +89,10 @@ type Interface interface {
 	// TODO: this is a dummy
 	UserAuthenticate(string, string) error
 
-	// BackupSysconfig backups the system config to the flashdrive
+	// BackupSysconfig backs up the system config to the flashdrive
 	BackupSysconfig() error
 
-	// BackupHSMSecret backups the lightning hsm_secret
+	// BackupHSMSecret backs up the lightning hsm_secret
 	BackupHSMSecret() error
 
 	// RestoreSysconfig restores the system config from the flashdrive
@@ -379,7 +379,7 @@ func (base *BitBoxBase) UserChangePassword(username string, newPassword string) 
 	return nil
 }
 
-// BackupSysconfig checks for and then mounts a flashdrive
+// BackupSysconfig backs up the system config to the flashdrive
 func (base *BitBoxBase) BackupSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -395,7 +395,7 @@ func (base *BitBoxBase) BackupSysconfig() error {
 	return nil
 }
 
-// BackupHSMSecret checks for and then mounts a flashdrive
+// BackupHSMSecret backs up the lightning hsm_secret
 func (base *BitBoxBase) BackupHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -411,7 +411,7 @@ func (base *BitBoxBase) BackupHSMSecret() error {
 	return nil
 }
 
-// RestoreHSMSecret checks for and then mounts a flashdrive
+// RestoreHSMSecret restores the lightning hsm_secret
 func (base *BitBoxBase) RestoreHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -427,7 +427,7 @@ func (base *BitBoxBase) RestoreHSMSecret() error {
 	return nil
 }
 
-// RestoreSysconfig checks for and then mounts a flashdrive
+// RestoreSysconfig restores the system config from the flashdrive
 func (base *BitBoxBase) RestoreSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
