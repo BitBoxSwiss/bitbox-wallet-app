@@ -35,6 +35,20 @@ type SetHostnameArgs struct {
 	Hostname string
 }
 
+// SetRootPasswordArgs is a struct that holds the to be set root password
+type SetRootPasswordArgs struct {
+	RootPassword string
+}
+
+// ToggleSetting is a generic message for settings that can be enabled or disabled
+type ToggleSetting string
+
+// Consts for toggling a setting which is done by passing "enable" or "disable" to the corresponding shell script
+const (
+	ToggleSettingEnable  ToggleSetting = "enable"
+	ToggleSettingDisable ToggleSetting = "disable"
+)
+
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.
 */
