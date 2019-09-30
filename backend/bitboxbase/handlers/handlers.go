@@ -38,8 +38,6 @@ type Base interface {
 	SetHostname(string) error
 	UserAuthenticate(string, string) error
 	UserChangePassword(string, string) error
-	MountFlashdrive() error
-	UnmountFlashdrive() error
 	BackupSysconfig() error
 	BackupHSMSecret() error
 	RestoreSysconfig() error
@@ -63,9 +61,6 @@ func NewHandlers(
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
-
-	handleFunc("/mountflashdrive", handlers.postMountFlashdriveHandler).Methods("POST")
-	handleFunc("/unmountflashdrive", handlers.postUnmountFlashdriveHandler).Methods("POST")
 	handleFunc("/backupsysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backuphsmsecret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restoresysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -141,28 +136,6 @@ func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}
 	return map[string]interface{}{
 		"success":        true,
 		"middlewareInfo": middlewareInfo,
-	}, nil
-}
-
-func (handlers *Handlers) postMountFlashdriveHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("postMountFlashdriveHandler")
-	err := handlers.base.MountFlashdrive()
-	if err != nil {
-		return bbBaseError(err, handlers.log), err
-	}
-	return map[string]interface{}{
-		"success": true,
-	}, nil
-}
-
-func (handlers *Handlers) postUnmountFlashdriveHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("postUnmountFlashdriveHandler")
-	err := handlers.base.UnmountFlashdrive()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-	return map[string]interface{}{
-		"success": true,
 	}, nil
 }
 

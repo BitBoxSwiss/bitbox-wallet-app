@@ -89,12 +89,6 @@ type Interface interface {
 	// TODO: this is a dummy
 	UserAuthenticate(string, string) error
 
-	// MountFlashdrive checks for a flashdrive and then mounts it
-	MountFlashdrive() error
-
-	// UnmountFlashdrive unmounts a mounted flashdrive
-	UnmountFlashdrive() error
-
 	// BackupSysconfig backups the system config to the flashdrive
 	BackupSysconfig() error
 
@@ -360,44 +354,12 @@ func (base *BitBoxBase) UserChangePassword(username string, newPassword string) 
 	return nil
 }
 
-// MountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) MountFlashdrive() error {
-	if !base.active {
-		return errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a MountFlashdrive call")
-	reply, err := base.rpcClient.MountFlashdrive()
-	if err != nil {
-		return err
-	}
-	if !reply.Success {
-		return &reply
-	}
-	return nil
-}
-
-// UnmountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) UnmountFlashdrive() error {
-	if !base.active {
-		return errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
-	reply, err := base.rpcClient.UnmountFlashdrive()
-	if err != nil {
-		return err
-	}
-	if !reply.Success {
-		return &reply
-	}
-	return nil
-}
-
 // BackupSysconfig checks for and then mounts a flashdrive
 func (base *BitBoxBase) BackupSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a BackupSysconfig call")
 	reply, err := base.rpcClient.BackupSysconfig()
 	if err != nil {
 		return err
@@ -413,7 +375,7 @@ func (base *BitBoxBase) BackupHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a BackupHSMSecret call")
 	reply, err := base.rpcClient.BackupHSMSecret()
 	if err != nil {
 		return err
@@ -429,7 +391,7 @@ func (base *BitBoxBase) RestoreHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a RestoreHSMSecret call")
 	reply, err := base.rpcClient.RestoreHSMSecret()
 	if err != nil {
 		return err
@@ -445,7 +407,7 @@ func (base *BitBoxBase) RestoreSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a RestoreSysconfig call")
 	reply, err := base.rpcClient.RestoreSysconfig()
 	if err != nil {
 		return err
