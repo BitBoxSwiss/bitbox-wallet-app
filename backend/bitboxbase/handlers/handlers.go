@@ -35,7 +35,6 @@ type Base interface {
 	Deregister() error
 	ReindexBitcoin() error
 	ResyncBitcoin() error
-	GetHostname() (string, error)
 	SetHostname(string) error
 	UserAuthenticate(string, string) error
 	UserChangePassword(string, string) error
@@ -61,7 +60,6 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
-	handleFunc("/gethostname", handlers.getHostnameHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
@@ -143,18 +141,6 @@ func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}
 	return map[string]interface{}{
 		"success":        true,
 		"middlewareInfo": middlewareInfo,
-	}, nil
-}
-
-func (handlers *Handlers) getHostnameHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("getHostnameHandler")
-	hostname, err := handlers.base.GetHostname()
-	if err != nil {
-		return bbBaseError(err, handlers.log), err
-	}
-	return map[string]interface{}{
-		"success":  true,
-		"hostname": hostname,
 	}, nil
 }
 

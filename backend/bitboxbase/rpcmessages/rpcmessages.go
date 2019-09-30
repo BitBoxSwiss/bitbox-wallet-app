@@ -59,12 +59,6 @@ type VerificationProgressResponse struct {
 	VerificationProgress float64 `json:"verificationProgress"`
 }
 
-// GetHostnameResponse is the struct that get sent by the rpc server during a GetHostname rpc call
-type GetHostnameResponse struct {
-	ErrorResponse *ErrorResponse
-	Hostname      string
-}
-
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
 // It can be embedded into other RPC responses that return values.
 // In any case the ErrorResponse should be checked first, so that, if an error is returned, we ignore everything else in the response.

@@ -78,9 +78,6 @@ type Interface interface {
 	// ResyncBitcoin starts a bitcoin resync on the base.
 	ResyncBitcoin() error
 
-	// GetHostname returns the hostname of the BitBox Base
-	GetHostname() (string, error)
-
 	// SetHostname sets the hostname of the BitBox Base
 	SetHostname(string) error
 
@@ -308,22 +305,6 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 		return &reply
 	}
 	return nil
-}
-
-// GetHostname returns the hostname of the bitboxbase
-func (base *BitBoxBase) GetHostname() (hostname string, err error) {
-	if !base.active {
-		return "", errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a GetHostname call")
-	reply, err := base.rpcClient.GetHostname()
-	if err != nil {
-		return "", err
-	}
-	if !reply.ErrorResponse.Success {
-		return "", reply.ErrorResponse
-	}
-	return reply.Hostname, nil
 }
 
 // SetHostname sets the hostname of the bitboxbase

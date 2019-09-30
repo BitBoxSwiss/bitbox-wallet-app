@@ -273,17 +273,6 @@ func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswo
 	return reply, nil
 }
 
-// GetHostname makes a synchronous rpc call to the base and returns a GetHostnameResponse indicating if the called script was successfully executed.
-func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, error) {
-	rpcClient.log.Println("Executing GetHostname rpc call")
-	var reply rpcmessages.GetHostnameResponse
-	err := rpcClient.client.Call("RPCServer.GetHostname", true /*dummy Arg */, &reply)
-	if err != nil {
-		return rpcmessages.GetHostnameResponse{}, errp.WithStack(err)
-	}
-	return reply, nil
-}
-
 // MountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
 func (rpcClient *RPCClient) MountFlashdrive() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing MountFlashdrive rpc call")
