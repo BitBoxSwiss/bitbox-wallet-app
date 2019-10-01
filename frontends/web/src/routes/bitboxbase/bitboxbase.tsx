@@ -139,7 +139,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private onNewMiddlewareInfo = () => {
-        apiGet(this.apiPrefix() + '/middlewareinfo').then(({success, middlewareInfo}) => {
+        apiGet(this.apiPrefix() + '/middleware-info').then(({success, middlewareInfo}) => {
             if (success) {
                 this.setState({ middlewareInfo });
             }
@@ -147,7 +147,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private onNewVerificationProgress = () => {
-        apiGet(this.apiPrefix() + '/verificationprogress').then(({success, verificationProgress}) => {
+        apiGet(this.apiPrefix() + '/verification-progress').then(({success, verificationProgress}) => {
             if (success) {
                 this.setState({ verificationProgress });
             }
