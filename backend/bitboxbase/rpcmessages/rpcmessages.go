@@ -41,13 +41,7 @@ type SetRootPasswordArgs struct {
 }
 
 // ToggleSetting is a generic message for settings that can be enabled or disabled
-type ToggleSetting string
-
-// Consts for toggling a setting which is done by passing "enable" or "disable" to the corresponding shell script
-const (
-	ToggleSettingEnable  ToggleSetting = "enable"
-	ToggleSettingDisable ToggleSetting = "disable"
-)
+type ToggleSetting bool
 
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.
