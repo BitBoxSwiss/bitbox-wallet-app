@@ -31,12 +31,13 @@ linux:
 	cd build/linux-tmp && /opt/linuxdeployqt-6-x86_64.AppImage BitBox -bundle-non-qt-libs
 	cp /usr/lib/x86_64-linux-gnu/nss/* build/linux-tmp/lib
 	cp -aR resources/linux build/tmp-deb
+	cp resources/linux/usr/share/applications/bitbox.desktop build/linux-tmp
+	cp resources/linux/usr/share/icons/hicolor/128x128/apps/bitbox.png build/linux-tmp
 	mkdir build/tmp-deb/opt/
 	cp -aR build/linux-tmp build/tmp-deb/opt/bitbox
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t deb -n bitbox -v 4.13.0 -C ../tmp-deb/
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.13.0 -C ../tmp-deb/
 	# create AppImage
-	sed 's+/usr/share/pixmaps/bitbox.png+default+' resources/linux/usr/share/applications/bitbox.desktop > build/linux-tmp/bitbox.desktop
 	cd build/linux-tmp && /opt/linuxdeployqt-6-x86_64.AppImage BitBox -appimage
 	mv build/linux-tmp/BitBox_App-*-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
