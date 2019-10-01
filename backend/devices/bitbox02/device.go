@@ -46,8 +46,9 @@ import (
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
 
 var (
-	lowestSupportedFirmwareVersion    = semver.NewSemVer(4, 1, 0)
-	lowestNonSupportedFirmwareVersion = semver.NewSemVer(5, 0, 0)
+	lowestSupportedFirmwareVersion        = semver.NewSemVer(4, 1, 0)
+	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(4, 1, 1)
+	lowestNonSupportedFirmwareVersion     = semver.NewSemVer(5, 0, 0)
 )
 
 // ProductName is the name of the BitBox02 product.
@@ -625,7 +626,16 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	if ok {
 		// No critical error, we will just need to re-confirm the pairing next time.
 		_ = device.configAddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
-		if !device.version.AtLeast(lowestSupportedFirmwareVersion) {
+		requireUpgrade := false
+		switch device.edition {
+		case bitbox02common.EditionStandard:
+			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersion)
+		case bitbox02common.EditionBTCOnly:
+			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
+		default:
+			device.log.Errorf("unrecognized edition: %s", device.edition)
+		}
+		if requireUpgrade {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
 			return
 		}
