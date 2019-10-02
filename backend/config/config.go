@@ -61,16 +61,21 @@ func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
 	return false
 }
 
+type proxyConfig struct {
+	UseProxy     bool   `json:"useProxy"`
+	ProxyAddress string `json:"proxyAddress"`
+}
+
 // Backend holds the backend specific configuration.
 type Backend struct {
-	BitcoinP2PKHActive       bool   `json:"bitcoinP2PKHActive"`
-	BitcoinP2WPKHP2SHActive  bool   `json:"bitcoinP2WPKHP2SHActive"`
-	BitcoinP2WPKHActive      bool   `json:"bitcoinP2WPKHActive"`
-	LitecoinP2WPKHP2SHActive bool   `json:"litecoinP2WPKHP2SHActive"`
-	LitecoinP2WPKHActive     bool   `json:"litecoinP2WPKHActive"`
-	EthereumActive           bool   `json:"ethereumActive"`
-	UseProxy                 bool   `json:"useProxy"`
-	ProxyAddress             string `json:"proxyAddress"`
+	Proxy proxyConfig `json:"proxy"`
+
+	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
+	BitcoinP2WPKHP2SHActive  bool `json:"bitcoinP2WPKHP2SHActive"`
+	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
+	LitecoinP2WPKHP2SHActive bool `json:"litecoinP2WPKHP2SHActive"`
+	LitecoinP2WPKHActive     bool `json:"litecoinP2WPKHActive"`
+	EthereumActive           bool `json:"ethereumActive"`
 
 	BTC  btcCoinConfig `json:"btc"`
 	TBTC btcCoinConfig `json:"tbtc"`
@@ -150,12 +155,17 @@ ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
 func NewDefaultAppConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
+			Proxy: proxyConfig{
+				UseProxy:     false,
+				ProxyAddress: "127.0.0.1:9050",
+			},
 			BitcoinP2PKHActive:       false,
 			BitcoinP2WPKHP2SHActive:  true,
 			BitcoinP2WPKHActive:      false,
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     false,
 			EthereumActive:           true,
+
 			BTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{

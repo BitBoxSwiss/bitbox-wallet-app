@@ -44,15 +44,12 @@ export default class Settings extends Component {
     state = {
         restart: false,
         config: null,
-        proxyAddress: '127.0.0.1:9050',
+        proxyAddress: undefined,
     }
 
     componentDidMount() {
         apiGet('config').then(config => {
-            this.setState({ config });
-            if (config.backend.proxyAddress) {
-                this.setState({ proxyAddress: config.backend.proxyAddress });
-            }
+            this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress });
         });
     }
 
@@ -114,40 +111,39 @@ export default class Settings extends Component {
             });
     }
 
-    handleToggleProxy = event => {
-        if (event.target.checked) {
-            setConfig({
-                backend: {
-                    [event.target.id]: event.target.checked,
-                    proxyAddress: this.state.proxyAddress,
-                }
-            })
-                .then(config => {
-                    this.setState({ config, restart: true });
-                });
-        } else {
-            setConfig({
-                backend: {
-                    [event.target.id]: event.target.checked,
-                    proxyAddress: '',
-                }
-            })
-                .then(config => this.setState({ config, restart: true }));
-        }
-    }
-
     handleFormChange = event => {
         this.setState({
             [event.target.name]: event.target.value,
+            restart: false,
         });
     }
 
-    setProxyAddress = () => {
+    setProxyConfig = proxyConfig => {
         setConfig({
-            backend: {
-                proxyAddress: this.state.proxyAddress,
-            }
-        }).then(config => this.setState({ config, restart: true }));
+            backend: { proxy: proxyConfig },
+        }).then(config => {
+            this.setState({ config, restart: true });
+        });
+    }
+
+    handleToggleProxy = event => {
+        let config = this.state.config;
+        if (!config) {
+            return;
+        }
+        let proxy = config.backend.proxy;
+        proxy.useProxy = event.target.checked;
+        this.setProxyConfig(proxy);
+    }
+
+    setProxyAddress = () => {
+        let config = this.state.config;
+        if (!config) {
+            return;
+        }
+        let proxy = config.backend.proxy;
+        proxy.proxyAddress = this.state.proxyAddress;
+        this.setProxyConfig(proxy);
     }
 
 
@@ -162,6 +158,9 @@ export default class Settings extends Component {
         restart,
         proxyAddress,
     }) {
+        if (proxyAddress === undefined) {
+            return null;
+        }
         const accountsList = [
             {
                 name: 'bitcoinP2PKHActive',
@@ -289,12 +288,12 @@ export default class Settings extends Component {
                                                                 </p>
                                                             </div>
                                                             <Toggle
-                                                                checked={config.backend.useProxy}
+                                                                checked={config.backend.proxy.useProxy}
                                                                 id="useProxy"
                                                                 onChange={this.handleToggleProxy} />
                                                         </div>
                                                         {
-                                                            config.backend.useProxy && (
+                                                            config.backend.proxy.useProxy && (
                                                                 <div class="row extra">
                                                                     <Input
                                                                         name="proxyAddress"
@@ -304,6 +303,7 @@ export default class Settings extends Component {
                                                                     />
                                                                     <Button primary
                                                                         onClick={this.setProxyAddress}
+                                                                        disabled={proxyAddress === config.backend.proxy.proxyAddress}
                                                                     >
                                                                         {t('settings.expert.setProxyAddress')}
                                                                     </Button>
