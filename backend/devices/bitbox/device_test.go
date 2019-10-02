@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/test"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/mock"
@@ -64,7 +65,7 @@ func (s *dbbTestSuite) SetupTest() {
 	})
 	s.mockCommClosed = false
 	dbb, err := NewDevice(deviceID, false, /* bootloader */
-		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication)
+		lowestSupportedFirmwareVersion, s.configDir, s.mockCommunication, socksproxy.SocksProxy{})
 	require.NoError(s.T(), dbb.Init(true))
 	require.NoError(s.T(), err)
 	s.dbb = dbb
@@ -383,7 +384,7 @@ func (s *dbbTestSuite) TestDeviceStatusEvent() {
 func TestNewDeviceReadsChannel(t *testing.T) {
 	configDir := test.TstTempDir("dbb_device_test")
 	defer func() { _ = os.RemoveAll(configDir) }()
-	mobchan := relay.NewChannelWithRandomKey()
+	mobchan := relay.NewChannelWithRandomKey(socksproxy.SocksProxy{})
 	if err := mobchan.StoreToConfigFile(configDir); err != nil {
 		t.Fatal(err)
 	}
@@ -394,7 +395,7 @@ func TestNewDeviceReadsChannel(t *testing.T) {
 		Return(map[string]interface{}{"ping": ""}, nil)
 	comm.On("Close")
 	dbb, err := NewDevice("test-device-id", false, /* bootloader */
-		lowestSupportedFirmwareVersion, configDir, comm)
+		lowestSupportedFirmwareVersion, configDir, comm, socksproxy.SocksProxy{})
 	if err != nil {
 		t.Fatal(err)
 	}

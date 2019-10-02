@@ -28,6 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 
 	"github.com/sirupsen/logrus"
 )
@@ -104,10 +105,16 @@ type BitBoxBase struct {
 	active              bool //this indicates if the bitboxbase is in use, or being disconnected
 
 	onUnregister func(string)
+	socksProxy   socksproxy.SocksProxy
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
-func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseConfigDir string, onUnregister func(string)) (*BitBoxBase, error) {
+func NewBitBoxBase(address string,
+	id string,
+	config *config.Config,
+	bitboxBaseConfigDir string,
+	onUnregister func(string),
+	socksProxy socksproxy.SocksProxy) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
@@ -118,6 +125,7 @@ func NewBitBoxBase(address string, id string, config *config.Config, bitboxBaseC
 		status:              bitboxbasestatus.StatusConnected,
 		onUnregister:        onUnregister,
 		active:              false,
+		socksProxy:          socksProxy,
 	}
 	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister)
 	bitboxBase.rpcClient = rpcClient
@@ -152,7 +160,7 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	}
 	electrumAddress := base.address + ":" + base.electrsRPCPort
 
-	electrumCert, err := electrum.DownloadCert(electrumAddress)
+	electrumCert, err := electrum.DownloadCert(electrumAddress, base.socksProxy)
 	if err != nil {
 		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())
 		return err
@@ -161,7 +169,8 @@ func (base *BitBoxBase) ConnectElectrum() error {
 	if err := electrum.CheckElectrumServer(
 		electrumAddress,
 		electrumCert,
-		base.log); err != nil {
+		base.log,
+		base.socksProxy); err != nil {
 		base.log.WithField("ElectrumIP: ", electrumAddress).Error(err.Error())
 		return err
 	}

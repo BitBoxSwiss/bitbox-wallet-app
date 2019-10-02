@@ -22,8 +22,6 @@ import (
 	"strings"
 	"time"
 
-	ethereum "github.com/ethereum/go-ethereum"
-
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -34,9 +32,11 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	ethtypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
+	ethereum "github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
@@ -79,7 +79,8 @@ type Account struct {
 
 	quitChan chan struct{}
 
-	log *logrus.Entry
+	log         *logrus.Entry
+	rateUpdater *rates.RateUpdater
 }
 
 // NewAccount creates a new account.
@@ -93,6 +94,7 @@ func NewAccount(
 	getNotifier func(*signing.Configuration) accounts.Notifier,
 	onEvent func(accounts.Event),
 	log *logrus.Entry,
+	rateUpdater *rates.RateUpdater,
 ) *Account {
 	log = log.WithField("group", "eth").
 		WithFields(logrus.Fields{"coin": accountCoin.String(), "code": code, "name": name})
@@ -114,6 +116,7 @@ func NewAccount(
 		enqueueUpdateCh: make(chan struct{}),
 		quitChan:        make(chan struct{}),
 		log:             log,
+		rateUpdater:     rateUpdater,
 	}
 	account.synchronizer = synchronizer.NewSynchronizer(
 		func() { onEvent(accounts.EventSyncStarted) },
@@ -149,6 +152,11 @@ func (account *Account) Name() string {
 // Coin implements accounts.Interface.
 func (account *Account) Coin() coin.Coin {
 	return account.coin
+}
+
+// RateUpdater implement accounts.Interface, currently just returning a dummy value
+func (account *Account) RateUpdater() *rates.RateUpdater {
+	return account.rateUpdater
 }
 
 // Initialize implements accounts.Interface.

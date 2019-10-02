@@ -35,6 +35,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
 
@@ -47,6 +48,7 @@ type Coin struct {
 	dbFolder              string
 	servers               []*rpc.ServerInfo
 	blockExplorerTxPrefix string
+	socksProxy            socksproxy.SocksProxy
 
 	observable.Implementation
 
@@ -64,6 +66,7 @@ func NewCoin(
 	dbFolder string,
 	servers []*rpc.ServerInfo,
 	blockExplorerTxPrefix string,
+	socksProxy socksproxy.SocksProxy,
 ) *Coin {
 	coin := &Coin{
 		code:                  code,
@@ -72,6 +75,7 @@ func NewCoin(
 		dbFolder:              dbFolder,
 		servers:               servers,
 		blockExplorerTxPrefix: blockExplorerTxPrefix,
+		socksProxy:            socksProxy,
 
 		log: logging.Get().WithGroup("coin").WithField("code", code),
 	}
@@ -82,7 +86,7 @@ func NewCoin(
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
-		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log)
+		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log, coin.socksProxy)
 
 		// Init Headers
 

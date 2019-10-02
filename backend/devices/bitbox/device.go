@@ -41,6 +41,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/pbkdf2"
 )
@@ -150,6 +151,9 @@ type Device struct {
 	// Indicates whether Close was called.
 	closed bool
 
+	// Is passed to relay channel
+	socksProxy socksproxy.SocksProxy
+
 	log *logrus.Entry
 }
 
@@ -164,7 +168,8 @@ func NewDevice(
 	bootloader bool,
 	version *semver.SemVer,
 	channelConfigDir string,
-	communication CommunicationInterface) (*Device, error) {
+	communication CommunicationInterface,
+	socksProxy socksproxy.SocksProxy) (*Device, error) {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
 	log.WithField("version", version).Info("Plugged in device")
 
@@ -173,12 +178,13 @@ func NewDevice(
 		bootloaderStatus = &BootloaderStatus{}
 	}
 	device := &Device{
+		socksProxy:       socksProxy,
 		deviceID:         deviceID,
 		bootloaderStatus: bootloaderStatus,
 		version:          version,
 		communication:    communication,
 		closed:           false,
-		channel:          relay.NewChannelFromConfigFile(channelConfigDir),
+		channel:          relay.NewChannelFromConfigFile(channelConfigDir, socksProxy),
 		channelConfigDir: channelConfigDir,
 		log:              log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -1297,7 +1303,7 @@ func (dbb *Device) StartPairing() (*relay.Channel, error) {
 		dbb.fireEvent("pairingFalse", nil)
 	}
 
-	channel := relay.NewChannelWithRandomKey()
+	channel := relay.NewChannelWithRandomKey(dbb.socksProxy)
 	go dbb.processPairing(channel)
 	return channel, nil
 }

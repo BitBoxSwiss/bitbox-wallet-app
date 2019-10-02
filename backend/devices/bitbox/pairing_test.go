@@ -26,6 +26,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -58,7 +59,7 @@ func TestChannel(t *testing.T) {
 		panic("Cannot decode the testing authentication key!")
 	}
 
-	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey)
+	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey, socksproxy.SocksProxy{})
 
 	assert.NoError(t, channel.SendPing())
 	assert.NoError(t, channel.WaitForPong(40*time.Second))
@@ -96,7 +97,7 @@ func TestFinishPairing(t *testing.T) {
 			dbb.onEvent = func(e device.Event, data interface{}) {
 				event = e
 			}
-			newChan := relay.NewChannelWithRandomKey()
+			newChan := relay.NewChannelWithRandomKey(socksproxy.SocksProxy{})
 			communicationMock.On("SendEncrypt", `{"feature_set":{"pairing":true}}`, "").
 				Return(map[string]interface{}{"feature_set": "success"}, nil)
 			dbb.finishPairing(newChan)
@@ -110,7 +111,7 @@ func TestFinishPairing(t *testing.T) {
 			if !test.wantPaired {
 				return
 			}
-			storedChan := relay.NewChannelFromConfigFile(test.configDir)
+			storedChan := relay.NewChannelFromConfigFile(test.configDir, socksproxy.SocksProxy{})
 			if storedChan == nil {
 				t.Fatalf("relay.NewChannelFromConfigFile(%q) returned nil", test.configDir)
 			}

@@ -25,6 +25,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
+const defaultProxyAddress = "127.0.0.1:9050"
+
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
 	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
@@ -61,8 +63,24 @@ func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
 	return false
 }
 
+type proxyConfig struct {
+	UseProxy     bool   `json:"useProxy"`
+	ProxyAddress string `json:"proxyAddress"`
+}
+
+// ProxyAddressOrDefault returns the configured proxy address. If not set, it returns the default
+// one.
+func (proxy proxyConfig) ProxyAddressOrDefault() string {
+	if proxy.ProxyAddress != "" {
+		return proxy.ProxyAddress
+	}
+	return defaultProxyAddress
+}
+
 // Backend holds the backend specific configuration.
 type Backend struct {
+	Proxy proxyConfig `json:"proxy"`
+
 	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
 	BitcoinP2WPKHP2SHActive  bool `json:"bitcoinP2WPKHP2SHActive"`
 	BitcoinP2WPKHActive      bool `json:"bitcoinP2WPKHActive"`
@@ -148,12 +166,17 @@ ffbrVM+I91v3R03Svv2Nte2xdbx1RmoI/y3tMyZL
 func NewDefaultAppConfig() AppConfig {
 	return AppConfig{
 		Backend: Backend{
+			Proxy: proxyConfig{
+				UseProxy:     false,
+				ProxyAddress: defaultProxyAddress,
+			},
 			BitcoinP2PKHActive:       false,
 			BitcoinP2WPKHP2SHActive:  true,
 			BitcoinP2WPKHActive:      false,
 			LitecoinP2WPKHP2SHActive: true,
 			LitecoinP2WPKHActive:     false,
 			EthereumActive:           true,
+
 			BTC: btcCoinConfig{
 				ElectrumServers: []*rpc.ServerInfo{
 					{

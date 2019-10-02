@@ -903,8 +903,11 @@
       "electrum": {
         "title": "Connect your own full node"
       },
-      "title": "Expert Settings"
+      "setProxyAddress": "Set Proxy Address",
+      "title": "Expert Settings",
+      "useProxy": "Enable tor proxy"
     },
+    "restart": "Please re-start the BitBox app for the changes to take effect.",
     "success": "Please unplug and replug the BitBox for the changes to take effect.",
     "title": "Settings"
   },

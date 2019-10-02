@@ -39,6 +39,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	utilConfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -46,6 +47,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
@@ -137,6 +139,9 @@ type Backend struct {
 	baseManager *mdns.Manager
 
 	log *logrus.Entry
+
+	socksProxy   socksproxy.SocksProxy
+	ratesUpdater *rates.RateUpdater
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -164,10 +169,14 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 	backend.notifier = notifier
+	backend.socksProxy = socksproxy.NewSocksProxy(
+		backend.config.AppConfig().Backend.Proxy.UseProxy,
+		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
+	)
+	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
+	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
-	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath())
-
-	GetRatesUpdaterInstance().Observe(func(event observable.Event) { backend.events <- event })
+	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
 
 	return backend, nil
 }
@@ -249,11 +258,11 @@ func (backend *Backend) CreateAndAddAccount(
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
 	case *eth.Coin:
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log)
+			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
 	default:
 		panic("unknown coin type")
@@ -428,76 +437,81 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 	switch {
 	case code == coinRBTC:
 		servers := backend.defaultElectrumXServers(code)
-		coin = btc.NewCoin(coinRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "")
+		coin = btc.NewCoin(coinRBTC, "RBTC", &chaincfg.RegressionNetParams, dbFolder, servers, "", backend.socksProxy)
 	case code == coinTBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTBTC, "TBTC", &chaincfg.TestNet3Params, dbFolder, servers,
-			"https://blockstream.info/testnet/tx/")
+			"https://blockstream.info/testnet/tx/", backend.socksProxy)
 	case code == coinBTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinBTC, "BTC", &chaincfg.MainNetParams, dbFolder, servers,
-			"https://blockstream.info/tx/")
+			"https://blockstream.info/tx/", backend.socksProxy)
 	case code == coinTLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinTLTC, "TLTC", &ltc.TestNet4Params, dbFolder, servers,
-			"http://explorer.litecointools.com/tx/")
+			"http://explorer.litecointools.com/tx/", backend.socksProxy)
 	case code == coinLTC:
 		servers := backend.defaultElectrumXServers(code)
 		coin = btc.NewCoin(coinLTC, "LTC", &ltc.MainNetParams, dbFolder, servers,
-			"https://insight.litecore.io/tx/")
+			"https://insight.litecore.io/tx/", backend.socksProxy)
 	case code == coinETH:
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api"),
+			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
 		)
 		coin = eth.NewCoin(code, "ETH", "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			transactionsSource,
-			coinConfig.NodeURL, nil)
+			coinConfig.NodeURL,
+			nil, backend.socksProxy)
 	case code == coinRETH:
 		coinConfig := backend.config.AppConfig().Backend.RETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api"),
+			eth.TransactionsSourceEtherScan("https://api-rinkeby.etherscan.io/api", backend.socksProxy),
 		)
 		coin = eth.NewCoin(code, "RETH", "RETH", params.RinkebyChainConfig,
 			"https://rinkeby.etherscan.io/tx/",
 			transactionsSource,
-			coinConfig.NodeURL, nil)
+			coinConfig.NodeURL,
+			nil, backend.socksProxy)
 	case code == coinTETH:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api"),
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
 		)
 		coin = eth.NewCoin(code, "TETH", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			transactionsSource,
-			coinConfig.NodeURL, nil)
+			coinConfig.NodeURL,
+			nil, backend.socksProxy)
 	case code == coinERC20TEST:
 		coinConfig := backend.config.AppConfig().Backend.TETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api"),
+			eth.TransactionsSourceEtherScan("https://api-ropsten.etherscan.io/api", backend.socksProxy),
 		)
 		coin = eth.NewCoin(code, "TEST", "TETH", params.TestnetChainConfig,
 			"https://ropsten.etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
 			erc20.NewToken("0x2f45b6fb2f28a73f110400386da31044b2e953d4", 18),
+			backend.socksProxy,
 		)
 	case erc20Token != nil:
 		coinConfig := backend.config.AppConfig().Backend.ETH
 		transactionsSource := ethMakeTransactionsSource(
 			coinConfig.TransactionsSource,
-			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api"),
+			eth.TransactionsSourceEtherScan("https://api.etherscan.io/api", backend.socksProxy),
 		)
 		coin = eth.NewCoin(erc20Token.code, erc20Token.unit, "ETH", params.MainnetChainConfig,
 			"https://etherscan.io/tx/",
 			transactionsSource,
 			coinConfig.NodeURL,
 			erc20Token.token,
+			backend.socksProxy,
 		)
 	default:
 		return nil, errp.Newf("unknown coin code %s", code)
@@ -698,6 +712,7 @@ func (backend *Backend) Start() <-chan interface{} {
 	usb.NewManager(
 		backend.arguments.MainDirectoryPath(),
 		backend.arguments.BitBox02DirectoryPath(),
+		backend.socksProxy,
 		backend.environment.DeviceInfos,
 		backend.Register,
 		backend.Deregister, onlyOne).Start()
@@ -866,20 +881,20 @@ func (backend *Backend) Deregister(deviceID string) {
 	}
 }
 
-// Rates return the latest rates.
-func (backend *Backend) Rates() map[string]map[string]float64 {
-	return GetRatesUpdaterInstance().Last()
+// RatesUpdater returns the backend's ratesUpdater instance
+func (backend *Backend) RatesUpdater() *rates.RateUpdater {
+	return backend.ratesUpdater
 }
 
 // DownloadCert downloads the first element of the remote certificate chain.
 func (backend *Backend) DownloadCert(server string) (string, error) {
-	return electrum.DownloadCert(server)
+	return electrum.DownloadCert(server, backend.socksProxy)
 }
 
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func (backend *Backend) CheckElectrumServer(server string, pemCert string) error {
-	return electrum.CheckElectrumServer(server, pemCert, backend.log)
+	return electrum.CheckElectrumServer(server, pemCert, backend.log, backend.socksProxy)
 }
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in

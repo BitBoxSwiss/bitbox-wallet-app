@@ -21,6 +21,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -62,7 +63,7 @@ func sendPongAsMobile(channel *Channel) error {
 
 func TestPingPong(t *testing.T) {
 	if online {
-		channel := NewChannelWithRandomKey()
+		channel := NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
 		assert.NoError(t, channel.SendPing())
 		assert.NoError(t, sendPongAsMobile(channel))
 		assert.NoError(t, channel.WaitForPong(2*time.Second))

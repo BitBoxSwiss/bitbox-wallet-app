@@ -26,6 +26,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+
 	micromdns "github.com/micro/mdns"
 
 	"github.com/sirupsen/logrus"
@@ -56,6 +58,7 @@ type Manager struct {
 	log                 *logrus.Entry
 	config              *config.Config
 	bitboxBaseConfigDir string
+	socksProxy          socksproxy.SocksProxy
 }
 
 // NewManager creates a new manager. onRegister is called when a bitboxbase has been
@@ -66,6 +69,7 @@ func NewManager(
 	onUnregister func(string),
 	config *config.Config,
 	bitboxBaseConfigDir string,
+	socksProxy socksproxy.SocksProxy,
 ) *Manager {
 	return &Manager{
 		baseDeviceInterface: map[string]bitboxbase.Interface{},
@@ -75,6 +79,7 @@ func NewManager(
 		onUnregister:        onUnregister,
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
+		socksProxy:          socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -102,7 +107,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	}
 
 	manager.log.WithField("host", manager.detectedBases[address]).WithField("address", address)
-	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister)
+	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister, manager.socksProxy)
 
 	if err != nil {
 		manager.log.WithError(err).Error("Failed to register Base")
