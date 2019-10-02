@@ -25,6 +25,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
+const defaultProxyAddress = "127.0.0.1:9050"
+
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
 	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
@@ -64,6 +66,15 @@ func (eth ethCoinConfig) ERC20TokenActive(code string) bool {
 type proxyConfig struct {
 	UseProxy     bool   `json:"useProxy"`
 	ProxyAddress string `json:"proxyAddress"`
+}
+
+// ProxyAddressOrDefault returns the configured proxy address. If not set, it returns the default
+// one.
+func (proxy proxyConfig) ProxyAddressOrDefault() string {
+	if proxy.ProxyAddress != "" {
+		return proxy.ProxyAddress
+	}
+	return defaultProxyAddress
 }
 
 // Backend holds the backend specific configuration.
@@ -157,7 +168,7 @@ func NewDefaultAppConfig() AppConfig {
 		Backend: Backend{
 			Proxy: proxyConfig{
 				UseProxy:     false,
-				ProxyAddress: "127.0.0.1:9050",
+				ProxyAddress: defaultProxyAddress,
 			},
 			BitcoinP2PKHActive:       false,
 			BitcoinP2WPKHP2SHActive:  true,

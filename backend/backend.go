@@ -169,7 +169,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		return nil, err
 	}
 	backend.notifier = notifier
-	backend.socksProxy = socksproxy.NewSocksProxy(backend.config.AppConfig().Backend.Proxy.UseProxy, backend.config.AppConfig().Backend.Proxy.ProxyAddress)
+	backend.socksProxy = socksproxy.NewSocksProxy(
+		backend.config.AppConfig().Backend.Proxy.UseProxy,
+		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
+	)
 	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
