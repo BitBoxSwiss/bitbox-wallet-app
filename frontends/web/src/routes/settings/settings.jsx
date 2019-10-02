@@ -122,9 +122,8 @@ export default class Settings extends Component {
                     proxyAddress: this.state.proxyAddress,
                 }
             })
-                .then(config => { 
+                .then(config => {
                     this.setState({ config, restart: true });
-                    console.log(config);
                 });
         } else {
             setConfig({
