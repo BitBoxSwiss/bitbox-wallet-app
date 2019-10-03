@@ -19,6 +19,7 @@ import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { setConfig } from '../../utils/config';
 import { Badge } from '../../components/badge/badge';
+import { Dialog } from '../../components/dialog/dialog';
 import { Button, Input } from '../../components/forms';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
@@ -29,6 +30,7 @@ import { SwissMadeOpenSource } from '../../components/icon/logo';
 import { Toggle } from '../../components/toggle/toggle';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import * as style from '../../components/fiat/fiat.css';
+import * as dialogStyle from '../../components/dialog/dialog.css';
 
 @translate()
 export default class Settings extends Component {
@@ -45,6 +47,7 @@ export default class Settings extends Component {
         restart: false,
         config: null,
         proxyAddress: undefined,
+        activeProxyDialog: false,
     }
 
     componentDidMount() {
@@ -146,6 +149,13 @@ export default class Settings extends Component {
         this.setProxyConfig(proxy);
     }
 
+    showProxyDialog = () => {
+        this.setState({ activeProxyDialog: true });
+    }
+
+    hideProxyDialog = () => {
+        this.setState({ activeProxyDialog: false });
+    }
 
     handleRestartDismissMessage = () => {
         this.setState({ restart: false });
@@ -157,6 +167,7 @@ export default class Settings extends Component {
         config,
         restart,
         proxyAddress,
+        activeProxyDialog,
     }) {
         if (proxyAddress === undefined) {
             return null;
@@ -281,50 +292,57 @@ export default class Settings extends Component {
                                                                 id="coinControl"
                                                                 onChange={this.handleToggleCoinControl} />
                                                         </div>
-                                                        <div className={style.currency}>
-                                                            <div>
-                                                                <p className="m-none">{t('settings.expert.useProxy')}</p>
-                                                                <p className="m-none">
-                                                                </p>
-                                                            </div>
-                                                            <Toggle
-                                                                checked={config.backend.proxy.useProxy}
-                                                                id="useProxy"
-                                                                onChange={this.handleToggleProxy} />
-                                                        </div>
+                                                        <SettingsButton
+                                                            onClick={this.showProxyDialog}
+                                                            optionalText={config.backend.proxy.useProxy ? 'Enabled' : 'Disabled'}>
+                                                            {t('settings.expert.setProxyAddress')}
+                                                        </SettingsButton>
                                                         {
-                                                            config.backend.proxy.useProxy && (
-                                                                <div class="row extra">
-                                                                    <Input
-                                                                        name="proxyAddress"
-                                                                        onInput={this.handleFormChange}
-                                                                        value={proxyAddress}
-                                                                        placeholder="127.0.0.1:9050"
-                                                                    />
-                                                                    <Button primary
-                                                                        onClick={this.setProxyAddress}
-                                                                        disabled={proxyAddress === config.backend.proxy.proxyAddress}
-                                                                    >
-                                                                        {t('settings.expert.setProxyAddress')}
-                                                                    </Button>
-                                                                </div>
+                                                            activeProxyDialog && (
+                                                                <Dialog onClose={this.hideProxyDialog} title={t('settings.expert.setProxyAddress')} small>
+                                                                    <div className="flex flex-row flex-between flex-items-center">
+                                                                        <div>
+                                                                            <p className="m-none">{t('settings.expert.useProxy')}</p>
+                                                                        </div>
+                                                                        <Toggle
+                                                                            id="useProxy"
+                                                                            checked={config.backend.proxy.useProxy}
+                                                                            onChange={this.handleToggleProxy} />
+                                                                    </div>
+                                                                    <div className="m-top-half">
+                                                                        <Input
+                                                                            name="proxyAddress"
+                                                                            onInput={this.handleFormChange}
+                                                                            value={proxyAddress}
+                                                                            placeholder="127.0.0.1:9050"
+                                                                            disabled={!config.backend.proxy.useProxy}
+                                                                        />
+                                                                        <div className={dialogStyle.actions}>
+                                                                            <Button primary
+                                                                                onClick={this.setProxyAddress}
+                                                                                disabled={!config.backend.proxy.useProxy || proxyAddress === config.backend.proxy.proxyAddress}>
+                                                                                {t('settings.expert.setProxyAddress')}
+                                                                            </Button>
+                                                                        </div>
+                                                                    </div>
+                                                                </Dialog>
                                                             )
                                                         }
                                                         <SettingsButton link href="/settings/electrum">{t('settings.expert.electrum.title')}</SettingsButton>
                                                     </div>
-                                                    {
-                                                        restart && (
-                                                            <div class="row">
-                                                                <InlineMessage
-                                                                    type="success"
-                                                                    align="left"
-                                                                    message={t('settings.restart')}
-                                                                    onEnd={this.handleRestartDismissMessage} />
-                                                            </div>
-                                                        )
-                                                    }
                                                 </div>
                                             </div>
+                                            {
+                                                restart && (
+                                                    <div class="row">
+                                                        <InlineMessage
+                                                            type="success"
+                                                            align="left"
+                                                            message={t('settings.restart')}
+                                                            onEnd={this.handleRestartDismissMessage} />
+                                                    </div>
+                                                )
+                                            }
                                         </div>
                                     </div>
                                 )
