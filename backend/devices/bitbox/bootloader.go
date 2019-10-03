@@ -20,8 +20,11 @@ import (
 	"io"
 	"log"
 	"math"
+	"runtime"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -37,6 +40,72 @@ type BootloaderStatus struct {
 	ErrMsg            string  `json:"errMsg"`
 }
 
+// sendBootloader sends a message in the format the bootloader expects and fetches the response.
+func (dbb *Device) sendBootloader(msg []byte) ([]byte, error) {
+	if dbb.bootloaderStatus == nil {
+		return nil, errp.New("device is not in bootloader mode")
+	}
+	dbb.communicationMutex.Lock()
+	defer dbb.communicationMutex.Unlock()
+	const (
+		// the bootloader expects 4098 bytes as one message.
+		sendLen = 4098
+		// the bootloader sends 256 bytes as a response.
+		readLen = 256
+	)
+
+	usbWriteReportSize := 64
+	usbReadReportSize := 64
+	if !dbb.version.AtLeast(semver.NewSemVer(3, 0, 0)) {
+		// Bootloader 3.0.0 changed to composite USB. Since then, the report lengths are 65/65,
+		// not 4099/256 (including report ID).  See dev->output_report_length at
+		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
+		usbWriteReportSize = 4098
+		usbReadReportSize = 256
+	}
+
+	if len(msg) > sendLen {
+		dbb.log.WithFields(logrus.Fields{"message-length": len(msg),
+			"max-send-length": sendLen}).Panic("Message too long")
+		panic("message too long")
+	}
+
+	paddedMsg := bytes.NewBuffer([]byte{})
+	paddedMsg.Write(msg)
+	paddedMsg.Write(bytes.Repeat([]byte{0}, sendLen-len(msg)))
+	// reset so we can read from it.
+	paddedMsg = bytes.NewBuffer(paddedMsg.Bytes())
+
+	written := 0
+	for written < sendLen {
+		chunk := paddedMsg.Next(usbWriteReportSize)
+		chunkLen := len(chunk)
+		if runtime.GOOS != "windows" {
+			// packets have a 0 byte report ID in front. The karalabe hid library adds it
+			// automatically for windows, and not for unix, as there, it is stripped by the signal11
+			// hid library.  Since we are padding with zeroes, we have to add it (to be stripped by
+			// signal11), as otherwise, it would strip our 0 byte that is just padding.
+			chunk = append([]byte{0}, chunk...)
+		}
+		_, err := dbb.communication.Write(chunk)
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		written += chunkLen
+	}
+
+	read := bytes.NewBuffer([]byte{})
+	for read.Len() < readLen {
+		currentRead := make([]byte, usbReadReportSize)
+		readLen, err := dbb.communication.Read(currentRead)
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		read.Write(currentRead[:readLen])
+	}
+	return bytes.TrimRight(read.Bytes(), "\x00\t\r\n"), nil
+}
+
 // BootloaderStatus returns the progress of a firmware upgrade. Returns an error if the device is
 // not in bootloader mode.
 func (dbb *Device) BootloaderStatus() (*BootloaderStatus, error) {
@@ -50,7 +119,7 @@ func (dbb *Device) bootloaderSendCmd(cmd rune, data []byte) error {
 	var buf bytes.Buffer
 	buf.WriteRune(cmd)
 	buf.Write(data)
-	reply, err := dbb.communication.SendBootloader(buf.Bytes())
+	reply, err := dbb.sendBootloader(buf.Bytes())
 	if err != nil {
 		return err
 	}

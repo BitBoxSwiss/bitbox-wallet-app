@@ -21,6 +21,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	"io"
 	"math/big"
 	"regexp"
 	"sort"
@@ -87,9 +88,9 @@ const (
 // CommunicationInterface contains functions needed to communicate with the device.
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
+	io.ReadWriter
 	SendFrame(string) error
 	ReadFrame() ([]byte, error)
-	SendBootloader([]byte) ([]byte, error)
 	Close()
 }
 

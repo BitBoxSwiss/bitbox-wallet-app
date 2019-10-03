@@ -18,7 +18,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"runtime"
 	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -62,6 +61,20 @@ func NewCommunication(
 		usbReadReportSize:  usbReadReportSize,
 		usbCMD:             usbCMD,
 	}
+}
+
+// Read reads from the underlying device.
+func (communication *Communication) Read(p []byte) (n int, err error) {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	return communication.device.Read(p)
+}
+
+// Write writes to the underlying device.
+func (communication *Communication) Write(p []byte) (n int, err error) {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	return communication.device.Write(p)
 }
 
 // Close closes the underlying device.
@@ -164,56 +177,4 @@ func (communication *Communication) readFrame() ([]byte, error) {
 		idx += readLen - 5
 	}
 	return data.Bytes()[:dataLen], nil
-}
-
-// SendBootloader sends a message in the format the bootloader expects and fetches the response.
-func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
-	communication.mutex.Lock()
-	defer communication.mutex.Unlock()
-	const (
-		// the bootloader expects 4098 bytes as one message.
-		sendLen = 4098
-		// the bootloader sends 256 bytes as a response.
-		readLen = 256
-	)
-	if len(msg) > sendLen {
-		communication.log.WithFields(logrus.Fields{"message-length": len(msg),
-			"max-send-length": sendLen}).Panic("Message too long")
-		panic("message too long")
-	}
-
-	paddedMsg := newBuffer()
-	paddedMsg.Write(msg)
-	paddedMsg.Write(bytes.Repeat([]byte{0}, sendLen-len(msg)))
-	// reset so we can read from it.
-	paddedMsg = bytes.NewBuffer(paddedMsg.Bytes())
-
-	written := 0
-	for written < sendLen {
-		chunk := paddedMsg.Next(communication.usbWriteReportSize)
-		chunkLen := len(chunk)
-		if runtime.GOOS != "windows" {
-			// packets have a 0 byte report ID in front. The karalabe hid library adds it
-			// automatically for windows, and not for unix, as there, it is stripped by the signal11
-			// hid library.  Since we are padding with zeroes, we have to add it (to be stripped by
-			// signal11), as otherwise, it would strip our 0 byte that is just padding.
-			chunk = append([]byte{0}, chunk...)
-		}
-		_, err := communication.device.Write(chunk)
-		if err != nil {
-			return nil, errp.WithStack(err)
-		}
-		written += chunkLen
-	}
-
-	read := newBuffer()
-	for read.Len() < readLen {
-		currentRead := make([]byte, communication.usbReadReportSize)
-		readLen, err := communication.device.Read(currentRead)
-		if err != nil {
-			return nil, errp.WithStack(err)
-		}
-		read.Write(currentRead[:readLen])
-	}
-	return bytes.TrimRight(read.Bytes(), "\x00\t\r\n"), nil
 }
