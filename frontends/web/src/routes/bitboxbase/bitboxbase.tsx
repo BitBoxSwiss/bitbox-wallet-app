@@ -23,6 +23,7 @@ import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
 import { Step, Steps } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
+import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
@@ -88,6 +89,10 @@ interface State {
     hostname?: string;
     validHostname?: boolean;
     syncingOption?: SyncingOptions;
+    waitDialog?: {
+        title?: string;
+        text?: string;
+    };
 }
 
 type Props = BitBoxBaseProps & TranslateProps;
@@ -109,6 +114,7 @@ class BitBoxBase extends Component<Props, State> {
             hostname: undefined,
             validHostname: false,
             syncingOption: undefined,
+            waitDialog: undefined,
         };
     }
 
@@ -254,6 +260,10 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private setNetwork = (networkOption: NetworkOptions, toggleSetting: boolean) => {
+        this.setState({ waitDialog: {
+            title: 'Getting everything ready',
+            text: 'Configuring Network Settings...',
+        }});
         apiPost(this.apiPrefix() + `/${networkOption}`, toggleSetting)
         .then(response => {
             if (response.success) {
@@ -270,10 +280,14 @@ class BitBoxBase extends Component<Props, State> {
 
     private setSyncingOption = () => {
         if (this.state.syncingOption) {
+            this.setState({ waitDialog: {
+                title: 'Getting everything ready',
+                text: 'Configuring Synchronization Settings...',
+            }});
             apiPost(this.apiPrefix() + `/${this.state.syncingOption}`)
             .then(response => {
                 if (response.success) {
-                    this.setState({ activeStep: ActiveStep.Backup });
+                    this.setState({ activeStep: ActiveStep.Backup, waitDialog: undefined });
                 } else {
                     alertUser(response.message);
                 }
@@ -311,6 +325,7 @@ class BitBoxBase extends Component<Props, State> {
             activeStep,
             password,
             validHostname,
+            waitDialog,
         }: State,
     ) {
         if (!showWizard) {
@@ -352,6 +367,14 @@ class BitBoxBase extends Component<Props, State> {
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('welcome.title')}</h2>} />
+
+                    {
+                        waitDialog && (
+                        <WaitDialog title={waitDialog.title}>
+                            {waitDialog.text}
+                        </WaitDialog>
+                        )
+                    }
 
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
