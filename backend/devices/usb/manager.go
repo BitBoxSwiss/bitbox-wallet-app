@@ -169,14 +169,13 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 		usbWriteReportSize = 4098
 		usbReadReportSize = 256
 	}
-	hmac := version.AtLeast(semver.NewSemVer(5, 0, 0))
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d, hmac=%v", usbWriteReportSize, usbReadReportSize, hmac)
+	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
 		version,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, hmac),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD),
 		manager.socksProxy,
 	)
 	if err != nil {
@@ -221,7 +220,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		version,
 		edition,
 		manager.bitbox02ConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, false),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD),
 	), nil
 }
 
@@ -253,7 +252,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 		deviceID,
 		version,
 		edition,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD, false),
+		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD),
 	), nil
 }
 

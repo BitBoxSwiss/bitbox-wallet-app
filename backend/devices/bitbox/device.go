@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"crypto/sha512"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -88,8 +87,8 @@ const (
 // CommunicationInterface contains functions needed to communicate with the device.
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
-	SendPlain(string) (map[string]interface{}, error)
-	SendEncrypt(string, string) (map[string]interface{}, error)
+	SendFrame(string) error
+	ReadFrame() ([]byte, error)
 	SendBootloader([]byte) ([]byte, error)
 	Close()
 }
@@ -114,8 +113,9 @@ type DeviceInfo struct {
 // Device provides the API to communicate with the digital bitbox.
 // It is not safe for concurrent use.
 type Device struct {
-	deviceID      string
-	communication CommunicationInterface
+	deviceID           string
+	communicationMutex sync.Mutex
+	communication      CommunicationInterface
 
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
@@ -304,16 +304,8 @@ func (dbb *Device) Close() {
 	dbb.closed = true
 }
 
-func (dbb *Device) sendPlain(key, val string) (map[string]interface{}, error) {
-	jsonText, err := json.Marshal(map[string]string{key: val})
-	if err != nil {
-		return nil, err
-	}
-	return dbb.communication.SendPlain(string(jsonText))
-}
-
 func (dbb *Device) send(value interface{}, pin string) (map[string]interface{}, error) {
-	return dbb.communication.SendEncrypt(string(jsonp.MustMarshal(value)), pin)
+	return dbb.sendEncrypt(string(jsonp.MustMarshal(value)), pin)
 }
 
 func (dbb *Device) sendKV(key, value, pin string) (map[string]interface{}, error) {

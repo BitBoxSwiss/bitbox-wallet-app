@@ -16,18 +16,11 @@ package usb
 
 import (
 	"bytes"
-	"crypto/sha512"
-	"encoding/base64"
 	"encoding/binary"
-	"encoding/json"
 	"io"
 	"runtime"
 	"sync"
-	"unicode"
 
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
@@ -53,19 +46,14 @@ type Communication struct {
 	usbWriteReportSize int
 	usbReadReportSize  int
 	usbCMD             byte
-	hmac               bool
 }
-
-// CommunicationErr is returned if there was an error with the device IO.
-type CommunicationErr error
 
 // NewCommunication creates a new Communication.
 func NewCommunication(
 	device io.ReadWriteCloser,
 	usbWriteReportSize,
 	usbReadReportSize int,
-	usbCMD byte,
-	hmac bool) *Communication {
+	usbCMD byte) *Communication {
 	return &Communication{
 		device:             device,
 		mutex:              sync.Mutex{},
@@ -73,7 +61,6 @@ func NewCommunication(
 		usbWriteReportSize: usbWriteReportSize,
 		usbReadReportSize:  usbReadReportSize,
 		usbCMD:             usbCMD,
-		hmac:               hmac,
 	}
 }
 
@@ -229,141 +216,4 @@ func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
 		read.Write(currentRead[:readLen])
 	}
 	return bytes.TrimRight(read.Bytes(), "\x00\t\r\n"), nil
-}
-
-func hideValues(cmd map[string]interface{}) {
-	for k, v := range cmd {
-		value, ok := v.(map[string]interface{})
-		if ok {
-			hideValues(value)
-		} else {
-			cmd[k] = "****"
-		}
-	}
-}
-
-func logCensoredCmd(log *logrus.Entry, msg string, receiving bool) error {
-	if logging.Get().Level >= logrus.DebugLevel {
-		cmd := map[string]interface{}{}
-		if err := json.Unmarshal([]byte(msg), &cmd); err != nil {
-			return errp.New("Failed to unmarshal message")
-		}
-		hideValues(cmd)
-		censoredMsg, err := json.Marshal(cmd)
-		if err != nil {
-			log.WithError(err).Error("Failed to censor message")
-		} else {
-			direction := "Sending"
-			if receiving {
-				direction = "Receiving"
-			}
-			log.WithField("msg", string(censoredMsg)).Infof("%s message", direction)
-		}
-	}
-	return nil
-}
-
-// SendPlain sends an unecrypted message. The response is json-deserialized into a map.
-func (communication *Communication) SendPlain(msg string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(communication.log, msg, false); err != nil {
-		communication.log.WithField("msg", msg).Debug("Sending (encrypted) command")
-	}
-	communication.mutex.Lock()
-	defer communication.mutex.Unlock()
-	if err := communication.sendFrame(msg); err != nil {
-		return nil, CommunicationErr(err)
-	}
-	reply, err := communication.readFrame()
-	if err != nil {
-		return nil, CommunicationErr(err)
-	}
-	reply = bytes.TrimRightFunc(reply, func(r rune) bool { return unicode.IsSpace(r) || r == 0 })
-	err = logCensoredCmd(communication.log, string(reply), true)
-	if err != nil {
-		return nil, errp.WithContext(err, errp.Context{"reply": string(reply)})
-	}
-	jsonResult := map[string]interface{}{}
-	if err := json.Unmarshal(reply, &jsonResult); err != nil {
-		return nil, errp.Wrap(err, "Failed to unmarshal reply")
-	}
-	if err := maybeDBBErr(jsonResult); err != nil {
-		return nil, err
-	}
-	return jsonResult, nil
-}
-
-func maybeDBBErr(jsonResult map[string]interface{}) error {
-	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
-		errMsg, ok := errMap["message"].(string)
-		if !ok {
-			return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"reply": errMap})
-		}
-		errCode, ok := errMap["code"].(float64)
-		if !ok {
-			return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"reply": errMap})
-		}
-		return bitbox.NewError(errMsg, errCode)
-	}
-	return nil
-}
-
-// SendEncrypt sends an encrypted message. The response is json-deserialized into a map. If the
-// response contains an error field, it is returned as a DBBErr.
-func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(communication.log, msg, false); err != nil {
-		return nil, errp.WithMessage(err, "Invalid JSON passed. Continuing anyway")
-	}
-	secret := chainhash.DoubleHashB([]byte(password))
-	h := sha512.Sum512(secret)
-	encKey, authKey := h[:32], h[32:]
-	var cipherText []byte
-	if communication.hmac {
-		var err error
-		cipherText, err = crypto.EncryptThenMAC([]byte(msg), encKey, authKey)
-		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to encrypt command")
-		}
-	} else {
-		var err error
-		cipherText, err = crypto.Encrypt([]byte(msg), secret)
-		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to encrypt command")
-		}
-	}
-	jsonResult, err := communication.SendPlain(base64.StdEncoding.EncodeToString(cipherText))
-	if err != nil {
-		return nil, errp.WithMessage(err, "Failed to send cipher text")
-	}
-	if cipherText, ok := jsonResult["ciphertext"].(string); ok {
-		decodedMsg, err := base64.StdEncoding.DecodeString(cipherText)
-		if err != nil {
-			return nil, errp.WithMessage(err, "Failed to decode reply")
-		}
-		var plainText []byte
-		if communication.hmac {
-			var err error
-			plainText, err = crypto.MACThenDecrypt(decodedMsg, encKey, authKey)
-			if err != nil {
-				return nil, errp.WithMessage(err, "Failed to decrypt reply")
-			}
-		} else {
-			var err error
-			plainText, err = crypto.Decrypt(decodedMsg, secret)
-			if err != nil {
-				return nil, errp.WithMessage(err, "Failed to decrypt reply")
-			}
-		}
-		err = logCensoredCmd(communication.log, string(plainText), true)
-		if err != nil {
-			return nil, errp.WithContext(err, errp.Context{"reply": string(plainText)})
-		}
-		jsonResult = map[string]interface{}{}
-		if err := json.Unmarshal(plainText, &jsonResult); err != nil {
-			return nil, errp.Wrap(err, "Failed to unmarshal reply")
-		}
-	}
-	if err := maybeDBBErr(jsonResult); err != nil {
-		return nil, err
-	}
-	return jsonResult, nil
 }
