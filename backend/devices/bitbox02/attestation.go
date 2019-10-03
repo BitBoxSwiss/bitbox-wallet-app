@@ -27,7 +27,7 @@ var attestationPubkeys = map[string]string{
 // Shift's root attestation pubkeys. Returns true if the verification is successful.
 func (device *Device) performAttestation() (bool, error) {
 	challenge := random.BytesOrPanic(32)
-	response, err := device.queryRaw(append([]byte(opAttestation), challenge...))
+	response, err := device.communication.Query(append([]byte(opAttestation), challenge...))
 	if err != nil {
 		return false, err
 	}

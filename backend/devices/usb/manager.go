@@ -25,6 +25,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/communication"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
@@ -160,23 +161,16 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	if bootloader && !version.AtLeast(semver.NewSemVer(3, 0, 0)) {
-		// Bootloader 3.0.0 changed to composite USB. Since then, the report lengths are 65/65,
-		// not 4099/256 (including report ID).  See dev->output_report_length at
-		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
-		usbWriteReportSize = 4098
-		usbReadReportSize = 256
-	}
-	hmac := version.AtLeast(semver.NewSemVer(5, 0, 0))
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d, hmac=%v", usbWriteReportSize, usbReadReportSize, hmac)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
 		version,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, hmac),
+		bitbox.NewCommunication(
+			hidDevice,
+			version,
+			manager.log,
+		),
 		manager.socksProxy,
 	)
 	if err != nil {
@@ -213,15 +207,12 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02.NewDevice(
 		deviceID,
 		version,
 		edition,
 		manager.bitbox02ConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD, false),
+		communication.NewCommunication(hidDevice, bitboxCMD),
 	), nil
 }
 
@@ -244,16 +235,11 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	manager.log.Infof(
-		"usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02bootloader.NewDevice(
 		deviceID,
 		version,
 		edition,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD, false),
+		communication.NewCommunication(hidDevice, bitbox02BootloaderCMD),
 	), nil
 }
 

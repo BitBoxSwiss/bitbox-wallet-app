@@ -62,7 +62,7 @@ const ProductName = "bitbox02-bootloader"
 // Communication contains functions needed to communicate with the device.
 type Communication interface {
 	SendFrame(string) error
-	ReadFrame() ([]byte, error)
+	Query([]byte) ([]byte, error)
 	Close()
 }
 
@@ -165,10 +165,7 @@ func (device *Device) query(cmd rune, data []byte) ([]byte, error) {
 	var buf bytes.Buffer
 	buf.WriteRune(cmd)
 	buf.Write(data)
-	if err := device.communication.SendFrame(buf.String()); err != nil {
-		return nil, err
-	}
-	reply, err := device.communication.ReadFrame()
+	reply, err := device.communication.Query(buf.Bytes())
 	if err != nil {
 		return nil, err
 	}

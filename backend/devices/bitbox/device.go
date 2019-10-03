@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"crypto/sha512"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -160,6 +159,7 @@ type Device struct {
 // NewDevice creates a new instance of Device.
 // bootloader enables the bootloader API and should be true only if the device is in bootloader mode.
 // communication is used for transporting messages to/from the device.
+// Use NewCommunication() for production.
 //
 // The channelConfigDir is the location of the channel settings file.
 // Callers can use util/config.AppDir to obtain user standard config dir.
@@ -177,6 +177,7 @@ func NewDevice(
 	if bootloader {
 		bootloaderStatus = &BootloaderStatus{}
 	}
+	log = log.WithField("deviceID", deviceID).WithField("productName", ProductName)
 	device := &Device{
 		socksProxy:       socksProxy,
 		deviceID:         deviceID,
@@ -186,7 +187,7 @@ func NewDevice(
 		closed:           false,
 		channel:          relay.NewChannelFromConfigFile(channelConfigDir, socksProxy),
 		channelConfigDir: channelConfigDir,
-		log:              log.WithField("deviceID", deviceID).WithField("productName", ProductName),
+		log:              log,
 	}
 
 	if device.channel != nil {
@@ -302,14 +303,6 @@ func (dbb *Device) Close() {
 	dbb.log.WithFields(logrus.Fields{"deviceID": dbb.deviceID}).Debug("Close connection")
 	dbb.communication.Close()
 	dbb.closed = true
-}
-
-func (dbb *Device) sendPlain(key, val string) (map[string]interface{}, error) {
-	jsonText, err := json.Marshal(map[string]string{key: val})
-	if err != nil {
-		return nil, err
-	}
-	return dbb.communication.SendPlain(string(jsonText))
 }
 
 func (dbb *Device) send(value interface{}, pin string) (map[string]interface{}, error) {

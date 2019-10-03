@@ -60,6 +60,7 @@ const ProductName = "bitbox02"
 type Communication interface {
 	SendFrame(string) error
 	ReadFrame() ([]byte, error)
+	Query([]byte) ([]byte, error)
 	Close()
 }
 
@@ -164,7 +165,7 @@ func (device *Device) init() error {
 		device.log.Infof("attestation check result: %v", attestation)
 
 		go func() {
-			_, err := device.queryRaw([]byte(opUnlock))
+			_, err := device.communication.Query([]byte(opUnlock))
 			if err != nil {
 				// Most likely the device has been unplugged.
 				device.log.WithError(err).Error(
@@ -208,7 +209,7 @@ func (device *Device) pair() {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err := device.queryRaw([]byte(opICanHasHandShaek))
+	responseBytes, err := device.communication.Query([]byte(opICanHasHandShaek))
 	if err != nil {
 		// Most likely the device has been unplugged.
 		device.log.WithError(err).Error(
@@ -223,7 +224,7 @@ func (device *Device) pair() {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.queryRaw(msg)
+	responseBytes, err = device.communication.Query(msg)
 	if err != nil {
 		// Most likely the device has been unplugged.
 		device.log.WithError(err).Error(
@@ -238,7 +239,7 @@ func (device *Device) pair() {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.queryRaw(msg)
+	responseBytes, err = device.communication.Query(msg)
 	if err != nil {
 		// Most likely the device has been unplugged.
 		device.log.WithError(err).Error(
@@ -363,13 +364,6 @@ func (device *Device) Close() {
 	device.communication.Close()
 }
 
-func (device *Device) queryRaw(request []byte) ([]byte, error) {
-	if err := device.communication.SendFrame(string(request)); err != nil {
-		return nil, err
-	}
-	return device.communication.ReadFrame()
-}
-
 func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if device.sendCipher == nil {
 		return nil, errp.New("handshake must come first")
@@ -382,7 +376,7 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
 		requestBytesEncrypted = append([]byte(opNoiseMsg), requestBytesEncrypted...)
 	}
-	responseBytes, err := device.queryRaw(requestBytesEncrypted)
+	responseBytes, err := device.communication.Query(requestBytesEncrypted)
 	if err != nil {
 		return nil, err
 	}
