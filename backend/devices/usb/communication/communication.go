@@ -21,8 +21,6 @@ import (
 	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -46,7 +44,6 @@ func newBuffer() *bytes.Buffer {
 type Communication struct {
 	device io.ReadWriteCloser
 	mutex  sync.Mutex
-	log    *logrus.Entry
 	usbCMD byte
 }
 
@@ -57,7 +54,6 @@ func NewCommunication(
 	return &Communication{
 		device: device,
 		mutex:  sync.Mutex{},
-		log:    logging.Get().WithGroup("usb"),
 		usbCMD: usbCMD,
 	}
 }
@@ -79,7 +75,6 @@ func (communication *Communication) Write(p []byte) (n int, err error) {
 // Close closes the underlying device.
 func (communication *Communication) Close() {
 	if err := communication.device.Close(); err != nil {
-		communication.log.WithError(err).Panic(err)
 		panic(err)
 	}
 }
