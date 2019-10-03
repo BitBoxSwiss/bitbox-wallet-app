@@ -81,12 +81,7 @@ func (dbb *Device) sendPlainMsg(msg string) (map[string]interface{}, error) {
 	if err := logCensoredCmd(dbb.log, msg, false); err != nil {
 		dbb.log.WithField("msg", msg).Debug("Sending (encrypted) command")
 	}
-	dbb.communicationMutex.Lock()
-	defer dbb.communicationMutex.Unlock()
-	if err := dbb.communication.SendFrame(msg); err != nil {
-		return nil, err
-	}
-	reply, err := dbb.communication.ReadFrame()
+	reply, err := dbb.communication.Query([]byte(msg))
 	if err != nil {
 		return nil, err
 	}

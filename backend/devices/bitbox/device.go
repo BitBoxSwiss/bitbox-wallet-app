@@ -89,8 +89,7 @@ const (
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
 	io.ReadWriter
-	SendFrame(string) error
-	ReadFrame() ([]byte, error)
+	Query([]byte) ([]byte, error)
 	Close()
 }
 

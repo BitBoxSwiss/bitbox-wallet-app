@@ -177,3 +177,13 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	}
 	return data.Bytes()[:dataLen], nil
 }
+
+// Query sends a request and returns for the response. Blocking.
+func (communication *Communication) Query(request []byte) ([]byte, error) {
+	communication.mutex.Lock()
+	defer communication.mutex.Unlock()
+	if err := communication.sendFrame(string(request)); err != nil {
+		return nil, err
+	}
+	return communication.readFrame()
+}
