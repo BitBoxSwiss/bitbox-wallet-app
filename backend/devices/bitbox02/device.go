@@ -94,7 +94,7 @@ type Device struct {
 	version *semver.SemVer
 	edition bitbox02common.Edition
 
-	configDir string
+	config *Config
 
 	attestation bool
 
@@ -134,7 +134,7 @@ func NewDevice(
 		communication: communication,
 		version:       version,
 		edition:       edition,
-		configDir:     configDir,
+		config:        NewConfig(configDir),
 		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -184,7 +184,7 @@ func (device *Device) init() error {
 
 func (device *Device) pair() {
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
-	keypair := device.configGetAppNoiseStaticKeypair()
+	keypair := device.config.GetAppNoiseStaticKeypair()
 	if keypair == nil {
 		device.log.Info("noise static keypair created")
 		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
@@ -192,7 +192,7 @@ func (device *Device) pair() {
 			panic(err)
 		}
 		keypair = &kp
-		if err := device.configSetAppNoiseStaticKeypair(keypair); err != nil {
+		if err := device.config.SetAppNoiseStaticKeypair(keypair); err != nil {
 			device.log.WithError(err).Error("could not store app noise static keypair")
 
 			// Not a critical error, ignore.
@@ -252,7 +252,7 @@ func (device *Device) pair() {
 		panic(errp.New("expected 32 byte remote static pubkey"))
 	}
 
-	pairingVerificationRequiredByApp := !device.configContainsDeviceStaticPubkey(
+	pairingVerificationRequiredByApp := !device.config.ContainsDeviceStaticPubkey(
 		device.deviceNoiseStaticPubkey)
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
@@ -619,7 +619,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	device.channelHashAppVerified = ok
 	if ok {
 		// No critical error, we will just need to re-confirm the pairing next time.
-		_ = device.configAddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
+		_ = device.config.AddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		requireUpgrade := false
 		switch device.edition {
 		case bitbox02common.EditionStandard:

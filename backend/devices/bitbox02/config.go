@@ -17,45 +17,60 @@ package bitbox02
 
 import (
 	"bytes"
+	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
+	fileconfig "github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/flynn/noise"
 )
 
 const configFilename = "bitbox02.json"
 
-type noiseKeypair struct {
+// NoiseKeypair holds a noise keypair.
+type NoiseKeypair struct {
 	Private []byte `json:"private"`
 	Public  []byte `json:"public"`
 }
 
-type configuration struct {
-	AppNoiseStaticKeypair    *noiseKeypair `json:"appNoiseStaticKeypair"`
+// ConfigData holds the persisted app configuration related to bitbox02 devices.
+type ConfigData struct {
+	AppNoiseStaticKeypair    *NoiseKeypair `json:"appNoiseStaticKeypair"`
 	DeviceNoiseStaticPubkeys [][]byte      `json:"deviceNoiseStaticPubkeys"`
 }
 
-func (device *Device) readConfig() *configuration {
-	configFile := config.NewFile(device.configDir, configFilename)
+// Config perists the bitbox02 related configuration in a file.
+type Config struct {
+	mu        sync.RWMutex
+	configDir string
+}
+
+// NewConfig creates a new Config instance. The config will be stored in the given location.
+func NewConfig(configDir string) *Config {
+	return &Config{configDir: configDir}
+}
+
+func (config *Config) readConfig() *ConfigData {
+	configFile := fileconfig.NewFile(config.configDir, configFilename)
 	if !configFile.Exists() {
-		return &configuration{}
+		return &ConfigData{}
 	}
-	var conf configuration
+	var conf ConfigData
 	if err := configFile.ReadJSON(&conf); err != nil {
-		return &configuration{}
+		return &ConfigData{}
 	}
 	return &conf
 }
 
-func (device *Device) storeConfig(conf *configuration) error {
-	configFile := config.NewFile(device.configDir, configFilename)
+func (config *Config) storeConfig(conf *ConfigData) error {
+	configFile := fileconfig.NewFile(config.configDir, configFilename)
 	return configFile.WriteJSON(conf)
 }
 
-func (device *Device) configContainsDeviceStaticPubkey(pubkey []byte) bool {
-	device.mu.RLock()
-	defer device.mu.RUnlock()
+// ContainsDeviceStaticPubkey Returns true if a device pubkey has been added before.
+func (config *Config) ContainsDeviceStaticPubkey(pubkey []byte) bool {
+	config.mu.RLock()
+	defer config.mu.RUnlock()
 
-	for _, configPubkey := range device.readConfig().DeviceNoiseStaticPubkeys {
+	for _, configPubkey := range config.readConfig().DeviceNoiseStaticPubkeys {
 		if bytes.Equal(configPubkey, pubkey) {
 			return true
 		}
@@ -63,25 +78,27 @@ func (device *Device) configContainsDeviceStaticPubkey(pubkey []byte) bool {
 	return false
 }
 
-func (device *Device) configAddDeviceStaticPubkey(pubkey []byte) error {
-	if device.configContainsDeviceStaticPubkey(pubkey) {
+// AddDeviceStaticPubkey adds a device pubkey.
+func (config *Config) AddDeviceStaticPubkey(pubkey []byte) error {
+	if config.ContainsDeviceStaticPubkey(pubkey) {
 		// Don't add again if already present.
 		return nil
 	}
 
-	device.mu.Lock()
-	defer device.mu.Unlock()
+	config.mu.Lock()
+	defer config.mu.Unlock()
 
-	config := device.readConfig()
-	config.DeviceNoiseStaticPubkeys = append(config.DeviceNoiseStaticPubkeys, pubkey)
-	return device.storeConfig(config)
+	configData := config.readConfig()
+	configData.DeviceNoiseStaticPubkeys = append(configData.DeviceNoiseStaticPubkeys, pubkey)
+	return config.storeConfig(configData)
 }
 
-func (device *Device) configGetAppNoiseStaticKeypair() *noise.DHKey {
-	device.mu.RLock()
-	defer device.mu.RUnlock()
+// GetAppNoiseStaticKeypair retrieves the app keypair.
+func (config *Config) GetAppNoiseStaticKeypair() *noise.DHKey {
+	config.mu.RLock()
+	defer config.mu.RUnlock()
 
-	key := device.readConfig().AppNoiseStaticKeypair
+	key := config.readConfig().AppNoiseStaticKeypair
 	if key == nil {
 		return nil
 	}
@@ -91,14 +108,15 @@ func (device *Device) configGetAppNoiseStaticKeypair() *noise.DHKey {
 	}
 }
 
-func (device *Device) configSetAppNoiseStaticKeypair(key *noise.DHKey) error {
-	device.mu.Lock()
-	defer device.mu.Unlock()
+// SetAppNoiseStaticKeypair stores the app keypair.
+func (config *Config) SetAppNoiseStaticKeypair(key *noise.DHKey) error {
+	config.mu.Lock()
+	defer config.mu.Unlock()
 
-	config := device.readConfig()
-	config.AppNoiseStaticKeypair = &noiseKeypair{
+	configData := config.readConfig()
+	configData.AppNoiseStaticKeypair = &NoiseKeypair{
 		Private: key.Private,
 		Public:  key.Public,
 	}
-	return device.storeConfig(config)
+	return config.storeConfig(configData)
 }
