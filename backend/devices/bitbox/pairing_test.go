@@ -59,7 +59,7 @@ func TestChannel(t *testing.T) {
 		panic("Cannot decode the testing authentication key!")
 	}
 
-	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey, socksproxy.SocksProxy{})
+	channel := relay.NewChannel(channelID, encryptionKey, authenticationKey, socksproxy.NewSocksProxy(false, ""))
 
 	assert.NoError(t, channel.SendPing())
 	assert.NoError(t, channel.WaitForPong(40*time.Second))
@@ -97,7 +97,7 @@ func TestFinishPairing(t *testing.T) {
 			dbb.onEvent = func(e device.Event, data interface{}) {
 				event = e
 			}
-			newChan := relay.NewChannelWithRandomKey(socksproxy.SocksProxy{})
+			newChan := relay.NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
 			communicationMock.On("SendEncrypt", `{"feature_set":{"pairing":true}}`, "").
 				Return(map[string]interface{}{"feature_set": "success"}, nil)
 			dbb.finishPairing(newChan)
@@ -111,7 +111,7 @@ func TestFinishPairing(t *testing.T) {
 			if !test.wantPaired {
 				return
 			}
-			storedChan := relay.NewChannelFromConfigFile(test.configDir, socksproxy.SocksProxy{})
+			storedChan := relay.NewChannelFromConfigFile(test.configDir, socksproxy.NewSocksProxy(false, ""))
 			if storedChan == nil {
 				t.Fatalf("relay.NewChannelFromConfigFile(%q) returned nil", test.configDir)
 			}
