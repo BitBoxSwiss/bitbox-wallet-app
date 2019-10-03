@@ -29,9 +29,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// CommunicationErr is returned if there was an error with the device IO.
-type CommunicationErr error
-
 func maybeDBBErr(jsonResult map[string]interface{}) error {
 	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
 		errMsg, ok := errMap["message"].(string)
@@ -87,11 +84,11 @@ func (dbb *Device) sendPlainMsg(msg string) (map[string]interface{}, error) {
 	dbb.communicationMutex.Lock()
 	defer dbb.communicationMutex.Unlock()
 	if err := dbb.communication.SendFrame(msg); err != nil {
-		return nil, CommunicationErr(err)
+		return nil, err
 	}
 	reply, err := dbb.communication.ReadFrame()
 	if err != nil {
-		return nil, CommunicationErr(err)
+		return nil, err
 	}
 	reply = bytes.TrimRightFunc(reply, func(r rune) bool { return unicode.IsSpace(r) || r == 0 })
 	err = logCensoredCmd(dbb.log, string(reply), true)
