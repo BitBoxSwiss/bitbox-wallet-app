@@ -19,15 +19,40 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"encoding/json"
+	"io"
+	"runtime"
 	"unicode"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/communication"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/sirupsen/logrus"
 )
+
+const bitboxCMD = 0x80 + 0x40 + 0x01
+
+// Communication implements CommunicationInterface.
+type Communication struct {
+	communication *communication.Communication
+	version       *semver.SemVer
+	log           *logrus.Entry
+}
+
+// NewCommunication creates a new Communication instance.
+func NewCommunication(
+	device io.ReadWriteCloser,
+	version *semver.SemVer,
+	log *logrus.Entry,
+) *Communication {
+	return &Communication{
+		communication: communication.NewCommunication(device, bitboxCMD),
+		version:       version,
+		log:           log,
+	}
+}
 
 func maybeDBBErr(jsonResult map[string]interface{}) error {
 	if errMap, ok := jsonResult["error"].(map[string]interface{}); ok {
@@ -76,17 +101,17 @@ func logCensoredCmd(log *logrus.Entry, msg string, receiving bool) error {
 	return nil
 }
 
-// sendPlain sends an unecrypted message. The response is json-deserialized into a map.
-func (dbb *Device) sendPlainMsg(msg string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(dbb.log, msg, false); err != nil {
-		dbb.log.WithField("msg", msg).Debug("Sending (encrypted) command")
+// SendPlain sends an unecrypted message. The response is json-deserialized into a map.
+func (communication *Communication) SendPlain(msg string) (map[string]interface{}, error) {
+	if err := logCensoredCmd(communication.log, msg, false); err != nil {
+		communication.log.WithField("msg", msg).Debug("Sending (encrypted) command")
 	}
-	reply, err := dbb.communication.Query([]byte(msg))
+	reply, err := communication.communication.Query([]byte(msg))
 	if err != nil {
 		return nil, err
 	}
 	reply = bytes.TrimRightFunc(reply, func(r rune) bool { return unicode.IsSpace(r) || r == 0 })
-	err = logCensoredCmd(dbb.log, string(reply), true)
+	err = logCensoredCmd(communication.log, string(reply), true)
 	if err != nil {
 		return nil, errp.WithContext(err, errp.Context{"reply": string(reply)})
 	}
@@ -105,13 +130,13 @@ func (dbb *Device) sendPlain(key, val string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return dbb.sendPlainMsg(string(jsonText))
+	return dbb.communication.SendPlain(string(jsonText))
 }
 
-// sendEncrypt sends an encrypted message. The response is json-deserialized into a map. If the
+// SendEncrypt sends an encrypted message. The response is json-deserialized into a map. If the
 // response contains an error field, it is returned as a DBBErr.
-func (dbb *Device) sendEncrypt(msg, password string) (map[string]interface{}, error) {
-	if err := logCensoredCmd(dbb.log, msg, false); err != nil {
+func (communication *Communication) SendEncrypt(msg, password string) (map[string]interface{}, error) {
+	if err := logCensoredCmd(communication.log, msg, false); err != nil {
 		return nil, errp.WithMessage(err, "Invalid JSON passed. Continuing anyway")
 	}
 	secret := chainhash.DoubleHashB([]byte(password))
@@ -119,7 +144,7 @@ func (dbb *Device) sendEncrypt(msg, password string) (map[string]interface{}, er
 	encKey, authKey := h[:32], h[32:]
 	var cipherText []byte
 
-	hmac := dbb.version.AtLeast(semver.NewSemVer(5, 0, 0))
+	hmac := communication.version.AtLeast(semver.NewSemVer(5, 0, 0))
 
 	if hmac {
 		var err error
@@ -134,7 +159,7 @@ func (dbb *Device) sendEncrypt(msg, password string) (map[string]interface{}, er
 			return nil, errp.WithMessage(err, "Failed to encrypt command")
 		}
 	}
-	jsonResult, err := dbb.sendPlainMsg(base64.StdEncoding.EncodeToString(cipherText))
+	jsonResult, err := communication.SendPlain(base64.StdEncoding.EncodeToString(cipherText))
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to send cipher text")
 	}
@@ -157,7 +182,7 @@ func (dbb *Device) sendEncrypt(msg, password string) (map[string]interface{}, er
 				return nil, errp.WithMessage(err, "Failed to decrypt reply")
 			}
 		}
-		err = logCensoredCmd(dbb.log, string(plainText), true)
+		err = logCensoredCmd(communication.log, string(plainText), true)
 		if err != nil {
 			return nil, errp.WithContext(err, errp.Context{"reply": string(plainText)})
 		}
@@ -170,4 +195,70 @@ func (dbb *Device) sendEncrypt(msg, password string) (map[string]interface{}, er
 		return nil, err
 	}
 	return jsonResult, nil
+}
+
+// SendBootloader sends a message in the format the bootloader expects and fetches the response.
+func (communication *Communication) SendBootloader(msg []byte) ([]byte, error) {
+	const (
+		// the bootloader expects 4098 bytes as one message.
+		sendLen = 4098
+		// the bootloader sends 256 bytes as a response.
+		readLen = 256
+	)
+
+	usbWriteReportSize := 64
+	usbReadReportSize := 64
+	if !communication.version.AtLeast(semver.NewSemVer(3, 0, 0)) {
+		// Bootloader 3.0.0 changed to composite USB. Since then, the report lengths are 65/65,
+		// not 4099/256 (including report ID).  See dev->output_report_length at
+		// https://github.com/signal11/hidapi/blob/a6a622ffb680c55da0de787ff93b80280498330f/windows/hid.c#L626
+		usbWriteReportSize = 4098
+		usbReadReportSize = 256
+	}
+
+	if len(msg) > sendLen {
+		communication.log.WithFields(logrus.Fields{"message-length": len(msg),
+			"max-send-length": sendLen}).Panic("Message too long")
+		panic("message too long")
+	}
+
+	paddedMsg := bytes.NewBuffer([]byte{})
+	paddedMsg.Write(msg)
+	paddedMsg.Write(bytes.Repeat([]byte{0}, sendLen-len(msg)))
+	// reset so we can read from it.
+	paddedMsg = bytes.NewBuffer(paddedMsg.Bytes())
+
+	written := 0
+	for written < sendLen {
+		chunk := paddedMsg.Next(usbWriteReportSize)
+		chunkLen := len(chunk)
+		if runtime.GOOS != "windows" {
+			// packets have a 0 byte report ID in front. The karalabe hid library adds it
+			// automatically for windows, and not for unix, as there, it is stripped by the signal11
+			// hid library.  Since we are padding with zeroes, we have to add it (to be stripped by
+			// signal11), as otherwise, it would strip our 0 byte that is just padding.
+			chunk = append([]byte{0}, chunk...)
+		}
+		_, err := communication.communication.Write(chunk)
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		written += chunkLen
+	}
+
+	read := bytes.NewBuffer([]byte{})
+	for read.Len() < readLen {
+		currentRead := make([]byte, usbReadReportSize)
+		readLen, err := communication.communication.Read(currentRead)
+		if err != nil {
+			return nil, errp.WithStack(err)
+		}
+		read.Write(currentRead[:readLen])
+	}
+	return bytes.TrimRight(read.Bytes(), "\x00\t\r\n"), nil
+}
+
+// Close implements CommunicationInterface.
+func (communication *Communication) Close() {
+	communication.communication.Close()
 }

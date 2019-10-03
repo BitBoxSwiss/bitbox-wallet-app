@@ -25,6 +25,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/communication"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
@@ -165,7 +166,11 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 		bootloader,
 		version,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, bitboxCMD),
+		bitbox.NewCommunication(
+			hidDevice,
+			version,
+			manager.log,
+		),
 		manager.socksProxy,
 	)
 	if err != nil {
@@ -207,7 +212,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		version,
 		edition,
 		manager.bitbox02ConfigDir,
-		NewCommunication(hidDevice, bitboxCMD),
+		communication.NewCommunication(hidDevice, bitboxCMD),
 	), nil
 }
 
@@ -230,12 +235,11 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-
 	return bitbox02bootloader.NewDevice(
 		deviceID,
 		version,
 		edition,
-		NewCommunication(hidDevice, bitbox02BootloaderCMD),
+		communication.NewCommunication(hidDevice, bitbox02BootloaderCMD),
 	), nil
 }
 

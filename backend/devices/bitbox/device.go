@@ -21,7 +21,6 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"io"
 	"math/big"
 	"regexp"
 	"sort"
@@ -88,8 +87,9 @@ const (
 // CommunicationInterface contains functions needed to communicate with the device.
 //go:generate mockery -name CommunicationInterface
 type CommunicationInterface interface {
-	io.ReadWriter
-	Query([]byte) ([]byte, error)
+	SendPlain(string) (map[string]interface{}, error)
+	SendEncrypt(string, string) (map[string]interface{}, error)
+	SendBootloader([]byte) ([]byte, error)
 	Close()
 }
 
@@ -113,9 +113,8 @@ type DeviceInfo struct {
 // Device provides the API to communicate with the digital bitbox.
 // It is not safe for concurrent use.
 type Device struct {
-	deviceID           string
-	communicationMutex sync.Mutex
-	communication      CommunicationInterface
+	deviceID      string
+	communication CommunicationInterface
 
 	// If set, the device is in bootloader mode.
 	bootloaderStatus *BootloaderStatus
@@ -160,6 +159,7 @@ type Device struct {
 // NewDevice creates a new instance of Device.
 // bootloader enables the bootloader API and should be true only if the device is in bootloader mode.
 // communication is used for transporting messages to/from the device.
+// Use NewCommunication() for production.
 //
 // The channelConfigDir is the location of the channel settings file.
 // Callers can use util/config.AppDir to obtain user standard config dir.
@@ -177,6 +177,7 @@ func NewDevice(
 	if bootloader {
 		bootloaderStatus = &BootloaderStatus{}
 	}
+	log = log.WithField("deviceID", deviceID).WithField("productName", ProductName)
 	device := &Device{
 		socksProxy:       socksProxy,
 		deviceID:         deviceID,
@@ -186,7 +187,7 @@ func NewDevice(
 		closed:           false,
 		channel:          relay.NewChannelFromConfigFile(channelConfigDir, socksProxy),
 		channelConfigDir: channelConfigDir,
-		log:              log.WithField("deviceID", deviceID).WithField("productName", ProductName),
+		log:              log,
 	}
 
 	if device.channel != nil {
@@ -305,7 +306,7 @@ func (dbb *Device) Close() {
 }
 
 func (dbb *Device) send(value interface{}, pin string) (map[string]interface{}, error) {
-	return dbb.sendEncrypt(string(jsonp.MustMarshal(value)), pin)
+	return dbb.communication.SendEncrypt(string(jsonp.MustMarshal(value)), pin)
 }
 
 func (dbb *Device) sendKV(key, value, pin string) (map[string]interface{}, error) {
