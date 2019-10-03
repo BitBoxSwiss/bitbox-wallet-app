@@ -15,13 +15,6 @@
 package bitbox02
 
 import (
-	"bytes"
-	"math/big"
-
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcutil/hdkeychain"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/golang/protobuf/proto"
@@ -70,35 +63,27 @@ func (device *Device) queryBtcSign(request proto.Message) (
 
 }
 
-// BTCSign signs a bitcoin or bitcoin-like transaction.
+// BTCSign signs a bitcoin or bitcoin-like transaction. Returns one 64 byte signature per input.
 func (device *Device) BTCSign(
-	btcProposedTx *btc.ProposedTransaction) ([]*btcec.Signature, error) {
-	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
-	tx := btcProposedTx.TXProposal.Transaction
-	signatures := make([]*btcec.Signature, len(tx.TxIn))
-	msgCoin, ok := btcMsgCoinMap[coin.Code()]
-	if !ok {
-		return nil, errp.Newf("coin not supported: %s", coin.Code())
-	}
-	scriptType := btcProposedTx.TXProposal.AccountConfiguration.ScriptType()
-	msgScriptType, ok := btcMsgScriptTypeMap[scriptType]
-	if !ok {
-		return nil, errp.Newf("Unsupported script type %s", scriptType)
-	}
-
-	// account #0
-	// TODO: check that all inputs and change are the same account, and use that one.
-	bip44Account := uint32(hdkeychain.HardenedKeyStart)
+	coin messages.BTCCoin,
+	scriptType messages.BTCScriptType,
+	bip44Account uint32,
+	inputs []*messages.BTCSignInputRequest,
+	outputs []*messages.BTCSignOutputRequest,
+	version uint32,
+	locktime uint32,
+) ([][]byte, error) {
+	signatures := make([][]byte, len(inputs))
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
-				Coin:         msgCoin,
-				ScriptType:   msgScriptType,
+				Coin:         coin,
+				ScriptType:   scriptType,
 				Bip44Account: bip44Account,
-				Version:      uint32(tx.Version),
-				NumInputs:    uint32(len(tx.TxIn)),
-				NumOutputs:   uint32(len(tx.TxOut)),
-				Locktime:     tx.LockTime,
+				Version:      version,
+				NumInputs:    uint32(len(inputs)),
+				NumOutputs:   uint32(len(outputs)),
+				Locktime:     locktime,
 			}}})
 	if err != nil {
 		return nil, err
@@ -107,61 +92,22 @@ func (device *Device) BTCSign(
 		switch next.Type {
 		case messages.BTCSignNextResponse_INPUT:
 			inputIndex := next.Index
-			txIn := tx.TxIn[inputIndex] // requested input
-			prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
-
 			next, err = device.queryBtcSign(&messages.Request{
 				Request: &messages.Request_BtcSignInput{
-					BtcSignInput: &messages.BTCSignInputRequest{
-						PrevOutHash:  txIn.PreviousOutPoint.Hash[:],
-						PrevOutIndex: txIn.PreviousOutPoint.Index,
-						PrevOutValue: uint64(prevOut.Value),
-						Sequence:     txIn.Sequence,
-						Keypath: btcProposedTx.GetAddress(prevOut.ScriptHashHex()).
-							Configuration.AbsoluteKeypath().ToUInt32(),
-					}}})
+					BtcSignInput: inputs[inputIndex],
+				}})
 			if err != nil {
 				return nil, err
 			}
 			if next.HasSignature {
-				sigR := big.NewInt(0).SetBytes(next.Signature[:32])
-				sigS := big.NewInt(0).SetBytes(next.Signature[32:])
-				signatures[inputIndex] = &btcec.Signature{
-					R: sigR,
-					S: sigS,
-				}
+				signatures[inputIndex] = next.Signature
 			}
 		case messages.BTCSignNextResponse_OUTPUT:
-			txOut := tx.TxOut[next.Index] // requested output
-			scriptClass, addresses, _, err := txscript.ExtractPkScriptAddrs(txOut.PkScript, coin.Net())
-			if err != nil {
-				return nil, errp.WithStack(err)
-			}
-			if len(addresses) != 1 {
-				return nil, errp.New("couldn't parse pkScript")
-			}
-			msgOutputType, ok := btcMsgOutputTypeMap[scriptClass]
-			if !ok {
-				return nil, errp.Newf("unsupported output type: %d", scriptClass)
-			}
-			changeAddress := btcProposedTx.TXProposal.ChangeAddress
-			isChange := changeAddress != nil && bytes.Equal(
-				changeAddress.PubkeyScript(),
-				txOut.PkScript,
-			)
-			var keypath []uint32
-			if isChange {
-				keypath = changeAddress.Configuration.AbsoluteKeypath().ToUInt32()
-			}
+			outputIndex := next.Index
 			next, err = device.queryBtcSign(&messages.Request{
 				Request: &messages.Request_BtcSignOutput{
-					BtcSignOutput: &messages.BTCSignOutputRequest{
-						Ours:    isChange,
-						Type:    msgOutputType,
-						Value:   uint64(txOut.Value),
-						Hash:    addresses[0].ScriptAddress(),
-						Keypath: keypath,
-					}}})
+					BtcSignOutput: outputs[outputIndex],
+				}})
 			if err != nil {
 				return nil, err
 			}

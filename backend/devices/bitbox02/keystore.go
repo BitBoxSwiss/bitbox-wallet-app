@@ -15,7 +15,12 @@
 package bitbox02
 
 import (
+	"bytes"
+	"math/big"
+
+	"github.com/btcsuite/btcd/btcec"
 	"github.com/btcsuite/btcd/chaincfg"
+	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
@@ -195,7 +200,75 @@ func (keystore *keystore) ExtendedPublicKey(
 }
 
 func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransaction) error {
-	signatures, err := keystore.device.BTCSign(btcProposedTx)
+	tx := btcProposedTx.TXProposal.Transaction
+
+	scriptType := btcProposedTx.TXProposal.AccountConfiguration.ScriptType()
+	msgScriptType, ok := btcMsgScriptTypeMap[scriptType]
+	if !ok {
+		return errp.Newf("Unsupported script type %s", scriptType)
+	}
+	coin := btcProposedTx.TXProposal.Coin.(*btc.Coin)
+	msgCoin, ok := btcMsgCoinMap[coin.Code()]
+	if !ok {
+		return errp.Newf("coin not supported: %s", coin.Code())
+	}
+
+	// account #0
+	// TODO: check that all inputs and change are the same account, and use that one.
+	bip44Account := uint32(hdkeychain.HardenedKeyStart)
+
+	inputs := make([]*messages.BTCSignInputRequest, len(tx.TxIn))
+	for inputIndex, txIn := range tx.TxIn {
+		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
+		inputs[inputIndex] = &messages.BTCSignInputRequest{
+			PrevOutHash:  txIn.PreviousOutPoint.Hash[:],
+			PrevOutIndex: txIn.PreviousOutPoint.Index,
+			PrevOutValue: uint64(prevOut.Value),
+			Sequence:     txIn.Sequence,
+			Keypath: btcProposedTx.GetAddress(prevOut.ScriptHashHex()).
+				Configuration.AbsoluteKeypath().ToUInt32(),
+		}
+	}
+	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
+	for index, txOut := range tx.TxOut {
+		scriptClass, addresses, _, err := txscript.ExtractPkScriptAddrs(txOut.PkScript, coin.Net())
+		if err != nil {
+			return errp.WithStack(err)
+		}
+		if len(addresses) != 1 {
+			return errp.New("couldn't parse pkScript")
+		}
+		msgOutputType, ok := btcMsgOutputTypeMap[scriptClass]
+		if !ok {
+			return errp.Newf("unsupported output type: %d", scriptClass)
+		}
+		changeAddress := btcProposedTx.TXProposal.ChangeAddress
+		isChange := changeAddress != nil && bytes.Equal(
+			changeAddress.PubkeyScript(),
+			txOut.PkScript,
+		)
+		var keypath []uint32
+		if isChange {
+			keypath = changeAddress.Configuration.AbsoluteKeypath().ToUInt32()
+		}
+		outputs[index] = &messages.BTCSignOutputRequest{
+			Ours:    isChange,
+			Type:    msgOutputType,
+			Value:   uint64(txOut.Value),
+			Hash:    addresses[0].ScriptAddress(),
+			Keypath: keypath,
+		}
+	}
+
+	signatures, err := keystore.device.BTCSign(
+		msgCoin,
+		msgScriptType,
+		bip44Account,
+		inputs,
+		outputs,
+		uint32(tx.Version),
+		tx.LockTime,
+	)
 	if isErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
@@ -203,8 +276,10 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return err
 	}
 	for index, signature := range signatures {
-		signature := signature
-		btcProposedTx.Signatures[index][keystore.CosignerIndex()] = signature
+		btcProposedTx.Signatures[index][keystore.CosignerIndex()] = &btcec.Signature{
+			R: big.NewInt(0).SetBytes(signature[:32]),
+			S: big.NewInt(0).SetBytes(signature[32:]),
+		}
 	}
 	return nil
 }
