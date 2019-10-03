@@ -87,10 +87,8 @@ export class SetDeviceName extends Component {
                             <div className="columnsContainer half">
                                 <div className="columns half">
                                     <div className="column">
-                                        <Input
-                                            label="Current Device Name"
-                                            disabled={true}
-                                            value={name} />
+                                        <label>Current Device Name</label>
+                                        <p className="m-bottom-half">{name}</p>
                                     </div>
                                     <div className="column">
                                         <Input
