@@ -64,6 +64,18 @@ type Communication interface {
 	Close()
 }
 
+// ConfigInterface lets the library client provide their own persisted config backend.
+type ConfigInterface interface {
+	// ContainsDeviceStaticPubkey returns true if a device pubkey has been added before.
+	ContainsDeviceStaticPubkey(pubkey []byte) bool
+	// AddDeviceStaticPubkey adds a device pubkey.
+	AddDeviceStaticPubkey(pubkey []byte) error
+	// GetAppNoiseStaticKeypair retrieves the app keypair. Returns nil if none has been set before.
+	GetAppNoiseStaticKeypair() *noise.DHKey
+	// SetAppNoiseStaticKeypair stores the app keypair. Overwrites keypair if one already exists.
+	SetAppNoiseStaticKeypair(key *noise.DHKey) error
+}
+
 const (
 	// EventChannelHashChanged is fired when the return values of ChannelHash() change.
 	EventChannelHashChanged device.Event = "channelHashChanged"
@@ -94,7 +106,7 @@ type Device struct {
 	version *semver.SemVer
 	edition bitbox02common.Edition
 
-	config *Config
+	config ConfigInterface
 
 	attestation bool
 
@@ -124,7 +136,7 @@ func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
-	configDir string,
+	config ConfigInterface,
 	communication Communication,
 ) *Device {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
@@ -134,7 +146,7 @@ func NewDevice(
 		communication: communication,
 		version:       version,
 		edition:       edition,
-		config:        NewConfig(configDir),
+		config:        config,
 		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}

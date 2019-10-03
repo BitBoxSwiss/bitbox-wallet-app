@@ -65,7 +65,7 @@ func (config *Config) storeConfig(conf *ConfigData) error {
 	return configFile.WriteJSON(conf)
 }
 
-// ContainsDeviceStaticPubkey Returns true if a device pubkey has been added before.
+// ContainsDeviceStaticPubkey implements ConfigurationInterface.
 func (config *Config) ContainsDeviceStaticPubkey(pubkey []byte) bool {
 	config.mu.RLock()
 	defer config.mu.RUnlock()
@@ -78,7 +78,7 @@ func (config *Config) ContainsDeviceStaticPubkey(pubkey []byte) bool {
 	return false
 }
 
-// AddDeviceStaticPubkey adds a device pubkey.
+// AddDeviceStaticPubkey implements ConfigurationInterface.
 func (config *Config) AddDeviceStaticPubkey(pubkey []byte) error {
 	if config.ContainsDeviceStaticPubkey(pubkey) {
 		// Don't add again if already present.
@@ -93,7 +93,7 @@ func (config *Config) AddDeviceStaticPubkey(pubkey []byte) error {
 	return config.storeConfig(configData)
 }
 
-// GetAppNoiseStaticKeypair retrieves the app keypair.
+// GetAppNoiseStaticKeypair implements ConfigurationInterface.
 func (config *Config) GetAppNoiseStaticKeypair() *noise.DHKey {
 	config.mu.RLock()
 	defer config.mu.RUnlock()
@@ -108,7 +108,7 @@ func (config *Config) GetAppNoiseStaticKeypair() *noise.DHKey {
 	}
 }
 
-// SetAppNoiseStaticKeypair stores the app keypair.
+// SetAppNoiseStaticKeypair implements ConfigurationInterface.
 func (config *Config) SetAppNoiseStaticKeypair(key *noise.DHKey) error {
 	config.mu.Lock()
 	defer config.mu.Unlock()
