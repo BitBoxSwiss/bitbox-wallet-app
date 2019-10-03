@@ -160,15 +160,12 @@ func (manager *Manager) makeBitBox(deviceInfo DeviceInfo) (*bitbox.Device, error
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	device, err := bitbox.NewDevice(
 		deviceID,
 		bootloader,
 		version,
 		manager.channelConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD),
+		NewCommunication(hidDevice, bitboxCMD),
 		manager.socksProxy,
 	)
 	if err != nil {
@@ -205,15 +202,12 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	manager.log.Infof("usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02.NewDevice(
 		deviceID,
 		version,
 		edition,
 		manager.bitbox02ConfigDir,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitboxCMD),
+		NewCommunication(hidDevice, bitboxCMD),
 	), nil
 }
 
@@ -237,15 +231,11 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 		return nil, errp.WithMessage(err, "Failed to open device")
 	}
 
-	usbWriteReportSize := 64
-	usbReadReportSize := 64
-	manager.log.Infof(
-		"usbWriteReportSize=%d, usbReadReportSize=%d", usbWriteReportSize, usbReadReportSize)
 	return bitbox02bootloader.NewDevice(
 		deviceID,
 		version,
 		edition,
-		NewCommunication(hidDevice, usbWriteReportSize, usbReadReportSize, bitbox02BootloaderCMD),
+		NewCommunication(hidDevice, bitbox02BootloaderCMD),
 	), nil
 }
 

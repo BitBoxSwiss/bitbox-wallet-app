@@ -26,6 +26,11 @@ import (
 )
 
 const (
+	usbWriteReportSize = 64
+	usbReadReportSize  = 64
+)
+
+const (
 	hwwCID = 0xff000000
 )
 
@@ -39,27 +44,21 @@ func newBuffer() *bytes.Buffer {
 // Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
 // as USB packets, following the ISO 7816-4 standard.
 type Communication struct {
-	device             io.ReadWriteCloser
-	mutex              sync.Mutex
-	log                *logrus.Entry
-	usbWriteReportSize int
-	usbReadReportSize  int
-	usbCMD             byte
+	device io.ReadWriteCloser
+	mutex  sync.Mutex
+	log    *logrus.Entry
+	usbCMD byte
 }
 
 // NewCommunication creates a new Communication.
 func NewCommunication(
 	device io.ReadWriteCloser,
-	usbWriteReportSize,
-	usbReadReportSize int,
 	usbCMD byte) *Communication {
 	return &Communication{
-		device:             device,
-		mutex:              sync.Mutex{},
-		log:                logging.Get().WithGroup("usb"),
-		usbWriteReportSize: usbWriteReportSize,
-		usbReadReportSize:  usbReadReportSize,
-		usbCMD:             usbCMD,
+		device: device,
+		mutex:  sync.Mutex{},
+		log:    logging.Get().WithGroup("usb"),
+		usbCMD: usbCMD,
 	}
 }
 
@@ -100,8 +99,8 @@ func (communication *Communication) sendFrame(msg string) error {
 	send := func(header []byte, readFrom *bytes.Buffer) error {
 		buf := newBuffer()
 		buf.Write(header)
-		buf.Write(readFrom.Next(communication.usbWriteReportSize - buf.Len()))
-		for buf.Len() < communication.usbWriteReportSize {
+		buf.Write(readFrom.Next(usbWriteReportSize - buf.Len()))
+		for buf.Len() < usbWriteReportSize {
 			buf.WriteByte(0xee)
 		}
 		x := buf.Bytes() // needs to be in a var: https://github.com/golang/go/issues/14210#issuecomment-346402945
@@ -147,7 +146,7 @@ func (communication *Communication) ReadFrame() ([]byte, error) {
 }
 
 func (communication *Communication) readFrame() ([]byte, error) {
-	read := make([]byte, communication.usbReadReportSize)
+	read := make([]byte, usbReadReportSize)
 	readLen, err := communication.device.Read(read)
 	if err != nil {
 		return nil, errp.WithStack(err)
