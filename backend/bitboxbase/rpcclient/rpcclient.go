@@ -273,39 +273,6 @@ func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswo
 	return reply, nil
 }
 
-// GetHostname makes a synchronous rpc call to the base and returns a GetHostnameResponse indicating if the called script was successfully executed.
-func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, error) {
-	rpcClient.log.Println("Executing GetHostname rpc call")
-	var reply rpcmessages.GetHostnameResponse
-	err := rpcClient.client.Call("RPCServer.GetHostname", true /*dummy Arg */, &reply)
-	if err != nil {
-		return rpcmessages.GetHostnameResponse{}, errp.WithStack(err)
-	}
-	return reply, nil
-}
-
-// MountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
-func (rpcClient *RPCClient) MountFlashdrive() (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Println("Executing MountFlashdrive rpc call")
-	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.MountFlashdrive", true /*dummy Arg */, &reply)
-	if err != nil {
-		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
-	}
-	return reply, nil
-}
-
-// UnmountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
-func (rpcClient *RPCClient) UnmountFlashdrive() (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Println("Executing UnmountFlashdrive rpc call")
-	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.UnmountFlashdrive", true /*dummy Arg */, &reply)
-	if err != nil {
-		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
-	}
-	return reply, nil
-}
-
 // BackupSysconfig makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
 func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing BackupSysconfig rpc call")
@@ -344,6 +311,105 @@ func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error
 	rpcClient.log.Println("Executing RestoreHSMSecret rpc call")
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableTorTor: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableTor", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableTorMiddleware: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableTorMiddleware", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableTorElectrs: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableTorElectrs", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableTorSSH: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableTorSSH", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableClearnetIBD: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableClearnetIBD", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingEnable/Disable
+func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableRootLogin: %t' rpc call\n", toggleAction)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableRootLogin", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// SetRootPassword makes an rpc call to BitBoxBase that sets the systems root password
+func (rpcClient *RPCClient) SetRootPassword(args rpcmessages.SetRootPasswordArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing SetRootPassword rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.SetRootPassword", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// ShutdownBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `shutdown now`
+func (rpcClient *RPCClient) ShutdownBase() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing ShutdownBase rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.ShutdownBase", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// RebootBase makes an rpc call to BitBoxBase that calls the bbb-cmd.sh script which initiates a `reboot`
+func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing RebootBase rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.RebootBase", true /*dummy Arg */, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}

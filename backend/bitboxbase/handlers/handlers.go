@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-//Base models the api of the base middleware
+// Base models the api of the base middleware
 type Base interface {
 	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
@@ -35,16 +35,22 @@ type Base interface {
 	Deregister() error
 	ReindexBitcoin() error
 	ResyncBitcoin() error
-	GetHostname() (string, error)
 	SetHostname(string) error
 	UserAuthenticate(string, string) error
 	UserChangePassword(string, string) error
-	MountFlashdrive() error
-	UnmountFlashdrive() error
 	BackupSysconfig() error
 	BackupHSMSecret() error
 	RestoreSysconfig() error
 	RestoreHSMSecret() error
+	EnableTor(rpcmessages.ToggleSetting) error
+	EnableTorMiddleware(rpcmessages.ToggleSetting) error
+	EnableTorElectrs(rpcmessages.ToggleSetting) error
+	EnableTorSSH(rpcmessages.ToggleSetting) error
+	EnableClearnetIBD(rpcmessages.ToggleSetting) error
+	EnableRootLogin(rpcmessages.ToggleSetting) error
+	SetRootPassword(string) error
+	ShutdownBase() error
+	RebootBase() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -61,13 +67,9 @@ func NewHandlers(
 	handlers := &Handlers{log: log.WithField("bitboxbase", "base")}
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
-	handleFunc("/gethostname", handlers.getHostnameHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/middlewareinfo", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verificationprogress", handlers.getVerificationProgressHandler).Methods("GET")
-
-	handleFunc("/mountflashdrive", handlers.postMountFlashdriveHandler).Methods("POST")
-	handleFunc("/unmountflashdrive", handlers.postUnmountFlashdriveHandler).Methods("POST")
 	handleFunc("/backupsysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backuphsmsecret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restoresysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -79,6 +81,15 @@ func NewHandlers(
 	handleFunc("/sethostname", handlers.postSetHostname).Methods("POST")
 	handleFunc("/disconnect", handlers.postDisconnectBaseHandler).Methods("POST")
 	handleFunc("/connect-electrum", handlers.postConnectElectrumHandler).Methods("POST")
+	handleFunc("/enable-tor", handlers.postEnableTorHandler).Methods("POST")
+	handleFunc("/enable-tor-middleware", handlers.postEnableTorMiddlewareHandler).Methods("POST")
+	handleFunc("/enable-tor-electrs", handlers.postEnableTorElectrsHandler).Methods("POST")
+	handleFunc("/enable-tor-ssh", handlers.postEnableTorSSHHandler).Methods("POST")
+	handleFunc("/enable-clearnet-ibd", handlers.postEnableClearnetIBDHandler).Methods("POST")
+	handleFunc("/enable-root-login", handlers.postEnableRootLoginHandler).Methods("POST")
+	handleFunc("/set-root-password", handlers.postSetRootPasswordHandler).Methods("POST")
+	handleFunc("/shutdown-base", handlers.postShutdownBaseHandler).Methods("POST")
+	handleFunc("/reboot-base", handlers.postRebootBaseHandler).Methods("POST")
 
 	return handlers
 }
@@ -107,6 +118,8 @@ func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
 	}
 	return map[string]interface{}{
 		"success": false,
+		"code":    "UNEXPECTED_ERROR",
+		"message": err.Error,
 	}
 }
 
@@ -143,40 +156,6 @@ func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}
 	return map[string]interface{}{
 		"success":        true,
 		"middlewareInfo": middlewareInfo,
-	}, nil
-}
-
-func (handlers *Handlers) getHostnameHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("getHostnameHandler")
-	hostname, err := handlers.base.GetHostname()
-	if err != nil {
-		return bbBaseError(err, handlers.log), err
-	}
-	return map[string]interface{}{
-		"success":  true,
-		"hostname": hostname,
-	}, nil
-}
-
-func (handlers *Handlers) postMountFlashdriveHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("postMountFlashdriveHandler")
-	err := handlers.base.MountFlashdrive()
-	if err != nil {
-		return bbBaseError(err, handlers.log), err
-	}
-	return map[string]interface{}{
-		"success": true,
-	}, nil
-}
-
-func (handlers *Handlers) postUnmountFlashdriveHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("postUnmountFlashdriveHandler")
-	err := handlers.base.UnmountFlashdrive()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-	return map[string]interface{}{
-		"success": true,
 	}, nil
 }
 
@@ -311,6 +290,130 @@ func (handlers *Handlers) postResyncBitcoinHandler(_ *http.Request) (interface{}
 func (handlers *Handlers) postReindexBitcoinHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("postReindexBitcoinHandler")
 	err := handlers.base.ReindexBitcoin()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableTorHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable Tor")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableTor(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableTorMiddlewareHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable Tor for middleware")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableTorMiddleware(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableTorElectrsHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable Tor for electrs")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableTorElectrs(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableTorSSHHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable Tor for SSH")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableTorSSH(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableClearnetIBDHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable clearnet for IBD")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableClearnetIBD(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postEnableRootLoginHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable root login")
+	var toggleAction rpcmessages.ToggleSetting
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	if err := handlers.base.EnableRootLogin(toggleAction); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postSetRootPasswordHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Set root password")
+	payload := struct {
+		Password string `json:"password"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	err := handlers.base.SetRootPassword(payload.Password)
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postShutdownBaseHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Shutdown Base")
+	err := handlers.base.ShutdownBase()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postRebootBaseHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Reboot Base")
+	err := handlers.base.RebootBase()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}

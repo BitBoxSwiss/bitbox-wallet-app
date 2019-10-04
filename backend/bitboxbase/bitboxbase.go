@@ -79,9 +79,6 @@ type Interface interface {
 	// ResyncBitcoin starts a bitcoin resync on the base.
 	ResyncBitcoin() error
 
-	// GetHostname returns the hostname of the BitBox Base
-	GetHostname() (string, error)
-
 	// SetHostname sets the hostname of the BitBox Base
 	SetHostname(string) error
 
@@ -93,16 +90,10 @@ type Interface interface {
 	// TODO: this is a dummy
 	UserAuthenticate(string, string) error
 
-	// MountFlashdrive checks for a flashdrive and then mounts it
-	MountFlashdrive() error
-
-	// UnmountFlashdrive unmounts a mounted flashdrive
-	UnmountFlashdrive() error
-
-	// BackupSysconfig backups the system config to the flashdrive
+	// BackupSysconfig backs up the system config to the flashdrive
 	BackupSysconfig() error
 
-	// BackupHSMSecret backups the lightning hsm_secret
+	// BackupHSMSecret backs up the lightning hsm_secret
 	BackupHSMSecret() error
 
 	// RestoreSysconfig restores the system config from the flashdrive
@@ -110,6 +101,33 @@ type Interface interface {
 
 	// RestoreHSMSecret restores the lightning hsm_secret
 	RestoreHSMSecret() error
+
+	// EnableTor enables/disables Tor
+	EnableTor(rpcmessages.ToggleSetting) error
+
+	// EnableTorMiddleware enables/disables Tor for the middleware
+	EnableTorMiddleware(rpcmessages.ToggleSetting) error
+
+	// EnableTorElectrs enables/disables Tor for electrs
+	EnableTorElectrs(rpcmessages.ToggleSetting) error
+
+	// EnableTorSSH enables/disables Tor for SSH
+	EnableTorSSH(rpcmessages.ToggleSetting) error
+
+	// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD
+	EnableClearnetIBD(rpcmessages.ToggleSetting) error
+
+	// EnableRootLogin enables/disables login via the root user/password
+	EnableRootLogin(rpcmessages.ToggleSetting) error
+
+	// SetRootPassword sets the systems root password
+	SetRootPassword(string) error
+
+	// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
+	ShutdownBase() error
+
+	// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
+	RebootBase() error
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -292,7 +310,6 @@ func (base *BitBoxBase) ReindexBitcoin() error {
 	}
 	base.log.Println("bitboxbase is making a ReindexBitcoin call")
 	reply, err := base.rpcClient.ReindexBitcoin()
-	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
 		return err
 	}
@@ -309,7 +326,6 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 	}
 	base.log.Println("bitboxbase is making a ResyncBitcoin call")
 	reply, err := base.rpcClient.ResyncBitcoin()
-	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	if err != nil {
 		return err
 	}
@@ -317,22 +333,6 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 		return &reply
 	}
 	return nil
-}
-
-// GetHostname returns the hostname of the bitboxbase
-func (base *BitBoxBase) GetHostname() (hostname string, err error) {
-	if !base.active {
-		return "", errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a GetHostname call")
-	reply, err := base.rpcClient.GetHostname()
-	if err != nil {
-		return "", err
-	}
-	if !reply.ErrorResponse.Success {
-		return "", reply.ErrorResponse
-	}
-	return reply.Hostname, nil
 }
 
 // SetHostname sets the hostname of the bitboxbase
@@ -388,44 +388,12 @@ func (base *BitBoxBase) UserChangePassword(username string, newPassword string) 
 	return nil
 }
 
-// MountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) MountFlashdrive() error {
-	if !base.active {
-		return errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a MountFlashdrive call")
-	reply, err := base.rpcClient.MountFlashdrive()
-	if err != nil {
-		return err
-	}
-	if !reply.Success {
-		return &reply
-	}
-	return nil
-}
-
-// UnmountFlashdrive checks for and then mounts a flashdrive
-func (base *BitBoxBase) UnmountFlashdrive() error {
-	if !base.active {
-		return errp.New("Attempted a call to non-active base")
-	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
-	reply, err := base.rpcClient.UnmountFlashdrive()
-	if err != nil {
-		return err
-	}
-	if !reply.Success {
-		return &reply
-	}
-	return nil
-}
-
-// BackupSysconfig checks for and then mounts a flashdrive
+// BackupSysconfig backs up the system config to the flashdrive
 func (base *BitBoxBase) BackupSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a BackupSysconfig call")
 	reply, err := base.rpcClient.BackupSysconfig()
 	if err != nil {
 		return err
@@ -436,12 +404,12 @@ func (base *BitBoxBase) BackupSysconfig() error {
 	return nil
 }
 
-// BackupHSMSecret checks for and then mounts a flashdrive
+// BackupHSMSecret backs up the lightning hsm_secret
 func (base *BitBoxBase) BackupHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a BackupHSMSecret call")
 	reply, err := base.rpcClient.BackupHSMSecret()
 	if err != nil {
 		return err
@@ -452,12 +420,12 @@ func (base *BitBoxBase) BackupHSMSecret() error {
 	return nil
 }
 
-// RestoreHSMSecret checks for and then mounts a flashdrive
+// RestoreHSMSecret restores the lightning hsm_secret
 func (base *BitBoxBase) RestoreHSMSecret() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a RestoreHSMSecret call")
 	reply, err := base.rpcClient.RestoreHSMSecret()
 	if err != nil {
 		return err
@@ -468,13 +436,163 @@ func (base *BitBoxBase) RestoreHSMSecret() error {
 	return nil
 }
 
-// RestoreSysconfig checks for and then mounts a flashdrive
+// RestoreSysconfig restores the system config from the flashdrive
 func (base *BitBoxBase) RestoreSysconfig() error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Println("bitboxbase is making a UnmountFlashdrive call")
+	base.log.Println("bitboxbase is making a RestoreSysconfig call")
 	reply, err := base.rpcClient.RestoreSysconfig()
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableTor enables/disables Tor with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Printf("bitboxbase is making a 'set EnableTor: %t' call\n", toggleAction)
+
+	reply, err := base.rpcClient.EnableTor(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableTorMiddleware enables/disables Tor for the middleware with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableTorMiddleware: %t' call\n", toggleAction)
+	reply, err := base.rpcClient.EnableTorMiddleware(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableTorElectrs enables/disables Tor for electrs with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableTorElectrs: %t' call\n", toggleAction)
+	reply, err := base.rpcClient.EnableTorElectrs(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableTorSSH enables/disables Tor for SSH with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableTorSSH for SSH: %t' call\n", toggleAction)
+	reply, err := base.rpcClient.EnableTorSSH(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableClearnetIBD: %t' call\n", toggleAction)
+	reply, err := base.rpcClient.EnableClearnetIBD(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// EnableRootLogin enables/disables login via the root user/password with rpcmessages.ToggleSettingEnable/Disable
+func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSetting) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableRootLogin: %t' call\n", toggleAction)
+	reply, err := base.rpcClient.EnableRootLogin(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// SetRootPassword sets the systems root password
+func (base *BitBoxBase) SetRootPassword(password string) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a SetRootPassword call")
+	reply, err := base.rpcClient.SetRootPassword(rpcmessages.SetRootPasswordArgs{RootPassword: password})
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
+func (base *BitBoxBase) ShutdownBase() error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a ShutdownBase call")
+	reply, err := base.rpcClient.ShutdownBase()
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
+func (base *BitBoxBase) RebootBase() error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a RebootBase call")
+	reply, err := base.rpcClient.RebootBase()
 	if err != nil {
 		return err
 	}

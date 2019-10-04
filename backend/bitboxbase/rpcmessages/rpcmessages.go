@@ -35,6 +35,14 @@ type SetHostnameArgs struct {
 	Hostname string
 }
 
+// SetRootPasswordArgs is a struct that holds the to be set root password
+type SetRootPasswordArgs struct {
+	RootPassword string
+}
+
+// ToggleSetting is a generic message for settings that can be enabled or disabled
+type ToggleSetting bool
+
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.
 */
@@ -57,12 +65,6 @@ type VerificationProgressResponse struct {
 	Blocks               int64   `json:"blocks"`
 	Headers              int64   `json:"headers"`
 	VerificationProgress float64 `json:"verificationProgress"`
-}
-
-// GetHostnameResponse is the struct that get sent by the rpc server during a GetHostname rpc call
-type GetHostnameResponse struct {
-	ErrorResponse *ErrorResponse
-	Hostname      string
 }
 
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
