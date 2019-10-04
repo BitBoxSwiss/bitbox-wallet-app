@@ -69,15 +69,46 @@ type VerificationProgressResponse struct {
 	VerificationProgress float64 `json:"verificationProgress"`
 }
 
+// GetBaseInfoResponse is the struct that get sent by the rpc server during a GetBaseInfo rpc call
+type GetBaseInfoResponse struct {
+	ErrorResponse       *ErrorResponse
+	Status              string
+	Hostname            string
+	MiddlewareLocalIP   string
+	MiddlewareLocalPort string
+	MiddlewareTorOnion  string
+	MiddlewareTorPort   string
+	IsTorEnabled        bool
+	IsBitcoindListening bool
+	FreeDiskspace       int64 // in Byte
+	TotalDiskspace      int64 // in Byte
+	BaseVersion         string
+	BitcoindVersion     string
+	LightningdVersion   string
+	ElectrsVersion      string
+}
+
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
 // It can be embedded into other RPC responses that return values.
 // In any case the ErrorResponse should be checked first, so that, if an error is returned, we ignore everything else in the response.
 type ErrorResponse struct {
 	Success bool
-	Code    string
+	Code    ErrorCode
 	Message string
 }
 
+// Error formats the ErrorResponse in the following two formats:
+// If no error occoured:
+//  ErrorResponse: Success: true
+//
+// If an error occoured:
+// 	ErrorResponse:
+// 		Success: false
+// 		Code: <ERROR_CODE>
+//		Message: <message>
 func (err *ErrorResponse) Error() string {
-	return fmt.Sprintf("bbBaseError: Code: %s | Message: %s", err.Code, err.Message)
+	if err.Success {
+		return fmt.Sprintf("ErrorResponse: Success: %t \n", err.Success)
+	}
+	return fmt.Sprintf("ErrorResponse:\n\tSuccess: %t \n\tCode: %s \n\tMessage: %s\n", err.Success, err.Code, err.Message)
 }

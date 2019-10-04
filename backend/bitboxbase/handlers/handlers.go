@@ -51,6 +51,7 @@ type Base interface {
 	SetRootPassword(string) error
 	ShutdownBase() error
 	RebootBase() error
+	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -70,6 +71,7 @@ func NewHandlers(
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/middleware-info", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verification-progress", handlers.getVerificationProgressHandler).Methods("GET")
+	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -425,5 +427,17 @@ func (handlers *Handlers) postRebootBaseHandler(_ *http.Request) (interface{}, e
 	}
 	return map[string]interface{}{
 		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) getBaseInfoHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Base Info")
+	baseInfo, err := handlers.base.BaseInfo()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":  true,
+		"baseInfo": baseInfo,
 	}, nil
 }

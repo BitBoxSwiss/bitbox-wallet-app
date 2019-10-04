@@ -128,6 +128,9 @@ type Interface interface {
 
 	// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
 	RebootBase() error
+
+	// BaseInfo returns information about the Base
+	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -601,6 +604,22 @@ func (base *BitBoxBase) RebootBase() error {
 		return &reply
 	}
 	return nil
+}
+
+// BaseInfo returns info about the Base contained in rpcmessages.GetBaseInfoResponse
+func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
+	if !base.active {
+		return rpcmessages.GetBaseInfoResponse{}, errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a GetBaseInfo call")
+	reply, err := base.rpcClient.GetBaseInfo()
+	if err != nil {
+		return rpcmessages.GetBaseInfoResponse{}, err
+	}
+	if !reply.ErrorResponse.Success {
+		return rpcmessages.GetBaseInfoResponse{}, reply.ErrorResponse
+	}
+	return reply, nil
 }
 
 // Identifier implements a getter for the bitboxBase ID
