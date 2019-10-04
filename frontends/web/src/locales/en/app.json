@@ -134,6 +134,7 @@
   },
   "bitbox02Settings": {
     "deviceName": {
+      "current": "Current Device Name",
       "input": "BitBox02 Name",
       "title": "Set BitBox02 name"
     },

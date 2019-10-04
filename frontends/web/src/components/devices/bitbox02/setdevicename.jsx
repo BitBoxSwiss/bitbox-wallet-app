@@ -87,7 +87,7 @@ export class SetDeviceName extends Component {
                             <div className="columnsContainer half">
                                 <div className="columns half">
                                     <div className="column">
-                                        <label>Current Device Name</label>
+                                        <label>{t('bitbox02Settings.deviceName.current')}</label>
                                         <p className="m-bottom-half">{name}</p>
                                     </div>
                                     <div className="column">
