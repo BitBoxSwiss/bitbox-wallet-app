@@ -25,7 +25,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
@@ -370,7 +370,7 @@ func (s *dbbTestSuite) TestDeviceClose() {
 func (s *dbbTestSuite) TestDeviceStatusEvent() {
 	s.dbb.onStatusChanged() // just make sure it doesn't block or panic
 	var fired, seen bool
-	s.dbb.SetOnEvent(func(e device.Event, data interface{}) {
+	s.dbb.SetOnEvent(func(e event.Event, data interface{}) {
 		fired = true
 		if !seen && e == EventStatusChanged {
 			seen = true

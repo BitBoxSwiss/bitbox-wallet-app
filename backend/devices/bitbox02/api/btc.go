@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bitbox02
+package api
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/golang/protobuf/proto"
 )

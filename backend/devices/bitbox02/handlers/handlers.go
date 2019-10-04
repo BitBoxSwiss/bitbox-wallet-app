@@ -20,8 +20,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -33,15 +33,15 @@ import (
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
 	Version() *semver.SemVer
-	Status() bitbox02.Status
+	Status() api.Status
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
 	ChannelHashVerify(ok bool)
-	DeviceInfo() (*bitbox02.DeviceInfo, error)
+	DeviceInfo() (*api.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
-	ListBackups() ([]*bitbox02.Backup, error)
+	ListBackups() ([]*api.Backup, error)
 	CheckBackup(bool) (string, error)
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
@@ -108,7 +108,7 @@ func (handlers *Handlers) Uninit() {
 func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
 	result := map[string]interface{}{"success": false}
 
-	if bb02Error, ok := errp.Cause(err).(*bitbox02.Error); ok {
+	if bb02Error, ok := errp.Cause(err).(*api.Error); ok {
 		result["code"] = bb02Error.Code
 		result["message"] = bb02Error.Message
 		log.WithField("bitbox02-error", bb02Error.Code).Warning("Received an error from Bitbox02")

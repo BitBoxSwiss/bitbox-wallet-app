@@ -27,7 +27,8 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -51,13 +52,13 @@ func (keystore *keystore) SupportsAccount(
 	coin coin.Coin, multisig bool, meta interface{}) bool {
 	switch coin.(type) {
 	case *btc.Coin:
-		if (coin.Code() == "ltc" || coin.Code() == "tltc") && !keystore.device.supportsLTC() {
+		if (coin.Code() == "ltc" || coin.Code() == "tltc") && !keystore.device.SupportsLTC() {
 			return false
 		}
 		scriptType := meta.(signing.ScriptType)
 		return !multisig && scriptType != signing.ScriptTypeP2PKH
 	case *eth.Coin:
-		return keystore.device.supportsETH(coin.Code())
+		return keystore.device.SupportsETH(coin.Code())
 	default:
 		return false
 	}
@@ -269,7 +270,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		uint32(tx.Version),
 		tx.LockTime,
 	)
-	if isErrorAbort(err) {
+	if api.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
 	if err != nil {
@@ -304,7 +305,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 		tx.Value(),
 		tx.Data(),
 	)
-	if isErrorAbort(err) {
+	if api.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
 	if err != nil {
