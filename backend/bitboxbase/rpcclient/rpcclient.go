@@ -91,7 +91,7 @@ type RPCClient struct {
 	sendCipher, receiveCipher     *noise.CipherState
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
-	onUnregister                  func() (bool, error)
+	onUnregister                  func() error
 
 	//rpc stuff
 	client        *rpc.Client
@@ -103,7 +103,7 @@ func NewRPCClient(address string,
 	bitboxBaseConfigDir string,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
-	onUnregister func() (bool, error)) (*RPCClient, error) {
+	onUnregister func() error) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -189,8 +189,7 @@ func (rpcClient *RPCClient) Stop() {
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
 func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	var reply rpcmessages.GetEnvResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetSystemEnv", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSystemEnv", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
 		return reply, err
@@ -201,8 +200,7 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 // GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
 func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
 	var reply rpcmessages.SampleInfoResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetSampleInfo", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSampleInfo", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
 		return reply, err
@@ -213,24 +211,141 @@ func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, err
 // GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
 func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
 	var reply rpcmessages.VerificationProgressResponse
-	request := 1
-	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", request, &reply)
+	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("VerificationProgress RPC call failed")
-		return reply, err
+		return rpcmessages.VerificationProgressResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
 
-// ResyncBitcoin makes a synchronous rpc call to the base and returns wether the resync bitcoin script on
-// the BitBox Base was executed successfully.
-func (rpcClient *RPCClient) ResyncBitcoin(options rpcmessages.ResyncBitcoinArgs) (rpcmessages.ResyncBitcoinResponse, error) {
+// ResyncBitcoin makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) ResyncBitcoin() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ResyncBitcoin rpc call")
-	var reply rpcmessages.ResyncBitcoinResponse
-	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", options, &reply)
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", true /*dummy Arg */, &reply)
 	if err != nil {
-		rpcClient.log.WithError(err).Error("ResyncBitcoin RPC call failed")
-		return reply, err
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// ReindexBitcoin makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing ReindexBitcoin rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.ReindexBitcoin", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// SetHostname makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing SetHostname rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.SetHostname", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// UserAuthenticate makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the user is successfully authenticated.
+func (rpcClient *RPCClient) UserAuthenticate(args rpcmessages.UserAuthenticateArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UserAuthenticate rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UserAuthenticate", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// UserChangePassword makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the password has been successfully changed .
+func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswordArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UserChangePassword rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UserChangePassword", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// GetHostname makes a synchronous rpc call to the base and returns a GetHostnameResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) GetHostname() (rpcmessages.GetHostnameResponse, error) {
+	rpcClient.log.Println("Executing GetHostname rpc call")
+	var reply rpcmessages.GetHostnameResponse
+	err := rpcClient.client.Call("RPCServer.GetHostname", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.GetHostnameResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// MountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) MountFlashdrive() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing MountFlashdrive rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.MountFlashdrive", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// UnmountFlashdrive makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) UnmountFlashdrive() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UnmountFlashdrive rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UnmountFlashdrive", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// BackupSysconfig makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing BackupSysconfig rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.BackupSysconfig", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// BackupHSMSecret makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) BackupHSMSecret() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing BackupHSMSecret rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.BackupHSMSecret", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// RestoreSysconfig makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) RestoreSysconfig() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing RestoreSysconfig rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.RestoreSysconfig", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// RestoreHSMSecret makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
+func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing RestoreHSMSecret rpc call")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", true /*dummy Arg */, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
