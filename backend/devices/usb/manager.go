@@ -211,7 +211,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		deviceID,
 		version,
 		edition,
-		manager.bitbox02ConfigDir,
+		bitbox02.NewConfig(manager.bitbox02ConfigDir),
 		communication.NewCommunication(hidDevice, bitboxCMD),
 	), nil
 }

@@ -58,6 +58,18 @@ type Communication interface {
 	Close()
 }
 
+// ConfigInterface lets the library client provide their own persisted config backend.
+type ConfigInterface interface {
+	// ContainsDeviceStaticPubkey returns true if a device pubkey has been added before.
+	ContainsDeviceStaticPubkey(pubkey []byte) bool
+	// AddDeviceStaticPubkey adds a device pubkey.
+	AddDeviceStaticPubkey(pubkey []byte) error
+	// GetAppNoiseStaticKeypair retrieves the app keypair. Returns nil if none has been set before.
+	GetAppNoiseStaticKeypair() *noise.DHKey
+	// SetAppNoiseStaticKeypair stores the app keypair. Overwrites keypair if one already exists.
+	SetAppNoiseStaticKeypair(key *noise.DHKey) error
+}
+
 const (
 	// EventChannelHashChanged is fired when the return values of ChannelHash() change.
 	EventChannelHashChanged device.Event = "channelHashChanged"
@@ -88,7 +100,7 @@ type Device struct {
 	version *semver.SemVer
 	edition bitbox02common.Edition
 
-	configDir string
+	config ConfigInterface
 
 	attestation bool
 
@@ -118,7 +130,7 @@ func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
-	configDir string,
+	config ConfigInterface,
 	communication Communication,
 ) *Device {
 	log := logging.Get().WithGroup("device").WithField("deviceID", deviceID)
@@ -128,7 +140,7 @@ func NewDevice(
 		communication: communication,
 		version:       version,
 		edition:       edition,
-		configDir:     configDir,
+		config:        config,
 		status:        StatusConnected,
 		log:           log.WithField("deviceID", deviceID).WithField("productName", ProductName),
 	}
@@ -178,7 +190,7 @@ func (device *Device) init() error {
 
 func (device *Device) pair() {
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
-	keypair := device.configGetAppNoiseStaticKeypair()
+	keypair := device.config.GetAppNoiseStaticKeypair()
 	if keypair == nil {
 		device.log.Info("noise static keypair created")
 		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
@@ -186,7 +198,7 @@ func (device *Device) pair() {
 			panic(err)
 		}
 		keypair = &kp
-		if err := device.configSetAppNoiseStaticKeypair(keypair); err != nil {
+		if err := device.config.SetAppNoiseStaticKeypair(keypair); err != nil {
 			device.log.WithError(err).Error("could not store app noise static keypair")
 
 			// Not a critical error, ignore.
@@ -246,7 +258,7 @@ func (device *Device) pair() {
 		panic(errp.New("expected 32 byte remote static pubkey"))
 	}
 
-	pairingVerificationRequiredByApp := !device.configContainsDeviceStaticPubkey(
+	pairingVerificationRequiredByApp := !device.config.ContainsDeviceStaticPubkey(
 		device.deviceNoiseStaticPubkey)
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
@@ -613,7 +625,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 	device.channelHashAppVerified = ok
 	if ok {
 		// No critical error, we will just need to re-confirm the pairing next time.
-		_ = device.configAddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
+		_ = device.config.AddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		requireUpgrade := false
 		switch device.edition {
 		case bitbox02common.EditionStandard:
