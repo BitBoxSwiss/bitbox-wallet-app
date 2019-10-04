@@ -14,9 +14,10 @@
     --color-yellow: #fef160;
     --color-darkblue: #4f7998;
     --color-blue: #5E94BF;
-    --color-lightblue: #91BFCF;
+    --color-lightblue: #73A5CD;
+    --color-blue-alt: #91BFCF;
     --color-orange: #F5A04C;
-    --color-lightorange: #FFC580;
+    --color-lightorange: #F9AC60;
 
     /* font colors */
     --color-default: var(--color-dark);

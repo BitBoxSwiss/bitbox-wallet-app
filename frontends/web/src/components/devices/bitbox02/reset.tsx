@@ -43,20 +43,6 @@ class Reset extends Component<Props, State> {
         activeDialog: false,
     };
 
-    private handleKeyDown = e => {
-        if (e.keyCode === 27 && !this.state.isConfirming) {
-            this.abort();
-        }
-    }
-
-    public componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
-
     private reset = () => {
         this.setState({
             activeDialog: false,

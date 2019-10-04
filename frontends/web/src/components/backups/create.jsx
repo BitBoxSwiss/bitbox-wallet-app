@@ -32,20 +32,6 @@ export default class Create extends Component {
         activeDialog: false,
     }
 
-    componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-
-    componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
-
-    handleKeyDown = e => {
-        if (e.keyCode === 27) {
-            this.abort();
-        }
-    }
-
     abort = () => {
         this.setState({
             waiting: false,

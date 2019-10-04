@@ -1,26 +1,24 @@
 .overlay {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: fixed;
     bottom: 0;
     left: 0;
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.4);
-    z-index: -1;
+    z-index: 4010;
     opacity: 0;
-    transition: opacity .1s ease-out;
-    will-change: opacity;
+    animation-duration: .3s !important;
 }
 
-.overlay.active {
-    z-index: 4010;
+.overlay.activeOverlay {
     opacity: 1;
 }
 
 .modal {
-    position: fixed;
-    bottom: 50%;
-    left: 50%;
-    transform: translate(-50%, 50%);
     background-color: white;
     width: 100%;
     max-width: 380px;
@@ -28,11 +26,16 @@
     box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.3);
     text-align: left;
     max-height: 100vh;
-    transition: opacity 0.2s ease-out;
-    transition-delay: 0.05s;
     overflow: auto;
     opacity: 0;
+    animation-duration: .3s !important;
 }
+
+.modal.activeModal {
+    opacity: 1;
+}
+
+.active {}
 
 .modal.small {
     max-width: 340px;
@@ -47,10 +50,6 @@
 .modal.large {
     max-width: 800px;
     width: 100%;
-}
-
-.modal.active {
-    opacity: 1;
 }
 
 .header {

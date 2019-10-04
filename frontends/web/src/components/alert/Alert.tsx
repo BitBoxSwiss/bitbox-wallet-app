@@ -29,7 +29,6 @@ interface State {
 }
 
 class Alert extends Component<TranslateProps, State> {
-    private button!: JSX.ElementClass; // Initialized after render().
     private callback?: () => void; // Assigned when alertUser is called / Called before close.
 
     constructor(props: TranslateProps) {
@@ -38,10 +37,6 @@ class Alert extends Component<TranslateProps, State> {
         this.state = {
             active: false,
         };
-    }
-
-    private setButtonRef = (element: JSX.ElementClass) => {
-        this.button = element;
     }
 
     private handleClose = () => {
@@ -58,8 +53,6 @@ class Alert extends Component<TranslateProps, State> {
         this.setState({
             active: true,
             message,
-        }, () => {
-            this.button.base!.focus();
         });
     }
 
@@ -72,7 +65,7 @@ class Alert extends Component<TranslateProps, State> {
                     message ? message.split('\n').map((line, i) => (
                         <p
                             key={i}
-                            class={ i === 0 ? 'first' : '' }>
+                            className={ i === 0 ? 'first' : '' }>
                             <SimpleMarkup tagName="span" markup={line} />
                         </p>
                     )) : null
@@ -80,7 +73,6 @@ class Alert extends Component<TranslateProps, State> {
                 <div class={style.actions}>
                     <Button
                         primary
-                        ref={this.setButtonRef}
                         onClick={this.handleClose}>
                         {t('button.ok')}
                     </Button>

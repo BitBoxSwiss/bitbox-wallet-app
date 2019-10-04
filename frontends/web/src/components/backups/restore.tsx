@@ -53,26 +53,6 @@ class Restore extends Component<Props, State> {
         password: undefined,
     };
 
-    public componentWillMount() {
-        document.addEventListener('keydown', this.handleKeyDown);
-    }
-
-    public componentWillUnmount() {
-        document.removeEventListener('keydown', this.handleKeyDown);
-    }
-
-    private handleKeyDown = (e: KeyboardEvent) => {
-        const {
-            isConfirming,
-            isLoading,
-        } = this.state;
-        if (e.keyCode === 27 && !isConfirming && !isLoading) {
-            this.abort();
-        } else {
-            return;
-        }
-    }
-
     private abort = () => {
         this.setState({
             isConfirming: false,
@@ -156,6 +136,7 @@ class Restore extends Component<Props, State> {
                     activeDialog && (
                         <Dialog
                             title={t('backup.restore.title')}
+                            disableEscape={isConfirming || isLoading}
                             onClose={this.abort}>
                             <form onSubmit={this.restore}>
                                 <PasswordRepeatInput

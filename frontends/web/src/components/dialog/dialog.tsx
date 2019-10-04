@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { animate } from '../../utils/animation';
 import * as style from './dialog.css';
 
 interface Props {
@@ -25,7 +26,7 @@ interface Props {
     slim?: boolean;
     centered?: boolean;
     disableEscape?: boolean;
-    onClose?: (e: Event) => void;
+    onClose?: (e?: Event) => void;
     disabledClose?: boolean;
 }
 
@@ -35,6 +36,8 @@ interface State {
 }
 
 class Dialog extends Component<Props, State> {
+    private overlay!: HTMLElement;
+    private modal!: HTMLElement;
     private modalContent!: HTMLElement;
     private focusableChildren!: NodeListOf<HTMLElement>;
 
@@ -51,10 +54,18 @@ class Dialog extends Component<Props, State> {
     }
 
     public componentWillUnmount() {
-        this.deactivate();
+        document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    private setModalContent = (element: HTMLElement) => {
+    private setOverlay = (element: HTMLDivElement) => {
+        this.overlay = element;
+    }
+
+    private setModal = (element: HTMLDivElement) => {
+        this.modal = element;
+    }
+
+    private setModalContent = (element: HTMLDivElement) => {
         this.modalContent = element;
     }
 
@@ -101,13 +112,11 @@ class Dialog extends Component<Props, State> {
     }
 
     private handleKeyDown = (e: KeyboardEvent) => {
-        const { disableEscape, onClose } = this.props;
+        const { disableEscape } = this.props;
         const isEsc = e.keyCode === 27;
         const isTab = e.keyCode === 9;
         if (!disableEscape && isEsc) {
-            if (onClose) {
-                onClose(e);
-            }
+            this.deactivate();
         } else if (isTab) {
             e.preventDefault();
         }
@@ -119,17 +128,30 @@ class Dialog extends Component<Props, State> {
     }
 
     private deactivate = () => {
-        this.setState({
-            active: false,
-            currentTab: 0,
+        animate(this.modal, 'fadeOutUp', () => {
+            this.modal.classList.remove(style.activeModal);
+            this.setState({ active: false, currentTab: 0 }, () => {
+                document.removeEventListener('keydown', this.handleKeyDown);
+                if (this.props.onClose) {
+                    this.props.onClose();
+                }
+            });
         });
-        document.removeEventListener('keydown', this.handleKeyDown);
+        animate(this.overlay, 'fadeOut', () => {
+            this.overlay.classList.remove(style.activeOverlay);
+        });
     }
 
     private activate = () => {
         this.setState({ active: true }, () => {
-            this.focusWithin();
-            this.focusFirst();
+            animate(this.overlay, 'fadeIn', () => {
+                this.overlay.classList.add(style.activeOverlay);
+            });
+            animate(this.modal, 'fadeInUp', () => {
+                this.modal.classList.add(style.activeModal);
+                this.focusWithin();
+                this.focusFirst();
+            });
         });
     }
 
@@ -145,24 +167,23 @@ class Dialog extends Component<Props, State> {
             disabledClose,
             children,
         }: RenderableProps<Props>,
-        { active }: State,
+        {}: State,
     ) {
-        const activeClass = active ? style.active : '';
         const isSmall = small ? style.small : '';
         const isMedium = medium ? style.medium : '';
         const isLarge = large ? style.large : '';
         const isSlim = slim ? style.slim : '';
         const isCentered = centered && !onClose ? style.centered : '';
         return (
-            <div className={[style.overlay, activeClass].join(' ')}>
-                <div className={[style.modal, activeClass, isSmall, isMedium, isLarge].join(' ')}>
+            <div className={[style.overlay].join(' ')} ref={this.setOverlay}>
+                <div className={[style.modal, isSmall, isMedium, isLarge].join(' ')} ref={this.setModal}>
                     {
                         title && (
                             <div className={[style.header, isCentered].join(' ')}>
                                 <h3 class={style.title}>{title}</h3>
                                 {
                                     onClose && (
-                                        <button className={style.closeButton} onClick={onClose} disabled={disabledClose}>
+                                        <button className={style.closeButton} onClick={this.deactivate} disabled={disabledClose}>
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                                 <line x1="6" y1="6" x2="18" y2="18"></line>

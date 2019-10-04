@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import approve from '../../assets/icons/hold.png';
 import reject from '../../assets/icons/tap.png';
+import { animate } from '../../utils/animation';
 import * as style from '../dialog/dialog.css';
 
 @translate()
@@ -45,8 +46,23 @@ export default class WaitDialog extends Component {
         e.stopPropagation();
     }
 
+    setOverlay = ref => {
+        this.overlay = ref;
+    }
+
+    setModal = ref => {
+        this.modal = ref;
+    }
+
     activate = () => {
-        this.setState({ active: true });
+        this.setState({ active: true }, () => {
+            animate(this.overlay, 'fadeIn', () => {
+                this.overlay.classList.add(style.activeOverlay);
+            });
+            animate(this.modal, 'fadeInUp', () => {
+                this.modal.classList.add(style.activeModal);
+            });
+        });
     }
 
     render({
@@ -57,10 +73,7 @@ export default class WaitDialog extends Component {
         paired = false,
         touchConfirm = true,
         children,
-    }, {
-        active,
-    }) {
-        const isActive = active ? style.active : '';
+    }, {}) {
         const defaultContent = (
             <div>
                 {
@@ -109,8 +122,11 @@ export default class WaitDialog extends Component {
             </div>
         );
         return (
-            <div className={[style.overlay, isActive].join(' ')} style="z-index: 10001;">
-                <div className={[style.modal, isActive].join(' ')}>
+            <div
+                className={style.overlay}
+                ref={this.setOverlay}
+                style="z-index: 10001;">
+                <div className={style.modal} ref={this.setModal}>
                     {
                         title && (
                             <div className={style.header}>
