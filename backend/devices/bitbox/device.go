@@ -33,7 +33,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -63,11 +63,11 @@ var ErrMustBeLoggedIn = errors.New("must be logged in")
 
 const (
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
-	EventStatusChanged device.Event = "statusChanged"
+	EventStatusChanged event.Event = "statusChanged"
 
 	// EventBootloaderStatusChanged is fired when the bootloader status changes. Check the status
 	// using BootloaderStatus().
-	EventBootloaderStatusChanged device.Event = "bootloaderStatusChanged"
+	EventBootloaderStatusChanged event.Event = "bootloaderStatusChanged"
 
 	// signatureBatchSize is the amount of signatures that can be handled by the Bitbox in one batch
 	// (with one long-touch).
@@ -146,7 +146,7 @@ type Device struct {
 	// Channel readers should prefer accessing it using mobileChannel method.
 	channel *relay.Channel
 	// Device state change callback. Set in SetOnEvent.
-	onEvent func(device.Event, interface{})
+	onEvent func(event.Event, interface{})
 	// Indicates whether Close was called.
 	closed bool
 
@@ -241,7 +241,7 @@ func (dbb *Device) setPasswordPolicy(testing bool) {
 }
 
 // SetOnEvent installs a callback which is called for various events.
-func (dbb *Device) SetOnEvent(onEvent func(device.Event, interface{})) {
+func (dbb *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 	dbb.mu.Lock()
 	defer dbb.mu.Unlock()
 	dbb.onEvent = onEvent
@@ -250,7 +250,7 @@ func (dbb *Device) SetOnEvent(onEvent func(device.Event, interface{})) {
 // fireEvent calls dbb.onEvent callback if non-nil.
 // It blocks for the entire duration of the call.
 // The read-only lock is released before calling dbb.onEvent.
-func (dbb *Device) fireEvent(event device.Event, data interface{}) {
+func (dbb *Device) fireEvent(event event.Event, data interface{}) {
 	dbb.mu.RLock()
 	f := dbb.onEvent
 	dbb.mu.RUnlock()
@@ -263,9 +263,9 @@ func (dbb *Device) onStatusChanged() {
 	dbb.fireEvent(EventStatusChanged, nil)
 	switch dbb.Status() {
 	case StatusSeeded:
-		dbb.fireEvent(device.EventKeystoreAvailable, nil)
+		dbb.fireEvent(event.EventKeystoreAvailable, nil)
 	case StatusUninitialized:
-		dbb.fireEvent(device.EventKeystoreGone, nil)
+		dbb.fireEvent(event.EventKeystoreGone, nil)
 	}
 }
 

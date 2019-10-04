@@ -14,30 +14,30 @@
 
 package bitbox
 
-import "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+import "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 
 // TODO: improve error handling and change event data into a JSON object, and split BitBox events
 // from generic device events
 const (
 	// EventPairingStarted is fired when the pairing started.
-	EventPairingStarted device.Event = "pairingStarted"
+	EventPairingStarted event.Event = "pairingStarted"
 
 	// EventPairingTimedout is fired when the pairing timed out.
-	EventPairingTimedout device.Event = "pairingTimedout"
+	EventPairingTimedout event.Event = "pairingTimedout"
 
 	// EventPairingAborted is fired when the pairing aborted.
-	EventPairingAborted device.Event = "pairingAborted"
+	EventPairingAborted event.Event = "pairingAborted"
 
 	// EventPairingError is fired when an error happened during the pairing.
-	EventPairingError device.Event = "pairingError"
+	EventPairingError event.Event = "pairingError"
 
 	// EventPairingSuccess is fired when the pairing successfully finished.
-	EventPairingSuccess device.Event = "pairingSuccess"
+	EventPairingSuccess event.Event = "pairingSuccess"
 
 	// EventSignProgress is fired when starting to sign a new batch of hashes.
-	EventSignProgress device.Event = "signProgress"
+	EventSignProgress event.Event = "signProgress"
 
 	// EventSignConfirmDevice is fired when the user is about to be prompted to sign the tx with the
 	// device.
-	EventSignConfirm device.Event = "signConfirm"
+	EventSignConfirm event.Event = "signConfirm"
 )

@@ -36,6 +36,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	deviceevent "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore/software"
@@ -824,11 +825,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	backend.devices[theDevice.Identifier()] = theDevice
 
 	mainKeystore := len(backend.devices) == 1
-	theDevice.SetOnEvent(func(event device.Event, data interface{}) {
+	theDevice.SetOnEvent(func(event deviceevent.Event, data interface{}) {
 		switch event {
-		case device.EventKeystoreGone:
+		case deviceevent.EventKeystoreGone:
 			backend.DeregisterKeystore()
-		case device.EventKeystoreAvailable:
+		case deviceevent.EventKeystoreAvailable:
 			// absoluteKeypath := signing.NewEmptyAbsoluteKeypath().Child(44, signing.Hardened)
 			// extendedPublicKey, err := backend.device.ExtendedPublicKey(absoluteKeypath)
 			// if err != nil {

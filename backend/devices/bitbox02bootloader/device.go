@@ -25,8 +25,7 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
-	devicepkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -76,7 +75,7 @@ type Status struct {
 }
 
 // EventStatusChanged is fired when the status changes. Check the status using Status().
-const EventStatusChanged device.Event = "statusChanged"
+const EventStatusChanged event.Event = "statusChanged"
 
 func toByte(b bool) byte {
 	if b {
@@ -93,7 +92,7 @@ type Device struct {
 	status        *Status
 
 	mu      sync.RWMutex
-	onEvent func(devicepkg.Event, interface{})
+	onEvent func(event.Event, interface{})
 	log     *logrus.Entry
 }
 
@@ -136,7 +135,7 @@ func (device *Device) KeystoreForConfiguration(configuration *signing.Configurat
 }
 
 // SetOnEvent implements device.Device.
-func (device *Device) SetOnEvent(onEvent func(devicepkg.Event, interface{})) {
+func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 	device.mu.Lock()
 	defer device.mu.Unlock()
 	device.onEvent = onEvent

@@ -24,7 +24,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/mocks"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox/relay"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
+	eventpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/stretchr/testify/assert"
@@ -77,7 +77,7 @@ func TestFinishPairing(t *testing.T) {
 
 	tt := []struct {
 		configDir  string
-		wantEvent  device.Event
+		wantEvent  eventpkg.Event
 		wantPaired bool
 	}{
 		{okTempDir, EventPairingSuccess, true},
@@ -93,8 +93,8 @@ func TestFinishPairing(t *testing.T) {
 				channelConfigDir: test.configDir,
 				log:              logging.Get().WithGroup("finish_pairing_test"),
 			}
-			var event device.Event
-			dbb.onEvent = func(e device.Event, data interface{}) {
+			var event eventpkg.Event
+			dbb.onEvent = func(e eventpkg.Event, data interface{}) {
 				event = e
 			}
 			newChan := relay.NewChannelWithRandomKey(socksproxy.NewSocksProxy(false, ""))
