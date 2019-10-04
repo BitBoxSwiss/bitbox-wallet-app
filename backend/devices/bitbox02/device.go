@@ -53,7 +53,7 @@ func NewDevice(
 
 	log.Info("Plugged in device")
 	return &Device{
-		Device:   *api.NewDevice(version, edition, config, communication, log),
+		Device:   *api.NewDevice(version, edition, config, communication, logger{log}),
 		deviceID: deviceID,
 		log:      log,
 	}

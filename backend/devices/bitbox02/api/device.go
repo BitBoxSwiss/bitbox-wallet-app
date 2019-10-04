@@ -30,7 +30,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/flynn/noise"
 	"github.com/golang/protobuf/proto"
-	"github.com/sirupsen/logrus"
 )
 
 //go:generate protoc --go_out=import_path=messages:. messages/hww.proto
@@ -59,6 +58,15 @@ type ConfigInterface interface {
 	GetAppNoiseStaticKeypair() *noise.DHKey
 	// SetAppNoiseStaticKeypair stores the app keypair. Overwrites keypair if one already exists.
 	SetAppNoiseStaticKeypair(key *noise.DHKey) error
+}
+
+// Logger lets the library client provide their own logging infrastructure.
+type Logger interface {
+	WithField(key string, value interface{}) Logger
+	WithError(error) Logger
+	Error(msg string)
+	Info(msg string)
+	Debug(msg string)
 }
 
 const (
@@ -104,7 +112,7 @@ type Device struct {
 
 	mu      sync.RWMutex
 	onEvent func(event.Event, interface{})
-	log     *logrus.Entry
+	log     Logger
 }
 
 // DeviceInfo is the data returned from the device info api call.
@@ -121,7 +129,7 @@ func NewDevice(
 	edition bitbox02common.Edition,
 	config ConfigInterface,
 	communication Communication,
-	log *logrus.Entry,
+	log Logger,
 ) *Device {
 	return &Device{
 		communication: communication,
@@ -155,7 +163,7 @@ func (device *Device) init() error {
 			return err
 		}
 		device.attestation = attestation
-		device.log.Infof("attestation check result: %v", attestation)
+		device.log.Info(fmt.Sprintf("attestation check result: %v", attestation))
 
 		go func() {
 			_, err := device.communication.Query([]byte(opUnlock))
@@ -305,7 +313,7 @@ func (device *Device) changeStatus(status Status) {
 
 // Status returns the device state. See the Status* constants.
 func (device *Device) Status() Status {
-	defer device.log.WithField("status", device.status).Debug("Device status")
+	device.log.WithField("status", device.status).Debug("Device status")
 	return device.status
 }
 
@@ -324,7 +332,7 @@ func (device *Device) fireEvent(event event.Event) {
 	f := device.onEvent
 	device.mu.RUnlock()
 	if f != nil {
-		device.log.Infof("fire event: %s", event)
+		device.log.Info(fmt.Sprintf("fire event: %s", event))
 		f(event, nil)
 	}
 }
@@ -582,7 +590,7 @@ func (device *Device) ChannelHash() (string, bool) {
 
 // ChannelHashVerify verifies the ChannelHash
 func (device *Device) ChannelHashVerify(ok bool) {
-	device.log.Infof("channelHashVerify: %v", ok)
+	device.log.Info(fmt.Sprintf("channelHashVerify: %v", ok))
 	if ok && !device.channelHashDeviceVerified {
 		return
 	}
@@ -597,7 +605,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		case bitbox02common.EditionBTCOnly:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
 		default:
-			device.log.Errorf("unrecognized edition: %s", device.edition)
+			device.log.Error(fmt.Sprintf("unrecognized edition: %s", device.edition))
 		}
 		if requireUpgrade {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
