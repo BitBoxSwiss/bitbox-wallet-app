@@ -16,7 +16,7 @@ package bitbox02
 
 import (
 	"github.com/btcsuite/btcd/txscript"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/messages"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 

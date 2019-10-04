@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package bitbox02
+package api
 
 import "github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 
@@ -49,7 +49,7 @@ func isErrorCode(err error, code int32) bool {
 	return ok && deviceErr.Code == code
 }
 
-// isErrorAbort returns whether the user aborted the operation.
-func isErrorAbort(err error) bool {
+// IsErrorAbort returns whether the user aborted the operation.
+func IsErrorAbort(err error) bool {
 	return isErrorCode(err, ErrUserAbort)
 }

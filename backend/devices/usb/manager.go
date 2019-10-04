@@ -22,6 +22,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
@@ -211,7 +212,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 		deviceID,
 		version,
 		edition,
-		bitbox02.NewConfig(manager.bitbox02ConfigDir),
+		api.NewConfig(manager.bitbox02ConfigDir),
 		communication.NewCommunication(hidDevice, bitboxCMD),
 	), nil
 }
