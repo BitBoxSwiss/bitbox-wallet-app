@@ -37,7 +37,7 @@ type Base interface {
 	ResyncBitcoin() error
 	SetHostname(string) error
 	UserAuthenticate(string, string) error
-	UserChangePassword(string, string) error
+	UserChangePassword(string, string, string) error
 	BackupSysconfig() error
 	BackupHSMSecret() error
 	RestoreSysconfig() error
@@ -227,13 +227,14 @@ func (handlers *Handlers) postUserAuthenticate(r *http.Request) (interface{}, er
 func (handlers *Handlers) postUserChangePassword(r *http.Request) (interface{}, error) {
 	payload := struct {
 		Username    string `json:"username"`
+		Password    string `json:"password"`
 		NewPassword string `json:"newPassword"`
 	}{}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 
-	err := handlers.base.UserChangePassword(payload.Username, payload.NewPassword)
+	err := handlers.base.UserChangePassword(payload.Username, payload.Password, payload.NewPassword)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}

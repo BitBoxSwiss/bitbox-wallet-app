@@ -237,6 +237,9 @@
     "manualInput": "Can't see your BitBoxBase? Connect manually below:",
     "title": "BitBoxBase"
   },
+  "bitboxBaseUnlock": {
+    "placeholder": "Enter your BitBoxBase password to unlock"
+  },
   "bitboxBaseWizard": {
     "bitcoin": {
       "pre": "Start syncing from pre-synced state",

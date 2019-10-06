@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import { alertUser } from '../../components/alert/Alert';
+import { UnlockBitBoxBase } from '../../components/bitboxbase/unlockbitboxbase';
 import { confirmation } from '../../components/confirm/Confirm';
 import { Button, Input } from '../../components/forms';
 import { Header } from '../../components/layout/header';
@@ -44,6 +45,8 @@ interface VerificationProgressType {
     headers: number;
     verificationProgress: number;
 }
+
+const defaultPassword = 'ICanHasPasword?';
 
 enum ActiveStep {
     PairingCode,
@@ -80,7 +83,9 @@ interface State {
     'connected' |
     'unpaired' |
     'pairingFailed' |
+    'passwordNotSet' |
     'bitcoinPre' |
+    'locked' |
     'initialized';
     hash?: string;
     showWizard: boolean;
@@ -93,6 +98,7 @@ interface State {
         title?: string;
         text?: string;
     };
+    locked: boolean;
 }
 
 type Props = BitBoxBaseProps & TranslateProps;
@@ -115,6 +121,7 @@ class BitBoxBase extends Component<Props, State> {
             validHostname: false,
             syncingOption: undefined,
             waitDialog: undefined,
+            locked: true,
         };
     }
 
@@ -166,19 +173,36 @@ class BitBoxBase extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(({status}) => {
-            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'bitcoinPre'].includes(status)) {
+            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
             this.setState({
                 status,
             });
-            // Dummy check for automatic paired response from base until we have an rpc response and event from the base
-            if (this.state.status === 'bitcoinPre') {
-                this.setState({activeStep: ActiveStep.SetPassword});
-            }
-            if (this.state.status === 'initialized') {
-                this.onNewMiddlewareInfo();
-                this.onNewVerificationProgress();
+            // check if the base middleware password has been set yet
+            switch (this.state.status) {
+                case 'passwordNotSet':
+                    this.setState({activeStep: ActiveStep.SetPassword});
+                    break;
+                case 'bitcoinPre':
+                    this.setState({activeStep: ActiveStep.ChooseSetup});
+                    break;
+                case 'locked':
+                    this.setState({
+                        locked: true,
+                        showWizard: false,
+                    });
+                    break;
+                case 'initialized':
+                    this.setState({
+                        locked: false,
+                        showWizard: false,
+                    });
+                    this.onNewMiddlewareInfo();
+                    this.onNewVerificationProgress();
+                    break;
+                default:
+                    break;
             }
         });
     }
@@ -225,9 +249,9 @@ class BitBoxBase extends Component<Props, State> {
         this.setState({ password });
     }
 
-    private submitChangePassword = (event: Event) => {
+    private submitChangePasswordSetup = (event: Event) => {
         event.preventDefault();
-        apiPost(this.apiPrefix() + '/user-change-password', {username: 'admin', newPassword: this.state.password})
+        apiPost(this.apiPrefix() + '/user-change-password', {username: 'admin', password: defaultPassword, newPassword: this.state.password})
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSetup });
@@ -326,15 +350,22 @@ class BitBoxBase extends Component<Props, State> {
             password,
             validHostname,
             waitDialog,
+            locked,
         }: State,
     ) {
         if (!showWizard) {
+            if (locked) {
+                return (
+                    <UnlockBitBoxBase bitboxBaseID={bitboxBaseID}/>
+                );
+            }
             if (!middlewareInfo) {
                 return null;
             }
             if (!verificationProgress) {
                 return null;
             }
+
             return (
                 <div class="row">
                     <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
@@ -389,7 +420,7 @@ class BitBoxBase extends Component<Props, State> {
 
                                 <Step title="Set a Password" active={activeStep === ActiveStep.SetPassword} width={540}>
                                     <div className={stepStyle.stepContext}>
-                                        <form onSubmit={this.submitChangePassword}>
+                                        <form onSubmit={this.submitChangePasswordSetup}>
                                             <PasswordRepeatInput
                                                 label={t('initialize.input.label')}
                                                 repeatLabel={t('initialize.input.labelRepeat')}
