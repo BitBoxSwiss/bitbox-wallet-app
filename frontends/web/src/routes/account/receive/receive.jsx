@@ -17,6 +17,7 @@
 import { Component, h } from 'preact';
 import { route } from 'preact-router';
 import { translate } from 'react-i18next';
+import { isEthereumBased } from '../utils';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Button, ButtonLink } from '../../../components/forms';
 import { Dialog } from '../../../components/dialog/dialog';
@@ -298,6 +299,15 @@ export default class Receive extends Component {
                             disableEscape={true}
                             medium centered>
                             <div className="text-center">
+                                {
+                                    isEthereumBased(account.coinCode) &&
+                                    <p>
+                                        <strong>
+                                            {t('receive.onlyThisCoin.warning', { accountName: account.name.replace(' BETA', '') })}
+                                        </strong><br />
+                                        {t('receive.onlyThisCoin.description')}
+                                    </p>
+                                }
                                 <QRCode data={uriPrefix + address} />
                                 <p>{t('receive.verifyInstruction')}</p>
                             </div>

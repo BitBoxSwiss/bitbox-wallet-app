@@ -614,6 +614,7 @@ func (backend *Backend) initDefaultAccounts() {
 
 			ETH, _ := backend.Coin(coinETH)
 			const ethAccountCode = "eth"
+			// Once the BETA label is removed, also remove the 'BETA' string replace in receive.jsx
 			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
 
 			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {

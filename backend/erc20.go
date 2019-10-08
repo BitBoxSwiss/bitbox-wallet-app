@@ -24,6 +24,8 @@ type erc20Token struct {
 }
 
 var erc20Tokens = []erc20Token{
+	// Note: if you change the coinCode from eth-erc20- to something else, make sure to check for
+	// instances of it in the frontend.
 	{
 		code:  "eth-erc20-usdt",
 		name:  "Tether USD BETA",

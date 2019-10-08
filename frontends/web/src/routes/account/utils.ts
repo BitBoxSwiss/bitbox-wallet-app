@@ -25,3 +25,7 @@ export function isBitcoinBased(coinCode: string): boolean {
         return false;
     }
 }
+
+export function isEthereumBased(coinCode: string): boolean {
+    return coinCode === 'eth' || coinCode.startsWith('eth-erc20-');
+}
