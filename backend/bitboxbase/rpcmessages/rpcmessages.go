@@ -40,8 +40,10 @@ type SetRootPasswordArgs struct {
 	RootPassword string
 }
 
-// ToggleSetting is a generic message for settings that can be enabled or disabled
-type ToggleSetting bool
+// ToggleSettingArgs is a generic message for settings that can be enabled or disabled
+type ToggleSettingArgs struct {
+	ToggleSetting bool
+}
 
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.

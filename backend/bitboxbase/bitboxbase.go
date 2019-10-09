@@ -103,22 +103,22 @@ type Interface interface {
 	RestoreHSMSecret() error
 
 	// EnableTor enables/disables Tor
-	EnableTor(rpcmessages.ToggleSetting) error
+	EnableTor(rpcmessages.ToggleSettingArgs) error
 
 	// EnableTorMiddleware enables/disables Tor for the middleware
-	EnableTorMiddleware(rpcmessages.ToggleSetting) error
+	EnableTorMiddleware(rpcmessages.ToggleSettingArgs) error
 
 	// EnableTorElectrs enables/disables Tor for electrs
-	EnableTorElectrs(rpcmessages.ToggleSetting) error
+	EnableTorElectrs(rpcmessages.ToggleSettingArgs) error
 
 	// EnableTorSSH enables/disables Tor for SSH
-	EnableTorSSH(rpcmessages.ToggleSetting) error
+	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
 
 	// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD
-	EnableClearnetIBD(rpcmessages.ToggleSetting) error
+	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
 
 	// EnableRootLogin enables/disables login via the root user/password
-	EnableRootLogin(rpcmessages.ToggleSetting) error
+	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
 
 	// SetRootPassword sets the systems root password
 	SetRootPassword(string) error
@@ -452,8 +452,8 @@ func (base *BitBoxBase) RestoreSysconfig() error {
 	return nil
 }
 
-// EnableTor enables/disables Tor with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSetting) error {
+// EnableTor enables/disables Tor with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
@@ -469,8 +469,8 @@ func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSetting) error 
 	return nil
 }
 
-// EnableTorMiddleware enables/disables Tor for the middleware with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetting) error {
+// EnableTorMiddleware enables/disables Tor for the middleware with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
@@ -486,8 +486,8 @@ func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetti
 	return nil
 }
 
-// EnableTorElectrs enables/disables Tor for electrs with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSetting) error {
+// EnableTorElectrs enables/disables Tor for electrs with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
@@ -503,8 +503,8 @@ func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSetting)
 	return nil
 }
 
-// EnableTorSSH enables/disables Tor for SSH with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSetting) error {
+// EnableTorSSH enables/disables Tor for SSH with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
@@ -520,8 +520,8 @@ func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSetting) err
 	return nil
 }
 
-// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting) error {
+// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
@@ -537,8 +537,8 @@ func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting
 	return nil
 }
 
-// EnableRootLogin enables/disables login via the root user/password with rpcmessages.ToggleSettingEnable/Disable
-func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSetting) error {
+// EnableRootLogin enables/disables login via the root user/password with rpcmessages.ToggleSettingArgs Enable/Disable
+func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingArgs) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}

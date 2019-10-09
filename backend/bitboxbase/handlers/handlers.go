@@ -42,12 +42,12 @@ type Base interface {
 	BackupHSMSecret() error
 	RestoreSysconfig() error
 	RestoreHSMSecret() error
-	EnableTor(rpcmessages.ToggleSetting) error
-	EnableTorMiddleware(rpcmessages.ToggleSetting) error
-	EnableTorElectrs(rpcmessages.ToggleSetting) error
-	EnableTorSSH(rpcmessages.ToggleSetting) error
-	EnableClearnetIBD(rpcmessages.ToggleSetting) error
-	EnableRootLogin(rpcmessages.ToggleSetting) error
+	EnableTor(rpcmessages.ToggleSettingArgs) error
+	EnableTorMiddleware(rpcmessages.ToggleSettingArgs) error
+	EnableTorElectrs(rpcmessages.ToggleSettingArgs) error
+	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
+	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
+	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
 	SetRootPassword(string) error
 	ShutdownBase() error
 	RebootBase() error
@@ -300,11 +300,12 @@ func (handlers *Handlers) postReindexBitcoinHandler(_ *http.Request) (interface{
 
 func (handlers *Handlers) postEnableTorHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable Tor")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableTor(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableTor(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
@@ -314,11 +315,12 @@ func (handlers *Handlers) postEnableTorHandler(r *http.Request) (interface{}, er
 
 func (handlers *Handlers) postEnableTorMiddlewareHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable Tor for middleware")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableTorMiddleware(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableTorMiddleware(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
@@ -328,11 +330,12 @@ func (handlers *Handlers) postEnableTorMiddlewareHandler(r *http.Request) (inter
 
 func (handlers *Handlers) postEnableTorElectrsHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable Tor for electrs")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableTorElectrs(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableTorElectrs(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
@@ -342,11 +345,12 @@ func (handlers *Handlers) postEnableTorElectrsHandler(r *http.Request) (interfac
 
 func (handlers *Handlers) postEnableTorSSHHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable Tor for SSH")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableTorSSH(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableTorSSH(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
@@ -356,11 +360,12 @@ func (handlers *Handlers) postEnableTorSSHHandler(r *http.Request) (interface{},
 
 func (handlers *Handlers) postEnableClearnetIBDHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable clearnet for IBD")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableClearnetIBD(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableClearnetIBD(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
@@ -370,11 +375,12 @@ func (handlers *Handlers) postEnableClearnetIBDHandler(r *http.Request) (interfa
 
 func (handlers *Handlers) postEnableRootLoginHandler(r *http.Request) (interface{}, error) {
 	handlers.log.Debug("Enable root login")
-	var toggleAction rpcmessages.ToggleSetting
+	var toggleAction bool
 	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
 		return nil, errp.WithStack(err)
 	}
-	if err := handlers.base.EnableRootLogin(toggleAction); err != nil {
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableRootLogin(toggleActionArgs); err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{

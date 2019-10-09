@@ -317,8 +317,8 @@ func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error
 	return reply, nil
 }
 
-// EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorTor: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTor", toggleAction, &reply)
@@ -328,8 +328,8 @@ func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSetting) (r
 	return reply, nil
 }
 
-// EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorMiddleware: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorMiddleware", toggleAction, &reply)
@@ -339,8 +339,8 @@ func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleS
 	return reply, nil
 }
 
-// EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorElectrs: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorElectrs", toggleAction, &reply)
@@ -350,8 +350,8 @@ func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSett
 	return reply, nil
 }
 
-// EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableTorSSH: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorSSH", toggleAction, &reply)
@@ -361,8 +361,8 @@ func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSetting)
 	return reply, nil
 }
 
-// EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableClearnetIBD: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableClearnetIBD", toggleAction, &reply)
@@ -372,8 +372,8 @@ func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSet
 	return reply, nil
 }
 
-// EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingEnable/Disable
-func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetting) (rpcmessages.ErrorResponse, error) {
+// EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Printf("Executing 'EnableRootLogin: %t' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableRootLogin", toggleAction, &reply)
