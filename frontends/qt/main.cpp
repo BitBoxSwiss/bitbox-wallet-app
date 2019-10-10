@@ -53,7 +53,7 @@ public:
 
     QSize sizeHint() const override {
         // Default initial window size.
-        return QSize(1257, 675);
+        return QSize(1257, 785);
     }
 
     void contextMenuEvent(QContextMenuEvent *event) override {
