@@ -64,7 +64,6 @@ public:
             page()->action(QWebEnginePage::Undo),
             page()->action(QWebEnginePage::Redo),
             page()->action(QWebEnginePage::SelectAll),
-            page()->action(QWebEnginePage::CopyLinkToClipboard),
             page()->action(QWebEnginePage::Unselect),
         };
         QMenu *menu = page()->createStandardContextMenu();
