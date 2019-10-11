@@ -17,6 +17,7 @@ package mdns
 
 import (
 	"net"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -48,7 +49,7 @@ type BaseDeviceInfo struct {
 // Manager listens for new bitboxbases and handles their (de)registration.
 type Manager struct {
 	onDetect      func()
-	detectedBases map[string]string
+	detectedBases map[string]string // Do not change this map to pointer types or anything else, the reflect.DeepEqual comparison in mdnsScan may break
 
 	baseDeviceInterface map[string]bitboxbase.Interface
 
@@ -153,6 +154,8 @@ func (manager *Manager) mdnsScan() {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
+			// Do not change this map to pointer types or anything else, the reflect.DeepEqual comparison below may break
+			detectedBases := make(map[string]string)
 			for entry := range entries {
 				host := entry.Host
 				resolvedHosts, err := net.LookupHost(host)
@@ -170,10 +173,13 @@ func (manager *Manager) mdnsScan() {
 				// Inform the backend that a new Base has been detected
 				// Even though micromdns.Lookup is supposed to filter based on mDNS service, sometimes it
 				// discovers other devices so we also filter them out here
-				if _, ok := manager.detectedBases[deviceInfo.Hostname]; !ok && strings.Contains(entry.Name, service) {
-					manager.detectedBases[deviceInfo.Hostname] = deviceInfo.IPv4
-					manager.onDetect()
+				if _, ok := detectedBases[deviceInfo.Hostname]; !ok && strings.Contains(entry.Name, service) {
+					detectedBases[deviceInfo.Hostname] = deviceInfo.IPv4
 				}
+			}
+			if !reflect.DeepEqual(detectedBases, manager.detectedBases) {
+				manager.detectedBases = detectedBases
+				manager.onDetect()
 			}
 		}()
 
