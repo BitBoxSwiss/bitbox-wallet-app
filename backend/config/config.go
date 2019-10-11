@@ -170,11 +170,11 @@ func NewDefaultAppConfig() AppConfig {
 				UseProxy:     false,
 				ProxyAddress: defaultProxyAddress,
 			},
-			BitcoinP2PKHActive:       false,
+			BitcoinP2PKHActive:       true,
 			BitcoinP2WPKHP2SHActive:  true,
-			BitcoinP2WPKHActive:      false,
+			BitcoinP2WPKHActive:      true,
 			LitecoinP2WPKHP2SHActive: true,
-			LitecoinP2WPKHActive:     false,
+			LitecoinP2WPKHActive:     true,
 			EthereumActive:           true,
 
 			BTC: btcCoinConfig{
