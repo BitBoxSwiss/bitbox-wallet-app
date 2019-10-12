@@ -29,10 +29,6 @@ required = []
   source = "https://github.com/btcsuite/btcd.git"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/karalabe/hid"
-
-[[constraint]]
   name = "github.com/gorilla/mux"
   version = "1.5.0"
 
