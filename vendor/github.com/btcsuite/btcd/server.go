@@ -246,6 +246,14 @@ type server struct {
 	// messages for each filter type.
 	cfCheckptCaches    map[wire.FilterType][]cfHeaderKV
 	cfCheckptCachesMtx sync.RWMutex
+
+	// agentBlacklist is a list of blacklisted substrings by which to filter
+	// user agents.
+	agentBlacklist []string
+
+	// agentWhitelist is a list of whitelisted user agent substrings, no
+	// whitelisting will be applied if the list is empty or nil.
+	agentWhitelist []string
 }
 
 // serverPeer extends the peer to maintain state shared by the server and
@@ -1586,6 +1594,12 @@ func (s *server) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
 		return false
 	}
 
+	// Disconnect peers with unwanted user agents.
+	if sp.HasUndesiredUserAgent(s.agentBlacklist, s.agentWhitelist) {
+		sp.Disconnect()
+		return false
+	}
+
 	// Ignore new peers if we're shutting down.
 	if atomic.LoadInt32(&s.shutdown) != 0 {
 		srvrLog.Infof("New peer %s ignored - server is shutting down", sp)
@@ -1637,6 +1651,12 @@ func (s *server) handleAddPeerMsg(state *peerState, sp *serverPeer) bool {
 		}
 	}
 
+	// Update the address' last seen time if the peer has acknowledged
+	// our version and has sent us its version as well.
+	if sp.VerAckReceived() && sp.VersionKnown() && sp.NA() != nil {
+		s.addrManager.Connected(sp.NA())
+	}
+
 	return true
 }
 
@@ -1651,30 +1671,27 @@ func (s *server) handleDonePeerMsg(state *peerState, sp *serverPeer) {
 	} else {
 		list = state.outboundPeers
 	}
+
+	// Regardless of whether the peer was found in our list, we'll inform
+	// our connection manager about the disconnection. This can happen if we
+	// process a peer's `done` message before its `add`.
+	if !sp.Inbound() {
+		if sp.persistent {
+			s.connManager.Disconnect(sp.connReq.ID())
+		} else {
+			s.connManager.Remove(sp.connReq.ID())
+			go s.connManager.NewConnReq()
+		}
+	}
+
 	if _, ok := list[sp.ID()]; ok {
 		if !sp.Inbound() && sp.VersionKnown() {
 			state.outboundGroups[addrmgr.GroupKey(sp.NA())]--
-		}
-		if !sp.Inbound() && sp.connReq != nil {
-			s.connManager.Disconnect(sp.connReq.ID())
 		}
 		delete(list, sp.ID())
 		srvrLog.Debugf("Removed peer %s", sp)
 		return
 	}
-
-	if sp.connReq != nil {
-		s.connManager.Disconnect(sp.connReq.ID())
-	}
-
-	// Update the address' last seen time if the peer has acknowledged
-	// our version and has sent us its version as well.
-	if sp.VerAckReceived() && sp.VersionKnown() && sp.NA() != nil {
-		s.addrManager.Connected(sp.NA())
-	}
-
-	// If we get here it means that either we didn't know about the peer
-	// or we purposefully deleted it.
 }
 
 // handleBanPeerMsg deals with banning peers.  It is invoked from the
@@ -2011,14 +2028,19 @@ func (s *server) outboundPeerConnected(c *connmgr.ConnReq, conn net.Conn) {
 	p, err := peer.NewOutboundPeer(newPeerConfig(sp), c.Addr.String())
 	if err != nil {
 		srvrLog.Debugf("Cannot create outbound peer %s: %v", c.Addr, err)
-		s.connManager.Disconnect(c.ID())
+		if c.Permanent {
+			s.connManager.Disconnect(c.ID())
+		} else {
+			s.connManager.Remove(c.ID())
+			go s.connManager.NewConnReq()
+		}
+		return
 	}
 	sp.Peer = p
 	sp.connReq = c
 	sp.isWhitelisted = isWhitelisted(conn.RemoteAddr())
 	sp.AssociateConnection(conn)
 	go s.peerDoneHandler(sp)
-	s.addrManager.Attempt(sp.NA())
 }
 
 // peerDoneHandler handles peer disconnects by notifiying the server that it's
@@ -2538,7 +2560,10 @@ func setupRPCListeners() ([]net.Listener, error) {
 // newServer returns a new btcd server configured to listen on addr for the
 // bitcoin network type specified by chainParams.  Use start to begin accepting
 // connections from peers.
-func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Params, interrupt <-chan struct{}) (*server, error) {
+func newServer(listenAddrs, agentBlacklist, agentWhitelist []string,
+	db database.DB, chainParams *chaincfg.Params,
+	interrupt <-chan struct{}) (*server, error) {
+
 	services := defaultServices
 	if cfg.NoPeerBloomFilters {
 		services &^= wire.SFNodeBloom
@@ -2562,6 +2587,13 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		}
 	}
 
+	if len(agentBlacklist) > 0 {
+		srvrLog.Infof("User-agent blacklist %s", agentBlacklist)
+	}
+	if len(agentWhitelist) > 0 {
+		srvrLog.Infof("User-agent whitelist %s", agentWhitelist)
+	}
+
 	s := server{
 		chainParams:          chainParams,
 		addrManager:          amgr,
@@ -2581,6 +2613,8 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 		sigCache:             txscript.NewSigCache(cfg.SigCacheMaxSize),
 		hashCache:            txscript.NewHashCache(cfg.SigCacheMaxSize),
 		cfCheckptCaches:      make(map[wire.FilterType][]cfHeaderKV),
+		agentBlacklist:       agentBlacklist,
+		agentWhitelist:       agentWhitelist,
 	}
 
 	// Create the transaction and address indexes if needed.
@@ -2683,6 +2717,7 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 			MaxSigOpCostPerTx:    blockchain.MaxBlockSigOpsCost / 4,
 			MinRelayTxFee:        cfg.minRelayTxFee,
 			MaxTxVersion:         2,
+			RejectReplacement:    cfg.RejectReplacement,
 		},
 		ChainParams:    chainParams,
 		FetchUtxoView:  s.chain.FetchUtxoView,
@@ -2774,6 +2809,9 @@ func newServer(listenAddrs []string, db database.DB, chainParams *chaincfg.Param
 					activeNetParams.DefaultPort {
 					continue
 				}
+
+				// Mark an attempt for the valid address.
+				s.addrManager.Attempt(addr.NetAddress())
 
 				addrString := addrmgr.NetAddressKey(addr.NetAddress())
 				return addrStringToNetAddr(addrString)
@@ -3132,4 +3170,48 @@ func mergeCheckpoints(defaultCheckpoints, additional []chaincfg.Checkpoint) []ch
 	}
 	sort.Sort(checkpointSorter(checkpoints))
 	return checkpoints
+}
+
+// HasUndesiredUserAgent determines whether the server should continue to pursue
+// a connection with this peer based on its advertised user agent. It performs
+// the following steps:
+// 1) Reject the peer if it contains a blacklisted agent.
+// 2) If no whitelist is provided, accept all user agents.
+// 3) Accept the peer if it contains a whitelisted agent.
+// 4) Reject all other peers.
+func (sp *serverPeer) HasUndesiredUserAgent(blacklistedAgents,
+	whitelistedAgents []string) bool {
+
+	agent := sp.UserAgent()
+
+	// First, if peer's user agent contains any blacklisted substring, we
+	// will ignore the connection request.
+	for _, blacklistedAgent := range blacklistedAgents {
+		if strings.Contains(agent, blacklistedAgent) {
+			srvrLog.Debugf("Ignoring peer %s, user agent "+
+				"contains blacklisted user agent: %s", sp,
+				agent)
+			return true
+		}
+	}
+
+	// If no whitelist is provided, we will accept all user agents.
+	if len(whitelistedAgents) == 0 {
+		return false
+	}
+
+	// Peer's user agent passed blacklist. Now check to see if it contains
+	// one of our whitelisted user agents, if so accept.
+	for _, whitelistedAgent := range whitelistedAgents {
+		if strings.Contains(agent, whitelistedAgent) {
+			return false
+		}
+	}
+
+	// Otherwise, the peer's user agent was not included in our whitelist.
+	// Ignore just in case it could stall the initial block download.
+	srvrLog.Debugf("Ignoring peer %s, user agent: %s not found in "+
+		"whitelist", sp, agent)
+
+	return true
 }
