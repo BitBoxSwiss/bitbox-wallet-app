@@ -39,7 +39,7 @@ linux:
 	cd build/linux && fpm --after-install ../../resources/deb-afterinstall.sh -s dir -t rpm -n bitbox -v 4.13.1 -C ../tmp-deb/
 	# create AppImage
 	cd build/linux-tmp && /opt/linuxdeployqt-6-x86_64.AppImage BitBox -appimage
-	mv build/linux-tmp/BitBox_App-*-x86_64.AppImage build/linux/
+	mv build/linux-tmp/BitBoxApp-*-x86_64.AppImage build/linux/
 	rm build/linux-tmp/libserver.so
 osx:
 	$(MAKE) clean

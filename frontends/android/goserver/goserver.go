@@ -125,7 +125,7 @@ func (hook goLogHook) Fire(entry *logrus.Entry) error {
 	return nil
 }
 
-// Serve serves the BitBox App API for use in a mobile client. It is called when the application
+// Serve serves the BitBoxApp API for use in a mobile client. It is called when the application
 // is started or wakes up from sleep.
 func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterface) {
 	once.Do(func() {

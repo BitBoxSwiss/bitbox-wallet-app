@@ -21,7 +21,7 @@
 #include "libserver.h"
 #include "webclass.h"
 
-#define APPNAME "BitBox App"
+#define APPNAME "BitBoxApp"
 
 static QWebEngineView* view;
 static bool pageLoaded = false;

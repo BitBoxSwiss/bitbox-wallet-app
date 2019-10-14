@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>BitBox App</string>
+	<string>BitBoxApp</string>
 
 	<key>CFBundleExecutable</key>
 	<string>BitBox</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>BitBox App by Shift Cryptosecurity</string>
+	<string>BitBoxApp by Shift Cryptosecurity</string>
 
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>

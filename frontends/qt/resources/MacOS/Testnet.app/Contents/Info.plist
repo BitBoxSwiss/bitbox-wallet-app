@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>Testnet App</string>
+	<string>BitBoxApp Testnet</string>
 
 	<key>CFBundleExecutable</key>
 	<string>testnet.sh</string>
 
 	<key>CFBundleGetInfoString</key>
-	<string>Testnet App by Shift Cryptosecurity</string>
+	<string>BitBoxApp Testnet by Shift Cryptosecurity</string>
 
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
