@@ -30,7 +30,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:83160035e81a0d248a1379f71b12e94c26b0cc8dab22994663af7e2e9ff9611b"
+  digest = "1:60b4362dfbb066d0ed039fb555fab94e0b34844f4f85219ba32581a0566d1724"
   name = "github.com/btcsuite/btcd"
   packages = [
     "blockchain",
@@ -46,7 +46,7 @@
     "wire",
   ]
   pruneopts = ""
-  revision = "67e573d211ace594f1366b4ce9d39726c4b19bd0"
+  revision = "07282a6656b84356614b0aa4daa63059442775d4"
   source = "https://github.com/btcsuite/btcd.git"
 
 [[projects]]
@@ -59,7 +59,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:56b87c786a316d6e9b9c7ba8f3dd64e3199ca3b33a55cc596c633023bed20264"
+  digest = "1:2e270bd404359cbef8dc82c74baf4487efc70d2986062163b20c712dd5162c2b"
   name = "github.com/btcsuite/btcutil"
   packages = [
     ".",
@@ -71,7 +71,7 @@
     "txsort",
   ]
   pruneopts = ""
-  revision = "ab6388e0c60ae4834a1f57511e20c17b5f78be4b"
+  revision = "9e5f4b9a998d263e3ce9c56664a7816001ac8000"
 
 [[projects]]
   branch = "master"
@@ -532,8 +532,10 @@
     "html/charset",
     "internal/iana",
     "internal/socket",
+    "internal/socks",
     "ipv4",
     "ipv6",
+    "proxy",
   ]
   pruneopts = ""
   revision = "4dfa2610cdf3b287375bbba5b8f2a14d3b01d8de"
@@ -633,6 +635,7 @@
     "github.com/stretchr/testify/suite",
     "golang.org/x/crypto/pbkdf2",
     "golang.org/x/crypto/scrypt",
+    "golang.org/x/net/proxy",
     "golang.org/x/text/language",
   ]
   solver-name = "gps-cdcl"
