@@ -1,6 +1,6 @@
-# BitBox App
+# BitBoxApp
 
-This repo contains the source code for the BitBox App and related tools.
+This repo contains the source code for the BitBoxApp and related tools.
 
 ## Tech Stack
 
@@ -57,7 +57,7 @@ Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app`
 
 Only the first time, call `make envinit` to install the required go utilities (linters, dep, ...).
 
-## Build the BitBox App
+## Build the BitBoxApp
 
 Please consult `docs/BUILD.md` for platform specific instructions and further
 information.

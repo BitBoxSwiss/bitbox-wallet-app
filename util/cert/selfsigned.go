@@ -59,7 +59,7 @@ func createSelfSignedCertificate(privateKey *rsa.PrivateKey, log *logrus.Entry) 
 		Subject: pkix.Name{
 			Country:            []string{"CH"},
 			Organization:       []string{"Shift Cryptosecurity"},
-			OrganizationalUnit: []string{"BitBox App"},
+			OrganizationalUnit: []string{"BitBoxApp"},
 		},
 		NotBefore:             notBefore,
 		NotAfter:              notAfter,
