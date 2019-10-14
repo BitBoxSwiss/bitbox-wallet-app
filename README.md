@@ -2,7 +2,7 @@
 
 This repo contains the source code for the BitBox App and related tools.
 
-## Tech Stack
+## Tech stack
 
 The wallet UI is a [preact](https://preactjs.com/) single page webapp. It sources its data from the
 backend written in Go.
@@ -62,19 +62,19 @@ Only the first time, call `make envinit` to install the required go utilities (l
 Please consult `docs/BUILD.md` for platform specific instructions and further
 information.
 
-## I18N Translation Workflow
+## I18N translation workflow
 
 Please consult `docs/i18n.md`.
 
-## ElectrumX Backend
+## ElectrumX backend
 
 The servers used are configurable in the app settings. Currently, when running the app in devmode
 (`make servewallet`), the config is ignored and servers on Shift's devserver are used. The
 hosts/ports/certs of those are currently hardcoded.
 
-## Development Workflow
+## Development workflow
 
-### Local Development
+### Local development
 
 Run `make servewallet` and `make webdev` in seperate terminals.
 
