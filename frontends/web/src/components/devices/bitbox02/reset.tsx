@@ -79,7 +79,7 @@ class Reset extends Component<Props, State> {
                 <SettingsButton
                     danger
                     onClick={() => this.setState({ activeDialog: true })}>
-                    {t('reset.button')}
+                    {t('reset.title')}
                 </SettingsButton>
                 {
                     activeDialog && (
@@ -104,7 +104,7 @@ class Reset extends Component<Props, State> {
                             </div>
                             <div className={dialogStyle.actions}>
                                 <Button danger disabled={!understand} onClick={this.reset}>
-                                    {t('reset.button')}
+                                    {t('reset.title')}
                                 </Button>
                             </div>
                         </Dialog>

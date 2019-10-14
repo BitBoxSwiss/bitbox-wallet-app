@@ -83,7 +83,7 @@ export default class Reset extends Component {
         return (
             <div>
                 <SettingsButton danger onClick={() => this.setState({ activeDialog: true })}>
-                    {t('reset.button')}
+                    {t('reset.title')}
                 </SettingsButton>
                 {
                     activeDialog && (
@@ -107,7 +107,7 @@ export default class Reset extends Component {
                             </div>
                             <div className={dialogStyle.actions}>
                                 <Button danger disabled={!pin || !understand} onClick={this.resetDevice}>
-                                    {t('reset.button')}
+                                    {t('reset.title')}
                                 </Button>
                                 <Button transparent onClick={this.abort} disabled={isConfirming}>
                                     {t('button.back')}
