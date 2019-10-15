@@ -327,7 +327,7 @@ class BitBox02 extends Component<Props, State> {
 
     private restoreFromMnemonic = () => {
         this.setState({ waitDialog: {
-            title: 'Follow Instructions on BitBox02',
+            title: this.props.t('bitbox02Interact.followInstructions'),
             text: 'Please follow instructions on BitBox02 to restore from mnemonic.',
         }});
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
@@ -534,7 +534,7 @@ class BitBox02 extends Component<Props, State> {
                                     <Step
                                         active={createWalletStatus === 'intro'}
                                         // title={t('seed.create')}
-                                        title="Choose BitBox02 Name">
+                                        title="Choose BitBox02 name">
                                         {
                                             !sdCardInserted && (
                                                 <Toast theme="info">
@@ -584,7 +584,7 @@ class BitBox02 extends Component<Props, State> {
                                         width={700}
                                         active={createWalletStatus === 'setPassword'}
                                         // title={t('bitbox02Wizard.initialize.passwordTitle')}
-                                        title="Set BitBox02 Password">
+                                        title="Set BitBox02 password">
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (

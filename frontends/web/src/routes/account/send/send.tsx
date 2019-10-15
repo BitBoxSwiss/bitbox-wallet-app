@@ -533,7 +533,7 @@ class Send extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className="flex flex-row flex-between">
-                                <label className="labelXLarge">Available Balance</label>
+                                <label className="labelXLarge">Available balance</label>
                                 {
                                     coinControl && (
                                         <A href="#" onClick={this.toggleCoinControl} className="labelLarge labelLink">{t('send.toggleCoinControl')}</A>
@@ -555,7 +555,7 @@ class Send extends Component<Props, State> {
                                 )
                             }
                             <div className={style.container}>
-                                <label className="labelXLarge">Transaction Details</label>
+                                <label className="labelXLarge">Transaction details</label>
                             </div>
                             <div className="box large m-bottom-default">
                                 <div className="columnsContainer">

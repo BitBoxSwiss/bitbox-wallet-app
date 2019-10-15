@@ -734,10 +734,9 @@
     }
   },
   "reset": {
-    "button": "Reset Device",
     "description": "All data on the device will be deleted. That includes your Private Key!",
     "notReset": "Device NOT reset.",
-    "title": "Reset Device",
+    "title": "Factory Reset Device",
     "understand": "I have a backup and know my recovery password",
     "understandBB02": "I have a valid backup"
   },
