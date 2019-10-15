@@ -14,13 +14,15 @@ const (
 	OpUCanHasVerificationProgress = "v"
 	// OpServiceInfoChanged notifies when the GetServiceInfo data changed.
 	OpServiceInfoChanged = "s"
+	// OpBaseUpdateProgressChanged notifies when the BaseUpdateProgress changes while performing a Base Update.
+	OpBaseUpdateProgressChanged = "u"
 )
 
 /*
 Put Incoming Args below this line. They should have the format of 'RPC Method Name' + 'Args'.
 */
 
-// UserAuthenticateArgs is a struct that holds the arguments for the UserAuthenticate RPC call. The first rpc call should always authenticate first
+// UserAuthenticateArgs is a struct that holds the arguments for the UserAuthenticate RPC call
 type UserAuthenticateArgs struct {
 	Username string
 	Password string
@@ -31,7 +33,7 @@ type AuthGenericRequest struct {
 	Token string
 }
 
-// UserChangePasswordArgs is a struct that holds the arguments for the UserChangePassword RPC call
+// UserChangePasswordArgs is an struct that holds the arguments for the UserChangePassword RPC call
 type UserChangePasswordArgs struct {
 	Username    string
 	Password    string
@@ -55,6 +57,12 @@ type SetRootPasswordArgs struct {
 type ToggleSettingArgs struct {
 	ToggleSetting bool
 	Token         string
+}
+
+// UpdateBaseArgs is a struct that holds the Base version that should be updated to
+type UpdateBaseArgs struct {
+	Version string
+	Token   string
 }
 
 /*
@@ -94,7 +102,30 @@ type VerificationProgressResponse struct {
 	VerificationProgress float64 `json:"verificationProgress"`
 }
 
-// GetBaseInfoResponse is the struct that get sent by the rpc server during a GetBaseInfo rpc call
+// BaseUpdateState is the type used to hold the current state for a Base update.
+type BaseUpdateState int
+
+// The possible values of BaseUpdateState.
+// Representing the states that can be reached in a BaseUpdate RPC call.
+const (
+	UpdateNotInProgress BaseUpdateState = iota + 1
+	UpdateDownloading
+	UpdateFailed
+	UpdateApplying
+	UpdateRebooting
+)
+
+// GetBaseUpdateProgressResponse is the response to a GetBaseUpdateProgress RPC call.
+// The app is notified over a changed middleware state calls the GetBaseUpdateProgress
+// RPC which returns GetBaseUpdateProgressResponse.
+type GetBaseUpdateProgressResponse struct {
+	ErrorResponse         *ErrorResponse
+	State                 BaseUpdateState
+	ProgressPercentage    int
+	ProgressDownloadedKiB int
+}
+
+// GetBaseInfoResponse is the struct that gets sent by the RPC server during a GetBaseInfo RPC call
 type GetBaseInfoResponse struct {
 	ErrorResponse       *ErrorResponse
 	Status              string `json:"status"`
@@ -135,10 +166,10 @@ type ErrorResponse struct {
 }
 
 // Error formats the ErrorResponse in the following two formats:
-// If no error occoured:
+// If no error occurred:
 //  ErrorResponse: Success: true
 //
-// If an error occoured:
+// If an error occurred:
 // 	ErrorResponse:
 // 		Success: false
 // 		Code: <ERROR_CODE>

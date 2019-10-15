@@ -127,6 +127,13 @@ type Interface interface {
 	// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
 	RebootBase() error
 
+	// UpdateBase performs an update of the Base firmware to a passed version.
+	UpdateBase(rpcmessages.UpdateBaseArgs) error
+
+	// BaseUpdateProgress returns the Base Update progress.
+	// This should be called when then middleware notifies the App that the update progress changed.
+	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
+
 	// BaseInfo returns information about the Base
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 
@@ -626,6 +633,22 @@ func (base *BitBoxBase) RebootBase() error {
 	return nil
 }
 
+// UpdateBase calls the UpdateBase RPC which performs a update of the Base.
+func (base *BitBoxBase) UpdateBase(args rpcmessages.UpdateBaseArgs) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a UpdateBase call")
+	reply, err := base.rpcClient.UpdateBase(args)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
 // BaseInfo returns info about the Base contained in rpcmessages.GetBaseInfoResponse
 func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	if !base.active {
@@ -654,6 +677,19 @@ func (base *BitBoxBase) ServiceInfo() (rpcmessages.GetServiceInfoResponse, error
 	}
 	if !reply.ErrorResponse.Success {
 		return rpcmessages.GetServiceInfoResponse{}, reply.ErrorResponse
+	}
+	return reply, nil
+}
+
+// BaseUpdateProgress returns the Base update progress.
+func (base *BitBoxBase) BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error) {
+	if !base.active {
+		return rpcmessages.GetBaseUpdateProgressResponse{}, errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a GetBaseUpdateProgress call")
+	reply, err := base.rpcClient.GetBaseUpdateProgress()
+	if err != nil {
+		return rpcmessages.GetBaseUpdateProgressResponse{}, err
 	}
 	return reply, nil
 }
