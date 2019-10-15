@@ -1,7 +1,7 @@
 {
   "account": {
     "disconnect": "Connection lost. Retrying…",
-    "exportTransactions": "Export Transactions to Downloads Folder as CSV File",
+    "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
     "info": {
@@ -13,39 +13,39 @@
       "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Getting information from the blockchain…",
-    "openFile": "Open File",
+    "openFile": "Open file",
     "reconnecting": "Lost connection, trying to reconnect…"
   },
   "accountInfo": {
     "address": "Address",
-    "extendedPublicKey": "Extended Public Key",
-    "title": "Account Information",
+    "extendedPublicKey": "Extended public key",
+    "title": "Account information",
     "verify": "Verify on device"
   },
   "accountSummary": {
     "balance": "Balance",
-    "exportSummary": "Export Accounts Summary to Downloads Folder as CSV File",
-    "fiatBalance": "Fiat Balance",
-    "name": "Account Name",
+    "exportSummary": "Export accounts summary to downloads folder as CSV file",
+    "fiatBalance": "Fiat balance",
+    "name": "Account name",
     "noAccount": "There are no accounts to show.",
     "synchronizing": "Synchronizing accounts with their blockchains: ",
-    "title": "Accounts Summary",
+    "title": "Accounts summary",
     "total": "Total"
   },
   "addAccount": {
-    "accountName": "Account Name",
+    "accountName": "Account name",
     "address": "Address",
     "coin": "Coin",
     "error": {
       "alreadyExists": "The account already exists.",
       "invalidAddress": "Please enter a valid address",
       "xprivEntered": "WARNING: You entered an extended private key. Please enter an extended public key and keep your private keys safe.",
-      "xpubInvalid": "Extended Public Key malformatted."
+      "xpubInvalid": "Extended public key malformatted."
     },
-    "extendedPublicKey": "Extended Public Key",
-    "scriptType": "Script Type",
-    "submit": "Add Account",
-    "title": "Add Account",
+    "extendedPublicKey": "Extended public key",
+    "scriptType": "Script type",
+    "submit": "Add account",
+    "title": "Add account",
     "warning": {
       "xpubWrongNet": "Warning: The extended public key format indicates that it might not be valid for the selected account type. If you do not see the expected transactions, then try to import the extended public key with another account type."
     }
@@ -56,7 +56,7 @@
   "backup": {
     "check": {
       "checking": "Checking backup…",
-      "confirmTitle": "Check Backup",
+      "confirmTitle": "Check backup",
       "notOK": "Backup does NOT match the wallet.",
       "ok": "Backup matches the wallet.",
       "password": {
@@ -65,32 +65,32 @@
         "showLabel": "recovery password"
       },
       "success": "Successfully verified backup:",
-      "title": "Check Backup"
+      "title": "Check backup"
     },
     "create": {
       "alreadyExists": "You already have a valid backup. Do you wish to re-create it?",
       "fail": "Creating the backup FAILED!",
       "info": "Please enter the recovery password of the current wallet for verification.",
       "name": {
-        "label": "Backup Name",
+        "label": "Backup name",
         "placeholder": "Please name the backup"
       },
       "password": {
-        "label": "Recovery Password",
+        "label": "Recovery password",
         "placeholder": "Please enter your recovery password"
       },
-      "title": "Create Backup",
+      "title": "Create backup",
       "verificationFailed": "The recovery password does NOT MATCH the current wallet. The backup has been created. Please use 'Check Backup' to verify your recovery password again."
     },
     "description": "Select <strong>wallet backup file</strong>",
-    "insert": "Please insert the micro SD card to manage backups.",
-    "insertButton": "I have inserted the micro SD card",
+    "insert": "Please insert the microSD card to manage backups.",
+    "insertButton": "I have inserted the microSD card",
     "list": "Your microSD card backups",
     "noBackups": "There are no backups on this microSD card.",
     "restore": {
-      "confirmTitle": "Restore Backup",
+      "confirmTitle": "Restore backup",
       "error": {
-        "e200": "SD card not found"
+        "e200": "microSD card not found"
       },
       "password": {
         "label": "Recovery password or hidden recovery password",
@@ -103,18 +103,18 @@
       "understand": "I understand that an incorrect recovery password will create a different wallet"
     },
     "restoreFromMnemonic": {
-      "confirmTitle": "Restore from BIP39 mnemonic"
+      "confirmTitle": "Restore from mnemonic seed"
     },
     "showMnemonic": {
       "description": "You will be presented with up to 24 words, which form a backup of your wallet. Write them down on paper.\n\n<strong>Do not store them digitally or take pictures of it.</strong>\n\n<strong>Do not say the words out loud.</strong>\n\n<strong>This backup is not password-protected.</strong>\n\nAfterwards, you will be asked to confirm each word.",
-      "title": "Show BIP39 Mnemonic"
+      "title": "Show mnemonic seed"
     },
-    "title": "Manage Backups"
+    "title": "Manage backups"
   },
   "bb02Bootloader": {
-    "abort": "Don't upgrade – Take me back",
+    "abort": "Don't upgrade – take me back",
     "advanced": {
-      "label": "Advanced Settings",
+      "label": "Advanced settings",
       "toggleShowFirmwareHash": "Show the firmware hash every time on startup"
     },
     "flipscreen": "Flip screen",
@@ -134,8 +134,8 @@
   },
   "bitbox02Settings": {
     "deviceName": {
-      "current": "Current Device Name",
-      "input": "BitBox02 Name",
+      "current": "Current device name",
+      "input": "BitBox02 name",
       "title": "Set BitBox02 name"
     },
     "mnemonicPassphrase": {
@@ -161,9 +161,9 @@
       "userConfirmation4": "If I lose or damage both my backup and my BitBox02 then my funds will be lost."
     },
     "create": {
-      "button": "Name Device & Continue",
+      "button": "Name device & continue",
       "info": "Here are the basics steps you will be taking to set up your BitBox: ",
-      "inputTitle": "Wallet Name",
+      "inputTitle": "Wallet name",
       "point1": "Name your device",
       "point2": "Set a password for your device",
       "point3": "Create a backup",
@@ -181,24 +181,24 @@
       "confirmButton": "Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
       "paired": "You have confirmed on your device that the code matches. If this is correct, you can continue by clicking the button below.",
-      "title": "Verify Pairing Code",
+      "title": "Verify pairing code",
       "unpaired": "A new BitBox02 has been detected. Please verify that the following code matches what is shown on your device. If the code matches, touch underneath the check mark on your BitBox02 and then click the button below to continue."
     },
     "restoreFromMnemonic": {
-      "failed": "Restoring from BIP39 mnemonic failed, please try again.",
+      "failed": "Restoring from mnemonic seed failed, please try again.",
       "point1": "Enter words",
       "point2": "$t(bitbox02Wizard.backup.point2)"
     },
     "success": {
-      "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBox App, please use the in-app guide by clicking the question mark on the top right corner.",
+      "text": "Hooray! Your BitBox02 is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
       "title": "You're ready to go!"
     }
   },
   "bitboxBase": {
     "connect": "Connect Base",
     "detectedBases": "Detected the following devices on your network:",
-    "manualInput": "Can't see your BitBox Base? Connect manually below:",
-    "title": "BitBox Base"
+    "manualInput": "Can't see your BitBoxBase? Connect manually below:",
+    "title": "BitBoxBase"
   },
   "bitboxBaseWizard": {
     "bitcoin": {
@@ -211,13 +211,13 @@
       "title": "Choose your syncing option"
     },
     "pairing": {
-      "failed": "Unconfirmed pairing. Please try to disconnect and connect to the BitBox Base again",
-      "paired": "You have confirmed on your BitBox Base that the code matches",
-      "title": "Verify Pairing Code",
-      "unpaired": "A new BitBox Base has been connected. Please verify that the following code matches what is shown on your BitBox Base. If the code matches, touch underneath the check mark on your BitBox Base and then click the button below to continue."
+      "failed": "Unconfirmed pairing. Please try to disconnect and connect to the BitBoxBase again",
+      "paired": "You have confirmed on your BitBoxBase that the code matches",
+      "title": "Verify pairing code",
+      "unpaired": "A new BitBoxBase has been connected. Please verify that the following code matches what is shown on your BitBoxBase. If the code matches, touch underneath the check mark on your BitBoxBase and then click the button below to continue."
     },
     "success": {
-      "text": "Hooray! Your BitBox Base is now ready to use. \n\nFor further information on how to use the BitBox App, please use the in-app guide by clicking the question mark on the top right corner.",
+      "text": "Hooray! Your BitBoxBase is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
       "title": "You're ready to go!"
     }
   },
@@ -232,12 +232,12 @@
   "button": {
     "abort": "Abort",
     "back": "Back",
-    "changepin": "Change Device Password",
-    "check": "Check Backup",
+    "changepin": "Change device password",
+    "check": "Check backup",
     "copy": "Copy",
     "create": "Create",
     "download": "Download",
-    "hiddenwallet": "Create Hidden Wallet",
+    "hiddenwallet": "Create hidden wallet",
     "next": "Next",
     "ok": "OK",
     "previous": "Previous",
@@ -251,7 +251,7 @@
     "newTitle": "New device password",
     "oldLabel": "Current device password"
   },
-  "checkSDcard": "checking micro SD card",
+  "checkSDcard": "checking microSD card",
   "confirm": {
     "abortInfo": "Tap to ",
     "abortInfoRedText": "abort",
@@ -265,17 +265,17 @@
     "appUpradeRequired": "Your BitBox is not compatible with this desktop application. Please download and install the latest version."
   },
   "deviceLock": {
-    "button": "Enable Two Factor Authorization (2FA)",
+    "button": "Enable two factor authorization (2FA)",
     "condition1": "Do you have a backup?",
     "condition2": "Is mobile app verification working?",
     "condition3": "2FA DISABLES backups and mobile app pairing. The device must be RESET to exit 2FA!",
-    "confirm": "Enable Two Factor Authorization (2FA)",
-    "title": "Enable Two Factor Authorization (2FA)"
+    "confirm": "Enable two factor authorization (2FA)",
+    "title": "Enable two factor authorization (2FA)"
   },
   "deviceSettings": {
     "firmware": {
       "newVersion": {
-        "label": "Available Version"
+        "label": "Available version"
       },
       "title": "Firmware",
       "upToDate": "Your device is up to date",
@@ -286,7 +286,7 @@
     "hardware": {
       "sdcard": {
         "false": "Not inserted",
-        "label": "Micro SD Card",
+        "label": "microSD card",
         "true": "Inserted"
       },
       "title": "Hardware"
@@ -300,7 +300,7 @@
       },
       "mobile": {
         "false": "Closed",
-        "label": "Mobile App",
+        "label": "Mobile app",
         "true": "Open"
       },
       "status": {
@@ -311,7 +311,7 @@
       "title": "Pairing"
     },
     "secrets": {
-      "manageBackups": "Manage Backups",
+      "manageBackups": "Manage backups",
       "title": "Secrets"
     }
   },
@@ -326,7 +326,7 @@
     "title": "Currencies"
   },
   "footer": {
-    "appVersion": "App Version:"
+    "appVersion": "App version:"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
@@ -337,7 +337,7 @@
     "paragraph": "Please select one of the following options:",
     "step": {
       "1": {
-        "title": "Security Information"
+        "title": "Security information"
       },
       "2": {
         "description": "Set a device password",
@@ -425,15 +425,15 @@
     },
     "backups": {
       "check": {
-        "text": "'Check Backup' allows you to verify that you have a working backup corresponding to your current wallet. It can also be used to verify that you still have the correct recovery password. You can check your main recovery password or your hidden recovery password.",
-        "title": "What is 'Check Backup'?"
+        "text": "'Check backup' allows you to verify that you have a working backup corresponding to your current wallet. It can also be used to verify that you still have the correct recovery password. You can check your main recovery password or your hidden recovery password.",
+        "title": "What is 'Check backup'?"
       },
       "encrypt": {
         "text": "No but your recovery password is required to derive the wallet from the stored seed.",
         "title": "Can I encrypt the backup?"
       },
       "howOften": {
-        "text": "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your micro SD card is lost or damaged, or if you want to use multiple micro SD cards as backups.\nYou do not need to create new backups after transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you.",
+        "text": "The backup is automatically generated when a new wallet is created. You only have to make a new backup if your microSD card is lost or damaged, or if you want to use multiple microSD cards as backups.\nYou do not need to create new backups after transaction activity. All your transaction data can be recreated by your single backup that was automatically generated for you.",
         "title": "How often do I have to make a backup?"
       },
       "whatIsABackup": {
@@ -443,15 +443,15 @@
     },
     "backupsBB02": {
       "check": {
-        "text": "'Check Backup' allows you to verify that you have a working backup corresponding to your current wallet.",
-        "title": "What is 'Check Backup'?"
+        "text": "'Check backup' allows you to verify that you have a working backup corresponding to your current wallet.",
+        "title": "What is 'Check backup'?"
       },
       "encrypt": {
-        "text": "No. Please keep the micro SD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to password-protect your seed, you can enable an optional passphrase in the expert settings under \"Manage Device\".",
+        "text": "No. Please keep the microSD card safe, as it contains the unencrypted seed to recover your wallet. If you wish to password-protect your seed, you can enable an optional passphrase in the expert settings under \"Manage device\".",
         "title": "Can I encrypt the backup?"
       },
       "whatIsABackup": {
-        "text": "It is a copy of the seed on an micro SD card.",
+        "text": "It is a copy of the seed on an microSD card.",
         "title": "What is a backup?"
       }
     },
@@ -461,7 +461,7 @@
         "title": "How does Two Factor Authorization (2FA) work?"
       },
       "disable2FA": {
-        "text": "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the micro SD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet.",
+        "text": "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the microSD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet.",
         "title": "How can I disable Two Factor Authorization (2FA)?"
       },
       "ejectBitbox": {
@@ -469,8 +469,8 @@
         "title": "How can I eject the BitBox?"
       },
       "ejectSD": {
-        "text": "You can remove the micro SD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup.",
-        "title": "How can I eject the micro SD card?"
+        "text": "You can remove the microSD card from the BitBox at any time as long as you are not in the process of creating or restoring a backup.",
+        "title": "How can I eject the microSD card?"
       },
       "hiddenWallet": {
         "text": "It is a second wallet on the same device protected by a different device password and recovery password, which you can use for plausible deniability. The same backup seed is used for both your normal and hidden wallet, so no additional backup is required.",
@@ -542,7 +542,7 @@
       },
       "btc-p2sh": {
         "link": {
-          "text": "Segregated Witness Benefits",
+          "text": "Segregated witness benefits",
           "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/"
         },
         "text": "This is a backwards compatible segwit account (p2sh-p2wpkh). It uses a new transaction format that saves you network fees. The address format is similar to legacy, and as such can be used with all existing Bitcoin wallets/exchanges/services.",
@@ -599,7 +599,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Backup Center",
+          "text": "Backup center",
           "url": "https://shiftcrypto.ch/backup"
         },
         "text": "You can recover your accounts on a new BitBox or with our backup center.",
@@ -611,7 +611,7 @@
       },
       "welcome": {
         "text": "Thanks for using this app built by Shift Cryptosecurity in Switzerland. We appreciate any input you have to share. Please give feedback using the link at the bottom.",
-        "title": "Welcome to the BitBox app!"
+        "title": "Welcome to the BitBoxApp!"
       }
     }
   },
@@ -653,8 +653,8 @@
     "title": "Select language"
   },
   "legacyhiddenwallet": {
-    "disable": "Disable Legacy Hidden Wallet",
-    "enable": "Enable Legacy Hidden Wallet",
+    "disable": "Disable legacy hidden wallet",
+    "enable": "Enable legacy hidden wallet",
     "successDisable": "Successfully disabled the legacy hidden wallet.",
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
@@ -668,10 +668,10 @@
       "text": "The pairing has been aborted from the mobile app.",
       "title": "Aborted"
     },
-    "button": "Pair Mobile App",
+    "button": "Pair mobile app",
     "confirm": "Are you sure you want to pair your BitBox? Note that after, the mobile phone is required to perform a transaction.",
     "connectOnly": {
-      "button": "Connect Mobile App",
+      "button": "Connect mobile app",
       "title": "Scan with our mobile app by selecting the menu item 'Connect to new desktop app'"
     },
     "error": {
@@ -679,11 +679,11 @@
       "title": "Error"
     },
     "reconnectOnly": {
-      "button": "Reconnect Mobile App"
+      "button": "Reconnect mobile app"
     },
     "start": {
-      "hideAppQRCode": "Hide QR Code",
-      "revealAppQRCode": "Show QR Code",
+      "hideAppQRCode": "Hide QR code",
+      "revealAppQRCode": "Show QR code",
       "step1": "If you do not have the mobile app, you can scan the QR code for the Apple App Store or the Google Play Store depending on which phone you have.",
       "step2": "Scan with our mobile app, which you can find under the name 'Digital Bitbox 2FA' in the app stores for iOS and Android:"
     },
@@ -699,7 +699,7 @@
       "text": "The pairing timed out after two minutes. Start again if you still want to pair the mobile app.",
       "title": "Timeout"
     },
-    "title": "Mobile Pairing"
+    "title": "Mobile pairing"
   },
   "password": {
     "show": "Show {{label}}",
@@ -709,7 +709,7 @@
     }
   },
   "random": {
-    "button": "Generate Random Number",
+    "button": "Generate random number",
     "description": "Your BitBox generated the following {{bits}}-bit random number:"
   },
   "receive": {
@@ -730,13 +730,13 @@
     "verifyBitBox02": "Verify address on BitBox02",
     "verifyInstruction": "Please verify that the following address matches the one displayed on your device.",
     "warning": {
-      "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage Device' in the sidebar."
+      "secureOutput": "Please pair your BitBox with your mobile device to enable secure address verification. Go to 'Manage device' in the sidebar."
     }
   },
   "reset": {
     "description": "All data on the device will be deleted. That includes your Private Key!",
     "notReset": "Device NOT reset.",
-    "title": "Factory Reset Device",
+    "title": "Factory reset device",
     "understand": "I have a backup and know my recovery password",
     "understandBB02": "I have a valid backup"
   },
@@ -747,15 +747,15 @@
       "description2": "You will be asked to create two passwords.",
       "description3": "The first is the <strong>device password</strong> which unlocks your BitBox device and can be changed later.",
       "description4": "The second is the <strong>recovery password</strong> which unlocks your wallet. This password cannot be changed later.",
-      "description5": "The wallet you create will be backed up to a file on the micro SD card provided. This can be used in an emergency to recover your funds using your <strong>recovery password</strong>.",
-      "title": "Security Information"
+      "description5": "The wallet you create will be backed up to a file on the microSD card provided. This can be used in an emergency to recover your funds using your <strong>recovery password</strong>.",
+      "title": "Security information"
     },
     "restore": {
       "button": "Continue",
-      "description1": "You will be asked to insert the micro SD card you used to store you backup.",
+      "description1": "You will be asked to insert the microSD card you used to store you backup.",
       "description2": "To restore your device you will need your recovery password. ",
       "description3": "Please take care when entering the recovery password. Any password you enter will create a valid wallet. If you enter the wrong password you may be shown a wallet balance that you do not expect.",
-      "title": "Security Information"
+      "title": "Security information"
     }
   },
   "seed": {
@@ -764,18 +764,18 @@
       "password-change": "I can NOT change the recovery password later",
       "password-required": "The recovery password is required to restore a wallet from a backup"
     },
-    "create": "Create Wallet",
+    "create": "Create wallet",
     "creating": "Creating wallet",
     "description": "I understand that:",
     "error": {
       "e102": "The password must consist of at least 8 characters.",
-      "e200": "You need to insert a micro SD card into your BitBox in order to create a wallet, so a backup can be created automatically."
+      "e200": "You need to insert a microSD card into your BitBox in order to create a wallet, so a backup can be created automatically."
     },
     "info": {
       "button": "Set recovery password now",
-      "description1": "Insert the micro SD card in to the BitBox",
+      "description1": "Insert the microSD card into the BitBox",
       "description2": "Choose a recovery password for the wallet and select “Set recovery password now”",
-      "description3": "The back up to micro SD card and your recovery password is the only method to recover your funds in case of lost or stolen BitBox device.",
+      "description3": "The back up to microSD card and your recovery password is the only method to recover your funds in case of lost or stolen BitBox device.",
       "description4": "You cannot change your recovery password later on without transferring your funds.",
       "title": "Create a new wallet"
     },
@@ -784,16 +784,16 @@
       "repeatPlaceholder": "Repeat recovery password"
     },
     "walletName": {
-      "label": "Wallet Name"
+      "label": "Wallet name"
     }
   },
   "seedRestore": {
     "error": {
-      "e200": "Restoring a wallet from a backup requires the micro SD card."
+      "e200": "Restoring a wallet from a backup requires the microSD card."
     },
     "info": {
       "button": "Continue",
-      "description1": "Insert the micro SD card in to the BitBox and click “Continue”",
+      "description1": "Insert the microSD card into the BitBox and click “Continue”",
       "description2": "Choose a backup and click “Restore”",
       "description3": "Enter the recovery password",
       "description4": "You need to confirm to understand that an incorrect password will create a different wallet.",
@@ -803,30 +803,30 @@
   "send": {
     "abort": "The transaction has been aborted.",
     "address": {
-      "label": "Receiver Address",
+      "label": "Receiver address",
       "placeholder": "Enter address"
     },
     "amount": {
       "label": "Amount",
       "placeholder": "Enter amount"
     },
-    "button": "Sign and Send",
+    "button": "Sign and send",
     "coincontrol": {
       "address": "Address",
       "outpoint": "Outpoint",
-      "title": "Send from Output"
+      "title": "Send from output"
     },
     "confirm": {
       "selected-coins": "Selected Coins",
-      "title": "Confirm Transaction",
+      "title": "Confirm transaction",
       "total": "Total"
     },
     "customFee": {
-      "label": "Converted Fee",
-      "placeholder": "Converted Fee"
+      "label": "Converted fee",
+      "placeholder": "Converted fee"
     },
     "data": {
-      "label": "Optional Data",
+      "label": "Optional data",
       "placeholder": "Enter hexadecimal data"
     },
     "error": {
@@ -837,7 +837,7 @@
     },
     "fee": {
       "customPlaceholder": "Enter amount",
-      "label": "Network Fee",
+      "label": "Network fee",
       "placeholder": "Not available"
     },
     "feeTarget": {
@@ -857,14 +857,14 @@
       "placeholder": "Calculating fee estimation…"
     },
     "maximum": "Send all",
-    "scanQR": "Scan QR Code",
+    "scanQR": "Scan QR code",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
       "label": "Progress"
     },
     "success": "The transaction has been signed and sent.",
     "title": "Send {{accountName}}",
-    "toggleCoinControl": "Toggle Coin Control"
+    "toggleCoinControl": "Toggle coin control"
   },
   "settings": {
     "accounts": {
@@ -897,10 +897,10 @@
       "step3-text": "Check the connection and add the server.",
       "step4": "4",
       "step4-text": "Restart the wallet. If you do not remove the default servers, your own node will be added as a redundancy.",
-      "title-btc": "Bitcoin Electrum Servers",
-      "title-ltc": "Litecoin Electrum Servers",
-      "title-tbtc": "Bitcoin Testnet Electrum Servers",
-      "title-tltc": "Litecoin Testnet Electrum Servers"
+      "title-btc": "Bitcoin Electrum servers",
+      "title-ltc": "Litecoin Electrum servers",
+      "title-tbtc": "Bitcoin Testnet Electrum servers",
+      "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
       "coinControl": "Enable coin control",
@@ -908,31 +908,31 @@
         "title": "Connect your own full node"
       },
       "setProxyAddress": "Set proxy address",
-      "title": "Expert Settings",
+      "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },
-    "restart": "Please re-start the BitBox app for the changes to take effect.",
+    "restart": "Please re-start the BitBoxApp for the changes to take effect.",
     "success": "Please unplug and replug the BitBox for the changes to take effect.",
     "title": "Settings"
   },
   "setup": "Setup device",
   "sidebar": {
-    "addAccount": "Add Account",
-    "bitboxBase": "BitBox Base",
-    "bitboxBaseConnect": "Connect BitBox Base",
-    "device": "Manage Device",
+    "addAccount": "Add account",
+    "bitboxBase": "BitBoxBase",
+    "bitboxBaseConnect": "Connect BitBoxBase",
+    "device": "Manage device",
     "leave": "Leave",
     "settings": "Settings"
   },
   "success": {
     "create": {
-      "info1": "Your wallet has been securely backed up to the micro SD Card. Remove it and keep it safe.",
+      "info1": "Your wallet has been securely backed up to the microSD Card. Remove it and keep it safe.",
       "info2": "You have created a secure device password that unlocks the BitBox.",
       "info3": "You have created a secure recovery password for your wallet that unlocks your funds and restores your backups.",
       "summary": "Here is a summary of what you have done",
       "title": "Success"
     },
-    "getstarted": "Get Started",
+    "getstarted": "Get started",
     "restore": {
       "summary": "You have successfully restored a wallet from your backup.",
       "title": "Success"
@@ -946,11 +946,11 @@
     },
     "confirmation": "Confirmations",
     "explorer": "Transaction ID",
-    "explorerTitle": "Open in external block Explorer",
+    "explorerTitle": "Open in external block explorer",
     "fee": "Fee",
     "fiatHistorical": "Historical",
     "gas": "Gas",
-    "pending": "Pending Transaction",
+    "pending": "Pending transaction",
     "size": "Size",
     "vsize": "Virtual size",
     "weight": "Weight"
@@ -973,20 +973,20 @@
     "unlocking": "Unlocking…"
   },
   "upgradeFirmware": {
-    "button": "Upgrade Firmware",
-    "description": "Do you want to Upgrade the Firmware from version {{currentVersion}} to {{newVersion}}?",
+    "button": "Upgrade firmware",
+    "description": "Do you want to upgrade the firmware from version {{currentVersion}} to {{newVersion}}?",
     "label": "Your BitBox requires a firmware upgrade.",
     "locked": "To upgrade from {{currentVersion}} to {{newVersion}}, please do a long touch.",
-    "title": "Upgrade Firmware",
+    "title": "Upgrade firmware",
     "unlocked": "The bootloader is unlocked. To continue, please:",
     "unlocked1": "Unplug and replug your Bitbox",
     "unlocked2": "The LED will light up when your BitBox is plugged back in",
     "unlocked3": "Tap the touch button when the LED lights up"
   },
   "warning": {
-    "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage Device' in the sidebar.",
-    "sdcard": "Keep the micro SD card stored separate from the BitBox, unless you want to manage backups.",
-    "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage Device' in the sidebar."
+    "receivePairing": "Please pair the BitBox to enable secure address verification. Go to 'Manage device' in the sidebar.",
+    "sdcard": "Keep the microSD card stored separate from the BitBox, unless you want to manage backups.",
+    "sendPairing": "Please pair the BitBox to securely verify transaction details. Go to 'Manage device' in the sidebar."
   },
   "welcome": {
     "insertBitBox02": "For the BitBox02, please tap the device to continue.",
