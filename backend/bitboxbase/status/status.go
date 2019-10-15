@@ -65,4 +65,7 @@ const (
 	// EventUserAuthenticated emits an event when a user successfully authenticates with the Base
 	// so that the frontend knows it can now fetch BaseInfo
 	EventUserAuthenticated Event = "userAuthenticated"
+
+	// EventBaseUpdateProgressChange is emitted whenever the rpcClient gets a BaseUpdateProgress changed notification
+	EventBaseUpdateProgressChange Event = "baseUpdateProgressChanged"
 )
