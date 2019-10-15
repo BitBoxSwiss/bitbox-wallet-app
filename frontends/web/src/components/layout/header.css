@@ -87,12 +87,26 @@
 
 .guideIconContainer {
     margin-left: var(--space-half);
+    height: 18px;
 }
 
 .guideIcon {
+    font-size: var(--size-default);
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.guideIcon svg {
     width: 18px;
     height: 18px;
     color: var(--color-blue);
+    margin-right: calc(var(--space-quarter) / 2);
+}
+
+.disabled {
+    opacity: 0.4;    
 }
 
 @media (min-width: 1322px) {

@@ -12,8 +12,18 @@
 
 .close {
     color: var(--color-white);
+    font-size: var(--size-default) !important;
+    text-decoration: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    line-height: 1;
+}
+
+.close svg {
     width: 18px;
     height: 18px;
+    margin-left: calc(var(--space-quarter) / 2);
 }
 
 .wrapper {

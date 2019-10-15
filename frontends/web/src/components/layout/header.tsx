@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-import { h, RenderableProps } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import MenuIcon from '../../assets/icons/menu.svg';
 import { share } from '../../decorators/share';
+import { translate, TranslateProps } from '../../decorators/translate';
 import { SharedProps as SharedPanelProps, store as panelStore, toggle as toggleGuide } from '../guide/guide';
 import { toggleSidebar } from '../sidebar/sidebar';
 import * as style from './header.css';
@@ -26,62 +27,62 @@ interface HeaderProps {
     title: JSX.Element | JSX.Element[];
     narrow?: boolean;
 }
-type Props = HeaderProps & SharedPanelProps;
+type Props = HeaderProps & SharedPanelProps & TranslateProps;
 
-function Header(
-    { title, narrow, children, guideExists, shown, sidebarStatus }: RenderableProps<Props>,
-): JSX.Element {
-    const hasChildren = Array.isArray(children) && children.length > 0;
-    return (
-        <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
-            <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
-                <div className={style.sidebarToggler} onClick={toggleSidebar}>
-                    <img src={MenuIcon} />
-                </div>
-                <div className={style.title}>{title}</div>
-                <div className={style.children}>
-                    {hasChildren && children}
-                    {
-                        guideExists && (
-                            shown ? (
-                                <a href="#" onClick={toggleGuide} className={style.guideIconContainer}>
-                                    <svg
-                                        className={style.guideIcon}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        stroke-width="2"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                                    </svg>
-                                </a>
-                            ) : (
-                                <a href="#" onClick={toggleGuide} className={style.guideIconContainer}>
-                                    <svg
-                                        className={style.guideIcon}
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="24"
-                                        viewBox="0 0 24 24"
-                                        fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                                    </svg>
-                                </a>
+class Header extends Component<Props> {
+    private toggle = (e: Event) => {
+        e.preventDefault();
+        if (!this.props.shown) {
+            toggleGuide();
+        }
+        return false;
+    }
+
+    public render(
+        { t, title, narrow, children, guideExists, shown, sidebarStatus }: RenderableProps<Props>,
+    ) {
+        const hasChildren = Array.isArray(children) && children.length > 0;
+        return (
+            <div className={[style.container, sidebarStatus ? style[sidebarStatus] : ''].join(' ')}>
+                <div className={[style.header, narrow ? style.narrow : ''].join(' ')}>
+                    <div className={style.sidebarToggler} onClick={toggleSidebar}>
+                        <img src={MenuIcon} />
+                    </div>
+                    <div className={style.title}>{title}</div>
+                    <div className={style.children}>
+                        {hasChildren && children}
+                        {
+                            guideExists && (
+                                <span className={style.guideIconContainer}>
+                                    <a href="#" onClick={this.toggle} className={[style.guideIcon, shown ? style.disabled : ''].join(' ')}>
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <circle cx="12" cy="12" r="4"></circle>
+                                            <line x1="4.93" y1="4.93" x2="9.17" y2="9.17"></line>
+                                            <line x1="14.83" y1="14.83" x2="19.07" y2="19.07"></line>
+                                            <line x1="14.83" y1="9.17" x2="19.07" y2="4.93"></line>
+                                            <line x1="14.83" y1="9.17" x2="18.36" y2="5.64"></line>
+                                            <line x1="4.93" y1="19.07" x2="9.17" y2="14.83"></line>
+                                        </svg>
+                                        {t('guide.toggle.open')}
+                                    </a>
+                                </span>
                             )
-                        )
-                    }
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
-const SharedHeader = share<SharedPanelProps, HeaderProps>(panelStore)(Header);
-export { SharedHeader as Header };
+const SharedHeader = share<SharedPanelProps, HeaderProps & TranslateProps>(panelStore)(Header);
+const TranslatedHeader = translate<HeaderProps>()(SharedHeader);
+export { TranslatedHeader as Header };
