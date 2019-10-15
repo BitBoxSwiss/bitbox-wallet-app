@@ -570,6 +570,10 @@
       }
     },
     "title": "Guide",
+    "toggle": {
+      "close": "Close guide",
+      "open": "Guide"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": "You have to reset the device and restore the wallet from a backup, using the recovery password.",

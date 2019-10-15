@@ -131,7 +131,7 @@
 
 .step {
     max-width: var(--content-width-small);
-    padding: 0 var(--space-default);
+    padding: var(--space-default);
     transition: all ease 0.2s;
     animation-duration: 0.2s;
     width: 100%;
@@ -387,6 +387,10 @@
 }
 
 @media (max-width: 768px) {
+    .step {
+        padding: var(--space-half);
+    }
+
     .stepTitle h3 {
         margin-top: var(--space-large) !important;
         margin-bottom: var(--space-default) !important;
