@@ -227,7 +227,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private submitChangePassword = (event: Event) => {
         event.preventDefault();
-        apiPost(this.apiPrefix() + '/user-changepassword', {username: 'admin', newPassword: this.state.password})
+        apiPost(this.apiPrefix() + '/user-change-password', {username: 'admin', newPassword: this.state.password})
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSetup });
