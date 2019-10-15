@@ -190,6 +190,8 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
 	case rpcmessages.OpServiceInfoChanged:
 		rpcClient.onEvent(bitboxbasestatus.EventServiceInfoChanged)
+	case rpcmessages.OpBaseUpdateProgressChanged:
+		rpcClient.onEvent(bitboxbasestatus.EventBaseUpdateProgressChange)
 	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -454,6 +456,31 @@ func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 	err := rpcClient.client.Call("RPCServer.RebootBase", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// UpdateBase makes an rpc call to BitBoxBase that updates the Base to the passed version.
+// The Base is restarted after a successful RPC call.
+func (rpcClient *RPCClient) UpdateBase(args rpcmessages.UpdateBaseArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UpdateBase rpc call")
+	args.Token = rpcClient.jwtToken
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UpdateBase", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// GetBaseUpdateProgress returns the current Base update progress.
+// This RPC should be called when the middleware sends a notification that the Base update progress changed.
+func (rpcClient *RPCClient) GetBaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error) {
+	var reply rpcmessages.GetBaseUpdateProgressResponse
+	err := rpcClient.client.Call("RPCServer.GetBaseUpdateProgress", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetBaseUpdateProgress RPC call failed")
+		return reply, err
 	}
 	return reply, nil
 }
