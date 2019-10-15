@@ -5,8 +5,9 @@ type ErrorCode string
 
 const (
 
-	// ErrorScriptNotFound is thrown if either the bbb-cmd.sh or bbb-config.sh scripts are not found
-	ErrorScriptNotFound ErrorCode = "SCRIPT_NOT_FOUND"
+	// ExecutableNotFound is thrown when a executable is not found.
+	// This can for example be a script (e.g. bbb-cmd.sh or bbb-config.sh) or a executable like `reboot`
+	ExecutableNotFound ErrorCode = "EXECUTABLE_NOT_FOUND"
 
 	// ErrorScriptNotSuperuser is thrown if a run scripts need to be run as superuser.
 	ErrorScriptNotSuperuser ErrorCode = "SCRIPT_NOT_RUN_AS_SUPERUSER"
@@ -22,7 +23,7 @@ const (
 	// There is no differentiation of Prometheus errors because the front-end most likely handles them similar.
 	ErrorPrometheusError ErrorCode = "PROMETHEUS_ERROR"
 
-	// ErrorUnexpected is thrown when a a unknown/unhandled/unexpected error occurrs.
+	// ErrorUnexpected is thrown when a a unknown/unhandled/unexpected error occurs.
 	// It's a catch-all error.
 	ErrorUnexpected ErrorCode = "UNEXPECTED_ERROR"
 )
@@ -36,7 +37,7 @@ const (
 	/* bbb-cmd.sh flashdrive check
 	-------------------------------*/
 
-	// ErrorFlashdriveCheckMultiple is thrown if multiple USB flashdrives are found. Needs exacly one.
+	// ErrorFlashdriveCheckMultiple is thrown if multiple USB flashdrives are found. Needs exactly one.
 	ErrorFlashdriveCheckMultiple ErrorCode = "FLASHDRIVE_CHECK_MULTI"
 	// ErrorFlashdriveCheckNone is thrown if no USB flashdrive is found.
 	ErrorFlashdriveCheckNone ErrorCode = "FLASHDRIVE_CHECK_NONE"
@@ -87,6 +88,9 @@ const (
 	// ErrorMenderUpdateInvalidVersion is thrown if an invalid firmware version passed to the script.
 	ErrorMenderUpdateInvalidVersion ErrorCode = "MENDER_UPDATE_INVALID_VERSION"
 
+	// ErrorMenderUpdateAlreadyInProgress is thrown by the middleware, if an update is already in progress.
+	ErrorMenderUpdateAlreadyInProgress ErrorCode = "MENDER_UPDATE_ALREADY_IN_PROGRESS"
+
 	/* bbb-cmd.sh mender-update commit
 	-----------------------------------*/
 
@@ -132,7 +136,7 @@ const (
 )
 
 const (
-	// ErrorDummyAuthenticationNotSuccessful is thrown if the dummy autentication is not successful.
+	// ErrorDummyAuthenticationNotSuccessful is thrown if the dummy authentication is not successful.
 	ErrorDummyAuthenticationNotSuccessful ErrorCode = "DUMMY_AUTHENTICATION_NOT_SUCCESSFUL"
 
 	// ErrorDummyPasswordTooShort is thrown if the provided password is too short.

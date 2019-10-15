@@ -29,6 +29,7 @@ import (
 type Base interface {
 	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
 	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
+	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
@@ -51,6 +52,7 @@ type Base interface {
 	SetRootPassword(string) error
 	ShutdownBase() error
 	RebootBase() error
+	UpdateBase(rpcmessages.UpdateBaseArgs) error
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
 }
@@ -74,6 +76,7 @@ func NewHandlers(
 	handleFunc("/verification-progress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
+	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHanlder).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -94,6 +97,7 @@ func NewHandlers(
 	handleFunc("/set-root-password", handlers.postSetRootPasswordHandler).Methods("POST")
 	handleFunc("/shutdown-base", handlers.postShutdownBaseHandler).Methods("POST")
 	handleFunc("/reboot-base", handlers.postRebootBaseHandler).Methods("POST")
+	handleFunc("/update-base", handlers.postUpdateBaseHandler).Methods("POST")
 
 	return handlers
 }
@@ -271,6 +275,18 @@ func (handlers *Handlers) getVerificationProgressHandler(_ *http.Request) (inter
 	}, nil
 }
 
+func (handlers *Handlers) getBaseUpdateProgressHanlder(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Base Update Progress")
+	updateProgress, err := handlers.base.BaseUpdateProgress()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":        true,
+		"updateProgress": updateProgress,
+	}, nil
+}
+
 func (handlers *Handlers) postConnectElectrumHandler(_ *http.Request) (interface{}, error) {
 	err := handlers.base.ConnectElectrum()
 	if err != nil {
@@ -425,6 +441,24 @@ func (handlers *Handlers) postShutdownBaseHandler(_ *http.Request) (interface{},
 func (handlers *Handlers) postRebootBaseHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Reboot Base")
 	err := handlers.base.RebootBase()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postUpdateBaseHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Update Base")
+	payload := struct {
+		Version string `json:"version"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	err := handlers.base.UpdateBase(rpcmessages.UpdateBaseArgs{Version: payload.Version})
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
