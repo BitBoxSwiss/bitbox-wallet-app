@@ -61,4 +61,7 @@ const (
 
 	// EventServiceInfoChanged should be emitted whenever the rpcClient receives a 'service info changed' notification
 	EventServiceInfoChanged Event = "serviceInfoChanged"
+
+	// EventBaseUpdateProgressChange should be emitted whenever the rpcclient gets a BaseUpdateProgress changed notification
+	EventBaseUpdateProgressChange Event = "baseUpdateProgressChanged"
 )
