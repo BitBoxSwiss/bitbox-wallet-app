@@ -72,20 +72,20 @@ type VerificationProgressResponse struct {
 // GetBaseInfoResponse is the struct that get sent by the rpc server during a GetBaseInfo rpc call
 type GetBaseInfoResponse struct {
 	ErrorResponse       *ErrorResponse
-	Status              string
-	Hostname            string
-	MiddlewareLocalIP   string
-	MiddlewareLocalPort string
-	MiddlewareTorOnion  string
-	MiddlewareTorPort   string
-	IsTorEnabled        bool
-	IsBitcoindListening bool
-	FreeDiskspace       int64 // in Byte
-	TotalDiskspace      int64 // in Byte
-	BaseVersion         string
-	BitcoindVersion     string
-	LightningdVersion   string
-	ElectrsVersion      string
+	Status              string `json:"status"`
+	Hostname            string `json:"hostname"`
+	MiddlewareLocalIP   string `json:"middlewareLocalIP"`
+	MiddlewareLocalPort string `json:"middlewareLocalPort"`
+	MiddlewareTorOnion  string `json:"middlewareTorOnion"`
+	MiddlewareTorPort   string `json:"middlewareTorPort"`
+	IsTorEnabled        bool   `json:"isTorEnabled"`
+	IsBitcoindListening bool   `json:"isBitcoindListening"`
+	FreeDiskspace       int64  `json:"freeDiskspace"`  // in Byte
+	TotalDiskspace      int64  `json:"totalDiskspace"` // in Byte
+	BaseVersion         string `json:"baseVersion"`
+	BitcoindVersion     string `json:"bitcoindVersion"`
+	LightningdVersion   string `json:"lightningdVersion"`
+	ElectrsVersion      string `json:"electrsVersion"`
 }
 
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
