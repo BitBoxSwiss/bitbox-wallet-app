@@ -52,6 +52,7 @@ type Base interface {
 	ShutdownBase() error
 	RebootBase() error
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
+	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -72,6 +73,7 @@ func NewHandlers(
 	handleFunc("/middleware-info", handlers.getMiddlewareInfoHandler).Methods("GET")
 	handleFunc("/verification-progress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
+	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -439,5 +441,17 @@ func (handlers *Handlers) getBaseInfoHandler(_ *http.Request) (interface{}, erro
 	return map[string]interface{}{
 		"success":  true,
 		"baseInfo": baseInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getServiceInfoHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Service Info")
+	baseInfo, err := handlers.base.ServiceInfo()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":     true,
+		"serviceInfo": baseInfo,
 	}, nil
 }

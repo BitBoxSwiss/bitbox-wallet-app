@@ -12,6 +12,8 @@ const (
 	OpUCanHasSampleInfo = "d"
 	// OpUCanHasVerificationProgress notifies when new VerificationProgress data is available.
 	OpUCanHasVerificationProgress = "v"
+	// OpServiceInfoChanged notifies when the GetServiceInfo data changed.
+	OpServiceInfoChanged = "s"
 )
 
 /*
@@ -86,6 +88,18 @@ type GetBaseInfoResponse struct {
 	BitcoindVersion     string `json:"bitcoindVersion"`
 	LightningdVersion   string `json:"lightningdVersion"`
 	ElectrsVersion      string `json:"electrsVersion"`
+}
+
+// GetServiceInfoResponse is the struct that gets sent by the RPC server during a GetServiceInfo RPC call
+type GetServiceInfoResponse struct {
+	ErrorResponse                *ErrorResponse `json:"errorResponse"`
+	BitcoindBlocks               int64          `json:"bitcoindBlocks"`
+	BitcoindHeaders              int64          `json:"bitcoindHeaders"`
+	BitcoindVerificationProgress float64        `json:"bitcoindVerificationProgress"`
+	BitcoindPeers                int64          `json:"bitcoindPeers"`
+	BitcoindIBD                  bool           `json:"bitcoindIBD"`
+	LightningdBlocks             int64          `json:"lightningdBlocks"`
+	ElectrsBlocks                int64          `json:"electrsBlocks"`
 }
 
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
