@@ -233,9 +233,48 @@
   },
   "bitboxBase": {
     "connect": "Connect Base",
-    "detectedBases": "Detected the following devices on your network:",
-    "manualInput": "Can't see your BitBoxBase? Connect manually below:",
-    "title": "BitBoxBase"
+    "detectedBases": "Detected devices on your network",
+    "detectedBasesEmpty": "No devices found",
+    "connectedBases": "Connected devices",
+    "manualInput": "Connect manually",
+    "manualInputLabel": "IP address:port",
+    "title": "BitBoxBase",
+    "settings": {
+      "title": "BitBoxBase settings",
+      "basics": {
+        "title": "Basics",
+        "name": "Name",
+        "password": "Change password",
+        "info": "System info"
+      },
+      "backups": {
+        "title": "Backups",
+        "create": "Create backup",
+        "restore": "Restore backup",
+        "manage": "Manage backups"
+      },
+      "node": {
+        "title": "Node",
+        "update": "Update",
+        "disconnect": "Disconnect",
+        "restart": "Restart",
+        "shutdown": "Shutdown"
+      },
+      "networking": {
+        "title": "Networking",
+        "tor": "Tor",
+        "incomingConnections": "Incoming connections",
+        "ipAddress": "IP address"
+      },
+      "advanced": {
+        "title": "Advanced settings",
+        "rootAccess": "Root access",
+        "sshAccess": "SSH access",
+        "syncOptions": "Sync options",
+        "reset": "Reset to factory settings",
+        "connectElectrum": "Connect Electrum"
+      }
+    }
   },
   "bitboxBaseUnlock": {
     "placeholder": "Enter your BitBoxBase password to unlock"
@@ -953,7 +992,8 @@
       },
       "setProxyAddress": "Set proxy address",
       "title": "Expert settings",
-      "useProxy": "Enable tor proxy"
+      "useProxy": "Enable tor proxy",
+      "base": "BitBoxBase Management"
     },
     "header": {
       "home": "Home"

@@ -15,9 +15,10 @@
  */
 
 import { Component, h, RenderableProps} from 'preact';
-import BaseLogo from '../../assets/icons/bbbase64.png';
+// import BaseLogo from '../../assets/icons/bbbase64.png';
 import { translate, TranslateProps } from '../../decorators/translate';
-import * as style from './bitboxbase.css';
+import { SettingsButton } from '../settingsButton/settingsButton';
+// import * as style from './bitboxbase.css';
 
 interface DetectedBaseProps {
     ip: string;
@@ -25,64 +26,63 @@ interface DetectedBaseProps {
     connect: (ip: string) => void;
 }
 
-interface State {
-    collapsed: boolean;
-}
-
 type Props = DetectedBaseProps & TranslateProps;
 
-class DetectedBase extends Component<Props, State> {
+class DetectedBase extends Component<Props> {
     constructor(props) {
         super(props);
-        this.state = {
-            collapsed: true,
-        };
     }
 
-    private toggleCollapse = () => {
-        this.setState(({ collapsed }) => ({ collapsed: !collapsed }));
+    private handleConnect = () => {
+        const { connect, ip } = this.props;
+        connect(ip);
     }
 
     public render(
-        { t,
-          hostname,
-          ip,
-          connect,
+        {
+            // t,
+            hostname,
+            ip,
         }: RenderableProps<Props>,
-        { collapsed,
-        }: State) {
-            const logo = BaseLogo;
-            return (
-                <div class={[style.detectedBaseContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
-                <div class={['flex flex-column flex-start', style.detectedBase].join(' ')}>
-                    <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
-                        <div class="flex flex-row flex-start flex-items-start">
-                            <div class={style.labelContainer} onClick={this.toggleCollapse}>
-                                <div class={style.toggleContainer}>
-                                    <div class={[style.toggle, collapsed ? style.collapsed : style.expanded].join(' ')}></div>
-                                </div>
-                                <div class={[style.detectedBaseLabel, style.flat].join(' ')}>
-                                    <img src={logo} />
-                                </div>
-                            </div>
-                            <div>
-                                <div class={style.hostname}>
-                                    <h3>{hostname}</h3>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <button
-                                className={[style.button, style.primary].join(' ')}
-                                onClick={ () => connect(ip)}>
-                                {t('bitboxBase.connect')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            );
-        }
+    ) {
+        // const logo = BaseLogo;
+        return (
+            <SettingsButton
+                onClick={this.handleConnect}
+                secondaryText={ip}
+                optionalText="Uninitialized">
+                {hostname}
+            </SettingsButton>
+            // <div class={[style.detectedBaseContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
+            //     <div class={['flex flex-column flex-start', style.detectedBase].join(' ')}>
+            //         <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
+            //             <div class="flex flex-row flex-start flex-items-start">
+            //                 <div class={style.labelContainer} onClick={this.toggleCollapse}>
+            //                     <div class={style.toggleContainer}>
+            //                         <div class={[style.toggle, collapsed ? style.collapsed : style.expanded].join(' ')}></div>
+            //                     </div>
+            //                     <div class={[style.detectedBaseLabel, style.flat].join(' ')}>
+            //                         <img src={logo} />
+            //                     </div>
+            //                 </div>
+            //                 <div>
+            //                     <div class={style.hostname}>
+            //                         <h3>{hostname}</h3>
+            //                     </div>
+            //                 </div>
+            //             </div>
+            //             <div>
+            //                 <button
+            //                     className={[style.button, style.primary].join(' ')}
+            //                     onClick={ () => connect(ip)}>
+            //                     {t('bitboxBase.connect')}
+            //                 </button>
+            //             </div>
+            //         </div>
+            //     </div>
+            // </div>
+        );
+    }
 }
 
 const HOC = translate<DetectedBaseProps>()(DetectedBase);

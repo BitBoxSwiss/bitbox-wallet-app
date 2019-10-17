@@ -122,10 +122,8 @@
     max-width: var(--content-width);
     width: 100%;
     margin: 0 auto;
-    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 }
 
@@ -283,7 +281,7 @@
 }
 
 .stepContext ul, ol {
-    padding-left: var(--space-half);
+    padding-left: calc(var(--space-half) + 2px);
 }
 
 .stepContext ul li,
@@ -392,7 +390,7 @@
     }
 
     .stepTitle h3 {
-        margin-top: var(--space-large) !important;
+        margin-top: var(--space-half) !important;
         margin-bottom: var(--space-default) !important;
     }
 }

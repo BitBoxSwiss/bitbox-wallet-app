@@ -47,6 +47,11 @@ dt {
     will-change: background-color;
 }
 
+.labelLink svg,
+.labelButton svg {
+    margin-right: var(--space-quarter);
+}
+
 .labelButton.primary {
     background-color: var(--color-blue);
 }

@@ -29,18 +29,19 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
+import { BaseSettings } from './baseSettings';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
 }
 
-interface MiddlewareInfoType {
+export interface MiddlewareInfoType {
     blocks: number;
     difficulty: number;
     lightningAlias: string;
 }
 
-interface VerificationProgressType {
+export interface VerificationProgressType {
     blocks: number;
     headers: number;
     verificationProgress: number;
@@ -104,7 +105,6 @@ interface State {
 type Props = BitBoxBaseProps & TranslateProps;
 
 class BitBoxBase extends Component<Props, State> {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -367,33 +367,15 @@ class BitBoxBase extends Component<Props, State> {
             }
 
             return (
-                <div class="row">
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <ul>
-                            <li>Block Number: {middlewareInfo.blocks}</li>
-                            <li>Difficulty: {middlewareInfo.difficulty}</li>
-                            <li>BitBox Base ID: {bitboxBaseID}</li>
-                            <li>Lightning Alias: {middlewareInfo.lightningAlias}</li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <ul>
-                            <li>Blocks: {verificationProgress.blocks}</li>
-                            <li>Headers: {verificationProgress.headers}</li>
-                            <li>VerificationProgress: {verificationProgress.verificationProgress}</li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.removeBitBoxBase} danger>Disconnect Base</Button>
-                        </div>
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.connectElectrum}>Connect Electrum</Button>
-                        </div>
-                    </div>
-                </div>
+                <BaseSettings
+                    baseID={bitboxBaseID}
+                    middlewareInfo={middlewareInfo}
+                    verificationProgress={verificationProgress}
+                    disconnect={this.removeBitBoxBase}
+                    connectElectrum={this.connectElectrum} />
             );
         }
+
         return (
             <div className="contentWithGuide">
                 <div className="container">
@@ -407,173 +389,200 @@ class BitBoxBase extends Component<Props, State> {
                         )
                     }
 
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
-                            <Steps>
+                    <div className="flex flex-column flex-center flex-items-center flex-1 scrollableContainer">
+                        <Steps>
 
-                                <Step title="Verify Pairing Code" active={activeStep === ActiveStep.PairingCode} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
-                                        <pre>{hash}</pre>
-                                    </div>
-                                </Step>
+                            <Step
+                                title="Verify Pairing Code"
+                                active={activeStep === ActiveStep.PairingCode}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
+                                    <pre>{hash}</pre>
+                                </div>
+                            </Step>
 
-                                <Step title="Set a Password" active={activeStep === ActiveStep.SetPassword} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <form onSubmit={this.submitChangePasswordSetup}>
-                                            <PasswordRepeatInput
-                                                label={t('initialize.input.label')}
-                                                repeatLabel={t('initialize.input.labelRepeat')}
-                                                onValidPassword={this.setPassword} />
-                                            <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                <Button
-                                                    disabled={!password}
-                                                    primary
-                                                    type="submit"
-                                                >
-                                                    {t('initialize.create')}
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </Step>
-
-                                <Step title="Choose Setup" active={activeStep === ActiveStep.ChooseSetup} large>
-                                    <div className="columnsContainer half">
-                                        <div className="columns">
-                                            <div className="column column-1-2">
-                                                <div className={stepStyle.stepContext}>
-                                                    <h3 className={stepStyle.stepSubHeader}>Quick</h3>
-                                                    <p>The quickest way to get started.</p>
-                                                    <ul>
-                                                        <li>Starts from pre-synced blockchain</li>
-                                                        <li>Uses Tor by default</li>
-                                                        <li>Chooses default hostname</li>
-                                                    </ul>
-                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                        <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>Select</Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="column column-1-2">
-                                                <div className={stepStyle.stepContext}>
-                                                    <h3 className={stepStyle.stepSubHeader}>Custom</h3>
-                                                    <p>More control over your node.</p>
-                                                    <ul>
-                                                        <li>Lets you choose syncing options</li>
-                                                        <li>Lets you choose network options</li>
-                                                        <li>Choose custom hostname</li>
-                                                    </ul>
-                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                        <Button secondary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>Select</Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                                <Step title="Choose a Name" active={activeStep === ActiveStep.ChooseName} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <Input
-                                            className={stepStyle.wizardLabel}
-                                            pattern="^[a-z0-9]+[a-z0-9-.]{0,62}[a-z0-9]$"
-                                            label="BitBox Base Hostname"
-                                            placeholder="Valid hostname e.g. 'mybitboxbase'"
-                                            type="text"
-                                            title="Valid hostname is between 2-64 characters; lowercase a-z; digits 0-9; and periods or hypens, excluding first and last chars"
-                                            onInput={this.handleNameInput} />
+                            <Step
+                                title="Set a Password"
+                                active={activeStep === ActiveStep.SetPassword}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <form onSubmit={this.submitChangePasswordSetup}>
+                                        <PasswordRepeatInput
+                                            label={t('initialize.input.label')}
+                                            repeatLabel={t('initialize.input.labelRepeat')}
+                                            onValidPassword={this.setPassword} />
                                         <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                             <Button
+                                                disabled={!password}
                                                 primary
-                                                onClick={this.setHostname}
-                                                disabled={!validHostname}>
-                                                Continue
-                                            </Button>
-                                            <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>Go Back</Button>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                                <Step title="Choose Syncing Option" active={activeStep === ActiveStep.ChooseSyncingOption} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}>
-                                                Start from pre-synced blockchain
-                                            </Button>
-                                            <Button primary onClick={() => {
-                                                confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
-                                                    if (result) {
-                                                        this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
-                                                    }
-                                                });
-                                            }}>
-                                                Validate from genesis block
-                                            </Button>
-                                            <Button primary onClick={() => {
-                                                confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
-                                                    if (result) {
-                                                        this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
-                                                    }
-                                                });
-                                            }}>
-                                                Sync from scratch
+                                                type="submit">
+                                                {t('initialize.create')}
                                             </Button>
                                         </div>
-                                    </div>
-                                </Step>
+                                    </form>
+                                </div>
+                            </Step>
 
-                                <Step title="Choose Network Option" active={activeStep === ActiveStep.ChooseNetwork} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
+                            <Step
+                                title="Choose Setup"
+                                active={activeStep === ActiveStep.ChooseSetup}
+                                large>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className="column column-1-2">
+                                            <div className={stepStyle.stepContext}>
+                                                <h3 className={stepStyle.stepSubHeader}>Quick</h3>
+                                                <p>The quickest way to get started.</p>
+                                                <ul>
+                                                    <li>Starts from pre-synced blockchain</li>
+                                                    <li>Uses Tor by default</li>
+                                                    <li>Chooses default hostname</li>
+                                                </ul>
+                                                <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>Select</Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-2">
+                                            <div className={stepStyle.stepContext}>
+                                                <h3 className={stepStyle.stepSubHeader}>Custom</h3>
+                                                <p>More control over your node.</p>
+                                                <ul>
+                                                    <li>Lets you choose syncing options</li>
+                                                    <li>Lets you choose network options</li>
+                                                    <li>Choose custom hostname</li>
+                                                </ul>
+                                                <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                                    <Button secondary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>Select</Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </Step>
+                                </div>
+                            </Step>
 
-                                <Step title="Choose Network Option" active={activeStep === ActiveStep.ChooseIBDNetwork} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Clearnet Only for Initial Block Download</Button>
-                                        </div>
+                            <Step
+                                title="Choose a Name"
+                                active={activeStep === ActiveStep.ChooseName}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <Input
+                                        className={stepStyle.wizardLabel}
+                                        pattern="^[a-z0-9]+[a-z0-9-.]{0,62}[a-z0-9]$"
+                                        label="BitBox Base Hostname"
+                                        placeholder="Valid hostname e.g. 'mybitboxbase'"
+                                        type="text"
+                                        title="Valid hostname is between 2-64 characters; lowercase a-z; digits 0-9; and periods or hypens, excluding first and last chars"
+                                        onInput={this.handleNameInput} />
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                        <Button
+                                            primary
+                                            onClick={this.setHostname}
+                                            disabled={!validHostname}>
+                                            Continue
+                                        </Button>
+                                        <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>Go Back</Button>
                                     </div>
-                                </Step>
+                                </div>
+                            </Step>
 
-                                {/* TODO: Add API calls for backup options  */}
-
-                                <Step title="Wallet Backup" active={activeStep === ActiveStep.Backup} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>Insert USB memory stick into the BitBox Base to make a backup of your wallet.</p>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.createBackup()}>
-                                                Create Backup
-                                            </Button>
-                                        </div>
+                            <Step
+                                title="Choose Syncing Option"
+                                active={activeStep === ActiveStep.ChooseSyncingOption}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}>
+                                            Start from pre-synced blockchain
+                                        </Button>
+                                        <Button primary onClick={() => {
+                                            confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
+                                                if (result) {
+                                                    this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
+                                                }
+                                            });
+                                        }}>
+                                            Validate from genesis block
+                                        </Button>
+                                        <Button primary onClick={() => {
+                                            confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
+                                                if (result) {
+                                                    this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
+                                                }
+                                            });
+                                        }}>
+                                            Sync from scratch
+                                        </Button>
                                     </div>
-                                </Step>
+                                </div>
+                            </Step>
 
-                                <Step title="Wallet Backup Created" active={activeStep === ActiveStep.BackupCreated} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>You may now remove the memory stick and store it in a secure location.</p>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>Continue</Button>
-                                        </div>
+                            <Step
+                                title="Choose Network Option"
+                                active={activeStep === ActiveStep.ChooseNetwork}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
+                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
                                     </div>
-                                </Step>
+                                </div>
+                            </Step>
 
-                                <Step title="You're Ready To Go!" active={activeStep === ActiveStep.Ready} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to Dashboard</Button>
-                                        </div>
+                            <Step
+                                title="Choose Network Option"
+                                active={activeStep === ActiveStep.ChooseIBDNetwork}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
+                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
+                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Clearnet Only for Initial Block Download</Button>
                                     </div>
-                                </Step>
+                                </div>
+                            </Step>
 
-                            </Steps>
-                        </div>
+                            {/* TODO: Add API calls for backup options  */}
+
+                            <Step
+                                title="Wallet Backup"
+                                active={activeStep === ActiveStep.Backup}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>Insert USB memory stick into the BitBox Base to make a backup of your wallet.</p>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.createBackup()}>
+                                            Create Backup
+                                        </Button>
+                                    </div>
+                                </div>
+                            </Step>
+
+                            <Step
+                                title="Wallet Backup Created"
+                                active={activeStep === ActiveStep.BackupCreated}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>You may now remove the memory stick and store it in a secure location.</p>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>Continue</Button>
+                                    </div>
+                                </div>
+                            </Step>
+
+                            <Step
+                                title="You're Ready To Go!"
+                                active={activeStep === ActiveStep.Ready}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to Dashboard</Button>
+                                    </div>
+                                </div>
+                            </Step>
+
+                        </Steps>
                     </div>
                 </div>
             </div>
