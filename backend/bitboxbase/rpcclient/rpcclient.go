@@ -415,3 +415,14 @@ func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 	}
 	return reply, nil
 }
+
+// GetBaseInfo makes a synchronous rpc call to the base and returns the GetBaseInfoResponse struct
+func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
+	var reply rpcmessages.GetBaseInfoResponse
+	err := rpcClient.client.Call("RPCServer.GetBaseInfo", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetBaseInfo RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}

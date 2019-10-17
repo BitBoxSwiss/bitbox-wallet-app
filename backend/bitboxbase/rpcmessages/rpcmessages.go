@@ -69,15 +69,46 @@ type VerificationProgressResponse struct {
 	VerificationProgress float64 `json:"verificationProgress"`
 }
 
+// GetBaseInfoResponse is the struct that get sent by the rpc server during a GetBaseInfo rpc call
+type GetBaseInfoResponse struct {
+	ErrorResponse       *ErrorResponse
+	Status              string `json:"status"`
+	Hostname            string `json:"hostname"`
+	MiddlewareLocalIP   string `json:"middlewareLocalIP"`
+	MiddlewareLocalPort string `json:"middlewareLocalPort"`
+	MiddlewareTorOnion  string `json:"middlewareTorOnion"`
+	MiddlewareTorPort   string `json:"middlewareTorPort"`
+	IsTorEnabled        bool   `json:"isTorEnabled"`
+	IsBitcoindListening bool   `json:"isBitcoindListening"`
+	FreeDiskspace       int64  `json:"freeDiskspace"`  // in Byte
+	TotalDiskspace      int64  `json:"totalDiskspace"` // in Byte
+	BaseVersion         string `json:"baseVersion"`
+	BitcoindVersion     string `json:"bitcoindVersion"`
+	LightningdVersion   string `json:"lightningdVersion"`
+	ElectrsVersion      string `json:"electrsVersion"`
+}
+
 // ErrorResponse is a generic RPC response indicating if a RPC call was successful or not.
 // It can be embedded into other RPC responses that return values.
 // In any case the ErrorResponse should be checked first, so that, if an error is returned, we ignore everything else in the response.
 type ErrorResponse struct {
 	Success bool
-	Code    string
+	Code    ErrorCode
 	Message string
 }
 
+// Error formats the ErrorResponse in the following two formats:
+// If no error occoured:
+//  ErrorResponse: Success: true
+//
+// If an error occoured:
+// 	ErrorResponse:
+// 		Success: false
+// 		Code: <ERROR_CODE>
+//		Message: <message>
 func (err *ErrorResponse) Error() string {
-	return fmt.Sprintf("bbBaseError: Code: %s | Message: %s", err.Code, err.Message)
+	if err.Success {
+		return fmt.Sprintf("ErrorResponse: Success: %t \n", err.Success)
+	}
+	return fmt.Sprintf("ErrorResponse:\n\tSuccess: %t \n\tCode: %s \n\tMessage: %s\n", err.Success, err.Code, err.Message)
 }
