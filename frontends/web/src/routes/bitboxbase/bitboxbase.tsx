@@ -268,7 +268,7 @@ class BitBoxBase extends Component<Props, State> {
         .then(response => {
             if (response.success) {
                 if (this.state.syncingOption === SyncingOptions.Presync) {
-                    this.setState({ activeStep: ActiveStep.Backup });
+                    this.setState({ activeStep: ActiveStep.Backup, waitDialog: undefined });
                 } else {
                     this.setSyncingOption();
                 }
