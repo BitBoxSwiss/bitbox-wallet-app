@@ -80,7 +80,7 @@
         "placeholder": "Please enter your recovery password"
       },
       "title": "Create backup",
-      "verificationFailed": "The recovery password does NOT MATCH the current wallet. The backup has been created. Please use 'Check Backup' to verify your recovery password again."
+      "verificationFailed": "The recovery password does NOT MATCH the current wallet. The backup has been created. Please use 'Check backup' to verify your recovery password again."
     },
     "description": "Select <strong>wallet backup file</strong>",
     "insert": "Please insert the microSD card to manage backups.",
@@ -295,7 +295,7 @@
     "pairing": {
       "lock": {
         "false": "Disabled",
-        "label": "Two Factor Authorization (2FA)",
+        "label": "Two factor authorization (2FA)",
         "true": "Enabled"
       },
       "mobile": {
@@ -458,11 +458,11 @@
     "bitbox": {
       "2FA": {
         "text": "When 2FA is enabled, all transactions have to be approved on the paired mobile phone in order to spend coins. Under the hood, an encrypted single-use number is sent to the mobile app, decrypted there, and returned to the BitBox when pressing the Accept button. This communication with the device is done via the channel between the mobile phone and this desktop app established during pairing.\n\nBe sure to backup your wallet and pair the mobile app before enabling 2FA. Once enabled, the micro SD slot and mobile app pairing are disabled. They can be re-enabled by resetting the BitBox, which erases the device.",
-        "title": "How does Two Factor Authorization (2FA) work?"
+        "title": "How does Two factor authorization (2FA) work?"
       },
       "disable2FA": {
-        "text": "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the microSD card with the backup and that you still remember the recovery password. Then press 'Reset Device'. Set a new device password and choose 'Or Restore a Backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet.",
-        "title": "How can I disable Two Factor Authorization (2FA)?"
+        "text": "In order to disable 2FA, you need to reset your BitBox and then restore the wallet from its backup. Make sure that you still have the microSD card with the backup and that you still remember the recovery password. Then press 'Reset device'. Set a new device password and choose 'Or restore a backup'. Select the backup you have made from the wallet, click 'Restore' and enter the recovery password you used when creating the wallet.",
+        "title": "How can I disable two factor authorization (2FA)?"
       },
       "ejectBitbox": {
         "text": "You can unplug the BitBox at any time without having to eject it first.",
@@ -821,7 +821,7 @@
       "title": "Send from output"
     },
     "confirm": {
-      "selected-coins": "Selected Coins",
+      "selected-coins": "Selected coins",
       "title": "Confirm transaction",
       "total": "Total"
     },
