@@ -333,7 +333,6 @@
 
 .step button {
     height: var(--wizard-item-height);
-    line-height: var(--wizard-item-height);
     font-size: var(--size-wizard-text);
 }
 
