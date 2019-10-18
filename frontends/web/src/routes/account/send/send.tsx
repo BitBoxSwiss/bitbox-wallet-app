@@ -37,23 +37,17 @@ import { debug } from '../../../utils/env';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
 import { Devices } from '../../device/deviceswitch';
+import { AccountInterface } from '../account';
 import { isBitcoinBased } from '../utils';
 import FeeTargets from './feetargets';
 import * as style from './send.css';
 import { Props as UTXOsProps, SelectedUTXO, UTXOs } from './utxos';
 
 interface SendProps {
-    accounts: Account[];
+    accounts: AccountInterface[];
     code?: string;
     devices: Devices;
     deviceIDs: string[];
-}
-
-interface Account {
-    code: string;
-    coinCode: string;
-    coinUnit: string;
-    name: string;
 }
 
 interface ProposedAmount {
@@ -578,7 +572,7 @@ class Send extends Component<Props, State> {
                                                 {
                                                     hasCamera && (
                                                         <button onClick={this.toggleScanQR} className={style.qrButton}>
-                                                            <img src={qrcodeIcon}/>
+                                                            <img src={qrcodeIcon} />
                                                         </button>
                                                     )
                                                 }
