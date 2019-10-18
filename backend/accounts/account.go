@@ -16,6 +16,7 @@ package accounts
 
 import (
 	"github.com/btcsuite/btcd/wire"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/safello"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
@@ -56,6 +57,12 @@ type Interface interface {
 	VerifyAddress(addressID string) (bool, error)
 	Keystores() *keystore.Keystores
 	RateUpdater() *rates.RateUpdater
+
+	// SafelloBuySupported returns true if the Safello Buy widget can be used with this account.
+	SafelloBuySupported() bool
+	// Safello returns the infos needed to load the Safello Buy widget. panics() if Safello is not
+	// supported for this coin. Check support with `SafelloBuySupported()` before calling this.
+	SafelloBuy() *safello.Buy
 }
 
 // Info holds account information.

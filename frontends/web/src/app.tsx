@@ -21,14 +21,14 @@ import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
 import { store as panelStore } from './components/guide/guide';
-import { toggleSidebar } from './components/sidebar/sidebar';
-import { Sidebar } from './components/sidebar/sidebar';
+import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
+import { Buy } from './routes/account/buy/buy';
 import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
@@ -216,6 +216,11 @@ class App extends Component<Props, State> {
                             devices={devices}
                             accounts={accounts}
                             deviceIDs={deviceIDs} />
+                        <Buy
+                            path="/account/:code/buy"
+                            devices={devices}
+                            accounts={accounts}
+                            deviceIDs={deviceIDs} />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts} />
@@ -229,12 +234,12 @@ class App extends Component<Props, State> {
                         <InitializeAllAccounts accounts={accounts}
                             path="/account-summary" />
                         <BitBoxBaseConnect
-                          path="/bitboxbase"
-                          detectedBases={detectedBases}
-                          bitboxBaseIDs={bitboxBaseIDs} />
+                            path="/bitboxbase"
+                            detectedBases={detectedBases}
+                            bitboxBaseIDs={bitboxBaseIDs} />
                         <BitBoxBase
-                          path="/bitboxbase/:bitboxBaseID"
-                          bitboxBaseID={null} />
+                            path="/bitboxbase/:bitboxBaseID"
+                            bitboxBaseID={null} />
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings

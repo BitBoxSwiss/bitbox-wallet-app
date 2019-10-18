@@ -67,6 +67,8 @@ func NewHandlers(
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
+	handleFunc("/exchange/safello/buy-supported", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuySupported)).Methods("GET")
+	handleFunc("/exchange/safello/buy", handlers.ensureAccountInitialized(handlers.getExchangeSafelloBuy)).Methods("GET")
 	return handlers
 }
 
@@ -498,4 +500,12 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 		"hasSecureOutput": hasSecureOutput,
 		"optional":        optional,
 	}, nil
+}
+
+func (handlers *Handlers) getExchangeSafelloBuySupported(r *http.Request) (interface{}, error) {
+	return handlers.account.SafelloBuySupported(), nil
+}
+
+func (handlers *Handlers) getExchangeSafelloBuy(r *http.Request) (interface{}, error) {
+	return handlers.account.SafelloBuy(), nil
 }

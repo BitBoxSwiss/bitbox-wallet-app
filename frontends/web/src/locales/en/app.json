@@ -441,6 +441,7 @@
   "button": {
     "abort": "Abort",
     "back": "Back",
+    "buy": "Buy",
     "changepin": "Change device password",
     "check": "Check backup",
     "continue": "Continue",
@@ -458,6 +459,9 @@
     "unlock": "Unlock",
     "update": "Update",
     "upgrade": "Upgrade"
+  },
+  "buy": {
+    "title": "Buy {{accountName}}"
   },
   "changePin": {
     "newTitle": "New device password",
@@ -709,6 +713,16 @@
       "pairing": {
         "text": "After having downloaded our mobile app for either iOS or Android, you scan the displayed QR code, which sets up a secure channel between the mobile app and this application. Once scanned, follow the instructions in the mobile app.",
         "title": "How to securely pair with your phone"
+      }
+    },
+    "buy": {
+      "support": {
+        "link": {
+          "text": "Safello customer service",
+          "url": "https://help.safello.com"
+        },
+        "text": "Please direct your support requests directly to Safello.",
+        "title": "I experienced an issue with Safello"
       }
     },
     "receive": {

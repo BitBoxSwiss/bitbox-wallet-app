@@ -23,6 +23,7 @@ import { Header } from '../../components/layout';
 import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
+import { load } from '../../decorators/load';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { apiWebsocket } from '../../utils/websocket';
@@ -45,6 +46,10 @@ interface AccountProps {
     accounts: AccountInterface[];
 }
 
+interface LoadedAccountProps {
+    safelloBuySupported: boolean;
+}
+
 export interface AccountInfo {
     signingConfiguration: SigningConfigurationInterface;
 }
@@ -60,7 +65,7 @@ interface State {
     fatalError: boolean;
 }
 
-type Props = AccountProps & TranslateProps;
+type Props = LoadedAccountProps & AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
     public state = {
@@ -242,6 +247,7 @@ class Account extends Component<Props, State> {
             t,
             code,
             accounts,
+            safelloBuySupported,
         }: RenderableProps<Props>,
         {
             transactions,
@@ -301,6 +307,10 @@ class Account extends Component<Props, State> {
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">Available Balance</label>
                                 <div className={style.actionsContainer}>
+                                    { safelloBuySupported && (
+                                          <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
+                                    )
+                                    }
                                     {
                                         canSend ? (
                                             <a href={`/account/${code}/send`} className={style.send}><span>{t('button.send')}</span></a>
@@ -369,5 +379,8 @@ class Account extends Component<Props, State> {
     }
 }
 
-const HOC = translate<AccountProps>()(Account);
+const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
+    safelloBuySupported: `account/${code}/exchange/safello/buy-supported`,
+}))(Account);
+const HOC = translate<AccountProps>()(loadHOC);
 export { HOC as Account };
