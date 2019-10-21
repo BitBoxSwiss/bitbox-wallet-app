@@ -428,8 +428,7 @@ class BitBox02 extends Component<Props, State> {
                         <Steps>
                             <Step active={status === 'connected'} title={t('button.unlock')} width={700}>
                                 <div className={style.stepContext}>
-                                    {/* <p className="text-center">{t('unlock.description')}</p> */}
-                                    <p className="text-center">Enter BitBox02 password to unlock.</p>
+                                    <p className="text-center">{t('bitbox02Wizard.stepConnected.unlock')}</p>
                                     <div className={style.passwordGesturesGifWrapper}>
                                         <img class={style.passwordGesturesGif} src={passwordGif}/>
                                     </div>
@@ -450,8 +449,7 @@ class BitBox02 extends Component<Props, State> {
                                     )
                                 }
                                 <div className={[style.stepContext, status === 'pairingFailed' ? style.disabled : ''].join(' ')}>
-                                    {/* <p>{t('bitbox02Wizard.pairing.unpaired')}</p> */}
-                                    <p>Please verify the pairing code matches what is shown on your BitBox02.</p>
+                                    <p>{t('bitbox02Wizard.stepUnpaired.verify')}</p>
                                     <pre>{hash}</pre>
                                     {
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
@@ -473,8 +471,7 @@ class BitBox02 extends Component<Props, State> {
                                 !unlockOnly && (
                                     <Step
                                         active={status === 'uninitialized' && appStatus === ''}
-                                        // title={t('bitbox02Wizard.initialize.title')}
-                                        title="Setup your BitBox02"
+                                        title={t('bitbox02Wizard.stepUninitialized.title')}
                                         large>
                                         <Toast theme="info">
                                             <div class="flex flex-items-center">
@@ -487,8 +484,7 @@ class BitBox02 extends Component<Props, State> {
                                                 <div className="column column-1-2">
                                                     <div className={style.stepContext} style="min-height: 330px">
                                                         <h3 className={style.stepSubHeader}>Create</h3>
-                                                        {/* <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} /> */}
-                                                        <p className="text-center">I want to setup a new BitBox02.</p>
+                                                        <p className="text-center">{t('bitbox02Wizard.stepUninitialized.create')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                             <Button
                                                                 primary
@@ -502,20 +498,17 @@ class BitBox02 extends Component<Props, State> {
                                                 <div className="column column-1-2">
                                                     <div className={style.stepContext} style="min-height: 330px">
                                                         <h3 className={style.stepSubHeader}>Restore</h3>
-                                                        {/* <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.initialize.text')} /> */}
-                                                        <p className="text-center">I want to restore my wallet from a backup.</p>
+                                                        <p className="text-center">{t('bitbox02Wizard.stepUninitialized.restore')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                             <Button
                                                                 primary
                                                                 onClick={this.restoreBackupStep}>
-                                                                {/* {t('backup.restore.confirmTitle')} */}
-                                                                Restore from microSD card
+                                                                {t('bitbox02Wizard.stepUninitialized.restoreMicroSD')}
                                                             </Button>
                                                             <Button
                                                                 primary
                                                                 onClick={this.restoreFromMnemonic}>
-                                                                {/* {t('backup.restoreFromMnemonic.confirmTitle')} */}
-                                                                Restore from mnemonic
+                                                                {t('bitbox02Wizard.stepUninitialized.restoreMnemonic')}
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -533,26 +526,21 @@ class BitBox02 extends Component<Props, State> {
                                 !unlockOnly && appStatus === 'createWallet' && (
                                     <Step
                                         active={createWalletStatus === 'intro'}
-                                        // title={t('seed.create')}
-                                        title="Choose BitBox02 name">
+                                        title={t('bitbox02Wizard.stepCreate.title')}>
                                         {
                                             !sdCardInserted && (
                                                 <Toast theme="info">
-                                                    {/* <SimpleMarkup tagName="span" markup={t('bitbox02Wizard.insertSDCard')} /> */}
-                                                    <span>Please make sure your microSD card is inserted in your BitBox02.</span>
+                                                    <span>{t('bitbox02Wizard.stepCreate.toastMicroSD')}</span>
                                                 </Toast>
                                             )
                                         }
                                         <div className={style.stepContext}>
-                                            {/* <p>{t('bitbox02Wizard.create.text')} {t('bitbox02Wizard.create.info')}</p> */}
                                             <Input
                                                 className={style.wizardLabel}
-                                                // label={t('bitbox02Settings.deviceName.title')}
-                                                label="BitBox02 name"
+                                                label={t('bitbox02Wizard.stepCreate.nameLabel')}
                                                 pattern="^.{0,63}$"
                                                 onInput={this.handleDeviceNameInput}
-                                                // placeholder={t('bitbox02Settings.deviceName.input')}
-                                                placeholder="My BitBox02"
+                                                placeholder={t('bitbox02Wizard.stepCreate.namePlaceholder')}
                                                 value={deviceName}
                                                 id="deviceName"
                                             />
@@ -561,13 +549,12 @@ class BitBox02 extends Component<Props, State> {
                                                     primary
                                                     disabled={!deviceName}
                                                     onClick={this.setDeviceName}>
-                                                    {/* {t('bitbox02Wizard.create.button')} */}
-                                                    Continue
+                                                    {t('bitbox02Wizard.stepCreate.buttonContinue')}
                                                 </Button>
                                                 <Button
                                                     transparent
                                                     onClick={() => this.setState({ appStatus: '' })}>
-                                                    Go Back
+                                                    {t('bitbox02Wizard.stepCreate.buttonBack')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -583,8 +570,7 @@ class BitBox02 extends Component<Props, State> {
                                     <Step
                                         width={700}
                                         active={createWalletStatus === 'setPassword'}
-                                        // title={t('bitbox02Wizard.initialize.passwordTitle')}
-                                        title="Set BitBox02 password">
+                                        title={t('bitbox02Wizard.stepPassword.title')}>
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (
@@ -593,8 +579,7 @@ class BitBox02 extends Component<Props, State> {
                                                     </Toast>
                                                 )
                                             }
-                                            {/* <p>{t('bitbox02Wizard.initialize.passwordText')}</p> */}
-                                            <p className="text-center">Use the controls on your BitBox02 to set a password.</p>
+                                            <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
                                                 <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
@@ -613,11 +598,8 @@ class BitBox02 extends Component<Props, State> {
                                         active={status === 'seeded' && createWalletStatus === 'createBackup'}
                                         title={t('backup.create.title')}>
                                         <div className={style.stepContext}>
-                                            {/* <p>{t('bitbox02Wizard.backup.text1')}</p>
-                                            <p>{t('bitbox02Wizard.backup.text2')}</p>
-                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.backup.text3')} /> */}
-                                                <p>You will now create a backup on your microSD card.</p>
-                                                <p className="m-bottom-default">Before proceeding, please read these important security considerations:</p>
+                                            <p>{t('bitbox02Wizard.stepBackup.createBackup')}</p>
+                                            <p className="m-bottom-default">{t('bitbox02Wizard.stepBackup.beforeProceed')}</p>
                                             <form ref={this.setDisclaimerRef}>
                                                 <div className="m-top-quarter">
                                                     <Checkbox onChange={this.handleDisclaimerCheck} className={style.wizardCheckbox} id="agreement1" label={t('bitbox02Wizard.backup.userConfirmation1')} />
@@ -709,8 +691,7 @@ class BitBox02 extends Component<Props, State> {
                                     <Step
                                         width={700}
                                         active={status !== 'initialized' && restoreBackupStatus === 'setPassword'}
-                                        // title={t('bitbox02Wizard.initialize.passwordTitle')}
-                                        title="Set BitBox02 Password">
+                                        title={t('bitbox02Wizard.stepPassword.title')}>
                                         <div className={style.stepContext}>
                                             {
                                                 errorText && (
@@ -719,8 +700,7 @@ class BitBox02 extends Component<Props, State> {
                                                     </Toast>
                                                 )
                                             }
-                                            {/* <p>{t('bitbox02Wizard.initialize.passwordText')}</p> */}
-                                            <p className="text-center">Use the controls on your BitBox02 to set a password.</p>
+                                            <p className="text-center">{t('bitbox02Wizard.stepPassword.useControls')}</p>
                                             <div className={style.passwordGesturesGifWrapper}>
                                                 <img class={style.passwordGesturesGif} src={passwordGif}/>
                                             </div>
@@ -760,9 +740,8 @@ class BitBox02 extends Component<Props, State> {
                                         active={status === 'initialized'}
                                         title={t('bitbox02Wizard.success.title')}>
                                         <div className={style.stepContext}>
-                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
-                                            <p>You’ve sucessfully created your backup.</p>
-                                            <p>Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
+                                            <p>{t('bitbox02Wizard.stepCreateSuccess.success')}</p>
+                                            <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
                                             <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                 <Button primary onClick={this.handleGetStarted}>
                                                     {t('success.getstarted')}
@@ -781,11 +760,10 @@ class BitBox02 extends Component<Props, State> {
                                     <Step
                                         width={700}
                                         active={status === 'initialized'}
-                                        title="Backup Restored!">
+                                        title={t('bitbox02Wizard.stepBackupSuccess.title')}>
                                         <div className={style.stepContext}>
-                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
-                                            <p>Please remove the microSD card from your BitBox02 and store it in a secure location.</p>
-                                            <p className="m-bottom-default">To keep your funds safe, please remember the following:</p>
+                                            <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
+                                            <p className="m-bottom-default">{t('bitbox02Wziard.stepBackupSuccess.fundsSafe')}</p>
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
@@ -810,10 +788,9 @@ class BitBox02 extends Component<Props, State> {
                                     <Step
                                         width={700}
                                         active={status === 'initialized'}
-                                        title="Backup Restored!">
+                                        title={t('bitbox02Wizard.stepBackupSuccess.title')}>
                                         <div className={style.stepContext}>
-                                            {/* <p>{t('bitbox02Wizard.success.text')}</p> */}
-                                            <p className="m-bottom-default">To keep your funds safe, please remember the following:</p>
+                                        <p className="m-bottom-default">{t('bitbox02Wziard.stepBackupSuccess.fundsSafe')}</p>
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
