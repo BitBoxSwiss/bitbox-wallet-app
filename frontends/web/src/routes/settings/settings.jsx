@@ -15,6 +15,7 @@
  */
 
 import { Component, h } from 'preact';
+import { Link, route } from 'preact-router';
 import { translate } from 'react-i18next';
 import { apiGet, apiPost } from '../../utils/request';
 import { setConfig } from '../../utils/config';
@@ -54,6 +55,12 @@ export default class Settings extends Component {
         apiGet('config').then(config => {
             this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress });
         });
+    }
+
+    componentDidUpdate(prevProps) {
+        if (prevProps.deviceIDs.length && !this.props.deviceIDs.length) {
+            route('/', true);
+        }
     }
 
     handleToggleAccount = event => {
@@ -161,8 +168,13 @@ export default class Settings extends Component {
         this.setState({ restart: false });
     }
 
+    backHome = () => {
+        route('/', true);
+    }
+
     render({
         t,
+        deviceIDs,
     }, {
         config,
         restart,
@@ -197,7 +209,27 @@ export default class Settings extends Component {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('settings.title')}</h2>} />
+                    <Header title={<h2>{t('settings.title')}</h2>}>
+                        {
+                            !deviceIDs.length && (
+                                <Link onClick={this.backHome} className="flex flex-row flex-items-center">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="2"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        className="m-right-tiny">
+                                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                                    </svg>
+                                    {t('settings.header.home')}
+                                </Link>
+                            )
+                        }
+                    </Header>
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             {

@@ -952,6 +952,9 @@
       "title": "Expert settings",
       "useProxy": "Enable tor proxy"
     },
+    "header": {
+      "home": "Home"
+    },
     "restart": "Please re-start the BitBoxApp for the changes to take effect.",
     "success": "Please unplug and replug the BitBox for the changes to take effect.",
     "title": "Settings"

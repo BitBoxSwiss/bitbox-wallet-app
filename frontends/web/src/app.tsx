@@ -220,6 +220,7 @@ class App extends Component<Props, State> {
                         <ElectrumSettings
                             path="/settings/electrum" />
                         <Settings
+                            deviceIDs={deviceIDs}
                             path="/settings" />
                         {/* Use with TypeScript: {Route<{ deviceID: string }>({ path: '/manage-backups/:deviceID', component: ManageBackups })} */}
                         {/* ManageBackups and DeviceSwitch need a key to trigger (re-)mounting when devices change, to handle routing */}
