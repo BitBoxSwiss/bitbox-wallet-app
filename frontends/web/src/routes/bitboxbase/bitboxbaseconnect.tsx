@@ -32,7 +32,6 @@ interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
     detectedBases: DetectedBitBoxBases;
     bitboxBaseID?: string;
-    ip?: string;
 }
 
 export interface DetectedBitBoxBases {
@@ -43,11 +42,11 @@ export const bitboxBaseStore = new Store<BitBoxBaseConnectProps>({
     detectedBases: {},
     bitboxBaseIDs: [],
     bitboxBaseID: '',
-    ip: '',
 });
 
 interface State {
     manualConnectDialog: boolean;
+    ipEntry?: string;
 }
 
 type Props = BitBoxBaseConnectProps & TranslateProps;
@@ -57,25 +56,26 @@ class BitBoxBaseConnect extends Component<Props, State> {
         super(props);
         this.state = {
             manualConnectDialog: false,
+            ipEntry: undefined,
         };
     }
 
     private handleFormChange = event => {
-        bitboxBaseStore.setState({
-            ip : event.target.value,
+        this.setState({
+            ipEntry : event.target.value,
         });
     }
 
     private submit = (event: Event) => {
         event.preventDefault();
         apiPost('bitboxbases/connectbase', {
-            ip: bitboxBaseStore.state.ip,
+            ip: this.state.ipEntry,
         }).then(data => {
             const { success } = data;
             if (!success) {
                 alertUser(data.errorMessage);
             } else {
-                route(`/bitboxbase/${bitboxBaseStore.state.ip}`, true);
+                route(`/bitboxbase/${this.state.ipEntry}`, true);
             }
         });
     }
@@ -106,12 +106,12 @@ class BitBoxBaseConnect extends Component<Props, State> {
     public render(
         {
             t,
-            ip,
             detectedBases,
             bitboxBaseIDs,
         }: RenderableProps<Props>,
         {
             manualConnectDialog,
+            ipEntry,
         }: State,
     ) {
         const bases = Object.entries(detectedBases);
@@ -166,12 +166,12 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                         <Input
                                                             name="ip"
                                                             onInput={this.handleFormChange}
-                                                            value={ip}
+                                                            value={ipEntry}
                                                             placeholder="IP address:port" />
                                                         <div className={dialogStyle.actions}>
                                                             <button
                                                                 className={[style.button, style.primary].join(' ')}
-                                                                disabled={ip === ''}
+                                                                disabled={ipEntry === ''}
                                                                 onClick={this.submit}>
                                                                 {t('bitboxBase.connect')}
                                                             </button>
