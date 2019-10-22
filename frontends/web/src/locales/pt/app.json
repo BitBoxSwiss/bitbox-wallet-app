@@ -6,7 +6,7 @@
     "incoming": "Lançamentos",
     "info": {
       "btc-p2pkh": "Essa é uma conta Bitcoin Legacy. É recomendado que você utilize uma conta Bitcoin Segwit, devido às menores taxas de rede.",
-      "btc-p2wpkh": "Essa é uma conta Bitcoin Segwit nativa, que exige ainda menos taxas de rede. Ela utiliza o endereço no formato Bech32, que ainda não é amplamente aceito. Use somente se você quiser testar a tecnologia de ponta.",
+      "btc-p2wpkh": "Essa conta Bitcoin Segwit nativa requer ainda menos taxas de rede através do formato de endereço bech32. É uma tecnologia de ponta, mas ainda não é amplamente aceita.",
       "btc-p2wpkh-p2sh": "Essa é uma conta Bitcoin Segwit, e é recomendada para taxas de rede mais baixas. Se você acabou de atualizar do aplicativo anterior, você pode ver seu saldo na conta Bitcoin Legacy, que você pode habilitar nas configurações. Se você quiser testar uma tecnologia de ponta e economizar ainda mais em taxas de rede, vá para Configurações e habilite uma conta Bitcoin Segwit nativa, que utiliza o formato de endereço Bech32.",
       "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
       "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
@@ -85,7 +85,7 @@
     "description": "Selecione um <strong>arquivo de backup da carteira</strong>",
     "insert": "Por favor, insira o cartão micro SD para gerenciar backups.",
     "insertButton": "Eu inseri o cartão micro SD",
-    "list": "Os <strong>seguintes backups </strong>foram encontrados no cartão microSD:",
+    "list": "Os backups do seu cartão microSD",
     "noBackups": "Não há backups neste cartão micro SD.",
     "restore": {
       "confirmTitle": "Restaurar backup",
@@ -134,6 +134,7 @@
   },
   "bitbox02Settings": {
     "deviceName": {
+      "current": "Nome atual do dispositivo",
       "input": "Nome da BitBox02",
       "title": "Definir nome da BitBox02"
     },
@@ -153,7 +154,11 @@
       "restoreText": "Ok, vamos restaurar um backup!",
       "text1": "Ótimo, sua senha da BitBox02 foi definida e a carteira foi criada. Agora é hora de criar seu primeiro backup. Por favor, verifique se o seu cartão microSD está inserido na sua BitBox02 e continue.",
       "text2": "Por favor, siga as instruções na tela do seu dispositivo para criar um backup.",
-      "text3": "Após o backup ser criado, remova o cartão microSD e armazene-o em um <strong>local seguro</strong>. O conteúdo do cartão microSD não é protegido por senha. Nunca insira em qualquer outro dispositivo além de sua BitBox02."
+      "text3": "Após o backup ser criado, remova o cartão microSD e armazene-o em um <strong>local seguro</strong>. O conteúdo do cartão microSD não é protegido por senha. Nunca insira em qualquer outro dispositivo além de sua BitBox02.",
+      "userConfirmation1": "Eu devo armazenar meu backup em um local seguro.",
+      "userConfirmation2": "Meu backup não é protegido por senha. Qualquer pessoa com acesso a ele pode acessar minha carteira.",
+      "userConfirmation3": "Se eu perder ou danificar minha BitBox02, a única maneira de recuperar meus fundos é restaurando do meu backup.",
+      "userConfirmation4": "Se eu perder ou danificar meu backup e minha BitBox02, meus fundos serão perdidos."
     },
     "create": {
       "button": "Nomear dispositivo e continuar",
@@ -486,6 +491,7 @@
         "title": "Como posso verificar um endereço com segurança?"
       },
       "why20": {
+        "text": "Durante a inicialização, o aplicativo gera endereços derivados de sua semente para ver se eles receberam fundos. Como o aplicativo pode gerar um número quase infinito de endereços, poderia levar anos determinando o saldo. Para limitar essa pesquisa, ele para depois de ver 20 endereços que nunca receberam fundos. Esse é o \"gap limit\" e 20 é um padrão de fato, embora o número seja arbitrário. Estes são os 20 endereços que você pode escolher.",
         "title": "Por que apenas 20 endereços?"
       },
       "whyMany": {
@@ -716,7 +722,6 @@
     }
   },
   "reset": {
-    "button": "Resetar dispositivo",
     "description": "Todos os dados no dispositivo serão excluídos. Isso inclui sua chave privada!",
     "notReset": "Dispositivo NÃO redefinido.",
     "title": "Resetar dispositivo",
@@ -892,6 +897,7 @@
       },
       "title": "Configurações para especialistas"
     },
+    "restart": "Por favor, reinicie o aplicativo BitBox para que as alterações façam efeito.",
     "success": "Por favor, retire e reconecte a BitBox para que as mudanças façam efeito.",
     "title": "Configurações"
   },
