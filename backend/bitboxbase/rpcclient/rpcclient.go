@@ -170,6 +170,8 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
 	case rpcmessages.OpUCanHasVerificationProgress:
 		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
+	case rpcmessages.OpServiceInfoChanged:
+		rpcClient.onEvent(bitboxbasestatus.EventServiceInfoChanged)
 	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -422,6 +424,17 @@ func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, erro
 	err := rpcClient.client.Call("RPCServer.GetBaseInfo", true /*dummy Arg */, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetBaseInfo RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// GetServiceInfo makes a synchronous RPC call to the Base and returns the GetServiceInfoResponse struct
+func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
+	var reply rpcmessages.GetServiceInfoResponse
+	err := rpcClient.client.Call("RPCServer.GetServiceInfo", true /*dummy Arg */, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetServiceInfo RPC call failed")
 		return reply, err
 	}
 	return reply, nil

@@ -52,4 +52,7 @@ const (
 
 	// EventVerificationProgressChange should be emitted whenever the rpcclient gets a new VerificationProgress notification
 	EventVerificationProgressChange Event = "verificationProgressChanged"
+
+	// EventServiceInfoChanged should be emitted whenever the rpcClient receives a 'service info changed' notification
+	EventServiceInfoChanged Event = "serviceInfoChanged"
 )

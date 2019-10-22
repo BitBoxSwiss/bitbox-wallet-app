@@ -131,6 +131,10 @@ type Interface interface {
 
 	// BaseInfo returns information about the Base
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
+
+	// ServiceInfo returns information about the services running on the Base
+	// As for example the bitcoind, electrs and ligthningd block height
+	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -618,6 +622,22 @@ func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	}
 	if !reply.ErrorResponse.Success {
 		return rpcmessages.GetBaseInfoResponse{}, reply.ErrorResponse
+	}
+	return reply, nil
+}
+
+// ServiceInfo returns info about the Base contained in rpcmessages.GetServiceInfoResponse
+func (base *BitBoxBase) ServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
+	if !base.active {
+		return rpcmessages.GetServiceInfoResponse{}, errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a GetServiceInfo call")
+	reply, err := base.rpcClient.GetServiceInfo()
+	if err != nil {
+		return rpcmessages.GetServiceInfoResponse{}, err
+	}
+	if !reply.ErrorResponse.Success {
+		return rpcmessages.GetServiceInfoResponse{}, reply.ErrorResponse
 	}
 	return reply, nil
 }
