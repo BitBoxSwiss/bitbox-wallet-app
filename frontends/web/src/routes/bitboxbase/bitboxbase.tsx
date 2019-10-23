@@ -30,6 +30,7 @@ import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import { BaseSettings } from './baseSettings';
+import * as style from './bitboxbase.css';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -490,30 +491,68 @@ class BitBoxBase extends Component<Props, State> {
                             <Step
                                 title="Choose Syncing Option"
                                 active={activeStep === ActiveStep.ChooseSyncingOption}
-                                width={540}>
-                                <div className={stepStyle.stepContext}>
-                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}>
-                                            Start from pre-synced blockchain
-                                        </Button>
-                                        <Button primary onClick={() => {
-                                            confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
-                                                if (result) {
-                                                    this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
-                                                }
-                                            });
-                                        }}>
-                                            Validate from genesis block
-                                        </Button>
-                                        <Button primary onClick={() => {
-                                            confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
-                                                if (result) {
-                                                    this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
-                                                }
-                                            });
-                                        }}>
-                                            Sync from scratch
-                                        </Button>
+                                large>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>Pre-sync</h3>
+                                                    <p>The quickest way to get started.</p>
+                                                    <ul className={style.optionsList}>
+                                                        <li>+ BitBoxBase is ready withing minutes</li>
+                                                        <li>+ No initial download or verification necessary</li>
+                                                        <li>- Trusting the provided data</li>
+                                                        <li>- No independent validation of Bitcoin transaction and  balances</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}
+                                                >
+                                                    Select
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>Re-index</h3>
+                                                    <p>Validate from genesis block</p>
+                                                    <ul className={style.optionsList}>
+                                                        <li>+ Full validation of the presynced data</li>
+                                                        <li>- Takes ~1 day for the BitBoxBase to be ready</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => {                                   confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
+                                                        if (result) {
+                                                            this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
+                                                        }
+                                                    });
+                                                }}>
+                                                    Select
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>Re-sync</h3>
+                                                    <p>Redownload the entire blockchain from scratch</p>
+                                                    <ul className={style.optionsList}>
+                                                        <li>+ Full validation of newly downloaded data</li>
+                                                        <li>- Takes 2+ days and burdens the network (Bitcoin and especially     Tor)</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => {
+                                                    confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
+                                                        if (result) {
+                                                            this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
+                                                        }
+                                                    });
+                                                }}>
+                                                    Select
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </Step>

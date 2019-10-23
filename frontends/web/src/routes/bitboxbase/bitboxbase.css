@@ -2,3 +2,8 @@
   min-height: 240px;
   background-color: var(--color-white);
 }
+
+.optionsList {
+  list-style-type: none;
+  padding: 0px !important;
+}
