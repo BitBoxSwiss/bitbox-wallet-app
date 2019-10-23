@@ -57,7 +57,6 @@ enum ActiveStep {
     ChooseName,
     ChooseSyncingOption,
     ChooseNetwork,
-    ChooseIBDNetwork,
     Backup,
     BackupCreated,
     Ready,
@@ -352,6 +351,7 @@ class BitBoxBase extends Component<Props, State> {
             validHostname,
             waitDialog,
             locked,
+            syncingOption,
         }: State,
     ) {
         if (!showWizard) {
@@ -539,13 +539,13 @@ class BitBoxBase extends Component<Props, State> {
                                                     <p>Redownload the entire blockchain from scratch</p>
                                                     <ul className={style.optionsList}>
                                                         <li>+ Full validation of newly downloaded data</li>
-                                                        <li>- Takes 2+ days and burdens the network (Bitcoin and especially     Tor)</li>
+                                                        <li>- Takes 2+ days and burdens the network (Bitcoin and especially Tor)</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => {
                                                     confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
                                                         if (result) {
-                                                            this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
+                                                            this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseNetwork });
                                                         }
                                                     });
                                                 }}>
@@ -560,29 +560,82 @@ class BitBoxBase extends Component<Props, State> {
                             <Step
                                 title="Choose Network Option"
                                 active={activeStep === ActiveStep.ChooseNetwork}
-                                width={540}>
-                                <div className={stepStyle.stepContext}>
-                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
+                                large>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>Tor</h3>
+                                                    {
+                                                        syncingOption === SyncingOptions.Resync &&
+                                                        <p>Tor only for all connections</p>
+                                                    }
+                                                    <ul className={style.optionsList}>
+                                                        <li>+ Private</li>
+                                                        <li>+ Difficult to track physical location</li>
+                                                        <li>- Burdens the Tor network</li>
+                                                        <li>- Totalitarian jurisdictions possibly suspicious </li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                {
+                                                    syncingOption !== SyncingOptions.Resync &&
+                                                    <p className={style.recommendation}>*Recommended option</p>
+                                                }
+                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
+                                                        <Button primary onClick={() => this.setNetwork  (NetworkOptions.EnableTor, true)}>Select</Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {
+                                            syncingOption === SyncingOptions.Resync &&
+                                            <div className="column column-1-3">
+                                                <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
+                                                    <div>
+                                                        <h3 className={stepStyle.stepSubHeader}>Clearnet then Tor</h3>
+                                                        <p>Public Internet for initial block download, then switches to Tor automatically</p>
+                                                        <ul className={style.optionsList}>
+                                                            <li>+ Faster IBD</li>
+                                                            <li>+ Does not burden the Tor network during IBD</li>
+                                                            <li>- Imperfect privacy</li>
+                                                        </ul>
+                                                    </div>
+                                                    <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Select</Button>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>Clearnet</h3>
+                                                    {
+                                                        syncingOption === SyncingOptions.Resync &&
+                                                        <p>Clearnet only for all connections</p>
+                                                    }
+                                                    <ul className={style.optionsList}>
+                                                        <li>+ Fastest</li>
+                                                        <li>+ Less latency</li>
+                                                        <li>+ Allows VPN usage</li>
+                                                        <li>- Leaks home IP address and geolocation if used without precautions</li>
+                                                        <li>- ISP can detect Bitcoin node</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                {
+                                                    syncingOption === SyncingOptions.Resync &&
+                                                    <p className={style.recommendation}>*Not recommended</p>
+                                                }
+                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
+                                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Select</Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </Step>
-
-                            <Step
-                                title="Choose Network Option"
-                                active={activeStep === ActiveStep.ChooseIBDNetwork}
-                                width={540}>
-                                <div className={stepStyle.stepContext}>
-                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
-                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Clearnet Only for Initial Block Download</Button>
-                                    </div>
-                                </div>
-                            </Step>
-
-                            {/* TODO: Add API calls for backup options  */}
 
                             <Step
                                 title="Wallet Backup"
