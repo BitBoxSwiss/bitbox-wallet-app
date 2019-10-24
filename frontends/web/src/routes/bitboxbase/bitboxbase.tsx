@@ -20,6 +20,7 @@ import { alertUser } from '../../components/alert/Alert';
 import { UnlockBitBoxBase } from '../../components/bitboxbase/unlockbitboxbase';
 import { confirmation } from '../../components/confirm/Confirm';
 import { Button, Input } from '../../components/forms';
+import { SwissMadeOpenSource } from '../../components/icon';
 import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
 import { Step, Steps } from '../../components/steps';
@@ -401,6 +402,9 @@ class BitBoxBase extends Component<Props, State> {
                                     <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
                                     <pre>{hash}</pre>
                                 </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
 
                             <Step
@@ -423,6 +427,9 @@ class BitBoxBase extends Component<Props, State> {
                                             </Button>
                                         </div>
                                     </form>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -460,6 +467,9 @@ class BitBoxBase extends Component<Props, State> {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
 
                             <Step
@@ -484,6 +494,9 @@ class BitBoxBase extends Component<Props, State> {
                                         </Button>
                                         <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>Go back</Button>
                                     </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -560,6 +573,9 @@ class BitBoxBase extends Component<Props, State> {
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
@@ -651,6 +667,9 @@ class BitBoxBase extends Component<Props, State> {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
 
                             <Step
@@ -665,6 +684,9 @@ class BitBoxBase extends Component<Props, State> {
                                         </Button>
                                     </div>
                                 </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
                             </Step>
 
                             <Step
@@ -676,6 +698,9 @@ class BitBoxBase extends Component<Props, State> {
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
                                         <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>Continue</Button>
                                     </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
                                 </div>
                             </Step>
 
