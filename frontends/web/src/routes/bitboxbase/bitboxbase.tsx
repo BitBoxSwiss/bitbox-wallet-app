@@ -60,7 +60,6 @@ enum ActiveStep {
     ChooseNetwork,
     Backup,
     BackupCreated,
-    Ready,
 }
 
 // SyncingOptions correspond to API endpoints in the handlers
@@ -690,28 +689,17 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Wallet Backup Created"
+                                title="You're ready to go!"
                                 active={activeStep === ActiveStep.BackupCreated}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>You may now remove the memory stick and store it in a secure location.</p>
+                                    <p>Your backup has been created. You may now remove the memory stick and store it in a secure location.</p>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>Continue</Button>
+                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to dashboard</Button>
                                     </div>
                                 </div>
                                 <div className="text-center m-top-default">
                                     <SwissMadeOpenSource large />
-                                </div>
-                            </Step>
-
-                            <Step
-                                title="You're Ready To Go!"
-                                active={activeStep === ActiveStep.Ready}
-                                width={540}>
-                                <div className={stepStyle.stepContext}>
-                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to Dashboard</Button>
-                                    </div>
                                 </div>
                             </Step>
 
