@@ -398,8 +398,16 @@ class BitBoxBase extends Component<Props, State> {
                                 active={activeStep === ActiveStep.PairingCode}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
+                                    <p>New BitBoxBase connection detected. To continue please confirm that the code below matches the code shown on your BitBoxBase screen.</p>
                                     <pre>{hash}</pre>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                        <Button
+                                            primary
+                                            // TODO: Change Base middleware to accept code confirmation from App
+                                            onClick={() => this.setState({activeStep: ActiveStep.SetPassword})}>
+                                            {t('bitbox02Wizard.pairing.confirmButton')}
+                                        </Button>
+                                    </div>
                                 </div>
                                 <div className="text-center m-top-default">
                                     <SwissMadeOpenSource large />
