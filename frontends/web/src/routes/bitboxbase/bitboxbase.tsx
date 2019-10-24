@@ -317,7 +317,7 @@ class BitBoxBase extends Component<Props, State> {
                 }
             });
         } else {
-            alertUser('No network setting found');
+            alertUser(this.props.t('bitboxBaseWizard.errors.networkSetting'));
         }
     }
 
@@ -380,7 +380,7 @@ class BitBoxBase extends Component<Props, State> {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>Welcome to your BitBoxBase</h2>} />
+                    <Header title={<h2>{t('bitboxBaseWizard.welcome')}</h2>} />
 
                     {
                         waitDialog && (
@@ -394,11 +394,11 @@ class BitBoxBase extends Component<Props, State> {
                         <Steps>
 
                             <Step
-                                title="Verify pairing code"
+                                title={t('bitboxBaseWizard.pairing.title')}
                                 active={activeStep === ActiveStep.PairingCode}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>New BitBoxBase connection detected. To continue please confirm that the code below matches the code shown on your BitBoxBase screen.</p>
+                                    <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
                                     <pre>{hash}</pre>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                         <Button
@@ -415,7 +415,7 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Set a password"
+                                title={t('bitboxBaseWizard.setPassword')}
                                 active={activeStep === ActiveStep.SetPassword}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
@@ -441,34 +441,34 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Choose setup"
+                                title={t('bitboxBaseWizard.setup.title')}
                                 active={activeStep === ActiveStep.ChooseSetup}
                                 width={840}>
                                 <div className="columnsContainer half">
                                     <div className="columns">
                                         <div className="column column-1-2">
                                             <div className={stepStyle.stepContext}>
-                                                <h3 className={stepStyle.stepSubHeader}>Quick start</h3>
+                                                <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.setup.quick.title')}</h3>
                                                 <ul>
-                                                    <li>Pre-synced blockchain</li>
-                                                    <li>Tor by default</li>
-                                                    <li>Default hostname</li>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point1')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point2')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point3')}</li>
                                                 </ul>
                                                 <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>Select quick</Button>
+                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>{t('bitboxBaseWizard.setup.quick.select')}</Button>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="column column-1-2">
                                             <div className={stepStyle.stepContext}>
-                                                <h3 className={stepStyle.stepSubHeader}>Custom</h3>
+                                                <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.setup.custom.title')}</h3>
                                                 <ul>
-                                                    <li>Syncing options</li>
-                                                    <li>Network options</li>
-                                                    <li>Custom hostname</li>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point1')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point2')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point3')}</li>
                                                 </ul>
                                                 <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>Select custom</Button>
+                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>{t('bitboxBaseWizard.setup.custom.select')}</Button>
                                                 </div>
                                             </div>
                                         </div>
@@ -480,26 +480,26 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Choose a name"
+                                title={t('bitboxBaseWizard.hostname.title')}
                                 active={activeStep === ActiveStep.ChooseName}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
                                     <Input
                                         className={stepStyle.wizardLabel}
                                         pattern="^[a-z0-9]+[a-z0-9-.]{0,62}[a-z0-9]$"
-                                        label="Hostname"
-                                        placeholder="Valid hostname e.g. 'mybitboxbase'"
+                                        label={t('bitboxBaseWizard.hostname.label')}
+                                        placeholder={t('bitboxBaseWizard.hostname.placeholder')}
                                         type="text"
-                                        title="Valid hostname is between 2-64 characters; lowercase a-z; digits 0-9; and periods or hypens, excluding first and last chars"
+                                        title={t('bitboxBaseWizard.hostname.tooltip')}
                                         onInput={this.handleNameInput} />
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                         <Button
                                             primary
                                             onClick={this.setHostname}
                                             disabled={!validHostname}>
-                                            Continue
+                                            {t('button.continue')}
                                         </Button>
-                                        <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>Go back</Button>
+                                        <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>{t('button.back')}</Button>
                                     </div>
                                 </div>
                                 <div className="text-center m-top-default">
@@ -508,7 +508,7 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Choose synchronization"
+                                title={t('bitboxBaseWizard.bitcoin.title')}
                                 active={activeStep === ActiveStep.ChooseSyncingOption}
                                 large>
                                 <div className="columnsContainer half">
@@ -516,66 +516,66 @@ class BitBoxBase extends Component<Props, State> {
                                         <div className="column column-1-3">
                                             <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
                                                 <div>
-                                                    <h3 className={stepStyle.stepSubHeader}>Use pre-synced</h3>
-                                                    <p style="padding-bottom: 22px">The quickest way to get started</p>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.presync')}</h3>
+                                                    <p style="padding-bottom: 22px">{t('bitboxBaseWizard.bitcoin.presyncInfo.label')}</p>
                                                     <ul className={style.prosOptionsList}>
-                                                        <li>BitBoxBase is ready within minutes</li>
-                                                        <li>No initial download or verification necessary</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.pro2')}</li>
                                                     </ul>
                                                     <ul className={style.consOptionsList}>
-                                                        <li>Trusting the provided data</li>
-                                                        <li>No independent validation of Bitcoin transaction history</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.con1')}</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.con2')}</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}
                                                 >
-                                                    Select
+                                                    {t('button.select')}
                                                 </Button>
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
                                             <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
                                                 <div>
-                                                    <h3 className={stepStyle.stepSubHeader}>Reindex</h3>
-                                                    <p style="padding-bottom: 22px">Validate the entire blockchain</p>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.reindex')}</h3>
+                                                    <p style="padding-bottom: 22px">{t('bitboxBaseWizard.bitcoin.reindexInfo.label')}</p>
                                                     <ul className={style.prosOptionsList}>
-                                                        <li>Full validation of pre-synced Bitcoin blockchain</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.reindexInfo.pro1')}</li>
                                                     </ul>
                                                     <ul className={style.consOptionsList}>
-                                                        <li>Takes about 1 day for the BitBoxBase to be ready</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.reindexInfo.con1')}</li>
                                                     </ul>
                                                 </div>
-                                                <Button primary onClick={() => {                                   confirmation('This process takes about 1 day. Are you sure you want to continue?', result => {
+                                                <Button primary onClick={() => {                                   confirmation(t('bitboxBaseWizard.bitcoin.reindexInfo.warning'), result => {
                                                         if (result) {
                                                             this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
                                                         }
                                                     });
                                                 }}>
-                                                    Select
+                                                    {t('button.select')}
                                                 </Button>
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
                                             <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
                                                 <div>
-                                                    <h3 className={stepStyle.stepSubHeader}>Resync</h3>
-                                                    <p>Download and validate the entire blockchain</p>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.resync')}</h3>
+                                                    <p>{t('bitboxBaseWizard.bitcoin.resyncInfo.label')}</p>
                                                     <ul className={style.prosOptionsList}>
-                                                        <li>Full validation of independently downloaded Bitcoin blockchain</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.pro1')}</li>
                                                     </ul>
                                                     <ul className={style.consOptionsList}>
-                                                        <li>Takes 2+ days for the BitBoxBase to be ready</li>
-                                                        <li>Burdens the Bitcoin and Tor networks</li>
+                                                    <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.con1')}</li>
+                                                    <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.con2')}</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => {
-                                                    confirmation('This process can take 2+ days depending on your internet connection. Are you sure you want to continue?', result => {
+                                                    confirmation(t('bitboxBaseWizard.bitcoin.resyncInfo.warning'), result => {
                                                         if (result) {
                                                             this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseNetwork });
                                                         }
                                                     });
                                                 }}>
-                                                    Select
+                                                    {t('button.select')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -587,7 +587,7 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Choose networking"
+                                title={t('bitboxBaseWizard.networks.title')}
                                 active={activeStep === ActiveStep.ChooseNetwork}
                                 large>
                                 <div className="columnsContainer half">
@@ -595,35 +595,32 @@ class BitBoxBase extends Component<Props, State> {
                                         <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
                                             <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
                                                 <div>
-                                                    <h3 className={stepStyle.stepSubHeader}>Tor</h3>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.tor.title')}</h3>
                                                     {
                                                         syncingOption === SyncingOptions.Reindex
                                                         ?
-                                                        <span>
-                                                            Use Tor for all connections;<br/>
-                                                            our recommended option.
-                                                        </span>
+                                                        <span>{t('bitboxBaseWizard.networks.tor.label1')}</span>
                                                         :
                                                         <p style="padding-bottom: 22px">
-                                                            Use Tor for all connections
+                                                            {t('bitboxBaseWizard.networks.tor.label2')}
                                                         </p>
                                                     }
                                                     <ul className={style.prosOptionsList}>
-                                                        <li>Private</li>
-                                                        <li>Difficult to track physical location</li>
-                                                        <li>Allows remote access</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro2')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro3')}</li>
                                                     </ul>
                                                     <ul className={style.consOptionsList}>
                                                         {
                                                             syncingOption === SyncingOptions.Resync &&
-                                                            <li>Burdens the Tor network</li>
+                                                            <li>{t('bitboxBaseWizard.networks.tor.con1')}</li>
                                                         }
-                                                        <li>Possibly suspicious in totalitarian jurisdictions</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.con2')}</li>
                                                     </ul>
                                                 </div>
                                                 <div>
                                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
-                                                        <Button primary onClick={() => this.setNetwork  (NetworkOptions.EnableTor, true)}>Select Tor</Button>
+                                                        <Button primary onClick={() => this.setNetwork  (NetworkOptions.EnableTor, true)}>{t('bitboxBaseWizard.networks.tor.select')}</Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -633,41 +630,38 @@ class BitBoxBase extends Component<Props, State> {
                                             <div className="column column-1-3">
                                                 <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
                                                     <div>
-                                                        <h3 className={stepStyle.stepSubHeader}>Clearnet then Tor</h3>
-                                                        <p>Use clearnet for initial block download (IBD), then switch to Tor</p>
+                                                        <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.clearnetThenTor.title')}</h3>
+                                                        <p>{t('bitboxBaseWizard.networks.clearnetThenTor.label')}</p>
                                                         <ul className={style.prosOptionsList}>
-                                                            <li>Faster initial block downlaod</li>
-                                                            <li>Does not burden the Tor network during IBD</li>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.pro1')}</li>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.pro2')}</li>
                                                         </ul>
                                                         <ul className={style.consOptionsList}>
-                                                            <li>Imperfect privacy</li>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.con1')}</li>
                                                         </ul>
                                                     </div>
-                                                    <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Select clearnet + Tor</Button>
+                                                    <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>{t('bitboxBaseWizard.networks.clearnetThenTor.select')}</Button>
                                                 </div>
                                             </div>
                                         }
                                         <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
                                             <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
                                                 <div>
-                                                    <h3 className={stepStyle.stepSubHeader}>Clearnet</h3>
-                                                    <span>
-                                                        Use clearnet for all connections;<br/>
-                                                        not recommended.
-                                                    </span>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.clearnet.title')}</h3>
+                                                    <span>{t('bitboxBaseWizard.networks.clearnet.label')}</span>
                                                     <ul className={style.prosOptionsList}>
-                                                        <li>Fastest</li>
-                                                        <li>Less latency</li>
-                                                        <li>Allows VPN usage</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro2')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro3')}</li>
                                                     </ul>
                                                     <ul className={style.consOptionsList}>
-                                                        <li>Leaks home IP address and geolocation if used without precautions</li>
-                                                        <li>ISP can detect Bitcoin node</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.con1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.con2')}</li>
                                                     </ul>
                                                 </div>
                                                 <div>
                                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
-                                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Select clearnet</Button>
+                                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>{t('bitboxBaseWizard.networks.clearnet.select')}</Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -680,14 +674,14 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="Wallet Backup"
+                                title={t('bitboxBaseWizard.backups.title')}
                                 active={activeStep === ActiveStep.Backup}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>Insert USB memory stick into the BitBoxBase to make a backup of your wallet.</p>
+                                    <p>{t('bitboxBaseWizard.backups.insert')}</p>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
                                         <Button primary onClick={() => this.createBackup()}>
-                                            Create Backup
+                                            {t('bitboxBase.settings.backups.create')}
                                         </Button>
                                     </div>
                                 </div>
@@ -697,13 +691,13 @@ class BitBoxBase extends Component<Props, State> {
                             </Step>
 
                             <Step
-                                title="You're ready to go!"
+                                title={t('bitboxBaseWizard.success.title')}
                                 active={activeStep === ActiveStep.BackupCreated}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>Your backup has been created. You may now remove the memory stick and store it in a secure location.</p>
+                                    <p>{t('bitboxBaseWizard.success.backupCreated')}</p>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to dashboard</Button>
+                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>{t('bitboxBaseWizard.success.button')}</Button>
                                     </div>
                                 </div>
                                 <div className="text-center m-top-default">
