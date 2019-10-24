@@ -280,6 +280,10 @@
     margin-bottom: 0;
 }
 
+.stepContext ul {
+    list-style-type: square;
+}
+
 .stepContext ul, ol {
     padding-left: calc(var(--space-half) + 2px);
 }

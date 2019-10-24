@@ -495,15 +495,17 @@ class BitBoxBase extends Component<Props, State> {
                                 <div className="columnsContainer half">
                                     <div className="columns">
                                         <div className="column column-1-3">
-                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
                                                 <div>
                                                     <h3 className={stepStyle.stepSubHeader}>Pre-sync</h3>
-                                                    <p>The quickest way to get started.</p>
-                                                    <ul className={style.optionsList}>
-                                                        <li>+ BitBoxBase is ready withing minutes</li>
-                                                        <li>+ No initial download or verification necessary</li>
-                                                        <li>- Trusting the provided data</li>
-                                                        <li>- No independent validation of Bitcoin transaction and  balances</li>
+                                                    <p>The quickest way to get started</p>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>BitBoxBase is ready withing minutes</li>
+                                                        <li>No initial download or verification necessary</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>Trusting the provided data</li>
+                                                        <li>No independent validation of Bitcoin transaction and  balances</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}
@@ -513,13 +515,15 @@ class BitBoxBase extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
-                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
                                                 <div>
                                                     <h3 className={stepStyle.stepSubHeader}>Re-index</h3>
                                                     <p>Validate from genesis block</p>
-                                                    <ul className={style.optionsList}>
-                                                        <li>+ Full validation of the presynced data</li>
-                                                        <li>- Takes ~1 day for the BitBoxBase to be ready</li>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>Full validation of the presynced data</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>Takes ~1 day for the BitBoxBase to be ready</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => {                                   confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
@@ -533,13 +537,15 @@ class BitBoxBase extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
-                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 440px">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 460px">
                                                 <div>
                                                     <h3 className={stepStyle.stepSubHeader}>Re-sync</h3>
-                                                    <p>Redownload the entire blockchain from scratch</p>
-                                                    <ul className={style.optionsList}>
-                                                        <li>+ Full validation of newly downloaded data</li>
-                                                        <li>- Takes 2+ days and burdens the network (Bitcoin and especially Tor)</li>
+                                                    <p>Redownload the entire blockchain</p>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>Full validation of newly downloaded data</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>Takes 2+ days and burdens the network (Bitcoin and especially Tor)</li>
                                                     </ul>
                                                 </div>
                                                 <Button primary onClick={() => {
@@ -571,11 +577,16 @@ class BitBoxBase extends Component<Props, State> {
                                                         syncingOption === SyncingOptions.Resync &&
                                                         <p>Tor only for all connections</p>
                                                     }
-                                                    <ul className={style.optionsList}>
-                                                        <li>+ Private</li>
-                                                        <li>+ Difficult to track physical location</li>
-                                                        <li>- Burdens the Tor network</li>
-                                                        <li>- Totalitarian jurisdictions possibly suspicious </li>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>Private</li>
+                                                        <li>Difficult to track physical location</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        {
+                                                            syncingOption === SyncingOptions.Resync &&
+                                                            <li>Burdens the Tor network</li>
+                                                        }
+                                                        <li>Totalitarian jurisdictions possibly suspicious </li>
                                                     </ul>
                                                 </div>
                                                 <div>
@@ -596,10 +607,12 @@ class BitBoxBase extends Component<Props, State> {
                                                     <div>
                                                         <h3 className={stepStyle.stepSubHeader}>Clearnet then Tor</h3>
                                                         <p>Public Internet for initial block download, then switches to Tor automatically</p>
-                                                        <ul className={style.optionsList}>
-                                                            <li>+ Faster IBD</li>
-                                                            <li>+ Does not burden the Tor network during IBD</li>
-                                                            <li>- Imperfect privacy</li>
+                                                        <ul className={style.prosOptionsList}>
+                                                            <li>Faster IBD</li>
+                                                            <li>Does not burden the Tor network during IBD</li>
+                                                        </ul>
+                                                        <ul className={style.consOptionsList}>
+                                                            <li>Imperfect privacy</li>
                                                         </ul>
                                                     </div>
                                                     <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Select</Button>
@@ -614,12 +627,14 @@ class BitBoxBase extends Component<Props, State> {
                                                         syncingOption === SyncingOptions.Resync &&
                                                         <p>Clearnet only for all connections</p>
                                                     }
-                                                    <ul className={style.optionsList}>
-                                                        <li>+ Fastest</li>
-                                                        <li>+ Less latency</li>
-                                                        <li>+ Allows VPN usage</li>
-                                                        <li>- Leaks home IP address and geolocation if used without precautions</li>
-                                                        <li>- ISP can detect Bitcoin node</li>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>Fastest</li>
+                                                        <li>Less latency</li>
+                                                        <li>Allows VPN usage</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>Leaks home IP address and geolocation if used without precautions</li>
+                                                        <li>ISP can detect Bitcoin node</li>
                                                     </ul>
                                                 </div>
                                                 <div>
