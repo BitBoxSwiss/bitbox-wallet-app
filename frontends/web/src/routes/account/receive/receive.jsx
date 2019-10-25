@@ -91,6 +91,7 @@ export default class Receive extends Component {
             return;
         }
         if (!secureOutput.hasSecureOutput) {
+            this.unregisterEvents();
             alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
             return;
         }

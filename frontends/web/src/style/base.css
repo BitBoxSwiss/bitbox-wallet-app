@@ -58,6 +58,7 @@ p {
 
 a {
     color: var(--color-blue);
+    cursor: pointer;
 }
 
 /* definition list */

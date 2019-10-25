@@ -1,4 +1,4 @@
-.flex { display: flex; }
+.flex { display: flex !important; }
 .flex-row { flex-direction: row; }
 .flex-column { flex-direction: column; }
 .flex-center { justify-content: center; }
@@ -312,6 +312,7 @@
 .m-top-half { margin-top: var(--space-half) !important; }
 .m-top-default { margin-top: var(--space-default) !important; }
 .m-top-large { margin-top: var(--space-large) !important; }
+.m-right-tiny { margin-right: calc(var(--space-quarter) / 2) !important; }
 .m-right-quarter { margin-right: var(--space-quarter) !important; }
 .m-right-half { margin-right: var(--space-half) !important; }
 .m-right-default { margin-right: var(--space-default) !important; }
