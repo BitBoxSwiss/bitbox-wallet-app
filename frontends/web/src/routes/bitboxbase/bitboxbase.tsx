@@ -30,7 +30,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
-import { BaseSettings } from './baseSettings';
+import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
 
 export interface BitBoxBaseProps {
