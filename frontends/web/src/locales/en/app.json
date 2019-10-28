@@ -241,11 +241,19 @@
     "settings": {
       "advanced": {
         "connectElectrum": "Connect Electrum",
+        "ipAddress": "IP address",
+        "manual": "Manual update",
+        "port": "Port",
         "reset": "Reset to factory settings",
-        "rootAccess": "Root access",
         "sshAccess": "SSH access",
+        "subheaders": {
+          "bitcoin": "Bitcoin Core",
+          "electrs": "Electrs",
+          "lightning": "Lightning",
+          "networking": "Networking"
+        },
         "syncOptions": "Sync options",
-        "title": "Advanced settings"
+        "title": "Advanced"
       },
       "backups": {
         "create": "Create backup",
@@ -253,23 +261,17 @@
         "restore": "Restore backup",
         "title": "Backups"
       },
-      "basics": {
-        "info": "System info",
-        "name": "Name",
+      "node": {
+        "changeName": "Change name",
+        "disconnect": "Disconnect",
         "password": "Change password",
-        "title": "Basics"
-      },
-      "networking": {
-        "incomingConnections": "Incoming connections",
-        "ipAddress": "IP address",
-        "title": "Networking",
+        "title": "Node",
         "tor": "Tor"
       },
-      "node": {
-        "disconnect": "Disconnect",
+      "system": {
         "restart": "Restart",
         "shutdown": "Shutdown",
-        "title": "Node",
+        "title": "System",
         "update": "Update"
       },
       "title": "BitBoxBase settings"
