@@ -21,7 +21,6 @@ import (
 	"encoding/json"
 	"io"
 	"runtime"
-	"strconv"
 	"unicode"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
@@ -63,16 +62,7 @@ func maybeDBBErr(jsonResult map[string]interface{}) error {
 		}
 		errCode, ok := errMap["code"].(float64)
 		if !ok {
-			// since v7.0.2, errors are returned as strings.
-			errCodeStr, ok := errMap["code"].(string)
-			if !ok {
-				return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"reply": errMap})
-			}
-			var err error
-			errCode, err = strconv.ParseFloat(errCodeStr, 64)
-			if err != nil {
-				return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"reply": errMap})
-			}
+			return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"reply": errMap})
 		}
 		return NewError(errMsg, errCode)
 	}
