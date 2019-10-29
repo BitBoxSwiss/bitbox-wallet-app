@@ -327,7 +327,7 @@ export default class Settings extends Component {
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
                                                             optionalText={config.backend.proxy.useProxy ? 'Enabled' : 'Disabled'}>
-                                                            {t('settings.expert.setProxyAddress')}
+                                                            {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {
                                                             activeProxyDialog && (
