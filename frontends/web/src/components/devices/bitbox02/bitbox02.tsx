@@ -763,7 +763,7 @@ class BitBox02 extends Component<Props, State> {
                                         title={t('bitbox02Wizard.stepBackupSuccess.title')}>
                                         <div className={style.stepContext}>
                                             <p>{t('bitbox02Wizard.stepCreateSuccess.removeMicroSD')}</p>
-                                            <p className="m-bottom-default">{t('bitbox02Wziard.stepBackupSuccess.fundsSafe')}</p>
+                                            <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation2')}</li>
@@ -790,7 +790,7 @@ class BitBox02 extends Component<Props, State> {
                                         active={status === 'initialized'}
                                         title={t('bitbox02Wizard.stepBackupSuccess.title')}>
                                         <div className={style.stepContext}>
-                                        <p className="m-bottom-default">{t('bitbox02Wziard.stepBackupSuccess.fundsSafe')}</p>
+                                        <p className="m-bottom-default">{t('bitbox02Wizard.stepBackupSuccess.fundsSafe')}</p>
                                             <ul>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation1')}</li>
                                                 <li>{t('bitbox02Wizard.backup.userConfirmation3')}</li>
