@@ -96,6 +96,7 @@ type RPCClient struct {
 	//rpc stuff
 	client        *rpc.Client
 	rpcConnection *rpcConn
+	jwtToken      string
 }
 
 // NewRPCClient returns a new bitboxbase rpcClient.
@@ -156,6 +157,24 @@ func (rpcClient *RPCClient) Connect() error {
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
 	rpcClient.runWebsocket(ws, rpcClient.rpcConnection.WriteChan())
+	setupStatus, err := rpcClient.GetSetupStatus()
+	if err != nil {
+		return err
+	}
+	if !setupStatus.MiddlewarePasswordSet {
+		// If the password has not been set yet authenticate the user with the dummy password.
+		reply, err := rpcClient.UserAuthenticate(rpcmessages.UserAuthenticateArgs{Username: "admin", Password: "ICanHasPasword?"})
+		if err != nil {
+			return err
+		}
+		if !reply.ErrorResponse.Success {
+			return reply.ErrorResponse
+		}
+		// let the frontend know that the password needs to be set.
+		rpcClient.onChangeStatus(bitboxbasestatus.StatusPasswordNotSet)
+	} else {
+		rpcClient.onChangeStatus(bitboxbasestatus.StatusLocked)
+	}
 	return nil
 }
 
@@ -188,10 +207,22 @@ func (rpcClient *RPCClient) Stop() {
 	}
 }
 
+// GetSetupStatus makes a synchronous rpc call to the base and returns the setup status.
+// This is used for the base setup wizard and is not authenticated.
+func (rpcClient *RPCClient) GetSetupStatus() (rpcmessages.SetupStatusResponse, error) {
+	var reply rpcmessages.SetupStatusResponse
+	err := rpcClient.client.Call("RPCServer.GetSetupStatus", true, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetSetupStatus RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
 // GetEnv makes a synchronous rpc call to the base and returns the network type and electrs rpc port
 func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	var reply rpcmessages.GetEnvResponse
-	err := rpcClient.client.Call("RPCServer.GetSystemEnv", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSystemEnv", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
 		return reply, err
@@ -202,7 +233,7 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 // GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
 func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
 	var reply rpcmessages.SampleInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetSampleInfo", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetSampleInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
 		return reply, err
@@ -213,7 +244,7 @@ func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, err
 // GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
 func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
 	var reply rpcmessages.VerificationProgressResponse
-	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.VerificationProgressResponse{}, errp.WithStack(err)
 	}
@@ -224,7 +255,7 @@ func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationP
 func (rpcClient *RPCClient) ResyncBitcoin() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ResyncBitcoin rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.ResyncBitcoin", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -235,7 +266,7 @@ func (rpcClient *RPCClient) ResyncBitcoin() (rpcmessages.ErrorResponse, error) {
 func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ReindexBitcoin rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.ReindexBitcoin", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.ReindexBitcoin", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -245,6 +276,7 @@ func (rpcClient *RPCClient) ReindexBitcoin() (rpcmessages.ErrorResponse, error) 
 // SetHostname makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the called script was successfully executed.
 func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing SetHostname rpc call")
+	args.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.SetHostname", args, &reply)
 	if err != nil {
@@ -254,19 +286,21 @@ func (rpcClient *RPCClient) SetHostname(args rpcmessages.SetHostnameArgs) (rpcme
 }
 
 // UserAuthenticate makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the user is successfully authenticated.
-func (rpcClient *RPCClient) UserAuthenticate(args rpcmessages.UserAuthenticateArgs) (rpcmessages.ErrorResponse, error) {
+func (rpcClient *RPCClient) UserAuthenticate(args rpcmessages.UserAuthenticateArgs) (rpcmessages.UserAuthenticateResponse, error) {
 	rpcClient.log.Println("Executing UserAuthenticate rpc call")
-	var reply rpcmessages.ErrorResponse
+	var reply rpcmessages.UserAuthenticateResponse
 	err := rpcClient.client.Call("RPCServer.UserAuthenticate", args, &reply)
 	if err != nil {
-		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+		return rpcmessages.UserAuthenticateResponse{}, errp.WithStack(err)
 	}
+	rpcClient.jwtToken = reply.Token
 	return reply, nil
 }
 
 // UserChangePassword makes a synchronous rpc call to the base and returns a ErrorResponse indicating if the password has been successfully changed .
 func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswordArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing UserChangePassword rpc call")
+	args.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.UserChangePassword", args, &reply)
 	if err != nil {
@@ -279,7 +313,7 @@ func (rpcClient *RPCClient) UserChangePassword(args rpcmessages.UserChangePasswo
 func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing BackupSysconfig rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.BackupSysconfig", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.BackupSysconfig", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -290,7 +324,7 @@ func (rpcClient *RPCClient) BackupSysconfig() (rpcmessages.ErrorResponse, error)
 func (rpcClient *RPCClient) BackupHSMSecret() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing BackupHSMSecret rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.BackupHSMSecret", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.BackupHSMSecret", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -301,7 +335,7 @@ func (rpcClient *RPCClient) BackupHSMSecret() (rpcmessages.ErrorResponse, error)
 func (rpcClient *RPCClient) RestoreSysconfig() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing RestoreSysconfig rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.RestoreSysconfig", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.RestoreSysconfig", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -312,7 +346,7 @@ func (rpcClient *RPCClient) RestoreSysconfig() (rpcmessages.ErrorResponse, error
 func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing RestoreHSMSecret rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.RestoreHSMSecret", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -321,8 +355,9 @@ func (rpcClient *RPCClient) RestoreHSMSecret() (rpcmessages.ErrorResponse, error
 
 // EnableTor makes an rpc call to the Base that enables/disables the tor.service based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableTorTor: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableTorTor: %v' rpc call\n", toggleAction)
 	var reply rpcmessages.ErrorResponse
+	toggleAction.Token = rpcClient.jwtToken
 	err := rpcClient.client.Call("RPCServer.EnableTor", toggleAction, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
@@ -332,7 +367,8 @@ func (rpcClient *RPCClient) EnableTor(toggleAction rpcmessages.ToggleSettingArgs
 
 // EnableTorMiddleware makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for the middleware based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableTorMiddleware: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableTorMiddleware: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorMiddleware", toggleAction, &reply)
 	if err != nil {
@@ -343,7 +379,8 @@ func (rpcClient *RPCClient) EnableTorMiddleware(toggleAction rpcmessages.ToggleS
 
 // EnableTorElectrs makes an rpc call to BitBoxBase that enables/disables the Tor hidden service for electrs based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableTorElectrs: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableTorElectrs: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorElectrs", toggleAction, &reply)
 	if err != nil {
@@ -354,7 +391,8 @@ func (rpcClient *RPCClient) EnableTorElectrs(toggleAction rpcmessages.ToggleSett
 
 // EnableTorSSH makes an rpc call to BitBoxBase that enables/disables the tor hidden service for SSH based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableTorSSH: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableTorSSH: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableTorSSH", toggleAction, &reply)
 	if err != nil {
@@ -365,7 +403,8 @@ func (rpcClient *RPCClient) EnableTorSSH(toggleAction rpcmessages.ToggleSettingA
 
 // EnableClearnetIBD makes an rpc call to BitBoxBase that configures bitcoind to run over clearnet while in IBD mode based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableClearnetIBD: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableClearnetIBD: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableClearnetIBD", toggleAction, &reply)
 	if err != nil {
@@ -376,7 +415,8 @@ func (rpcClient *RPCClient) EnableClearnetIBD(toggleAction rpcmessages.ToggleSet
 
 // EnableRootLogin makes an rpc call to BitBoxBase that enables/disables login via the root user/password based on rpcmessages.ToggleSettingArgs Enable/Disable
 func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Printf("Executing 'EnableRootLogin: %t' rpc call\n", toggleAction)
+	rpcClient.log.Printf("Executing 'EnableRootLogin: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.EnableRootLogin", toggleAction, &reply)
 	if err != nil {
@@ -388,6 +428,7 @@ func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetti
 // SetRootPassword makes an rpc call to BitBoxBase that sets the systems root password
 func (rpcClient *RPCClient) SetRootPassword(args rpcmessages.SetRootPasswordArgs) (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing SetRootPassword rpc call")
+	args.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
 	err := rpcClient.client.Call("RPCServer.SetRootPassword", args, &reply)
 	if err != nil {
@@ -400,7 +441,7 @@ func (rpcClient *RPCClient) SetRootPassword(args rpcmessages.SetRootPasswordArgs
 func (rpcClient *RPCClient) ShutdownBase() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing ShutdownBase rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.ShutdownBase", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.ShutdownBase", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -411,7 +452,7 @@ func (rpcClient *RPCClient) ShutdownBase() (rpcmessages.ErrorResponse, error) {
 func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 	rpcClient.log.Println("Executing RebootBase rpc call")
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.RebootBase", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.RebootBase", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}

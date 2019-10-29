@@ -20,36 +20,59 @@ const (
 Put Incoming Args below this line. They should have the format of 'RPC Method Name' + 'Args'.
 */
 
-// UserAuthenticateArgs is an struct that holds the arguments for the UserAuthenticate RPC call
+// UserAuthenticateArgs is a struct that holds the arguments for the UserAuthenticate RPC call. The first rpc call should always authenticate first
 type UserAuthenticateArgs struct {
 	Username string
 	Password string
 }
 
-// UserChangePasswordArgs is an struct that holds the arguments for the UserChangePassword RPC call
+// AuthGenericRequest is a struct that acts as a generic request struct
+type AuthGenericRequest struct {
+	Token string
+}
+
+// UserChangePasswordArgs is a struct that holds the arguments for the UserChangePassword RPC call
 type UserChangePasswordArgs struct {
 	Username    string
+	Password    string
 	NewPassword string
+	Token       string
 }
 
 // SetHostnameArgs is a struct that holds the to be set hostname
 type SetHostnameArgs struct {
 	Hostname string
+	Token    string
 }
 
 // SetRootPasswordArgs is a struct that holds the to be set root password
 type SetRootPasswordArgs struct {
 	RootPassword string
+	Token        string
 }
 
 // ToggleSettingArgs is a generic message for settings that can be enabled or disabled
 type ToggleSettingArgs struct {
 	ToggleSetting bool
+	Token         string
 }
 
 /*
 Put Response structs below this line. They should have the format of 'RPC Method Name' + 'Response'.
 */
+
+// SetupStatusResponse is the struct that gets sent by the rpc server during a SetupStatus rpc call.
+// This call is not authenticated and serves as indicator for what to show during the base setup wizzard.
+type SetupStatusResponse struct {
+	MiddlewarePasswordSet bool
+	BaseSetup             bool
+}
+
+// UserAuthenticateResponse is the struct that gets sent by the rpc server during a UserAuthenticate call. It contains the session's jwt token.
+type UserAuthenticateResponse struct {
+	ErrorResponse *ErrorResponse
+	Token         string
+}
 
 // GetEnvResponse is the struct that gets sent by the rpc server during a GetSystemEnv call
 type GetEnvResponse struct {

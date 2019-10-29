@@ -83,11 +83,9 @@ type Interface interface {
 	SetHostname(string) error
 
 	// UserChangePassword sets a new password for a given user
-	// TODO: this is a dummy
-	UserChangePassword(string, string) error
+	UserChangePassword(string, string, string) error
 
 	// UserAuthenticate returns is the authentication with a username and password was successful
-	// TODO: this is a dummy
 	UserAuthenticate(string, string) error
 
 	// BackupSysconfig backs up the system config to the flashdrive
@@ -360,7 +358,6 @@ func (base *BitBoxBase) SetHostname(hostname string) error {
 }
 
 // UserAuthenticate returns if a given Username and Password are valid
-// TODO: This is a dummy.
 func (base *BitBoxBase) UserAuthenticate(username string, password string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -371,26 +368,44 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) error
 	if err != nil {
 		return err
 	}
-	if !reply.Success {
-		return &reply
+	if !reply.ErrorResponse.Success {
+		return reply.ErrorResponse
+	}
+	setupStatus, err := base.rpcClient.GetSetupStatus()
+	if err != nil {
+		return err
+	}
+	if !setupStatus.BaseSetup {
+		base.changeStatus(bitboxbasestatus.StatusBitcoinPre)
+	} else {
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
 	}
 	return nil
 }
 
 // UserChangePassword returns if the password change for a username was successful
-// TODO: This is a dummy.
-func (base *BitBoxBase) UserChangePassword(username string, newPassword string) error {
+func (base *BitBoxBase) UserChangePassword(username string, password, newPassword string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a UserChangePassword call")
-	args := rpcmessages.UserChangePasswordArgs{Username: username, NewPassword: newPassword}
+	args := rpcmessages.UserChangePasswordArgs{Username: username, Password: password, NewPassword: newPassword}
 	reply, err := base.rpcClient.UserChangePassword(args)
 	if err != nil {
 		return err
 	}
 	if !reply.Success {
 		return &reply
+	}
+	// check if the base is getting setup, or not
+	setupStatus, err := base.rpcClient.GetSetupStatus()
+	if err != nil {
+		return err
+	}
+	if !setupStatus.BaseSetup {
+		base.changeStatus(bitboxbasestatus.StatusBitcoinPre)
+	} else {
+		base.changeStatus(bitboxbasestatus.StatusInitialized)
 	}
 	return nil
 }
@@ -465,7 +480,7 @@ func (base *BitBoxBase) EnableTor(toggleAction rpcmessages.ToggleSettingArgs) er
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
-	base.log.Printf("bitboxbase is making a 'set EnableTor: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableTor: %t' call\n", toggleAction.ToggleSetting)
 
 	reply, err := base.rpcClient.EnableTor(toggleAction)
 	if err != nil {
@@ -483,7 +498,7 @@ func (base *BitBoxBase) EnableTorMiddleware(toggleAction rpcmessages.ToggleSetti
 		return errp.New("Attempted a call to non-active base")
 	}
 
-	base.log.Printf("bitboxbase is making a 'set EnableTorMiddleware: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableTorMiddleware: %t' call\n", toggleAction.ToggleSetting)
 	reply, err := base.rpcClient.EnableTorMiddleware(toggleAction)
 	if err != nil {
 		return err
@@ -500,7 +515,7 @@ func (base *BitBoxBase) EnableTorElectrs(toggleAction rpcmessages.ToggleSettingA
 		return errp.New("Attempted a call to non-active base")
 	}
 
-	base.log.Printf("bitboxbase is making a 'set EnableTorElectrs: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableTorElectrs: %t' call\n", toggleAction.ToggleSetting)
 	reply, err := base.rpcClient.EnableTorElectrs(toggleAction)
 	if err != nil {
 		return err
@@ -517,7 +532,7 @@ func (base *BitBoxBase) EnableTorSSH(toggleAction rpcmessages.ToggleSettingArgs)
 		return errp.New("Attempted a call to non-active base")
 	}
 
-	base.log.Printf("bitboxbase is making a 'set EnableTorSSH for SSH: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableTorSSH for SSH: %t' call\n", toggleAction.ToggleSetting)
 	reply, err := base.rpcClient.EnableTorSSH(toggleAction)
 	if err != nil {
 		return err
@@ -534,7 +549,7 @@ func (base *BitBoxBase) EnableClearnetIBD(toggleAction rpcmessages.ToggleSetting
 		return errp.New("Attempted a call to non-active base")
 	}
 
-	base.log.Printf("bitboxbase is making a 'set EnableClearnetIBD: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableClearnetIBD: %t' call\n", toggleAction.ToggleSetting)
 	reply, err := base.rpcClient.EnableClearnetIBD(toggleAction)
 	if err != nil {
 		return err
@@ -551,7 +566,7 @@ func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingAr
 		return errp.New("Attempted a call to non-active base")
 	}
 
-	base.log.Printf("bitboxbase is making a 'set EnableRootLogin: %t' call\n", toggleAction)
+	base.log.Printf("bitboxbase is making a 'set EnableRootLogin: %t' call\n", toggleAction.ToggleSetting)
 	reply, err := base.rpcClient.EnableRootLogin(toggleAction)
 	if err != nil {
 		return err
