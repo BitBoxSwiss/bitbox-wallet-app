@@ -35,8 +35,8 @@ import (
 //go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
 
 var (
-	lowestSupportedFirmwareVersion        = semver.NewSemVer(4, 1, 0)
-	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(4, 1, 1)
+	lowestSupportedFirmwareVersion        = semver.NewSemVer(4, 2, 1)
+	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(4, 2, 1)
 	lowestNonSupportedFirmwareVersion     = semver.NewSemVer(5, 0, 0)
 )
 

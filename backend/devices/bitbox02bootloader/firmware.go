@@ -30,11 +30,11 @@ type firmwareInfo struct {
 
 var bundledFirmwares = map[bitbox02common.Edition]firmwareInfo{
 	bitbox02common.EditionStandard: {
-		version:  semver.NewSemVer(4, 1, 0),
+		version:  semver.NewSemVer(4, 2, 1),
 		filename: "assets/firmware.v%s.signed.bin",
 	},
 	bitbox02common.EditionBTCOnly: {
-		version:  semver.NewSemVer(4, 1, 1),
+		version:  semver.NewSemVer(4, 2, 1),
 		filename: "assets/firmware-btc.v%s.signed.bin",
 	},
 }
