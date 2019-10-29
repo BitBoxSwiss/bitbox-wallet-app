@@ -32,7 +32,7 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-//go:generate protoc --go_out=import_path=messages:. messages/hww.proto
+//go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
 
 var (
 	lowestSupportedFirmwareVersion        = semver.NewSemVer(4, 1, 0)
