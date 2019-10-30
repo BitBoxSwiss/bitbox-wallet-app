@@ -380,6 +380,7 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) error
 	} else {
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 	}
+	base.fireEvent(bitboxbasestatus.EventUserAuthenticated)
 	return nil
 }
 

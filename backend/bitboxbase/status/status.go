@@ -61,4 +61,8 @@ const (
 
 	// EventServiceInfoChanged should be emitted whenever the rpcClient receives a 'service info changed' notification
 	EventServiceInfoChanged Event = "serviceInfoChanged"
+
+	// EventUserAuthenticated emits an event when a user successfully authenticates with the Base
+	// so that the frontend knows it can now fetch BaseInfo
+	EventUserAuthenticated Event = "userAuthenticated"
 )
