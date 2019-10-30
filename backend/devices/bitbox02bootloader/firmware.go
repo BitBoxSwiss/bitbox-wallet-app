@@ -34,7 +34,7 @@ var bundledFirmwares = map[bitbox02common.Edition]firmwareInfo{
 		filename: "assets/firmware.v%s.signed.bin",
 	},
 	bitbox02common.EditionBTCOnly: {
-		version:  semver.NewSemVer(4, 2, 1),
+		version:  semver.NewSemVer(4, 2, 2),
 		filename: "assets/firmware-btc.v%s.signed.bin",
 	},
 }
