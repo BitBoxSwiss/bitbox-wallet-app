@@ -238,6 +238,7 @@
     "detectedBasesEmpty": "No devices found",
     "manualInput": "Can't see your BitBoxBase? Connect manually below:",
     "manualInputLabel": "IP address:port",
+    "new": "New BitBoxBase",
     "settings": {
       "advanced": {
         "connectElectrum": "Connect Electrum",

@@ -64,7 +64,7 @@
 }
 
 .statusBadge.online {
-    background-color: var(--color-orange);
+    background-color: var(--color-success);
 }
 
 .items {
