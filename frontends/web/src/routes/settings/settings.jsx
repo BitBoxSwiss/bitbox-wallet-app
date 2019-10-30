@@ -392,6 +392,7 @@ export default class Settings extends Component {
                     <Entry key="guide.settings.btc-p2wpkh" entry={t('guide.settings.btc-p2wpkh')} />
                     <Entry key="guide.settings.servers" entry={t('guide.settings.servers')} />
                     <Entry key="guide.settings.moreCoins" entry={t('guide.settings.moreCoins')} />
+                    <Entry key="guide.accountRates" entry={t('guide.accountRates')} />
                 </Guide>
             </div>
         );
