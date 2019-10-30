@@ -30,7 +30,7 @@
 }
 
 .typeOut {
-    stroke: var(--color-danger) !important;
+    stroke: var(--color-warning) !important;
 }
 
 .typeSelf {
