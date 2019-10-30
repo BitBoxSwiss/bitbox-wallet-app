@@ -53,34 +53,6 @@ class DetectedBase extends Component<Props> {
                 optionalText="Uninitialized">
                 {hostname}
             </SettingsButton>
-            // <div class={[style.detectedBaseContainer, collapsed ? style.collapsed : style.expanded].join(' ')}>
-            //     <div class={['flex flex-column flex-start', style.detectedBase].join(' ')}>
-            //         <div class={['flex flex-row flex-between flex-items-start', style.row].join(' ')}>
-            //             <div class="flex flex-row flex-start flex-items-start">
-            //                 <div class={style.labelContainer} onClick={this.toggleCollapse}>
-            //                     <div class={style.toggleContainer}>
-            //                         <div class={[style.toggle, collapsed ? style.collapsed : style.expanded].join(' ')}></div>
-            //                     </div>
-            //                     <div class={[style.detectedBaseLabel, style.flat].join(' ')}>
-            //                         <img src={logo} />
-            //                     </div>
-            //                 </div>
-            //                 <div>
-            //                     <div class={style.hostname}>
-            //                         <h3>{hostname}</h3>
-            //                     </div>
-            //                 </div>
-            //             </div>
-            //             <div>
-            //                 <button
-            //                     className={[style.button, style.primary].join(' ')}
-            //                     onClick={ () => connect(ip)}>
-            //                     {t('bitboxBase.connect')}
-            //                 </button>
-            //             </div>
-            //         </div>
-            //     </div>
-            // </div>
         );
     }
 }
