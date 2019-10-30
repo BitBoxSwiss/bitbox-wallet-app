@@ -36,7 +36,7 @@ import (
 
 var (
 	lowestSupportedFirmwareVersion        = semver.NewSemVer(4, 2, 1)
-	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(4, 2, 1)
+	lowestSupportedFirmwareVersionBTCOnly = semver.NewSemVer(4, 2, 2)
 	lowestNonSupportedFirmwareVersion     = semver.NewSemVer(5, 0, 0)
 )
 
