@@ -23,6 +23,7 @@ import { Button, Input } from '../../components/forms';
 import { SwissMadeOpenSource } from '../../components/icon';
 import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
+import Spinner from '../../components/spinner/Spinner';
 import { Step, Steps } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
 import WaitDialog from '../../components/wait-dialog/wait-dialog';
@@ -37,16 +38,31 @@ export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
 }
 
-export interface MiddlewareInfoType {
-    blocks: number;
-    difficulty: number;
-    lightningAlias: string;
+export interface BitBoxBaseInfo {
+    status: string;
+    hostname: string;
+    middlewareLocalIP: string;
+    middlewareLocalPort: string;
+    middlewareTorOnion: string;
+    middlewareTorPort: string;
+    isTorEnabled: boolean;
+    isBitcoindListening: boolean;
+    freeDiskspace: number;
+    totalDiskspace: number;
+    baseVersion: string;
+    bitcoindVersion: string;
+    lightningdVersion: string;
+    electrsVersion: string;
 }
 
-export interface VerificationProgressType {
-    blocks: number;
-    headers: number;
-    verificationProgress: number;
+export interface BitBoxBaseServiceInfo {
+    bitcoindBlocks: number;
+    bitcoindHeaders: number;
+    bitcoindVerificationProgress: number;
+    bitcoindPeers: number;
+    bitcoindIBD: boolean;
+    lightningdBlocks: number;
+    electrsBlocks: number;
 }
 
 const defaultPassword = 'ICanHasPasword?';
@@ -76,8 +92,8 @@ enum NetworkOptions {
 }
 
 interface State {
-    middlewareInfo?: MiddlewareInfoType;
-    verificationProgress?: VerificationProgressType;
+    baseInfo?: BitBoxBaseInfo;
+    serviceInfo?: BitBoxBaseServiceInfo;
     bitboxBaseID: string | null;
     bitboxBaseVerified: boolean;
     status: '' |
@@ -109,8 +125,8 @@ class BitBoxBase extends Component<Props, State> {
         super(props);
         this.state = {
             hash: undefined,
-            middlewareInfo: undefined,
-            verificationProgress: undefined,
+            baseInfo: undefined,
+            serviceInfo: undefined,
             bitboxBaseID: '',
             status: '',
             bitboxBaseVerified: false,
@@ -130,6 +146,8 @@ class BitBoxBase extends Component<Props, State> {
     public componentDidMount() {
         this.onChannelHashChanged();
         this.onStatusChanged();
+        this.getBaseInfo();
+        this.getServiceInfo();
         this.unsubscribe = apiSubscribe('/' + this.apiPrefix() + '/event', ({ object }) => {
             switch (object) {
                 case 'statusChanged':
@@ -138,13 +156,14 @@ class BitBoxBase extends Component<Props, State> {
                 case 'channelHashChanged':
                     this.onChannelHashChanged();
                     break;
-                case 'sampleInfoChanged':
-                    this.onNewMiddlewareInfo();
-                    break;
                 case 'verificationProgressChanged':
-                    this.onNewVerificationProgress();
+                    this.getServiceInfo();
+                    break;
                 case 'disconnect':
                     this.onDisconnect();
+                    break;
+                case 'userAuthenticated':
+                    this.onUserAuthenticated();
                     break;
                 default:
                     break;
@@ -198,8 +217,8 @@ class BitBoxBase extends Component<Props, State> {
                         locked: false,
                         showWizard: false,
                     });
-                    this.onNewMiddlewareInfo();
-                    this.onNewVerificationProgress();
+                    this.getBaseInfo();
+                    this.getServiceInfo();
                     break;
                 default:
                     break;
@@ -207,20 +226,26 @@ class BitBoxBase extends Component<Props, State> {
         });
     }
 
-    private onNewMiddlewareInfo = () => {
-        apiGet(this.apiPrefix() + '/middleware-info').then(({success, middlewareInfo}) => {
+    private getServiceInfo = () => {
+        apiGet(this.apiPrefix() + '/service-info').then(({success, serviceInfo}) => {
             if (success) {
-                this.setState({ middlewareInfo });
+                this.setState({ serviceInfo });
             }
         });
     }
 
-    private onNewVerificationProgress = () => {
-        apiGet(this.apiPrefix() + '/verification-progress').then(({success, verificationProgress}) => {
-            if (success) {
-                this.setState({ verificationProgress });
+    private getBaseInfo = () => {
+        apiGet(this.apiPrefix() + '/base-info').then(({ success, baseInfo }) => {
+            if (success && this.props.bitboxBaseID) {
+                this.setState({ baseInfo });
             }
         });
+    }
+
+    private onUserAuthenticated = () => {
+        // When a user authenticates, authenticated RPC calls are now available, so we can fetch the base info
+        this.getBaseInfo();
+        this.getServiceInfo();
     }
 
     private connectElectrum = () => {
@@ -342,8 +367,6 @@ class BitBoxBase extends Component<Props, State> {
             bitboxBaseID,
         }: RenderableProps<Props>,
         {
-            middlewareInfo,
-            verificationProgress,
             showWizard,
             hash,
             activeStep,
@@ -352,28 +375,30 @@ class BitBoxBase extends Component<Props, State> {
             waitDialog,
             locked,
             syncingOption,
+            baseInfo,
+            serviceInfo,
         }: State,
     ) {
+        // TODO: Move wizard to basewizard.tsx and refactor
         if (!showWizard) {
             if (locked) {
                 return (
                     <UnlockBitBoxBase bitboxBaseID={bitboxBaseID}/>
                 );
             }
-            if (!middlewareInfo) {
-                return null;
-            }
-            if (!verificationProgress) {
-                return null;
-            }
 
+            if (baseInfo && serviceInfo) {
+                return (
+                    <BaseSettings
+                        baseID={bitboxBaseID}
+                        baseInfo={baseInfo}
+                        serviceInfo={serviceInfo}
+                        disconnect={this.removeBitBoxBase}
+                        connectElectrum={this.connectElectrum} />
+                );
+            }
             return (
-                <BaseSettings
-                    baseID={bitboxBaseID}
-                    middlewareInfo={middlewareInfo}
-                    verificationProgress={verificationProgress}
-                    disconnect={this.removeBitBoxBase}
-                    connectElectrum={this.connectElectrum} />
+                <Spinner text="Connecting your BitBoxBase" />
             );
         }
 
