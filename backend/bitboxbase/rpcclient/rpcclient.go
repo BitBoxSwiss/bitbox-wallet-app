@@ -462,7 +462,7 @@ func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 // GetBaseInfo makes a synchronous rpc call to the base and returns the GetBaseInfoResponse struct
 func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	var reply rpcmessages.GetBaseInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetBaseInfo", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetBaseInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetBaseInfo RPC call failed")
 		return reply, err
@@ -473,7 +473,7 @@ func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, erro
 // GetServiceInfo makes a synchronous RPC call to the Base and returns the GetServiceInfoResponse struct
 func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
 	var reply rpcmessages.GetServiceInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetServiceInfo", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetServiceInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetServiceInfo RPC call failed")
 		return reply, err
