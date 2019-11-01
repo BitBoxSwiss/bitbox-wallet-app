@@ -43,6 +43,8 @@ export interface SharedProps {
     selected: Fiat[];
 }
 
+export const currencies: Fiat[] = ['CAD', 'CHF', 'CNY', 'EUR', 'GBP', 'JPY', 'KRW', 'RUB', 'USD'];
+
 export const store = new Store<SharedProps>({
     rates: undefined,
     active: 'CHF',

@@ -17,7 +17,7 @@
 import { h, RenderableProps } from 'preact';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
+import { currencies, Fiat, selectFiat, setActiveFiat, SharedProps, store, unselectFiat } from '../rates/rates';
 import { Toggle } from '../toggle/toggle';
 import * as style from './fiat.css';
 
@@ -40,14 +40,9 @@ type Props = SharedProps & TranslateProps;
 
 function Selection({
     t,
-    rates,
     active,
     selected,
 }: RenderableProps<Props>): JSX.Element | null {
-    if (!rates) {
-        return null;
-    }
-    const currencies = Object.keys(rates.BTC) as Fiat[];
     return (
         <div>
             <div class="subHeaderContainer first">
