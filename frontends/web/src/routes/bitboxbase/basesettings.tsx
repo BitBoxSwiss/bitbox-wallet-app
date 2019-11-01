@@ -153,7 +153,7 @@ class BaseSettings extends Component<Props, State> {
                                         expandedDashboard ? (
                                             <polyline points="18 15 12 9 6 15"></polyline>
                                         ) : (
-                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                            <polyline points="6 11 12 17 18 11"></polyline>
                                         )
                                     }
                                 </svg>
