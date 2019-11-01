@@ -21,11 +21,9 @@ import (
 	"encoding/binary"
 	"io"
 	"math"
-	"sync"
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 )
@@ -67,9 +65,6 @@ type Status struct {
 	RebootSeconds     int     `json:"rebootSeconds"`
 }
 
-// EventStatusChanged is fired when the status changes. Check the status using Status().
-const EventStatusChanged event.Event = "statusChanged"
-
 func toByte(b bool) byte {
 	if b {
 		return 1
@@ -79,12 +74,10 @@ func toByte(b bool) byte {
 
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
-	communication Communication
-	edition       bitbox02common.Edition
-	status        *Status
-
-	mu      sync.RWMutex
-	onEvent func(event.Event, interface{})
+	communication   Communication
+	edition         bitbox02common.Edition
+	status          *Status
+	onStatusChanged func(*Status)
 }
 
 // NewDevice creates a new instance of Device.
@@ -92,27 +85,13 @@ func NewDevice(
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
 	communication Communication,
+	onStatusChanged func(*Status),
 ) *Device {
 	return &Device{
-		communication: communication,
-		edition:       edition,
-		status:        &Status{},
-	}
-}
-
-// SetOnEvent implements device.Device.
-func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.mu.Lock()
-	defer device.mu.Unlock()
-	device.onEvent = onEvent
-}
-
-func (device *Device) fireEvent() {
-	device.mu.RLock()
-	f := device.onEvent
-	device.mu.RUnlock()
-	if f != nil {
-		f(EventStatusChanged, nil)
+		communication:   communication,
+		edition:         edition,
+		status:          &Status{},
+		onStatusChanged: onStatusChanged,
 	}
 }
 
@@ -274,25 +253,25 @@ func (device *Device) UpgradeFirmware() error {
 	if device.status.Upgrading {
 		return errp.New("already in progress")
 	}
-	device.fireEvent()
+	device.onStatusChanged(device.status)
 	onProgress := func(progress float64) {
 		device.status.Upgrading = true
 		device.status.Progress = progress
-		device.fireEvent()
+		device.onStatusChanged(device.status)
 	}
 	err := device.flashSignedFirmware(bundledFirmware(device.edition), onProgress)
 	if err != nil {
 		device.status.Upgrading = false
 		device.status.ErrMsg = err.Error()
-		device.fireEvent()
+		device.onStatusChanged(device.status)
 		return err
 	}
 	device.status.Progress = 0
 	device.status.UpgradeSuccessful = true
-	device.fireEvent()
+	device.onStatusChanged(device.status)
 	for seconds := 5; seconds > 0; seconds-- {
 		device.status.RebootSeconds = seconds
-		device.fireEvent()
+		device.onStatusChanged(device.status)
 		time.Sleep(time.Second)
 	}
 	return device.Reboot()

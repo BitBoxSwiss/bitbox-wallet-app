@@ -16,6 +16,8 @@
 package bitbox02bootloader
 
 import (
+	"sync"
+
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/api"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
@@ -33,8 +35,15 @@ const ProductName = "bitbox02-bootloader"
 type Device struct {
 	api.Device
 	deviceID string
-	log      *logrus.Entry
+
+	mu      sync.RWMutex
+	onEvent func(event.Event, interface{})
+
+	log *logrus.Entry
 }
+
+// EventStatusChanged is fired when the status changes. Check the status using Status().
+const EventStatusChanged event.Event = "statusChanged"
 
 // NewDevice creates a new instance of Device.
 func NewDevice(
@@ -49,10 +58,17 @@ func NewDevice(
 		WithField("productName", ProductName)
 	log.Info("Plugged in device")
 	device := &Device{
-		Device:   *api.NewDevice(version, edition, communication),
 		deviceID: deviceID,
 		log:      log,
 	}
+	device.Device = *api.NewDevice(
+		version,
+		edition,
+		communication,
+		func(*api.Status) {
+			device.fireEvent()
+		},
+	)
 	return device
 }
 
@@ -78,9 +94,18 @@ func (device *Device) KeystoreForConfiguration(configuration *signing.Configurat
 
 // SetOnEvent implements device.Device.
 func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
-	device.Device.SetOnEvent(func(ev event.Event, meta interface{}) {
-		onEvent(event.Event(ev), meta)
-	})
+	device.mu.Lock()
+	defer device.mu.Unlock()
+	device.onEvent = onEvent
+}
+
+func (device *Device) fireEvent() {
+	device.mu.RLock()
+	f := device.onEvent
+	device.mu.RUnlock()
+	if f != nil {
+		f(EventStatusChanged, nil)
+	}
 }
 
 // UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
