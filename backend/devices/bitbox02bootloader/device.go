@@ -49,7 +49,7 @@ func NewDevice(
 		WithField("productName", ProductName)
 	log.Info("Plugged in device")
 	device := &Device{
-		Device:   *api.NewDevice(version, edition, communication, log),
+		Device:   *api.NewDevice(version, edition, communication),
 		deviceID: deviceID,
 		log:      log,
 	}
@@ -81,4 +81,10 @@ func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 	device.Device.SetOnEvent(func(ev event.Event, meta interface{}) {
 		onEvent(event.Event(ev), meta)
 	})
+}
+
+// UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
+func (device *Device) UpgradeFirmware() error {
+	device.log.Info("upgrading firmware")
+	return device.Device.UpgradeFirmware()
 }

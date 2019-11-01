@@ -28,7 +28,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -86,7 +85,6 @@ type Device struct {
 
 	mu      sync.RWMutex
 	onEvent func(event.Event, interface{})
-	log     *logrus.Entry
 }
 
 // NewDevice creates a new instance of Device.
@@ -94,13 +92,11 @@ func NewDevice(
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
 	communication Communication,
-	log *logrus.Entry,
 ) *Device {
 	return &Device{
 		communication: communication,
 		edition:       edition,
 		status:        &Status{},
-		log:           log,
 	}
 }
 
@@ -278,7 +274,6 @@ func (device *Device) UpgradeFirmware() error {
 	if device.status.Upgrading {
 		return errp.New("already in progress")
 	}
-	device.log.Info("upgrading firmware")
 	device.fireEvent()
 	onProgress := func(progress float64) {
 		device.status.Upgrading = true
