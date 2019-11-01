@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/api"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -26,7 +26,7 @@ import (
 
 // BitBox02Bootloader models the API of the bitbox02 package.
 type BitBox02Bootloader interface {
-	Status() *bitbox02bootloader.Status
+	Status() *api.Status
 	UpgradeFirmware() error
 	Reboot() error
 	ShowFirmwareHashEnabled() (bool, error)

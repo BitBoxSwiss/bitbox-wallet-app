@@ -4,7 +4,7 @@
 // assets/firmware.v4.2.1.signed.bin
 // DO NOT EDIT!
 
-package bitbox02bootloader
+package api
 
 import (
 	"bytes"
@@ -162,7 +162,7 @@ func AssetNames() []string {
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
 	"assets/firmware-btc.v4.2.2.signed.bin": assetsFirmwareBtcV422SignedBin,
-	"assets/firmware.v4.2.1.signed.bin": assetsFirmwareV421SignedBin,
+	"assets/firmware.v4.2.1.signed.bin":     assetsFirmwareV421SignedBin,
 }
 
 // AssetDir returns the file names below a certain
@@ -204,10 +204,11 @@ type bintree struct {
 	Func     func() (*asset, error)
 	Children map[string]*bintree
 }
+
 var _bintree = &bintree{nil, map[string]*bintree{
 	"assets": &bintree{nil, map[string]*bintree{
 		"firmware-btc.v4.2.2.signed.bin": &bintree{assetsFirmwareBtcV422SignedBin, map[string]*bintree{}},
-		"firmware.v4.2.1.signed.bin": &bintree{assetsFirmwareV421SignedBin, map[string]*bintree{}},
+		"firmware.v4.2.1.signed.bin":     &bintree{assetsFirmwareV421SignedBin, map[string]*bintree{}},
 	}},
 }}
 
@@ -257,4 +258,3 @@ func _filePath(dir, name string) string {
 	cannonicalName := strings.Replace(name, "\\", "/", -1)
 	return filepath.Join(append([]string{dir}, strings.Split(cannonicalName, "/")...)...)
 }
-
