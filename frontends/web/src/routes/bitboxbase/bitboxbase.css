@@ -1,0 +1,36 @@
+.dashboard {
+  min-height: 240px;
+  background-color: var(--color-white);
+}
+
+.prosOptionsList {
+  /*
+  The svg draws two lines which form a plus (+).
+  For "stroke" we need to escape the '#' with '%23' in the url
+  and use 777777 as our --color-gray. We cannot use the variable directly
+  because then we can't escape the '#'
+  */
+    list-style: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -6 24 24" width="16" height="16" fill="none" stroke="%23777777"><polyline points="0,8 16,8" stroke-width="3"/><polyline points="8,0 8,16" stroke-width="3"/></svg>') !important;
+  padding: var(--space-quarter) 0 !important;
+}
+
+.prosOptionsList li {
+  margin-left: 20px;
+}
+
+/*
+The svg draws two lines which form a plus (-).
+*/
+.consOptionsList {
+  list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -6 24 24" width="16" height="16" fill="none" stroke="%23777777"><polyline points="0,8 16,8" stroke-width="3"/></svg>') !important;
+  padding: var(--space-quarter) 0 !important;
+}
+
+.consOptionsList li {
+  margin-left: 20px;
+}
+
+.recommendation {
+  color: var(--color-secondary);
+  font-size: var(--size-small) !important;
+}

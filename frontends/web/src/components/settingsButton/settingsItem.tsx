@@ -2,7 +2,7 @@ import { Component, h, RenderableProps } from 'preact';
 import * as style from './settingsButton.css';
 
 interface SettingsItemProps {
-    optionalText?: string;
+    optionalText?: string | null;
 }
 
 class SettingsItem extends Component<SettingsItemProps> {

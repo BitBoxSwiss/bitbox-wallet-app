@@ -20,6 +20,7 @@ import { alertUser } from '../../components/alert/Alert';
 import { UnlockBitBoxBase } from '../../components/bitboxbase/unlockbitboxbase';
 import { confirmation } from '../../components/confirm/Confirm';
 import { Button, Input } from '../../components/forms';
+import { SwissMadeOpenSource } from '../../components/icon';
 import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
 import { Step, Steps } from '../../components/steps';
@@ -29,18 +30,20 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
+import { BaseSettings } from './baseSettings';
+import * as style from './bitboxbase.css';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
 }
 
-interface MiddlewareInfoType {
+export interface MiddlewareInfoType {
     blocks: number;
     difficulty: number;
     lightningAlias: string;
 }
 
-interface VerificationProgressType {
+export interface VerificationProgressType {
     blocks: number;
     headers: number;
     verificationProgress: number;
@@ -55,10 +58,8 @@ enum ActiveStep {
     ChooseName,
     ChooseSyncingOption,
     ChooseNetwork,
-    ChooseIBDNetwork,
     Backup,
     BackupCreated,
-    Ready,
 }
 
 // SyncingOptions correspond to API endpoints in the handlers
@@ -104,7 +105,6 @@ interface State {
 type Props = BitBoxBaseProps & TranslateProps;
 
 class BitBoxBase extends Component<Props, State> {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -286,7 +286,7 @@ class BitBoxBase extends Component<Props, State> {
     private setNetwork = (networkOption: NetworkOptions, toggleSetting: boolean) => {
         this.setState({ waitDialog: {
             title: 'Getting everything ready',
-            text: 'Configuring Network Settings...',
+            text: 'Configuring network settings...',
         }});
         apiPost(this.apiPrefix() + `/${networkOption}`, toggleSetting)
         .then(response => {
@@ -306,7 +306,7 @@ class BitBoxBase extends Component<Props, State> {
         if (this.state.syncingOption) {
             this.setState({ waitDialog: {
                 title: 'Getting everything ready',
-                text: 'Configuring Synchronization Settings...',
+                text: 'Configuring synchronization settings...',
             }});
             apiPost(this.apiPrefix() + `/${this.state.syncingOption}`)
             .then(response => {
@@ -317,7 +317,7 @@ class BitBoxBase extends Component<Props, State> {
                 }
             });
         } else {
-            alertUser('No network setting found');
+            alertUser(this.props.t('bitboxBaseWizard.errors.networkSetting'));
         }
     }
 
@@ -351,6 +351,7 @@ class BitBoxBase extends Component<Props, State> {
             validHostname,
             waitDialog,
             locked,
+            syncingOption,
         }: State,
     ) {
         if (!showWizard) {
@@ -367,37 +368,19 @@ class BitBoxBase extends Component<Props, State> {
             }
 
             return (
-                <div class="row">
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <ul>
-                            <li>Block Number: {middlewareInfo.blocks}</li>
-                            <li>Difficulty: {middlewareInfo.difficulty}</li>
-                            <li>BitBox Base ID: {bitboxBaseID}</li>
-                            <li>Lightning Alias: {middlewareInfo.lightningAlias}</li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <ul>
-                            <li>Blocks: {verificationProgress.blocks}</li>
-                            <li>Headers: {verificationProgress.headers}</li>
-                            <li>VerificationProgress: {verificationProgress.verificationProgress}</li>
-                        </ul>
-                    </div>
-                    <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.removeBitBoxBase} danger>Disconnect Base</Button>
-                        </div>
-                        <div class="buttons flex flex-row flex-end">
-                            <Button onClick={this.connectElectrum}>Connect Electrum</Button>
-                        </div>
-                    </div>
-                </div>
+                <BaseSettings
+                    baseID={bitboxBaseID}
+                    middlewareInfo={middlewareInfo}
+                    verificationProgress={verificationProgress}
+                    disconnect={this.removeBitBoxBase}
+                    connectElectrum={this.connectElectrum} />
             );
         }
+
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('welcome.title')}</h2>} />
+                    <Header title={<h2>{t('bitboxBaseWizard.welcome')}</h2>} />
 
                     {
                         waitDialog && (
@@ -407,173 +390,322 @@ class BitBoxBase extends Component<Props, State> {
                         )
                     }
 
-                    <div class="innerContainer scrollableContainer">
-                        <div class="content padded">
-                            <Steps>
+                    <div className="flex flex-column flex-center flex-items-center flex-1 scrollableContainer">
+                        <Steps>
 
-                                <Step title="Verify Pairing Code" active={activeStep === ActiveStep.PairingCode} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
-                                        <pre>{hash}</pre>
+                            <Step
+                                title={t('bitboxBaseWizard.pairing.title')}
+                                active={activeStep === ActiveStep.PairingCode}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
+                                    <pre>{hash}</pre>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                        <Button
+                                            primary
+                                            // TODO: Change Base middleware to accept code confirmation from App
+                                            onClick={() => this.setState({activeStep: ActiveStep.SetPassword})}>
+                                            {t('bitbox02Wizard.pairing.confirmButton')}
+                                        </Button>
                                     </div>
-                                </Step>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
 
-                                <Step title="Set a Password" active={activeStep === ActiveStep.SetPassword} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <form onSubmit={this.submitChangePasswordSetup}>
-                                            <PasswordRepeatInput
-                                                label={t('initialize.input.label')}
-                                                repeatLabel={t('initialize.input.labelRepeat')}
-                                                onValidPassword={this.setPassword} />
-                                            <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                <Button
-                                                    disabled={!password}
-                                                    primary
-                                                    type="submit"
-                                                >
-                                                    {t('initialize.create')}
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </Step>
-
-                                <Step title="Choose Setup" active={activeStep === ActiveStep.ChooseSetup} large>
-                                    <div className="columnsContainer half">
-                                        <div className="columns">
-                                            <div className="column column-1-2">
-                                                <div className={stepStyle.stepContext}>
-                                                    <h3 className={stepStyle.stepSubHeader}>Quick</h3>
-                                                    <p>The quickest way to get started.</p>
-                                                    <ul>
-                                                        <li>Starts from pre-synced blockchain</li>
-                                                        <li>Uses Tor by default</li>
-                                                        <li>Chooses default hostname</li>
-                                                    </ul>
-                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                        <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>Select</Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="column column-1-2">
-                                                <div className={stepStyle.stepContext}>
-                                                    <h3 className={stepStyle.stepSubHeader}>Custom</h3>
-                                                    <p>More control over your node.</p>
-                                                    <ul>
-                                                        <li>Lets you choose syncing options</li>
-                                                        <li>Lets you choose network options</li>
-                                                        <li>Choose custom hostname</li>
-                                                    </ul>
-                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
-                                                        <Button secondary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>Select</Button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                                <Step title="Choose a Name" active={activeStep === ActiveStep.ChooseName} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <Input
-                                            className={stepStyle.wizardLabel}
-                                            pattern="^[a-z0-9]+[a-z0-9-.]{0,62}[a-z0-9]$"
-                                            label="BitBox Base Hostname"
-                                            placeholder="Valid hostname e.g. 'mybitboxbase'"
-                                            type="text"
-                                            title="Valid hostname is between 2-64 characters; lowercase a-z; digits 0-9; and periods or hypens, excluding first and last chars"
-                                            onInput={this.handleNameInput} />
+                            <Step
+                                title={t('bitboxBaseWizard.setPassword')}
+                                active={activeStep === ActiveStep.SetPassword}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <form onSubmit={this.submitChangePasswordSetup}>
+                                        <PasswordRepeatInput
+                                            label={t('initialize.input.label')}
+                                            repeatLabel={t('initialize.input.labelRepeat')}
+                                            showLabel=" "
+                                            onValidPassword={this.setPassword} />
                                         <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                             <Button
+                                                disabled={!password}
                                                 primary
-                                                onClick={this.setHostname}
-                                                disabled={!validHostname}>
-                                                Continue
+                                                type="submit">
+                                                {t('dialog.confirm')}
                                             </Button>
-                                            <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>Go Back</Button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
+
+                            <Step
+                                title={t('bitboxBaseWizard.setup.title')}
+                                active={activeStep === ActiveStep.ChooseSetup}
+                                width={840}>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className="column column-1-2">
+                                            <div className={stepStyle.stepContext}>
+                                                <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.setup.quick.title')}</h3>
+                                                <ul>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point1')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point2')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.quick.point3')}</li>
+                                                </ul>
+                                                <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Backup })}>{t('bitboxBaseWizard.setup.quick.select')}</Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-2">
+                                            <div className={stepStyle.stepContext}>
+                                                <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.setup.custom.title')}</h3>
+                                                <ul>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point1')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point2')}</li>
+                                                    <li>{t('bitboxBaseWizard.setup.custom.point3')}</li>
+                                                </ul>
+                                                <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                                    <Button primary onClick={() => this.setState({ activeStep: ActiveStep.ChooseName })}>{t('bitboxBaseWizard.setup.custom.select')}</Button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </Step>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
 
-                                <Step title="Choose Syncing Option" active={activeStep === ActiveStep.ChooseSyncingOption} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}>
-                                                Start from pre-synced blockchain
-                                            </Button>
-                                            <Button primary onClick={() => {
-                                                confirmation('This process takes approximately 1 day. Are you sure you want to continue?', result => {
-                                                    if (result) {
-                                                        this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
+                            <Step
+                                title={t('bitboxBaseWizard.hostname.title')}
+                                active={activeStep === ActiveStep.ChooseName}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <Input
+                                        className={stepStyle.wizardLabel}
+                                        pattern="^[a-z0-9]+[a-z0-9-.]{0,62}[a-z0-9]$"
+                                        label={t('bitboxBaseWizard.hostname.label')}
+                                        placeholder={t('bitboxBaseWizard.hostname.placeholder')}
+                                        type="text"
+                                        title={t('bitboxBaseWizard.hostname.tooltip')}
+                                        onInput={this.handleNameInput} />
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                        <Button
+                                            primary
+                                            onClick={this.setHostname}
+                                            disabled={!validHostname}>
+                                            {t('button.continue')}
+                                        </Button>
+                                        <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>{t('button.back')}</Button>
+                                    </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
+
+                            <Step
+                                title={t('bitboxBaseWizard.bitcoin.title')}
+                                active={activeStep === ActiveStep.ChooseSyncingOption}
+                                large>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.presync')}</h3>
+                                                    <p style="padding-bottom: 22px">{t('bitboxBaseWizard.bitcoin.presyncInfo.label')}</p>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.pro2')}</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.con1')}</li>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.presyncInfo.con2')}</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => this.setState({ syncingOption: SyncingOptions.Presync, activeStep: ActiveStep.ChooseNetwork })}
+                                                >
+                                                    {t('button.select')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.reindex')}</h3>
+                                                    <p style="padding-bottom: 22px">{t('bitboxBaseWizard.bitcoin.reindexInfo.label')}</p>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.reindexInfo.pro1')}</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.reindexInfo.con1')}</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => {                                   confirmation(t('bitboxBaseWizard.bitcoin.reindexInfo.warning'), result => {
+                                                        if (result) {
+                                                            this.setState({ syncingOption: SyncingOptions.Reindex, activeStep: ActiveStep.ChooseNetwork });
+                                                        }
+                                                    });
+                                                }}>
+                                                    {t('button.select')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-3">
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 480px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.bitcoin.resync')}</h3>
+                                                    <p>{t('bitboxBaseWizard.bitcoin.resyncInfo.label')}</p>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.pro1')}</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                    <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.con1')}</li>
+                                                    <li>{t('bitboxBaseWizard.bitcoin.resyncInfo.con2')}</li>
+                                                    </ul>
+                                                </div>
+                                                <Button primary onClick={() => {
+                                                    confirmation(t('bitboxBaseWizard.bitcoin.resyncInfo.warning'), result => {
+                                                        if (result) {
+                                                            this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseNetwork });
+                                                        }
+                                                    });
+                                                }}>
+                                                    {t('button.select')}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
+
+                            <Step
+                                title={t('bitboxBaseWizard.networks.title')}
+                                active={activeStep === ActiveStep.ChooseNetwork}
+                                large>
+                                <div className="columnsContainer half">
+                                    <div className="columns">
+                                        <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.tor.title')}</h3>
+                                                    {
+                                                        syncingOption === SyncingOptions.Reindex
+                                                        ?
+                                                        <span>{t('bitboxBaseWizard.networks.tor.label1')}</span>
+                                                        :
+                                                        <p style="padding-bottom: 22px">
+                                                            {t('bitboxBaseWizard.networks.tor.label2')}
+                                                        </p>
                                                     }
-                                                });
-                                            }}>
-                                                Validate from genesis block
-                                            </Button>
-                                            <Button primary onClick={() => {
-                                                confirmation('This process takes approximately 1 ~ 2 days depending on your internet connection. Are you sure you want to continue?', result => {
-                                                    if (result) {
-                                                        this.setState({ syncingOption: SyncingOptions.Resync, activeStep: ActiveStep.ChooseIBDNetwork });
-                                                    }
-                                                });
-                                            }}>
-                                                Sync from scratch
-                                            </Button>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro2')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.tor.pro3')}</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        {
+                                                            syncingOption === SyncingOptions.Resync &&
+                                                            <li>{t('bitboxBaseWizard.networks.tor.con1')}</li>
+                                                        }
+                                                        <li>{t('bitboxBaseWizard.networks.tor.con2')}</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
+                                                        <Button primary onClick={() => this.setNetwork  (NetworkOptions.EnableTor, true)}>{t('bitboxBaseWizard.networks.tor.select')}</Button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {
+                                            syncingOption === SyncingOptions.Resync &&
+                                            <div className="column column-1-3">
+                                                <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
+                                                    <div>
+                                                        <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.clearnetThenTor.title')}</h3>
+                                                        <p>{t('bitboxBaseWizard.networks.clearnetThenTor.label')}</p>
+                                                        <ul className={style.prosOptionsList}>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.pro1')}</li>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.pro2')}</li>
+                                                        </ul>
+                                                        <ul className={style.consOptionsList}>
+                                                            <li>{t('bitboxBaseWizard.networks.clearnetThenTor.con1')}</li>
+                                                        </ul>
+                                                    </div>
+                                                    <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>{t('bitboxBaseWizard.networks.clearnetThenTor.select')}</Button>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div className={['column', syncingOption === SyncingOptions.Resync ? 'column-1-3' : 'column-1-2'].join(' ')}>
+                                            <div className={['flex flex-column flex-between', stepStyle.stepContext].join(' ')} style="min-height: 490px">
+                                                <div>
+                                                    <h3 className={stepStyle.stepSubHeader}>{t('bitboxBaseWizard.networks.clearnet.title')}</h3>
+                                                    <span>{t('bitboxBaseWizard.networks.clearnet.label')}</span>
+                                                    <ul className={style.prosOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro2')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.pro3')}</li>
+                                                    </ul>
+                                                    <ul className={style.consOptionsList}>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.con1')}</li>
+                                                        <li>{t('bitboxBaseWizard.networks.clearnet.con2')}</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
+                                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>{t('bitboxBaseWizard.networks.clearnet.select')}</Button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </Step>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
 
-                                <Step title="Choose Network Option" active={activeStep === ActiveStep.ChooseNetwork} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
-                                        </div>
+                            <Step
+                                title={t('bitboxBaseWizard.backups.title')}
+                                active={activeStep === ActiveStep.Backup}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>{t('bitboxBaseWizard.backups.insert')}</p>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.createBackup()}>
+                                            {t('bitboxBase.settings.backups.create')}
+                                        </Button>
                                     </div>
-                                </Step>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
 
-                                <Step title="Choose Network Option" active={activeStep === ActiveStep.ChooseIBDNetwork} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>Tor Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>Clearnet Only</Button>
-                                            <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>Clearnet Only for Initial Block Download</Button>
-                                        </div>
+                            <Step
+                                title={t('bitboxBaseWizard.success.title')}
+                                active={activeStep === ActiveStep.BackupCreated}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <p>{t('bitboxBaseWizard.success.backupCreated')}</p>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>{t('bitboxBaseWizard.success.button')}</Button>
                                     </div>
-                                </Step>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
 
-                                {/* TODO: Add API calls for backup options  */}
-
-                                <Step title="Wallet Backup" active={activeStep === ActiveStep.Backup} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>Insert USB memory stick into the BitBox Base to make a backup of your wallet.</p>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.createBackup()}>
-                                                Create Backup
-                                            </Button>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                                <Step title="Wallet Backup Created" active={activeStep === ActiveStep.BackupCreated} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <p>You may now remove the memory stick and store it in a secure location.</p>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>Continue</Button>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                                <Step title="You're Ready To Go!" active={activeStep === ActiveStep.Ready} width={540}>
-                                    <div className={stepStyle.stepContext}>
-                                        <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                            <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>Go to Dashboard</Button>
-                                        </div>
-                                    </div>
-                                </Step>
-
-                            </Steps>
-                        </div>
+                        </Steps>
                     </div>
                 </div>
             </div>

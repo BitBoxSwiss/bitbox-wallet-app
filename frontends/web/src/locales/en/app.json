@@ -233,33 +233,154 @@
   },
   "bitboxBase": {
     "connect": "Connect Base",
-    "detectedBases": "Detected the following devices on your network:",
-    "manualInput": "Can't see your BitBoxBase? Connect manually below:",
+    "connectedBases": "Connected devices",
+    "detectedBases": "Detected devices on your network",
+    "detectedBasesEmpty": "No devices found",
+    "manualInput": "Connect manually",
+    "manualInputLabel": "IP address:port",
+    "settings": {
+      "advanced": {
+        "connectElectrum": "Connect Electrum",
+        "reset": "Reset to factory settings",
+        "rootAccess": "Root access",
+        "sshAccess": "SSH access",
+        "syncOptions": "Sync options",
+        "title": "Advanced settings"
+      },
+      "backups": {
+        "create": "Create backup",
+        "manage": "Manage backups",
+        "restore": "Restore backup",
+        "title": "Backups"
+      },
+      "basics": {
+        "info": "System info",
+        "name": "Name",
+        "password": "Change password",
+        "title": "Basics"
+      },
+      "networking": {
+        "incomingConnections": "Incoming connections",
+        "ipAddress": "IP address",
+        "title": "Networking",
+        "tor": "Tor"
+      },
+      "node": {
+        "disconnect": "Disconnect",
+        "restart": "Restart",
+        "shutdown": "Shutdown",
+        "title": "Node",
+        "update": "Update"
+      },
+      "title": "BitBoxBase settings"
+    },
     "title": "BitBoxBase"
   },
   "bitboxBaseUnlock": {
     "placeholder": "Enter your BitBoxBase password to unlock"
   },
   "bitboxBaseWizard": {
+    "backups": {
+      "insert": "Insert a USB memory stick into the BitBoxBase to make a backup of your wallet.",
+      "title": "Wallet Backup"
+    },
     "bitcoin": {
-      "pre": "Start syncing from pre-synced state",
-      "preInfo": "Fastest way to get started. You start syncing from the latest block that was pre-synced on the SSD. However, you need to trust the chain is validated correctly. \n\n You can choose to sync/validate from scratch later.",
-      "reindex": "Delete Chainstate and validate from Genesis",
-      "reindexInfo": "Lets you validate from the genesis block without needing to re-download the whole blockchain. Good for slow/expensive internet connections. \n\n Takes approx. 1 day.",
-      "syncFromScratch": "Delete all Chainstate Data and sync from scratch",
-      "syncFromScratchInfo": "Download and validate all blocks from scratch. Recommended for those with fast/unlimited internet plans. \n\n Takes approx. 1 day (clearnet) \n\n Takes approx. 15 days (tor)",
-      "title": "Choose your syncing option"
+      "presync": "Use pre-synced",
+      "presyncInfo": {
+        "con1": "Trusting the provided data",
+        "con2": "No independent validation of Bitcoin transaction history",
+        "label": "The quickest way to get started",
+        "pro1": "BitBoxBase is ready within minutes",
+        "pro2": "No initial download or verification necessary"
+      },
+      "reindex": "Reindex",
+      "reindexInfo": {
+        "con1": "Takes about 1 day for the BitBoxBase to be ready",
+        "label": "Validate the entire blockchain",
+        "pro1": "Full validation of pre-synced Bitcoin blockchain",
+        "warning": "This process takes about 1 day. Are you sure you want to continue?"
+      },
+      "resync": "Resync",
+      "resyncInfo": {
+        "con1": "Can take 2+ days for the BitBoxBase to be ready",
+        "con2": "Burdens the Bitcoin and Tor networks",
+        "label": "Download and validate the entire blockchain",
+        "pro1": "Full validation of independently downloaded Bitcoin blockchain",
+        "warning": "This process can take 2+ days depending on your internet connection. Are you sure you want to continue?"
+      },
+      "title": "Choose synchronization"
+    },
+    "errors": {
+      "networkSetting": "No network setting found"
+    },
+    "hostname": {
+      "label": "Hostname",
+      "placeholder": "Valid hostname e.g. 'mybitboxbase'",
+      "title": "Choose a name",
+      "tooltip": "Valid hostname is between 2-64 characters; lowercase a-z; digits 0-9; and periods or hypens, excluding first and last characters"
+    },
+    "networks": {
+      "clearnet": {
+        "con1": "Leaks home IP address and geolocation if used without precautions",
+        "con2": "ISP can detect Bitcoin node",
+        "label": "Use clearnet for all connections; not recommended.",
+        "pro1": "Fastest",
+        "pro2": "Less latency",
+        "pro3": "Allows VPN usage",
+        "select": "Select Clearnet",
+        "title": "Clearnet"
+      },
+      "clearnetThenTor": {
+        "con1": "Burdens the Tor network",
+        "label": "Use clearnet for initial block download (IBD), then switch to Tor",
+        "pro1": "Faster initial block download",
+        "pro2": "Does not burden the Tor network during IBD",
+        "select": "Select clearnet + Tor",
+        "title": "Clearnet then Tor"
+      },
+      "title": "Choose networking",
+      "tor": {
+        "con1": "Burdens the Tor network",
+        "con2": "Possibly suspicious in totalitarian jurisdictions",
+        "label1": "Use Tor for all connections; our recommended option.",
+        "label2": "Use Tor for all connections",
+        "pro1": "Private",
+        "pro2": "Difficult to track physical location",
+        "pro3": "Allows remote access",
+        "select": "Select Tor",
+        "title": "Tor"
+      }
     },
     "pairing": {
       "failed": "Unconfirmed pairing. Please try to disconnect and connect to the BitBoxBase again",
       "paired": "You have confirmed on your BitBoxBase that the code matches",
       "title": "Verify pairing code",
-      "unpaired": "A new BitBoxBase has been connected. Please verify that the following code matches what is shown on your BitBoxBase. If the code matches, touch underneath the check mark on your BitBoxBase and then click the button below to continue."
+      "unpaired": "New BitBoxBase connection detected. To continue please confirm that the code below matches the code shown on your BitBoxBase screen."
+    },
+    "setPassword": "Set a password",
+    "setup": {
+      "custom": {
+        "point1": "Syncing options",
+        "point2": "Network options",
+        "point3": "Custom hostname",
+        "select": "Select custom",
+        "title": "Custom"
+      },
+      "quick": {
+        "point1": "Pre-synced blockchain",
+        "point2": "Tor by default",
+        "point3": "Default hostname",
+        "select": "Select quick",
+        "title": "Quick start"
+      },
+      "title": "Choose setup"
     },
     "success": {
-      "text": "Hooray! Your BitBoxBase is now ready to use. \n\nFor further information on how to use the BitBoxApp, please use the in-app guide by clicking the question mark on the top right corner.",
+      "backupCreated": "Your backup has been created. You may now remove the memory stick and store it in a secure location.",
+      "button": "Go to dashboard",
       "title": "You're ready to go!"
-    }
+    },
+    "welcome": "Welcome to your BitBoxBase"
   },
   "blink": {
     "button": "Blink"
@@ -274,6 +395,7 @@
     "back": "Back",
     "changepin": "Change device password",
     "check": "Check backup",
+    "continue": "Continue",
     "copy": "Copy",
     "create": "Create",
     "download": "Download",
@@ -283,6 +405,7 @@
     "previous": "Previous",
     "receive": "Receive",
     "restore": "Restore",
+    "select": "Select",
     "send": "Send",
     "unlock": "Unlock",
     "upgrade": "Upgrade"
@@ -947,6 +1070,7 @@
       "title-tltc": "Litecoin Testnet Electrum servers"
     },
     "expert": {
+      "base": "BitBoxBase Management",
       "coinControl": "Enable coin control",
       "electrum": {
         "title": "Connect your own full node"
