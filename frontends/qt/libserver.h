@@ -28,6 +28,8 @@ extern void backendCall(int p0, char* p1);
 
 extern void serve(pushNotificationsCallback p0, responseCallback p1, notifyUserCallback p2);
 
+extern void systemOpen(char* p0);
+
 #ifdef __cplusplus
 }
 #endif

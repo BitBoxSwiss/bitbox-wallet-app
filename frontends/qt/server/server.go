@@ -117,6 +117,12 @@ func serve(
 	)
 }
 
+//export systemOpen
+func systemOpen(url *C.char) {
+	_ = system.Open(C.GoString(url))
+	// Not much we can do at this point in case of error.
+}
+
 // Don't remove - needed for the C compilation.
 func main() {
 }
