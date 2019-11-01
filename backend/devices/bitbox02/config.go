@@ -12,8 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package api contains the API to the physical device.
-package api
+package bitbox02
 
 import (
 	"bytes"
