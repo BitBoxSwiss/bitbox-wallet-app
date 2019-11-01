@@ -76,12 +76,6 @@ func (version *SemVer) AtLeast(fromVersion *SemVer) bool {
 	return true
 }
 
-// Between checks whether this version is between the from-version (including) and the to-version
-// (excluding).
-func (version *SemVer) Between(fromVersion *SemVer, toVersion *SemVer) bool {
-	return version.AtLeast(fromVersion) && !version.AtLeast(toVersion)
-}
-
 func (version *SemVer) String() string {
 	return fmt.Sprintf("%d.%d.%d", version.major, version.minor, version.patch)
 }
