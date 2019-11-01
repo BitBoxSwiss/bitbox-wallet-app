@@ -1,6 +1,7 @@
 .dashboardContainer {
     margin-top: 1px;
     position: relative;
+    background: linear-gradient(var(--color-blue-alt), var(--color-lightblue));
 }
 
 .dashboard {
@@ -14,8 +15,12 @@
     overflow: hidden;
 }
 
+.dashboard h3 {
+    color: var(--color-white) !important;
+}
+
 .expanded {
-    height: 620px;
+    height: 652px;
 }
 
 .expandButton {
