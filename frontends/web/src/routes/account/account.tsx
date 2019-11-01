@@ -356,6 +356,7 @@ class Account extends Component<Props, State> {
                     )}
                     <Entry key="accountTransactionConfirmation" entry={t('guide.accountTransactionConfirmation')} />
                     <Entry key="accountFiat" entry={t('guide.accountFiat')} />
+                    { /* careful, also used in Settings */ }
                     <Entry key="accountRates" entry={t('guide.accountRates')} />
                 </Guide>
             </div>
