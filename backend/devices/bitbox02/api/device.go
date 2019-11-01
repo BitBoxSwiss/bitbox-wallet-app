@@ -25,7 +25,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/flynn/noise"
 	"github.com/golang/protobuf/proto"
@@ -453,7 +452,7 @@ func (device *Device) SetPassword() error {
 	request := &messages.Request{
 		Request: &messages.Request_SetPassword{
 			SetPassword: &messages.SetPasswordRequest{
-				Entropy: random.BytesOrPanic(32),
+				Entropy: bytesOrPanic(32),
 			},
 		},
 	}
