@@ -17,8 +17,12 @@
 package bitbox02
 
 import (
+	"fmt"
+	"sync"
+
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
+	event "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -35,6 +39,8 @@ const ProductName = "bitbox02"
 type Device struct {
 	api.Device
 	deviceID string
+	mu       sync.RWMutex
+	onEvent  func(event.Event, interface{})
 	log      *logrus.Entry
 }
 
@@ -52,11 +58,22 @@ func NewDevice(
 		WithField("productName", ProductName)
 
 	log.Info("Plugged in device")
-	return &Device{
+	device := &Device{
 		Device:   *api.NewDevice(version, edition, config, communication, logger{log}),
 		deviceID: deviceID,
 		log:      log,
 	}
+	device.Device.SetOnEvent(func(ev api.Event, meta interface{}) {
+		device.fireEvent(event.Event(ev))
+		switch ev {
+		case api.EventStatusChanged:
+			switch device.Device.Status() {
+			case api.StatusInitialized:
+				device.fireEvent(event.EventKeystoreAvailable)
+			}
+		}
+	})
+	return device
 }
 
 // ProductName implements device.Device.
@@ -80,4 +97,30 @@ func (device *Device) KeystoreForConfiguration(configuration *signing.Configurat
 		cosignerIndex: cosignerIndex,
 		log:           device.log,
 	}
+}
+
+func (device *Device) fireEvent(event event.Event) {
+	device.mu.RLock()
+	f := device.onEvent
+	device.mu.RUnlock()
+	if f != nil {
+		device.log.Info(fmt.Sprintf("fire event: %s", event))
+		f(event, nil)
+	}
+}
+
+// SetOnEvent implements device.Device.
+func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
+	device.mu.Lock()
+	defer device.mu.Unlock()
+	device.onEvent = onEvent
+}
+
+// Reset factory resets the device.
+func (device *Device) Reset() error {
+	if err := device.Device.Reset(); err != nil {
+		return err
+	}
+	device.fireEvent(event.EventKeystoreGone)
+	return nil
 }

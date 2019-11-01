@@ -24,9 +24,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/flynn/noise"
 	"github.com/golang/protobuf/proto"
@@ -69,16 +67,19 @@ type Logger interface {
 	Debug(msg string)
 }
 
+// Event instances are sent to the onEvent callback.
+type Event string
+
 const (
 	// EventChannelHashChanged is fired when the return values of ChannelHash() change.
-	EventChannelHashChanged event.Event = "channelHashChanged"
+	EventChannelHashChanged Event = "channelHashChanged"
 
 	// EventStatusChanged is fired when the status changes. Check the status using Status().
-	EventStatusChanged event.Event = "statusChanged"
+	EventStatusChanged Event = "statusChanged"
 
 	// EventAttestationCheckFailed is fired when the device does not pass the attestation signature
 	// check, indicating that it might not be an authentic device.
-	EventAttestationCheckFailed event.Event = "attestationCheckFailed"
+	EventAttestationCheckFailed Event = "attestationCheckFailed"
 )
 
 const (
@@ -111,7 +112,7 @@ type Device struct {
 	status Status
 
 	mu      sync.RWMutex
-	onEvent func(event.Event, interface{})
+	onEvent func(Event, interface{})
 	log     Logger
 }
 
@@ -305,10 +306,6 @@ func (device *Device) pair() {
 func (device *Device) changeStatus(status Status) {
 	device.status = status
 	device.fireEvent(EventStatusChanged)
-	switch device.Status() {
-	case StatusInitialized:
-		device.fireEvent(event.EventKeystoreAvailable)
-	}
 }
 
 // Status returns the device state. See the Status* constants.
@@ -317,8 +314,8 @@ func (device *Device) Status() Status {
 	return device.status
 }
 
-// SetOnEvent implements device.Device.
-func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
+// SetOnEvent installs the callback which will be called with various events.
+func (device *Device) SetOnEvent(onEvent func(Event, interface{})) {
 	device.mu.Lock()
 	defer device.mu.Unlock()
 	device.onEvent = onEvent
@@ -327,7 +324,7 @@ func (device *Device) SetOnEvent(onEvent func(event.Event, interface{})) {
 // fireEvent calls device.onEvent callback if non-nil.
 // It blocks for the entire duration of the call.
 // The read-only lock is released before calling device.onEvent.
-func (device *Device) fireEvent(event event.Event) {
+func (device *Device) fireEvent(event Event) {
 	device.mu.RLock()
 	f := device.onEvent
 	device.mu.RUnlock()
@@ -455,7 +452,7 @@ func (device *Device) SetPassword() error {
 	request := &messages.Request{
 		Request: &messages.Request_SetPassword{
 			SetPassword: &messages.SetPasswordRequest{
-				Entropy: random.BytesOrPanic(32),
+				Entropy: bytesOrPanic(32),
 			},
 		},
 	}
@@ -712,7 +709,6 @@ func (device *Device) Reset() error {
 	if err != nil {
 		return err
 	}
-	device.fireEvent(event.EventKeystoreGone)
 	device.changeStatus(StatusConnected)
 	return device.init()
 }

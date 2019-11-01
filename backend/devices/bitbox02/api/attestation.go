@@ -24,7 +24,6 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 )
 
 // attestationPubkeys is a map of attestation pubkey identifier to attestation pubkey.
@@ -40,7 +39,7 @@ var attestationPubkeys = map[string]string{
 // performAttestation sends a random challenge and verifies that the response can be verified with
 // Shift's root attestation pubkeys. Returns true if the verification is successful.
 func (device *Device) performAttestation() (bool, error) {
-	challenge := random.BytesOrPanic(32)
+	challenge := bytesOrPanic(32)
 	response, err := device.communication.Query(append([]byte(opAttestation), challenge...))
 	if err != nil {
 		return false, err
