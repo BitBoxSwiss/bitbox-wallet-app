@@ -95,6 +95,11 @@ func NewDevice(
 	}
 }
 
+// Edition returns the bootloader edition.
+func (device *Device) Edition() bitbox02common.Edition {
+	return device.edition
+}
+
 // Close closes the communication.
 func (device *Device) Close() {
 	device.communication.Close()
@@ -249,7 +254,7 @@ func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func
 }
 
 // UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
-func (device *Device) UpgradeFirmware() error {
+func (device *Device) UpgradeFirmware(firmware []byte) error {
 	if device.status.Upgrading {
 		return errp.New("already in progress")
 	}
@@ -259,7 +264,7 @@ func (device *Device) UpgradeFirmware() error {
 		device.status.Progress = progress
 		device.onStatusChanged(device.status)
 	}
-	err := device.flashSignedFirmware(bundledFirmware(device.edition), onProgress)
+	err := device.flashSignedFirmware(firmware, onProgress)
 	if err != nil {
 		device.status.Upgrading = false
 		device.status.ErrMsg = err.Error()

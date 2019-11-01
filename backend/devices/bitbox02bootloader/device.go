@@ -110,6 +110,7 @@ func (device *Device) fireEvent() {
 
 // UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
 func (device *Device) UpgradeFirmware() error {
-	device.log.Info("upgrading firmware")
-	return device.Device.UpgradeFirmware()
+	edition := device.Device.Edition()
+	device.log.Infof("upgrading firmware: %s, %s", edition, BundledFirmwareVersion(edition))
+	return device.Device.UpgradeFirmware(bundledFirmware(edition))
 }
