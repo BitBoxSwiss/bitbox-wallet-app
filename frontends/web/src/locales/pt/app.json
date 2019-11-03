@@ -202,11 +202,8 @@
   },
   "bitboxBaseWizard": {
     "bitcoin": {
-      "pre": "Iniciar a sincronização a partir do estado pré-sincronizado",
-      "preInfo": "A maneira mais rápida de começar. Você começa a sincronizar a partir do bloco mais recente pré-sincronizado no SSD. No entanto, você precisa confiar na validação da cadeia.\n\n Você pode optar por sincronizar/validar do zero posteriormente.",
+      "presync": "Iniciar a sincronização a partir do estado pré-sincronizado",
       "reindex": "",
-      "reindexInfo": "",
-      "syncFromScratchInfo": "Baixar e validar todos os blocos do zero. Recomendado para pessoas com planos de internet rápidos/ilimitados.\n\n Leva aprox. 1 dia (clearnet)\n\n Leva aprox. 15 dias (tor)",
       "title": "Escolha sua opção de sincronização"
     },
     "pairing": {
