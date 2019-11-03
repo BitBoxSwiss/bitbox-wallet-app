@@ -28,7 +28,7 @@ XCode project.
 - `cmd/`: Go projects which generate binaries are here.
 - `cmd/servewallet/`: a development aid which serves the static web ui and the http api it talks
   to. See below.
-- `vendor/`: Go dependencies, managed by the `dep` tool (see the Requirements section below).
+- `vendor/`: Go dependencies, created by `make go-vendor` based on Go modules.
 - `backend/coins/btc/electrum/`: A json rpc client library, talking to Electrum servers.
 - `backend/devices/{bitbox,bitbox02}/`: Library to detect and talk to BitBoxes. High level API access.
 - `backend/coins/btc/`: Local HD wallet, sourcing blockchain index from an arbitrary
@@ -45,7 +45,7 @@ The below instructions assume a unix environment.
 
 ### Requirements
 
-- [Go](https://golang.org/doc/install) version 1.12.
+- [Go](https://golang.org/doc/install) version 1.13.
 - [Yarn](https://yarnpkg.com/en/) - for managing the web UI deps.
 - [Qt5](https://www.qt.io)
   - Install via https://www.qt.io/download, also install WebEngine, and put `qmake` and `rcc` into
@@ -55,7 +55,7 @@ Make sure `$GOPATH` is set and `$GOPATH/bin` and `$GOROOT/bin` is in your `$PATH
 
 Clone/move this repo to `$GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app` (`$GOPATH` is usually `~/go`).
 
-Only the first time, call `make envinit` to install the required go utilities (linters, dep, ...).
+Only the first time, call `make envinit` to install the required go utilities (linters, ...).
 
 ## Build the BitBoxApp
 
@@ -113,9 +113,15 @@ Run `make servewallet` to compile the code and run `servewallet`. `servewallet` 
 serves the HTTP API. Changes to the backend code are *not* automatically detected, so you need to
 restart the server after changes.
 
-#### Update go dependencies
+#### Go dependencies
 
-Run `dep ensure` to update dependencies.
+Go dependencies are managed by `go mod`, and vendored using `make go-vendor`. The deps are vendored
+so that
+
+- offline builds work
+- dependency diffs are easier to inspect
+- less reliance on remote systems
+- because `gomobile bind` does not support Go modules yet
 
 #### Update npm dependencies
 

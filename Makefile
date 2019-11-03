@@ -18,13 +18,13 @@ WEBROOT:=`pwd`/frontends/web
 catch:
 	@echo "Choose a make target."
 envinit:
-	./scripts/go-get.sh v1.19.1 github.com/golangci/golangci-lint/cmd/golangci-lint
-	go get -u github.com/golang/dep/cmd/dep
-	go get -u github.com/stretchr/testify # needed for mockery
-	go get -u github.com/vektra/mockery/cmd/mockery
-	go get golang.org/x/tools/cmd/goimports
-	go get -u github.com/jteeuwen/go-bindata/...
-	go get -u golang.org/x/mobile/cmd/gomobile
+	GO111MODULE=off ./scripts/go-get.sh v1.19.1 github.com/golangci/golangci-lint/cmd/golangci-lint
+	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
+	GO111MODULE=off go get -u github.com/vektra/mockery/cmd/mockery
+	GO111MODULE=off go get -u github.com/goware/modvendor
+	GO111MODULE=off go get golang.org/x/tools/cmd/goimports
+	GO111MODULE=off go get -u github.com/jteeuwen/go-bindata/...
+	GO111MODULE=off go get -u golang.org/x/mobile/cmd/gomobile
 	gomobile init
 # This must be run in $GOPATH/src/github.com/digitalbitbox/bitbox-wallet-app
 osx-init:
@@ -39,15 +39,15 @@ osx-init:
 	export PATH=$PATH:~/go/bin
 	$(MAKE) envinit
 servewallet:
-	go install ./cmd/servewallet/... && servewallet
+	go install -mod=vendor ./cmd/servewallet/... && servewallet
 servewallet-mainnet:
-	go install ./cmd/servewallet/... && servewallet -mainnet
+	go install -mod=vendor ./cmd/servewallet/... && servewallet -mainnet
 servewallet-regtest:
-	go install ./cmd/servewallet/... && servewallet -regtest
+	go install -mod=vendor ./cmd/servewallet/... && servewallet -regtest
 servewallet-multisig:
-	go install ./cmd/servewallet/... && servewallet -multisig
+	go install -mod=vendor ./cmd/servewallet/... && servewallet -multisig
 servewallet-prodservers:
-	go install ./cmd/servewallet/... && servewallet -devservers=false
+	go install -mod=vendor ./cmd/servewallet/... && servewallet -devservers=false
 buildweb:
 	node --version
 	rm -rf ${WEBROOT}/build
@@ -91,3 +91,6 @@ locize-pull:
 	cd frontends/web/src/locales && locize download
 locize-fix:
 	locize format ${WEBROOT}/src/locales --format json
+go-vendor:
+	go mod vendor
+	modvendor -copy="**/*.c **/*.h **/*.proto" -v
