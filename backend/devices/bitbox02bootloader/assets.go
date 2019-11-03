@@ -4,7 +4,7 @@
 // assets/firmware.v4.2.1.signed.bin
 // DO NOT EDIT!
 
-package api
+package bitbox02bootloader
 
 import (
 	"bytes"
