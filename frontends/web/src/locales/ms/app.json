@@ -682,7 +682,6 @@
     }
   },
   "reset": {
-    "button": "Tetapkan semula peranti",
     "description": "Semua data pada peranti akan dihapus. Itu termasuk Private Key anda!",
     "notReset": "Peranti BELUM ditetapkan semula.",
     "title": "Tetapkan semula peranti",

@@ -1,6 +1,6 @@
 {
   "account": {
-    "disconnect": "Verbindung unterbrochen. Erneut verbinden...",
+    "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
     "exportTransactions": "Exportiere die Transaktionen zum Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -25,9 +25,11 @@
   "accountSummary": {
     "balance": "Saldo",
     "exportSummary": "Kontozusammenfassung als CSV Datei exportieren",
-    "fiatBalance": "",
+    "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
     "noAccount": "Keine Konten verfügbar",
+    "synchronizing": "Konten werden mit der Blockchain syncro",
+    "title": "Kontenübersicht",
     "total": "Gesamt"
   },
   "addAccount": {
@@ -112,6 +114,7 @@
   "bb02Bootloader": {
     "abort": "Nicht upgraden - Zurück!",
     "advanced": {
+      "label": "Erweiterte Einstellungen",
       "toggleShowFirmwareHash": "Zeig mir den Hash der Firmware bei jedem Anstecken der BitBox"
     },
     "flipscreen": "Bildschirm spiegeln",
@@ -131,6 +134,7 @@
   },
   "bitbox02Settings": {
     "deviceName": {
+      "current": "Aktueller Gerätename",
       "input": "BitBox 02 Name",
       "title": "BitBox 02 Namen einstellen"
     },
@@ -149,7 +153,10 @@
       "restoreText": "Ok, lass uns dein Wallet von deinem Backup wiederherstellen!",
       "text1": "Perfekt, Ihr BitBox 02 Passwort ist jetzt festgelegt und Ihr Wallet wurde erstellt. Jetzt ist es Zeit ein Backup des Wallets zu erstellen. Bitte stelle dazu sicher, dass die microSD Karte eingesteckt ist. ",
       "text2": "Sobald Sie \"Backup erstellen\" geklickt haben folgen Sie bitte den Anweisungen auf Ihrer BitBox um ein Backup zu erstellen. ",
-      "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort auf und stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. </strong> Das Backup auf der microSD Karte ist nicht passwort-geschützt!"
+      "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort auf und stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. </strong> Das Backup auf der microSD Karte ist nicht passwort-geschützt!",
+      "userConfirmation2": "Mein Backup ist nicht passwortgeschützt. Jeder, der Zugriff darauf hat, kann auf meine Wallet zugreifen.",
+      "userConfirmation3": "Wenn ich meine BitBox02 verliere oder beschädige, ist die Wiederherstellung von meinem Backup der einzige Weg wieder Zugriff auf mein Guthaben zu bekommen. ",
+      "userConfirmation4": ""
     },
     "create": {
       "button": "Gerät bennenen & weiter",
@@ -180,6 +187,32 @@
       "point1": "Gib die Wörter ein",
       "point2": "$t(bitbox02Wizard.backup.point2)"
     },
+    "stepConnected": {
+      "unlock": "BitBox02 Passwort eingeben "
+    },
+    "stepCreate": {
+      "buttonBack": "Zurück",
+      "buttonContinue": "Weiter",
+      "nameLabel": "BitBox02 Name",
+      "namePlaceholder": "Meine BitBox02",
+      "title": "Wähle BitBox02 Name",
+      "toastMicroSD": "Bitte stellen Sie sicher, dass Ihre microSD Karte in die BitBox02 eingesteckt ist. "
+    },
+    "stepCreateSuccess": {
+      "removeMicroSD": "Bitte entnehmen Sie Ihre microSD Karte und bewahren Sie diese an einem sicheren Ort auf.",
+      "success": "Ihr Backup wurde erfolgreich erstellt."
+    },
+    "stepPassword": {
+      "title": "BitBox02 Passwort wählen",
+      "useControls": "Verwenden Sie die Touch Sensoren an den Seiten Ihrer BitBox02 um ein Passwort zu wählen."
+    },
+    "stepUninitialized": {
+      "create": "",
+      "restore": "Ich möchte mein Wallet von einem Backup wiederherstellen.",
+      "restoreMicroSD": "Von microSD Karte wiederherstellen",
+      "restoreMnemonic": "Von Mnemonic wiederherstellen",
+      "title": "BitBox02 einrichten"
+    },
     "success": {
       "text": "Hurra! Deine BitBox 02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
       "title": "Es kann los gehen!"
@@ -190,6 +223,20 @@
     "detectedBases": "Die folgenden Geräte wurden in Ihrem Netzwerk gefunden:",
     "manualInput": "BitBox Base nicht sichtbar? Manuell verbinden:",
     "title": "BitBox Base"
+  },
+  "bitboxBaseWizard": {
+    "bitcoin": {
+      "reindex": "",
+      "title": "Synchronisation wählen"
+    },
+    "pairing": {
+      "paired": "Sie haben auf Ihrer BitBoxBase bestätigt, dass der Code übereinstimmt. ",
+      "title": "",
+      "unpaired": "Neue BitBoxBase-Verbindung erkannt. Um fortzufahren, überprüfen Sie bitte, dass der Code mit dem auf Ihrer BitBoxBase angezeigten Code übereinstimmt."
+    },
+    "success": {
+      "title": "Es kann los gehen!"
+    }
   },
   "blink": {
     "button": "Blinken"
@@ -468,6 +515,9 @@
         "text": "Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
+      "why20": {
+        "title": "Warum nur 20 Adressen?"
+      },
       "whyMany": {
         "text": "Aus Gründen des Datenschutzes und der Sicherheit sollten Sie niemals dieselbe Empfangsadresse zweimal verwenden. Klicken Sie auf 'Weiter', um eine neue Adresse zu erhalten. Sie können bis zu 20 Adressen gleichzeitig generieren. Alle Adressen werden von Ihrem einzelnen Backup-Seed abgeleitet. (Stellen Sie sich Adressen wie Rechnungsnummern vor.)",
         "title": "Warum gibt es mehrere Adressen?"
@@ -536,6 +586,10 @@
       }
     },
     "title": "Guide",
+    "toggle": {
+      "close": "Guide schließen",
+      "open": "Guide"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": "Sie müssen das Gerät zurücksetzen und das Wallet mithilfe des Wiederherstellungskennworts aus Ihrem Backup wiederherstellen.",
@@ -685,20 +739,26 @@
       "info": "Litecoin wechselt von Adressen, die mit '3' beginnen, zu Adressen, die mit 'M' beginnen.",
       "result": "Altes Format von {{address}}:\n{{legacyAddress}}"
     },
+    "onlyThisCoin": {
+      "description": "",
+      "warning": "Stellen Sie sicher, dass Sie nur {{accountName}} auf diese Adresse senden."
+    },
     "showFull": "Adresse auf BitBox bestätigen",
     "title": "Coins erhalten",
     "verify": "Adresse sicher verifizieren",
+    "verifyBitBox01": "Adresse auf Smartphone überprüfen",
+    "verifyBitBox02": "Adresse auf BitBox02 überprüfen",
     "verifyInstruction": "Bitte bestätige, dass die folgende Adresse mit der Adresse auf Ihrerm Gerät übereinstimmt.",
     "warning": {
       "secureOutput": "Bitte koppeln Sie Ihre BitBox mit Ihrem Smartphone, um eine sichere Adressüberprüfung zu ermöglichen. Klicken Sie in der Seitenleiste auf \"Gerät verwalten\"."
     }
   },
   "reset": {
-    "button": "Gerät zurücksetzen ",
     "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive Ihres private Keys!!!",
     "notReset": "Gerät NICHT zurück gesetzt.",
     "title": "Gerät ",
-    "understand": "Ich habe ein Backup und kenne mein Wiederherstellungskennwort"
+    "understand": "Ich habe ein Backup und kenne mein Wiederherstellungskennwort",
+    "understandBB02": "Ich habe ein valides Backup"
   },
   "securityInformation": {
     "create": {
@@ -807,6 +867,7 @@
         "low": "12 Blöcke (ca. 2 Stunden für Bitcoin, 30 Minuten für Litecoin)",
         "normal": "6 Blöcke (ungefähr 1 Stunde für Bitcoin, 15 Minuten für Litecoin)"
       },
+      "estimate": "Geschätzte Wartezeit:",
       "label": {
         "economy": "sehr niedrig",
         "high": "hoch",
@@ -830,6 +891,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
+      "ethereum": "Ethereum BETA",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "Aktive Konten"
@@ -865,8 +927,14 @@
       "electrum": {
         "title": "Eigenen Full Node verbinden"
       },
-      "title": "Erweiterte Einstellungen"
+      "setProxyAddress": "Proxy Adresse eingeben",
+      "title": "Erweiterte Einstellungen",
+      "useProxy": "Tor Proxy aktivieren"
     },
+    "header": {
+      "home": "Home"
+    },
+    "restart": "Bitte starten Sie die BitBoxApp neu, damit die Änderungen wirksam werden.",
     "success": "Bitte trennen Sie die BitBox und stecken Sie sie wieder ein, damit die Änderungen wirksam werden.",
     "title": "Einstellungen"
   },
@@ -874,6 +942,7 @@
   "sidebar": {
     "addAccount": "Konto hinzufügen",
     "bitboxBase": "BitBox Base",
+    "bitboxBaseConnect": "BitBoxBase verbinden",
     "device": "Gerät verwalten",
     "leave": "Verlassen",
     "settings": "Einstellungen"

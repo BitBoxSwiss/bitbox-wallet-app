@@ -143,7 +143,7 @@
       "disable": "Disable optional passphrase",
       "enable": "Enable optional passphrase",
       "successDisable": "Optional passphrase successfully disabled",
-      "successEnable": "Optional passphrase successfully enabled.\n\nFrom now on you can insert a passphrase after having unlocked your BitBox02. \n\nIf you don't know what a passphrase is, please deactivate this option. It is an advanced user's option. \n\n\n<strong>Warning:</strong> every passphrase generates a valid Wallet. \nYou need to make sure your passphrase is <strong>secure and that you don't lose it.</strong>\n\n<strong>If you lose your passphrase you will not be able to access your coins. That means your coins will be lost.</strong>"
+      "successEnable": "Optional passphrase successfully enabled.\n\nFrom now on you can insert a passphrase after having unlocked your BitBox02. \n\nIf you don't know what a passphrase is, please deactivate this option. It is an advanced user's option. \n\n\n<strong>Warning:</strong> every passphrase generates a valid wallet. \nYou need to make sure your passphrase is <strong>secure and that you don't lose it.</strong>\n\n<strong>If you lose your passphrase, you will not be able to access your coins. That means your coins will be lost.</strong>"
     }
   },
   "bitbox02Wizard": {
@@ -234,9 +234,9 @@
   "bitboxBase": {
     "connect": "Connect Base",
     "connectedBases": "Connected devices",
-    "detectedBases": "Detected devices on your network",
+    "detectedBases": "Detected the following devices on your network:",
     "detectedBasesEmpty": "No devices found",
-    "manualInput": "Connect manually",
+    "manualInput": "Can't see your BitBoxBase? Connect manually below:",
     "manualInputLabel": "IP address:port",
     "settings": {
       "advanced": {
