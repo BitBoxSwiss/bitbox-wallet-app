@@ -10,7 +10,7 @@ linux:
 	CGO_CFLAGS="${GOLNXSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GOLNXLDFLAGS} ${LFLAGS}" \
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
-	go build -x -buildmode=${BUILDMODE} -ldflags \
+	go build -x -mod=vendor -buildmode=${BUILDMODE} -ldflags \
 		-extldflags="${GOLNXEXTLDFLAGS}" -o ${LIBNAME}.so
 
 clean:
