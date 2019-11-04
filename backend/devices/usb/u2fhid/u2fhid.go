@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package communication
+// Package u2fhid implements the U2F HID message framing protocol.
+package u2fhid
 
 import (
 	"bytes"
@@ -24,12 +25,13 @@ import (
 )
 
 const (
-	usbWriteReportSize = 64
-	usbReadReportSize  = 64
+	writeReportSize = 64
+	readReportSize  = 64
 )
 
 const (
-	hwwCID = 0xff000000
+	// CID - channel identifier
+	cid = 0xff000000
 )
 
 func newBuffer() *bytes.Buffer {
@@ -39,22 +41,23 @@ func newBuffer() *bytes.Buffer {
 	return bytes.NewBuffer([]byte{})
 }
 
-// Communication encodes JSON messages to/from a bitbox. The serialized messages are sent/received
-// as USB packets, following the ISO 7816-4 standard.
+// Communication encodes messages as U2F HID packets. according to
+// https://fidoalliance.org/specs/fido-u2f-v1.0-ps-20141009/fido-u2f-hid-protocol-ps-20141009.html#message--and-packet-structure.
 type Communication struct {
 	device io.ReadWriteCloser
 	mutex  sync.Mutex
-	usbCMD byte
+	cmd    byte
 }
 
 // NewCommunication creates a new Communication.
+// cmd is the CMD byte which is sent and which is expected in responses.
 func NewCommunication(
 	device io.ReadWriteCloser,
-	usbCMD byte) *Communication {
+	cmd byte) *Communication {
 	return &Communication{
 		device: device,
 		mutex:  sync.Mutex{},
-		usbCMD: usbCMD,
+		cmd:    cmd,
 	}
 }
 
@@ -79,7 +82,8 @@ func (communication *Communication) Close() {
 	}
 }
 
-// SendFrame sends one usb message.
+// SendFrame sends one message in chunks, as a series of U2F HID packets.
+// See https://fidoalliance.org/specs/fido-u2f-v1.0-ps-20141009/fido-u2f-hid-protocol-ps-20141009.html#message--and-packet-structure
 func (communication *Communication) SendFrame(msg string) error {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -94,8 +98,8 @@ func (communication *Communication) sendFrame(msg string) error {
 	send := func(header []byte, readFrom *bytes.Buffer) error {
 		buf := newBuffer()
 		buf.Write(header)
-		buf.Write(readFrom.Next(usbWriteReportSize - buf.Len()))
-		for buf.Len() < usbWriteReportSize {
+		buf.Write(readFrom.Next(writeReportSize - buf.Len()))
+		for buf.Len() < writeReportSize {
 			buf.WriteByte(0xee)
 		}
 		x := buf.Bytes() // needs to be in a var: https://github.com/golang/go/issues/14210#issuecomment-346402945
@@ -105,10 +109,10 @@ func (communication *Communication) sendFrame(msg string) error {
 	readBuffer := bytes.NewBuffer([]byte(msg))
 	// init frame
 	header := newBuffer()
-	if err := binary.Write(header, binary.BigEndian, uint32(hwwCID)); err != nil {
+	if err := binary.Write(header, binary.BigEndian, uint32(cid)); err != nil {
 		return errp.WithStack(err)
 	}
-	if err := binary.Write(header, binary.BigEndian, communication.usbCMD); err != nil {
+	if err := binary.Write(header, binary.BigEndian, communication.cmd); err != nil {
 		return errp.WithStack(err)
 	}
 	if err := binary.Write(header, binary.BigEndian, uint16(dataLen&0xFFFF)); err != nil {
@@ -120,7 +124,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	for seq := 0; readBuffer.Len() > 0; seq++ {
 		// cont frame
 		header = newBuffer()
-		if err := binary.Write(header, binary.BigEndian, uint32(hwwCID)); err != nil {
+		if err := binary.Write(header, binary.BigEndian, uint32(cid)); err != nil {
 			return errp.WithStack(err)
 		}
 		if err := binary.Write(header, binary.BigEndian, uint8(seq)); err != nil {
@@ -133,7 +137,7 @@ func (communication *Communication) sendFrame(msg string) error {
 	return nil
 }
 
-// ReadFrame reads one usb message.
+// ReadFrame reads U2F HID message from a series of packets.
 func (communication *Communication) ReadFrame() ([]byte, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
@@ -141,7 +145,7 @@ func (communication *Communication) ReadFrame() ([]byte, error) {
 }
 
 func (communication *Communication) readFrame() ([]byte, error) {
-	read := make([]byte, usbReadReportSize)
+	read := make([]byte, readReportSize)
 	readLen, err := communication.device.Read(read)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -152,8 +156,8 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	if read[0] != 0xff || read[1] != 0 || read[2] != 0 || read[3] != 0 {
 		return nil, errp.Newf("USB command ID mismatch %d %d %d %d", read[0], read[1], read[2], read[3])
 	}
-	if read[4] != communication.usbCMD {
-		return nil, errp.Newf("USB command frame mismatch (%d, expected %d)", read[4], communication.usbCMD)
+	if read[4] != communication.cmd {
+		return nil, errp.Newf("USB command frame mismatch (%d, expected %d)", read[4], communication.cmd)
 	}
 	data := newBuffer()
 	dataLen := int(read[5])*256 + int(read[6])
@@ -173,7 +177,7 @@ func (communication *Communication) readFrame() ([]byte, error) {
 	return data.Bytes()[:dataLen], nil
 }
 
-// Query sends a request and returns for the response. Blocking.
+// Query sends a request and waits for the response. Blocking.
 func (communication *Communication) Query(request []byte) ([]byte, error) {
 	communication.mutex.Lock()
 	defer communication.mutex.Unlock()
