@@ -60,9 +60,8 @@ type ConfigInterface interface {
 
 // Logger lets the library client provide their own logging infrastructure.
 type Logger interface {
-	WithField(key string, value interface{}) Logger
-	WithError(error) Logger
-	Error(msg string)
+	// err can be nil
+	Error(msg string, err error)
 	Info(msg string)
 	Debug(msg string)
 }
@@ -170,8 +169,8 @@ func (device *Device) init() error {
 			_, err := device.communication.Query([]byte(opUnlock))
 			if err != nil {
 				// Most likely the device has been unplugged.
-				device.log.WithError(err).Error(
-					"opUnlock: unknown IO error (most likely the device was unplugged)")
+				device.log.Error(
+					"opUnlock: unknown IO error (most likely the device was unplugged).", err)
 				return
 			}
 			device.pair()
@@ -195,7 +194,7 @@ func (device *Device) pair() {
 		}
 		keypair = &kp
 		if err := device.config.SetAppNoiseStaticKeypair(keypair); err != nil {
-			device.log.WithError(err).Error("could not store app noise static keypair")
+			device.log.Error("could not store app noise static keypair", err)
 
 			// Not a critical error, ignore.
 		}
@@ -214,8 +213,8 @@ func (device *Device) pair() {
 	responseBytes, err := device.communication.Query([]byte(opICanHasHandShaek))
 	if err != nil {
 		// Most likely the device has been unplugged.
-		device.log.WithError(err).Error(
-			"opICanHasHandShaek: unknown IO error (most likely the device was unplugged)")
+		device.log.Error(
+			"opICanHasHandShaek: unknown IO error (most likely the device was unplugged)", err)
 		return
 	}
 	if string(responseBytes) != responseSuccess {
@@ -229,8 +228,8 @@ func (device *Device) pair() {
 	responseBytes, err = device.communication.Query(msg)
 	if err != nil {
 		// Most likely the device has been unplugged.
-		device.log.WithError(err).Error(
-			"handshake#0: unknown IO error (most likely the device was unplugged)")
+		device.log.Error(
+			"handshake#0: unknown IO error (most likely the device was unplugged)", err)
 		return
 	}
 	_, _, _, err = handshake.ReadMessage(nil, responseBytes)
@@ -244,8 +243,8 @@ func (device *Device) pair() {
 	responseBytes, err = device.communication.Query(msg)
 	if err != nil {
 		// Most likely the device has been unplugged.
-		device.log.WithError(err).Error(
-			"handshake#1: unknown IO error (most likely the device was unplugged)")
+		device.log.Error(
+			"handshake#1: unknown IO error (most likely the device was unplugged)", err)
 		return
 	}
 
@@ -259,10 +258,9 @@ func (device *Device) pair() {
 	pairingVerificationRequiredByDevice := string(responseBytes) == "\x01"
 
 	if pairingVerificationRequiredByDevice || pairingVerificationRequiredByApp {
-		device.log.
-			WithField("byDevice", pairingVerificationRequiredByDevice).
-			WithField("byApp", pairingVerificationRequiredByApp).
-			Info("pairing required")
+		device.log.Info(fmt.Sprintf(
+			"pairing required, byDevice=%v, byApp=%v",
+			pairingVerificationRequiredByDevice, pairingVerificationRequiredByApp))
 		channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
 		device.channelHash = fmt.Sprintf(
 			"%s %s\n%s %s",
@@ -275,16 +273,18 @@ func (device *Device) pair() {
 
 		if err := device.communication.SendFrame(opICanHasPairinVerificashun); err != nil {
 			// Most likely the device has been unplugged.
-			device.log.WithError(err).Error(
-				"opICanHasPairinVerificashun send: unknown IO error (most likely the device was unplugged)")
+			device.log.Error(
+				"opICanHasPairinVerificashun send: unknown IO error (most likely the device was unplugged)",
+				err)
 			return
 		}
 		go func() {
 			response, err := device.communication.ReadFrame()
 			if err != nil {
 				// Most likely the device has been unplugged.
-				device.log.WithError(err).Error(
-					"opICanHasPairinVerificashun read: unknown IO error (most likely the device was unplugged)")
+				device.log.Error(
+					"opICanHasPairinVerificashun read: unknown IO error (most likely the device was unplugged)",
+					err)
 				return
 			}
 			device.channelHashDeviceVerified = string(response) == responseSuccess
@@ -310,7 +310,7 @@ func (device *Device) changeStatus(status Status) {
 
 // Status returns the device state. See the Status* constants.
 func (device *Device) Status() Status {
-	device.log.WithField("status", device.status).Debug("Device status")
+	device.log.Debug(fmt.Sprintf("Device status: %v", device.status))
 	return device.status
 }
 
@@ -602,7 +602,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		case bitbox02common.EditionBTCOnly:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
 		default:
-			device.log.Error(fmt.Sprintf("unrecognized edition: %s", device.edition))
+			device.log.Error(fmt.Sprintf("unrecognized edition: %s", device.edition), nil)
 		}
 		if requireUpgrade {
 			device.changeStatus(StatusRequireFirmwareUpgrade)
@@ -611,7 +611,7 @@ func (device *Device) ChannelHashVerify(ok bool) {
 
 		info, err := device.DeviceInfo()
 		if err != nil {
-			device.log.WithError(err).Error("could not get device info")
+			device.log.Error("could not get device info", err)
 			return
 		}
 		if info.Initialized {
