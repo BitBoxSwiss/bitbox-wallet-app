@@ -16,11 +16,11 @@
 }
 
 .dashboard h3 {
-    color: var(--color-white) !important;
+    color: var(--color-white);
 }
 
 .expanded {
-    height: 652px;
+    height: 528px;
 }
 
 .expandButton {
@@ -68,6 +68,12 @@
     margin-right: 4px;
 }
 
+.statusBadge.large {
+    width: 12px;
+    height: 12px;
+    margin-right: var(--space-quarter);
+}
+
 .statusBadge.online {
     background-color: var(--color-success);
 }
@@ -113,6 +119,38 @@
 
 .expanded .expandedItemsContainer {
     transform: translateY(0%);
+}
+
+.expandedItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--item-height-large);
+    padding: 0 var(--space-half);
+}
+
+.expandedItem span {
+    white-space: nowrap;
+}
+
+.expandedItem p {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.expandedItem > *:first-child {
+    overflow: hidden;
+    margin-right: var(--space-quarter);
+}
+
+.expandedItem:not(.equal) >*:last-child {
+    text-align: right;
+}
+
+.expandedItem.equal > * {
+    width: calc((100% - var(--space-quarter)) / 2);
 }
 
 .lastSubheader {
