@@ -88,7 +88,7 @@ class UnlockBitBoxBase extends Component<Props, State> {
                             <div class="box large">
                                 {
                                     <form onSubmit={this.handleSubmit}>
-                                        <div className="m-top-default">
+                                        <div>
                                             <PasswordSingleInput
                                                 autoFocus
                                                 id="password"
