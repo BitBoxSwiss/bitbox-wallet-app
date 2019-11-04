@@ -18,7 +18,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// logger converts a logrus logger to api.Logger expected by api.Device.
+// logger converts a logrus logger to firmware.Logger expected by firmware.Device.
 type logger struct {
 	log *logrus.Entry
 }

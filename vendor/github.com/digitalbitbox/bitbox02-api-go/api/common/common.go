@@ -1,4 +1,4 @@
-// Copyright 2018 Shift Devices AG
+// Copyright 2018-2019 Shift Cryptosecurity AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package bitbox02common contains common functionality to bitbox02 and bitbox02bootloader.
-package bitbox02common
+// Package common contains common functionality to bitbox02 firmware and bitbox02 bootloader.
+package common
 
-import (
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-)
+import "github.com/digitalbitbox/bitbox02-api-go/util/errp"
 
 // Edition enumerates the device editions, which (together with the firmware version) determines the
 // device API.

@@ -17,8 +17,8 @@ package bitbox02bootloader
 import (
 	"fmt"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
 //go:generate go-bindata -pkg $GOPACKAGE -o assets.go assets

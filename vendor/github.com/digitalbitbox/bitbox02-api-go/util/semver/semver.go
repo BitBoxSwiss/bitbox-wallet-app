@@ -1,4 +1,4 @@
-// Copyright 2018 Shift Devices AG
+// Copyright 2018-2019 Shift Cryptosecurity AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 )
 
 // SemVer implements Semantic Versioning according to https://semver.org.

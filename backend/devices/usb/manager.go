@@ -23,13 +23,13 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/u2fhid"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
+	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/communication/u2fhid"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 

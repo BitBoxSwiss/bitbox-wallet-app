@@ -20,13 +20,13 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	event "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,7 +37,7 @@ const ProductName = "bitbox02"
 
 // Device implements device.Device.
 type Device struct {
-	api.Device
+	firmware.Device
 	deviceID string
 	mu       sync.RWMutex
 	onEvent  func(event.Event, interface{})
@@ -49,8 +49,8 @@ func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
-	config api.ConfigInterface,
-	communication api.Communication,
+	config firmware.ConfigInterface,
+	communication firmware.Communication,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
@@ -59,16 +59,21 @@ func NewDevice(
 
 	log.Info("Plugged in device")
 	device := &Device{
-		Device:   *api.NewDevice(version, edition, config, communication, logger{log}),
+		Device: *firmware.NewDevice(
+			version,
+			edition,
+			config,
+			communication, logger{log},
+		),
 		deviceID: deviceID,
 		log:      log,
 	}
-	device.Device.SetOnEvent(func(ev api.Event, meta interface{}) {
+	device.Device.SetOnEvent(func(ev firmware.Event, meta interface{}) {
 		device.fireEvent(event.Event(ev))
 		switch ev {
-		case api.EventStatusChanged:
+		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
-			case api.StatusInitialized:
+			case firmware.StatusInitialized:
 				device.fireEvent(event.EventKeystoreAvailable)
 			}
 		}
@@ -88,7 +93,7 @@ func (device *Device) Identifier() string {
 
 // KeystoreForConfiguration implements device.Device.
 func (device *Device) KeystoreForConfiguration(configuration *signing.Configuration, cosignerIndex int) keystoreInterface.Keystore {
-	if device.Status() != api.StatusInitialized {
+	if device.Status() != firmware.StatusInitialized {
 		return nil
 	}
 	return &keystore{
