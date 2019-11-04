@@ -5,7 +5,7 @@ github.com/allegro/bigcache
 github.com/allegro/bigcache/queue
 # github.com/aristanetworks/goarista v0.0.0-20190607111240-52c2a7864a08
 github.com/aristanetworks/goarista/monotime
-# github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8 => github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8
+# github.com/btcsuite/btcd v0.20.0-beta
 github.com/btcsuite/btcd/blockchain
 github.com/btcsuite/btcd/blockchain/indexers
 github.com/btcsuite/btcd/btcec
@@ -143,7 +143,7 @@ github.com/miekg/dns
 github.com/olekukonko/tablewriter
 # github.com/pborman/uuid v0.0.0-20180906182336-adf5a7427709
 github.com/pborman/uuid
-# github.com/pkg/errors v0.8.0
+# github.com/pkg/errors v0.8.1
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
@@ -165,9 +165,9 @@ github.com/status-im/keycard-go/derivationpath
 github.com/steakknife/bloomfilter
 # github.com/steakknife/hamming v0.0.0-20180906055317-003c143a81c2
 github.com/steakknife/hamming
-# github.com/stretchr/objx v0.1.1
+# github.com/stretchr/objx v0.2.0
 github.com/stretchr/objx
-# github.com/stretchr/testify v1.3.0
+# github.com/stretchr/testify v1.4.0
 github.com/stretchr/testify/assert
 github.com/stretchr/testify/mock
 github.com/stretchr/testify/require
@@ -239,3 +239,5 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 # gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
 gopkg.in/natefinch/npipe.v2
+# gopkg.in/yaml.v2 v2.2.4
+gopkg.in/yaml.v2
