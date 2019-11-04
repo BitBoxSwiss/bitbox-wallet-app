@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package communication implements the U2F HID message framing protocol.
-package communication
+// Package u2fhid implements the U2F HID message framing protocol.
+package u2fhid
 
 import (
 	"bytes"

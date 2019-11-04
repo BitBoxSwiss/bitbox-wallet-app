@@ -24,7 +24,7 @@ import (
 	"unicode"
 
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/communication"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb/u2fhid"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/crypto"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -36,7 +36,7 @@ const bitboxCMD = 0x80 + 0x40 + 0x01
 
 // Communication implements CommunicationInterface.
 type Communication struct {
-	communication *communication.Communication
+	communication *u2fhid.Communication
 	version       *semver.SemVer
 	log           *logrus.Entry
 }
@@ -48,7 +48,7 @@ func NewCommunication(
 	log *logrus.Entry,
 ) *Communication {
 	return &Communication{
-		communication: communication.NewCommunication(device, bitboxCMD),
+		communication: u2fhid.NewCommunication(device, bitboxCMD),
 		version:       version,
 		log:           log,
 	}
