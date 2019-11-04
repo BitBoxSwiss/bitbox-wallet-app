@@ -20,12 +20,12 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -33,15 +33,15 @@ import (
 // BitBox02 models the API of the bitbox02 package.
 type BitBox02 interface {
 	Version() *semver.SemVer
-	Status() api.Status
+	Status() firmware.Status
 	Random() ([]byte, error)
 	ChannelHash() (string, bool)
 	ChannelHashVerify(ok bool)
-	DeviceInfo() (*api.DeviceInfo, error)
+	DeviceInfo() (*firmware.DeviceInfo, error)
 	SetDeviceName(deviceName string) error
 	SetPassword() error
 	CreateBackup() error
-	ListBackups() ([]*api.Backup, error)
+	ListBackups() ([]*firmware.Backup, error)
 	CheckBackup(bool) (string, error)
 	RestoreBackup(string) error
 	CheckSDCard() (bool, error)
@@ -92,7 +92,7 @@ func NewHandlers(
 	return handlers
 }
 
-// Init installs a bitbox02 as a base for the web api. This needs to be called before any requests
+// Init installs a bitbox02 as a base for the web firmware. This needs to be called before any requests
 // are made.
 func (handlers *Handlers) Init(device BitBox02) {
 	handlers.log.Debug("Init")
@@ -108,7 +108,7 @@ func (handlers *Handlers) Uninit() {
 func maybeBB02Err(err error, log *logrus.Entry) map[string]interface{} {
 	result := map[string]interface{}{"success": false}
 
-	if bb02Error, ok := errp.Cause(err).(*api.Error); ok {
+	if bb02Error, ok := errp.Cause(err).(*firmware.Error); ok {
 		result["code"] = bb02Error.Code
 		result["message"] = bb02Error.Message
 		log.WithField("bitbox02-error", bb02Error.Code).Warning("Received an error from Bitbox02")

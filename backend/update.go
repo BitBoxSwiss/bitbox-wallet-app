@@ -19,7 +19,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
 const updateFileURL = "https://shiftcrypto.ch/updates/desktop.json"

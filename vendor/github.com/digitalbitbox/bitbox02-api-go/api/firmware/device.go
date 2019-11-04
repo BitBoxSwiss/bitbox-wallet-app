@@ -1,4 +1,4 @@
-// Copyright 2018 Shift Devices AG
+// Copyright 2018-2019 Shift Cryptosecurity AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package api contains the API to the physical device.
-package api
+// Package firmware contains the API to the physical device.
+package firmware
 
 import (
 	"crypto/rand"
@@ -22,10 +22,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
+	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/flynn/noise"
 	"github.com/golang/protobuf/proto"
 )
@@ -96,7 +96,7 @@ type Device struct {
 	communication Communication
 	// firmware version.
 	version *semver.SemVer
-	edition bitbox02common.Edition
+	edition common.Edition
 
 	config ConfigInterface
 
@@ -126,7 +126,7 @@ type DeviceInfo struct {
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	version *semver.SemVer,
-	edition bitbox02common.Edition,
+	edition common.Edition,
 	config ConfigInterface,
 	communication Communication,
 	log Logger,
@@ -597,9 +597,9 @@ func (device *Device) ChannelHashVerify(ok bool) {
 		_ = device.config.AddDeviceStaticPubkey(device.deviceNoiseStaticPubkey)
 		requireUpgrade := false
 		switch device.edition {
-		case bitbox02common.EditionStandard:
+		case common.EditionStandard:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersion)
-		case bitbox02common.EditionBTCOnly:
+		case common.EditionBTCOnly:
 			requireUpgrade = !device.version.AtLeast(lowestSupportedFirmwareVersionBTCOnly)
 		default:
 			device.log.Error(fmt.Sprintf("unrecognized edition: %s", device.edition), nil)
@@ -756,14 +756,14 @@ func (device *Device) RestoreFromMnemonic() error {
 }
 
 // Edition returns the device edition.
-func (device *Device) Edition() bitbox02common.Edition {
+func (device *Device) Edition() common.Edition {
 	return device.edition
 }
 
 // SupportsETH returns true if ETH is supported by the device api.
 // coinCode is eth/teth/reth or eth-erc20-xyz, ...
 func (device *Device) SupportsETH(coinCode string) bool {
-	if device.edition != bitbox02common.EditionStandard {
+	if device.edition != common.EditionStandard {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
@@ -779,5 +779,5 @@ func (device *Device) SupportsETH(coinCode string) bool {
 
 // SupportsLTC returns true if LTC is supported by the device api.
 func (device *Device) SupportsLTC() bool {
-	return device.edition == bitbox02common.EditionStandard
+	return device.edition == common.EditionStandard
 }

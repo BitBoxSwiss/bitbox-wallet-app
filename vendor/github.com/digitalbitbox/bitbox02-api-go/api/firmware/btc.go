@@ -1,4 +1,4 @@
-// Copyright 2018 Shift Devices AG
+// Copyright 2018-2019 Shift Cryptosecurity AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package api
+package firmware
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
+	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/golang/protobuf/proto"
 )
 

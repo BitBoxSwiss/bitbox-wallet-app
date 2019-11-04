@@ -18,13 +18,13 @@ package bitbox02bootloader
 import (
 	"sync"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02bootloader/api"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
+	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -33,7 +33,7 @@ const ProductName = "bitbox02-bootloader"
 
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
-	api.Device
+	bootloader.Device
 	deviceID string
 
 	mu      sync.RWMutex
@@ -50,7 +50,7 @@ func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
 	edition bitbox02common.Edition,
-	communication api.Communication,
+	communication bootloader.Communication,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
@@ -61,11 +61,11 @@ func NewDevice(
 		deviceID: deviceID,
 		log:      log,
 	}
-	device.Device = *api.NewDevice(
+	device.Device = *bootloader.NewDevice(
 		version,
 		edition,
 		communication,
-		func(*api.Status) {
+		func(*bootloader.Status) {
 			device.fireEvent()
 		},
 	)

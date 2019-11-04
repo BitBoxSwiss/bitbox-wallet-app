@@ -27,11 +27,11 @@ import (
 	coinpkg "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api/messages"
 	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
+	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/sirupsen/logrus"
 )
 
@@ -270,7 +270,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		uint32(tx.Version),
 		tx.LockTime,
 	)
-	if api.IsErrorAbort(err) {
+	if firmware.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
 	if err != nil {
@@ -305,7 +305,7 @@ func (keystore *keystore) signETHTransaction(txProposal *eth.TxProposal) error {
 		tx.Value(),
 		tx.Data(),
 	)
-	if api.IsErrorAbort(err) {
+	if firmware.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
 	}
 	if err != nil {

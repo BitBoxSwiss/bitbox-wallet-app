@@ -1,4 +1,4 @@
-// Copyright 2018 Shift Devices AG
+// Copyright 2018-2019 Shift Cryptosecurity AG
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package api contains the API to the physical device.
-package api
+// Package bootloader contains the API to the physical device.
+package bootloader
 
 import (
 	"bytes"
@@ -23,9 +23,9 @@ import (
 	"math"
 	"time"
 
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02common"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/semver"
+	"github.com/digitalbitbox/bitbox02-api-go/api/common"
+	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
 const (
@@ -44,9 +44,9 @@ const (
 	sigDataLen            = signingPubkeysDataLen + firmwareDataLen
 )
 
-var sigDataMagic = map[bitbox02common.Edition]uint32{
-	bitbox02common.EditionStandard: 0x653f362b,
-	bitbox02common.EditionBTCOnly:  0x11233B0B,
+var sigDataMagic = map[common.Edition]uint32{
+	common.EditionStandard: 0x653f362b,
+	common.EditionBTCOnly:  0x11233B0B,
 }
 
 // Communication contains functions needed to communicate with the device.
@@ -75,7 +75,7 @@ func toByte(b bool) byte {
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
 	communication   Communication
-	edition         bitbox02common.Edition
+	edition         common.Edition
 	status          *Status
 	onStatusChanged func(*Status)
 }
@@ -83,7 +83,7 @@ type Device struct {
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	version *semver.SemVer,
-	edition bitbox02common.Edition,
+	edition common.Edition,
 	communication Communication,
 	onStatusChanged func(*Status),
 ) *Device {
@@ -96,7 +96,7 @@ func NewDevice(
 }
 
 // Edition returns the bootloader edition.
-func (device *Device) Edition() bitbox02common.Edition {
+func (device *Device) Edition() common.Edition {
 	return device.edition
 }
 
@@ -119,9 +119,7 @@ func (device *Device) query(cmd rune, data []byte) ([]byte, error) {
 		return nil, err
 	}
 	if reply[0] != byte(cmd) || len(reply) < 2 || reply[1] != 0 {
-		return nil, errp.WithContext(errp.New("Unexpected reply"), errp.Context{
-			"reply": reply,
-		})
+		return nil, errp.Newf("Unexpected reply: %v", reply)
 	}
 	return reply[2:], nil
 }
