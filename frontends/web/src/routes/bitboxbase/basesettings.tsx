@@ -63,11 +63,14 @@ class BaseSettings extends Component<Props, State> {
                         <div className={style.dashboardContainer}>
                             <div className={[style.dashboard, expandedDashboard ? style.expanded : ''].join(' ')}>
                                 <div className={style.nameStatus}>
-                                    <div className="subHeaderContainer">
                                         <div className="subHeader">
-                                            <h3 className="text-black">{baseInfo.hostname}: <span className="m-left-quarter"><span className={[style.statusBadge, style.large, style.online].join(' ')}></span>{baseInfo.status}</span></h3>
+                                            <h3>{baseInfo.hostname}</h3>
                                         </div>
-                                    </div>
+                                        <div>
+                                        <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style.online].join(' ')}>
+                                            {/* </span>{baseInfo.status}</span> */}
+                                            </span>Online</span>
+                                        </div>
                                 </div>
                                 <div className={style.items}>
                                     <div className={style.item}>
@@ -153,7 +156,7 @@ class BaseSettings extends Component<Props, State> {
                                             <div className="column column-1-3">
                                                 <div className="subHeaderContainer">
                                                     <div className="subHeader">
-                                                        <h3>{t('bitboxBase.settings.advanced.subheaders.lightning')} / {t('bitboxBase.settings.advanced.subheaders.electrs')}</h3>
+                                                        <h3>{t('bitboxBase.settings.advanced.subheaders.lightning')} and {t('bitboxBase.settings.advanced.subheaders.electrs')}</h3>
                                                     </div>
                                                 </div>
                                                 <div className="box slim divide">
