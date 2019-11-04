@@ -15,7 +15,6 @@
 package bitbox02
 
 import (
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox02/api"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,14 +23,12 @@ type logger struct {
 	log *logrus.Entry
 }
 
-func (log logger) WithField(key string, value interface{}) api.Logger {
-	return logger{log.log.WithField(key, value)}
-}
-func (log logger) WithError(err error) api.Logger {
-	return logger{log.log.WithError(err)}
-}
-func (log logger) Error(msg string) {
-	log.log.Error(msg)
+func (log logger) Error(msg string, err error) {
+	if err != nil {
+		log.log.WithError(err).Error(msg)
+	} else {
+		log.log.Error(msg)
+	}
 }
 func (log logger) Info(msg string) {
 	log.log.Info(msg)
