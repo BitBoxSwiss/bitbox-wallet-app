@@ -31,7 +31,7 @@
 .text-green { color: var(--color-success); }
 .text-gray { color: var(--color-secondary); }
 .text-darkgray { color: var(--color-gray); }
-.text-black { color: var(--color-dark); }
+.text-black { color: var(--color-dark) !important; }
 .text-black + label {
     color: var(--color-dark);
 }
