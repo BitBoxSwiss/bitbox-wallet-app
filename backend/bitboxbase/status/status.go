@@ -53,12 +53,6 @@ const (
 	// EventChannelHashChange should be emitted whenever the noise channel hash changes.
 	EventChannelHashChange Event = "channelHashChanged"
 
-	// EventSampleInfoChange should be emitted whenever the rpcclient gets a new SampleInfo notification
-	EventSampleInfoChange Event = "sampleInfoChanged"
-
-	// EventVerificationProgressChange should be emitted whenever the rpcclient gets a new VerificationProgress notification
-	EventVerificationProgressChange Event = "verificationProgressChanged"
-
 	// EventServiceInfoChanged should be emitted whenever the rpcClient receives a 'service info changed' notification
 	EventServiceInfoChanged Event = "serviceInfoChanged"
 
