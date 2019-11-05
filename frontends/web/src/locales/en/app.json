@@ -270,6 +270,7 @@
         "tor": "Tor"
       },
       "system": {
+        "confirmRestart": "Your BitBoxBase will now restart and you will need to reconnect to it once ready. $t(generic.confirmToContinue)",
         "restart": "Restart",
         "shutdown": "Shutdown",
         "title": "System",
@@ -493,6 +494,9 @@
   },
   "footer": {
     "appVersion": "App version:"
+  },
+  "generic": {
+    "confirmToContinue": "Please confirm to continue."
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
