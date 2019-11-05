@@ -399,7 +399,8 @@ class BitBoxBase extends Component<Props, State> {
                         baseInfo={baseInfo}
                         serviceInfo={serviceInfo}
                         disconnect={this.removeBitBoxBase}
-                        connectElectrum={this.connectElectrum} />
+                        connectElectrum={this.connectElectrum}
+                        apiPrefix={this.apiPrefix()} />
                 );
             }
             return (
