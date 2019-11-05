@@ -15,9 +15,12 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import { alertUser } from '../../components/alert/Alert';
+import { confirmation } from '../../components/confirm/Confirm';
 import { Header } from '../../components/layout/header';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { apiPost } from '../../utils/request';
 import { BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
 import * as style from './bitboxbase.css';
 
@@ -27,6 +30,7 @@ interface SettingsProps {
     serviceInfo: BitBoxBaseServiceInfo;
     disconnect: () => void;
     connectElectrum: () => void;
+    apiPrefix: string;
 }
 
 interface State {
@@ -42,6 +46,15 @@ class BaseSettings extends Component<Props, State> {
             expandedDashboard: false,
         };
     }
+
+    private restart = () => {
+        apiPost(this.props.apiPrefix + '/reboot-base')
+                .then(response => {
+                    if (!response.success) {
+                        alertUser(response.message);
+                    }
+                });
+            }
 
     public render(
         {
@@ -229,7 +242,13 @@ class BaseSettings extends Component<Props, State> {
                                         </div>
                                         <div className="box slim divide">
                                             <SettingsButton>{t('bitboxBase.settings.system.update')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.system.restart')}</SettingsButton>
+                                            <SettingsButton onClick={() => {
+                                                confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
+                                                    if (confirmed) {
+                                                        this.restart();
+                                                    }
+                                                });
+                                            }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
                                             <SettingsButton>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
                                         </div>
                                     </div>

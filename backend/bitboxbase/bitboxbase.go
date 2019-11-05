@@ -608,6 +608,10 @@ func (base *BitBoxBase) RebootBase() error {
 	if !reply.Success {
 		return &reply
 	}
+	err = base.Deregister()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
