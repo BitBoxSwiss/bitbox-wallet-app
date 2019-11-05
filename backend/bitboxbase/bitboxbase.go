@@ -48,12 +48,6 @@ type Interface interface {
 	// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 	GetRegisterTime() time.Time
 
-	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
-
-	// VerificationProgress returns the bitcoind verification progress.
-	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
-
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
 
@@ -297,22 +291,6 @@ func (base *BitBoxBase) changeStatus(status bitboxbasestatus.Status) {
 // RPCClient returns ths current instance of the rpcClient
 func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 	return base.rpcClient
-}
-
-// MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error) {
-	if !base.active {
-		return rpcmessages.SampleInfoResponse{}, errp.New("Attempted a call to non-active base")
-	}
-	return base.rpcClient.GetSampleInfo()
-}
-
-// VerificationProgress returns the received VerificationProgress packet from the rpcClient
-func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
-	if !base.active {
-		return rpcmessages.VerificationProgressResponse{}, errp.New("Attempted a call to non-active base")
-	}
-	return base.rpcClient.GetVerificationProgress()
 }
 
 // ReindexBitcoin returns true if the chosen sync option was executed successfully

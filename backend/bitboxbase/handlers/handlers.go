@@ -27,8 +27,6 @@ import (
 
 // Base models the api of the base middleware
 type Base interface {
-	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
-	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
 	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
@@ -72,8 +70,6 @@ func NewHandlers(
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
-	handleFunc("/middleware-info", handlers.getMiddlewareInfoHandler).Methods("GET")
-	handleFunc("/verification-progress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
 	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHanlder).Methods("GET")
@@ -152,18 +148,6 @@ func (handlers *Handlers) getChannelHashHandler(_ *http.Request) (interface{}, e
 	return map[string]interface{}{
 		"hash":               hash,
 		"bitboxBaseVerified": bitboxBaseVerified,
-	}, nil
-}
-
-func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Block Info")
-	middlewareInfo, err := handlers.base.MiddlewareInfo()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-	return map[string]interface{}{
-		"success":        true,
-		"middlewareInfo": middlewareInfo,
 	}, nil
 }
 
@@ -260,18 +244,6 @@ func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) 
 	}
 	return map[string]interface{}{
 		"success": true,
-	}, nil
-}
-
-func (handlers *Handlers) getVerificationProgressHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Verification Progress")
-	verificationProgress, err := handlers.base.VerificationProgress()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-	return map[string]interface{}{
-		"success":              true,
-		"verificationProgress": verificationProgress,
 	}, nil
 }
 

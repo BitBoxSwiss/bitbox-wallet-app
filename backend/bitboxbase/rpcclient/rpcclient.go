@@ -185,10 +185,6 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 	}
 	opCode := string(message[0])
 	switch opCode {
-	case rpcmessages.OpUCanHasSampleInfo:
-		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
-	case rpcmessages.OpUCanHasVerificationProgress:
-		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
 	case rpcmessages.OpServiceInfoChanged:
 		rpcClient.onEvent(bitboxbasestatus.EventServiceInfoChanged)
 	case rpcmessages.OpBaseUpdateProgressChanged:
@@ -228,27 +224,6 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
 		return reply, err
-	}
-	return reply, nil
-}
-
-// GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
-func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
-	var reply rpcmessages.SampleInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetSampleInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
-	if err != nil {
-		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
-		return reply, err
-	}
-	return reply, nil
-}
-
-// GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
-func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
-	var reply rpcmessages.VerificationProgressResponse
-	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
-	if err != nil {
-		return rpcmessages.VerificationProgressResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
