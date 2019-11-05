@@ -8,10 +8,6 @@ Put notification constants here. Notifications for new rpc data should have the 
 const (
 	// OpRPCCall is prepended to every rpc response messages, to indicate that the message is rpc response and not a notification.
 	OpRPCCall = "r"
-	// OpUCanHasSampleInfo notifies when new SampleInfo data is available.
-	OpUCanHasSampleInfo = "d"
-	// OpUCanHasVerificationProgress notifies when new VerificationProgress data is available.
-	OpUCanHasVerificationProgress = "v"
 	// OpServiceInfoChanged notifies when the GetServiceInfo data changed.
 	OpServiceInfoChanged = "s"
 	// OpBaseUpdateProgressChanged notifies when the BaseUpdateProgress changes while performing a Base Update.
@@ -86,20 +82,6 @@ type UserAuthenticateResponse struct {
 type GetEnvResponse struct {
 	Network        string
 	ElectrsRPCPort string
-}
-
-// SampleInfoResponse holds sample information from c-lightning and bitcoind. It is temporary for testing purposes
-type SampleInfoResponse struct {
-	Blocks         int64   `json:"blocks"`
-	Difficulty     float64 `json:"difficulty"`
-	LightningAlias string  `json:"lightningAlias"`
-}
-
-// VerificationProgressResponse is the struct that gets sent by the rpc server during a VerificationProgress rpc call
-type VerificationProgressResponse struct {
-	Blocks               int64   `json:"blocks"`
-	Headers              int64   `json:"headers"`
-	VerificationProgress float64 `json:"verificationProgress"`
 }
 
 // BaseUpdateState is the type used to hold the current state for a Base update.
