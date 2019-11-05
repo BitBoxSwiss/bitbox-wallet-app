@@ -156,7 +156,7 @@ class BitBoxBase extends Component<Props, State> {
                 case 'channelHashChanged':
                     this.onChannelHashChanged();
                     break;
-                case 'verificationProgressChanged':
+                case 'serviceInfoChanged':
                     this.getServiceInfo();
                     break;
                 case 'disconnect':
