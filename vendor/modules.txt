@@ -35,7 +35,7 @@ github.com/coreos/bbolt
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20191104074913-f80464513527
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20191106123027-a1137ffb5a96
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
 github.com/digitalbitbox/bitbox02-api-go/api/firmware
@@ -198,7 +198,7 @@ github.com/tyler-smith/go-bip39
 github.com/tyler-smith/go-bip39/wordlists
 # github.com/wsddn/go-ecdh v0.0.0-20161211032359-48726bab9208
 github.com/wsddn/go-ecdh
-# golang.org/x/crypto v0.0.0-20190130090550-b01c7a725664
+# golang.org/x/crypto v0.0.0-20191105034135-c7e5f84aec59
 golang.org/x/crypto/blake2b
 golang.org/x/crypto/blake2s
 golang.org/x/crypto/chacha20poly1305
@@ -213,7 +213,7 @@ golang.org/x/crypto/ripemd160
 golang.org/x/crypto/scrypt
 golang.org/x/crypto/sha3
 golang.org/x/crypto/ssh/terminal
-# golang.org/x/net v0.0.0-20190125091013-d26f9f9a57f3
+# golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 golang.org/x/net/bpf
 golang.org/x/net/html
 golang.org/x/net/html/atom
@@ -224,7 +224,7 @@ golang.org/x/net/internal/socks
 golang.org/x/net/ipv4
 golang.org/x/net/ipv6
 golang.org/x/net/proxy
-# golang.org/x/sys v0.0.0-20191008105621-543471e840be
+# golang.org/x/sys v0.0.0-20191104094858-e8c54fb511f6
 golang.org/x/sys/cpu
 golang.org/x/sys/unix
 golang.org/x/sys/windows
@@ -247,5 +247,5 @@ golang.org/x/text/transform
 golang.org/x/text/unicode/norm
 # gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce
 gopkg.in/natefinch/npipe.v2
-# gopkg.in/yaml.v2 v2.2.4
+# gopkg.in/yaml.v2 v2.2.5
 gopkg.in/yaml.v2

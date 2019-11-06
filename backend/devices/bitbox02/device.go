@@ -81,6 +81,11 @@ func NewDevice(
 	return device
 }
 
+// Init implements device.Device.
+func (device *Device) Init(testing bool) error {
+	return device.Device.Init()
+}
+
 // ProductName implements device.Device.
 func (device *Device) ProductName() string {
 	return ProductName
