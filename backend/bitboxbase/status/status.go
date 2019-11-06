@@ -62,4 +62,7 @@ const (
 
 	// EventBaseUpdateProgressChange is emitted whenever the rpcClient gets a BaseUpdateProgress changed notification
 	EventBaseUpdateProgressChange Event = "baseUpdateProgressChanged"
+
+	// EventUpdateAvailable is emitted whenever there is a new update available for the Base
+	EventUpdateAvailable Event = "updateAvailable"
 )
