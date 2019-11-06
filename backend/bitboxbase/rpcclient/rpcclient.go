@@ -86,7 +86,6 @@ type RPCClient struct {
 
 	bitboxBaseNoiseStaticPubkey   []byte
 	channelHash                   string
-	channelHashAppVerified        bool
 	channelHashBitBoxBaseVerified bool
 	sendCipher, receiveCipher     *noise.CipherState
 	onChangeStatus                func(bitboxbasestatus.Status)
