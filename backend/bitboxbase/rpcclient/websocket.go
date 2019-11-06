@@ -234,13 +234,11 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 			rpcClient.onChangeStatus(bitboxbasestatus.StatusPairingFailed)
 			return errp.New("pairing with BitBox Base failed")
 		}
-		rpcClient.channelHashAppVerified = true
 	} else {
 		err = client.WriteMessage(websocket.BinaryMessage, []byte(responseSuccess))
 		if err != nil {
 			return errp.New("the websocket failed writing the success message at the verification stage of the noise handshake")
 		}
-		rpcClient.channelHashAppVerified = true
 	}
 
 	return nil
