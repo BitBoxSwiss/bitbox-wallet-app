@@ -188,6 +188,8 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 		rpcClient.onEvent(bitboxbasestatus.EventServiceInfoChanged)
 	case rpcmessages.OpBaseUpdateProgressChanged:
 		rpcClient.onEvent(bitboxbasestatus.EventBaseUpdateProgressChange)
+	case rpcmessages.OpBaseUpdateIsAvailable:
+		rpcClient.onEvent(bitboxbasestatus.EventUpdateAvailable)
 	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -477,6 +479,18 @@ func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse
 	err := rpcClient.client.Call("RPCServer.GetServiceInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetServiceInfo RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// GetBaseUpdateInfo makes a synchronous RPC call to the Base and returns the IsBaseUpdateAvailable struct
+// with corresponding UpdateInfo
+func (rpcClient *RPCClient) GetBaseUpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error) {
+	var reply rpcmessages.IsBaseUpdateAvailableResponse
+	err := rpcClient.client.Call("RPCServer.IsBaseUpdateAvailable", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetBaseUpdateInfo RPC call failed")
 		return reply, err
 	}
 	return reply, nil

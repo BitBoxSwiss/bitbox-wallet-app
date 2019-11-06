@@ -65,6 +65,12 @@ export interface BitBoxBaseServiceInfo {
     electrsBlocks: number;
 }
 
+export interface BaseUpdateInfo {
+    description: string;
+    version: string;
+    severity: string;
+}
+
 const defaultPassword = 'ICanHasPasword?';
 
 enum ActiveStep {
@@ -116,6 +122,8 @@ interface State {
         text?: string;
     };
     locked: boolean;
+    updateAvailable?: boolean;
+    updateInfo?: BaseUpdateInfo;
 }
 
 type Props = BitBoxBaseProps & TranslateProps;
@@ -138,6 +146,8 @@ class BitBoxBase extends Component<Props, State> {
             syncingOption: undefined,
             waitDialog: undefined,
             locked: true,
+            updateAvailable: undefined,
+            updateInfo: undefined,
         };
     }
 
@@ -164,6 +174,12 @@ class BitBoxBase extends Component<Props, State> {
                     break;
                 case 'userAuthenticated':
                     this.onUserAuthenticated();
+                    break;
+                case 'updateAvailable':
+                    this.onUpdateAvailable();
+                    break;
+                case 'baseUpdateProgressChanged':
+                    this.onbaseUpdateProgressChanged();
                     break;
                 default:
                     break;
@@ -242,10 +258,25 @@ class BitBoxBase extends Component<Props, State> {
         });
     }
 
+    private getUpdateInfo = () => {
+        apiGet(this.apiPrefix() + '/update-info')
+        .then(response => {
+            if (response.success) {
+                this.setState({
+                    updateAvailable: response.available,
+                    updateInfo: response.info,
+                });
+            } else {
+                alertUser(response.message);
+            }
+        });
+    }
+
     private onUserAuthenticated = () => {
         // When a user authenticates, authenticated RPC calls are now available, so we can fetch the base info
         this.getBaseInfo();
         this.getServiceInfo();
+        this.getUpdateInfo();
     }
 
     private connectElectrum = () => {
@@ -357,6 +388,21 @@ class BitBoxBase extends Component<Props, State> {
         });
     }
 
+    private onbaseUpdateProgressChanged = () => {
+        apiGet(this.apiPrefix() + '/base-update-progress')
+        .then(response => {
+            if (response.success) {
+                console.log(response.updateProgress);
+            } else {
+                alertUser(response.message);
+            }
+        });
+    }
+
+    private onUpdateAvailable = () => {
+        this.getUpdateInfo();
+    }
+
     private onDisconnect = () => {
         route('/bitboxbase', true);
     }
@@ -377,6 +423,8 @@ class BitBoxBase extends Component<Props, State> {
             syncingOption,
             baseInfo,
             serviceInfo,
+            updateAvailable,
+            updateInfo,
         }: State,
     ) {
         // TODO: Move wizard to basewizard.tsx and refactor
@@ -395,7 +443,9 @@ class BitBoxBase extends Component<Props, State> {
                         serviceInfo={serviceInfo}
                         disconnect={this.removeBitBoxBase}
                         connectElectrum={this.connectElectrum}
-                        apiPrefix={this.apiPrefix()} />
+                        apiPrefix={this.apiPrefix()}
+                        updateAvailable={updateAvailable}
+                        updateInfo={updateInfo} />
                 );
             }
             return (
