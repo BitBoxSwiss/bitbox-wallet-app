@@ -271,10 +271,14 @@
       },
       "system": {
         "confirmRestart": "Your BitBoxBase will now restart and you will need to reconnect to it once ready. $t(generic.confirmToContinue)",
+        "confirmUpdate": "Would you like to update your BitBoxBase from version {{current}} to {{newVersion}}?",
         "restart": "Restart",
         "shutdown": "Shutdown",
         "title": "System",
-        "update": "Update"
+        "update": "Update",
+        "updateSeverity": "Severity",
+        "updateTitle": "Update BitBoxBase",
+        "upToDate": "Your BitBoxBase is up to date"
       },
       "title": "BitBoxBase settings"
     },
@@ -412,6 +416,7 @@
     "select": "Select",
     "send": "Send",
     "unlock": "Unlock",
+    "update": "Update",
     "upgrade": "Upgrade"
   },
   "changePin": {
@@ -496,7 +501,8 @@
     "appVersion": "App version:"
   },
   "generic": {
-    "confirmToContinue": "Please confirm to continue."
+    "confirmToContinue": "Please confirm to continue.",
+    "description": "Description"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {

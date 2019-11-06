@@ -53,6 +53,7 @@ type Base interface {
 	UpdateBase(rpcmessages.UpdateBaseArgs) error
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
+	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -73,6 +74,7 @@ func NewHandlers(
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
 	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHanlder).Methods("GET")
+	handleFunc("/update-info", handlers.getUpdateInfoHanlder).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -460,5 +462,18 @@ func (handlers *Handlers) getServiceInfoHandler(_ *http.Request) (interface{}, e
 	return map[string]interface{}{
 		"success":     true,
 		"serviceInfo": baseInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getUpdateInfoHanlder(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Update Info")
+	updateInfo, err := handlers.base.UpdateInfo()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":   true,
+		"available": updateInfo.UpdateAvailable,
+		"info":      updateInfo.UpdateInfo,
 	}, nil
 }
