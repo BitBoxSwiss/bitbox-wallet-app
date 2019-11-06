@@ -16,12 +16,14 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
+import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { confirmation } from '../../components/confirm/Confirm';
 import { Header } from '../../components/layout/header';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
+import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
-import { BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
+import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
 import * as style from './bitboxbase.css';
 
 interface SettingsProps {
@@ -31,6 +33,8 @@ interface SettingsProps {
     disconnect: () => void;
     connectElectrum: () => void;
     apiPrefix: string;
+    updateAvailable?: boolean;
+    updateInfo?: BaseUpdateInfo;
 }
 
 interface State {
@@ -63,6 +67,9 @@ class BaseSettings extends Component<Props, State> {
             baseInfo,
             disconnect,
             connectElectrum,
+            updateInfo,
+            updateAvailable,
+            apiPrefix,
         }: RenderableProps<Props>,
         {
             expandedDashboard,
@@ -241,7 +248,18 @@ class BaseSettings extends Component<Props, State> {
                                             </div>
                                         </div>
                                         <div className="box slim divide">
-                                            <SettingsButton>{t('bitboxBase.settings.system.update')}</SettingsButton>
+                                            {
+                                                updateAvailable && updateInfo ?
+                                                (
+                                                    <UpdateBaseButton
+                                                        apiPrefix={apiPrefix}
+                                                        updateInfo={updateInfo}
+                                                        currentVersion={baseInfo.baseVersion} />
+                                                ) :
+                                                <SettingsItem optionalText={baseInfo.baseVersion}>
+                                                    {t('bitboxBase.settings.system.upToDate')}
+                                                </SettingsItem>
+                                            }
                                             <SettingsButton onClick={() => {
                                                 confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
                                                     if (confirmed) {
