@@ -78,6 +78,7 @@ type Device struct {
 	edition         common.Edition
 	status          *Status
 	onStatusChanged func(*Status)
+	sleep           func(time.Duration)
 }
 
 // NewDevice creates a new instance of Device.
@@ -92,6 +93,7 @@ func NewDevice(
 		edition:         edition,
 		status:          &Status{},
 		onStatusChanged: onStatusChanged,
+		sleep:           time.Sleep,
 	}
 }
 
@@ -118,6 +120,9 @@ func (device *Device) query(cmd rune, data []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(reply) == 0 {
+		return nil, errp.Newf("Unexpected reply: %v", reply)
+	}
 	if reply[0] != byte(cmd) || len(reply) < 2 || reply[1] != 0 {
 		return nil, errp.Newf("Unexpected reply: %v", reply)
 	}
@@ -130,9 +135,12 @@ func (device *Device) Versions() (uint32, uint32, error) {
 	if err != nil {
 		return 0, 0, err
 	}
+	if len(response) < 8 {
+		return 0, 0, errp.Newf("Unexpected reply: %v", response)
+	}
 	firmwareVersion := binary.LittleEndian.Uint32(response[:4])
 	signingPubkeysVersion := binary.LittleEndian.Uint32(response[4:8])
-	return firmwareVersion, signingPubkeysVersion, err
+	return firmwareVersion, signingPubkeysVersion, nil
 }
 
 // GetHashes queries the device for the firmware and signing keydata hashes.
@@ -143,6 +151,9 @@ func (device *Device) GetHashes(displayFirmwareHash, displaySigningKeydataHash b
 		[]byte{toByte(displayFirmwareHash), toByte(displaySigningKeydataHash)})
 	if err != nil {
 		return nil, nil, err
+	}
+	if len(response) != 64 {
+		return nil, nil, errp.New("unexpected response")
 	}
 	firmwareHash := response[:32]
 	signingKeyDatahash := response[32:64]
@@ -184,7 +195,7 @@ func (device *Device) erase(firmwareNumChunks uint8) error {
 
 func (device *Device) writeChunk(chunkNum uint8, chunk []byte) error {
 	if len(chunk) > chunkSize {
-		return errp.New("chunk must max 4kB")
+		panic("chunk must max 4kB")
 	}
 	var buf bytes.Buffer
 	buf.WriteByte(chunkNum)
@@ -198,9 +209,7 @@ func (device *Device) flashUnsignedFirmware(firmware []byte, progressCallback fu
 	if len(firmware) > firmwareChunks*chunkSize {
 		return errp.New("firmware too big")
 	}
-	if progressCallback != nil {
-		progressCallback(0)
-	}
+	progressCallback(0)
 	buf := bytes.NewBuffer(firmware)
 	totalChunks := uint8(math.Ceil(float64(buf.Len()) / float64(chunkSize)))
 	if err := device.erase(totalChunks); err != nil {
@@ -220,9 +229,7 @@ func (device *Device) flashUnsignedFirmware(firmware []byte, progressCallback fu
 			return err
 		}
 		chunkNum++
-		if progressCallback != nil {
-			progressCallback(float64(chunkNum) / float64(totalChunks))
-		}
+		progressCallback(float64(chunkNum) / float64(totalChunks))
 	}
 	return nil
 }
@@ -236,7 +243,7 @@ func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func
 
 	expectedMagic, ok := sigDataMagic[device.edition]
 	if !ok {
-		return errp.New("unrecognozed edition")
+		return errp.New("unrecognized edition")
 	}
 	if binary.BigEndian.Uint32(magic) != expectedMagic {
 		return errp.New("invalid signing pubkeys data magic")
@@ -275,7 +282,7 @@ func (device *Device) UpgradeFirmware(firmware []byte) error {
 	for seconds := 5; seconds > 0; seconds-- {
 		device.status.RebootSeconds = seconds
 		device.onStatusChanged(device.status)
-		time.Sleep(time.Second)
+		device.sleep(time.Second)
 	}
 	return device.Reboot()
 }

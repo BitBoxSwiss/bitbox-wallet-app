@@ -146,17 +146,23 @@ func (device *Device) Version() *semver.SemVer {
 	return device.version
 }
 
-// Init implements device.Device.
-func (device *Device) Init(testing bool) error {
+// Init initializes the device. It changes the status to StatusRequireAppUpgrade of needed,
+// otherwise performs the attestation check, unlock, and noise pairing.
+func (device *Device) Init() error {
+	device.attestation = false
+	device.deviceNoiseStaticPubkey = nil
+	device.channelHash = ""
+	device.channelHashAppVerified = false
+	device.channelHashDeviceVerified = false
+	device.sendCipher = nil
+	device.receiveCipher = nil
+	device.changeStatus(StatusConnected)
+
 	if device.version.AtLeast(lowestNonSupportedFirmwareVersion) {
 		device.changeStatus(StatusRequireAppUpgrade)
 		return nil
 	}
 
-	return device.init()
-}
-
-func (device *Device) init() error {
 	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
 		attestation, err := device.performAttestation()
 		if err != nil {
@@ -709,8 +715,7 @@ func (device *Device) Reset() error {
 	if err != nil {
 		return err
 	}
-	device.changeStatus(StatusConnected)
-	return device.init()
+	return device.Init()
 }
 
 // ShowMnemonic lets the user export the bip39 mnemonic phrase on the device.
