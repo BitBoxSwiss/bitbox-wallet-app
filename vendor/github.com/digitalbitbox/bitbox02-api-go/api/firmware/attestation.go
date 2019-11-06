@@ -24,6 +24,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcec"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 )
 
 // attestationPubkeys is a map of attestation pubkey identifier to attestation pubkey.
@@ -39,6 +40,10 @@ var attestationPubkeys = map[string]string{
 // performAttestation sends a random challenge and verifies that the response can be verified with
 // Shift's root attestation pubkeys. Returns true if the verification is successful.
 func (device *Device) performAttestation() (bool, error) {
+	if !device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
+		// skip warning for v1.0.0, where attestation was not supported.
+		return true, nil
+	}
 	challenge := bytesOrPanic(32)
 	response, err := device.communication.Query(append([]byte(opAttestation), challenge...))
 	if err != nil {
