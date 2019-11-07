@@ -178,9 +178,6 @@ class BitBoxBase extends Component<Props, State> {
                 case 'updateAvailable':
                     this.onUpdateAvailable();
                     break;
-                case 'baseUpdateProgressChanged':
-                    this.onbaseUpdateProgressChanged();
-                    break;
                 default:
                     break;
             }
@@ -382,17 +379,6 @@ class BitBoxBase extends Component<Props, State> {
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.BackupCreated });
-            } else {
-                alertUser(response.message);
-            }
-        });
-    }
-
-    private onbaseUpdateProgressChanged = () => {
-        apiGet(this.apiPrefix() + '/base-update-progress')
-        .then(response => {
-            if (response.success) {
-                console.log(response.updateProgress);
             } else {
                 alertUser(response.message);
             }
