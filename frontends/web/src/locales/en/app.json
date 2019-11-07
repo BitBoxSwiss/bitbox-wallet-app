@@ -275,10 +275,18 @@
         "restart": "Restart",
         "shutdown": "Shutdown",
         "title": "System",
+        "upToDate": "Your BitBoxBase is up to date",
         "update": "Update",
+        "updateProgress": {
+          "updateApplying": "Installing update...",
+          "updateDownloading": "Downloading update files...",
+          "updateFailed": "Update failed",
+          "updateNotInProgress": "Fetching update information...",
+          "updateRebooting": "Rebooting...",
+          "warning": "When finished, the Base will automatically disconnect and reboot."
+        },
         "updateSeverity": "Severity",
-        "updateTitle": "Update BitBoxBase",
-        "upToDate": "Your BitBoxBase is up to date"
+        "updateTitle": "Update BitBoxBase"
       },
       "title": "BitBoxBase settings"
     },
