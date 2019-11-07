@@ -196,3 +196,41 @@ The svg draws two lines which form a plus (-).
     color: var(--color-secondary);
     font-size: var(--size-small) !important;
 }
+
+.updateStatus {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-top: calc(var(--space-large) * 2);
+}
+
+.updateStatus progress {
+    width: calc(var(--content-width)/3);
+    text-align: center;
+    font-size: 0.8em;
+    height: 17px;
+}
+
+.updateStatus progress:after {
+    content: attr(value)'%';
+}
+
+.spinnerSize {
+    height: 60px !important;
+}
+
+.spinnerSize div {
+    width: 6px !important;
+    height: 6px !important;
+}
+
+.spinnerContainer {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    -webkit-transform-style: preserve-3d;
+    -webkit-backface-visibility: hidden;
+}

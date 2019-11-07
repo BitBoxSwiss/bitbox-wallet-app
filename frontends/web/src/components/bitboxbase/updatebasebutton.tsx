@@ -17,8 +17,6 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { BaseUpdateInfo } from '../../routes/bitboxbase/bitboxbase';
-import { apiPost } from '../../utils/request';
-import { alertUser } from '../alert/Alert';
 import { Dialog } from '../dialog/dialog';
 import * as dialogStyle from '../dialog/dialog.css';
 import { Button } from '../forms';
@@ -28,6 +26,7 @@ interface UpdateBaseButtonProps {
     apiPrefix: string;
     updateInfo: BaseUpdateInfo;
     currentVersion: string;
+    updateBase: (version: string) => void;
 }
 
 type Props = UpdateBaseButtonProps & TranslateProps;
@@ -37,19 +36,13 @@ interface State {
 }
 
 class UpdateBaseButton extends Component<Props, State> {
-    private updateBase = () => {
-        apiPost(this.props.apiPrefix + '/update-base', {version: '0.0.4'})
-        .then(response => {
-            if (!response.success) {
-                alertUser(response.message);
-            } else {
-                console.log('Initiated update');
-            }
-        });
-    }
-
     private abort = () => {
         this.setState({ activeDialog: false });
+    }
+
+    private onClick = (version: string) => {
+        this.setState({activeDialog: false});
+        this.props.updateBase(version);
     }
 
     public render(
@@ -99,7 +92,7 @@ class UpdateBaseButton extends Component<Props, State> {
                                 </Button>
                                 <Button
                                     primary
-                                    onClick={this.updateBase}>
+                                    onClick={() => this.onClick(updateInfo.version)}>
                                     {t('button.update')}
                                 </Button>
                             </div>

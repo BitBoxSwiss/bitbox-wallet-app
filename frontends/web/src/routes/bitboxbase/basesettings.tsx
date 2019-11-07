@@ -17,14 +17,18 @@
 import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
+import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
 import { Header } from '../../components/layout/header';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../components/settingsButton/settingsItem';
+import * as spinnerStyle from '../../components/spinner/Spinner.css';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { apiPost } from '../../utils/request';
+import { apiSubscribe } from '../../utils/event';
+import { apiGet, apiPost } from '../../utils/request';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
 import * as style from './bitboxbase.css';
+import { updateStatus } from './bitboxbase.css';
 
 interface SettingsProps {
     baseID: string | null;
@@ -37,8 +41,22 @@ interface SettingsProps {
     updateInfo?: BaseUpdateInfo;
 }
 
+enum UpdateState {
+    updateNotInProgress = 1,
+    updateDownloading,
+    updateFailed,
+    updateApplying,
+    updateRebooting,
+}
+
 interface State {
     expandedDashboard: boolean;
+    updating?: boolean;
+    updateProgress: {
+        updateState: UpdateState,
+        updatePercentage: number,
+        updateKBDownloaded: number,
+    };
 }
 
 type Props = SettingsProps & TranslateProps;
@@ -48,7 +66,40 @@ class BaseSettings extends Component<Props, State> {
         super(props);
         this.state = {
             expandedDashboard: false,
+            updating: undefined,
+            updateProgress: {
+                updateState: UpdateState.updateNotInProgress,
+                updatePercentage: 0,
+                updateKBDownloaded: 0,
+            },
         };
+    }
+
+    private unsubscribe!: () => void;
+
+    public componentDidMount() {
+        this.unsubscribe = apiSubscribe('/' + this.props.apiPrefix + '/event', ({ object }) => {
+            switch (object) {
+                case 'baseUpdateProgressChanged':
+                    this.onbaseUpdateProgressChanged();
+                    break;
+            }
+        });
+    }
+
+    private onbaseUpdateProgressChanged = () => {
+        apiGet(this.props.apiPrefix + '/base-update-progress')
+        .then(response => {
+            if (response.success) {
+                // If we get a notification that the update has failed, don't reset state to updating
+                if (!this.state.updating && response.updateProgress.updateState !== UpdateState.updateFailed) {
+                    this.setState({updating: true});
+                }
+                this.setState({updateProgress: response.updateProgress});
+            } else {
+                alertUser(response.message);
+            }
+        });
     }
 
     private restart = () => {
@@ -59,6 +110,21 @@ class BaseSettings extends Component<Props, State> {
                     }
                 });
             }
+
+    private updateBase = (version: string) => {
+        this.setState({ updating: true });
+        apiPost(this.props.apiPrefix + '/update-base', {version})
+        .then(response => {
+            if (!response.success) {
+                this.setState({updating: false});
+                alertUser(response.message);
+            }
+        });
+    }
+
+    public componentWillUnmount() {
+        this.unsubscribe();
+    }
 
     public render(
         {
@@ -73,6 +139,8 @@ class BaseSettings extends Component<Props, State> {
         }: RenderableProps<Props>,
         {
             expandedDashboard,
+            updating,
+            updateProgress,
         }: State,
     ) {
         return (
@@ -225,79 +293,110 @@ class BaseSettings extends Component<Props, State> {
                                 </svg>
                             </button>
                         </div>
-                        <div className="content padded">
-                            <div className="columnsContainer m-top-half">
-                                <div className="columns">
-                                    <div className="column column-1-3">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('bitboxBase.settings.node.title')}</h3>
+                        {
+                            updating ?
+                            <div className={updateStatus}>
+                                <CenteredContent>
+                                    <div className="flex flex-column flex-items-center">
+                                        <div className="subHeader">
+                                            <div className={style.spinnerContainer}>
+                                                <div className={[spinnerStyle.spinner, style.spinnerSize].join(' ')}>
+                                                    <div></div>
+                                                    <div></div>
+                                                    <div></div>
+                                                    <div></div>
+                                                </div>
+                                                <p className={spinnerStyle.spinnerText}>{t(`bitboxBase.settings.system.updateProgress.${UpdateState[updateProgress.updateState]}`)}
+                                                </p>
                                             </div>
-                                        </div>
-                                        <div className="box slim divide">
-                                            <SettingsButton>{t('bitboxBase.settings.node.changeName')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
-                                            <SettingsButton optionalText="Enabled">{t('bitboxBase.settings.node.tor')}</SettingsButton>
-                                            <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
                                         </div>
                                     </div>
-                                    <div className="column column-1-3">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('bitboxBase.settings.system.title')}</h3>
-                                            </div>
-                                        </div>
-                                        <div className="box slim divide">
-                                            {
-                                                updateAvailable && updateInfo ?
-                                                (
-                                                    <UpdateBaseButton
-                                                        apiPrefix={apiPrefix}
-                                                        updateInfo={updateInfo}
-                                                        currentVersion={baseInfo.baseVersion} />
-                                                ) :
-                                                <SettingsItem optionalText={baseInfo.baseVersion}>
-                                                    {t('bitboxBase.settings.system.upToDate')}
-                                                </SettingsItem>
-                                            }
-                                            <SettingsButton onClick={() => {
-                                                confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
-                                                    if (confirmed) {
-                                                        this.restart();
-                                                    }
-                                                });
-                                            }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
+                                    <div className="flex flex-column flex-center">
+                                        <progress value={updateProgress.updatePercentage} max="100">
+                                            {updateProgress.updatePercentage}
+                                        </progress>
+                                        <div>
+                                            <p className="text-small text-gray m-top-quarter" style="max-width: 360px">{t('bitboxBase.settings.system.updateProgress.warning')}</p>
                                         </div>
                                     </div>
-                                    <div className="column column-1-3">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('bitboxBase.settings.backups.title')}</h3>
+                                </CenteredContent>
+                            </div>
+                            :
+                            <div className="content padded">
+                                <div className="columnsContainer m-top-half">
+                                    <div className="columns">
+                                        <div className="column column-1-3">
+                                            <div class="subHeaderContainer">
+                                                <div class="subHeader">
+                                                    <h3>{t('bitboxBase.settings.node.title')}</h3>
+                                                </div>
+                                            </div>
+                                            <div className="box slim divide">
+                                                <SettingsButton>{t('bitboxBase.settings.node.changeName')}</SettingsButton>
+                                                <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
+                                                <SettingsButton optionalText="Enabled">{t('bitboxBase.settings.node.tor')}</SettingsButton>
+                                                <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
                                             </div>
                                         </div>
-                                        <div className="box slim divide">
-                                            <SettingsButton>{t('bitboxBase.settings.backups.create')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
-                                        </div>
-                                    </div>
-                                    <div className="column column-1-3">
-                                        <div class="subHeaderContainer">
-                                            <div class="subHeader">
-                                                <h3>{t('bitboxBase.settings.advanced.title')}</h3>
+                                        <div className="column column-1-3">
+                                            <div class="subHeaderContainer">
+                                                <div class="subHeader">
+                                                    <h3>{t('bitboxBase.settings.system.title')}</h3>
+                                                </div>
+                                            </div>
+                                            <div className="box slim divide">
+                                                {
+                                                    updateAvailable && updateInfo ?
+                                                    (
+                                                        <UpdateBaseButton
+                                                            apiPrefix={apiPrefix}
+                                                            updateInfo={updateInfo}
+                                                            currentVersion={baseInfo.baseVersion}
+                                                            updateBase={this.updateBase} />
+                                                    ) :
+                                                    <SettingsItem optionalText={baseInfo.baseVersion}>
+                                                        {t('bitboxBase.settings.system.upToDate')}
+                                                    </SettingsItem>
+                                                }
+                                                <SettingsButton onClick={() => {
+                                                    confirmation(t('bitboxBase.settings.system.confirmRestart'), confirmed => {
+                                                        if (confirmed) {
+                                                            this.restart();
+                                                        }
+                                                    });
+                                                }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
+                                                <SettingsButton>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
                                             </div>
                                         </div>
-                                        <div className="box slim divide">
-                                            <SettingsButton optionalText="Disabled">{t('bitboxBase.settings.advanced.sshAccess')}</SettingsButton>
-                                            <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
-                                            <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
-                                            <SettingsButton danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                        <div className="column column-1-3">
+                                            <div class="subHeaderContainer">
+                                                <div class="subHeader">
+                                                    <h3>{t('bitboxBase.settings.backups.title')}</h3>
+                                                </div>
+                                            </div>
+                                            <div className="box slim divide">
+                                                <SettingsButton>{t('bitboxBase.settings.backups.create')}</SettingsButton>
+                                                <SettingsButton>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
+                                            </div>
+                                        </div>
+                                        <div className="column column-1-3">
+                                            <div class="subHeaderContainer">
+                                                <div class="subHeader">
+                                                    <h3>{t('bitboxBase.settings.advanced.title')}</h3>
+                                                </div>
+                                            </div>
+                                            <div className="box slim divide">
+                                                <SettingsButton optionalText="Disabled">{t('bitboxBase.settings.advanced.sshAccess')}</SettingsButton>
+                                                <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
+                                                <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
+                                                <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
+                                                <SettingsButton danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
