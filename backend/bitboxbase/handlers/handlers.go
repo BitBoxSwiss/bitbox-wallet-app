@@ -73,8 +73,8 @@ func NewHandlers(
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
-	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHanlder).Methods("GET")
-	handleFunc("/update-info", handlers.getUpdateInfoHanlder).Methods("GET")
+	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHandler).Methods("GET")
+	handleFunc("/update-info", handlers.getUpdateInfoHandler).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -249,7 +249,7 @@ func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) 
 	}, nil
 }
 
-func (handlers *Handlers) getBaseUpdateProgressHanlder(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getBaseUpdateProgressHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Base Update Progress")
 	updateProgress, err := handlers.base.BaseUpdateProgress()
 	if err != nil {
@@ -465,7 +465,7 @@ func (handlers *Handlers) getServiceInfoHandler(_ *http.Request) (interface{}, e
 	}, nil
 }
 
-func (handlers *Handlers) getUpdateInfoHanlder(_ *http.Request) (interface{}, error) {
+func (handlers *Handlers) getUpdateInfoHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Update Info")
 	updateInfo, err := handlers.base.UpdateInfo()
 	if err != nil {
