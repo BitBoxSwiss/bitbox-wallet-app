@@ -1,5 +1,5 @@
 The BitBoxApp supports building on X86_64 machines. Building on 32bit
-systems is may be possible but it is explicitly unsupported. The following
+systems may be possible but it is explicitly unsupported. The following
 platforms should be viable for development, building, and use of the BitBox
 Wallet application.
 
