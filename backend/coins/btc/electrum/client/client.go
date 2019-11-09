@@ -461,8 +461,7 @@ func parseHeaders(reader io.Reader) ([]*wire.BlockHeader, error) {
 // https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchainblockheaders
 func (client *ElectrumClient) Headers(
 	startHeight int, count int,
-	success func(headers []*wire.BlockHeader, max int) error,
-	cleanup func(error),
+	success func(headers []*wire.BlockHeader, max int),
 ) {
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -484,10 +483,11 @@ func (client *ElectrumClient) Headers(
 					response.Count,
 					len(headers))
 			}
-			return success(headers, response.Max)
+			success(headers, response.Max)
+			return nil
 		},
 		func() func(error) {
-			return cleanup
+			return func(error) {}
 		},
 		"blockchain.block.headers",
 		startHeight, count)

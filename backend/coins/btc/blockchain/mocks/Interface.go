@@ -42,9 +42,9 @@ func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]blockchai
 	_m.Called(_a0, _a1, _a2, _a3)
 }
 
-// Headers provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int) error, _a3 func(error)) {
-	_m.Called(_a0, _a1, _a2, _a3)
+// Headers provides a mock function with given fields: _a0, _a1, _a2
+func (_m *Interface) Headers(_a0 int, _a1 int, _a2 func([]*wire.BlockHeader, int)) {
+	_m.Called(_a0, _a1, _a2)
 }
 
 // HeadersSubscribe provides a mock function with given fields: _a0, _a1
