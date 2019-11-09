@@ -46,7 +46,7 @@ var (
 	communication NativeCommunication
 	token         string
 
-	quitChan chan struct{}
+	shutdown func()
 )
 
 type response struct {
@@ -132,12 +132,10 @@ func Serve(
 	testnet bool,
 	theCommunication NativeCommunication,
 	backendEnvironment backend.Environment) {
-	if quitChan != nil {
+	if shutdown != nil {
 		panic("already running; must call Shutdown()")
 	}
 	communication = theCommunication
-	quitChan = make(chan struct{})
-
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).
@@ -152,6 +150,15 @@ func Serve(
 		log.WithError(err).Fatal("Failed to create backend")
 	}
 
+	quitChan := make(chan struct{})
+	shutdown = func() {
+		close(quitChan)
+		if err := backend.Close(); err != nil {
+			log.WithError(err).Error("backend.Close failed")
+		}
+		shutdown = nil
+	}
+
 	token, err = random.HexString(16)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to generate random string")
@@ -159,12 +166,6 @@ func Serve(
 
 	events := backend.Events()
 	go func() {
-		defer func() {
-			if err := backend.Close(); err != nil {
-				log.WithError(err).Error("backend.Close failed")
-			}
-		}()
-
 		for {
 			select {
 			case <-quitChan:
@@ -190,10 +191,9 @@ func Serve(
 // sleep.
 func Shutdown() {
 	log := logging.Get().WithGroup("server")
-	if quitChan != nil {
+	if shutdown != nil {
+		shutdown()
 		log.Info("Shutdown called")
-		close(quitChan)
-		quitChan = nil
 	} else {
 		log.Info("Shutdown called, but backend not running")
 	}
