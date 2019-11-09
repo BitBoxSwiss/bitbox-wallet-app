@@ -82,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        log("lifecycle: onCreate");
+
         getSupportActionBar().hide(); // hide title bar with app name.
         setContentView(R.layout.activity_main);
         final WebView vw = (WebView)findViewById(R.id.vw);
@@ -188,9 +190,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+        log("lifecycle: onStart");
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-
+        log("lifecycle: onResume");
         // This is only called reliably when USB is attached with android:launchMode="singleTop"
 
         // Usb device list is updated on ATTACHED / DETACHED intents.
@@ -207,6 +215,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        log("lifecycle: onPause");
         unregisterReceiver(this.broadcastReceiver);
     }
 
@@ -218,6 +227,18 @@ public class MainActivity extends AppCompatActivity {
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
             goViewModel.updateDeviceList();
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        log("lifecycle: onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        log("lifecycle: onDestroy");
     }
 
     @Override
