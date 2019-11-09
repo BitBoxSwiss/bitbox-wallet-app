@@ -965,6 +965,7 @@ func (backend *Backend) SystemOpen(url string) error {
 
 // Close shuts down the backend.
 func (backend *Backend) Close() error {
+	backend.uninitAccounts()
 	return backend.notifier.Close()
 	// TODO: wind down goroutines, all accounts, etc.
 }
