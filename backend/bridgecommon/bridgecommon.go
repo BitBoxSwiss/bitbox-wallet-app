@@ -159,6 +159,12 @@ func Serve(
 
 	events := backend.Events()
 	go func() {
+		defer func() {
+			if err := backend.Close(); err != nil {
+				log.WithError(err).Error("backend.Close failed")
+			}
+		}()
+
 		for {
 			select {
 			case <-quitChan:

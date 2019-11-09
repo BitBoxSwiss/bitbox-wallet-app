@@ -41,6 +41,11 @@ func NewNotifier(dbFilename string) (*Notifier, error) {
 	return &Notifier{db: db}, nil
 }
 
+// Close closes the notifier database.
+func (notifier *Notifier) Close() error {
+	return notifier.db.Close()
+}
+
 type notifierForAccount struct {
 	db          *bbolt.DB
 	accountCode string
