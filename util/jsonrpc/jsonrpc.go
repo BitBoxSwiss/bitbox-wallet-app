@@ -519,10 +519,7 @@ func (client *RPCClient) prepare(
 
 	msgID, jsonText := client.transform(method, params...)
 
-	client.log.Debugf("Waiting for pending requests lock (prepare): %v", method)
-	defer client.log.Debugf("Releasing pending request lock (prepare).")
 	defer client.pendingRequestsLock.Lock()()
-	client.log.Debugf("Prepared: %v", string(jsonText))
 	client.pendingRequests[msgID] = &request{
 		callbacks{
 			success:          success,
