@@ -17,9 +17,11 @@ package bridgecommon_test
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
+	"github.com/stretchr/testify/require"
 )
 
 type communication struct{}
@@ -55,9 +57,20 @@ func TestServeShutdownServe(t *testing.T) {
 		environment{},
 	)
 	bridgecommon.Shutdown()
-	bridgecommon.Serve(
-		false,
-		communication{},
-		environment{},
-	)
+
+	done := make(chan struct{})
+	go func() {
+		bridgecommon.Serve(
+			false,
+			communication{},
+			environment{},
+		)
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		require.Fail(t, "could not Serve twice")
+	}
 }
