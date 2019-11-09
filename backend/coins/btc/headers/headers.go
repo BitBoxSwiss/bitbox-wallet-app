@@ -159,10 +159,9 @@ func (headers *Headers) download() {
 			batchChan := make(chan batchInfo)
 			headers.blockchain.Headers(
 				tip+1, headers.headersPerBatch,
-				func(blockHeaders []*wire.BlockHeader, max int) error {
+				func(blockHeaders []*wire.BlockHeader, max int) {
 					batchChan <- batchInfo{blockHeaders, max}
-					return nil
-				}, func(error) {})
+				})
 			batch := <-batchChan
 			if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
 				headers.log.WithError(err).Panic("processBatch")
