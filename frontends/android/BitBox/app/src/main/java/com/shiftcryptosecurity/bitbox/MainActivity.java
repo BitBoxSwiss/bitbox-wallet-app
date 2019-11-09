@@ -209,7 +209,12 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         registerReceiver(this.broadcastReceiver, filter);
-        handleIntent(getIntent());
+
+        // We call updateDeviceList() here in case the app was started while the device was already connected.
+        // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
+        final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
+        goViewModel.updateDeviceList();
+
     }
 
     @Override
@@ -222,9 +227,11 @@ public class MainActivity extends AppCompatActivity {
     private void handleIntent(Intent intent) {
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
+            log("usb: attached");
             goViewModel.updateDeviceList();
         }
         if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
+            log("usb: detached");
             goViewModel.updateDeviceList();
         }
     }
