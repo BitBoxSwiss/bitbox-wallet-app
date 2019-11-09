@@ -59,4 +59,7 @@ type Coin interface {
 
 	// SmallestUnit returns the name of the smallest unit of a given coin
 	SmallestUnit() string
+
+	// Close shuts down all resources obtained by the coin (network connections, databases, etc.).
+	Close() error
 }

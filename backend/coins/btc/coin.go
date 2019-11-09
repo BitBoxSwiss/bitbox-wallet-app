@@ -197,3 +197,16 @@ func (coin *Coin) DecodeAddress(address string) (btcutil.Address, error) {
 	}
 	return btcAddress, nil
 }
+
+// Close implements coin.Coin.
+func (coin *Coin) Close() error {
+	coin.log.Info("closing coin")
+	if coin.headers != nil {
+		coin.log.Info("closing headers")
+		if err := coin.headers.Close(); err != nil {
+			return err
+		}
+	}
+	// TODO: shutdown Electrum connection.
+	return nil
+}
