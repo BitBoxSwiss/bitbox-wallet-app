@@ -339,7 +339,10 @@ func (headers *Headers) processBatch(
 			return err
 		}
 	}
-	_ = db.Flush()
+	if err := db.Flush(); err != nil {
+		// Ignore error, not critical.
+		headers.log.WithError(err).Error("Failed to flush")
+	}
 	if len(blockHeaders) == min(max, headers.headersPerBatch) {
 		// Received max number of headers per batch, so there might be more.
 		headers.kick()
