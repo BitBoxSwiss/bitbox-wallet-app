@@ -962,3 +962,9 @@ func (backend *Backend) SystemOpen(url string) error {
 	return backend.environment.SystemOpen(url)
 
 }
+
+// Close shuts down the backend.
+func (backend *Backend) Close() error {
+	return backend.notifier.Close()
+	// TODO: wind down goroutines, all accounts, etc.
+}
