@@ -183,8 +183,12 @@ func Serve(
 // Shutdown is cleaning up after Serve. It is called when the application is closed or goes to
 // sleep.
 func Shutdown() {
+	log := logging.Get().WithGroup("server")
 	if quitChan != nil {
+		log.Info("Shutdown called")
 		close(quitChan)
 		quitChan = nil
+	} else {
+		log.Info("Shutdown called, but backend not running")
 	}
 }
