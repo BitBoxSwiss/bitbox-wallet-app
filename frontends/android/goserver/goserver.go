@@ -132,10 +132,10 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 		// SetAppDir can only be called once, but this is okay, since the data dir does not change
 		// between during sleep between Shutdown and Serve.
 		config.SetAppDir(dataDir)
-	})
 
-	// log via builtin log package, as that is redirected to Android's logcat.
-	logging.Get().AddHook(goLogHook{})
+		// log via builtin log package, as that is redirected to Android's logcat.
+		logging.Get().AddHook(goLogHook{})
+	})
 
 	testnet := false
 	bridgecommon.Serve(
