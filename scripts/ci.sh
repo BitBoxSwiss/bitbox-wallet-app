@@ -15,8 +15,7 @@
 
 # This script has to be called from the project root directory.
 go build -mod=vendor ./...
-go test -mod=vendor ./...
-
+go test -mod=vendor ./... -v
 golangci-lint run
 
 yarn --cwd=frontends/web install # needed to install the eslint dev dep.
