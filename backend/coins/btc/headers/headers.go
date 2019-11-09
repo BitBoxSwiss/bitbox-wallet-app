@@ -73,9 +73,13 @@ type Headers struct {
 	// used to show the sync progress since the last time (catch up).
 	tipAtInitTime int
 	kickChan      chan struct{}
+	quitChan      chan struct{}
 
 	eventCallbacks []func(Event)
 	events         chan Event
+
+	// Only for testing, must be nil in production.
+	testDownloadFinished func()
 }
 
 // Status represents the syncing status.
@@ -105,6 +109,7 @@ func NewHeaders(
 		targetHeight:    0,
 		tipAtInitTime:   0,
 		kickChan:        make(chan struct{}, 1),
+		quitChan:        make(chan struct{}),
 
 		eventCallbacks: []func(Event){},
 		events:         make(chan Event),
@@ -147,26 +152,47 @@ type batchInfo struct {
 }
 
 func (headers *Headers) download() {
-	for range headers.kickChan {
-		func() {
-			defer headers.lock.Lock()()
-			db := headers.db
-			tip, err := db.Tip()
-			if err != nil {
-				// TODO
-				panic(err)
+	defer func() {
+		// Only for testing.
+		if headers.testDownloadFinished != nil {
+			headers.testDownloadFinished()
+		}
+	}()
+
+	defer headers.log.Debug("stopped downloading")
+
+	downloadAndProcessBatch := func() {
+		defer headers.lock.Lock()()
+		db := headers.db
+		tip, err := db.Tip()
+		if err != nil {
+			// TODO
+			panic(err)
+		}
+		batchChan := make(chan batchInfo)
+		headers.blockchain.Headers(
+			tip+1, headers.headersPerBatch,
+			func(blockHeaders []*wire.BlockHeader, max int) {
+				batchChan <- batchInfo{blockHeaders, max}
+			})
+		batch := <-batchChan
+		if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
+			headers.log.WithError(err).Panic("processBatch")
+		}
+	}
+
+	for {
+		select {
+		case <-headers.quitChan:
+			return
+		default:
+			select {
+			case <-headers.quitChan:
+				return
+			case <-headers.kickChan:
+				downloadAndProcessBatch()
 			}
-			batchChan := make(chan batchInfo)
-			headers.blockchain.Headers(
-				tip+1, headers.headersPerBatch,
-				func(blockHeaders []*wire.BlockHeader, max int) {
-					batchChan <- batchInfo{blockHeaders, max}
-				})
-			batch := <-batchChan
-			if err := headers.processBatch(db, tip, batch.blockHeaders, batch.max); err != nil {
-				headers.log.WithError(err).Panic("processBatch")
-			}
-		}()
+		}
 	}
 }
 
@@ -408,4 +434,10 @@ func (headers *Headers) Status() (*Status, error) {
 		TargetHeight:  headers.targetHeight,
 		TipHashHex:    tipHashHex,
 	}, nil
+}
+
+// Close shuts down the downloading goroutine and closes the database.
+func (headers *Headers) Close() error {
+	close(headers.quitChan)
+	return headers.db.Close()
 }

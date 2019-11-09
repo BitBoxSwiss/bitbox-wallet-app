@@ -29,4 +29,6 @@ type DBInterface interface {
 	Tip() (int, error)
 	// Flush forces the db changes to the filesystem.
 	Flush() error
+	// Close closes the database.
+	Close() error
 }

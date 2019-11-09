@@ -117,3 +117,8 @@ func (db *DB) HeaderByHeight(height int) (*wire.BlockHeader, error) {
 func (db *DB) Flush() error {
 	return db.file.Sync()
 }
+
+// Close closes the db file.
+func (db *DB) Close() error {
+	return db.file.Close()
+}
