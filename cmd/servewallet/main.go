@@ -23,6 +23,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -80,7 +81,17 @@ func main() {
 	multisig := flag.Bool("multisig", false, "use the app in multisig mode")
 	devmode := flag.Bool("devmode", true, "switch to dev mode")
 	devservers := flag.Bool("devservers", true, "switch to dev servers")
+	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses")
+	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses")
 	flag.Parse()
+
+	var gapLimits *btctypes.GapLimits
+	if *gapLimitsReceive != 0 || *gapLimitsChange != 0 {
+		gapLimits = &btctypes.GapLimits{
+			Receive: uint16(*gapLimitsReceive),
+			Change:  uint16(*gapLimitsChange),
+		}
+	}
 
 	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
 	log := logging.Get().WithGroup("servewallet")
@@ -96,7 +107,15 @@ func main() {
 	// since we are in dev-mode, we can drop the authorization token
 	connectionData := backendHandlers.NewConnectionData(-1, "")
 	backend, err := backend.NewBackend(
-		arguments.NewArguments(config.AppDir(), !*mainnet, *regtest, *multisig, *devmode, *devservers),
+		arguments.NewArguments(
+			config.AppDir(),
+			!*mainnet,
+			*regtest,
+			*multisig,
+			*devmode,
+			*devservers,
+			gapLimits,
+		),
 		webdevEnvironment{})
 	if err != nil {
 		log.WithField("error", err).Panic(err)

@@ -15,6 +15,8 @@
 package transactionsdb
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"time"
 
@@ -23,6 +25,7 @@ import (
 	bbolt "github.com/coreos/bbolt"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/util"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
@@ -33,6 +36,7 @@ const (
 	bucketInputs                 = "inputs"
 	bucketOutputs                = "outputs"
 	bucketAddressHistories       = "addressHistories"
+	bucketConfig                 = "config"
 )
 
 // DB is a bbolt key/value database.
@@ -75,6 +79,10 @@ func (db *DB) Begin() (transactions.DBTxInterface, error) {
 	if err != nil {
 		return nil, err
 	}
+	bucketConfig, err := tx.CreateBucketIfNotExists([]byte(bucketConfig))
+	if err != nil {
+		return nil, err
+	}
 	return &Tx{
 		tx:                           tx,
 		bucketTransactions:           bucketTransactions,
@@ -82,6 +90,7 @@ func (db *DB) Begin() (transactions.DBTxInterface, error) {
 		bucketInputs:                 bucketInputs,
 		bucketOutputs:                bucketOutputs,
 		bucketAddressHistories:       bucketAddressHistories,
+		bucketConfig:                 bucketConfig,
 	}, nil
 }
 
@@ -99,6 +108,7 @@ type Tx struct {
 	bucketInputs                 *bbolt.Bucket
 	bucketOutputs                *bbolt.Bucket
 	bucketAddressHistories       *bbolt.Bucket
+	bucketConfig                 *bbolt.Bucket
 }
 
 // Rollback implements transactions.DBTxInterface.
@@ -317,4 +327,32 @@ func (tx *Tx) AddressHistory(scriptHashHex blockchain.ScriptHashHex) (blockchain
 	history := blockchain.TxHistory{}
 	_, err := readJSON(tx.bucketAddressHistories, []byte(string(scriptHashHex)), &history)
 	return history, err
+}
+
+// PutGapLimits implements transactions.DBTxInterface.
+func (tx *Tx) PutGapLimits(limits types.GapLimits) error {
+	buf := new(bytes.Buffer)
+	if err := binary.Write(buf, binary.LittleEndian, limits.Receive); err != nil {
+		return errp.WithStack(err)
+	}
+	if err := binary.Write(buf, binary.LittleEndian, limits.Change); err != nil {
+		return errp.WithStack(err)
+	}
+	return tx.bucketConfig.Put([]byte("gapLimits"), buf.Bytes())
+}
+
+// GapLimits implements transactions.DBTxInterface.
+func (tx *Tx) GapLimits() (types.GapLimits, error) {
+	if value := tx.bucketConfig.Get([]byte(`gapLimits`)); value != nil {
+		limits := types.GapLimits{}
+		reader := bytes.NewReader(value)
+		if err := binary.Read(reader, binary.LittleEndian, &limits.Receive); err != nil {
+			return types.GapLimits{}, errp.WithStack(err)
+		}
+		if err := binary.Read(reader, binary.LittleEndian, &limits.Change); err != nil {
+			return types.GapLimits{}, errp.WithStack(err)
+		}
+		return limits, nil
+	}
+	return types.GapLimits{}, nil
 }

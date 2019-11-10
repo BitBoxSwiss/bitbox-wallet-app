@@ -140,6 +140,7 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 	testnet := false
 	bridgecommon.Serve(
 		testnet,
+		nil,
 		goAPI,
 		&bridgecommon.BackendEnvironment{
 			NotifyUserFunc: environment.NotifyUser,
