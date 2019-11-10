@@ -194,10 +194,11 @@ func (account *Account) defaultGapLimits() types.GapLimits {
 
 	if account.signingConfiguration.Singlesig() &&
 		account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
-		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
-		limits.Change = 20
+		// Usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
+		// We increase it a bit more as some users still had change buried a bit deeper.
+		limits.Change = 25
 
-		// usually 20, but BWS used to not have any limit. We put it fairly high to cover most
+		// Usually 20, but BWS used to not have any limit. We put it fairly high to cover most
 		// outliers.
 		limits.Receive = 60
 		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
