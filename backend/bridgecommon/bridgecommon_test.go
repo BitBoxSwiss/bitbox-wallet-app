@@ -53,6 +53,7 @@ func (e environment) SystemOpen(url string) error {
 func TestServeShutdownServe(t *testing.T) {
 	bridgecommon.Serve(
 		false,
+		nil,
 		communication{},
 		environment{},
 	)
@@ -62,6 +63,7 @@ func TestServeShutdownServe(t *testing.T) {
 	go func() {
 		bridgecommon.Serve(
 			false,
+			nil,
 			communication{},
 			environment{},
 		)

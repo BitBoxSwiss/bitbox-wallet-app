@@ -18,6 +18,7 @@ import (
 	"os"
 	"path"
 
+	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/sirupsen/logrus"
 )
@@ -56,6 +57,9 @@ type Arguments struct {
 	//devservers stores wether the app should connect to the dev servers. The devservers configuration is not persisted when switching back to production.
 	devservers bool
 
+	// gapLimits optionally forces the gap limits used in btc/ltc.
+	gapLimits *btctypes.GapLimits
+
 	// log is the logger for this context
 	log *logrus.Entry
 }
@@ -68,6 +72,7 @@ func NewArguments(
 	multisig bool,
 	devmode bool,
 	devservers bool,
+	gapLimits *btctypes.GapLimits,
 ) *Arguments {
 	if !testing && regtest {
 		panic("Cannot use -regtest with -mainnet.")
@@ -102,6 +107,7 @@ func NewArguments(
 		multisig:               multisig,
 		devmode:                devmode,
 		devservers:             devservers,
+		gapLimits:              gapLimits,
 		log:                    log,
 	}
 
@@ -166,4 +172,10 @@ func (arguments *Arguments) Regtest() bool {
 // Multisig returns whether the backend is in multisig mode.
 func (arguments *Arguments) Multisig() bool {
 	return arguments.multisig
+}
+
+// GapLimits returns the gap limits to be used in btc/ltc (all account types).
+// This is optional, so nil is a valid return value.
+func (arguments *Arguments) GapLimits() *btctypes.GapLimits {
+	return arguments.gapLimits
 }

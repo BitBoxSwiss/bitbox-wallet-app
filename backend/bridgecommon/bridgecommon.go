@@ -25,6 +25,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
@@ -130,6 +131,7 @@ func (env *BackendEnvironment) SystemOpen(url string) error {
 // Serve serves the BitBox API for use in a native client.
 func Serve(
 	testnet bool,
+	gapLimits *btctypes.GapLimits,
 	theCommunication NativeCommunication,
 	backendEnvironment backend.Environment) {
 	if shutdown != nil {
@@ -144,7 +146,15 @@ func Serve(
 		Info("environment")
 
 	backend, err := backend.NewBackend(
-		arguments.NewArguments(config.AppDir(), testnet, false, false, false, false),
+		arguments.NewArguments(
+			config.AppDir(),
+			testnet,
+			false,
+			false,
+			false,
+			false,
+			gapLimits,
+		),
 		backendEnvironment)
 	if err != nil {
 		log.WithError(err).Fatal("Failed to create backend")

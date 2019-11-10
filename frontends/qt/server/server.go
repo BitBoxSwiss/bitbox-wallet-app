@@ -44,6 +44,7 @@ import (
 	"unsafe"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
+	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 )
@@ -79,10 +80,23 @@ func serve(
 	// unrecognized flags
 	// _ = flag.Int("remote-debugging-port", 0, "")
 	testnet := flag.Bool("testnet", false, "activate testnets")
+
+	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses. Do not use this unless you know what this means.")
+	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses. Do not use this unless you know what this means.")
+
 	flag.Parse()
+
+	var gapLimits *btctypes.GapLimits
+	if *gapLimitsReceive != 0 || *gapLimitsChange != 0 {
+		gapLimits = &btctypes.GapLimits{
+			Receive: uint16(*gapLimitsReceive),
+			Change:  uint16(*gapLimitsChange),
+		}
+	}
 
 	bridgecommon.Serve(
 		*testnet,
+		gapLimits,
 		&nativeCommunication{
 			respond: func(queryID int, response string) {
 				cResponse := C.CString(response)

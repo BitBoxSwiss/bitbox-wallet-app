@@ -258,8 +258,18 @@ func (backend *Backend) CreateAndAddAccount(
 
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
-		account = btc.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
-			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
+		account = btc.NewAccount(
+			specificCoin,
+			backend.arguments.CacheDirectoryPath(),
+			code, name,
+			backend.arguments.GapLimits(),
+			getSigningConfiguration,
+			backend.keystores,
+			getNotifier,
+			onEvent,
+			backend.log,
+			backend.ratesUpdater,
+		)
 		backend.addAccount(account)
 	case *eth.Coin:
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,

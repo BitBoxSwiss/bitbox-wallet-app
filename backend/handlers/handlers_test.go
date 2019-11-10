@@ -34,7 +34,13 @@ func TestListRoutes(t *testing.T) {
 	}
 	connectionData := handlers.NewConnectionData(8082, "")
 	backend, err := backend.NewBackend(arguments.NewArguments(
-		test.TstTempDir("bitbox-wallet-listroutes-"), false, false, false, false, false),
+		test.TstTempDir("bitbox-wallet-listroutes-"),
+		false,
+		false,
+		false,
+		false,
+		false,
+		nil),
 		nil,
 	)
 	if err != nil {
