@@ -963,8 +963,22 @@ func (backend *Backend) SystemOpen(url string) error {
 
 }
 
-// Close shuts down the backend.
+// Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
-	return backend.notifier.Close()
-	// TODO: wind down goroutines, all accounts, etc.
+	errors := []string{}
+
+	backend.uninitAccounts()
+
+	for _, coin := range backend.coins {
+		if err := coin.Close(); err != nil {
+			errors = append(errors, err.Error())
+		}
+	}
+	if err := backend.notifier.Close(); err != nil {
+		errors = append(errors, err.Error())
+	}
+	if len(errors) > 0 {
+		return errp.New(strings.Join(errors, "; "))
+	}
+	return nil
 }

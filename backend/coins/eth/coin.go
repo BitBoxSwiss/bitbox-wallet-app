@@ -194,3 +194,9 @@ func (coin *Coin) SmallestUnit() string {
 func (coin *Coin) ERC20Token() *erc20.Token {
 	return coin.erc20Token
 }
+
+// Close implements coin.Coin.
+func (coin *Coin) Close() error {
+	// TODO: shut down rpc connection.
+	return nil
+}
