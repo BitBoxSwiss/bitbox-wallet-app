@@ -20,6 +20,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 )
 
 // DBTxInterface needs to be implemented to persist all wallet/transaction related data.
@@ -82,6 +83,13 @@ type DBTxInterface interface {
 
 	// AddressHistory retrieves an address history. If not found, returns an empty history.
 	AddressHistory(blockchain.ScriptHashHex) (blockchain.TxHistory, error)
+
+	// PutGapLimits stores the gap limits for receive and change addresses.
+	PutGapLimits(types.GapLimits) error
+
+	// GapLimits returns the gap limit for receive and change addresses.
+	// If none have been stored before, the default zero value is returned.
+	GapLimits() (types.GapLimits, error)
 }
 
 // DBInterface can be implemented by database backends to open database transactions.
