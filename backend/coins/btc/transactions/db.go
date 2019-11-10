@@ -27,7 +27,8 @@ type DBTxInterface interface {
 	// Commit closes the transaction, writing the changes.
 	Commit() error
 
-	// Rollback closes the transaction without writing anything and be called safely after Commit().
+	// Rollback closes the transaction without writing anything and can be called safely after
+	// Commit().
 	Rollback()
 
 	// PutTx stores a transaction and it's height (according to
