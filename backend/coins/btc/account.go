@@ -61,6 +61,7 @@ type Account struct {
 	code                    string
 	name                    string
 	db                      transactions.DBInterface
+	forceGapLimits          *types.GapLimits
 	getSigningConfiguration func() (*signing.Configuration, error)
 	signingConfiguration    *signing.Configuration
 	keystores               *keystore.Keystores
@@ -107,11 +108,13 @@ const (
 )
 
 // NewAccount creates a new account.
+// forceGaplimits: if not nil, these limits will be used and persisted for future use.
 func NewAccount(
 	coin *Coin,
 	dbFolder string,
 	code string,
 	name string,
+	forceGapLimits *types.GapLimits,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	keystores *keystore.Keystores,
 	getNotifier func(*signing.Configuration) accounts.Notifier,
@@ -128,6 +131,7 @@ func NewAccount(
 		dbFolder:                dbFolder,
 		code:                    code,
 		name:                    name,
+		forceGapLimits:          forceGapLimits,
 		getSigningConfiguration: getSigningConfiguration,
 		signingConfiguration:    nil,
 		keystores:               keystores,
@@ -212,6 +216,22 @@ func (account *Account) gapLimits() (types.GapLimits, error) {
 	}
 	defer dbTx.Rollback()
 
+	if account.forceGapLimits != nil {
+		account.log.Infof(
+			"persisting gap limits: receive=%d, change=%d",
+			account.forceGapLimits.Receive,
+			account.forceGapLimits.Change,
+		)
+		if err := dbTx.PutGapLimits(*account.forceGapLimits); err != nil {
+			return types.GapLimits{}, err
+		}
+		defer func() {
+			if err := dbTx.Commit(); err != nil {
+				account.log.WithError(err).Error("failed to persist gap limits")
+			}
+		}()
+	}
+
 	defaultLimits := account.defaultGapLimits()
 
 	limits, err := dbTx.GapLimits()
@@ -219,15 +239,27 @@ func (account *Account) gapLimits() (types.GapLimits, error) {
 		return types.GapLimits{}, err
 	}
 	if limits.Receive < defaultLimits.Receive {
+		if account.forceGapLimits != nil { // log only when it's interesting
+			account.log.Infof("receive gap limit increased to minimum of %d", defaultLimits.Receive)
+		}
 		limits.Receive = defaultLimits.Receive
 	}
 	if limits.Receive > maxGapLimit {
+		if account.forceGapLimits != nil { // log only when it's interesting
+			account.log.Infof("receive gap limit decreased to maximum of %d", maxGapLimit)
+		}
 		limits.Receive = maxGapLimit
 	}
 	if limits.Change < defaultLimits.Change {
+		if account.forceGapLimits != nil { // log only when it's interesting
+			account.log.Infof("change gap limit increased to minimum of %d", defaultLimits.Change)
+		}
 		limits.Change = defaultLimits.Change
 	}
 	if limits.Change > maxGapLimit {
+		if account.forceGapLimits != nil { // log only when it's interesting
+			account.log.Infof("change gap limit decreased to maximum of %d", maxGapLimit)
+		}
 		limits.Change = maxGapLimit
 	}
 	if receiveAddressesLimit > limits.Receive {
