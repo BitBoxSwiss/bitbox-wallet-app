@@ -83,7 +83,16 @@ func NewDevice(
 
 // Init implements device.Device.
 func (device *Device) Init(testing bool) error {
-	return device.Device.Init()
+	device.init()
+	return nil
+}
+
+func (device *Device) init() {
+	go func() {
+		if err := device.Device.Init(); err != nil {
+			device.log.Error("unknown IO error (most likely the device was unplugged)", err)
+		}
+	}()
 }
 
 // ProductName implements device.Device.
@@ -132,5 +141,6 @@ func (device *Device) Reset() error {
 		return err
 	}
 	device.fireEvent(event.EventKeystoreGone)
+	device.init()
 	return nil
 }
