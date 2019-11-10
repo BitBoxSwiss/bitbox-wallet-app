@@ -46,7 +46,8 @@ func NewAddressChain(
 		chainIndex:           chainIndex,
 		addresses:            []*AccountAddress{},
 		log: log.WithFields(logrus.Fields{"group": "addresses", "net": net.Name,
-			"gap-limit": gapLimit, "configuration": accountConfiguration.String()}),
+			"gap-limit": gapLimit, "chain-index": chainIndex,
+			"configuration": accountConfiguration.String()}),
 	}
 }
 
