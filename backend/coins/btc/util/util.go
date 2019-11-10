@@ -33,7 +33,7 @@ func ParseOutPoint(outPointBytes []byte) (*wire.OutPoint, error) {
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
-	index, err := strconv.ParseInt(split[1], 10, 32)
+	index, err := strconv.ParseUint(split[1], 10, 32)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}

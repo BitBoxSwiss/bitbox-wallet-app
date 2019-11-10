@@ -57,9 +57,10 @@ type DBTxInterface interface {
 	// MarkTxVerified marks a tx as verified. Stores timestamp of the header this tx appears in.
 	MarkTxVerified(txHash chainhash.Hash, headerTimestamp time.Time) error
 
-	// PutInput stores a transaction input. It is referenced by output it spends. The transaction
-	// hash of the transaction this input was found in is recorded. TODO: store slice of inputs
-	// along with the txhash they appear in. If there are more than one, a double spend is detected.
+	// PutInput stores a transaction input. It is referenced by the output it spends. The
+	// transaction hash of the transaction this input was found in is recorded. TODO: store slice of
+	// inputs along with the txhash they appear in. If there are more than one, a double spend is
+	// detected.
 	PutInput(wire.OutPoint, chainhash.Hash) error
 
 	// Input retrieves an input. `nil, nil` is returned if not found.

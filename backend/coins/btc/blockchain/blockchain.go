@@ -77,7 +77,7 @@ func (history TxHistory) Status() string {
 	return hex.EncodeToString(chainhash.HashB(status.Bytes()))
 }
 
-// ScriptHashHex is the hash of a pkScript in reverse hex format.
+// ScriptHashHex is the hash of a pkScript in reverse hex format. Always 64 chars.
 type ScriptHashHex string
 
 // Header is returned by HeadersSubscribe().
