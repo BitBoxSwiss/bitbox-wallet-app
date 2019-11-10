@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/transactions"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
@@ -42,8 +43,13 @@ import (
 )
 
 const (
-	gapLimit       = 20
-	changeGapLimit = 6
+	// receiveAddressesLimit must be <= the receive scan gap limit, otherwise the outputs might not
+	// be found.
+	receiveAddressesLimit = 20
+
+	// maxGapLimit limits the maximum gap limit that can be used. It is an arbitrary number with the
+	// goal that the scanning will stop in a reasonable amount of time.
+	maxGapLimit = 2000
 )
 
 // Account is a account whose addresses are derived from an xpub.
@@ -175,6 +181,61 @@ func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
 
+// defaultGapLimits returns the default gap limits for this account.
+func (account *Account) defaultGapLimits() types.GapLimits {
+	limits := types.GapLimits{
+		Receive: 20,
+		Change:  6,
+	}
+
+	if account.signingConfiguration.Singlesig() &&
+		account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
+		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
+		limits.Change = 20
+
+		// usually 20, but BWS used to not have any limit. We put it fairly high to cover most
+		// outliers.
+		limits.Receive = 60
+		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
+	}
+
+	return limits
+}
+
+// gapLimits gets the gap limits as stored in the account configuration, and defaults to
+// `defaultGapLimits()` if there is no configuration or the configuration limits are smaller than
+// the default limits.
+func (account *Account) gapLimits() (types.GapLimits, error) {
+	dbTx, err := account.db.Begin()
+	if err != nil {
+		return types.GapLimits{}, err
+	}
+	defer dbTx.Rollback()
+
+	defaultLimits := account.defaultGapLimits()
+
+	limits, err := dbTx.GapLimits()
+	if err != nil {
+		return types.GapLimits{}, err
+	}
+	if limits.Receive < defaultLimits.Receive {
+		limits.Receive = defaultLimits.Receive
+	}
+	if limits.Receive > maxGapLimit {
+		limits.Receive = maxGapLimit
+	}
+	if limits.Change < defaultLimits.Change {
+		limits.Change = defaultLimits.Change
+	}
+	if limits.Change > maxGapLimit {
+		limits.Change = maxGapLimit
+	}
+	if receiveAddressesLimit > limits.Receive {
+		panic("receive address limit must be smaller")
+	}
+	return limits, nil
+}
+
 // Initialize initializes the account.
 func (account *Account) Initialize() error {
 	alreadyInitialized, err := func() (bool, error) {
@@ -242,18 +303,12 @@ func (account *Account) Initialize() error {
 		account.coin.Net(), account.db, theHeaders, account.synchronizer,
 		account.blockchain, account.notifier, account.log)
 
-	fixGapLimit := gapLimit
-	fixChangeGapLimit := changeGapLimit
-	if account.signingConfiguration.Singlesig() &&
-		account.signingConfiguration.ScriptType() == signing.ScriptTypeP2PKH {
-		// usually 6, but BWS uses 20, so for legacy accounts, we have to do that too.
-		fixChangeGapLimit = 20
-
-		// usually 20, but BWS used to not have any limit. We put it fairly high to cover most
-		// outliers.
-		fixGapLimit = 60
-		account.log.Warning("increased change gap limit to 20 and gap limit to 60 for BWS compatibility")
+	gapLimits, err := account.gapLimits()
+	if err != nil {
+		return err
 	}
+
+	account.log.Infof("gap limits: receive=%d, change=%d", gapLimits.Receive, gapLimits.Change)
 
 	if account.signingConfiguration.IsAddressBased() {
 		account.receiveAddresses = addresses.NewSingleAddress(
@@ -263,10 +318,9 @@ func (account *Account) Initialize() error {
 			account.signingConfiguration, account.coin.Net(), account.log)
 	} else {
 		account.receiveAddresses = addresses.NewAddressChain(
-			account.signingConfiguration, account.coin.Net(), fixGapLimit, 0, account.log)
-		account.log.Debug("creating change address chain structure")
+			account.signingConfiguration, account.coin.Net(), int(gapLimits.Receive), 0, account.log)
 		account.changeAddresses = addresses.NewAddressChain(
-			account.signingConfiguration, account.coin.Net(), fixChangeGapLimit, 1, account.log)
+			account.signingConfiguration, account.coin.Net(), int(gapLimits.Change), 1, account.log)
 	}
 	account.ensureAddresses()
 	account.blockchain.HeadersSubscribe(func() func(error) { return func(error) {} }, account.onNewHeader)
@@ -592,7 +646,7 @@ func (account *Account) GetUnusedReceiveAddresses() []accounts.Address {
 		return addresses
 	}
 	// Limit to `gapLimit` receive addresses, even if the actual limit is higher when scanning.
-	for _, address := range account.receiveAddresses.GetUnused()[:gapLimit] {
+	for _, address := range account.receiveAddresses.GetUnused()[:receiveAddressesLimit] {
 		addresses = append(addresses, address)
 	}
 	return addresses
