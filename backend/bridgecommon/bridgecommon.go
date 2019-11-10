@@ -18,6 +18,7 @@ package bridgecommon
 
 import (
 	"bytes"
+	"encoding/hex"
 	"net/http"
 	"runtime"
 	"runtime/debug"
@@ -169,10 +170,7 @@ func Serve(
 		shutdown = nil
 	}
 
-	token, err = random.HexString(16)
-	if err != nil {
-		log.WithError(err).Fatal("Failed to generate random string")
-	}
+	token = hex.EncodeToString(random.BytesOrPanic(16))
 
 	events := backend.Events()
 	go func() {
