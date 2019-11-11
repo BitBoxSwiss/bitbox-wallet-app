@@ -66,6 +66,9 @@ Within the Docker dev environment, build the Android App: `make android`
 The Android Sdk is assumed to be in `/opt/android-sdk`. Use `make android ANDROID_SDK_ROOT=...` to
 use a different Sdk location.
 
+To update the app icon, execute `frontends/android/mkicon.sh`.
+The script isn't run during `make android` build.
+
 Build artifacts:
 * `frontends/android/BitBox/app/build/outputs/apk/*`
 
