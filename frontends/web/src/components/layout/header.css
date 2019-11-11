@@ -69,6 +69,7 @@
 }
 
 .sidebarToggler {
+    z-index: 5000;
     width: 32px;
     height: 32px;
     margin-right: var(--spacing-default);
@@ -122,5 +123,10 @@
 
     .container .sidebarToggler {
         margin-right: 0;
+    }
+
+    .children > a,
+    .guideIcon {
+        font-size: var(--size-small);
     }
 }
