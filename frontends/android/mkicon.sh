@@ -5,7 +5,7 @@ set -e
 
 thisdir=$(dirname ${0})
 source=${thisdir}/../qt/resources/app_icon_source.png
-res=${thisdir}/BitBox/app/src/main/res
+res=${thisdir}/BitBoxApp/app/src/main/res
 
 convert -resize 48x48 ${source} ${res}/mipmap-mdpi/ic_launcher.png
 convert -resize 72x72 ${source} ${res}/mipmap-hdpi/ic_launcher.png
