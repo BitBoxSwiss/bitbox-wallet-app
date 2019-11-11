@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
+import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostname';
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
@@ -159,6 +160,7 @@ class BaseSettings extends Component<Props, State> {
             updateInfo,
             updateAvailable,
             apiPrefix,
+            getBaseInfo,
         }: RenderableProps<Props>,
         {
             expandedDashboard,
@@ -365,7 +367,10 @@ class BaseSettings extends Component<Props, State> {
                                                 </div>
                                             </div>
                                             <div className="box slim divide">
-                                            <SettingsButton>{t('bitboxBase.settings.node.changeName')}</SettingsButton>
+                                            <ChangeBaseHostname
+                                                apiPrefix={apiPrefix}
+                                                currentHostname={baseInfo.hostname}
+                                                getBaseInfo={getBaseInfo} />
                                             <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
                                             <SettingsButton
                                                 optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
