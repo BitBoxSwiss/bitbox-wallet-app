@@ -265,11 +265,13 @@
       "node": {
         "bitcoinRestarting": "Base services are restarting...",
         "changeName": "Change name",
+        "changeNameTitle": "Change BitBoxBase hostname",
         "confirmTorEnabled": {
           "false": "Are you sure you want to <strong>enable</strong> Tor?\n $t(bitboxBase.settings.node.warning)",
           "true": "Are you sure you want to <strong>disable</strong> Tor?\n This can have serious and irreversible implications regarding privacy and is not recommended.\n $t(bitboxBase.settings.node.warning)"
         },
         "disconnect": "Disconnect",
+        "newName": "Enter new hostname",
         "password": "Change password",
         "title": "Node",
         "tor": "Tor",
