@@ -1,7 +1,7 @@
 export ANDROID_SDK_ROOT := /opt/android-sdk
 apk-debug:
 	${MAKE} prepare-android
-	cd BitBox && ./gradlew assemble
+	cd BitBoxApp && ./gradlew assemble
 deploy-debug:
 	adb install -r ./BitBoxApp/app/build/outputs/apk/debug/app-debug.apk
 clean:
