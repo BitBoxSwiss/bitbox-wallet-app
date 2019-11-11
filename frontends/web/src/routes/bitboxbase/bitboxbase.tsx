@@ -431,7 +431,8 @@ class BitBoxBase extends Component<Props, State> {
                         connectElectrum={this.connectElectrum}
                         apiPrefix={this.apiPrefix()}
                         updateAvailable={updateAvailable}
-                        updateInfo={updateInfo} />
+                        updateInfo={updateInfo}
+                        getBaseInfo={this.getBaseInfo} />
                 );
             }
             return (
