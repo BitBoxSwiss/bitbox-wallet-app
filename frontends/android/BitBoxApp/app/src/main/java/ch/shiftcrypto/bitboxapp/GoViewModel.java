@@ -1,4 +1,4 @@
-package com.shiftcryptosecurity.bitbox;
+package ch.shiftcrypto.bitboxapp;
 
 import goserver.GoDeviceInfoInterface;
 import goserver.GoEnvironmentInterface;
@@ -18,11 +18,9 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
-import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 
-import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Iterator;
 

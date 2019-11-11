@@ -1,4 +1,4 @@
-package com.shiftcryptosecurity.bitbox;
+package ch.shiftcrypto.bitboxapp;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void log(String msg) {
-        Log.d("com.shiftcryptosecurity.bitbox", "XYZ: " + msg);
+        Log.d("ch.shiftcrypto.bitboxapp", "XYZ: " + msg);
     }
 
     @Override

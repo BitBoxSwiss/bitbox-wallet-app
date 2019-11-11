@@ -4,7 +4,7 @@ android {
     buildToolsVersion "29.0.0"
     compileSdkVersion 29
     defaultConfig {
-        applicationId "com.shiftcryptosecurity.bitbox"
+        applicationId "ch.shiftcrypto.bitboxapp"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1

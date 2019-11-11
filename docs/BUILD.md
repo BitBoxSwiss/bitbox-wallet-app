@@ -70,7 +70,7 @@ To update the app icon, execute `frontends/android/mkicon.sh`.
 The script isn't run during `make android` build.
 
 Build artifacts:
-* `frontends/android/BitBox/app/build/outputs/apk/*`
+* `frontends/android/BitBoxApp/app/build/outputs/apk/*`
 
 ## Cross compile from GNU/Linux to Windows
 It is not currently possible to cross compile the BitBox wallet for Windows.
