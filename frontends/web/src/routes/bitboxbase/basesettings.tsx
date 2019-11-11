@@ -23,6 +23,7 @@ import { Header } from '../../components/layout/header';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import * as spinnerStyle from '../../components/spinner/Spinner.css';
+import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
@@ -36,6 +37,7 @@ interface SettingsProps {
     serviceInfo: BitBoxBaseServiceInfo;
     disconnect: () => void;
     connectElectrum: () => void;
+    getBaseInfo: () => void;
     apiPrefix: string;
     updateAvailable?: boolean;
     updateInfo?: BaseUpdateInfo;
@@ -57,6 +59,10 @@ interface State {
         updatePercentage: number,
         updateKBDownloaded: number,
     };
+    waitDialog?: {
+        title?: string;
+        text?: string;
+    };
 }
 
 type Props = SettingsProps & TranslateProps;
@@ -72,6 +78,7 @@ class BaseSettings extends Component<Props, State> {
                 updatePercentage: 0,
                 updateKBDownloaded: 0,
             },
+            waitDialog: undefined,
         };
     }
 
@@ -122,6 +129,22 @@ class BaseSettings extends Component<Props, State> {
         });
     }
 
+    private toggleTor = (enableTor: boolean) => {
+        this.setState({ waitDialog: {
+            title: this.props.t('generic.applying'),
+            text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
+        }});
+        apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
+        .then(response => {
+            if (response.success) {
+                this.props.getBaseInfo();
+                this.setState({waitDialog: undefined});
+            } else {
+                alertUser(response.message);
+            }
+        });
+    }
+
     public componentWillUnmount() {
         this.unsubscribe();
     }
@@ -141,12 +164,22 @@ class BaseSettings extends Component<Props, State> {
             expandedDashboard,
             updating,
             updateProgress,
+            waitDialog,
         }: State,
     ) {
         return (
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('bitboxBase.settings.title')}</h2>} />
+
+                    {
+                        waitDialog && (
+                        <WaitDialog title={waitDialog.title}>
+                            {waitDialog.text}
+                        </WaitDialog>
+                        )
+                    }
+
                     <div className="innerContainer scrollableContainer">
                         <div className={style.dashboardContainer}>
                             <div className={[style.dashboard, expandedDashboard ? style.expanded : ''].join(' ')}>
@@ -332,11 +365,21 @@ class BaseSettings extends Component<Props, State> {
                                                 </div>
                                             </div>
                                             <div className="box slim divide">
-                                                <SettingsButton>{t('bitboxBase.settings.node.changeName')}</SettingsButton>
-                                                <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
-                                                <SettingsButton optionalText="Enabled">{t('bitboxBase.settings.node.tor')}</SettingsButton>
-                                                <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
-                                            </div>
+                                            <SettingsButton>{t('bitboxBase.settings.node.changeName')}</SettingsButton>
+                                            <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
+                                            <SettingsButton
+                                                optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
+                                                onClick={() => {
+                                                    confirmation(t(`bitboxBase.settings.node.confirmTorEnabled.${baseInfo.isTorEnabled}`), confirmed => {
+                                                        if (confirmed) {
+                                                            this.toggleTor(!baseInfo.isTorEnabled);
+                                                        }
+                                                    });
+                                                }}>
+                                                {t('bitboxBase.settings.node.tor')}
+                                            </SettingsButton>
+                                            <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
+                                        </div>
                                         </div>
                                         <div className="column column-1-3">
                                             <div class="subHeaderContainer">
