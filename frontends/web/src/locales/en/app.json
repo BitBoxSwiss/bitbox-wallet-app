@@ -19,6 +19,7 @@
   "accountInfo": {
     "address": "Address",
     "extendedPublicKey": "Extended public key",
+    "label": "Account info",
     "title": "Account information",
     "verify": "Verify on device"
   },

@@ -103,3 +103,37 @@
     66% { opacity: 1; }
     100% { opacity: 0; }
 }
+
+.togglerContainer {
+    position: fixed;
+    top: calc((var(--header-height) - 32px) / 2);
+    max-width: var(--content-width);
+    width: 100%;
+    padding: 0 var(--space-default);
+    z-index: 1;
+}
+
+.toggler {
+    width: 32px;
+    height: 32px;
+    margin-right: var(--spacing-default);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.toggler img {
+    width: 20px;
+}
+
+@media (min-width: 1322px) {
+    .togglerContainer {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .togglerContainer {
+        padding: 0 var(--space-half);
+    }
+}

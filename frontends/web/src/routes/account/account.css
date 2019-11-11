@@ -61,6 +61,12 @@
     background-color: var(--color-lightblue);
 }
 
+.accountIcon {
+    width: 24px;
+    height: 24px;
+    margin-right: calc(var(--space-quarter) / 2);
+}
+
 @media (max-width: 768px) {
     .actionsContainer {
         transform: translateY(-34%);

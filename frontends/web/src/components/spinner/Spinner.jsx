@@ -16,6 +16,8 @@
 
 import { Component, h } from 'preact';
 import * as style from './Spinner.css';
+import MenuIcon from '../../assets/icons/menu.svg';
+import { toggleSidebar } from '../sidebar/sidebar';
 
 export default class Spinner extends Component {
     componentWillMount() {
@@ -37,6 +39,11 @@ export default class Spinner extends Component {
     }, {}) {
         return (
             <div className={style.spinnerContainer}>
+                <div className={style.togglerContainer}>
+                    <div className={style.toggler} onClick={toggleSidebar}>
+                        <img src={MenuIcon} />
+                    </div>
+                </div>
                 {
                     text && (
                         <p className={style.spinnerText}>{text}</p>
