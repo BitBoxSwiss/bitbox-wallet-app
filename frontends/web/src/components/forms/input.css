@@ -54,3 +54,8 @@
 .errorText > span > span {
     margin-left: 5px;
 }
+
+.input input[type=checkbox] {
+    width: auto;
+    height: auto;
+}
