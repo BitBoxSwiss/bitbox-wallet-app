@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
 import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostname';
+import { ChangeBasePassword } from '../../components/bitboxbase/changebasepassword';
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
@@ -371,7 +372,7 @@ class BaseSettings extends Component<Props, State> {
                                                 apiPrefix={apiPrefix}
                                                 currentHostname={baseInfo.hostname}
                                                 getBaseInfo={getBaseInfo} />
-                                            <SettingsButton>{t('bitboxBase.settings.node.password')}</SettingsButton>
+                                            <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
                                                 optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
                                                 onClick={() => {
