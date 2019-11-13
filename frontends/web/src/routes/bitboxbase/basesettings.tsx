@@ -379,18 +379,24 @@ class BaseSettings extends Component<Props, State> {
                                                 <SettingsButton>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
                                             </div>
                                         </div>
-                                        <div className="column column-1-3">
-                                            <div class="subHeaderContainer">
-                                                <div class="subHeader">
-                                                    <h3>{t('bitboxBase.settings.advanced.title')}</h3>
-                                                </div>
-                                            </div>
-                                            <div className="box slim divide">
-                                                <SettingsButton optionalText="Disabled">{t('bitboxBase.settings.advanced.sshAccess')}</SettingsButton>
-                                                <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
-                                                <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
-                                                <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
-                                                <SettingsButton danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                    </div>
+                                    <hr/>
+                                    <div className="content p-none">
+                                        <div className="columns">
+                                            <div className="column column-1-3">
+                                                <details>
+                                                    <summary className={style.summary}>
+                                                        {t('bitboxBase.settings.advanced.title')}
+                                                    </summary>
+                                                    <div className="box slim divide">
+                                                        <SettingsButton optionalText="Disabled">{t('bitboxBase.settings.advanced.sshAccess')}</SettingsButton>
+                                                        <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
+                                                        <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
+                                                        <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
+                                                        <SettingsButton danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                                    </div>
+
+                                                </details>
                                             </div>
                                         </div>
                                     </div>
