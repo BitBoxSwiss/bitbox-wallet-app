@@ -47,7 +47,8 @@ type Base interface {
 	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
 	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
 	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
-	SetRootPassword(string) error
+	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
+	SetLoginPassword(string) error
 	ShutdownBase() error
 	RebootBase() error
 	UpdateBase(rpcmessages.UpdateBaseArgs) error
@@ -92,7 +93,8 @@ func NewHandlers(
 	handleFunc("/enable-tor-ssh", handlers.postEnableTorSSHHandler).Methods("POST")
 	handleFunc("/enable-clearnet-ibd", handlers.postEnableClearnetIBDHandler).Methods("POST")
 	handleFunc("/enable-root-login", handlers.postEnableRootLoginHandler).Methods("POST")
-	handleFunc("/set-root-password", handlers.postSetRootPasswordHandler).Methods("POST")
+	handleFunc("/enable-ssh-password-login", handlers.postEnableSSHPasswordLoginHandler).Methods("POST")
+	handleFunc("/set-login-password", handlers.postSetLoginPasswordHandler).Methods("POST")
 	handleFunc("/shutdown-base", handlers.postShutdownBaseHandler).Methods("POST")
 	handleFunc("/reboot-base", handlers.postRebootBaseHandler).Methods("POST")
 	handleFunc("/update-base", handlers.postUpdateBaseHandler).Methods("POST")
@@ -383,8 +385,23 @@ func (handlers *Handlers) postEnableRootLoginHandler(r *http.Request) (interface
 	}, nil
 }
 
-func (handlers *Handlers) postSetRootPasswordHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("Set root password")
+func (handlers *Handlers) postEnableSSHPasswordLoginHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable SSH password login")
+	var toggleAction bool
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableSSHPasswordLogin(toggleActionArgs); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postSetLoginPasswordHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Set login password")
 	payload := struct {
 		Password string `json:"password"`
 	}{}
@@ -392,7 +409,7 @@ func (handlers *Handlers) postSetRootPasswordHandler(r *http.Request) (interface
 		return bbBaseError(err, handlers.log), nil
 	}
 
-	err := handlers.base.SetRootPassword(payload.Password)
+	err := handlers.base.SetLoginPassword(payload.Password)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}

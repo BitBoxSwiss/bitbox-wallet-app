@@ -45,10 +45,10 @@ type SetHostnameArgs struct {
 	Token    string
 }
 
-// SetRootPasswordArgs is a struct that holds the to be set root password
-type SetRootPasswordArgs struct {
-	RootPassword string
-	Token        string
+// SetLoginPasswordArgs is a struct that holds the to be set login password
+type SetLoginPasswordArgs struct {
+	LoginPassword string
+	Token         string
 }
 
 // ToggleSettingArgs is a generic message for settings that can be enabled or disabled
