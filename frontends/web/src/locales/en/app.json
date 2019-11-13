@@ -278,7 +278,8 @@
         "warning": "Please allow 1-2 minutes for changes to take effect."
       },
       "system": {
-        "confirmRestart": "Your BitBoxBase will now restart and you will need to reconnect to it once ready. $t(generic.confirmToContinue)",
+        "confirmRestart": "Your BitBoxBase will now <strong>restart</strong> and you will need to reconnect to it once ready.\n $t(generic.confirmToContinue)",
+        "confirmShutdown": "Your BitBoxBase will now <strong>shut down</strong> and you will have to turn it back on manually.\n $t(generic.confirmToContinue)",
         "confirmUpdate": "Would you like to update your BitBoxBase from version {{current}} to {{newVersion}}?",
         "restart": "Restart",
         "shutdown": "Shutdown",

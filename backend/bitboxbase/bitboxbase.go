@@ -615,6 +615,11 @@ func (base *BitBoxBase) ShutdownBase() error {
 	if !reply.Success {
 		return &reply
 	}
+	// FIXME: Change backend node management to status: offline
+	err = base.Deregister()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -631,6 +636,7 @@ func (base *BitBoxBase) RebootBase() error {
 	if !reply.Success {
 		return &reply
 	}
+	// FIXME: Change backend node management to status: rebooting
 	err = base.Deregister()
 	if err != nil {
 		return err
