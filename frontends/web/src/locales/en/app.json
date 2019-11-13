@@ -246,7 +246,13 @@
         "manual": "Manual update",
         "port": "Port",
         "reset": "Reset to factory settings",
-        "sshAccess": "SSH access",
+        "sshAccess": {
+          "button": "SSH password login",
+          "confirm": "Would you like to {{toggle}} SSH password authentication?",
+          "inProgress": "Toggling SSH password authentication",
+          "success": "SSH password authentication {{enabled}}",
+          "title": "SSH access"
+        },
         "subheaders": {
           "bitcoin": "Bitcoin Core",
           "electrs": "Electrs",
@@ -524,6 +530,10 @@
     "applying": "Applying configuration",
     "confirmToContinue": "Please confirm to continue.",
     "description": "Description",
+    "enable": {
+      "true": "disable",
+      "false": "enable"
+    },
     "enabled": {
       "false": "Disabled",
       "true": "Enabled"

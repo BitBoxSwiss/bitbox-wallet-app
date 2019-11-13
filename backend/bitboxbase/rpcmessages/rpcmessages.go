@@ -125,21 +125,21 @@ type GetBaseUpdateProgressResponse struct {
 
 // GetBaseInfoResponse is the struct that gets sent by the RPC server during a GetBaseInfo RPC call
 type GetBaseInfoResponse struct {
-	ErrorResponse       *ErrorResponse
-	Status              string `json:"status"`
-	Hostname            string `json:"hostname"`
-	MiddlewareLocalIP   string `json:"middlewareLocalIP"`
-	MiddlewareLocalPort string `json:"middlewareLocalPort"`
-	MiddlewareTorOnion  string `json:"middlewareTorOnion"`
-	MiddlewareTorPort   string `json:"middlewareTorPort"`
-	IsTorEnabled        bool   `json:"isTorEnabled"`
-	IsBitcoindListening bool   `json:"isBitcoindListening"`
-	FreeDiskspace       int64  `json:"freeDiskspace"`  // in Byte
-	TotalDiskspace      int64  `json:"totalDiskspace"` // in Byte
-	BaseVersion         string `json:"baseVersion"`
-	BitcoindVersion     string `json:"bitcoindVersion"`
-	LightningdVersion   string `json:"lightningdVersion"`
-	ElectrsVersion      string `json:"electrsVersion"`
+	ErrorResponse             *ErrorResponse
+	Status                    string `json:"status"`
+	Hostname                  string `json:"hostname"`
+	MiddlewareLocalIP         string `json:"middlewareLocalIP"`
+	MiddlewarePort            string `json:"middlewarePort"`
+	MiddlewareTorOnion        string `json:"middlewareTorOnion"`
+	IsTorEnabled              bool   `json:"isTorEnabled"`
+	IsBitcoindListening       bool   `json:"isBitcoindListening"`
+	IsSSHPasswordLoginEnabled bool   `json:"IsSSHPasswordLoginEnabled"`
+	FreeDiskspace             int64  `json:"freeDiskspace"`  // in Byte
+	TotalDiskspace            int64  `json:"totalDiskspace"` // in Byte
+	BaseVersion               string `json:"baseVersion"`
+	BitcoindVersion           string `json:"bitcoindVersion"`
+	LightningdVersion         string `json:"lightningdVersion"`
+	ElectrsVersion            string `json:"electrsVersion"`
 }
 
 // GetServiceInfoResponse is the struct that gets sent by the RPC server during a GetServiceInfo RPC call
