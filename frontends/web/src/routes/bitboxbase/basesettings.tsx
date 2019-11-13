@@ -120,6 +120,15 @@ class BaseSettings extends Component<Props, State> {
                 });
             }
 
+    private shutdown = () => {
+        apiPost(this.props.apiPrefix + '/shutdown-base')
+                .then(response => {
+                    if (!response.success) {
+                        alertUser(response.message);
+                    }
+                });
+            }
+
     private updateBase = (version: string) => {
         this.setState({ updating: true });
         apiPost(this.props.apiPrefix + '/update-base', {version})
@@ -414,7 +423,13 @@ class BaseSettings extends Component<Props, State> {
                                                         }
                                                     });
                                                 }}>{t('bitboxBase.settings.system.restart')}</SettingsButton>
-                                                <SettingsButton>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
+                                                <SettingsButton onClick={() => {
+                                                    confirmation(t('bitboxBase.settings.system.confirmShutdown'), confirmed => {
+                                                        if (confirmed) {
+                                                            this.shutdown();
+                                                        }
+                                                    });
+                                                }}>{t('bitboxBase.settings.system.shutdown')}</SettingsButton>
                                             </div>
                                         </div>
                                         <div className="column column-1-3">
