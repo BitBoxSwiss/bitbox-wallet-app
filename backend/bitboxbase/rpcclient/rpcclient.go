@@ -403,12 +403,24 @@ func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetti
 	return reply, nil
 }
 
-// SetRootPassword makes an rpc call to BitBoxBase that sets the systems root password
-func (rpcClient *RPCClient) SetRootPassword(args rpcmessages.SetRootPasswordArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Println("Executing SetRootPassword rpc call")
+// EnableSSHPasswordLogin makes an rpc call to BitBoxBase that enables/disables the ssh login with a password based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableSSHPasswordLogin: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableSSHPasswordLogin", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// SetLoginPassword makes an rpc call to BitBoxBase that sets the system main ssh/login password
+func (rpcClient *RPCClient) SetLoginPassword(args rpcmessages.SetLoginPasswordArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing SetLoginPassword rpc call")
 	args.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.SetRootPassword", args, &reply)
+	err := rpcClient.client.Call("RPCServer.SetLoginPassword", args, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
