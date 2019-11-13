@@ -257,7 +257,10 @@
         "title": "Advanced"
       },
       "backups": {
+        "confirmBackup": "Would you like to create a new backup?",
         "create": "Create backup",
+        "created": "Backup created successfully.",
+        "creating": "Creating backup...",
         "manage": "Manage backups",
         "restore": "Restore backup",
         "title": "Backups"

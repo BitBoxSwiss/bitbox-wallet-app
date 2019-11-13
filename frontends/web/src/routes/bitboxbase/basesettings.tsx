@@ -18,6 +18,7 @@ import { Component, h, RenderableProps } from 'preact';
 import { alertUser } from '../../components/alert/Alert';
 import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostname';
 import { ChangeBasePassword } from '../../components/bitboxbase/changebasepassword';
+import { CreateBaseBackup } from '../../components/bitboxbase/createbasebackup';
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
@@ -439,7 +440,7 @@ class BaseSettings extends Component<Props, State> {
                                                 </div>
                                             </div>
                                             <div className="box slim divide">
-                                                <SettingsButton>{t('bitboxBase.settings.backups.create')}</SettingsButton>
+                                                <CreateBaseBackup apiPrefix={apiPrefix} />
                                                 <SettingsButton>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
                                             </div>
                                         </div>
