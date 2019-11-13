@@ -112,8 +112,11 @@ type Interface interface {
 	// EnableRootLogin enables/disables login via the root user/password
 	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
 
+	// EnableSSHPasswordLogin enables/disables the ssh login with a password
+	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
+
 	// SetRootPassword sets the systems root password
-	SetRootPassword(string) error
+	SetLoginPassword(string) error
 
 	// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
 	ShutdownBase() error
@@ -566,13 +569,30 @@ func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingAr
 	return nil
 }
 
-// SetRootPassword sets the systems root password
-func (base *BitBoxBase) SetRootPassword(password string) error {
+// EnableSSHPasswordLogin enables/disables the ssh login with a password
+func (base *BitBoxBase) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableSSHPasswordLogin: %t' call\n", toggleAction.ToggleSetting)
+	reply, err := base.rpcClient.EnableSSHPasswordLogin(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// SetLoginPassword sets the systems root password
+func (base *BitBoxBase) SetLoginPassword(password string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a SetRootPassword call")
-	reply, err := base.rpcClient.SetRootPassword(rpcmessages.SetRootPasswordArgs{RootPassword: password})
+	reply, err := base.rpcClient.SetLoginPassword(rpcmessages.SetLoginPasswordArgs{LoginPassword: password})
 	if err != nil {
 		return err
 	}
