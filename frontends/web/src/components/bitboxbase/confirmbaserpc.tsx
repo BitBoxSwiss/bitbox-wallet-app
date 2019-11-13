@@ -21,6 +21,7 @@
   * the result.
   * It should be provided via the props with the text for all the states relevant to the action being executed
   * as well as one of pre-defined API endpoints to call.
+  * If it is a POST request which requires arguments, provide them in 'args' on the props
   */
 
 import { Component, h, RenderableProps } from 'preact';
@@ -39,7 +40,9 @@ interface ConfirmBaseRPCProps {
     inProgressText: string;
     successText: string;
     dialogTitle: string;
+    args?: any;
     toggleDialog: () => void;
+    onSuccess?: () => void;
 }
 
 interface State {
@@ -62,9 +65,11 @@ class ConfirmBaseRPC extends Component<Props, State> {
     private apiCall = (event: Event) => {
         event.preventDefault();
         this.setState({ inProgress: true });
-        apiPost(this.props.apiPrefix + this.props.apiEndpoint)
+        apiPost(this.props.apiPrefix + this.props.apiEndpoint, this.props.args)
         .then(response => {
             if (response.success) {
+                // tslint:disable-next-line: no-unused-expression
+                this.props.onSuccess && this.props.onSuccess();
                 this.setState({ success: true });
             } else {
                 this.setState({ success: false, failureMessage: response.message });

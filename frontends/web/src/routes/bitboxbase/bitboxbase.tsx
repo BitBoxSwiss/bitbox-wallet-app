@@ -47,6 +47,7 @@ export interface BitBoxBaseInfo {
     middlewareTorPort: string;
     isTorEnabled: boolean;
     isBitcoindListening: boolean;
+    IsSSHPasswordLoginEnabled: boolean;
     freeDiskspace: number;
     totalDiskspace: number;
     baseVersion: string;
