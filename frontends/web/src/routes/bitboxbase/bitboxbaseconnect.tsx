@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
+import Sortable from 'sortablejs/modular/sortable.core.esm.js';
 import { alertUser } from '../../components/alert/Alert';
 import * as style from '../../components/bitboxbase/bitboxbase.css';
 import { DetectedBase } from '../../components/bitboxbase/detectedbase';
@@ -24,7 +25,6 @@ import * as dialogStyle from '../../components/dialog/dialog.css';
 import { Input } from '../../components/forms';
 import { BitBoxBaseLogo } from '../../components/icon';
 import { Header } from '../../components/layout';
-import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -67,6 +67,8 @@ interface State {
 type Props = SharedProps & BitBoxBaseConnectProps & TranslateProps;
 
 class BitBoxBaseConnect extends Component<Props, State> {
+    private sortableContainer!: HTMLElement;
+
     constructor(props) {
         super(props);
         this.state = {
@@ -74,6 +76,14 @@ class BitBoxBaseConnect extends Component<Props, State> {
             manualConnectDialog: false,
             ipEntry: '',
         };
+    }
+
+    public componentDidMount() {
+        Sortable.create(this.sortableContainer, {
+            handle: `.${style.baseItemSortable}`,
+            ghostClass: `.${style.baseItemGhost}`,
+            animation: 150,
+        });
     }
 
     private handleFormChange = event => {
@@ -141,6 +151,10 @@ class BitBoxBaseConnect extends Component<Props, State> {
 
     public componentWillUpdate() {
         this.setState({bitboxBaseIDs : this.props.bitboxBaseIDs});
+    }
+
+    private setSortableContainer = (el: HTMLElement) => {
+        this.sortableContainer = el;
     }
 
     public render(
@@ -227,22 +241,159 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="flex flex-row flex-between flex-items-center m-bottom-large">
                                             <label className="labelXLarge m-none">{t('bitboxBase.connectedBases')}</label>
                                         </div>
-                                        <div className="box slim divide">
+                                        <div className="box slim divide" ref={this.setSortableContainer}>
                                             {
                                                 bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
                                                     let name: string | undefined;
                                                     Object.values(detectedBases).includes(baseID) ? name = Object.keys(detectedBases).find(key => detectedBases[key] === baseID) :
                                                         // FIXME: Resolve a hostname from IP for manual additions
                                                         name = t('bitboxBase.new');
-                                                    return <SettingsButton
-                                                                onClick={() => this.setStatusAndRedirect(baseID)}
-                                                                secondaryText={baseID}>
-                                                                {name}
-                                                            </SettingsButton>;
+                                                    return (
+                                                        <div className={style.baseItem}>
+                                                            <div className={style.baseItemSortable}>
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="2"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round">
+                                                                    <path d="M6,16 L12,22 L18,16" />
+                                                                    <path d="M18,8 L12,2 L6,8" />
+                                                                    <path d="M12,2 L12,22" />
+                                                                </svg>
+                                                            </div>
+                                                            <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
+                                                            <span className={style.baseItemIp}>{baseID}</span>
+                                                            <div className={style.baseItemIndicator}>
+                                                                <span className={[style.dot, style.online].join(' ')}></span>
+                                                                <span>Online</span>
+                                                            </div>
+                                                            <a className={style.baseItemArrow} onClick={() => this.setStatusAndRedirect(baseID)}>
+                                                                <span>Manage</span>
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 0 24 24"
+                                                                    fill="none"
+                                                                    stroke="currentColor"
+                                                                    stroke-width="2"
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round">
+                                                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                                                </svg>
+                                                            </a>
+                                                        </div>
+                                                    );
                                                 }) : (
                                                     <p className="text-center p-top-half p-bottom-half">{t('bitboxBase.detectedBasesEmpty')}</p>
                                                 )
                                             }
+                                            <div className={style.baseItem}>
+                                                <div className={style.baseItemSortable}>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M6,16 L12,22 L18,16" />
+                                                        <path d="M18,8 L12,2 L6,8" />
+                                                        <path d="M12,2 L12,22" />
+                                                    </svg>
+                                                </div>
+                                                <a className={style.baseItemName}>Base1</a>
+                                                <span className={style.baseItemIp}>localhost:8333</span>
+                                                <div className={style.baseItemIndicator}>
+                                                    <span className={[style.dot, style.offline].join(' ')}></span>
+                                                    <span>Disconnected</span>
+                                                </div>
+                                                <a className={style.baseItemArrow}>
+                                                    <span>Manage</span>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <div className={style.baseItem}>
+                                                <div className={style.baseItemSortable}>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M6,16 L12,22 L18,16" />
+                                                        <path d="M18,8 L12,2 L6,8" />
+                                                        <path d="M12,2 L12,22" />
+                                                    </svg>
+                                                </div>
+                                                <a className={style.baseItemName}>Jumping BitBoxBase 2</a>
+                                                <span className={style.baseItemIp}>localhost:8333</span>
+                                                <div className={style.baseItemIndicator}>
+                                                    <span className={[style.dot, style.offline].join(' ')}></span>
+                                                    <span>Disconnected</span>
+                                                </div>
+                                                <a className={style.baseItemArrow}>
+                                                    <span>Manage</span>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <div className={style.baseItem}>
+                                                <div className={style.baseItemSortable}>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M6,16 L12,22 L18,16" />
+                                                        <path d="M18,8 L12,2 L6,8" />
+                                                        <path d="M12,2 L12,22" />
+                                                    </svg>
+                                                </div>
+                                                <a className={style.baseItemName}>Beautiful BitBoxBase 3</a>
+                                                <span className={style.baseItemIp}>localhost:8333</span>
+                                                <div className={style.baseItemIndicator}>
+                                                    <span className={[style.dot, style.online].join(' ')}></span>
+                                                    <span>Online</span>
+                                                </div>
+                                                <a className={style.baseItemArrow}>
+                                                    <span>Manage</span>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </a>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
