@@ -18,7 +18,7 @@ WEBROOT:=`pwd`/frontends/web
 catch:
 	@echo "Choose a make target."
 envinit:
-	GO111MODULE=off ./scripts/go-get.sh v1.19.1 github.com/golangci/golangci-lint/cmd/golangci-lint
+	curl -sfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh| sh -s -- -b $(GOPATH)/bin v1.19.1
 	GO111MODULE=off go get -u github.com/stretchr/testify # needed for mockery
 	GO111MODULE=off go get -u github.com/vektra/mockery/cmd/mockery
 	GO111MODULE=off go get -u github.com/goware/modvendor
