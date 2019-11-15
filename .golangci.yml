@@ -15,6 +15,9 @@ run:
   # include test files or not, default is true
   tests: true
 
+  # ignore go.mod and use vendor dir instead
+  modules-download-mode: vendor
+
 # output configuration options
 output:
   # colored-line-number|line-number|json|tab|checkstyle, default is "colored-line-number"
