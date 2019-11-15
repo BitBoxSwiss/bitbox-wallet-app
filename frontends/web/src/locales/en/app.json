@@ -241,6 +241,7 @@
     "new": "New BitBoxBase",
     "settings": {
       "advanced": {
+        "confirmSystemPassword": "This will set the BitBoxBase system password to use for <strong>ssh authentication and sudo access.</strong>\n$t(generic.confirmToContinue)",
         "connectElectrum": "Connect Electrum",
         "ipAddress": "IP address",
         "manual": "Manual update",
@@ -260,6 +261,8 @@
           "networking": "Networking"
         },
         "syncOptions": "Sync options",
+        "systemPassword": "Set system password",
+        "systemPasswordSuccess": "BitBoxBase system password set successfully.",
         "title": "Advanced"
       },
       "backups": {
@@ -532,8 +535,8 @@
     "confirmToContinue": "Please confirm to continue.",
     "description": "Description",
     "enable": {
-      "true": "disable",
-      "false": "enable"
+      "false": "enable",
+      "true": "disable"
     },
     "enabled": {
       "false": "Disabled",

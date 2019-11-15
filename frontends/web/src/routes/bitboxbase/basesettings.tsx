@@ -20,6 +20,7 @@ import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostna
 import { ChangeBasePassword } from '../../components/bitboxbase/changebasepassword';
 import { CreateBaseBackup } from '../../components/bitboxbase/createbasebackup';
 import { EnableSSHLogin } from '../../components/bitboxbase/enablesshlogin';
+import { SetBaseSystemPassword } from '../../components/bitboxbase/setbasesystempassword';
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
@@ -459,6 +460,7 @@ class BaseSettings extends Component<Props, State> {
                                                             apiPrefix={apiPrefix}
                                                             enabled={baseInfo.IsSSHPasswordLoginEnabled}
                                                             onSuccess={getBaseInfo} />
+                                                        <SetBaseSystemPassword apiPrefix={apiPrefix} />
                                                         <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
                                                         <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
                                                         <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
