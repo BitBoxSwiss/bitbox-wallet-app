@@ -222,7 +222,7 @@ class BaseSettings extends Component<Props, State> {
                                     </div>
                                     <div className={style.item}>
                                         <div className={style.dashboardItem}>
-                                            <p>TODO</p>
+                                            <p>{baseInfo.lightningActiveChannels}</p>
                                             <p>Lightning channels</p>
                                         </div>
                                     </div>
