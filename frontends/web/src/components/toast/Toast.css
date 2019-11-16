@@ -11,6 +11,7 @@
     padding: var(--space-half);
     box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.2);
     transition: transform ease-out 0.2s;
+    z-index: 1;
 }
 
 .active {
@@ -40,14 +41,17 @@
 
 @media (max-width: 1080px) {
     .toast {
-        right: 0;
+        /* right: 0; */
     }
 }
 
 @media (max-width: 768px) {
     .toast {
-        top: calc(var(--header-height) + var(--space-quarter));
+        position: initial;
+        transition: none;
+        transform: none;
+        /* top: calc(var(--header-height) + var(--space-quarter));
         max-width: calc(100% - var(--space-default));
-        margin-right: var(--space-half);
+        margin-right: var(--space-half); */
     }
 }

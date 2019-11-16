@@ -90,25 +90,29 @@ class Sidebar extends Component<Props> {
     }
 
     private handleTouchMove = (e: TouchEvent) => {
-        if (e.changedTouches && e.changedTouches.length) {
-            this.swipe.active = true;
+        if (!['forceHidden'].includes(this.props.sidebarStatus)) {
+            if (e.changedTouches && e.changedTouches.length) {
+                this.swipe.active = true;
+            }
         }
     }
 
     private handleTouchEnd = (e: TouchEvent) => {
-        const touch = e.changedTouches[0];
-        const travelX = Math.abs(touch.clientX - this.swipe.x);
-        const travelY = Math.abs(touch.clientY - this.swipe.y);
-        const validSwipe = window.innerWidth <= 901 && this.swipe.active && travelY < 100 && travelX > 70;
-        if ((!panelStore.state.activeSidebar && validSwipe && this.swipe.x < 60) ||
-            (panelStore.state.activeSidebar && validSwipe && this.swipe.x > 230)) {
-            toggleSidebar();
+        if (!['forceHidden'].includes(this.props.sidebarStatus)) {
+            const touch = e.changedTouches[0];
+            const travelX = Math.abs(touch.clientX - this.swipe.x);
+            const travelY = Math.abs(touch.clientY - this.swipe.y);
+            const validSwipe = window.innerWidth <= 901 && this.swipe.active && travelY < 100 && travelX > 70;
+            if ((!panelStore.state.activeSidebar && validSwipe && this.swipe.x < 60) ||
+                (panelStore.state.activeSidebar && validSwipe && this.swipe.x > 230)) {
+                toggleSidebar();
+            }
+            this.swipe = {
+                x: 0,
+                y: 0,
+                active: false,
+            };
         }
-        this.swipe = {
-            x: 0,
-            y: 0,
-            active: false,
-        };
     }
 
     private handleSidebarItemClick = (e: MouseEvent) => {
