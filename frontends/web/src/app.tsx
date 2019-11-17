@@ -17,6 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { getCurrentUrl, route } from 'preact-router';
 import { Alert } from './components/alert/Alert';
+import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
 import { store as panelStore } from './components/guide/guide';
@@ -187,6 +188,7 @@ class App extends Component<Props, State> {
                     accountsInitialized={accountsInitialized} />
                 <div class="appContent flex-column flex-1" style="min-width: 0;">
                     <Update />
+                    <Banner msgKey="bitbox01" />
                     <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"

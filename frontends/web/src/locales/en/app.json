@@ -415,6 +415,7 @@
     "oldLabel": "Current device password"
   },
   "checkSDcard": "checking microSD card",
+  "clickHere": "Click here.",
   "confirm": {
     "abortInfo": "Tap to ",
     "abortInfoRedText": "abort",

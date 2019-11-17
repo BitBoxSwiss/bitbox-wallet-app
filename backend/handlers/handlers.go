@@ -33,6 +33,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	baseHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -103,6 +104,7 @@ type Backend interface {
 	SystemOpen(string) error
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
+	Banners() *banners.Banners
 }
 
 // Handlers provides a web api to the backend.
@@ -173,6 +175,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/notify-user", handlers.postNotifyHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
@@ -351,6 +354,10 @@ func (handlers *Handlers) postOpenHandler(r *http.Request) (interface{}, error) 
 
 func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error) {
 	return handlers.backend.CheckForUpdateIgnoringErrors(), nil
+}
+
+func (handlers *Handlers) getBannersHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"])), nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {
