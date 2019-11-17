@@ -90,7 +90,7 @@ class Sidebar extends Component<Props> {
     }
 
     private handleTouchMove = (e: TouchEvent) => {
-        if (!['forceHidden'].includes(this.props.sidebarStatus)) {
+        if (this.props.sidebarStatus !== 'forceHidden') {
             if (e.changedTouches && e.changedTouches.length) {
                 this.swipe.active = true;
             }
@@ -98,7 +98,7 @@ class Sidebar extends Component<Props> {
     }
 
     private handleTouchEnd = (e: TouchEvent) => {
-        if (!['forceHidden'].includes(this.props.sidebarStatus)) {
+        if (this.props.sidebarStatus !== 'forceHidden') {
             const touch = e.changedTouches[0];
             const travelX = Math.abs(touch.clientX - this.swipe.x);
             const travelY = Math.abs(touch.clientY - this.swipe.y);
