@@ -388,8 +388,17 @@
 }
 
 @media (max-width: 768px) {
+    .steps {
+        height: 100%;
+    }
+
     .step {
         padding: var(--space-half);
+    }
+
+    .stepContext {
+        padding: var(--space-default) var(--space-half);
+        min-height: 0 !important;
     }
 
     .stepTitle h3 {
