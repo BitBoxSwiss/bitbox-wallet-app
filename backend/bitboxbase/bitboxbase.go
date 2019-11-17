@@ -35,6 +35,7 @@ import (
 
 // Interface represents bitbox base.
 type Interface interface {
+	observable.Interface
 
 	// Identifier returns the bitboxBaseID.
 	Identifier() string
@@ -59,9 +60,6 @@ type Interface interface {
 
 	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
 	Ping() (bool, error)
-
-	// Self returns an instance of the base
-	Self() *BitBoxBase
 
 	// Status returns the current status of the base
 	Status() bitboxbasestatus.Status
@@ -189,11 +187,6 @@ func NewBitBoxBase(address string,
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
-}
-
-// Self returns the current bitbox base instance.
-func (base *BitBoxBase) Self() *BitBoxBase {
-	return base
 }
 
 // ConnectRPCClient starts the connection with the remote bitbox base middleware
