@@ -26,7 +26,6 @@ ENV GOROOT /opt/go_dist/go
 ENV PATH $GOROOT/bin:$GOPATH/bin:$PATH
 
 ADD Makefile /tmp/
-ADD scripts/go-get.sh /tmp/scripts/
 RUN make -C /tmp/ envinit
 
 ENV PATH /opt/qt5/bin:$PATH
