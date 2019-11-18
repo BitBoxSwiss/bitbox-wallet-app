@@ -55,6 +55,7 @@ type Base interface {
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
 	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
+	FinalizeSetupWizard() error
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -98,6 +99,7 @@ func NewHandlers(
 	handleFunc("/shutdown-base", handlers.postShutdownBaseHandler).Methods("POST")
 	handleFunc("/reboot-base", handlers.postRebootBaseHandler).Methods("POST")
 	handleFunc("/update-base", handlers.postUpdateBaseHandler).Methods("POST")
+	handleFunc("/finalize-setup-wizard", handlers.postFinalizeSetupWizardHandler).Methods("POST")
 
 	return handlers
 }
@@ -450,6 +452,17 @@ func (handlers *Handlers) postUpdateBaseHandler(r *http.Request) (interface{}, e
 	}
 
 	err := handlers.base.UpdateBase(rpcmessages.UpdateBaseArgs{Version: payload.Version})
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postFinalizeSetupWizardHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Finalize Setup Wizard")
+	err := handlers.base.FinalizeSetupWizard()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}

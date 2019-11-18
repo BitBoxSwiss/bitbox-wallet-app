@@ -15,6 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
+import loadingStatic from '../../assets/icons/loading-static.png';
 import { alertUser } from '../../components/alert/Alert';
 import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostname';
 import { ChangeBasePassword } from '../../components/bitboxbase/changebasepassword';
@@ -39,7 +40,7 @@ import { updateStatus } from './bitboxbase.css';
 interface SettingsProps {
     baseID: string | null;
     baseInfo: BitBoxBaseInfo;
-    serviceInfo: BitBoxBaseServiceInfo;
+    serviceInfo?: BitBoxBaseServiceInfo;
     disconnect: () => void;
     connectElectrum: () => void;
     getBaseInfo: () => void;
@@ -211,13 +212,27 @@ class BaseSettings extends Component<Props, State> {
                                 <div className={style.items}>
                                     <div className={style.item}>
                                         <div className={style.dashboardItem}>
-                                            <p>{Math.round(100 * serviceInfo.bitcoindVerificationProgress)}%</p>
+                                            {
+                                                serviceInfo ?
+                                                <p>{Math.round(100 * serviceInfo.bitcoindVerificationProgress)}%</p>
+                                                :
+                                                <div className={style.loadingIconContainer}>
+                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                </div>
+                                            }
                                             <p>Sync status</p>
                                         </div>
                                     </div>
                                     <div className={style.item}>
                                         <div className={style.dashboardItem}>
-                                            <p>{serviceInfo.bitcoindPeers}</p>
+                                            {
+                                                serviceInfo ?
+                                                <p>{serviceInfo.bitcoindPeers}</p>
+                                                :
+                                                <div className={style.loadingIconContainer}>
+                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                </div>
+                                            }
                                             <p>Connected peers</p>
                                         </div>
                                     </div>
@@ -280,11 +295,21 @@ class BaseSettings extends Component<Props, State> {
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
                                                         <div>
                                                             <span className="label">Blocks</span>
-                                                            <p>{serviceInfo.bitcoindBlocks.toString()}</p>
+                                                            {
+                                                                serviceInfo ?
+                                                                <p>{serviceInfo.bitcoindBlocks.toString()}</p>
+                                                                :
+                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                            }
                                                         </div>
                                                         <div>
                                                             <span className="label">Headers</span>
-                                                            <p>{serviceInfo.bitcoindHeaders.toString()}</p>
+                                                            {
+                                                                serviceInfo ?
+                                                                <p>{serviceInfo.bitcoindHeaders.toString()}</p>
+                                                                :
+                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>
@@ -302,8 +327,15 @@ class BaseSettings extends Component<Props, State> {
                                                             <p>{baseInfo.lightningdVersion}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.lightning')} Blocks</span>
-                                                            <p>{serviceInfo.lightningdBlocks.toString()}</p>
+                                                            <span className="label">
+                                                                {t('bitboxBase.settings.advanced.subheaders.lightning')} Blocks
+                                                            </span>
+                                                            {
+                                                                serviceInfo ?
+                                                                <p>{serviceInfo.lightningdBlocks.toString()}</p>
+                                                                :
+                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                            }
                                                         </div>
                                                     </div>
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
@@ -312,8 +344,15 @@ class BaseSettings extends Component<Props, State> {
                                                             <p>{baseInfo.electrsVersion}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.electrs')} Blocks</span>
-                                                            <p>{serviceInfo.electrsBlocks.toString()}</p>
+                                                            <span className="label">
+                                                                {t('bitboxBase.settings.advanced.subheaders.electrs')} Blocks
+                                                            </span>
+                                                            {
+                                                                serviceInfo ?
+                                                                <p>{serviceInfo.electrsBlocks.toString()}</p>
+                                                                :
+                                                                <p className={style.loadingText}>{t('loading')}</p>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </div>

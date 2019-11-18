@@ -134,6 +134,9 @@ type Interface interface {
 	// BaseInfo returns information about the Base
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 
+	// FinalizeSetupWizard calls the FinalizeSetupWizard RPC to enable bitcoin and start bitcoin services
+	FinalizeSetupWizard() error
+
 	// ServiceInfo returns information about the services running on the Base
 	// As for example the bitcoind, electrs and ligthningd block height
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
@@ -415,7 +418,6 @@ func (base *BitBoxBase) BackupSysconfig() error {
 	if !reply.Success {
 		return &reply
 	}
-	base.changeStatus(bitboxbasestatus.StatusInitialized)
 	return nil
 }
 
@@ -719,6 +721,23 @@ func (base *BitBoxBase) UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse,
 		return rpcmessages.IsBaseUpdateAvailableResponse{}, reply.ErrorResponse
 	}
 	return reply, nil
+}
+
+// FinalizeSetupWizard calls the FinalizeSetupWizard RPC to enable bitcoin and start bitcoin services
+func (base *BitBoxBase) FinalizeSetupWizard() error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a FinalizeSetupWizard call")
+	reply, err := base.rpcClient.FinalizeSetupWizard()
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	base.changeStatus(bitboxbasestatus.StatusInitialized)
+	return nil
 }
 
 // Identifier implements a getter for the bitboxBase ID

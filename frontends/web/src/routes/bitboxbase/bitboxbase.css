@@ -106,7 +106,7 @@
     height: calc(var(--item-height) * 2.5);
 }
 
-.dashboardItem p:first-child {
+.dashboardItem p:not(:last-child) {
     font-size: 40px;
     font-weight: bold;
     line-height: 1;
@@ -181,7 +181,7 @@
 }
 
 /*
-The svg draws two lines which form a plus (-).
+The svg draws a line which forms a minus (-).
 */
 .consOptionsList {
     list-style-image: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-4 -6 24 24" width="16" height="16" fill="none" stroke="%23777777"><polyline points="0,8 16,8" stroke-width="3"/></svg>') !important;
@@ -243,4 +243,16 @@ The svg draws two lines which form a plus (-).
     line-height: 1;
     user-select: none;
     margin: calc(var(--space-half) * 1.5) 0
+}
+
+.loadingIconContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+}
+
+.loadingText {
+    color: var(--color-gray-alt)
 }

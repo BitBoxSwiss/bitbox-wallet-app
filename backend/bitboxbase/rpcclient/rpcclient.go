@@ -507,3 +507,15 @@ func (rpcClient *RPCClient) GetBaseUpdateInfo() (rpcmessages.IsBaseUpdateAvailab
 	}
 	return reply, nil
 }
+
+// FinalizeSetupWizard makes an rpc that calls the bbb-config.sh script to enable bitcoin services and the
+// bbb-systemctl.sh to start the services
+func (rpcClient *RPCClient) FinalizeSetupWizard() (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing FinalizeSetupWizard RPC")
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.FinalizeSetupWizard", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}

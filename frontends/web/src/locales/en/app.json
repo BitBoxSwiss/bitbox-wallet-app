@@ -318,7 +318,15 @@
   },
   "bitboxBaseWizard": {
     "backups": {
+      "created": "Your backup has been created on <strong>the USB flashdrive.</strong>",
+      "createdTitle": "Applying configuration",
+      "finalizing": "The BitBoxBase is now finalizing the setup. This only takes a few seconds.",
       "insert": "Insert a USB memory stick into the BitBoxBase to make a backup of your wallet.",
+      "list": {
+        "point1": "This backup contains sensitive information.",
+        "point2": "It allows you to reset the BitBoxBase management password.",
+        "point3": "Please <strong>remove the flashdrive</strong> now and store it in a secure location."
+      },
       "title": "Wallet Backup"
     },
     "bitcoin": {
@@ -413,8 +421,8 @@
       "title": "Choose setup"
     },
     "success": {
-      "backupCreated": "Your backup has been created. You may now remove the memory stick and store it in a secure location.",
       "button": "Go to dashboard",
+      "text": "It may take a minute or two for all dashboard information to be up to date.",
       "title": "You're ready to go!"
     },
     "welcome": "Welcome to your BitBoxBase"

@@ -33,6 +33,7 @@ import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
+import SimpleMarkup from '../../utils/simplemarkup';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -84,6 +85,7 @@ enum ActiveStep {
     ChooseNetwork,
     Backup,
     BackupCreated,
+    Ready,
 }
 
 // SyncingOptions correspond to API endpoints in the handlers
@@ -126,6 +128,7 @@ interface State {
     locked: boolean;
     updateAvailable?: boolean;
     updateInfo?: BaseUpdateInfo;
+    inProgress: boolean;
 }
 
 type Props = BitBoxBaseProps & TranslateProps;
@@ -150,6 +153,7 @@ class BitBoxBase extends Component<Props, State> {
             locked: true,
             updateAvailable: undefined,
             updateInfo: undefined,
+            inProgress: false,
         };
     }
 
@@ -228,12 +232,19 @@ class BitBoxBase extends Component<Props, State> {
                     });
                     break;
                 case 'initialized':
-                    this.setState({
-                        locked: false,
-                        showWizard: false,
-                    });
-                    this.getBaseInfo();
-                    this.getServiceInfo();
+                    // If we are at the last step of the wizard, don't go to the dashboard yet
+                    if (this.state.activeStep === ActiveStep.BackupCreated) {
+                        this.setState({
+                            locked: false,
+                        });
+                    } else {
+                        this.setState({
+                            locked: false,
+                            showWizard: false,
+                        });
+                        this.getBaseInfo();
+                        this.getServiceInfo();
+                    }
                     break;
                 default:
                     break;
@@ -339,15 +350,11 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private setNetwork = (networkOption: NetworkOptions, toggleSetting: boolean) => {
-        this.setState({ waitDialog: {
-            title: 'Getting everything ready',
-            text: 'Configuring network settings...',
-        }});
         apiPost(this.apiPrefix() + `/${networkOption}`, toggleSetting)
         .then(response => {
             if (response.success) {
                 if (this.state.syncingOption === SyncingOptions.Presync) {
-                    this.setState({ activeStep: ActiveStep.Backup, waitDialog: undefined });
+                    this.setState({ activeStep: ActiveStep.Backup });
                 } else {
                     this.setSyncingOption();
                 }
@@ -359,14 +366,10 @@ class BitBoxBase extends Component<Props, State> {
 
     private setSyncingOption = () => {
         if (this.state.syncingOption) {
-            this.setState({ waitDialog: {
-                title: 'Getting everything ready',
-                text: 'Configuring synchronization settings...',
-            }});
             apiPost(this.apiPrefix() + `/${this.state.syncingOption}`)
             .then(response => {
                 if (response.success) {
-                    this.setState({ activeStep: ActiveStep.Backup, waitDialog: undefined });
+                    this.setState({ activeStep: ActiveStep.Backup });
                 } else {
                     alertUser(response.message);
                 }
@@ -377,13 +380,26 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private createBackup = () => {
+        this.setState({ inProgress: true });
         apiPost(this.apiPrefix() + '/backup-sysconfig')
         .then(response => {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.BackupCreated });
+                this.finalizeSetup();
             } else {
                 alertUser(response.message);
+                this.setState({ inProgress: false });
             }
+        });
+    }
+
+    private finalizeSetup = () => {
+        apiPost(this.apiPrefix() + '/finalize-setup-wizard')
+        .then(response => {
+            if (!response.success) {
+                alertUser(response.message);
+            }
+            this.setState({ inProgress: false });
         });
     }
 
@@ -413,6 +429,7 @@ class BitBoxBase extends Component<Props, State> {
             serviceInfo,
             updateAvailable,
             updateInfo,
+            inProgress,
         }: State,
     ) {
         // TODO: Move wizard to basewizard.tsx and refactor
@@ -423,7 +440,7 @@ class BitBoxBase extends Component<Props, State> {
                 );
             }
 
-            if (baseInfo && serviceInfo) {
+            if (baseInfo) {
                 return (
                     <BaseSettings
                         baseID={bitboxBaseID}
@@ -745,8 +762,37 @@ class BitBoxBase extends Component<Props, State> {
                                 <div className={stepStyle.stepContext}>
                                     <p>{t('bitboxBaseWizard.backups.insert')}</p>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.createBackup()}>
-                                            {t('bitboxBase.settings.backups.create')}
+                                        <Button
+                                            primary
+                                            disabled={inProgress}
+                                            onClick={() => this.createBackup()}>
+                                            {inProgress ? t('bitboxBase.settings.backups.creating') : t('bitboxBase.settings.backups.create')}
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="text-center m-top-default">
+                                    <SwissMadeOpenSource large />
+                                </div>
+                            </Step>
+
+                            <Step
+                                title={t('bitboxBaseWizard.backups.createdTitle')}
+                                active={activeStep === ActiveStep.BackupCreated}
+                                width={540}>
+                                <div className={stepStyle.stepContext}>
+                                    <SimpleMarkup tagName="p" markup={t('bitboxBaseWizard.backups.created')} />
+                                    <ul className={style.consOptionsList}>
+                                        <li>{t('bitboxBaseWizard.backups.list.point1')}</li>
+                                        <li>{t('bitboxBaseWizard.backups.list.point2')}</li>
+                                        <SimpleMarkup tagName="li" markup={t('bitboxBaseWizard.backups.list.point3')} />
+                                    </ul>
+                                    <SimpleMarkup tagName="p" markup={t('bitboxBaseWizard.backups.finalizing')} />
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
+                                        <Button
+                                            primary
+                                            disabled={inProgress}
+                                            onClick={() => this.setState({ activeStep: ActiveStep.Ready })}>
+                                            {inProgress ? t('bitboxBaseWizard.backups.createdTitle') : t('button.continue')}
                                         </Button>
                                     </div>
                                 </div>
@@ -757,12 +803,16 @@ class BitBoxBase extends Component<Props, State> {
 
                             <Step
                                 title={t('bitboxBaseWizard.success.title')}
-                                active={activeStep === ActiveStep.BackupCreated}
+                                active={activeStep === ActiveStep.Ready}
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
-                                    <p>{t('bitboxBaseWizard.success.backupCreated')}</p>
-                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0 !important;">
-                                        <Button primary onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>{t('bitboxBaseWizard.success.button')}</Button>
+                                    <p className="text-center">{t('bitboxBaseWizard.success.text')}</p>
+                                    <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
+                                        <Button
+                                            primary
+                                            onClick={() => this.setState({ showWizard: false, activeStep: ActiveStep.PairingCode })}>
+                                            {t('bitboxBaseWizard.success.button')}
+                                        </Button>
                                     </div>
                                 </div>
                                 <div className="text-center m-top-default">
