@@ -41,9 +41,9 @@ type UpdateFile struct {
 	Description string `json:"description"`
 }
 
-// CheckForUpdate checks whether a newer version of this application has been released.
+// checkForUpdate checks whether a newer version of this application has been released.
 // It returns the retrieved update file if a newer version has been released and nil otherwise.
-func (backend *Backend) CheckForUpdate() (*UpdateFile, error) {
+func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 	client, err := backend.socksProxy.GetHTTPClient()
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -73,7 +73,7 @@ func (backend *Backend) CheckForUpdate() (*UpdateFile, error) {
 
 // CheckForUpdateIgnoringErrors suppresses any errors that are triggered, for example, when offline.
 func (backend *Backend) CheckForUpdateIgnoringErrors() *UpdateFile {
-	updateFile, err := backend.CheckForUpdate()
+	updateFile, err := backend.checkForUpdate()
 	if err != nil {
 		logging.Get().WithGroup("update").WithError(err).Warn("Check for update failed.")
 		return nil
