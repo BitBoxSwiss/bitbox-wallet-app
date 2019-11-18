@@ -26,6 +26,7 @@ import (
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/banners"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/mdns"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
@@ -35,6 +36,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/eth/erc20"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/ltc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/bitbox"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device"
 	deviceevent "github.com/digitalbitbox/bitbox-wallet-app/backend/devices/device/event"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
@@ -143,6 +145,7 @@ type Backend struct {
 
 	socksProxy   socksproxy.SocksProxy
 	ratesUpdater *rates.RateUpdater
+	banners      *banners.Banners
 }
 
 // NewBackend creates a new backend with the given arguments.
@@ -174,10 +177,13 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
 		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
 	)
-	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
+	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
+
+	backend.banners = banners.NewBanners()
+	backend.banners.Observe(func(event observable.Event) { backend.events <- event })
 
 	return backend, nil
 }
@@ -729,6 +735,13 @@ func (backend *Backend) Start() <-chan interface{} {
 		backend.Register,
 		backend.Deregister, onlyOne).Start()
 
+	httpClient, err := backend.socksProxy.GetHTTPClient()
+	if err != nil {
+		backend.log.Error(err.Error())
+	} else {
+		go backend.banners.Init(httpClient)
+	}
+
 	if backend.arguments.DevMode() {
 		backend.baseManager.Start()
 	}
@@ -880,6 +893,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	}:
 	default:
 	}
+
+	switch theDevice.ProductName() {
+	case bitbox.ProductName:
+		backend.banners.Activate(banners.KeyBitBox01)
+	}
 	return nil
 }
 
@@ -991,4 +1009,9 @@ func (backend *Backend) Close() error {
 		return errp.New(strings.Join(errors, "; "))
 	}
 	return nil
+}
+
+// Banners returns the banners instance.
+func (backend *Backend) Banners() *banners.Banners {
+	return backend.banners
 }

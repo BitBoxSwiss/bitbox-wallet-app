@@ -52,6 +52,7 @@ export type Translate = (i18nKey: string, values?: TranslateOptions) => any;
  */
 export interface TranslateProps {
     t: Translate;
+    i18n: any;
 }
 
 interface HOCOptions {
