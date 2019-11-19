@@ -156,8 +156,6 @@ class BitBoxBase extends Component<Props, State> {
     public componentDidMount() {
         this.onChannelHashChanged();
         this.onStatusChanged();
-        this.getBaseInfo();
-        this.getServiceInfo();
         this.unsubscribe = apiSubscribe('/' + this.apiPrefix() + '/event', ({ object }) => {
             switch (object) {
                 case 'statusChanged':
@@ -393,6 +391,8 @@ class BitBoxBase extends Component<Props, State> {
             if (!response.success) {
                 alertUser(response.message);
             }
+            this.getBaseInfo();
+            this.getServiceInfo();
             this.setState({ inProgress: false });
         });
     }
