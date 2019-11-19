@@ -667,7 +667,7 @@ class BitBoxBase extends Component<Props, State> {
                                                         ?
                                                         <span>{t('bitboxBaseWizard.networks.tor.label1')}</span>
                                                         :
-                                                        <p style="padding-bottom: 22px">
+                                                        <p style={syncingOption === SyncingOptions.Resync && 'padding-bottom: 22px'}>
                                                             {t('bitboxBaseWizard.networks.tor.label2')}
                                                         </p>
                                                     }
