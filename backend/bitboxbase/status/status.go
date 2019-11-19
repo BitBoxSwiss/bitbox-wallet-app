@@ -53,12 +53,16 @@ const (
 	// EventChannelHashChange should be emitted whenever the noise channel hash changes.
 	EventChannelHashChange Event = "channelHashChanged"
 
-	// EventSampleInfoChange should be emitted whenever the rpcclient gets a new SampleInfo notification
-	EventSampleInfoChange Event = "sampleInfoChanged"
-
-	// EventVerificationProgressChange should be emitted whenever the rpcclient gets a new VerificationProgress notification
-	EventVerificationProgressChange Event = "verificationProgressChanged"
-
 	// EventServiceInfoChanged should be emitted whenever the rpcClient receives a 'service info changed' notification
 	EventServiceInfoChanged Event = "serviceInfoChanged"
+
+	// EventUserAuthenticated emits an event when a user successfully authenticates with the Base
+	// so that the frontend knows it can now fetch BaseInfo
+	EventUserAuthenticated Event = "userAuthenticated"
+
+	// EventBaseUpdateProgressChange is emitted whenever the rpcClient gets a BaseUpdateProgress changed notification
+	EventBaseUpdateProgressChange Event = "baseUpdateProgressChanged"
+
+	// EventUpdateAvailable is emitted whenever there is a new update available for the Base
+	EventUpdateAvailable Event = "updateAvailable"
 )

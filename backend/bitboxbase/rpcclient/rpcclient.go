@@ -184,12 +184,12 @@ func (rpcClient *RPCClient) parseMessage(message []byte) {
 	}
 	opCode := string(message[0])
 	switch opCode {
-	case rpcmessages.OpUCanHasSampleInfo:
-		rpcClient.onEvent(bitboxbasestatus.EventSampleInfoChange)
-	case rpcmessages.OpUCanHasVerificationProgress:
-		rpcClient.onEvent(bitboxbasestatus.EventVerificationProgressChange)
 	case rpcmessages.OpServiceInfoChanged:
 		rpcClient.onEvent(bitboxbasestatus.EventServiceInfoChanged)
+	case rpcmessages.OpBaseUpdateProgressChanged:
+		rpcClient.onEvent(bitboxbasestatus.EventBaseUpdateProgressChange)
+	case rpcmessages.OpBaseUpdateIsAvailable:
+		rpcClient.onEvent(bitboxbasestatus.EventUpdateAvailable)
 	case rpcmessages.OpRPCCall:
 		message := message[1:]
 		rpcClient.rpcConnection.ReadChan() <- message
@@ -225,27 +225,6 @@ func (rpcClient *RPCClient) GetEnv() (rpcmessages.GetEnvResponse, error) {
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetSystemEnv RPC call failed")
 		return reply, err
-	}
-	return reply, nil
-}
-
-// GetSampleInfo makes a synchronous rpc call to the base and returns the SampleInfoResponse struct
-func (rpcClient *RPCClient) GetSampleInfo() (rpcmessages.SampleInfoResponse, error) {
-	var reply rpcmessages.SampleInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetSampleInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
-	if err != nil {
-		rpcClient.log.WithError(err).Error("GetSampleInfo RPC call failed")
-		return reply, err
-	}
-	return reply, nil
-}
-
-// GetVerificationProgress makes a synchronous rpc call to the base and returns the VerificationProgressResponse struct
-func (rpcClient *RPCClient) GetVerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
-	var reply rpcmessages.VerificationProgressResponse
-	err := rpcClient.client.Call("RPCServer.GetVerificationProgress", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
-	if err != nil {
-		return rpcmessages.VerificationProgressResponse{}, errp.WithStack(err)
 	}
 	return reply, nil
 }
@@ -424,12 +403,24 @@ func (rpcClient *RPCClient) EnableRootLogin(toggleAction rpcmessages.ToggleSetti
 	return reply, nil
 }
 
-// SetRootPassword makes an rpc call to BitBoxBase that sets the systems root password
-func (rpcClient *RPCClient) SetRootPassword(args rpcmessages.SetRootPasswordArgs) (rpcmessages.ErrorResponse, error) {
-	rpcClient.log.Println("Executing SetRootPassword rpc call")
+// EnableSSHPasswordLogin makes an rpc call to BitBoxBase that enables/disables the ssh login with a password based on rpcmessages.ToggleSettingArgs Enable/Disable
+func (rpcClient *RPCClient) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Printf("Executing 'EnableSSHPasswordLogin: %v' rpc call\n", toggleAction)
+	toggleAction.Token = rpcClient.jwtToken
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.EnableSSHPasswordLogin", toggleAction, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// SetLoginPassword makes an rpc call to BitBoxBase that sets the system main ssh/login password
+func (rpcClient *RPCClient) SetLoginPassword(args rpcmessages.SetLoginPasswordArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing SetLoginPassword rpc call")
 	args.Token = rpcClient.jwtToken
 	var reply rpcmessages.ErrorResponse
-	err := rpcClient.client.Call("RPCServer.SetRootPassword", args, &reply)
+	err := rpcClient.client.Call("RPCServer.SetLoginPassword", args, &reply)
 	if err != nil {
 		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
 	}
@@ -458,10 +449,35 @@ func (rpcClient *RPCClient) RebootBase() (rpcmessages.ErrorResponse, error) {
 	return reply, nil
 }
 
+// UpdateBase makes an rpc call to BitBoxBase that updates the Base to the passed version.
+// The Base is restarted after a successful RPC call.
+func (rpcClient *RPCClient) UpdateBase(args rpcmessages.UpdateBaseArgs) (rpcmessages.ErrorResponse, error) {
+	rpcClient.log.Println("Executing UpdateBase rpc call")
+	args.Token = rpcClient.jwtToken
+	var reply rpcmessages.ErrorResponse
+	err := rpcClient.client.Call("RPCServer.UpdateBase", args, &reply)
+	if err != nil {
+		return rpcmessages.ErrorResponse{}, errp.WithStack(err)
+	}
+	return reply, nil
+}
+
+// GetBaseUpdateProgress returns the current Base update progress.
+// This RPC should be called when the middleware sends a notification that the Base update progress changed.
+func (rpcClient *RPCClient) GetBaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error) {
+	var reply rpcmessages.GetBaseUpdateProgressResponse
+	err := rpcClient.client.Call("RPCServer.GetBaseUpdateProgress", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetBaseUpdateProgress RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
 // GetBaseInfo makes a synchronous rpc call to the base and returns the GetBaseInfoResponse struct
 func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	var reply rpcmessages.GetBaseInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetBaseInfo", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetBaseInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetBaseInfo RPC call failed")
 		return reply, err
@@ -472,9 +488,21 @@ func (rpcClient *RPCClient) GetBaseInfo() (rpcmessages.GetBaseInfoResponse, erro
 // GetServiceInfo makes a synchronous RPC call to the Base and returns the GetServiceInfoResponse struct
 func (rpcClient *RPCClient) GetServiceInfo() (rpcmessages.GetServiceInfoResponse, error) {
 	var reply rpcmessages.GetServiceInfoResponse
-	err := rpcClient.client.Call("RPCServer.GetServiceInfo", true /*dummy Arg */, &reply)
+	err := rpcClient.client.Call("RPCServer.GetServiceInfo", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
 	if err != nil {
 		rpcClient.log.WithError(err).Error("GetServiceInfo RPC call failed")
+		return reply, err
+	}
+	return reply, nil
+}
+
+// GetBaseUpdateInfo makes a synchronous RPC call to the Base and returns the IsBaseUpdateAvailable struct
+// with corresponding UpdateInfo
+func (rpcClient *RPCClient) GetBaseUpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error) {
+	var reply rpcmessages.IsBaseUpdateAvailableResponse
+	err := rpcClient.client.Call("RPCServer.IsBaseUpdateAvailable", rpcmessages.AuthGenericRequest{Token: rpcClient.jwtToken}, &reply)
+	if err != nil {
+		rpcClient.log.WithError(err).Error("GetBaseUpdateInfo RPC call failed")
 		return reply, err
 	}
 	return reply, nil

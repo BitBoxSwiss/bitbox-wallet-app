@@ -166,6 +166,12 @@
     margin-top: var(--space-quarter);
 }
 
+.confirmationInstructions.confirm {
+    text-align: center;
+    font-size: var(--size-subheader);
+    padding: var(--space-half) calc(var(--space-half) * 1.5);
+}
+
 .image {
     height: 120px;
     margin-right: var(--space-half);
@@ -178,6 +184,46 @@
 
 .modalContent > *:first-child {
     margin-top: 0;
+}
+
+.detail {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: var(--item-height);
+    padding: var(--space-half);
+}
+
+.detail:not(:first-child) {
+    border-top: solid 1px var(--color-lightgray);
+}
+
+.detail label {
+    white-space: nowrap;
+    margin-right: var(--space-half) !important;
+}
+
+.detail label,
+.detail p {
+    margin: 0;
+    line-height: 1;
+}
+
+.detail.description > span {
+    text-align: right;
+}
+
+.buttons {
+    padding: var(--space-quarter);
+}
+
+.buttons button:first-child {
+    margin-right: 10px;
+}
+
+.buttons button {
+    width: 50%;
 }
 
 @media (max-width: 768px) {

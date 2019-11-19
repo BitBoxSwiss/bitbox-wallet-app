@@ -27,8 +27,7 @@ import (
 
 // Base models the api of the base middleware
 type Base interface {
-	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
-	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
+	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
 	ChannelHash() (string, bool)
@@ -48,11 +47,14 @@ type Base interface {
 	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
 	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
 	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
-	SetRootPassword(string) error
+	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
+	SetLoginPassword(string) error
 	ShutdownBase() error
 	RebootBase() error
+	UpdateBase(rpcmessages.UpdateBaseArgs) error
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
+	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -70,10 +72,10 @@ func NewHandlers(
 
 	handleFunc("/status", handlers.getStatusHandler).Methods("GET")
 	handleFunc("/channel-hash", handlers.getChannelHashHandler).Methods("GET")
-	handleFunc("/middleware-info", handlers.getMiddlewareInfoHandler).Methods("GET")
-	handleFunc("/verification-progress", handlers.getVerificationProgressHandler).Methods("GET")
 	handleFunc("/base-info", handlers.getBaseInfoHandler).Methods("GET")
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
+	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHandler).Methods("GET")
+	handleFunc("/update-info", handlers.getUpdateInfoHandler).Methods("GET")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -91,9 +93,11 @@ func NewHandlers(
 	handleFunc("/enable-tor-ssh", handlers.postEnableTorSSHHandler).Methods("POST")
 	handleFunc("/enable-clearnet-ibd", handlers.postEnableClearnetIBDHandler).Methods("POST")
 	handleFunc("/enable-root-login", handlers.postEnableRootLoginHandler).Methods("POST")
-	handleFunc("/set-root-password", handlers.postSetRootPasswordHandler).Methods("POST")
+	handleFunc("/enable-ssh-password-login", handlers.postEnableSSHPasswordLoginHandler).Methods("POST")
+	handleFunc("/set-login-password", handlers.postSetLoginPasswordHandler).Methods("POST")
 	handleFunc("/shutdown-base", handlers.postShutdownBaseHandler).Methods("POST")
 	handleFunc("/reboot-base", handlers.postRebootBaseHandler).Methods("POST")
+	handleFunc("/update-base", handlers.postUpdateBaseHandler).Methods("POST")
 
 	return handlers
 }
@@ -148,18 +152,6 @@ func (handlers *Handlers) getChannelHashHandler(_ *http.Request) (interface{}, e
 	return map[string]interface{}{
 		"hash":               hash,
 		"bitboxBaseVerified": bitboxBaseVerified,
-	}, nil
-}
-
-func (handlers *Handlers) getMiddlewareInfoHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Block Info")
-	middlewareInfo, err := handlers.base.MiddlewareInfo()
-	if err != nil {
-		return bbBaseError(err, handlers.log), nil
-	}
-	return map[string]interface{}{
-		"success":        true,
-		"middlewareInfo": middlewareInfo,
 	}, nil
 }
 
@@ -259,15 +251,15 @@ func (handlers *Handlers) postSetHostname(r *http.Request) (interface{}, error) 
 	}, nil
 }
 
-func (handlers *Handlers) getVerificationProgressHandler(_ *http.Request) (interface{}, error) {
-	handlers.log.Debug("Verification Progress")
-	verificationProgress, err := handlers.base.VerificationProgress()
+func (handlers *Handlers) getBaseUpdateProgressHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Base Update Progress")
+	updateProgress, err := handlers.base.BaseUpdateProgress()
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
 	return map[string]interface{}{
-		"success":              true,
-		"verificationProgress": verificationProgress,
+		"success":        true,
+		"updateProgress": updateProgress,
 	}, nil
 }
 
@@ -393,8 +385,23 @@ func (handlers *Handlers) postEnableRootLoginHandler(r *http.Request) (interface
 	}, nil
 }
 
-func (handlers *Handlers) postSetRootPasswordHandler(r *http.Request) (interface{}, error) {
-	handlers.log.Debug("Set root password")
+func (handlers *Handlers) postEnableSSHPasswordLoginHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Enable SSH password login")
+	var toggleAction bool
+	if err := json.NewDecoder(r.Body).Decode(&toggleAction); err != nil {
+		return nil, errp.WithStack(err)
+	}
+	toggleActionArgs := rpcmessages.ToggleSettingArgs{ToggleSetting: toggleAction}
+	if err := handlers.base.EnableSSHPasswordLogin(toggleActionArgs); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
+func (handlers *Handlers) postSetLoginPasswordHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Set login password")
 	payload := struct {
 		Password string `json:"password"`
 	}{}
@@ -402,7 +409,7 @@ func (handlers *Handlers) postSetRootPasswordHandler(r *http.Request) (interface
 		return bbBaseError(err, handlers.log), nil
 	}
 
-	err := handlers.base.SetRootPassword(payload.Password)
+	err := handlers.base.SetLoginPassword(payload.Password)
 	if err != nil {
 		return bbBaseError(err, handlers.log), nil
 	}
@@ -433,6 +440,24 @@ func (handlers *Handlers) postRebootBaseHandler(_ *http.Request) (interface{}, e
 	}, nil
 }
 
+func (handlers *Handlers) postUpdateBaseHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Debug("Update Base")
+	payload := struct {
+		Version string `json:"version"`
+	}{}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+
+	err := handlers.base.UpdateBase(rpcmessages.UpdateBaseArgs{Version: payload.Version})
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
+}
+
 func (handlers *Handlers) getBaseInfoHandler(_ *http.Request) (interface{}, error) {
 	handlers.log.Debug("Base Info")
 	baseInfo, err := handlers.base.BaseInfo()
@@ -454,5 +479,18 @@ func (handlers *Handlers) getServiceInfoHandler(_ *http.Request) (interface{}, e
 	return map[string]interface{}{
 		"success":     true,
 		"serviceInfo": baseInfo,
+	}, nil
+}
+
+func (handlers *Handlers) getUpdateInfoHandler(_ *http.Request) (interface{}, error) {
+	handlers.log.Debug("Update Info")
+	updateInfo, err := handlers.base.UpdateInfo()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success":   true,
+		"available": updateInfo.UpdateAvailable,
+		"info":      updateInfo.UpdateInfo,
 	}, nil
 }

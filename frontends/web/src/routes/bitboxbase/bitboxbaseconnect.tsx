@@ -24,27 +24,20 @@ import * as dialogStyle from '../../components/dialog/dialog.css';
 import { Input } from '../../components/forms';
 import { Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
-import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
     detectedBases: DetectedBitBoxBases;
-    bitboxBaseID?: string;
 }
 
 export interface DetectedBitBoxBases {
     [Hostname: string]: string;
 }
 
-export const bitboxBaseStore = new Store<BitBoxBaseConnectProps>({
-    detectedBases: {},
-    bitboxBaseIDs: [],
-    bitboxBaseID: '',
-});
-
 interface State {
+    bitboxBaseIDs: string[];
     manualConnectDialog: boolean;
     ipEntry?: string;
 }
@@ -55,6 +48,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
+            bitboxBaseIDs: [],
             manualConnectDialog: false,
             ipEntry: undefined,
         };
@@ -100,7 +94,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 
     public componentWillUpdate() {
-        bitboxBaseStore.setState({bitboxBaseIDs : this.props.bitboxBaseIDs});
+        this.setState({bitboxBaseIDs : this.props.bitboxBaseIDs});
     }
 
     public render(
@@ -187,9 +181,13 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         </div>
                                         <div className="box slim divide">
                                             {
-                                                bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => (
-                                                    <SettingsButton link href={`/bitboxbase/${baseID}`} secondaryText={baseID}>My BitBoxBase</SettingsButton>
-                                                )) : (
+                                                bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
+                                                    let name: string | undefined;
+                                                    Object.values(detectedBases).includes(baseID) ? name = Object.keys(detectedBases).find(key => detectedBases[key] === baseID) :
+                                                        // FIXME: Resolve a hostname from IP for manual additions
+                                                        name = t('bitboxBase.new');
+                                                    return <SettingsButton link href={`/bitboxbase/${baseID}`} secondaryText={baseID}>{name}</SettingsButton>;
+                                                }) : (
                                                     <p className="text-center p-top-half p-bottom-half">{t('bitboxBase.detectedBasesEmpty')}</p>
                                                 )
                                             }

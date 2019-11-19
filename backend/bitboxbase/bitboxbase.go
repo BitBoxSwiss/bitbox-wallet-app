@@ -48,12 +48,6 @@ type Interface interface {
 	// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
 	GetRegisterTime() time.Time
 
-	// MiddlewareInfo returns some blockchain information.
-	MiddlewareInfo() (rpcmessages.SampleInfoResponse, error)
-
-	// VerificationProgress returns the bitcoind verification progress.
-	VerificationProgress() (rpcmessages.VerificationProgressResponse, error)
-
 	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
 	ConnectElectrum() error
 
@@ -118,8 +112,11 @@ type Interface interface {
 	// EnableRootLogin enables/disables login via the root user/password
 	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
 
+	// EnableSSHPasswordLogin enables/disables the ssh login with a password
+	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
+
 	// SetRootPassword sets the systems root password
-	SetRootPassword(string) error
+	SetLoginPassword(string) error
 
 	// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
 	ShutdownBase() error
@@ -127,12 +124,22 @@ type Interface interface {
 	// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
 	RebootBase() error
 
+	// UpdateBase performs an update of the Base firmware to a passed version.
+	UpdateBase(rpcmessages.UpdateBaseArgs) error
+
+	// BaseUpdateProgress returns the Base Update progress.
+	// This should be called when then middleware notifies the App that the update progress changed.
+	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
+
 	// BaseInfo returns information about the Base
 	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
 
 	// ServiceInfo returns information about the services running on the Base
 	// As for example the bitcoind, electrs and ligthningd block height
 	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
+
+	// UpdateInfo returns whether an update is available, and if so, version, description and severity information
+	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
 }
 
 // SyncOption is a user provided blockchain sync option during BBB initialization
@@ -292,22 +299,6 @@ func (base *BitBoxBase) RPCClient() *rpcclient.RPCClient {
 	return base.rpcClient
 }
 
-// MiddlewareInfo returns the received MiddlewareInfo packet from the rpcClient
-func (base *BitBoxBase) MiddlewareInfo() (rpcmessages.SampleInfoResponse, error) {
-	if !base.active {
-		return rpcmessages.SampleInfoResponse{}, errp.New("Attempted a call to non-active base")
-	}
-	return base.rpcClient.GetSampleInfo()
-}
-
-// VerificationProgress returns the received VerificationProgress packet from the rpcClient
-func (base *BitBoxBase) VerificationProgress() (rpcmessages.VerificationProgressResponse, error) {
-	if !base.active {
-		return rpcmessages.VerificationProgressResponse{}, errp.New("Attempted a call to non-active base")
-	}
-	return base.rpcClient.GetVerificationProgress()
-}
-
 // ReindexBitcoin returns true if the chosen sync option was executed successfully
 func (base *BitBoxBase) ReindexBitcoin() error {
 	if !base.active {
@@ -380,6 +371,7 @@ func (base *BitBoxBase) UserAuthenticate(username string, password string) error
 	} else {
 		base.changeStatus(bitboxbasestatus.StatusInitialized)
 	}
+	base.fireEvent(bitboxbasestatus.EventUserAuthenticated)
 	return nil
 }
 
@@ -577,13 +569,30 @@ func (base *BitBoxBase) EnableRootLogin(toggleAction rpcmessages.ToggleSettingAr
 	return nil
 }
 
-// SetRootPassword sets the systems root password
-func (base *BitBoxBase) SetRootPassword(password string) error {
+// EnableSSHPasswordLogin enables/disables the ssh login with a password
+func (base *BitBoxBase) EnableSSHPasswordLogin(toggleAction rpcmessages.ToggleSettingArgs) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+
+	base.log.Printf("bitboxbase is making a 'set EnableSSHPasswordLogin: %t' call\n", toggleAction.ToggleSetting)
+	reply, err := base.rpcClient.EnableSSHPasswordLogin(toggleAction)
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	return nil
+}
+
+// SetLoginPassword sets the systems root password
+func (base *BitBoxBase) SetLoginPassword(password string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
 	}
 	base.log.Println("bitboxbase is making a SetRootPassword call")
-	reply, err := base.rpcClient.SetRootPassword(rpcmessages.SetRootPasswordArgs{RootPassword: password})
+	reply, err := base.rpcClient.SetLoginPassword(rpcmessages.SetLoginPasswordArgs{LoginPassword: password})
 	if err != nil {
 		return err
 	}
@@ -606,6 +615,11 @@ func (base *BitBoxBase) ShutdownBase() error {
 	if !reply.Success {
 		return &reply
 	}
+	// FIXME: Change backend node management to status: offline
+	err = base.Deregister()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -616,6 +630,27 @@ func (base *BitBoxBase) RebootBase() error {
 	}
 	base.log.Println("bitboxbase is making a RebootBase call")
 	reply, err := base.rpcClient.RebootBase()
+	if err != nil {
+		return err
+	}
+	if !reply.Success {
+		return &reply
+	}
+	// FIXME: Change backend node management to status: rebooting
+	err = base.Deregister()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UpdateBase calls the UpdateBase RPC which performs a update of the Base.
+func (base *BitBoxBase) UpdateBase(args rpcmessages.UpdateBaseArgs) error {
+	if !base.active {
+		return errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a UpdateBase call")
+	reply, err := base.rpcClient.UpdateBase(args)
 	if err != nil {
 		return err
 	}
@@ -653,6 +688,35 @@ func (base *BitBoxBase) ServiceInfo() (rpcmessages.GetServiceInfoResponse, error
 	}
 	if !reply.ErrorResponse.Success {
 		return rpcmessages.GetServiceInfoResponse{}, reply.ErrorResponse
+	}
+	return reply, nil
+}
+
+// BaseUpdateProgress returns the Base update progress.
+func (base *BitBoxBase) BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error) {
+	if !base.active {
+		return rpcmessages.GetBaseUpdateProgressResponse{}, errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making a GetBaseUpdateProgress call")
+	reply, err := base.rpcClient.GetBaseUpdateProgress()
+	if err != nil {
+		return rpcmessages.GetBaseUpdateProgressResponse{}, err
+	}
+	return reply, nil
+}
+
+// UpdateInfo returns whether an update is available, and if so, version, description and severity information
+func (base *BitBoxBase) UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error) {
+	if !base.active {
+		return rpcmessages.IsBaseUpdateAvailableResponse{}, errp.New("Attempted a call to non-active base")
+	}
+	base.log.Println("bitboxbase is making an UpdateInfo call")
+	reply, err := base.rpcClient.GetBaseUpdateInfo()
+	if err != nil {
+		return rpcmessages.IsBaseUpdateAvailableResponse{}, err
+	}
+	if !reply.ErrorResponse.Success {
+		return rpcmessages.IsBaseUpdateAvailableResponse{}, reply.ErrorResponse
 	}
 	return reply, nil
 }

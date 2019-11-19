@@ -234,43 +234,80 @@
   "bitboxBase": {
     "connect": "Connect Base",
     "connectedBases": "Connected devices",
-    "detectedBases": "Detected the following devices on your network:",
+    "detectedBases": "Detected devices on your network",
     "detectedBasesEmpty": "No devices found",
-    "manualInput": "Can't see your BitBoxBase? Connect manually below:",
+    "manualInput": "Connect manually",
     "manualInputLabel": "IP address:port",
+    "new": "New BitBoxBase",
     "settings": {
       "advanced": {
+        "confirmSystemPassword": "This will set the BitBoxBase system password to use for <strong>ssh authentication and sudo access.</strong>\n$t(generic.confirmToContinue)",
         "connectElectrum": "Connect Electrum",
+        "ipAddress": "IP address",
+        "manual": "Manual update",
+        "port": "Port",
         "reset": "Reset to factory settings",
-        "rootAccess": "Root access",
-        "sshAccess": "SSH access",
+        "sshAccess": {
+          "button": "SSH password login",
+          "confirm": "Would you like to {{toggle}} SSH password authentication?",
+          "inProgress": "Toggling SSH password authentication",
+          "success": "SSH password authentication {{enabled}}",
+          "title": "SSH access"
+        },
+        "subheaders": {
+          "bitcoin": "Bitcoin Core",
+          "electrs": "Electrs",
+          "lightning": "Lightning",
+          "networking": "Networking"
+        },
         "syncOptions": "Sync options",
-        "title": "Advanced settings"
+        "systemPassword": "Set system password",
+        "systemPasswordSuccess": "BitBoxBase system password set successfully.",
+        "title": "Advanced"
       },
       "backups": {
+        "confirmBackup": "Would you like to create a new backup?",
         "create": "Create backup",
+        "created": "Backup created successfully.",
+        "creating": "Creating backup...",
         "manage": "Manage backups",
         "restore": "Restore backup",
         "title": "Backups"
       },
-      "basics": {
-        "info": "System info",
-        "name": "Name",
-        "password": "Change password",
-        "title": "Basics"
-      },
-      "networking": {
-        "incomingConnections": "Incoming connections",
-        "ipAddress": "IP address",
-        "title": "Networking",
-        "tor": "Tor"
-      },
       "node": {
+        "bitcoinRestarting": "Base services are restarting...",
+        "changeName": "Change name",
+        "changeNameTitle": "Change BitBoxBase hostname",
+        "confirmTorEnabled": {
+          "false": "Are you sure you want to <strong>enable</strong> Tor?\n $t(bitboxBase.settings.node.warning)",
+          "true": "Are you sure you want to <strong>disable</strong> Tor?\n This can have serious and irreversible implications regarding privacy and is not recommended.\n $t(bitboxBase.settings.node.warning)"
+        },
         "disconnect": "Disconnect",
+        "newName": "Enter new hostname",
+        "password": "Change password",
+        "title": "Node",
+        "tor": "Tor",
+        "warning": "Please allow 1-2 minutes for changes to take effect."
+      },
+      "system": {
+        "confirmRestart": "Your BitBoxBase will now <strong>restart</strong> and you will need to reconnect to it once ready.\n $t(generic.confirmToContinue)",
+        "confirmShutdown": "Your BitBoxBase will now <strong>shut down</strong> and you will have to turn it back on manually.\n $t(generic.confirmToContinue)",
+        "confirmUpdate": "Would you like to update your BitBoxBase from version {{current}} to {{newVersion}}?",
         "restart": "Restart",
         "shutdown": "Shutdown",
-        "title": "Node",
-        "update": "Update"
+        "title": "System",
+        "upToDate": "Your BitBoxBase is up to date",
+        "update": "Update",
+        "updateProgress": {
+          "updateApplying": "Installing update...",
+          "updateDownloading": "Downloading update files...",
+          "updateFailed": "Update failed",
+          "updateNotInProgress": "Fetching update information...",
+          "updateRebooting": "Rebooting...",
+          "warning": "When finished, the Base will automatically disconnect and reboot."
+        },
+        "updateSeverity": "Severity",
+        "updateTitle": "Update BitBoxBase"
       },
       "title": "BitBoxBase settings"
     },
@@ -408,6 +445,7 @@
     "select": "Select",
     "send": "Send",
     "unlock": "Unlock",
+    "update": "Update",
     "upgrade": "Upgrade"
   },
   "changePin": {
@@ -491,6 +529,19 @@
   },
   "footer": {
     "appVersion": "App version:"
+  },
+  "generic": {
+    "applying": "Applying configuration",
+    "confirmToContinue": "Please confirm to continue.",
+    "description": "Description",
+    "enable": {
+      "false": "enable",
+      "true": "disable"
+    },
+    "enabled": {
+      "false": "Disabled",
+      "true": "Enabled"
+    }
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
