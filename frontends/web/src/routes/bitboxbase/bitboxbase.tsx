@@ -48,7 +48,6 @@ export interface BitBoxBaseInfo {
     isTorEnabled: boolean;
     isBitcoindListening: boolean;
     IsSSHPasswordLoginEnabled: boolean;
-    lightningActiveChannels: number;
     freeDiskspace: number;
     totalDiskspace: number;
     baseVersion: string;
@@ -64,6 +63,7 @@ export interface BitBoxBaseServiceInfo {
     bitcoindPeers: number;
     bitcoindIBD: boolean;
     lightningdBlocks: number;
+    lightningActiveChannels: number;
     electrsBlocks: number;
 }
 

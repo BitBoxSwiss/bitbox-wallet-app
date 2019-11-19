@@ -238,7 +238,14 @@ class BaseSettings extends Component<Props, State> {
                                     </div>
                                     <div className={style.item}>
                                         <div className={style.dashboardItem}>
-                                            <p>{baseInfo.lightningActiveChannels}</p>
+                                            {
+                                                serviceInfo ?
+                                                <p>{serviceInfo.lightningActiveChannels}</p>
+                                                :
+                                                <div className={style.loadingIconContainer}>
+                                                    <img src={loadingStatic} style="width: 24px"/>
+                                                </div>
+                                            }
                                             <p>Lightning channels</p>
                                         </div>
                                     </div>

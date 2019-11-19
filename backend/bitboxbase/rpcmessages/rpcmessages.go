@@ -134,7 +134,6 @@ type GetBaseInfoResponse struct {
 	IsTorEnabled              bool   `json:"isTorEnabled"`
 	IsBitcoindListening       bool   `json:"isBitcoindListening"`
 	IsSSHPasswordLoginEnabled bool   `json:"IsSSHPasswordLoginEnabled"`
-	LightningActiveChannels   int64  `json:"lightningActiveChannels"`
 	FreeDiskspace             int64  `json:"freeDiskspace"`  // in Byte
 	TotalDiskspace            int64  `json:"totalDiskspace"` // in Byte
 	BaseVersion               string `json:"baseVersion"`
@@ -152,6 +151,7 @@ type GetServiceInfoResponse struct {
 	BitcoindPeers                int64          `json:"bitcoindPeers"`
 	BitcoindIBD                  bool           `json:"bitcoindIBD"`
 	LightningdBlocks             int64          `json:"lightningdBlocks"`
+	LightningActiveChannels      int64          `json:"lightningActiveChannels"`
 	ElectrsBlocks                int64          `json:"electrsBlocks"`
 }
 
