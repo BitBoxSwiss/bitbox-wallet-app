@@ -26,14 +26,13 @@ import { PasswordRepeatInput } from '../../components/password';
 import Spinner from '../../components/spinner/Spinner';
 import { Step, Steps } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
-import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
+import SimpleMarkup from '../../utils/simplemarkup';
 import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
-import SimpleMarkup from '../../utils/simplemarkup';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -121,10 +120,6 @@ interface State {
     hostname?: string;
     validHostname?: boolean;
     syncingOption?: SyncingOptions;
-    waitDialog?: {
-        title?: string;
-        text?: string;
-    };
     locked: boolean;
     updateAvailable?: boolean;
     updateInfo?: BaseUpdateInfo;
@@ -149,7 +144,6 @@ class BitBoxBase extends Component<Props, State> {
             hostname: undefined,
             validHostname: false,
             syncingOption: undefined,
-            waitDialog: undefined,
             locked: true,
             updateAvailable: undefined,
             updateInfo: undefined,
@@ -422,7 +416,6 @@ class BitBoxBase extends Component<Props, State> {
             activeStep,
             password,
             validHostname,
-            waitDialog,
             locked,
             syncingOption,
             baseInfo,
@@ -463,15 +456,6 @@ class BitBoxBase extends Component<Props, State> {
             <div className="contentWithGuide">
                 <div className="container">
                     <Header title={<h2>{t('bitboxBaseWizard.welcome')}</h2>} />
-
-                    {
-                        waitDialog && (
-                        <WaitDialog title={waitDialog.title}>
-                            {waitDialog.text}
-                        </WaitDialog>
-                        )
-                    }
-
                     <div className="flex flex-column flex-center flex-items-center flex-1 scrollableContainer">
                         <Steps>
 
