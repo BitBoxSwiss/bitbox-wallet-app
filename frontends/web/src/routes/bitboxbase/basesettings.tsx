@@ -220,7 +220,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Sync status</p>
+                                            <p>Bitcoin sync status</p>
                                         </div>
                                     </div>
                                     <div className={style.item}>
@@ -233,7 +233,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Connected peers</p>
+                                            <p>Connected Bitcoin peers</p>
                                         </div>
                                     </div>
                                     <div className={style.item}>
@@ -246,7 +246,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Lightning channels</p>
+                                            <p>Active lightning channels</p>
                                         </div>
                                     </div>
                                 </div>
