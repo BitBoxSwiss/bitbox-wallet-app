@@ -49,13 +49,14 @@ const EventStatusChanged event.Event = "statusChanged"
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
-	edition bitbox02common.Edition,
+	product bitbox02common.Product,
 	communication bootloader.Communication,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
 		WithField("deviceID", deviceID).
-		WithField("productName", ProductName)
+		WithField("productName", ProductName).
+		WithField("product", product)
 	log.Info("Plugged in device")
 	device := &Device{
 		deviceID: deviceID,
@@ -63,7 +64,7 @@ func NewDevice(
 	}
 	device.Device = *bootloader.NewDevice(
 		version,
-		edition,
+		product,
 		communication,
 		func(*bootloader.Status) {
 			device.fireEvent()
@@ -110,7 +111,7 @@ func (device *Device) fireEvent() {
 
 // UpgradeFirmware uploads a signed bitbox02 firmware release to the device.
 func (device *Device) UpgradeFirmware() error {
-	edition := device.Device.Edition()
-	device.log.Infof("upgrading firmware: %s, %s", edition, BundledFirmwareVersion(edition))
-	return device.Device.UpgradeFirmware(bundledFirmware(edition))
+	product := device.Device.Product()
+	device.log.Infof("upgrading firmware: %s, %s", product, BundledFirmwareVersion(product))
+	return device.Device.UpgradeFirmware(bundledFirmware(product))
 }

@@ -199,7 +199,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	if err != nil {
 		return nil, err
 	}
-	edition, err := bitbox02common.EditionFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +210,7 @@ func (manager *Manager) makeBitBox02(deviceInfo DeviceInfo) (*bitbox02.Device, e
 	return bitbox02.NewDevice(
 		deviceID,
 		version,
-		edition,
+		product,
 		bitbox02.NewConfig(manager.bitbox02ConfigDir),
 		u2fhid.NewCommunication(hidDevice, bitboxCMD),
 	), nil
@@ -227,7 +227,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	if err != nil {
 		return nil, err
 	}
-	edition, err := bitbox02common.EditionFromHIDProductString(deviceInfo.Product())
+	product, err := bitbox02common.ProductFromHIDProductString(deviceInfo.Product())
 	if err != nil {
 		return nil, err
 	}
@@ -238,7 +238,7 @@ func (manager *Manager) makeBitBox02Bootloader(deviceInfo DeviceInfo) (
 	return bitbox02bootloader.NewDevice(
 		deviceID,
 		version,
-		edition,
+		product,
 		u2fhid.NewCommunication(hidDevice, bitbox02BootloaderCMD),
 	), nil
 }
