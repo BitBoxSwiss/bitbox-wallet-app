@@ -51,9 +51,9 @@ type Manager struct {
 	onDetect      func()
 	detectedBases map[string]string // Do not change this map to pointer types or anything else, the reflect.DeepEqual comparison in mdnsScan may break
 
-	baseDeviceInterface map[string]bitboxbase.Interface
+	baseDeviceBitBoxBase map[string]*bitboxbase.BitBoxBase
 
-	onRegister   func(bitboxbase.Interface) error
+	onRegister   func(*bitboxbase.BitBoxBase) error
 	onUnregister func(string)
 
 	log                 *logrus.Entry
@@ -66,21 +66,21 @@ type Manager struct {
 // inserted. onUnregister is called when the bitboxbase has been removed.
 func NewManager(
 	onDetect func(),
-	onRegister func(bitboxbase.Interface) error,
+	onRegister func(*bitboxbase.BitBoxBase) error,
 	onUnregister func(string),
 	config *config.Config,
 	bitboxBaseConfigDir string,
 	socksProxy socksproxy.SocksProxy,
 ) *Manager {
 	return &Manager{
-		baseDeviceInterface: map[string]bitboxbase.Interface{},
-		onDetect:            onDetect,
-		detectedBases:       map[string]string{},
-		onRegister:          onRegister,
-		onUnregister:        onUnregister,
-		config:              config,
-		bitboxBaseConfigDir: bitboxBaseConfigDir,
-		socksProxy:          socksProxy,
+		baseDeviceBitBoxBase: map[string]*bitboxbase.BitBoxBase{},
+		onDetect:             onDetect,
+		detectedBases:        map[string]string{},
+		onRegister:           onRegister,
+		onUnregister:         onUnregister,
+		config:               config,
+		bitboxBaseConfigDir:  bitboxBaseConfigDir,
+		socksProxy:           socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
 	}
@@ -88,12 +88,12 @@ func NewManager(
 
 // TryMakeNewBase attempts to create a new bitboxBase connection to the BitBox base. Returns true if successful, false otherwise.
 func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
-	for bitboxBaseID, bitboxBase := range manager.baseDeviceInterface {
+	for bitboxBaseID, bitboxBase := range manager.baseDeviceBitBoxBase {
 		// Check if bitboxbase was removed.
 		if manager.checkIfRemoved(bitboxBase) {
 			manager.log.Infof("Removing bitboxbase with id %q", bitboxBaseID)
 			bitboxBase.Close()
-			delete(manager.baseDeviceInterface, bitboxBaseID)
+			delete(manager.baseDeviceBitBoxBase, bitboxBaseID)
 			manager.onUnregister(bitboxBaseID)
 			manager.log.WithField("bitboxbase-id", bitboxBaseID).Info("Unregistered bitboxbase")
 		}
@@ -103,7 +103,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	bitboxBaseID := address
 
 	// Skip if already registered.
-	if _, ok := manager.baseDeviceInterface[bitboxBaseID]; ok {
+	if _, ok := manager.baseDeviceBitBoxBase[bitboxBaseID]; ok {
 		return false, errp.New("Base already registered")
 	}
 
@@ -115,7 +115,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 		return false, err
 	}
 
-	manager.baseDeviceInterface[bitboxBaseID] = baseDevice
+	manager.baseDeviceBitBoxBase[bitboxBaseID] = baseDevice
 	if err := manager.onRegister(baseDevice); err != nil {
 		manager.log.WithError(err).Error("Failed to execute on-register")
 		return false, err
@@ -129,7 +129,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 
 // RemoveBase allows external objects to delete a manager entry.
 func (manager *Manager) RemoveBase(bitboxBaseID string) {
-	delete(manager.baseDeviceInterface, bitboxBaseID)
+	delete(manager.baseDeviceBitBoxBase, bitboxBaseID)
 }
 
 // GetDetectedBases returns bases detected by the manager with the mDNS scan
@@ -138,7 +138,7 @@ func (manager *Manager) GetDetectedBases() map[string]string {
 }
 
 // checkIfRemoved returns true if a bitboxbase was detected in, but is not reachable anymore.
-func (manager *Manager) checkIfRemoved(bitboxBase bitboxbase.Interface) bool {
+func (manager *Manager) checkIfRemoved(bitboxBase *bitboxbase.BitBoxBase) bool {
 	connected, err := bitboxBase.Ping()
 	if err != nil || !connected {
 		return true
