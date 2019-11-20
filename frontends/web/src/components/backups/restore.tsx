@@ -23,7 +23,7 @@ import { Dialog } from '../dialog/dialog';
 import * as dialogStyle from '../dialog/dialog.css';
 import { Button, Checkbox } from '../forms';
 import { PasswordRepeatInput } from '../password';
-import Spinner from '../spinner/Spinner';
+import { Spinner } from '../spinner/Spinner';
 import WaitDialog from '../wait-dialog/wait-dialog';
 import * as style from './backups.css';
 

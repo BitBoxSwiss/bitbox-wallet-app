@@ -21,7 +21,7 @@ import LanguageSwitch from '../../../components/language/language';
 import { Header } from '../../../components/layout';
 import { Message } from '../../../components/message/message';
 import { PasswordRepeatInput } from '../../../components/password';
-import Spinner from '../../../components/spinner/Spinner';
+import { Spinner } from '../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import * as style from '../device.css';
@@ -176,9 +176,9 @@ class Initialize extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div className="container">
-                <Header title={<h2>{t('welcome.title')}</h2>}>
-                    <LanguageSwitch />
-                </Header>
+                    <Header title={<h2>{t('welcome.title')}</h2>}>
+                        <LanguageSwitch />
+                    </Header>
                     <div className="innerContainer">
                         <div className="content padded narrow isVerticallyCentered">
                             <h1 className={[style.title, 'text-center'].join(' ')}>{t(showInfo ? 'initialize.info.title' : 'setup')}</h1>
@@ -188,12 +188,12 @@ class Initialize extends Component<Props, State> {
                                 <SwissMadeOpenSource large />
                             </div>
                         </div>
-                        {
-                            status === stateEnum.WAITING && (
-                                <Spinner text={t('initialize.creating')} showLogo />
-                            )
-                        }
                     </div>
+                    {
+                        status === stateEnum.WAITING && (
+                            <Spinner text={t('initialize.creating')} showLogo />
+                        )
+                    }
                 </div>
             </div>
         );
