@@ -264,14 +264,23 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                     <path d="M12,2 L12,22" />
                                                                 </svg>
                                                             </div>
-                                                            <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
-                                                            <span className={style.baseItemIp}>{baseID}</span>
-                                                            <div className={style.baseItemIndicator}>
+                                                            <span className={style.baseItemName}>
+                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
+                                                                <p className="m-none show-on-small">{baseID}</p>
+                                                            </span>
+                                                            <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
+                                                            <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
                                                                 <span className={[style.dot, style.online].join(' ')}></span>
                                                                 <span>Online</span>
                                                             </div>
                                                             <a className={style.baseItemArrow} onClick={() => this.setStatusAndRedirect(baseID)}>
-                                                                <span>Manage</span>
+                                                                <span className="hide-on-small">Manage</span>
+                                                                <div className="show-on-small">
+                                                                    <div className={style.baseItemIndicator}>
+                                                                        <span className={[style.dot, style.online].join(' ')}></span>
+                                                                        <span>Online</span>
+                                                                    </div>
+                                                                </div>
                                                                 <svg
                                                                     xmlns="http://www.w3.org/2000/svg"
                                                                     viewBox="0 0 24 24"
@@ -304,84 +313,111 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                         <path d="M12,2 L12,22" />
                                                     </svg>
                                                 </div>
-                                                <a className={style.baseItemName}>Base1</a>
-                                                <span className={style.baseItemIp}>localhost:8333</span>
-                                                <div className={style.baseItemIndicator}>
-                                                    <span className={[style.dot, style.offline].join(' ')}></span>
-                                                    <span>Disconnected</span>
-                                                </div>
-                                                <a className={style.baseItemArrow}>
-                                                    <span>Manage</span>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                            <div className={style.baseItem}>
-                                                <div className={style.baseItemSortable}>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path d="M6,16 L12,22 L18,16" />
-                                                        <path d="M18,8 L12,2 L6,8" />
-                                                        <path d="M12,2 L12,22" />
-                                                    </svg>
-                                                </div>
-                                                <a className={style.baseItemName}>Jumping BitBoxBase 2</a>
-                                                <span className={style.baseItemIp}>localhost:8333</span>
-                                                <div className={style.baseItemIndicator}>
-                                                    <span className={[style.dot, style.offline].join(' ')}></span>
-                                                    <span>Disconnected</span>
-                                                </div>
-                                                <a className={style.baseItemArrow}>
-                                                    <span>Manage</span>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                                    </svg>
-                                                </a>
-                                            </div>
-                                            <div className={style.baseItem}>
-                                                <div className={style.baseItemSortable}>
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        stroke-width="2"
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round">
-                                                        <path d="M6,16 L12,22 L18,16" />
-                                                        <path d="M18,8 L12,2 L6,8" />
-                                                        <path d="M12,2 L12,22" />
-                                                    </svg>
-                                                </div>
-                                                <a className={style.baseItemName}>Beautiful BitBoxBase 3</a>
-                                                <span className={style.baseItemIp}>localhost:8333</span>
-                                                <div className={style.baseItemIndicator}>
+                                                <span className={style.baseItemName}>
+                                                    <a className={style.baseItemName} href={`/bitboxbase/localhost:9922`}>Base1</a>
+                                                    <p className="m-none show-on-small">localhost:9922</p>
+                                                </span>
+                                                <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>localhost:9922</span>
+                                                <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
                                                     <span className={[style.dot, style.online].join(' ')}></span>
                                                     <span>Online</span>
                                                 </div>
-                                                <a className={style.baseItemArrow}>
-                                                    <span>Manage</span>
+                                                <a className={style.baseItemArrow} href={`/bitboxbase/localhost:9922`}>
+                                                    <span className="hide-on-small">Manage</span>
+                                                    <div className="show-on-small">
+                                                        <div className={style.baseItemIndicator}>
+                                                            <span className={[style.dot, style.online].join(' ')}></span>
+                                                            <span>Online</span>
+                                                        </div>
+                                                    </div>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <div className={style.baseItem}>
+                                                <div className={style.baseItemSortable}>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M6,16 L12,22 L18,16" />
+                                                        <path d="M18,8 L12,2 L6,8" />
+                                                        <path d="M12,2 L12,22" />
+                                                    </svg>
+                                                </div>
+                                                <span className={style.baseItemName}>
+                                                    <a className={style.baseItemName} href={`/bitboxbase/localhost:9922`}>Shining BitBoxBase 2</a>
+                                                    <p className="m-none show-on-small">localhost:8333</p>
+                                                </span>
+                                                <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>localhost:8333</span>
+                                                <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
+                                                    <span className={[style.dot, style.online].join(' ')}></span>
+                                                    <span>Online</span>
+                                                </div>
+                                                <a className={style.baseItemArrow} href={`/bitboxbase/localhost:8333`}>
+                                                    <span className="hide-on-small">Manage</span>
+                                                    <div className="show-on-small">
+                                                        <div className={style.baseItemIndicator}>
+                                                            <span className={[style.dot, style.offline].join(' ')}></span>
+                                                            <span>Disconnected</span>
+                                                        </div>
+                                                    </div>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                                    </svg>
+                                                </a>
+                                            </div>
+                                            <div className={style.baseItem}>
+                                                <div className={style.baseItemSortable}>
+                                                    <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        stroke-width="2"
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round">
+                                                        <path d="M6,16 L12,22 L18,16" />
+                                                        <path d="M18,8 L12,2 L6,8" />
+                                                        <path d="M12,2 L12,22" />
+                                                    </svg>
+                                                </div>
+                                                <span className={style.baseItemName}>
+                                                    <a className={style.baseItemName} href={`/bitboxbase/localhost:9922`}>Blinking BitBoxBase 3</a>
+                                                    <p className="m-none show-on-small">localhost:8333</p>
+                                                </span>
+                                                <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>localhost:8333</span>
+                                                <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
+                                                    <span className={[style.dot, style.online].join(' ')}></span>
+                                                    <span>Online</span>
+                                                </div>
+                                                <a className={style.baseItemArrow} href={`/bitboxbase/localhost:8333`}>
+                                                    <span className="hide-on-small">Manage</span>
+                                                    <div className="show-on-small">
+                                                        <div className={style.baseItemIndicator}>
+                                                            <span className={[style.dot, style.offline].join(' ')}></span>
+                                                            <span>Disconnected</span>
+                                                        </div>
+                                                    </div>
                                                     <svg
                                                         xmlns="http://www.w3.org/2000/svg"
                                                         viewBox="0 0 24 24"

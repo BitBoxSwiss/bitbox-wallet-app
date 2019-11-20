@@ -190,8 +190,12 @@
 }
 
 .baseItemName {
+    display: block;
     margin-right: var(--space-default);
     min-width: 162px;
+}
+
+.baseItemName a {
     text-decoration: none;
 }
 
@@ -261,7 +265,8 @@
         margin-right: var(--space-half);
     }
 
-    .baseItemName {
+    .baseItemName,
+    .baseItemIp {
         margin-right: var(--space-half);
     }
 
@@ -270,7 +275,7 @@
     }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .detectedBaseContainer {
         padding: var(--spacing-default) var(--spacing-half);
     }
@@ -312,5 +317,17 @@
     .detectedBaseLabel.flat {
         margin-right: var(--spacing-half);
         font-size: var(--size-small);
+    }
+
+    .baseItem {
+        padding: 0 var(--space-quarter) 0 var(--space-half);
+    }
+
+    .baseItemName {
+        margin-right: var(--space-quarter);
+    }
+
+    .baseItemArrow {
+        margin-left: auto;
     }
 }
