@@ -121,7 +121,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 		return false, err
 	}
 
-	if err = baseDevice.ConnectRPCClient(); err != nil {
+	if err = baseDevice.EstablishConnection(); err != nil {
 		return false, err
 	}
 	return true, nil

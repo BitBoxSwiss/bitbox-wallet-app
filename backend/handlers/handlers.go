@@ -195,7 +195,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/bitboxbases/connectbase", handlers.postConnectBaseHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
 	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
@@ -649,7 +649,7 @@ func (handlers *Handlers) postCertsCheckHandler(r *http.Request) (interface{}, e
 	}, nil
 }
 
-func (handlers *Handlers) postConnectBaseHandler(r *http.Request) (interface{}, error) {
+func (handlers *Handlers) postEstablishConnectionHandler(r *http.Request) (interface{}, error) {
 	jsonBody := map[string]string{}
 	if err := json.NewDecoder(r.Body).Decode(&jsonBody); err != nil {
 		return nil, errp.WithStack(err)

@@ -39,7 +39,7 @@ export interface DetectedBitBoxBases {
 interface State {
     bitboxBaseIDs: string[];
     manualConnectDialog: boolean;
-    ipEntry?: string;
+    ipEntry: string;
 }
 
 type Props = BitBoxBaseConnectProps & TranslateProps;
@@ -50,7 +50,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         this.state = {
             bitboxBaseIDs: [],
             manualConnectDialog: false,
-            ipEntry: undefined,
+            ipEntry: '',
         };
     }
 
@@ -62,25 +62,35 @@ class BitBoxBaseConnect extends Component<Props, State> {
 
     private submit = (event: Event) => {
         event.preventDefault();
-        apiPost('bitboxbases/connectbase', {
+        apiPost('bitboxbases/establish-connection', {
             ip: this.state.ipEntry,
         }).then(data => {
-            const { success } = data;
-            if (!success) {
-                alertUser(data.errorMessage);
-            } else {
+            if (data.success) {
+                this.connect(this.state.ipEntry);
                 route(`/bitboxbase/${this.state.ipEntry}`, true);
+            } else {
+                alertUser(data.errorMessage);
+            }
+        });
+    }
+
+    private establishConnection = (ip: string) => {
+        apiPost('bitboxbases/establish-connection', { ip })
+        .then(data => {
+            if (data.success) {
+                this.connect(ip);
+                route(`/bitboxbase/${ip}`, true);
+            } else {
+                alertUser(data.errorMessage);
             }
         });
     }
 
     private connect = (ip: string) => {
-        apiPost('bitboxbases/connectbase', { ip })
-        .then(data => {
-            if (!data.success) {
-                alertUser(data.errorMessage);
-            } else {
-                route(`/bitboxbase/${ip}`, true);
+        apiPost('bitboxbases/' + ip + '/connect-base')
+        .then(response => {
+            if (!response.success) {
+                alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
             }
         });
     }
@@ -144,7 +154,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                     <DetectedBase
                                                         hostname={base[0]}
                                                         ip={base[1]}
-                                                        connect={this.connect}/>
+                                                        connect={this.establishConnection}/>
                                                 )) : (
                                                     <p className="text-center p-top-half p-bottom-half">
                                                         {t('bitboxBase.detectedBasesEmpty')}

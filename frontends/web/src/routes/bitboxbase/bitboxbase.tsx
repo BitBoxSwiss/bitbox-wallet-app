@@ -100,6 +100,10 @@ enum NetworkOptions {
     ClearnetIBD = 'enable-clearnet-ibd',
 }
 
+// Displays one-letter-wide blocks as placeholders if pairing code not available yet
+const noPairingPlaceholder = '\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588\n' +
+                             '\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\u2588\u2588';
+
 interface State {
     baseInfo?: BitBoxBaseInfo;
     serviceInfo?: BitBoxBaseServiceInfo;
@@ -465,7 +469,9 @@ class BitBoxBase extends Component<Props, State> {
                                 width={540}>
                                 <div className={stepStyle.stepContext}>
                                     <p>{t('bitboxBaseWizard.pairing.unpaired')}</p>
-                                    <pre>{hash}</pre>
+                                    <pre className={!hash ? style.noHash : ''}>
+                                        {hash ? hash : noPairingPlaceholder}
+                                    </pre>
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                         <Button
                                             primary
