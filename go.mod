@@ -59,5 +59,3 @@ require (
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20190709231704-1e4459ed25ff // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
-
-replace github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8 => github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8
