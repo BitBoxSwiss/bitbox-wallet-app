@@ -48,7 +48,6 @@ export interface BitBoxBaseInfo {
     isTorEnabled: boolean;
     isBitcoindListening: boolean;
     IsSSHPasswordLoginEnabled: boolean;
-    lightningActiveChannels: number;
     freeDiskspace: number;
     totalDiskspace: number;
     baseVersion: string;
@@ -64,6 +63,7 @@ export interface BitBoxBaseServiceInfo {
     bitcoindPeers: number;
     bitcoindIBD: boolean;
     lightningdBlocks: number;
+    lightningActiveChannels: number;
     electrsBlocks: number;
 }
 
@@ -156,8 +156,6 @@ class BitBoxBase extends Component<Props, State> {
     public componentDidMount() {
         this.onChannelHashChanged();
         this.onStatusChanged();
-        this.getBaseInfo();
-        this.getServiceInfo();
         this.unsubscribe = apiSubscribe('/' + this.apiPrefix() + '/event', ({ object }) => {
             switch (object) {
                 case 'statusChanged':
@@ -393,6 +391,8 @@ class BitBoxBase extends Component<Props, State> {
             if (!response.success) {
                 alertUser(response.message);
             }
+            this.getBaseInfo();
+            this.getServiceInfo();
             this.setState({ inProgress: false });
         });
     }
@@ -667,7 +667,7 @@ class BitBoxBase extends Component<Props, State> {
                                                         ?
                                                         <span>{t('bitboxBaseWizard.networks.tor.label1')}</span>
                                                         :
-                                                        <p style="padding-bottom: 22px">
+                                                        <p style={syncingOption === SyncingOptions.Resync && 'padding-bottom: 22px'}>
                                                             {t('bitboxBaseWizard.networks.tor.label2')}
                                                         </p>
                                                     }
