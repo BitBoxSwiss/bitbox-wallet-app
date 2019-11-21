@@ -44,9 +44,10 @@ const (
 	sigDataLen            = signingPubkeysDataLen + firmwareDataLen
 )
 
-var sigDataMagic = map[common.Edition]uint32{
-	common.EditionStandard: 0x653f362b,
-	common.EditionBTCOnly:  0x11233B0B,
+var sigDataMagic = map[common.Product]uint32{
+	common.ProductBitBox02Multi:      0x653f362b,
+	common.ProductBitBox02BTCOnly:    0x11233B0B,
+	common.ProductBitBoxBaseStandard: 0xAB6BD345,
 }
 
 // Communication contains functions needed to communicate with the device.
@@ -75,7 +76,7 @@ func toByte(b bool) byte {
 // Device provides the API to communicate with the BitBox02 bootloader.
 type Device struct {
 	communication   Communication
-	edition         common.Edition
+	product         common.Product
 	status          *Status
 	onStatusChanged func(*Status)
 	sleep           func(time.Duration)
@@ -84,22 +85,22 @@ type Device struct {
 // NewDevice creates a new instance of Device.
 func NewDevice(
 	version *semver.SemVer,
-	edition common.Edition,
+	product common.Product,
 	communication Communication,
 	onStatusChanged func(*Status),
 ) *Device {
 	return &Device{
 		communication:   communication,
-		edition:         edition,
+		product:         product,
 		status:          &Status{},
 		onStatusChanged: onStatusChanged,
 		sleep:           time.Sleep,
 	}
 }
 
-// Edition returns the bootloader edition.
-func (device *Device) Edition() common.Edition {
-	return device.edition
+// Product returns the bootloader product.
+func (device *Device) Product() common.Product {
+	return device.product
 }
 
 // Close closes the communication.
@@ -241,9 +242,9 @@ func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func
 	magic, firmware := firmware[:magicLen], firmware[magicLen:]
 	sigData, firmware := firmware[:sigDataLen], firmware[sigDataLen:]
 
-	expectedMagic, ok := sigDataMagic[device.edition]
+	expectedMagic, ok := sigDataMagic[device.product]
 	if !ok {
-		return errp.New("unrecognized edition")
+		return errp.New("unrecognized product")
 	}
 	if binary.BigEndian.Uint32(magic) != expectedMagic {
 		return errp.New("invalid signing pubkeys data magic")

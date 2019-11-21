@@ -12,20 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package common contains common functionality to bitbox02 firmware and bitbox02 bootloader.
+// Package common contains common functionality to firmware and bitbox02 of the bitbox02/bitboxbase.
 package common
 
 import "github.com/digitalbitbox/bitbox02-api-go/util/errp"
 
-// Edition enumerates the device editions, which (together with the firmware version) determines the
-// device API.
-type Edition string
+// Product enumerates the BitBox-based products. A product is a "platform"-"edition" tuple. Together
+// with the firmware version, it determines the device API.
+type Product string
 
 const (
-	// EditionStandard is the standard/full edition.
-	EditionStandard Edition = "standard"
-	// EditionBTCOnly is the btc-only edition, restricting functionality to Bitcoin.
-	EditionBTCOnly Edition = "btconly"
+	// ProductBitBox02Multi is the multi (previously: standard) edition of the BitBox02.
+	ProductBitBox02Multi Product = "bitbox02-multi"
+	// ProductBitBox02BTCOnly is the btc-only edition of the BitBox02, restricting functionality to
+	// Bitcoin.
+	ProductBitBox02BTCOnly Product = "bitbox02-btconly"
+	// ProductBitBoxBaseStandard is the standard edition of the BitBoxBase HSM.
+	ProductBitBoxBaseStandard Product = "bitboxbase-standard"
 )
 
 const (
@@ -40,15 +43,15 @@ const (
 	BootloaderHIDProductStringBTCOnly = "bb02btc-bootloader"
 )
 
-// EditionFromHIDProductString returns the firmware or bootloader edition based on the usb HID
+// ProductFromHIDProductString returns the firmware or bootloader product based on the usb HID
 // product string. Returns an error for an invalid/unrecognized product string.
-func EditionFromHIDProductString(productString string) (Edition, error) {
+func ProductFromHIDProductString(productString string) (Product, error) {
 	switch productString {
 	case FirmwareHIDProductStringStandard, BootloaderHIDProductStringStandard:
-		return EditionStandard, nil
+		return ProductBitBox02Multi, nil
 	case FirmwareHIDProductStringBTCOnly, BootloaderHIDProductStringBTCOnly:
-		return EditionBTCOnly, nil
+		return ProductBitBox02BTCOnly, nil
 	default:
-		return "", errp.New("unrecognized edition")
+		return "", errp.New("unrecognized product")
 	}
 }

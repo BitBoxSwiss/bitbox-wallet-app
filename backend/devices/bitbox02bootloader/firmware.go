@@ -28,33 +28,33 @@ type firmwareInfo struct {
 	filename string
 }
 
-var bundledFirmwares = map[bitbox02common.Edition]firmwareInfo{
-	bitbox02common.EditionStandard: {
+var bundledFirmwares = map[bitbox02common.Product]firmwareInfo{
+	bitbox02common.ProductBitBox02Multi: {
 		version:  semver.NewSemVer(4, 2, 1),
 		filename: "assets/firmware.v%s.signed.bin",
 	},
-	bitbox02common.EditionBTCOnly: {
+	bitbox02common.ProductBitBox02BTCOnly: {
 		version:  semver.NewSemVer(4, 2, 2),
 		filename: "assets/firmware-btc.v%s.signed.bin",
 	},
 }
 
 // BundledFirmwareVersion returns the version of the bundled firmware.
-func BundledFirmwareVersion(edition bitbox02common.Edition) *semver.SemVer {
-	info, ok := bundledFirmwares[edition]
+func BundledFirmwareVersion(product bitbox02common.Product) *semver.SemVer {
+	info, ok := bundledFirmwares[product]
 	if !ok {
-		panic("unrecognized edition")
+		panic("unrecognized product")
 	}
 	return info.version
 }
 
 // bundledFirmware returns the binary of the bundled firmware.
-func bundledFirmware(edition bitbox02common.Edition) []byte {
-	info, ok := bundledFirmwares[edition]
+func bundledFirmware(product bitbox02common.Product) []byte {
+	info, ok := bundledFirmwares[product]
 	if !ok {
-		panic("unrecognized edition")
+		panic("unrecognized product")
 	}
-	binary, err := Asset(fmt.Sprintf(info.filename, BundledFirmwareVersion(edition).String()))
+	binary, err := Asset(fmt.Sprintf(info.filename, BundledFirmwareVersion(product).String()))
 	if err != nil {
 		panic(err)
 	}

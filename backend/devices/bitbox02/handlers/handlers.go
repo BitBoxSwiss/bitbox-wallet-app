@@ -52,7 +52,7 @@ type BitBox02 interface {
 	Reset() error
 	ShowMnemonic() error
 	RestoreFromMnemonic() error
-	Edition() bitbox02common.Edition
+	Product() bitbox02common.Product
 }
 
 // Handlers provides a web API to the Bitbox.
@@ -275,7 +275,7 @@ func (handlers *Handlers) postSetMnemonicPassphraseEnabled(r *http.Request) (int
 
 func (handlers *Handlers) getBundledFirmwareVersionHandler(_ *http.Request) (interface{}, error) {
 	currentVersion := handlers.device.Version()
-	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Edition())
+	newVersion := bitbox02bootloader.BundledFirmwareVersion(handlers.device.Product())
 	return map[string]interface{}{
 		"currentVersion": currentVersion.String(),
 		"newVersion":     newVersion.String(),

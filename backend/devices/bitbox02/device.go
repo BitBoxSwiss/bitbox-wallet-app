@@ -48,20 +48,21 @@ type Device struct {
 func NewDevice(
 	deviceID string,
 	version *semver.SemVer,
-	edition bitbox02common.Edition,
+	product bitbox02common.Product,
 	config firmware.ConfigInterface,
 	communication firmware.Communication,
 ) *Device {
 	log := logging.Get().
 		WithGroup("device").
 		WithField("deviceID", deviceID).
-		WithField("productName", ProductName)
+		WithField("productName", ProductName).
+		WithField("product", product)
 
 	log.Info("Plugged in device")
 	device := &Device{
 		Device: *firmware.NewDevice(
 			version,
-			edition,
+			&product,
 			config,
 			communication, logger{log},
 		),

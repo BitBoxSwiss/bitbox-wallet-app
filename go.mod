@@ -15,7 +15,7 @@ require (
 	github.com/coreos/bbolt v1.3.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20191106201146-c85f8983ca2e
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20191120154205-309b255650d8
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.10.5 // indirect
 	github.com/ethereum/go-ethereum v1.9.5
@@ -59,5 +59,3 @@ require (
 	gopkg.in/olebedev/go-duktape.v3 v3.0.0-20190709231704-1e4459ed25ff // indirect
 	gopkg.in/urfave/cli.v1 v1.20.0 // indirect
 )
-
-replace github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8 => github.com/btcsuite/btcd v0.0.0-20191011231409-07282a6656b8
