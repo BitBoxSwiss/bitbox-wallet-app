@@ -33,6 +33,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
+import { BaseStatus, baseStore } from './bitboxbaseconnect';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -73,6 +74,10 @@ export interface BaseUpdateInfo {
     severity: string;
 }
 
+export const setBaseStatus = (status: BaseStatus, IP: string) => {
+    baseStore.setState({ [IP]: { status} });
+};
+
 const defaultPassword = 'ICanHasPasword?';
 
 enum ActiveStep {
@@ -107,16 +112,8 @@ const noPairingPlaceholder = '\u2588\u2588\u2588\u2588\u2588 \u2588\u2588\u2588\
 interface State {
     baseInfo?: BitBoxBaseInfo;
     serviceInfo?: BitBoxBaseServiceInfo;
-    bitboxBaseID: string | null;
+    bitboxBaseID: string;
     bitboxBaseVerified: boolean;
-    status: '' |
-    'connected' |
-    'unpaired' |
-    'pairingFailed' |
-    'passwordNotSet' |
-    'bitcoinPre' |
-    'locked' |
-    'initialized';
     hash?: string;
     showWizard: boolean;
     activeStep?: ActiveStep;
@@ -140,7 +137,6 @@ class BitBoxBase extends Component<Props, State> {
             baseInfo: undefined,
             serviceInfo: undefined,
             bitboxBaseID: '',
-            status: '',
             bitboxBaseVerified: false,
             showWizard: false,
             activeStep: ActiveStep.PairingCode,
@@ -148,7 +144,7 @@ class BitBoxBase extends Component<Props, State> {
             hostname: undefined,
             validHostname: false,
             syncingOption: undefined,
-            locked: true,
+            locked: this.props.bitboxBaseID ? baseStore.state[this.props.bitboxBaseID].status === 'locked' : true,
             updateAvailable: undefined,
             updateInfo: undefined,
             inProgress: false,
@@ -186,7 +182,7 @@ class BitBoxBase extends Component<Props, State> {
         });
 
         // Only create a new websocket if the bitboxBaseID changed.
-        if (this.props.bitboxBaseID !== this.state.bitboxBaseID) {
+        if (this.props.bitboxBaseID !== this.state.bitboxBaseID && this.props.bitboxBaseID) {
             this.setState({ bitboxBaseID : this.props.bitboxBaseID});
         }
     }
@@ -207,14 +203,12 @@ class BitBoxBase extends Component<Props, State> {
 
     private onStatusChanged = () => {
         apiGet(this.apiPrefix() + '/status').then(({status}) => {
-            if (!this.state.showWizard && ['connected', 'unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
+            if (!this.state.showWizard && ['unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
-            this.setState({
-                status,
-            });
+            setBaseStatus(status, this.state.bitboxBaseID);
             // check if the base middleware password has been set yet
-            switch (this.state.status) {
+            switch (baseStore.state[this.state.bitboxBaseID].status) {
                 case 'passwordNotSet':
                     this.setState({activeStep: ActiveStep.SetPassword});
                     break;

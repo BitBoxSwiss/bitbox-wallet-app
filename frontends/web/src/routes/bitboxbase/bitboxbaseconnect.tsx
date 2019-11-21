@@ -25,14 +25,33 @@ import { Input } from '../../components/forms';
 import { BitBoxBaseLogo } from '../../components/icon';
 import { Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
+import { share } from '../../decorators/share';
+import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
-import { apiPost } from '../../utils/request';
+import { apiGet, apiPost } from '../../utils/request';
 import { validateIP } from '../../utils/validateIP';
+import { setBaseStatus } from './bitboxbase';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
     detectedBases: DetectedBitBoxBases;
 }
+
+export type BaseStatus = '' | 'connected' | 'unpaired' | 'pairingFailed' | 'passwordNotSet' | 'bitcoinPre' | 'locked' | 'initialized';
+
+export interface ConnectedBases {
+    [IP: string]: {
+        status: BaseStatus;
+    };
+}
+
+export interface SharedProps {
+    connectedBases: ConnectedBases;
+}
+
+export const baseStore = new Store<SharedProps>({
+    connectedBases: {},
+});
 
 export interface DetectedBitBoxBases {
     [Hostname: string]: string;
@@ -45,7 +64,7 @@ interface State {
     error?: string;
 }
 
-type Props = BitBoxBaseConnectProps & TranslateProps;
+type Props = SharedProps & BitBoxBaseConnectProps & TranslateProps;
 
 class BitBoxBaseConnect extends Component<Props, State> {
     constructor(props) {
@@ -76,7 +95,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         .then(data => {
             if (data.success) {
                 this.connect(ip);
-                route(`/bitboxbase/${ip}`, true);
+                this.setStatusAndRedirect(ip);
             } else {
                 alertUser(data.errorMessage);
             }
@@ -88,7 +107,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         .then(data => {
             if (data.success) {
                 this.connect(ip);
-                route(`/bitboxbase/${ip}`, true);
+                this.setStatusAndRedirect(ip);
             } else {
                 alertUser(data.errorMessage);
             }
@@ -96,11 +115,19 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 
     private connect = (ip: string) => {
-        apiPost('bitboxbases/' + ip + '/connect-base')
+        apiPost(`bitboxbases/${ip}/connect-base`)
         .then(response => {
             if (!response.success) {
                 alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
             }
+        });
+    }
+
+    private setStatusAndRedirect = (baseID: string) => {
+        apiGet(`bitboxbases/${baseID}/status`)
+        .then(status => {
+            setBaseStatus(status, baseID);
+            route(`/bitboxbase/${baseID}`);
         });
     }
 
@@ -207,7 +234,11 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                     Object.values(detectedBases).includes(baseID) ? name = Object.keys(detectedBases).find(key => detectedBases[key] === baseID) :
                                                         // FIXME: Resolve a hostname from IP for manual additions
                                                         name = t('bitboxBase.new');
-                                                    return <SettingsButton link href={`/bitboxbase/${baseID}`} secondaryText={baseID}>{name}</SettingsButton>;
+                                                    return <SettingsButton
+                                                                onClick={() => this.setStatusAndRedirect(baseID)}
+                                                                secondaryText={baseID}>
+                                                                {name}
+                                                            </SettingsButton>;
                                                 }) : (
                                                     <p className="text-center p-top-half p-bottom-half">{t('bitboxBase.detectedBasesEmpty')}</p>
                                                 )
@@ -225,5 +256,6 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 }
 
-const HOC = translate<BitBoxBaseConnectProps>()(BitBoxBaseConnect);
-export { HOC as BitBoxBaseConnect };
+const SharedHOC = (share<SharedProps, BitBoxBaseConnectProps & TranslateProps>(baseStore)(BitBoxBaseConnect));
+const TranslatedHOC = translate<BitBoxBaseConnectProps>()(SharedHOC);
+export { TranslatedHOC as BitBoxBaseConnect };
