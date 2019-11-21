@@ -23,7 +23,7 @@ import { Button, Input } from '../../components/forms';
 import { SwissMadeOpenSource } from '../../components/icon';
 import { Header } from '../../components/layout/header';
 import { PasswordRepeatInput } from '../../components/password';
-import Spinner from '../../components/spinner/Spinner';
+import { Spinner } from '../../components/spinner/Spinner';
 import { Step, Steps } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -452,7 +452,11 @@ class BitBoxBase extends Component<Props, State> {
                 );
             }
             return (
-                <Spinner text="Connecting your BitBoxBase" />
+                <div className="contentWithGuide">
+                    <div className="container">
+                        <Spinner text="Connecting your BitBoxBase" />
+                    </div>
+                </div>
             );
         }
 

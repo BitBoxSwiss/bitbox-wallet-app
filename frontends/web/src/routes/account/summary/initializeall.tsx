@@ -15,7 +15,7 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import Spinner from '../../../components/spinner/Spinner';
+import { Spinner } from '../../../components/spinner/Spinner';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { apiWebsocket } from '../../../utils/websocket';
@@ -96,8 +96,10 @@ class InitializeAllAccounts extends Component<Props, State> {
             return <AccountsSummary />;
         }
         return (
-            <div>
-                <Spinner text={`${t('accountSummary.synchronizing')} ${Object.values(initialized).filter(status => status).length}/${accounts.length}`}/>
+            <div className="contentWithGuide">
+                <div className="container">
+                    <Spinner text={`${t('accountSummary.synchronizing')} ${Object.values(initialized).filter(status => status).length}/${accounts.length}`}/>
+                </div>
             </div>
         );
     }

@@ -123,4 +123,9 @@
     .container .sidebarToggler {
         margin-right: 0;
     }
+
+    .children > a,
+    .guideIcon {
+        font-size: var(--size-small);
+    }
 }

@@ -29,7 +29,7 @@ import { Entry } from '../../../components/guide/entry';
 import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { Fiat, store as fiat } from '../../../components/rates/rates';
-import Spinner from '../../../components/spinner/Spinner';
+import { Spinner } from '../../../components/spinner/Spinner';
 import Status from '../../../components/status/status';
 import WaitDialog from '../../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../../decorators/translate';

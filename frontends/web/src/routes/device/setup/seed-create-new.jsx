@@ -22,7 +22,7 @@ import { Button, Input, Checkbox } from '../../../components/forms';
 import { Message } from '../../../components/message/message';
 import { SwissMadeOpenSource, Alert } from '../../../components/icon';
 import { Header } from '../../../components/layout';
-import Spinner from '../../../components/spinner/Spinner';
+import { Spinner } from '../../../components/spinner/Spinner';
 import warning from '../../../assets/icons/warning.png';
 import LanguageSwitch from '../../../components/language/language';
 import * as style from '../device.css';
@@ -248,8 +248,8 @@ export default class SeedCreateNew extends Component {
                                 <SwissMadeOpenSource large />
                             </div>
                         </div>
-                        { this.renderSpinner() }
                     </div>
+                    { this.renderSpinner() }
                 </div>
             </div>
         );

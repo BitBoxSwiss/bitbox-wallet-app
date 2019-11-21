@@ -21,7 +21,7 @@ import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
 import HeadersSync from '../../components/headerssync/headerssync';
 import { Header } from '../../components/layout';
-import Spinner from '../../components/spinner/Spinner';
+import { Spinner } from '../../components/spinner/Spinner';
 import Status from '../../components/status/status';
 import Transactions from '../../components/transactions/transactions';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -279,12 +279,21 @@ class Account extends Component<Props, State> {
                     }
                     <Header
                         title={<h2><span>{account.name}</span></h2>}>
-                        <a href={`/account/${code}/info`} title={t('accountInfo.title')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <a href={`/account/${code}/info`} title={t('accountInfo.title')} className="flex flex-row flex-items-center">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                className={style.accountIcon}>
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <line x1="12" y1="16" x2="12" y2="12"></line>
                                 <line x1="12" y1="8" x2="12" y2="8"></line>
                             </svg>
+                            <span>{t('accountInfo.label')}</span>
                         </a>
                     </Header>
                     {initialized && this.dataLoaded() && isBitcoinBased(account.coinCode) && <HeadersSync coinCode={account.coinCode} />}

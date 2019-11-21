@@ -8,7 +8,7 @@
     z-index: -1;
     opacity: 0;
     animation-delay: 0.2s;
-    transition: all ease 0.2s;
+    transition: opacity ease 0.2s;
 }
 
 .sidebarOverlay.active {

@@ -25,7 +25,7 @@ import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
 import { Guide } from '../../components/guide/guide';
 import { Entry } from '../../components/guide/entry';
 import { Header, Footer } from '../../components/layout';
-import Spinner from '../../components/spinner/Spinner';
+import { Spinner } from '../../components/spinner/Spinner';
 
 const stateEnum = Object.freeze({
     DEFAULT: 'default',
