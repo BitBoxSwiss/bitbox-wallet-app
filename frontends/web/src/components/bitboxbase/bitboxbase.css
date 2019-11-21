@@ -169,7 +169,6 @@
     align-items: center;
     height: var(--item-height-large);
     padding: 0 var(--space-default);
-    /* font-size: var(--size-default); */
     font-size: 16px;
 }
 
@@ -181,6 +180,10 @@
     height: 18px;
     margin-right: var(--space-default);
     cursor: grab;
+}
+
+.baseItemSortable.detected {
+    cursor: default;
 }
 
 .baseItemSortable svg {
@@ -241,6 +244,14 @@
     width: 24px;
     height: 24px;
     color: var(--color-secondary);
+}
+
+.autoLeft {
+    margin-left: auto;
+}
+
+.emptyBases {
+    font-size: 16px;
 }
 
 @media (max-width: 900px) {
@@ -329,5 +340,9 @@
 
     .baseItemArrow {
         margin-left: auto;
+    }
+
+    .emptyBases {
+        font-size: var(--size-default);
     }
 }
