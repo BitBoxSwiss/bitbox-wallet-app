@@ -1,6 +1,6 @@
 :root {
     /* colors */
-    --color-greentea: #91B496;
+    --color-green: #7aba7a;
     --color-softred: #EC644B;
     --color-lightred: #F28E72;
     --color-swissred: #E30613;
@@ -26,7 +26,7 @@
     --color-light: var(--color-mediumgray);
 
     /* status colors */
-    --color-success: var(--color-greentea);
+    --color-success: var(--color-green);
     --color-info: var(--color-blue);
     --color-warning: var(--color-softred);
     --color-error: var(--color-swissred);
