@@ -91,6 +91,7 @@ type RPCClient struct {
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
 	onUnregister                  func() error
+	webSocketConenction           *websocket.Conn
 
 	//rpc stuff
 	client        *rpc.Client
@@ -140,9 +141,9 @@ func (rpcClient *RPCClient) Ping() (bool, error) {
 	return true, nil
 }
 
-// Connect starts the websocket go routine, first checking if the middleware is reachable,
-// then establishing a websocket connection, then authenticating and encrypting all further traffic with noise.
-func (rpcClient *RPCClient) Connect() error {
+// EstablishConnection first establishes a websocket connection to the the middleware before we call Connect()
+// to authenticate and encrypt all further traffic with noise.
+func (rpcClient *RPCClient) EstablishConnection() error {
 	rpcClient.log.Printf("connecting to base websocket")
 	if success, err := rpcClient.Ping(); !success {
 		return err
@@ -151,11 +152,19 @@ func (rpcClient *RPCClient) Connect() error {
 	if err != nil {
 		return errp.New("rpcClient: failed to create new websocket client")
 	}
-	if err = rpcClient.initializeNoise(ws); err != nil {
+	rpcClient.webSocketConenction = ws
+	return nil
+}
+
+// Connect initializes the noise pairing after a successful websocket connection had already been established,
+// it then sets the appropriate authentication status based on SetupStatus
+func (rpcClient *RPCClient) Connect() error {
+	rpcClient.log.Printf("initializing noise pairing")
+	if err := rpcClient.initializeNoise(rpcClient.webSocketConenction); err != nil {
 		return err
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
-	rpcClient.runWebsocket(ws, rpcClient.rpcConnection.WriteChan())
+	rpcClient.runWebsocket(rpcClient.webSocketConenction, rpcClient.rpcConnection.WriteChan())
 	setupStatus, err := rpcClient.GetSetupStatus()
 	if err != nil {
 		return err

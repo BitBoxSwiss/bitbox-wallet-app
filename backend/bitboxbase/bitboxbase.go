@@ -39,6 +39,9 @@ type Interface interface {
 	// Identifier returns the bitboxBaseID.
 	Identifier() string
 
+	// ConnectRPCClient connects to the RPC client of the Base whose initial connection has already been established
+	ConnectRPCClient() error
+
 	// GetRPCClient returns the rpcClient so we can listen to its events.
 	RPCClient() *rpcclient.RPCClient
 
@@ -204,6 +207,14 @@ func NewBitBoxBase(address string,
 // Self returns the current bitbox base instance.
 func (base *BitBoxBase) Self() *BitBoxBase {
 	return base
+}
+
+// EstablishConnection establishes initial websocket connection with the middleware
+func (base *BitBoxBase) EstablishConnection() error {
+	if err := base.rpcClient.EstablishConnection(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // ConnectRPCClient starts the connection with the remote bitbox base middleware

@@ -27,6 +27,7 @@ import (
 
 // Base models the api of the base middleware
 type Base interface {
+	ConnectRPCClient() error
 	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
 	ConnectElectrum() error
 	Status() bitboxbasestatus.Status
@@ -77,6 +78,7 @@ func NewHandlers(
 	handleFunc("/service-info", handlers.getServiceInfoHandler).Methods("GET")
 	handleFunc("/base-update-progress", handlers.getBaseUpdateProgressHandler).Methods("GET")
 	handleFunc("/update-info", handlers.getUpdateInfoHandler).Methods("GET")
+	handleFunc("/connect-base", handlers.postConnectBaseHandler).Methods("POST")
 	handleFunc("/backup-sysconfig", handlers.postBackupSysconfigHandler).Methods("POST")
 	handleFunc("/backup-hsm-secret", handlers.postBackupHSMSecretHandler).Methods("POST")
 	handleFunc("/restore-sysconfig", handlers.postRestoreSysconfigHandler).Methods("POST")
@@ -131,6 +133,17 @@ func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
 		"code":    "UNEXPECTED_ERROR",
 		"message": err.Error,
 	}
+}
+
+func (handlers *Handlers) postConnectBaseHandler(r *http.Request) (interface{}, error) {
+	handlers.log.Println("Connecting base...")
+	err := handlers.base.ConnectRPCClient()
+	if err != nil {
+		return bbBaseError(err, handlers.log), nil
+	}
+	return map[string]interface{}{
+		"success": true,
+	}, nil
 }
 
 func (handlers *Handlers) postDisconnectBaseHandler(r *http.Request) (interface{}, error) {

@@ -256,3 +256,8 @@ The svg draws a line which forms a minus (-).
 .loadingText {
     color: var(--color-gray-alt)
 }
+
+.noHash {
+    color: var(--color-gray-alt);
+    letter-spacing: 2px;
+}
