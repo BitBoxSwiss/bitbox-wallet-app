@@ -33,121 +33,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Interface represents bitbox base.
-type Interface interface {
-
-	// Identifier returns the bitboxBaseID.
-	Identifier() string
-
-	// ConnectRPCClient connects to the RPC client of the Base whose initial connection has already been established
-	ConnectRPCClient() error
-
-	// GetRPCClient returns the rpcClient so we can listen to its events.
-	RPCClient() *rpcclient.RPCClient
-
-	// Close tells the bitboxbase to close all connections.
-	Close()
-
-	// GetRegisterTime implements a getter for the timestamp of when the bitboxBase was registered
-	GetRegisterTime() time.Time
-
-	// ConnectElectrum connects to the electrs server on the base and configures the backend accordingly
-	ConnectElectrum() error
-
-	// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
-	Ping() (bool, error)
-
-	// Self returns an instance of the base
-	Self() *BitBoxBase
-
-	// Status returns the current status of the base
-	Status() bitboxbasestatus.Status
-
-	// ChannelHash returns the hash of the noise channel
-	ChannelHash() (string, bool)
-
-	// Deregister calls the backend's BitBoxBase Deregister callback and sends a notification to the frontend, if bitboxbase is active.
-	// If bitboxbase is not active, an error is returned.
-	Deregister() error
-
-	// ReindexBitcoin starts a bitcoin reindex on the base.
-	ReindexBitcoin() error
-
-	// ResyncBitcoin starts a bitcoin resync on the base.
-	ResyncBitcoin() error
-
-	// SetHostname sets the hostname of the BitBox Base
-	SetHostname(string) error
-
-	// UserChangePassword sets a new password for a given user
-	UserChangePassword(string, string, string) error
-
-	// UserAuthenticate returns is the authentication with a username and password was successful
-	UserAuthenticate(string, string) error
-
-	// BackupSysconfig backs up the system config to the flashdrive
-	BackupSysconfig() error
-
-	// BackupHSMSecret backs up the lightning hsm_secret
-	BackupHSMSecret() error
-
-	// RestoreSysconfig restores the system config from the flashdrive
-	RestoreSysconfig() error
-
-	// RestoreHSMSecret restores the lightning hsm_secret
-	RestoreHSMSecret() error
-
-	// EnableTor enables/disables Tor
-	EnableTor(rpcmessages.ToggleSettingArgs) error
-
-	// EnableTorMiddleware enables/disables Tor for the middleware
-	EnableTorMiddleware(rpcmessages.ToggleSettingArgs) error
-
-	// EnableTorElectrs enables/disables Tor for electrs
-	EnableTorElectrs(rpcmessages.ToggleSettingArgs) error
-
-	// EnableTorSSH enables/disables Tor for SSH
-	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
-
-	// EnableClearnetIBD configures bitcoind to run over clearnet while in IBD
-	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
-
-	// EnableRootLogin enables/disables login via the root user/password
-	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
-
-	// EnableSSHPasswordLogin enables/disables the ssh login with a password
-	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
-
-	// SetRootPassword sets the systems root password
-	SetLoginPassword(string) error
-
-	// ShutdownBase initiates a `shutdown now` call via the bbb-cmd.sh script
-	ShutdownBase() error
-
-	// RebootBase initiates a `reboot` call via the bbb-cmd.sh script
-	RebootBase() error
-
-	// UpdateBase performs an update of the Base firmware to a passed version.
-	UpdateBase(rpcmessages.UpdateBaseArgs) error
-
-	// BaseUpdateProgress returns the Base Update progress.
-	// This should be called when then middleware notifies the App that the update progress changed.
-	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
-
-	// BaseInfo returns information about the Base
-	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
-
-	// FinalizeSetupWizard calls the FinalizeSetupWizard RPC to enable bitcoin and start bitcoin services
-	FinalizeSetupWizard() error
-
-	// ServiceInfo returns information about the services running on the Base
-	// As for example the bitcoind, electrs and ligthningd block height
-	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
-
-	// UpdateInfo returns whether an update is available, and if so, version, description and severity information
-	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
-}
-
 // SyncOption is a user provided blockchain sync option during BBB initialization
 type SyncOption string
 
@@ -202,11 +87,6 @@ func NewBitBoxBase(address string,
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
-}
-
-// Self returns the current bitbox base instance.
-func (base *BitBoxBase) Self() *BitBoxBase {
-	return base
 }
 
 // EstablishConnection establishes initial websocket connection with the middleware

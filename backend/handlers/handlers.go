@@ -85,10 +85,10 @@ type Backend interface {
 	OnDeviceInit(f func(device.Interface))
 	OnDeviceUninit(f func(deviceID string))
 	DevicesRegistered() map[string]device.Interface
-	OnBitBoxBaseInit(f func(bitboxbase.Interface))
+	OnBitBoxBaseInit(f func(*bitboxbase.BitBoxBase))
 	OnBitBoxBaseUninit(f func(bitboxBaseID string))
 	BitBoxBasesDetected() map[string]string
-	BitBoxBasesRegistered() map[string]bitboxbase.Interface
+	BitBoxBasesRegistered() map[string]*bitboxbase.BitBoxBase
 	Start() <-chan interface{}
 	RegisterKeystore(keystore.Keystore)
 	DeregisterKeystore()
@@ -284,7 +284,7 @@ func NewHandlers(
 		getDeviceHandlers(deviceID).Uninit()
 	})
 
-	backend.OnBitBoxBaseInit(func(baseDevice bitboxbase.Interface) {
+	backend.OnBitBoxBaseInit(func(baseDevice *bitboxbase.BitBoxBase) {
 		getBaseHandlers(baseDevice.Identifier()).Init(baseDevice)
 	})
 	backend.OnBitBoxBaseUninit(func(bitboxBaseID string) {

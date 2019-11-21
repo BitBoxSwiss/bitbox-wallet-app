@@ -18,50 +18,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
-	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
 
-// Base models the api of the base middleware
-type Base interface {
-	ConnectRPCClient() error
-	BaseUpdateProgress() (rpcmessages.GetBaseUpdateProgressResponse, error)
-	ConnectElectrum() error
-	Status() bitboxbasestatus.Status
-	ChannelHash() (string, bool)
-	Deregister() error
-	ReindexBitcoin() error
-	ResyncBitcoin() error
-	SetHostname(string) error
-	UserAuthenticate(string, string) error
-	UserChangePassword(string, string, string) error
-	BackupSysconfig() error
-	BackupHSMSecret() error
-	RestoreSysconfig() error
-	RestoreHSMSecret() error
-	EnableTor(rpcmessages.ToggleSettingArgs) error
-	EnableTorMiddleware(rpcmessages.ToggleSettingArgs) error
-	EnableTorElectrs(rpcmessages.ToggleSettingArgs) error
-	EnableTorSSH(rpcmessages.ToggleSettingArgs) error
-	EnableClearnetIBD(rpcmessages.ToggleSettingArgs) error
-	EnableRootLogin(rpcmessages.ToggleSettingArgs) error
-	EnableSSHPasswordLogin(rpcmessages.ToggleSettingArgs) error
-	SetLoginPassword(string) error
-	ShutdownBase() error
-	RebootBase() error
-	UpdateBase(rpcmessages.UpdateBaseArgs) error
-	BaseInfo() (rpcmessages.GetBaseInfoResponse, error)
-	ServiceInfo() (rpcmessages.GetServiceInfoResponse, error)
-	UpdateInfo() (rpcmessages.IsBaseUpdateAvailableResponse, error)
-	FinalizeSetupWizard() error
-}
-
 // Handlers provides a web API to the Bitbox.
 type Handlers struct {
-	base Base
+	base *bitboxbase.BitBoxBase
 	log  *logrus.Entry
 }
 
@@ -108,7 +74,7 @@ func NewHandlers(
 
 // Init installs a bitboxbase as a base for the web api. This needs to be called before any requests
 // are made.
-func (handlers *Handlers) Init(base Base) {
+func (handlers *Handlers) Init(base *bitboxbase.BitBoxBase) {
 	handlers.log.Debug("Init")
 	handlers.base = base
 }

@@ -124,13 +124,13 @@ type Backend struct {
 	notifier *Notifier
 
 	devices            map[string]device.Interface
-	bitboxBases        map[string]bitboxbase.Interface
+	bitboxBases        map[string]*bitboxbase.BitBoxBase
 	keystores          *keystore.Keystores
 	onAccountInit      func(accounts.Interface)
 	onAccountUninit    func(accounts.Interface)
 	onDeviceInit       func(device.Interface)
 	onDeviceUninit     func(string)
-	onBitBoxBaseInit   func(bitboxbase.Interface)
+	onBitBoxBaseInit   func(*bitboxbase.BitBoxBase)
 	onBitBoxBaseUninit func(string)
 
 	coins     map[string]coin.Coin
@@ -162,7 +162,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		events:      make(chan interface{}, 1000),
 
 		devices:     map[string]device.Interface{},
-		bitboxBases: map[string]bitboxbase.Interface{},
+		bitboxBases: map[string]*bitboxbase.BitBoxBase{},
 		keystores:   keystore.NewKeystores(),
 		coins:       map[string]coin.Coin{},
 		accounts:    []accounts.Interface{},
@@ -713,7 +713,7 @@ func (backend *Backend) OnDeviceUninit(f func(string)) {
 }
 
 // OnBitBoxBaseInit installs a callback to be called when a bitboxbase is initialized.
-func (backend *Backend) OnBitBoxBaseInit(f func(bitboxbase.Interface)) {
+func (backend *Backend) OnBitBoxBaseInit(f func(*bitboxbase.BitBoxBase)) {
 	backend.onBitBoxBaseInit = f
 }
 
@@ -765,7 +765,7 @@ func (backend *Backend) DevicesRegistered() map[string]device.Interface {
 }
 
 // BitBoxBasesRegistered returns a map of bitboxBaseIDs and registered bitbox bases.
-func (backend *Backend) BitBoxBasesRegistered() map[string]bitboxbase.Interface {
+func (backend *Backend) BitBoxBasesRegistered() map[string]*bitboxbase.BitBoxBase {
 	return backend.bitboxBases
 }
 
@@ -780,10 +780,10 @@ func (backend *Backend) EmitBitBoxBaseDetected() {
 }
 
 // bitBoxBaseRegister registers the given bitboxbase at this backend.
-func (backend *Backend) bitBoxBaseRegister(theBase bitboxbase.Interface) error {
+func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error {
 	backend.bitboxBases[theBase.Identifier()] = theBase
 	backend.onBitBoxBaseInit(theBase)
-	theBase.Self().Observe(func(event observable.Event) { backend.events <- event })
+	theBase.Observe(func(event observable.Event) { backend.events <- event })
 	select {
 	case backend.events <- backendEvent{
 		Type: "bitboxbases",
