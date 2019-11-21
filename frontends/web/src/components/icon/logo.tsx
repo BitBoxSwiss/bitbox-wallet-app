@@ -23,6 +23,7 @@ import BitBoxLogo from './assets/bitbox-logo.svg';
 import BitBoxSwissInvertedLogo from './assets/bitbox-swisscross-inverted-logo.svg';
 import BitBoxSwissLogo from './assets/bitbox-swisscross-logo.svg';
 import BitBox02Logo from './assets/bitbox02-logo.svg';
+import BaseLogo from './assets/bitboxbase-logo.svg';
 import BTC from './assets/btc-color.svg';
 import BTC_GREY from './assets/btc-white.svg';
 import ETH from './assets/eth-color.svg';
@@ -59,6 +60,7 @@ export const BitBoxSwiss = (props: GenericProps) => <img {...props} draggable={f
 export const BitBoxSwissInverted = (props: GenericProps) => <img {...props} draggable={false} src={BitBoxSwissInvertedLogo} alt="BitBox" className={style.logo} />;
 export const Shift = (props: GenericProps) => <img {...props} draggable={false} src={ShiftLogo} alt="SHIFT Cryptosecurity" className={style.logo} />;
 export const SwissMadeOpenSource = (props: GenericProps) => <img {...props} draggable={false} src={SwissOpenSource} alt="Swiss Made Open Source" className={[style.swissOpenSource, props.large ? style.large : ''].join(' ')} />;
+export const BitBoxBaseLogo = (props: GenericProps) => <img {...props} draggable={false} src={BaseLogo} alt="BitBoxBase" className={style.logo} />;
 
 const logoMap = {
     'btc': [BTC, BTC_GREY],

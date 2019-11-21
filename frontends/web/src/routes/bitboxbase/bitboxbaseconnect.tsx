@@ -22,6 +22,7 @@ import { DetectedBase } from '../../components/bitboxbase/detectedbase';
 import { Dialog } from '../../components/dialog/dialog';
 import * as dialogStyle from '../../components/dialog/dialog.css';
 import { Input } from '../../components/forms';
+import { BitBoxBaseLogo } from '../../components/icon';
 import { Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../decorators/translate';
@@ -131,7 +132,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         return (
             <div class="contentWithGuide">
                 <div class="container">
-                    <Header title={<h2>{t('bitboxBase.title')}</h2>} />
+                    <Header title={<BitBoxBaseLogo />} />
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className="columnsContainer">
