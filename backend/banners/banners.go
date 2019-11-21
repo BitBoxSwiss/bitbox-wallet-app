@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const bannersURL = "https://shiftcrypto.ch/updates/banners.json"
+const bannersURL = "http://localhost:8000/banners.json"
 
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
@@ -96,19 +96,8 @@ func (banners *Banners) Activate(key MessageKey) {
 	banners.active[key] = struct{}{}
 	banners.Notify(observable.Event{
 		Subject: "banners/" + string(key),
-		Action:  action.Replace,
-		Object:  banners.getMessage(key),
+		Action:  action.Reload,
 	})
-}
-
-func (banners *Banners) getMessage(key MessageKey) *Message {
-	switch key {
-	case KeyBitBox01:
-		return banners.banners.BitBox01
-	default:
-		banners.log.Errorf("unrecognized key: %s", key)
-		return nil
-	}
 }
 
 // GetMessage gets a message for a key if it was activated. nil otherwise, or if no msg exists.
@@ -117,5 +106,12 @@ func (banners *Banners) GetMessage(key MessageKey) *Message {
 	if !active {
 		return nil
 	}
-	return banners.getMessage(key)
+
+	switch key {
+	case KeyBitBox01:
+		return banners.banners.BitBox01
+	default:
+		banners.log.Errorf("unrecognized key: %s", key)
+		return nil
+	}
 }
