@@ -238,7 +238,8 @@
     "detectedBases": "Detected devices on your network",
     "detectedBasesEmpty": "No devices found",
     "manualInput": "Connect manually",
-    "manualInputLabel": "IP address:port",
+    "manualInputInvalid": "Invalid IP address",
+    "manualInputLabel": "IP address[:port]",
     "new": "New BitBoxBase",
     "settings": {
       "advanced": {

@@ -26,6 +26,7 @@ import { Header } from '../../components/layout';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
+import { validateIP } from '../../utils/validateIP';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
@@ -40,6 +41,7 @@ interface State {
     bitboxBaseIDs: string[];
     manualConnectDialog: boolean;
     ipEntry: string;
+    error?: string;
 }
 
 type Props = BitBoxBaseConnectProps & TranslateProps;
@@ -56,18 +58,24 @@ class BitBoxBaseConnect extends Component<Props, State> {
 
     private handleFormChange = event => {
         this.setState({
+            error: undefined,
             ipEntry : event.target.value,
         });
     }
 
     private submit = (event: Event) => {
         event.preventDefault();
-        apiPost('bitboxbases/establish-connection', {
-            ip: this.state.ipEntry,
-        }).then(data => {
+        if (!validateIP(this.state.ipEntry)) {
+            this.setState({ error: this.props.t('bitboxBase.manualInputInvalid') });
+            return;
+        }
+        let ip: string;
+        this.state.ipEntry.includes(':') ? ip = this.state.ipEntry : ip = this.state.ipEntry + ':8845';
+        apiPost('bitboxbases/establish-connection', { ip })
+        .then(data => {
             if (data.success) {
-                this.connect(this.state.ipEntry);
-                route(`/bitboxbase/${this.state.ipEntry}`, true);
+                this.connect(ip);
+                route(`/bitboxbase/${ip}`, true);
             } else {
                 alertUser(data.errorMessage);
             }
@@ -116,6 +124,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         {
             manualConnectDialog,
             ipEntry,
+            error,
         }: State,
     ) {
         const bases = Object.entries(detectedBases);
@@ -166,17 +175,18 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                             manualConnectDialog && (
                                                 <Dialog title={t('bitboxBase.manualInput')} onClose={this.closeManualConnectDialog}>
                                                     <form onSubmit={this.submit}>
-                                                        <label>{t('bitboxBase.manualInputLabel')}</label>
                                                         <Input
                                                             name="ip"
                                                             onInput={this.handleFormChange}
+                                                            label={t('bitboxBase.manualInputLabel')}
                                                             value={ipEntry}
-                                                            placeholder="IP address:port" />
+                                                            error={error} />
                                                         <div className={dialogStyle.actions}>
                                                             <button
                                                                 className={[style.button, style.primary].join(' ')}
                                                                 disabled={ipEntry === ''}
-                                                                onClick={this.submit}>
+                                                                type="submit"
+                                                                >
                                                                 {t('bitboxBase.connect')}
                                                             </button>
                                                         </div>
