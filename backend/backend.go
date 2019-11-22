@@ -741,9 +741,10 @@ func (backend *Backend) Start() <-chan interface{} {
 		go backend.banners.Init(httpClient)
 	}
 
-	if backend.arguments.DevMode() {
-		backend.baseManager.Start()
-	}
+	// if backend.arguments.DevMode() {
+	// 	backend.baseManager.Start()
+	// }
+	backend.baseManager.Start()
 	backend.initPersistedAccounts()
 	return backend.events
 }

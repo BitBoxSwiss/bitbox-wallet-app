@@ -231,7 +231,7 @@ class Sidebar extends Component<Props> {
                     <div className="sidebarHeaderContainer end">
                         <span className="sidebarHeader">Settings</span>
                     </div>
-                    {debug &&
+                    {!debug &&
                         <div className="sidebarItem">
                             <Link
                                 activeClassName="sidebar-active"
@@ -246,7 +246,7 @@ class Sidebar extends Component<Props> {
                             </Link>
                         </div>
                     }
-                    {debug && bitboxBaseIDs.map(bitboxBaseID => (
+                    {!debug && bitboxBaseIDs.map(bitboxBaseID => (
                             <div key={bitboxBaseID} className="sidebarItem">
                                 <Link
                                     href={`/bitboxbase/${bitboxBaseID}`}
