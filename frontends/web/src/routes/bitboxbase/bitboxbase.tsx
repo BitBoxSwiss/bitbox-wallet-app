@@ -313,6 +313,7 @@ class BitBoxBase extends Component<Props, State> {
 
     private submitChangePasswordSetup = (event: Event) => {
         event.preventDefault();
+        this.setState({ inProgress: true });
         apiPost(this.apiPrefix() + '/user-change-password', {username: 'admin', password: defaultPassword, newPassword: this.state.password})
         .then(response => {
             if (response.success) {
@@ -321,6 +322,7 @@ class BitBoxBase extends Component<Props, State> {
                 // TODO: Once error codes are implemented on the base, add them with corresponding text to app.json for translation
                 alertUser(response.message);
             }
+            this.setState({ inProgress: false });
         });
     }
 
@@ -335,6 +337,7 @@ class BitBoxBase extends Component<Props, State> {
     }
 
     private setHostname = () => {
+        this.setState({ inProgress: true });
         apiPost(this.apiPrefix() + '/set-hostname', {hostname: this.state.hostname})
         .then(response => {
             if (response.success) {
@@ -342,10 +345,12 @@ class BitBoxBase extends Component<Props, State> {
             } else {
                 alertUser(response.message);
             }
+            this.setState({ inProgress: false });
         });
     }
 
     private setNetwork = (networkOption: NetworkOptions, toggleSetting: boolean) => {
+        this.setState({ inProgress: true });
         apiPost(this.apiPrefix() + `/${networkOption}`, toggleSetting)
         .then(response => {
             if (response.success) {
@@ -357,6 +362,7 @@ class BitBoxBase extends Component<Props, State> {
             } else {
                 alertUser(response.message);
             }
+            this.setState({ inProgress: false });
         });
     }
 
@@ -572,7 +578,7 @@ class BitBoxBase extends Component<Props, State> {
                                         <Button
                                             primary
                                             onClick={this.setHostname}
-                                            disabled={!validHostname}>
+                                            disabled={!validHostname || inProgress }>
                                             {t('button.continue')}
                                         </Button>
                                         <Button transparent onClick={() => this.setState({ activeStep: ActiveStep.ChooseSetup })}>{t('button.back')}</Button>
@@ -696,7 +702,11 @@ class BitBoxBase extends Component<Props, State> {
                                                 </div>
                                                 <div>
                                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
-                                                        <Button primary onClick={() => this.setNetwork  (NetworkOptions.EnableTor, true)}>{t('bitboxBaseWizard.networks.tor.select')}</Button>
+                                                        <Button
+                                                            primary
+                                                            disabled={inProgress}
+                                                            onClick={() => this.setNetwork(NetworkOptions.EnableTor, true)}>{t('bitboxBaseWizard.networks.tor.select')}
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -716,7 +726,11 @@ class BitBoxBase extends Component<Props, State> {
                                                             <li>{t('bitboxBaseWizard.networks.clearnetThenTor.con1')}</li>
                                                         </ul>
                                                     </div>
-                                                    <Button primary onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>{t('bitboxBaseWizard.networks.clearnetThenTor.select')}</Button>
+                                                    <Button
+                                                        primary
+                                                        disabled={inProgress}
+                                                        onClick={() => this.setNetwork(NetworkOptions.ClearnetIBD, true)}>{t('bitboxBaseWizard.networks.clearnetThenTor.select')}
+                                                    </Button>
                                                 </div>
                                             </div>
                                         }
@@ -737,7 +751,11 @@ class BitBoxBase extends Component<Props, State> {
                                                 </div>
                                                 <div>
                                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')} style="margin-top: 0px !important">
-                                                        <Button primary onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>{t('bitboxBaseWizard.networks.clearnet.select')}</Button>
+                                                        <Button
+                                                            primary
+                                                            disabled={inProgress}
+                                                            onClick={() => this.setNetwork(NetworkOptions.EnableTor, false)}>{t('bitboxBaseWizard.networks.clearnet.select')}
+                                                        </Button>
                                                     </div>
                                                 </div>
                                             </div>
