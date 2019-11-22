@@ -329,7 +329,7 @@
         "point2": "It allows you to reset the BitBoxBase management password.",
         "point3": "Please <strong>remove the flashdrive</strong> now and store it in a secure location."
       },
-      "title": "Wallet Backup"
+      "title": "Wallet backup"
     },
     "bitcoin": {
       "presync": "Use pre-synced",
