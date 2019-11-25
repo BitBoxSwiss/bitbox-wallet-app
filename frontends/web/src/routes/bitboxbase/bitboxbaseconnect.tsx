@@ -266,7 +266,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                             </div>
                                                             <span className={style.baseItemName}>
                                                                 <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
-                                                                <p className="m-none show-on-small">{baseID}</p>
+                                                                <p className={[style.baseItemIp, 'm-none', 'show-on-small'].join(' ')}>{baseID}</p>
                                                             </span>
                                                             <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
                                                             <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>

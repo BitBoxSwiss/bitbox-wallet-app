@@ -60,7 +60,7 @@ class DetectedBase extends Component<Props> {
                 </div>
                 <span className={style.baseItemName}>
                     <a className={style.baseItemName} onClick={this.handleConnect}>{hostname}</a>
-                    <p className="m-none show-on-small">{ip}</p>
+                    <p className={[style.baseItemIp, 'm-none', 'show-on-small'].join(' ')}>{ip}</p>
                 </span>
                 <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{ip}</span>
                 <a className={[style.baseItemArrow, style.autoLeft].join(' ')} onClick={this.handleConnect}>

@@ -203,6 +203,7 @@
 }
 
 .baseItemIp {
+    color: var(--color-gray);
     margin-right: var(--space-default);
 }
 
