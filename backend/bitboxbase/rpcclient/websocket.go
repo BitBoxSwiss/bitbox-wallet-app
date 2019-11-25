@@ -16,6 +16,7 @@ package rpcclient
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base32"
 	"fmt"
 
@@ -201,7 +202,9 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 
 	// Do the user verification of the channel binding hash if either the app or base require it
 	if pairingVerificationRequiredByBase || pairingVerificationRequiredByApp {
-		channelHashBase32 := base32.StdEncoding.EncodeToString(handshake.ChannelBinding())
+		sha256PairingHash32byte := sha256.Sum256(handshake.ChannelBinding())
+		sha256PairingHash := sha256PairingHash32byte[:]
+		channelHashBase32 := base32.StdEncoding.EncodeToString(sha256PairingHash)
 		rpcClient.channelHash = fmt.Sprintf(
 			"%s %s\n%s %s",
 			channelHashBase32[:5],
