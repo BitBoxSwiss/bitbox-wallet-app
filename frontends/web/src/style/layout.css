@@ -36,6 +36,10 @@
     color: var(--color-dark);
 }
 
+.show-on-small {
+    display: none;
+}
+
 .text-ellipsis {
     overflow-x: hidden;
     text-overflow: ellipsis;
@@ -399,5 +403,9 @@
 
     .hide-on-small {
         display: none;
+    }
+
+    .show-on-small {
+        display: initial;
     }
 }

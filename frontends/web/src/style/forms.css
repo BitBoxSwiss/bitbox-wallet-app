@@ -34,6 +34,10 @@ dt {
     font-weight: 400;
 }
 
+.labelLink.larger {
+    font-size: 16px;
+}
+
 .labelXLarge.labelLink {
     font-size: var(--size-default);
     margin-bottom: calc(var(--space-half) * 1.5);
@@ -101,7 +105,8 @@ input[type="checkbox"]:focus + label::before {
         margin-bottom: var(--space-half);
     }
 
-    .labelLink {
+    .labelLink,
+    .labelLink.larger {
         font-size: var(--size-small);
     }
 
