@@ -27,6 +27,7 @@ export default class LanguageSwitcher extends Component {
     constructor(props) {
         super(props);
         const languages = [
+            { code: 'bg', display: 'България' },
             { code: 'de', display: 'Deutsch' },
             { code: 'en', display: 'English' },
             { code: 'hi', display: 'हिन्दी ' },
