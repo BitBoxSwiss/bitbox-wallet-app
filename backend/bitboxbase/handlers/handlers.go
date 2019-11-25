@@ -97,7 +97,7 @@ func bbBaseError(err error, log *logrus.Entry) map[string]interface{} {
 	return map[string]interface{}{
 		"success": false,
 		"code":    "UNEXPECTED_ERROR",
-		"message": err.Error,
+		"message": err.Error(),
 	}
 }
 

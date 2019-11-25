@@ -128,7 +128,11 @@ class BitBoxBaseConnect extends Component<Props, State> {
         apiPost(`bitboxbases/${ip}/connect-base`)
         .then(response => {
             if (!response.success) {
-                alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
+                if (response.message) {
+                    alertUser(response.message);
+                } else {
+                    alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
+                }
             }
         });
     }
