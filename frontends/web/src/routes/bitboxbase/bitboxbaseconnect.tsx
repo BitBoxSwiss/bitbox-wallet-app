@@ -182,7 +182,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="flex flex-row flex-between flex-items-center m-bottom-large">
                                             <label className="labelXLarge m-none">{t('bitboxBase.detectedBases')}</label>
                                             <label
-                                                className="labelLarge labelLink m-none flex flex-row flex-items-center"
+                                                className="labelLink larger m-none flex flex-row flex-items-center"
                                                 onClick={this.openManualConnectDialog}>
                                                 <svg
                                                     xmlns="http://www.w3.org/2000/svg"
