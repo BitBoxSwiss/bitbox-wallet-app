@@ -51,7 +51,7 @@ type Props = BitBox02Props & TranslateProps;
 interface State {
     versionInfo?: VersionInfo;
     hash?: string;
-    attestationResult?: boolean;
+    attestationResult: boolean | null;
     deviceVerified: boolean;
     status: '' |
     'require_firmware_upgrade' |
@@ -87,7 +87,7 @@ class BitBox02 extends Component<Props, State> {
         super(props);
         this.state = {
             hash: undefined,
-            attestationResult: undefined,
+            attestationResult: null,
             deviceVerified: false,
             status: '',
             settingPassword: false,
@@ -117,9 +117,7 @@ class BitBox02 extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/bundled-firmware-version').then(versionInfo => {
             this.setState({ versionInfo });
         });
-        apiGet(this.apiPrefix() + '/attestation').then(attestationResult => {
-            this.setState({ attestationResult });
-        });
+        this.updateAttestationCheck();
         this.checkSDCard().then(sdCardInserted => {
             this.setState({ sdCardInserted });
         });
@@ -138,9 +136,18 @@ class BitBox02 extends Component<Props, State> {
                         case 'statusChanged':
                             this.onStatusChanged();
                             break;
+                        case 'attestationCheckDone':
+                            this.updateAttestationCheck();
+                            break;
                     }
                     break;
             }
+        });
+    }
+
+    private updateAttestationCheck = () => {
+        apiGet(this.apiPrefix() + '/attestation').then(attestationResult => {
+            this.setState({ attestationResult });
         });
     }
 

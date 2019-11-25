@@ -48,7 +48,7 @@ type BitBox02 interface {
 	InsertRemoveSDCard(messages.InsertRemoveSDCardRequest_SDCardAction) error
 	SetMnemonicPassphraseEnabled(bool) error
 	UpgradeFirmware() error
-	Attestation() bool
+	Attestation() *bool
 	Reset() error
 	ShowMnemonic() error
 	RestoreFromMnemonic() error
