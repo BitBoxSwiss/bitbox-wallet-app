@@ -83,14 +83,14 @@
       "verificationFailed": "A senha de recuperação NÃO CORRESPONDE à carteira atual. O backup foi criado. Por favor, use 'Checar backup' para verificar sua senha de recuperação novamente."
     },
     "description": "Selecione um <strong>arquivo de backup da carteira</strong>",
-    "insert": "Por favor, insira o cartão micro SD para gerenciar backups.",
-    "insertButton": "Eu inseri o cartão micro SD",
+    "insert": "Por favor, insira o cartão microSD para gerenciar backups.",
+    "insertButton": "Eu inseri o cartão microSD",
     "list": "Os backups do seu cartão microSD",
     "noBackups": "Não há backups neste cartão micro SD.",
     "restore": {
       "confirmTitle": "Restaurar backup",
       "error": {
-        "e200": "Cartão SD não encontrado"
+        "e200": "Cartão microSD não encontrado"
       },
       "password": {
         "label": "Senha de recuperação ou senha de recuperação oculta",
@@ -103,11 +103,11 @@
       "understand": "Eu entendo que uma senha de recuperação incorreta criará uma carteira diferente"
     },
     "restoreFromMnemonic": {
-      "confirmTitle": "Restaurar a partir da semente mnemônica BIP39"
+      "confirmTitle": "Restaurar a partir da semente mnemônica"
     },
     "showMnemonic": {
       "description": "Serão mostradas até 24 palavras, que formam um backup de sua carteira. Anote-as em um papel.\n\n<strong>Não as armazene digitalmente nem tire fotos delas.</strong>\n\n<strong>Não diga as palavras em voz alta.</strong>\n\n<strong>Este backup não é protegido por senha.</strong>\n\nDepois disso, você será solicitado a confirmar cada palavra.",
-      "title": "Mostrar semente mnemônica BIP39"
+      "title": "Mostrar semente mnemônica"
     },
     "title": "Gerenciar backups"
   },
@@ -139,15 +139,15 @@
       "title": "Definir nome da BitBox02"
     },
     "mnemonicPassphrase": {
-      "description": "Isso permite que você insira uma frase secreta mnemônica depois de desbloquear a sua BitBox02.\n\n<strong>NOTA:</strong> qualquer frase secreta mnemônica deriva uma nova carteira separadamente.\nMantenha sua frase secreta mnemônica <strong>segura</strong>.\n<strong>A perda de uma frase secreta mnemônica NÃO É RECUPERÁVEL.</strong>",
-      "disable": "Desativar frase secreta mnemônica",
-      "enable": "Ativar frase secreta mnemônica",
-      "successDisable": "Frase secreta mnemônica desativada com sucesso",
-      "successEnable": "Frase secreta mnemônica ativada com sucesso.\n\nA partir de agora você pode inserir uma frase secreta depois desbloquear a sua BitBox 02.\n\nSe você não sabe o que é uma frase secreta, desative esta opção. É uma opção de usuário avançado. \n\n\n<strong>Aviso:</strong> cada frase secreta gera uma Carteira válida.\nVocê precisa ter certeza de que sua frase secreta é <strong>segura e que você não a perca.</strong>\n\n<strong>Se você perder sua frase secreta, não poderá acessar suas moedas. Isso significa que suas moedas serão perdidas.</strong>"
+      "description": "Isso permite que você insira uma frase secreta opcional depois de desbloquear a sua BitBox02.\n\n<strong>NOTA:</strong> qualquer frase secreta mnemônica deriva uma nova carteira separadamente.\nMantenha sua frase secreta mnemônica <strong>segura</strong>.\n<strong>A perda de uma frase secreta mnemônica NÃO É RECUPERÁVEL.</strong>",
+      "disable": "Desativar frase secreta opcional",
+      "enable": "Ativar frase secreta opcional",
+      "successDisable": "Frase secreta opcional desativada com sucesso",
+      "successEnable": "Frase secreta opcional ativada com sucesso.\n\nA partir de agora você pode inserir uma frase secreta depois de desbloquear a sua BitBox02.\n\nSe você não sabe o que é uma frase secreta, desative esta opção. É uma opção de usuário avançado. \n\n\n<strong>Aviso:</strong> cada frase secreta gera uma carteira válida.\nVocê precisa ter certeza de que sua frase secreta é <strong>segura e que você não a perca.</strong>\n\n<strong>Se você perder sua frase secreta, não poderá acessar suas moedas. Isso significa que suas moedas serão perdidas.</strong>"
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "Falha na verificação do dispositivo. Sua BitBox pode ser falsificada ou estar comprometida. Qualquer moeda na BitBox02 pode estar em risco de ser perdida. Por favor, contate support@shiftcrypto.ch imediatamente.",
+    "attestationFailed": "Falha na verificação do dispositivo, o que pode ter ocorrido ao reniciar o app enquanto o dispositivo estava esperando uma entrada do usuário. Por favor, reconecte e tente novamente.",
     "backup": {
       "point1": "Selecione um backup no cartão microSD",
       "point2": "Defina uma senha para o seu dispositivo",
@@ -173,21 +173,58 @@
       "passwordText": "Agora vamos definir uma senha para o seu dispositivo. Use os controles da sua BitBox para entrar e escolher uma senha.",
       "passwordTitle": "Definir uma senha para a sua BitBox",
       "text": "Sucesso ao parear sua BitBox02! Agora vamos inicializar seu dispositivo. Comece escolhendo criar uma nova carteira ou restaurar uma carteira a partir de um backup existente. <strong>Por favor, verifique se você tem um cartão microSD inserido na sua BitBox02</strong>",
-      "tip": "Antes de continuar, é altamente recomendável que você prossiga em um ambiente seguro.",
+      "tip": "Recomendamos que você proceda em um ambiente seguro.",
       "title": "Inicialize sua BitBox"
     },
     "insertSDCard": "<strong>Por favor, verifique se você tem um cartão microSD inserido em sua BitBox02.</strong>",
     "pairing": {
-      "confirmButton": "Confirmar e Continuar",
+      "confirmButton": "Continuar",
       "failed": "Pareamento não confirmado. Por favor, reconecte sua BitBox02.",
       "paired": "Você confirmou no seu dispositivo que o código corresponde. Se isso estiver correto, você pode clicar no botão abaixo para continuar.",
       "title": "Verificar o código de pareamento",
       "unpaired": "Uma nova BitBox02 foi detectada. Por favor, verifique se o seguinte código corresponde ao que é mostrado no seu dispositivo. Se o código coincidir, toque abaixo da marca de seleção na sua BitBox02 e, em seguida, clique no botão abaixo para continuar."
     },
     "restoreFromMnemonic": {
-      "failed": "A restauração a partir da semente mnemônica BIP39 falhou, por favor, tente novamente.",
+      "failed": "A restauração a partir da semente mnemônica falhou, por favor, tente novamente.",
       "point1": "Digite as palavras",
       "point2": "$t(bitbox02Wizard.backup.point2)"
+    },
+    "stepBackup": {
+      "beforeProceed": "Antes de continuar, leia estas importantes considerações de segurança:",
+      "createBackup": "Agora você criará um backup no seu cartão microSD."
+    },
+    "stepBackupSuccess": {
+      "fundsSafe": "Para manter seus fundos seguros, lembre-se do seguinte:",
+      "title": "Backup restaurado!"
+    },
+    "stepConnected": {
+      "unlock": "Digite a senha da BitBox02 para desbloquear."
+    },
+    "stepCreate": {
+      "buttonBack": "Voltar",
+      "buttonContinue": "Continuar",
+      "nameLabel": "Nome da BitBox02",
+      "namePlaceholder": "Minha BitBox02",
+      "title": "Escolha o nome da BitBox02",
+      "toastMicroSD": "Verifique se o seu cartão microSD está inserido na sua BitBox02."
+    },
+    "stepCreateSuccess": {
+      "removeMicroSD": "Remova o cartão microSD de sua BitBox02 e guarde-o em um local seguro.",
+      "success": "Você criou com êxito seu backup."
+    },
+    "stepPassword": {
+      "title": "Definir senha da BitBox02",
+      "useControls": "Use os controles em sua BitBox02 para definir uma senha."
+    },
+    "stepUninitialized": {
+      "create": "Quero configurar uma nova BitBox02.",
+      "restore": "Quero restaurar minha carteira a partir de um backup.",
+      "restoreMicroSD": "Restaurar a partir do cartão microSD",
+      "restoreMnemonic": "Restaurar a partir da semente mnemônica",
+      "title": "Configure sua BitBox02"
+    },
+    "stepUnpaired": {
+      "verify": "Verifique se o código de emparelhamento corresponde ao que é mostrado em sua BitBox02."
     },
     "success": {
       "text": "Oba! Sua BitBox02 agora está pronta para uso.\n\nPara obter mais informações sobre como usar o aplicativo BitBox, use o guia no aplicativo clicando no ponto de interrogação no canto superior direito.",
@@ -223,6 +260,7 @@
     "back": "Voltar",
     "changepin": "Mudar senha do dispositivo",
     "check": "Checar backup",
+    "continue": "Continuar",
     "copy": "Copiar",
     "create": "Criar",
     "download": "Baixar",
@@ -232,6 +270,7 @@
     "previous": "Anterior",
     "receive": "Receber",
     "restore": "Restaurar",
+    "select": "",
     "send": "Enviar",
     "unlock": "Desbloquear",
     "upgrade": "Atualizar"
@@ -240,7 +279,7 @@
     "newTitle": "Nova senha do dispositivo",
     "oldLabel": "Senha atual do dispositivo"
   },
-  "checkSDcard": "checando cartão micro SD",
+  "checkSDcard": "checando cartão microSD",
   "confirm": {
     "abortInfo": "Toque para ",
     "abortInfoRedText": "abortar",
@@ -275,7 +314,7 @@
     "hardware": {
       "sdcard": {
         "false": "Não inserido",
-        "label": "Cartão Micro SD",
+        "label": "Cartão microSD",
         "true": "Inserido"
       },
       "title": "Hardware"
@@ -559,6 +598,10 @@
       }
     },
     "title": "Guia",
+    "toggle": {
+      "close": "Fechar guia",
+      "open": "Guia"
+    },
     "unlock": {
       "forgotDevicePassword": {
         "text": "Você precisa resetar o dispositivo e restaurar a carteira a partir de um backup, usando a senha de recuperação.",
@@ -893,6 +936,9 @@
         "title": "Conectar seu próprio full node"
       },
       "title": "Configurações para especialistas"
+    },
+    "header": {
+      "home": "Menu Principal"
     },
     "restart": "Por favor, reinicie o aplicativo BitBox para que as alterações façam efeito.",
     "success": "Por favor, retire e reconecte a BitBox para que as mudanças façam efeito.",
