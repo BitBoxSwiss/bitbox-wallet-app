@@ -61,6 +61,7 @@ type BitBoxBase struct {
 	active              bool //this indicates if the bitboxbase is in use, or being disconnected
 
 	onUnregister func(string)
+	onRemove     func(string)
 	socksProxy   socksproxy.SocksProxy
 }
 
@@ -70,6 +71,7 @@ func NewBitBoxBase(address string,
 	config *config.Config,
 	bitboxBaseConfigDir string,
 	onUnregister func(string),
+	onRemove func(string),
 	socksProxy socksproxy.SocksProxy) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -80,6 +82,7 @@ func NewBitBoxBase(address string,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		status:              bitboxbasestatus.StatusConnected,
 		onUnregister:        onUnregister,
+		onRemove:            onRemove,
 		active:              false,
 		socksProxy:          socksProxy,
 	}
@@ -100,6 +103,8 @@ func (base *BitBoxBase) EstablishConnection() error {
 // ConnectRPCClient starts the connection with the remote bitbox base middleware
 func (base *BitBoxBase) ConnectRPCClient() error {
 	if err := base.rpcClient.Connect(); err != nil {
+		fmt.Println("Removing")
+		base.Remove()
 		return err
 	}
 	response, err := base.rpcClient.GetEnv()
@@ -162,6 +167,15 @@ func (base *BitBoxBase) Deregister() error {
 	base.onUnregister(base.bitboxBaseID)
 	base.active = false
 	return nil
+}
+
+// Remove calls the backend's BitBoxBaseRemove callback and sends a notification to the frontend
+// Remove should only be used in the case the Base has not been fully connected
+// i.e., if the noise pairing wasn't completed and so the RPC connection not established
+func (base *BitBoxBase) Remove() {
+	base.fireEvent("disconnect")
+	base.onRemove(base.bitboxBaseID)
+	base.active = false
 }
 
 // ChannelHash returns the bitboxbase's rpcClient noise channel hash

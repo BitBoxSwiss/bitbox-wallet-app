@@ -177,7 +177,7 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
 		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
 	)
-	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
+	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.BitBoxBaseRemove, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
 	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
@@ -792,6 +792,14 @@ func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error
 	default:
 	}
 	return nil
+}
+
+// BitBoxBaseRemove removes a Base from the backend in the case it has not been fully connected
+// i.e., if the noise pairing wasn't completed and so the RPC connection not established
+func (backend *Backend) BitBoxBaseRemove(bitboxBaseID string) {
+	backend.baseManager.RemoveBase(bitboxBaseID)
+	delete(backend.bitboxBases, bitboxBaseID)
+	backend.events <- backendEvent{Type: "bitboxbases", Data: "registeredChanged"}
 }
 
 // BitBoxBaseDeregister deregisters the device with the given ID from this backend.
