@@ -15,13 +15,13 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { alertUser } from '../../components/alert/Alert';
-import { Button } from '../../components/forms';
-import { AppLogo, SwissMadeOpenSource } from '../../components/icon/logo';
-import { Footer, Header } from '../../components/layout';
-import { PasswordSingleInput } from '../../components/password';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
+import { alertUser } from '../alert/Alert';
+import { Button } from '../forms';
+import { BitBoxBaseLogo, SwissMadeOpenSource } from '../icon/logo';
+import { Footer, Header } from '../layout';
+import { PasswordSingleInput } from '../password';
 
 interface UnlockBitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -84,7 +84,7 @@ class UnlockBitBoxBase extends Component<Props, State> {
                     <Header title={<h2>{t('welcome.title')}</h2>} />
                     <div className="innerContainer scrollableContainer">
                         <div className="content narrow padded isVerticallyCentered">
-                            <AppLogo />
+                            <BitBoxBaseLogo />
                             <div class="box large">
                                 {
                                     <form onSubmit={this.handleSubmit}>

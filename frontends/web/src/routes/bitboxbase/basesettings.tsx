@@ -33,6 +33,7 @@ import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
+import SimpleMarkup from '../../utils/simplemarkup';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
 import * as style from './bitboxbase.css';
 import { updateStatus } from './bitboxbase.css';
@@ -186,8 +187,7 @@ class BaseSettings extends Component<Props, State> {
         return (
             <div className="contentWithGuide">
                 <div className="container">
-                    <Header title={<h2>{t('bitboxBase.settings.title')}</h2>} />
-
+                    <Header title={<SimpleMarkup tagName="h2" markup={t('bitboxBase.settings.title')}/>}/>
                     {
                         waitDialog && (
                         <WaitDialog title={waitDialog.title}>
