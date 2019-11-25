@@ -8,7 +8,9 @@ clean:
 	cd goserver && ${MAKE} clean
 	cd BitBoxApp && ./gradlew clean
 prepare-android:
-	mkdir -p BitBoxApp/app/src/main/assets/web && cp -aR ../web/build/* BitBoxApp/app/src/main/assets/web/
+	rm -rf BitBoxApp/app/src/main/assets/web
+	mkdir -p BitBoxApp/app/src/main/assets/web
+	cp -aR ../web/build/* BitBoxApp/app/src/main/assets/web/
 	cd goserver && ${MAKE} build
 	cp goserver/goserver.aar BitBoxApp/goserver/
 logcat:
