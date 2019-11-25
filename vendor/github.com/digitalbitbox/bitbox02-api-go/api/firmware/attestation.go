@@ -99,7 +99,8 @@ func (device *Device) performAttestation() (bool, error) {
 	return true, nil
 }
 
-// Attestation returns the result of the automatic attestation check.
-func (device *Device) Attestation() bool {
+// Attestation returns the result of the automatic attestation check. If nil, the check has not been
+// completed yet.
+func (device *Device) Attestation() *bool {
 	return device.attestation
 }
