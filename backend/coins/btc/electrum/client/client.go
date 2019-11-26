@@ -30,6 +30,7 @@ import (
 	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
@@ -42,7 +43,7 @@ const (
 // ElectrumClient is a high level API access to an ElectrumX server.
 // See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst.
 type ElectrumClient struct {
-	rpc rpc.Client
+	rpc *jsonrpc.RPCClient
 
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
@@ -52,7 +53,7 @@ type ElectrumClient struct {
 }
 
 // NewElectrumClient creates a new Electrum client.
-func NewElectrumClient(rpcClient rpc.Client, log *logrus.Entry) *ElectrumClient {
+func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *ElectrumClient {
 	electrumClient := &ElectrumClient{
 		rpc:                             rpcClient,
 		scriptHashNotificationCallbacks: map[string]func(string) error{},
