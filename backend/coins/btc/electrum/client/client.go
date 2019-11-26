@@ -31,7 +31,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -107,9 +106,9 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 // ConnectionStatus returns the current connection status of the backend.
 func (client *ElectrumClient) ConnectionStatus() blockchain.Status {
 	switch client.rpc.ConnectionStatus() {
-	case rpc.CONNECTED:
+	case jsonrpc.CONNECTED:
 		return blockchain.CONNECTED
-	case rpc.DISCONNECTED:
+	case jsonrpc.DISCONNECTED:
 		return blockchain.DISCONNECTED
 	}
 	panic(errp.New("Connection status could not be determined"))
@@ -118,11 +117,11 @@ func (client *ElectrumClient) ConnectionStatus() blockchain.Status {
 // RegisterOnConnectionStatusChangedEvent registers an event that forwards the connection status from
 // the underlying client to the given callback.
 func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectionStatusChanged func(blockchain.Status)) {
-	client.rpc.RegisterOnConnectionStatusChangedEvent(func(status rpc.Status) {
+	client.rpc.RegisterOnConnectionStatusChangedEvent(func(status jsonrpc.Status) {
 		switch status {
-		case rpc.CONNECTED:
+		case jsonrpc.CONNECTED:
 			onConnectionStatusChanged(blockchain.CONNECTED)
-		case rpc.DISCONNECTED:
+		case jsonrpc.DISCONNECTED:
 			onConnectionStatusChanged(blockchain.DISCONNECTED)
 		}
 	})

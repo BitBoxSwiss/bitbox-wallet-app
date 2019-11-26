@@ -12,21 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package rpc
+package jsonrpc
 
-import (
-	"io"
+// Status is the connection status.
+type Status int
+
+const (
+	// CONNECTED indicates that we are online.
+	CONNECTED Status = iota
+	// DISCONNECTED indicates that we are offline.
+	DISCONNECTED
 )
-
-// ServerInfo holds information about the backend server(s).
-type ServerInfo struct {
-	Server  string `json:"server"`
-	TLS     bool   `json:"tls"`
-	PEMCert string `json:"pemCert"`
-}
-
-// Backend describes the methods provided to connect to an RPC backend
-type Backend interface {
-	EstablishConnection() (io.ReadWriteCloser, error)
-	ServerInfo() *ServerInfo
-}
