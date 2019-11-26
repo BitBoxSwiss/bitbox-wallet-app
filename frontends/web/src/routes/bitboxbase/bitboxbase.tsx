@@ -225,16 +225,28 @@ class BitBoxBase extends Component<Props, State> {
             if (!this.state.showWizard && ['unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
+            const prevStatus = baseStore.state.registeredBases[this.state.bitboxBaseID].status;
             setBaseStatus(status, this.state.bitboxBaseID);
             // check if the base middleware password has been set yet
             switch (baseStore.state.registeredBases[this.state.bitboxBaseID].status) {
                 case 'passwordNotSet':
+                    // Advance automatically to the change password screen only if noise pairing had already succeeded
+                    if (prevStatus === 'unpaired') {
+                        break;
+                    }
                     this.setState({activeStep: ActiveStep.SetPassword});
                     break;
                 case 'bitcoinPre':
                     this.setState({activeStep: ActiveStep.ChooseSetup});
                     break;
                 case 'locked':
+                    // Advance automatically to the enter password screen only if noise pairing had already succeeded
+                    if (prevStatus === 'unpaired') {
+                        this.setState({
+                            locked: true,
+                        });
+                        break;
+                    }
                     this.setState({
                         locked: true,
                         showWizard: false,
@@ -431,9 +443,9 @@ class BitBoxBase extends Component<Props, State> {
     public render(
         {
             t,
-            bitboxBaseID,
         }: RenderableProps<Props>,
         {
+            bitboxBaseID,
             showWizard,
             hash,
             activeStep,
@@ -499,7 +511,14 @@ class BitBoxBase extends Component<Props, State> {
                                         <Button
                                             primary
                                             disabled={bitboxBaseID && !baseStore.state.registeredBases[bitboxBaseID].paired}
-                                            onClick={() => this.setState({activeStep: ActiveStep.SetPassword})}>
+                                            onClick={() => {
+                                                // Go either to the set password screen or enter password screen
+                                                // depending if password had already been set
+                                                baseStore.state.registeredBases[bitboxBaseID].status === 'passwordNotSet' ?
+                                                    this.setState({activeStep: ActiveStep.SetPassword}) :
+                                                    this.setState({showWizard: false});
+                                                }
+                                            }>
                                             {t('bitbox02Wizard.pairing.confirmButton')}
                                         </Button>
                                     </div>
