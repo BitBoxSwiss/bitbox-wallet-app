@@ -77,10 +77,7 @@ func newTLSConnection(address string, rootCert string, socksProxy socksproxy.Soc
 	if ok := caCertPool.AppendCertsFromPEM([]byte(rootCert)); !ok {
 		return nil, errp.New("Failed to append CA cert as trusted cert")
 	}
-	dialer, err := socksProxy.GetTCPProxyDialer()
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
+	dialer := socksProxy.GetTCPProxyDialer()
 	conn, err := dialer.Dial("tcp", address)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -125,10 +122,7 @@ func newTLSConnection(address string, rootCert string, socksProxy socksproxy.Soc
 }
 
 func newTCPConnection(address string, socksProxy socksproxy.SocksProxy) (net.Conn, error) {
-	dialer, err := socksProxy.GetTCPProxyDialer()
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
+	dialer := socksProxy.GetTCPProxyDialer()
 	conn, err := dialer.Dial("tcp", address)
 	if err != nil {
 		return nil, errp.WithStack(err)
@@ -160,10 +154,7 @@ func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry, socksPr
 // DownloadCert downloads the first element of the remote certificate chain.
 func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, error) {
 	var pemCert []byte
-	dialer, err := socksProxy.GetTCPProxyDialer()
-	if err != nil {
-		return "", errp.WithStack(err)
-	}
+	dialer := socksProxy.GetTCPProxyDialer()
 	conn, err := dialer.Dial("tcp", server)
 	if err != nil {
 		return "", errp.WithStack(err)
