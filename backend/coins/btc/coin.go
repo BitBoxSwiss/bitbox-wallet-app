@@ -86,7 +86,11 @@ func NewCoin(
 func (coin *Coin) Initialize() {
 	coin.initOnce.Do(func() {
 		// Init blockchain
-		coin.blockchain = electrum.NewElectrumConnection(coin.servers, coin.log, coin.socksProxy)
+		coin.blockchain = electrum.NewElectrumConnection(
+			coin.servers,
+			coin.log,
+			coin.socksProxy.GetTCPProxyDialer(),
+		)
 
 		// Init Headers
 
