@@ -26,6 +26,7 @@ import { PasswordRepeatInput } from '../../components/password';
 import { Spinner } from '../../components/spinner/Spinner';
 import { Step, Steps } from '../../components/steps';
 import * as stepStyle from '../../components/steps/steps.css';
+import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
 import { apiSubscribe } from '../../utils/event';
@@ -33,7 +34,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
-import { BaseStatus, baseStore } from './bitboxbaseconnect';
+import { BaseStatus, baseStore, RegisteredBaseFields, SharedProps as SharedBaseProps } from './bitboxbaseconnect';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -74,8 +75,26 @@ export interface BaseUpdateInfo {
     severity: string;
 }
 
+const initSharedBaseState = (baseID: string) => {
+    const initialStatus: BaseStatus = '';
+    const initialState = {[baseID]: {
+        status: initialStatus,
+        paired: false,
+    }};
+    baseStore.setState({registeredBases: initialState});
+};
+
+export const updateSharedBaseState = <K extends keyof RegisteredBaseFields>(key: K, value: RegisteredBaseFields[K], baseID: string) => {
+    if (!(baseID in baseStore.state.registeredBases)) {
+        initSharedBaseState(baseID);
+    }
+    const newState = Object.assign({}, baseStore.state);
+    newState.registeredBases[baseID][key] = value;
+    baseStore.setState(newState);
+};
+
 export const setBaseStatus = (status: BaseStatus, IP: string) => {
-    baseStore.setState({ [IP]: { status} });
+    updateSharedBaseState('status', status, IP);
 };
 
 const defaultPassword = 'ICanHasPasword?';
@@ -127,7 +146,7 @@ interface State {
     inProgress: boolean;
 }
 
-type Props = BitBoxBaseProps & TranslateProps;
+type Props = BitBoxBaseProps & SharedBaseProps & TranslateProps;
 
 class BitBoxBase extends Component<Props, State> {
     constructor(props) {
@@ -144,7 +163,7 @@ class BitBoxBase extends Component<Props, State> {
             hostname: undefined,
             validHostname: false,
             syncingOption: undefined,
-            locked: this.props.bitboxBaseID ? baseStore.state[this.props.bitboxBaseID].status === 'locked' : true,
+            locked: this.props.bitboxBaseID ? baseStore.state.registeredBases[this.props.bitboxBaseID].status === 'locked' : true,
             updateAvailable: undefined,
             updateInfo: undefined,
             inProgress: false,
@@ -208,7 +227,7 @@ class BitBoxBase extends Component<Props, State> {
             }
             setBaseStatus(status, this.state.bitboxBaseID);
             // check if the base middleware password has been set yet
-            switch (baseStore.state[this.state.bitboxBaseID].status) {
+            switch (baseStore.state.registeredBases[this.state.bitboxBaseID].status) {
                 case 'passwordNotSet':
                     this.setState({activeStep: ActiveStep.SetPassword});
                     break;
@@ -479,7 +498,7 @@ class BitBoxBase extends Component<Props, State> {
                                     <div className={['buttons text-center', stepStyle.fullWidth].join(' ')}>
                                         <Button
                                             primary
-                                            // TODO: Change Base middleware to accept code confirmation from App
+                                            disabled={bitboxBaseID && !baseStore.state.registeredBases[bitboxBaseID].paired}
                                             onClick={() => this.setState({activeStep: ActiveStep.SetPassword})}>
                                             {t('bitbox02Wizard.pairing.confirmButton')}
                                         </Button>
@@ -834,5 +853,6 @@ class BitBoxBase extends Component<Props, State> {
     }
 }
 
-const HOC = translate<BitBoxBaseProps>()(BitBoxBase);
-export { HOC as BitBoxBase };
+const SharedBitBoxBase = share<SharedBaseProps, BitBoxBaseProps & TranslateProps>(baseStore)(BitBoxBase);
+const TranslatedBitBoxBase = translate<BitBoxBaseProps>()(SharedBitBoxBase);
+export { TranslatedBitBoxBase as BitBoxBase };

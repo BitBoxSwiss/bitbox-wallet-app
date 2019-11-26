@@ -30,7 +30,7 @@ import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { validateIP } from '../../utils/validateIP';
-import { setBaseStatus } from './bitboxbase';
+import { setBaseStatus, updateSharedBaseState } from './bitboxbase';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
@@ -39,18 +39,21 @@ interface BitBoxBaseConnectProps {
 
 export type BaseStatus = '' | 'connected' | 'unpaired' | 'pairingFailed' | 'passwordNotSet' | 'bitcoinPre' | 'locked' | 'initialized';
 
-export interface ConnectedBases {
-    [IP: string]: {
-        status: BaseStatus;
-    };
+export interface RegisteredBaseFields {
+    paired?: boolean;
+    status?: BaseStatus;
+}
+
+export interface RegisteredBases {
+    [ID: string]: RegisteredBaseFields;
 }
 
 export interface SharedProps {
-    connectedBases: ConnectedBases;
+    registeredBases: RegisteredBases;
 }
 
 export const baseStore = new Store<SharedProps>({
-    connectedBases: {},
+    registeredBases: {},
 });
 
 export interface DetectedBitBoxBases {
@@ -104,7 +107,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         apiPost('bitboxbases/establish-connection', { ip })
         .then(data => {
             if (data.success) {
-                this.connect(ip);
+                this.connectAndPairNoise(ip);
                 this.setStatusAndRedirect(ip);
             } else {
                 alertUser(data.errorMessage);
@@ -116,7 +119,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
         apiPost('bitboxbases/establish-connection', { ip })
         .then(data => {
             if (data.success) {
-                this.connect(ip);
+                this.connectAndPairNoise(ip);
                 this.setStatusAndRedirect(ip);
             } else {
                 alertUser(data.errorMessage);
@@ -124,10 +127,12 @@ class BitBoxBaseConnect extends Component<Props, State> {
         });
     }
 
-    private connect = (ip: string) => {
+    private connectAndPairNoise = (ip: string) => {
         apiPost(`bitboxbases/${ip}/connect-base`)
         .then(response => {
-            if (!response.success) {
+            if (response.success) {
+                updateSharedBaseState('paired', true, ip);
+            } else {
                 if (response.message) {
                     alertUser(response.message);
                 } else {
@@ -139,7 +144,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
 
     private setStatusAndRedirect = (baseID: string) => {
         apiGet(`bitboxbases/${baseID}/status`)
-        .then(status => {
+        .then(({status}) => {
             setBaseStatus(status, baseID);
             route(`/bitboxbase/${baseID}`);
         });
@@ -317,6 +322,6 @@ class BitBoxBaseConnect extends Component<Props, State> {
     }
 }
 
-const SharedHOC = (share<SharedProps, BitBoxBaseConnectProps & TranslateProps>(baseStore)(BitBoxBaseConnect));
+const SharedHOC = share<SharedProps, BitBoxBaseConnectProps & TranslateProps>(baseStore)(BitBoxBaseConnect);
 const TranslatedHOC = translate<BitBoxBaseConnectProps>()(SharedHOC);
 export { TranslatedHOC as BitBoxBaseConnect };
