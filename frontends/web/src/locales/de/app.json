@@ -1,12 +1,12 @@
 {
   "account": {
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
-    "exportTransactions": "Exportiere die Transaktionen zum Download Ordner als CSV Datei",
+    "exportTransactions": "Exportiere Transaktionen zum Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
     "info": {
       "btc-p2pkh": "Dies ist ein legacy Bitcoin Konto. Wir empfehlen, das Segwit Bitcoin Konto zu verwenden um Netzwerkgebühren zu sparen. ",
-      "btc-p2wpkh": "Dies ist ein Native Segwit Bitcoin-Konto, für das noch geringere Netzwerkgebühren anfallen. Es verwendet das Bech32-Adressformat, welches noch nicht überall unterstützt wird. Verwenden Sie dieses Konto nur, wenn Sie die allerneuste Technologie ausprobieren möchten. \n",
+      "btc-p2wpkh": "Dies ist ein Native Segwit Bitcoin-Konto, für das noch geringere Netzwerkgebühren anfallen. Es verwendet das Bech32-Adressformat, welches noch nicht überall unterstützt wird. ",
       "btc-p2wpkh-p2sh": "Dies ist ein Segwit Bitcoin-Konto, das für niedrigere Netzwerkgebühren empfohlen wird. Wenn Sie gerade ein Upgrade von der vorherigen App durchgeführt haben, finden Sie Ihr Guthaben im Bitcoin Legacy-Konto, das Sie in den Einstellungen aktivieren können. Wenn Sie die allerneuste Technologie ausprobieren wollen und noch mehr Netzwerkgebühren sparen möchten, gehen Sie in die Einstellungen und aktivieren Sie auch das Native Segwit Bitcoin-Konto, welches das neue Bech32-Adressformat verwendet.",
       "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
       "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
@@ -24,7 +24,7 @@
   },
   "accountSummary": {
     "balance": "Saldo",
-    "exportSummary": "Kontozusammenfassung als CSV Datei exportieren",
+    "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
     "name": "Konto Name",
     "noAccount": "Keine Konten verfügbar",
@@ -47,7 +47,7 @@
     "submit": "Konto hinzufügen",
     "title": "Konto hinzufügen",
     "warning": {
-      "xpubWrongNet": ""
+      "xpubWrongNet": "Warnung: Das Format des erweiterten Public Keys entspricht nicht dem ausgewählten Kontotyp. Sollten die erwarteten Transaktionen nicht angezeigt werden versuchen Sie, den erweiterten Public Key mit einem anderen Kontotyp zu importieren."
     }
   },
   "app": {
@@ -56,7 +56,7 @@
   "backup": {
     "check": {
       "checking": "Backup wird geprüft…",
-      "confirmTitle": "Überprüfe Backup",
+      "confirmTitle": "Backup überprüfen",
       "notOK": "Ihr Backup entspricht NICHT ihrem aktuellen Wallet.",
       "ok": "Erfolg! Ihr Backup entspricht Ihrem aktuellen Wallet.",
       "password": {
@@ -80,17 +80,17 @@
         "placeholder": "Bitte geben Sie Ihr Wiederherstellungspasswort ein."
       },
       "title": "Backup erstellen",
-      "verificationFailed": "Das Wiederherstellungspasswort entspricht NICHT dem aktuellen Wallet. Das Backup wurde erstellt. Bitte nutzen Sie „Backup prüfen“ um Ihr Wiederherstellungspasswort erneut zu verifizieren. "
+      "verificationFailed": "Das Wiederherstellungspasswort entspricht NICHT dem aktuellen Wallet. Das Backup wurde erstellt. Bitte nutzen Sie „Backup prüfen“ um Ihr Wiederherstellungspasswort erneut zu überprüfen. "
     },
     "description": "Wähle eine  <strong>Wallet Backup</strong> Datei aus.",
     "insert": "Bitte stecken Sie die Micro-SD-Karte ein um Ihre Backups zu verwalten.",
     "insertButton": "Ich habe die Mikro-SD-Karte eingesteckt.",
-    "list": "Die <strong>folgenden Backups</strong> wurden auf der eingesteckten microSD Karte gefunden. Bitte wähle eins aus und klicke auf \"Wiederherstellen\".",
+    "list": "Ihre Backups auf der microSD Karte",
     "noBackups": "Es befinden sich keine Backups auf der microSD Karte.",
     "restore": {
       "confirmTitle": "Von Backup wiederherstellen",
       "error": {
-        "e200": "SD-Karte nicht gefunden."
+        "e200": "microSD Karte nicht gefunden"
       },
       "password": {
         "label": "Wiederherstellungspasswort oder verstecktes Wiederherstellungspasswort. ",
@@ -103,11 +103,11 @@
       "understand": "Ich habe verstanden, dass ein falsches Wiederherstellungspasswort ein neues/anderes Wallet erstellt."
     },
     "restoreFromMnemonic": {
-      "confirmTitle": "Von BIP39 mnemonic seed wiederherstellen"
+      "confirmTitle": "Von Mnemonic Seed wiederherstellen"
     },
     "showMnemonic": {
       "description": "Dir werden 24 Wörter angezeigt, die ein Backup deines Wallet sind. Schreibe diese auf ein Stück Papier. \n\n<strong>Bewahre diese Wörter nicht digital auf und mache kein Foto von ihnen.</strong>\n\n<strong>Sprich die Wörter nicht laut aus.</strong>\n\n<strong>Dieses Backup ist nicht Passwort geschützt. Wenn jemand das Papier  mit den 24 Seed Wörtern findet hat er Zugang zu deinem Wallet.</strong>\n\nNachdem du die Wörter aufgeschrieben hast wirst du sie nochmals bestätigen. \n",
-      "title": "BIP39 Mnemonic Seed anzeigen"
+      "title": "Mnemonic Seed anzeigen"
     },
     "title": "Backups verwalten"
   },
@@ -139,14 +139,15 @@
       "title": "BitBox 02 Namen einstellen"
     },
     "mnemonicPassphrase": {
-      "disable": "Mnemonic Passphrase deaktivieren",
-      "enable": "Mnemonic Passphrase aktivieren",
-      "successDisable": "Mnemonic Passphrase erfolgreich deaktiviert.",
-      "successEnable": "Mnemonic Passphrase erfolgreich aktiviert.\nAb jetzt können Sie nach dem Entsperren der BitBox 02 eine Passphrase eingeben. \n\nFalls Sie nicht wissen, was eine Passphrase ist deaktivieren Sie diese Option bitte wieder. Dies ist eine Option für erfahrene Nutzer.\n\n<strong>Achtung:</strong> jede Passphrase generiert ein seperates Wallet. \nSie müssen Ihre Passphrase  <strong>sicher aufbewahren</strong>.\n<strong>Bei Verlust der Passphrase lässt sich das Wallet mit Ihren Coins NICHT wieder herstellen. Das heißt, der Zugang zu Ihren Coins ist verloren.</strong>"
+      "description": "Dies erlaubt Ihnen, nach dem Entsperren Ihrer BitBox02 eine optionale Passphrase einzugeben \n\n<strong>HINWEIS:</strong> Jede Passphrase leitet eine neue separate Wallet ab.\nBewahren Sie Ihre Passphrase <strong>sichern</strong> auf.\n<strong>Der Verlust der Passphrase ist NICHT WIEDERHERSTELLBAR.</strong>",
+      "disable": "Optionale Passphrase deaktivieren",
+      "enable": "Optionale Passphrase aktivieren",
+      "successDisable": "Optionale Passphrase erfolgreich deaktiviert.",
+      "successEnable": "Optionale Passphrase erfolgreich aktiviert.\n\nAb jetzt können Sie nach dem Entsperren der BitBox 02 eine Passphrase eingeben. \n\nFalls Sie nicht wissen, was eine Passphrase ist, deaktivieren Sie diese Option bitte wieder. Dies ist eine Option für erfahrene Nutzer.\n\n<strong>Achtung:</strong> jede Passphrase generiert ein seperates Wallet. \nSie müssen Ihre Passphrase  <strong>sicher aufbewahren</strong>.\n<strong>Bei Verlust der Passphrase lässt sich das Wallet mit Ihren Coins NICHT wieder herstellen. Das heißt, der Zugang zu Ihren Coins ist verloren.</strong>"
     }
   },
   "bitbox02Wizard": {
-    "attestationFailed": "BitBox Überprüfung fehlgeschlagen! Es könte sich bei diesem Gerät um eine Fälschung handeln. Bitte sende keine weiteren Coins auf das Gerät und kontaktiere sofort den Support über support@shiftcrypto.ch",
+    "attestationFailed": "BitBox Überprüfung fehlgeschlagen. Bitte stecken Sie die BitBox aus und wieder ein. ",
     "backup": {
       "point1": "Wähle ein Backup von der microSD Karte aus",
       "point2": "Setze ein Passwort für dein Gerät",
@@ -154,9 +155,10 @@
       "text1": "Perfekt, Ihr BitBox 02 Passwort ist jetzt festgelegt und Ihr Wallet wurde erstellt. Jetzt ist es Zeit ein Backup des Wallets zu erstellen. Bitte stelle dazu sicher, dass die microSD Karte eingesteckt ist. ",
       "text2": "Sobald Sie \"Backup erstellen\" geklickt haben folgen Sie bitte den Anweisungen auf Ihrer BitBox um ein Backup zu erstellen. ",
       "text3": "Nachdem das Backup erstellt wurde, bewahren Sie die microSD Karte bitte an einem <strong>sicheren Ort auf und stecken Sie die microSD Karte niemals in ein anderes Gerät, das nicht eine BitBox ist. </strong> Das Backup auf der microSD Karte ist nicht passwort-geschützt!",
+      "userConfirmation1": "Ich muss mein Backup an einem sicheren Ort aufbewahren.",
       "userConfirmation2": "Mein Backup ist nicht passwortgeschützt. Jeder, der Zugriff darauf hat, kann auf meine Wallet zugreifen.",
       "userConfirmation3": "Wenn ich meine BitBox02 verliere oder beschädige, ist die Wiederherstellung von meinem Backup der einzige Weg wieder Zugriff auf mein Guthaben zu bekommen. ",
-      "userConfirmation4": ""
+      "userConfirmation4": "Sollte ich sowohl meine BitBox02 als auch mein Backup verlieren oder zerstören ist der Zugang zu meinen Coins für immer verloren. "
     },
     "create": {
       "button": "Gerät bennenen & weiter",
@@ -171,21 +173,29 @@
       "passwordText": "Lass uns nun ein Passwort für deine BitBox festlegen. Schaue dir die Animation unten an und benutze dann die Touch Slider auf den Seiten deiner BitBox, um ein Passwort einzugeben. ",
       "passwordTitle": "Setze ein Passwort für deine BitBox",
       "text": "Jetzt initaliseren wir deine BitBox. Wähle zuerst aus, ob du ein neues Wallet erstellen oder von einem Backup wieder herstellen möchtest.  <strong>Wenn du von einem Backup wieder herstellen möchtest, stelle sicher, dass deine microSD Karte eingesteckt ist.</strong>",
-      "tip": "Bevor Sie weiter machen, sollten Sie sich vergewissern, dass Sie in einer sicheren Umgebung sind, z.B. Zuhause in einem Raum ohne Kamera und für Andere uneinsichtig. ",
+      "tip": "Bitte fahren Sie in einer sichern Umgebung fort. ",
       "title": "Initialisiere deine BitBox"
     },
     "insertSDCard": "<strong>Bitte stelle sicher, dass du die microSD Karte in der BitBox02 eingesteckt hast.</strong>",
     "pairing": {
-      "confirmButton": "Bestätige & Weiter",
+      "confirmButton": "Weiter",
       "failed": "Paarungscode nicht bestätigt. Bitte BitBox 02 aus und wieder ein stecken.",
       "paired": "Du hast auf deiner BitBox bestätigt, dass der Paarungscode übereinstimmt. Wenn das korrekt ist, klicke auf \"Bestätige & Weiter\".",
       "title": "Paarungscode bestätigen",
       "unpaired": "Eine neue BitBox 02 wurde eingesteckt. Bitte bestätige, dass der folgende Code mit dem auf der BitBox 02 übereinstimmt. Wenn er übereinstimmt berühre die BitBox unterhalb des Häkchens.  "
     },
     "restoreFromMnemonic": {
-      "failed": "Wiederherstellung von BIP39 Mnemonic Seed fehlgeschlagen. Bitte versuche es erneut.",
+      "failed": "Wiederherstellung von Mnemonic Seed fehlgeschlagen. Bitte versuche es erneut.",
       "point1": "Gib die Wörter ein",
       "point2": "$t(bitbox02Wizard.backup.point2)"
+    },
+    "stepBackup": {
+      "beforeProceed": "Bevor Sie fortfahren, lesen Sie bitte die folgenden wichtigen Sicherheitsaspekte:",
+      "createBackup": "Sie erstellen jetzt ein Backup auf Ihrer microSD-Karte."
+    },
+    "stepBackupSuccess": {
+      "fundsSafe": "Beachten Sie bitte Folgendes, um Ihr Coins zu schützen:",
+      "title": "Backup wiederhergestellt!"
     },
     "stepConnected": {
       "unlock": "BitBox02 Passwort eingeben "
@@ -207,36 +217,197 @@
       "useControls": "Verwenden Sie die Touch Sensoren an den Seiten Ihrer BitBox02 um ein Passwort zu wählen."
     },
     "stepUninitialized": {
-      "create": "",
+      "create": "Ich möchte eine neue BitBox02 einrichten.",
       "restore": "Ich möchte mein Wallet von einem Backup wiederherstellen.",
       "restoreMicroSD": "Von microSD Karte wiederherstellen",
       "restoreMnemonic": "Von Mnemonic wiederherstellen",
       "title": "BitBox02 einrichten"
     },
+    "stepUnpaired": {
+      "verify": "Bitte überprüfen Sie, dass der angezeigte Pairing-Code mit dem auf Ihrer BitBox angezeigten Code übereinstimmt."
+    },
     "success": {
-      "text": "Hurra! Deine BitBox 02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
+      "text": "Hurra! Deine BitBox02 ist bereit.\n\nFür weitere Informationen klicke auf das Fragezeichen Symbol in der oberen rechten Ecke. ",
       "title": "Es kann los gehen!"
     }
   },
   "bitboxBase": {
     "connect": "Base verbinden",
-    "detectedBases": "Die folgenden Geräte wurden in Ihrem Netzwerk gefunden:",
-    "manualInput": "BitBox Base nicht sichtbar? Manuell verbinden:",
-    "title": "BitBox Base"
+    "connectedBases": "Verbundene Geräte",
+    "detectedBases": "Geräte in Ihrem Netzwerk gefunden",
+    "detectedBasesEmpty": "Keine Geräte gefunden",
+    "manualInput": "BitBoxBase wird nicht gefunden? Manuell verbinden:",
+    "manualInputLabel": "IP-Adresse: Port",
+    "new": "Neue BitBoxBase",
+    "settings": {
+      "advanced": {
+        "confirmSystemPassword": "Dadurch wird das BitBoxBase-Systempasswort festgelegt, das für <strong>SSH-Authentifizierung und Sudo-Zugriff verwendet werden soll.</strong>\n$t(generic.confirmToContinue)",
+        "connectElectrum": "Electrum verbinden",
+        "ipAddress": "IP Adresse",
+        "manual": "Manuelles Update",
+        "port": "Port",
+        "reset": "Auf Werkseinstellungen zurücksetzen",
+        "sshAccess": {
+          "button": "SSH Passwort Login",
+          "confirm": "",
+          "inProgress": "",
+          "success": "SSH-Passwortauthentifizierung {{enabled}}",
+          "title": "SSH-Zugang"
+        },
+        "subheaders": {
+          "bitcoin": "Bitcoin Core",
+          "electrs": "Electrs",
+          "lightning": "Lightning",
+          "networking": ""
+        },
+        "syncOptions": "Synchronisierungs-optionen",
+        "systemPassword": "Systempasswort festlegen",
+        "systemPasswordSuccess": "BitBoxBase Systempasswort erfolgreich festgelegt.",
+        "title": "Erweiterte Einstellungen"
+      },
+      "backups": {
+        "confirmBackup": "Möchten Sie ein neues Backup erstellen?",
+        "create": "Ein Backup erstellen",
+        "created": "Backup erfolgreich erstellt.",
+        "creating": "Backup wird erstellt ...",
+        "manage": "Backups verwalten",
+        "restore": "Backup wiederherstellen",
+        "title": "Backups"
+      },
+      "node": {
+        "bitcoinRestarting": "Base Services werden neu gestartet ...",
+        "changeName": "Namen ändern",
+        "changeNameTitle": "BitBoxBase Hostnamen ändern",
+        "confirmTorEnabled": {
+          "false": "Sind Sie sicher, dass Sie Tor <strong>aktivieren</strong> wollen?\n $t(bitboxBase.settings.node.warning)",
+          "true": "Sind Sie sicher, dass Sie Tor <strong>deaktivieren</strong> wollen?\nDies kann schwerwiegende und irreversible Auswirkungen auf Ihre Privatsphäre haben und wird nicht empfohlen.\n $t(bitboxBase.settings.node.warning)"
+        },
+        "disconnect": "Verbindung trennen",
+        "newName": "Neuen Hostnamen eingeben",
+        "password": "Passwort ändern",
+        "title": "Node",
+        "tor": "Tor",
+        "warning": "Bitte warten Sie 1-2 Minuten, damit die Änderungen wirksam werden."
+      },
+      "system": {
+        "confirmRestart": "Ihre BitBoxBase wird jetzt <strong>neu starten</strong>. Danach müssen Sie eine neue Verbindung herstellen.\n $t(generic.confirmToContinue)",
+        "confirmShutdown": "Ihre BitBoxBase wird jetzt <strong>herunter fahren</strong> und Sie müssen sie manuell wieder einschalten.\n $t(generic.confirmToContinue)",
+        "confirmUpdate": "Möchten Sie Ihre BitBoxBase von Version {{current}} auf {{newVersion}} aktualisieren?",
+        "restart": "Neustart",
+        "shutdown": "Ausschalten",
+        "title": "System",
+        "upToDate": "",
+        "update": "Update",
+        "updateProgress": {
+          "updateApplying": "Update wird installiert...",
+          "updateDownloading": "Update wird heruntergeladen ...",
+          "updateFailed": "Update fehlgeschlagen",
+          "updateNotInProgress": "Update Informationen werden abgerufen ...",
+          "updateRebooting": "Neustart ...",
+          "warning": ""
+        },
+        "updateSeverity": "",
+        "updateTitle": "BitBoxBase updaten"
+      },
+      "title": "BitBoxBase Einstellungen"
+    },
+    "title": "BitBoxBase"
+  },
+  "bitboxBaseUnlock": {
+    "placeholder": "Geben Sie Ihr BitBoxBase Passwort zum Entsperren ein"
   },
   "bitboxBaseWizard": {
+    "backups": {
+      "insert": "Stecken Sie einen USB-Stick in die BitBoxBase ein, um ein Backup Ihres Wallets zu erstellen.",
+      "title": "Wallet Backup"
+    },
     "bitcoin": {
+      "presyncInfo": {
+        "label": ""
+      },
       "reindex": "",
+      "reindexInfo": {
+        "con1": "",
+        "label": "Gesamte Blockchain validieren",
+        "warning": "Dieser Vorgang dauert ca. 1 Tag. Sind Sie sicher, dass Sie fortfahren wollen?"
+      },
+      "resync": "Resync",
+      "resyncInfo": {
+        "con1": "Es kann 2 Tage dauern, bis Ihre BitBoxBase bereit ist",
+        "con2": "Belastet die Bitcoin- und Tor-Netzwerke",
+        "label": "Gesamte Blockchain herunterladen und validieren",
+        "pro1": "Vollständige Validierung der unabhängig heruntergeladenen Bitcoin-Blockchain",
+        "warning": "Dieser Vorgang kann je nach Internetverbindung 2 Tage dauern. Sind Sie sicher, dass Sie fortfahren wollen?"
+      },
       "title": "Synchronisation wählen"
     },
+    "errors": {
+      "networkSetting": "Keine Netzwerkeinstellung gefunden"
+    },
+    "hostname": {
+      "label": "Hostname",
+      "placeholder": "Gültiger Hostname, z.B. 'mybitboxbase'",
+      "title": "Namen wählen",
+      "tooltip": ""
+    },
+    "networks": {
+      "clearnet": {
+        "con1": "Gibt Ihre IP-Adresse und dadurch Ihren Standort preis, wenn diese ohne  weitere Vorsichtsmaßnahmen verwendet werden",
+        "con2": "ISP kann Bitcoin Nodes erkennen",
+        "label": "Clearnet für alle Verbindungen verwenden: nicht empfohlen.",
+        "pro1": "Am schnellsten",
+        "pro2": "Geringere Latenz",
+        "pro3": "Ermöglicht VPN Nutzung",
+        "select": "",
+        "title": "Clearnet"
+      },
+      "clearnetThenTor": {
+        "con1": "Belastet das Tor-Netzwerk",
+        "label": "Clearnet für den initialen Block-Download (IBD) verwenden, dann zu Tor wechseln",
+        "pro1": "Schnellerer initialer Block Download ",
+        "pro2": "Belastet das Tor-Netzwerk während des IBD nicht",
+        "select": "",
+        "title": "Clearnet dann Tor"
+      },
+      "title": "Netzwerkeinstellungen wählen",
+      "tor": {
+        "con1": "Belastet das Tor-Netzwerk",
+        "con2": "",
+        "label1": "Tor für alle Verbindungen verwenden. Unsere empfohlene Option.",
+        "label2": "Tor für alle Verbindungen verwenden",
+        "pro1": "Privat",
+        "pro2": "Schwierig den physischen Standort zu ermitteln",
+        "pro3": "",
+        "select": "",
+        "title": "Tor"
+      }
+    },
     "pairing": {
+      "failed": "",
       "paired": "Sie haben auf Ihrer BitBoxBase bestätigt, dass der Code übereinstimmt. ",
-      "title": "",
+      "title": "Pairing Code bestätigen",
       "unpaired": "Neue BitBoxBase-Verbindung erkannt. Um fortzufahren, überprüfen Sie bitte, dass der Code mit dem auf Ihrer BitBoxBase angezeigten Code übereinstimmt."
     },
+    "setPassword": "Passwort festlegen",
+    "setup": {
+      "custom": {
+        "point1": "Synchronisierungsoptionen",
+        "point2": "Netzwerkoptionen",
+        "point3": "Eigener Hostname",
+        "select": ""
+      },
+      "quick": {
+        "point2": "",
+        "point3": "Standard Hostname",
+        "title": ""
+      }
+    },
     "success": {
+      "backupCreated": "Ihr Backup wurde erstellt. Bitte entfernen Sie den USB-Stick jetzt und bewahren Sie diesen an einem sicheren Ort auf.",
+      "button": "Zum Dashboard",
       "title": "Es kann los gehen!"
-    }
+    },
+    "welcome": ""
   },
   "blink": {
     "button": "Blinken"
@@ -251,6 +422,7 @@
     "back": "Zurück",
     "changepin": "Gerätepasswort ändern",
     "check": "Backup überprüfen",
+    "continue": "Weiter",
     "copy": "Kopieren",
     "create": "Backup erstellen",
     "download": "Herunterladen",
@@ -260,8 +432,10 @@
     "previous": "Zurück",
     "receive": "Erhalten",
     "restore": "Wiederherstellen",
+    "select": "Auswählen",
     "send": "Senden",
     "unlock": "Entsperren",
+    "update": "Update",
     "upgrade": "Aktualisieren"
   },
   "changePin": {
@@ -269,6 +443,7 @@
     "oldLabel": "Aktuelles Gerätepasswort"
   },
   "checkSDcard": "Micro-SD-Karte wird überprüft",
+  "clickHere": "Hier klicken.",
   "confirm": {
     "abortInfo": "Tippe zum ",
     "abortInfoRedText": "abbrechen",
@@ -282,11 +457,11 @@
     "appUpradeRequired": "Ihre BitBox ist mit dieser Desktopanwendung nicht kompatibel. Bitte laden Sie die neueste Version herunter und installieren Sie diese.."
   },
   "deviceLock": {
-    "button": "Aktivieren Sie die Zwei-Faktor-Autorisierung (2FA)",
+    "button": "Zwei-Faktor-Autorisierung (2FA) aktivieren",
     "condition1": "Haben Sie ein Backup?",
     "condition2": "Funktioniert die Verifikation auf Ihrem Smartphone?",
     "condition3": "Wenn Sie 2FA aktivieren wird \"Backups verwalten\", \"Verstecktes Wallet erstellen\" und \"Mit Smartphone App\" koppeln deaktiviert. Um 2FA zu deaktivieren muss das Gerät auf Werkseinstellungen zurück gesetzt werden.   ",
-    "confirm": "Aktivieren Sie Zwei-Faktor Authentifizierung (2FA) \n",
+    "confirm": "Zwei-Faktor Authentifizierung (2FA) aktivieren\n",
     "title": "Zwei-Faktor-Autorisierung (2FA) aktivieren"
   },
   "deviceSettings": {
@@ -303,7 +478,7 @@
     "hardware": {
       "sdcard": {
         "false": "Nicht eingesteckt",
-        "label": "Mikro-SD-Karte",
+        "label": "microSD Karte",
         "true": "Eingesteckt"
       },
       "title": "Hardware"
@@ -345,6 +520,17 @@
   "footer": {
     "appVersion": "App Version:"
   },
+  "generic": {
+    "description": "Beschreibung",
+    "enable": {
+      "false": "aktivieren",
+      "true": "deaktivieren"
+    },
+    "enabled": {
+      "false": "Deaktiviert",
+      "true": "Aktiviert"
+    }
+  },
   "genericError": "Ein Fehler ist aufgetreten. Falls Sie Probleme bemerken, starten Sie die Applikation bitte neu.",
   "goal": {
     "buttons": {
@@ -378,15 +564,15 @@
   },
   "guide": {
     "accountDescription": {
-      "text": "Dies ist Ihre Kontoübersicht. Diese zeigt Ihnen die ein- und ausgehenden Transaktionen an. Der Kontostand wird Ihnen für jedes Konto separat angezeigt. Stöbern Sie durch diesen Guide um mehr über die verschiedenen Kontoarten zu erfahren. ",
-      "title": "Was wird mir hier angezeigt?"
+      "text": "Ihre Kontoübersicht zeigt Ihren Kontostand, die ein- und ausgehenden Transaktionen an. Stöbern Sie durch diesen Guide um mehr über die verschiedenen Kontoarten zu erfahren. ",
+      "title": "Was wird mir auf dieser Seite angezeigt?"
     },
     "accountFiat": {
       "text": "Ja, Sie können auf das Währungssymbol klicken, um zwischen den verschiedenen Währungen zu wechseln. Die verfügbaren Währungen können Sie in den Einstellungen anpassen.",
       "title": "Können auch andere Wechselkurse angezeigt werden?"
     },
     "accountIncomingBalance": {
-      "text": "Eingehend summiert alle eingehenden Transaktionen, die noch nicht bestätigt sind, zusammen. ",
+      "text": "Eingehend summiert alle eingehenden Transaktionen, die noch nicht bestätigt sind. ",
       "title": "Was bedeutet \"Eingehend\"?"
     },
     "accountInfo": {
@@ -408,7 +594,7 @@
       "title": "Welche Wechselkurse werden benutzt?"
     },
     "accountReload": {
-      "text": "Alle Transaktionsinformationen werden automatisch aktualisiert. ",
+      "text": "Das ist nicht nötig. Alle Transaktionsinformationen werden automatisch aktualisiert. ",
       "title": "Wie kann ich die Transaktionshistorie erneut laden?"
     },
     "accountSendDisabled": {
@@ -417,7 +603,7 @@
     },
     "accountTransactionAttributesBTC": {
       "text": "Virtuelle Größe: Wird zur Ermittlung der Netzwerkgebühr verwendet. Sie haben erfolgreich Gebühren gespart, wenn sie kleiner als die Transaktion sind.\nGröße: Aktuelle Transaktionsgröße in Bytes nach der Serialisierung gemäß der zugrunde liegenden Blockchain.\nGewicht: Mit Segwit eingeführt, ist dies eine neue Metrik zur Bewertung von Transaktions- und Blockgrößen. Jedes Segwit Byte zählt als eins, alles andere als vier \"Gewichtseinheiten\". Statt eines Megabytes, beträgt die Blockgrößenbegrenzung nun vier Millionen \"Gewichtseinheiten\".",
-      "title": "Bitcoin-bezogene Transaktionsdetails"
+      "title": "Wie sehe ich Bitcoin-bezogene Transaktionsdetails?"
     },
     "accountTransactionAttributesGeneric": {
       "text": "Bestätigungen: Nachdem Sie ihre Transaktion gesendet haben ist diese zuerst unbestätigt.  Sie müssen warten, bis sie von einem Miner in eine Block aufgenommen wird. Dann hat Ihre Transaktion die erste  Bestätigung. Jeder nachfolgende Block fügt Ihrer Transaktion eine weitere Bestätigung hinzu. Meist sehen Händler und andere Netzwerkakteure Transaktionen erst mit 3 bis 6 Bestätigungen als erledigt.\nTransaktions-ID: Eine eindeutige Identifikationsnummer, die zum Nachschlagen einer Transaktion in einem Blockexplorer verwendet werden kann.\nGebühr: Miner erhalten eine Transaktionsgebühr als Anreiz, Transaktionen in die von ihnen erzeugten Blöcke aufzunehmen. Um mehr zu erfahren, klicken Sie auf  \"Senden\".",
@@ -428,8 +614,8 @@
       "title": "Was ist eine ausstehende Transaktion?"
     },
     "accountTransactionLabel": {
-      "text": "Es ist die Adresse an die SIE Coins erhalten oder geschickt haben. Eine Adresse codiert, wie und von wem die Coins ausgegeben werden können.",
-      "title": "Welche Adresse wird für jede Transaktion angezeigt?"
+      "text": "Es ist die Adresse an die sie Coins erhalten oder geschickt haben.",
+      "title": "Welche Adresse wird bei jeder Transaktion angezeigt?"
     },
     "accountTransactionTime": {
       "text": "Der Zeitpunkt, zu dem die Transaktion in der Blockchain bestätigt wurde.",
@@ -442,15 +628,15 @@
     },
     "backups": {
       "check": {
-        "text": "Mit \"Check Backup\" können Sie überprüfen, ob Sie über ein funktionierendes Backup für Ihr aktuelles Wallet verfügen. Es kann auch verwendet werden, um zu überprüfen, ob Sie über das korrekte Wiederherstellungspasswort verfügen.",
-        "title": "Was ist \"Check Backup\"?"
+        "text": "Mit \"Check Backup\" können Sie überprüfen, ob Sie über ein gültiges Backup für Ihr aktuelles Wallet verfügen. Es kann auch verwendet werden, um zu überprüfen, ob Sie das korrekte Wiederherstellungspasswort kennen.",
+        "title": "Was bedeutet \"Check Backup\"?"
       },
       "encrypt": {
         "text": "Nein, aber Ihr Wiederherstellungspasswort wird benötigt, um Ihr Wallet aus dem gespeicherten Seed zu erzeugen.",
         "title": "Kann ich mein Backup verschlüsseln?"
       },
       "howOften": {
-        "text": "Das Backup wird automatisch erstellt, wenn eine neues Wallet erstellt wird. Sie müssen nur dann ein neues Backup erstellen, wenn Ihre Micro-SD-Karte verloren ist, beschädigt wurde oder wenn Sie ihr Backup auf mehreren Mikro-SD-Karten speichern wollen.\nSie müssen nach der Transaktionsaktivität keine neuen Sicherungen erstellen. Alle Ihre Transaktionsdaten können durch ein einzelnes Backup, das automatisch für Sie erstellt wurde, wiederhergestellt werden.",
+        "text": "Das Backup wird automatisch erstellt, wenn eine neues Wallet erstellt wird. Sie müssen nur dann ein neues Backup erstellen, wenn Ihre microSD-Karte verloren ist, beschädigt wurde oder wenn Sie ihr Backup auf mehreren microSD Karten speichern wollen.\nSie müssen nach der Transaktionsaktivität keine neuen Backups erstellen. Alle Ihre Transaktionsdaten können durch ein einzelnes Backup, das automatisch für Sie erstellt wurde, wiederhergestellt werden.",
         "title": "Wie oft muss ich ein Backup erstellen?"
       },
       "whatIsABackup": {
@@ -464,7 +650,7 @@
         "title": "Was bedeutet \"Backup überprüfen\"?"
       },
       "encrypt": {
-        "text": "Nein. Bitte bewahren Sie Ihre microSD Karte sicher auf, da sie ein unverschlüsseltes Backup, mit welchem sich ihr Wallet wieder herstellen lässt, enthält.",
+        "text": "Nein. Bitte bewahren Sie Ihre microSD Karte sicher auf, da sie den unverschlüsseltes Seed enthält, der zur Wiederherstellung Ihres Wallets benötigt wird. Falls Sie Ihr Backup mit einem Passwort schützen wollen, aktivieren Sie \"Optionale Passphrase\" in den Geräteeinstellungen.",
         "title": "Kann ich das Backup verschlüsseln?"
       },
       "whatIsABackup": {
@@ -475,10 +661,10 @@
     "bitbox": {
       "2FA": {
         "text": "Wenn 2FA aktiviert ist, müssen alle Transaktionen auf dem gekoppelten Mobiltelefon genehmigt werden, um Coins zu versenden. Unter der Haube: Eine verschlüsselte XXX an die App gesendet, dort wird sie entschlüsselt und beim Drücken der Schaltfläche \"Akzeptieren\" zur BitBox zurückgegeben. Diese Kommunikation mit der BitBox erfolgt über den Kanal zwischen dem Mobiltelefon und dieser Desktop-App, der während des Pairings eingerichtet wurde.  \n\nStellen Sie sicher, dass Sie ein Backup Ihres Wallets erstellen und die App verbinden, bevor Sie 2FA aktivieren. Nach der Aktivierung werden der Mikro-SD Kartenslot und das Mobile-App-Pairing deaktiviert. Sie können es nur erneut aktivieren, indem Sie die BitBox zurücksetzen, wodurch das Gerät gelöscht wird.",
-        "title": "Wie funktioniert die Zwei-Faktor-Autorisierung (2FA)"
+        "title": "Wie funktioniert die Zwei-Faktor-Autorisierung (2FA)?"
       },
       "disable2FA": {
-        "text": "Um 2FA zu deaktivieren, müssen Sie Ihre BitBox zurücksetzen und anschließend das Wallet aus seiner Sicherung wiederherstellen. Stellen Sie sicher, dass Sie immer noch die Micro-SD-Karte mit der Sicherung haben und sich das Wiederherstellungskennwort merken. Dann drücken Sie 'Reset Device'. Legen Sie ein neues Gerätekennwort fest und wählen Sie \"Oder ein Backup wiederherstellen\". Wählen Sie die von der Brieftasche aus erstellte Sicherung aus, klicken Sie auf \"Wiederherstellen\" und geben Sie das Wiederherstellungskennwort ein, das Sie beim Erstellen der Brieftasche verwendet haben.",
+        "text": "Um 2FA zu deaktivieren, müssen Sie Ihre BitBox zurücksetzen und anschließend Ihr Wallet von Ihrem Backup wiederherstellen. Stellen Sie sicher, dass Sie Ihre microSD-Karte mit Ihrem Backup haben und Sie das Wiederherstellungspasswort kennen. Dann drücken Sie 'Reset Device'. Legen Sie ein neues Gerätekennwort fest und wählen Sie \"Backup wiederherstellen\". Wählen Sie Ihr Backup aus und klicken  Sie auf \"Wiederherstellen\". Dann geben Sie ihr Wiederherstellungskennwort ein, das Sie beim Erstellen des Wallets verwendet haben.",
         "title": "Wie schalte ich die Zwei-Faktor-Autorisierung (2FA) aus?"
       },
       "ejectBitbox": {
@@ -486,7 +672,7 @@
         "title": "Wie werfe ich meine BitBox aus?"
       },
       "ejectSD": {
-        "text": "Sie können die Micro SD Karte jederzeit aus der BitBox entfernen, solange Sie nicht dabei sind, ein Backup zu erstellen.",
+        "text": "Sie können die Micro SD Karte jederzeit aus der BitBox entfernen, solange Sie nicht dabei sind, ein Backup zu erstellen oder zu überprüfen",
         "title": "Wie kann ich die Micro-SD-Karte auswerfen?"
       },
       "hiddenWallet": {
@@ -504,26 +690,27 @@
     },
     "receive": {
       "address": {
-        "text": "Probiere es aus und sende jemandem ein paar Coins. (Überprüfen Sie die Empfangsadresse bitte, z.B. über ein Telefonat)",
+        "text": "Diese Adresse können Sie weitergeben damit Ihnen jemand Coins senden kann. ",
         "title": "Was mache ich mit einer Adresse?"
       },
       "addressChange": {
-        "text": "Sobald eine Adresse für eine Transaktion benutzt wurde, wird eine neue Adresse zu der Liste hinzugefügt um die alte zu ersetzen. Es wird immer 20 ungenutzte Adressen in der Liste geben. ",
+        "text": "Sobald eine Adresse für eine Transaktion benutzt wurde, wird eine neue Adresse zu der Liste hinzugefügt um die Alte zu ersetzen. Es wird immer 20 ungenutzte Adressen in der Liste geben. ",
         "title": "Wann ändern sich die Adressen?"
       },
       "howVerify": {
-        "text": "Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.",
+        "text": "Klicken Sie auf das BitBox-Symbol in der Seitenleiste links und sehen Sie den Abschnitt \"Zwei-Faktor Autorisierung\". Die Anleitung wird aktualisiert und Sie können von dort aus den Anweisungen folgen.\nBei der BitBox02 können Sie die Adressen direkt auf dem Gerät während des Send-/Empfangsprozesses verifizieren. ",
         "title": "Wie kann ich die Adresse sicher verifizieren?"
       },
       "why20": {
+        "text": "Die BitBoxApp generiert automatisch eine gewisse Anzahl an Adressen, die von Ihrem Seed abgeleitet werden. Sie überprüft dann, ob diese Adressen schon Coins erhalten haben. Die App kann theoretisch eine nahezu unbegrenzte Anzahl von Adressen generieren, wodurch es Jahre dauern würde, bis Ihr Kontostand ermittelt ist. Um diese Suche einzuschränken stoppt die App diesen Prozess, nachdem sie 20 Adressen generiert hat, die noch nie Coins erhalten haben. Dies wird \"gap-limit\" genannt und 20 ist ein der de-facto-Standard. Deswegen sehen sie immer nur 20 Adressen, aus denen Sie auswählen können. ",
         "title": "Warum nur 20 Adressen?"
       },
       "whyMany": {
-        "text": "Aus Gründen des Datenschutzes und der Sicherheit sollten Sie niemals dieselbe Empfangsadresse zweimal verwenden. Klicken Sie auf 'Weiter', um eine neue Adresse zu erhalten. Sie können bis zu 20 Adressen gleichzeitig generieren. Alle Adressen werden von Ihrem einzelnen Backup-Seed abgeleitet. (Stellen Sie sich Adressen wie Rechnungsnummern vor.)",
+        "text": "Aus Gründen des Datenschutzes und der Sicherheit sollten Sie niemals dieselbe Empfangsadresse zweimal verwenden. Klicken Sie auf 'Weiter', um eine neue Adresse zu erhalten. Sie können bis zu 20 Adressen gleichzeitig generieren. Alle Adressen werden von Ihrem Backup abgeleitet. (Stellen Sie sich Adressen wie Rechnungsnummern vor.)",
         "title": "Warum gibt es mehrere Adressen?"
       },
       "whyVerify": {
-        "text": "Einer der Gründe für den Kauf eines Hardwarewallets, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. Über den Knopf zur sicheren Überprüfung der Adresse sendet die BitBox die Adresse an ein gekoppeltes Mobiltelefon, von dem aus Sie auch den QR-Code scannen und überprüfen können.",
+        "text": "Einer der Gründe für den Kauf eines Hardwarewallets, ist dass Sie Ihrem Computer aufgrund der großen Angriffsfläche nicht vertrauen sollten. Daher sollten Sie nicht darauf vertrauen, dass Ihr Computer authentische Adressen generiert und anzeigt. Über den Knopf zur sicheren Überprüfung der Adresse sendet die BitBox die Adresse an ein gekoppeltes Mobiltelefon, von dem aus Sie auch den QR-Code scannen und überprüfen können. Die BitBox02 kann Adressen auf dem eingebauten Display sicher anzeigen.",
         "title": "Warum sollte ich die Adresse verifizieren?"
       }
     },
@@ -553,7 +740,7 @@
     },
     "settings": {
       "btc-p2pkh": {
-        "text": "Hier wird ein altes Transaktionsformat verwendet, dessen Nachfolger das Segwit-Adress und Transaktionsformat ist. Wenn Sie die BitBox zuvor mit der alten Desktop-App verwendet haben, ist dies das Konto, welches Ihre Coins enthält. Um zukünftig Gebühren zu sparen, übertragen Sie diese mit einer Transaktion an das Bitcoin-Konto oder Bitcoin-bech32-Konto.",
+        "text": "Hier wird ein altes Transaktionsformat verwendet, dessen Nachfolger das Segwit Adress- und Transaktionsformat ist. Wenn Sie die BitBox zuvor mit der alten Desktop-App verwendet haben, ist dies das Konto, welches Ihre Coins enthält. Um zukünftig Gebühren zu sparen, senden Sie Ihre Coins bitte an Ihr  Bitcoin oder Bitcoin bech32 Konto.",
         "title": "Was ist Bitcoin Legacy?"
       },
       "btc-p2sh": {
@@ -577,7 +764,7 @@
         "title": "Kann man mehr Coins hinzufügen?"
       },
       "servers": {
-        "text": "Diese App kommuniziert mit Servern von Shift Cryptosecurity, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CryptoCompare abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)",
+        "text": "Diese App kommuniziert mit Servern von Shift Cryptosecurity, um nach Updates zu suchen, Transaktionen zu laden und Informationen an verbundene Smartphone Apps zu senden.\nAußerdem werden die neuesten Wechselkurse von CryptoCompare abgerufen. (Die Conversions werden lokal berechnet, es werden keine Beträge von Ihnen übertragen.)\nInfo: Für Ethereum und ERC-20 tokens verwenden wir die Etherscan.io APIs.",
         "title": "Mit welchen Servern kommuniziert die Applikation?"
       },
       "whyMultipleAccounts": {
@@ -619,7 +806,7 @@
       },
       "lostDevice": {
         "link": {
-          "text": "Wiederherstellungscenter",
+          "text": "Backup center",
           "url": "https://shiftcrypto.ch/backup"
         },
         "text": "Sie können Ihre Konten auf einer neuen BitBox oder in unserem Backup-center wiederherstellen.",
@@ -631,7 +818,7 @@
       },
       "welcome": {
         "text": "Vielen Dank, dass Sie diese App benutzen. Sie wird von Shift Cryptosecurity in der Schweiz entwickelt. Wir freuen uns über Anregungen und Fragen. Zögern Sie nicht, uns zu kontaktieren.",
-        "title": "Willkommen in der BitBox App!"
+        "title": "Willkommen in der BitBoxApp!"
       }
     }
   },
@@ -691,7 +878,7 @@
     "button": "Mit Smartphone App koppeln",
     "confirm": "Möchten Sie Ihre BitBox wirklich koppeln? Danach wird Ihr Mobiltelefon zur Durchführung einer Transaktion unbedingt erforderlich sein.",
     "connectOnly": {
-      "button": "Mobile App verbinden",
+      "button": "Smartphone App verbinden",
       "title": "Scannen Sie den Code mit der Smartphone App. Diese können SIe downloaden, indem suc"
     },
     "error": {
@@ -699,7 +886,7 @@
       "title": "Error"
     },
     "reconnectOnly": {
-      "button": "Mobile App erneut verbinden"
+      "button": "Smartphone App erneut verbinden"
     },
     "start": {
       "hideAppQRCode": "QR Code ausblenden",
@@ -740,11 +927,11 @@
       "result": "Altes Format von {{address}}:\n{{legacyAddress}}"
     },
     "onlyThisCoin": {
-      "description": "",
+      "description": "Um andere Token empfangen zu können, aktivieren Sie diese in den Einstellungen. Sollten Sie Token empfangen, welche die BitBoxApp nicht unterstützt, haben Sie möglicherweise keinen Zugang mehr zu diesen. ",
       "warning": "Stellen Sie sicher, dass Sie nur {{accountName}} auf diese Adresse senden."
     },
     "showFull": "Adresse auf BitBox bestätigen",
-    "title": "Coins erhalten",
+    "title": "{{accountName}} empfangen",
     "verify": "Adresse sicher verifizieren",
     "verifyBitBox01": "Adresse auf Smartphone überprüfen",
     "verifyBitBox02": "Adresse auf BitBox02 überprüfen",
@@ -756,7 +943,7 @@
   "reset": {
     "description": "Alle Daten auf dem Gerät werden gelöscht. Inklusive Ihres private Keys!!!",
     "notReset": "Gerät NICHT zurück gesetzt.",
-    "title": "Gerät ",
+    "title": "Gerät auf Werkseinstellung zurücksetzen",
     "understand": "Ich habe ein Backup und kenne mein Wiederherstellungskennwort",
     "understandBB02": "Ich habe ein valides Backup"
   },
@@ -767,12 +954,12 @@
       "description2": "Während der Einrichtung werden Sie aufgefordert, zwei verschiendene Passworter zu erstellen. ",
       "description3": "Das erste Passwort ist das <strong> Gerätepasswort </strong>, welches Ihre BitBox entsperrt und später geändert werden kann.",
       "description4": "Das zweite ist das <strong> Wiederherstellungspasswort </strong>, mit dem Ihr Wallet gesichert wird. Dieses Passwort kann später nicht geändert werden!",
-      "description5": "Das von Ihnen erstellte Wallet wird in einer Datei auf der mitgelieferten Mikro-SD Karte gesichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf Ihre Coins mithilfe Ihres <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
+      "description5": "Das von Ihnen erstellte Wallet wird in einer Datei auf der mitgelieferten microSD Karte gespeichert. Dieses Backup kann im Notfall verwendet werden, um den Zugriff auf Ihre Coins mithilfe Ihres <strong> Wiederherstellungskennworts </strong> wieder herzustellen.",
       "title": "Sicherheitsinformationen"
     },
     "restore": {
       "button": "Weiter",
-      "description1": "Sie werden aufgefordert, die Micro-SD-Karte einzulegen, die Sie zum Speichern Ihres Backups verwendet haben.",
+      "description1": "Sie werden aufgefordert, die Micro-SD-Karte einzustecken, die Sie zum Speichern Ihres Backups verwendet haben.",
       "description2": "Um Ihr Gerät wiederherzustellen, benötigen Sie Ihr Wiederherstellungskennwort.",
       "description3": "Bitte seien Sie bei der Eingabe des Wiederherstellungskennworts aufmerksam. Jedes von Ihnen eingegebene Passwort erstellt ein gültiges Wallet, welche dann aber leer sind. Geben Sie also ein falsches Kennwort ein, wird Ihnen nicht das erwartete Wallet, sondern ein anderes Wallet angezeigt.",
       "title": "Sicherheitsinformationen"
@@ -789,13 +976,13 @@
     "description": "Ich bestätige, dass ich folgendes zu Kenntnis genommen habe:",
     "error": {
       "e102": "Das Passwort muss aus mindestens 8 Zeichen bestehen.",
-      "e200": "Sie müssen eine Mikro-SD Karte in Ihre BitBox einsetzen, damit ein Wallet erstellt wird und ein Backup automatisch auf der Mikro-SD Karte gespeichert werden kann."
+      "e200": "Sie müssen eine microSD Karte in Ihre BitBox einsetzen, damit ein Backup Ihres Wallets erstellt und auf der Mikro-SD Karte gespeichert werden kann."
     },
     "info": {
       "button": " Wiederherstellungspasswort eingeben",
-      "description1": "Setzen Sie die beigelegte Mikro-SD Karte in die BitBox ein.",
+      "description1": "Stecken Sie die microSD Karte in die BitBox ein.",
       "description2": "Wählen Sie ein Wiederherstellungspasswort für das Wallet und klicken Sie \"Wiederherstellungspasswort speichern\".",
-      "description3": "Das Backup auf der Mikro-SD Karte, zusammen mit Ihrem Wiederherstellungskennwort, ist die einzige Methode, wie Ihr Wallet (= der Zugang zu Ihren Coins) wieder hergestellt werden kann, falls ihre BitBox gestohlen wird oder Sie ihr Gerätepasswort vergessen!",
+      "description3": "Das Backup auf der microSD Karte, zusammen mit Ihrem Wiederherstellungspasswort, ist die einzige Methode, wie Ihr Wallet (= der Zugang zu Ihren Coins) wieder hergestellt werden kann, falls ihre BitBox gestohlen wird oder Sie ihr Gerätepasswort vergessen!",
       "description4": "Das Wiederherstellungspasswort lässt sich später nicht ohne Weiteres ändern. Dazu  müssten Sie Ihre Coins auf ein neues Konto zu transferieren. Deswegen sollten Sie von Anfang an ein gutes Passwort wählen.",
       "title": "Neues Wallet erstellen "
     },
@@ -809,11 +996,11 @@
   },
   "seedRestore": {
     "error": {
-      "e200": "Um ein Wallet von einem Backup wieder herzustellen wird die Mikro SD Karte benötigt."
+      "e200": "Um ein Wallet von einem Backup wieder herzustellen wird Ihre microSD Karte benötigt."
     },
     "info": {
       "button": "Weiter",
-      "description1": "Stecken Sie die Mikro-SD-Karte in die BitBox ein und klicken Sie auf \"Weiter\".",
+      "description1": "Stecken Sie die microSD-Karte in die BitBox ein und klicken Sie auf \"Weiter\".",
       "description2": "Wählen Sie ein Backup aus und klicken Sie \"Wiederherstellen\"",
       "description3": "Geben Sie das Wiederherstellungspasswort ein",
       "description4": "Sie müssen bestätigen, dass Sie zu Kenntnis genommen haben, dass ein falsches Passwort ein anderes Wallet erstellt/öffnet.",
@@ -843,7 +1030,7 @@
     },
     "customFee": {
       "label": "Konvertierte Gebühr",
-      "placeholder": "Gebühr konvertieren"
+      "placeholder": "Konvertierte Gebühr"
     },
     "data": {
       "label": "Optionale Daten",
@@ -883,7 +1070,7 @@
       "label": "Fortschritt"
     },
     "success": "Die Transaktion wurde signiert und versendet.",
-    "title": "Coins senden",
+    "title": "{{accountName}} senden",
     "toggleCoinControl": "Coin Control umschalten"
   },
   "settings": {
@@ -923,6 +1110,7 @@
       "title-tltc": "Litecoin Testnet Electrum Server"
     },
     "expert": {
+      "base": "BitBoxBase Verwaltung",
       "coinControl": "Coin Control aktivieren",
       "electrum": {
         "title": "Eigenen Full Node verbinden"
@@ -941,7 +1129,7 @@
   "setup": "Gerätepasswort festlegen",
   "sidebar": {
     "addAccount": "Konto hinzufügen",
-    "bitboxBase": "BitBox Base",
+    "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "BitBoxBase verbinden",
     "device": "Gerät verwalten",
     "leave": "Verlassen",
@@ -949,7 +1137,7 @@
   },
   "success": {
     "create": {
-      "info1": "Ihr Wallet wurde sicher auf der Mikro-SD Karte gesichert. Entfernen Sie die Karte und bewahren Sie diese an einem sicheren Ort auf.",
+      "info1": "Ein Backup Ihres Wallets wurde sicher auf der microSD Karte gesichert. Entfernen Sie die Karte und bewahren Sie diese an einem sicheren Ort auf.",
       "info2": "Sie haben ein Gerätepasswort erstellt, mit dem die BitBox entsperrt wird.",
       "info3": "Sie haben ein Wiederherstellungspasswort für Ihr Wallet erstellt, das Ihr Coins freigibt und Ihr Backup wiederherstellt.",
       "summary": "Hier ist eine Zusammenfassung von dem, was Sie getan haben:",
@@ -998,7 +1186,7 @@
   "upgradeFirmware": {
     "button": "Firmware aktualisieren",
     "description": "Möchten Sie von Version  {{currentVersion}} zu Version {{newVersion}} upgraden?",
-    "label": "Eine Firmware Aktualisierung ist für die BitBox nötig.",
+    "label": "Ihre BitBox benötigt eine Firmware Aktualisierung.",
     "locked": "Um von Version  {{currentVersion}} zu Version  {{newVersion}} upzugraden, drücken Sie die LED bitte lange. ",
     "title": "Firmware upgraden",
     "unlocked": "Der Bootloader ist gesperrt. Um fortzufahren:",
@@ -1007,9 +1195,9 @@
     "unlocked3": "Tippen Sie auf die LED, wenn diese aufleuchtet."
   },
   "warning": {
-    "receivePairing": "Bitte aktivieren sie 2FA  um Transaktionen sicher zu verifizieren. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
-    "sdcard": "Bewahren Sie ihre Mikro SD Karte separat auf. Diese wird nur benötigt, wenn Sie ihre Backups verwalten wollen. Für den normalen Betrieb ist sie nicht erforderlich.",
-    "sendPairing": "Bitte aktivieren sie 2FA  um Transaktionen sicher zu verifizieren. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
+    "receivePairing": "Bitte aktivieren sie 2FA  um Adressen sicher zu verifizieren. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite.",
+    "sdcard": "Bewahren Sie ihre microSD Karte separat von Ihrer BitBox auf. Die microSD Karte wird nur benötigt, wenn Sie ihre Backups verwalten wollen. Für den normalen Betrieb ist sie nicht erforderlich.",
+    "sendPairing": "Bitte aktivieren koppeln Sie Ihre BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
     "insertBitBox02": "Tippen Sie auf die BitBox02 zum weiter machen. ",

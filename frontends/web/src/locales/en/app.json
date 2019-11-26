@@ -239,7 +239,7 @@
     "detectedBasesEmpty": "No devices found",
     "manualInput": "Connect manually",
     "manualInputInvalid": "Invalid IP address",
-    "manualInputLabel": "IP address[:port]",
+    "manualInputLabel": "IP address:port",
     "new": "New BitBoxBase",
     "settings": {
       "advanced": {
@@ -265,7 +265,7 @@
         "syncOptions": "Sync options",
         "systemPassword": "Set system password",
         "systemPasswordSuccess": "BitBoxBase system password set successfully.",
-        "title": "Advanced"
+        "title": "Advanced settings"
       },
       "backups": {
         "confirmBackup": "Would you like to create a new backup?",
