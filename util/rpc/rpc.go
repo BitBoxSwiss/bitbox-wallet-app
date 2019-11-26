@@ -28,19 +28,6 @@ const (
 	DISCONNECTED
 )
 
-// Client describes the methods needed to communicate with an RPC server.
-type Client interface {
-	Method(func([]byte) error, func() func(error), string, ...interface{})
-	MethodSync(interface{}, string, ...interface{}) error
-	SubscribeNotifications(string, func([]byte))
-	Close()
-	IsClosed() bool
-	RegisterHeartbeat(string, ...interface{})
-	OnConnect(func() error)
-	ConnectionStatus() Status
-	RegisterOnConnectionStatusChangedEvent(func(Status))
-}
-
 // ServerInfo holds information about the backend server(s).
 type ServerInfo struct {
 	Server  string `json:"server"`
