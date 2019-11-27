@@ -33,23 +33,6 @@ import (
 	"golang.org/x/net/proxy"
 )
 
-// Electrum holds information about the electrum backend
-type Electrum struct {
-	log        *logrus.Entry
-	serverInfo *config.ServerInfo
-	dialer     proxy.Dialer
-}
-
-// NewElectrum creates a new Electrum instance.
-func NewElectrum(log *logrus.Entry, serverInfo *config.ServerInfo, dialer proxy.Dialer) *Electrum {
-	return &Electrum{log, serverInfo, dialer}
-}
-
-// ServerInfo returns the server info for this backend.
-func (electrum *Electrum) ServerInfo() *config.ServerInfo {
-	return electrum.serverInfo
-}
-
 // establishConnection connects to a backend and returns an rpc client
 // or an error if the connection could not be established.
 func establishConnection(
