@@ -16,17 +16,12 @@ package rpc
 
 import (
 	"io"
-)
 
-// ServerInfo holds information about the backend server(s).
-type ServerInfo struct {
-	Server  string `json:"server"`
-	TLS     bool   `json:"tls"`
-	PEMCert string `json:"pemCert"`
-}
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+)
 
 // Backend describes the methods provided to connect to an RPC backend
 type Backend interface {
 	EstablishConnection() (io.ReadWriteCloser, error)
-	ServerInfo() *ServerInfo
+	ServerInfo() *config.ServerInfo
 }

@@ -248,10 +248,10 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 // separate go routine to listen for incoming data.
 func (client *RPCClient) establishConnection(backend rpc.Backend) error {
 	conn, err := backend.EstablishConnection()
-	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
 	if err != nil {
 		return err
 	}
+	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
 	client.log.Debugf("Established connection to backend")
 	client.connection = &connection{conn, backend}
 	go client.read(client.connection, client.handleResponse)

@@ -25,6 +25,7 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
@@ -36,17 +37,17 @@ import (
 // Electrum holds information about the electrum backend
 type Electrum struct {
 	log        *logrus.Entry
-	serverInfo *rpc.ServerInfo
+	serverInfo *config.ServerInfo
 	dialer     proxy.Dialer
 }
 
 // NewElectrum creates a new Electrum instance.
-func NewElectrum(log *logrus.Entry, serverInfo *rpc.ServerInfo, dialer proxy.Dialer) *Electrum {
+func NewElectrum(log *logrus.Entry, serverInfo *config.ServerInfo, dialer proxy.Dialer) *Electrum {
 	return &Electrum{log, serverInfo, dialer}
 }
 
 // ServerInfo returns the server info for this backend.
-func (electrum *Electrum) ServerInfo() *rpc.ServerInfo {
+func (electrum *Electrum) ServerInfo() *config.ServerInfo {
 	return electrum.serverInfo
 }
 
@@ -128,7 +129,7 @@ func newTCPConnection(address string, dialer proxy.Dialer) (net.Conn, error) {
 
 // NewElectrumConnection connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) blockchain.Interface {
+func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) blockchain.Interface {
 	var serverList string
 	for _, serverInfo := range servers {
 		if serverList != "" {
@@ -184,7 +185,7 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 // whether the server is an electrum server.
 func CheckElectrumServer(server string, pemCert string, log *logrus.Entry, dialer proxy.Dialer) error {
 	backends := []rpc.Backend{
-		NewElectrum(log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer),
+		NewElectrum(log, &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer),
 	}
 	conn, err := backends[0].EstablishConnection()
 	if err != nil {
