@@ -49,6 +49,21 @@ const (
 	DisconnectTypeDisconnect DisconnectType = 2
 )
 
+// DisconnectType indicates the type of disconnect that should be passed to Disconnect() to determine if we set the Base
+// status to 'offline' or 'reconnecting' which determines subsequent behavior of the backend
+type DisconnectType int
+
+// DisconnectType currently has three possibilities, reboot, shutdown and disconnect
+// DisconnectTypeReboot changes status to StatusReconnecting to tell the backend to attempt to reconnect
+// DisconnectTypeShutdown changes status StatusOffline
+// DisconnectTypeDisconnect changes status StatusDisconnected to indicate that the Base is online, but not connected to
+// the App backend
+const (
+	DisconnectTypeReboot     DisconnectType = 0
+	DisconnectTypeShutdown   DisconnectType = 1
+	DisconnectTypeDisconnect DisconnectType = 2
+)
+
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
 	observable.Implementation
