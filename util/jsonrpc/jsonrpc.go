@@ -26,7 +26,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/sirupsen/logrus"
 )
 
@@ -37,6 +36,15 @@ func init() {
 const (
 	responseTimeout = 30 * time.Second
 )
+
+// Backend is a server to connect to.
+type Backend struct {
+	// Name is used in logging only, to identify the backend.
+	Name string
+	// EstablishConnection connects to the backend and returns a connection object to
+	// read/write/close.
+	EstablishConnection func() (io.ReadWriteCloser, error)
+}
 
 type callbacks struct {
 	// success is called when a successful response has been received.
@@ -68,7 +76,7 @@ func (err *ResponseError) Error() string {
 
 type connection struct {
 	conn    io.ReadWriteCloser
-	backend rpc.Backend
+	backend *Backend
 }
 
 type request struct {
@@ -89,7 +97,7 @@ type RPCClient struct {
 	connection *connection
 	connLock   locker.Locker
 
-	backends     []rpc.Backend
+	backends     []*Backend
 	backendsLock locker.Locker
 
 	pendingRequests     map[int]*request
@@ -124,7 +132,7 @@ type RPCClient struct {
 
 // NewRPCClient creates a new RPCClient. conn is used for transport (e.g. a tcp/tls
 // connection). onError is called for unexpected errors like malformed server responses.
-func NewRPCClient(backends []rpc.Backend, onError func(error), log *logrus.Entry) *RPCClient {
+func NewRPCClient(backends []*Backend, onError func(error), log *logrus.Entry) *RPCClient {
 	client := &RPCClient{
 		backends:                        backends,
 		msgID:                           0,
@@ -200,7 +208,7 @@ func (client *RPCClient) resendPendingRequestsAndSubscriptions(failed *connectio
 	}
 	client.connection = nil
 	if failed != nil {
-		client.log.Debugf("Backend %v failed. Trying to re-subscribe and send pending requests via another connection", failed.backend.ServerInfo().Server)
+		client.log.Debugf("Backend %v failed. Trying to re-subscribe and send pending requests via another connection", failed.backend.Name)
 	} else {
 		// in case socket error does not have any information about the connection, for example
 		// when a timeout happens in the MethodSync function
@@ -246,12 +254,12 @@ func (client *RPCClient) read(connection *connection, success func(*connection, 
 // establishConnection attempts to establish a connection to a given backend. On success, it returns
 // a connection, otherwise it returns an error. If successful, the read function is started in a
 // separate go routine to listen for incoming data.
-func (client *RPCClient) establishConnection(backend rpc.Backend) error {
+func (client *RPCClient) establishConnection(backend *Backend) error {
 	conn, err := backend.EstablishConnection()
 	if err != nil {
 		return err
 	}
-	client.log = client.log.WithField("backend", backend.ServerInfo().Server)
+	client.log = client.log.WithField("backend", backend.Name)
 	client.log.Debugf("Established connection to backend")
 	client.connection = &connection{conn, backend}
 	go client.read(client.connection, client.handleResponse)
@@ -291,7 +299,7 @@ func (client *RPCClient) conn() (*connection, error) {
 				start = rand.Intn(len(client.backends))
 			}
 			for i := 0; i < len(client.backends); i++ {
-				client.log.Debugf("Trying to connect to backend %v", client.backends[start].ServerInfo().Server)
+				client.log.Debugf("Trying to connect to backend %v", client.backends[start].Name)
 				err := client.establishConnection(client.backends[start])
 				if err != nil {
 					client.log.WithError(err).Info("Failover: backend is down")

@@ -28,7 +28,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
@@ -140,9 +139,16 @@ func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry, dial
 	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "servers": serverList})
 	log.Debug("Connecting to Electrum server")
 
-	backends := []rpc.Backend{}
+	var backends []*jsonrpc.Backend
 	for _, serverInfo := range servers {
-		backends = append(backends, &Electrum{log, serverInfo, dialer})
+		serverInfo := serverInfo
+		backends = append(backends, &jsonrpc.Backend{
+			Name: serverInfo.Server,
+			EstablishConnection: func() (io.ReadWriteCloser, error) {
+				e := &Electrum{log, serverInfo, dialer}
+				return e.EstablishConnection()
+			},
+		})
 	}
 	jsonrpcClient := jsonrpc.NewRPCClient(backends, nil, log)
 	return client.NewElectrumClient(jsonrpcClient, log)
@@ -184,8 +190,14 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func CheckElectrumServer(server string, pemCert string, log *logrus.Entry, dialer proxy.Dialer) error {
-	backends := []rpc.Backend{
-		NewElectrum(log, &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer),
+	backends := []*jsonrpc.Backend{
+		{
+			Name: server,
+			EstablishConnection: func() (io.ReadWriteCloser, error) {
+				e := NewElectrum(log, &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer)
+				return e.EstablishConnection()
+			},
+		},
 	}
 	conn, err := backends[0].EstablishConnection()
 	if err != nil {
