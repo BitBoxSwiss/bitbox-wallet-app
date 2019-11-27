@@ -50,19 +50,20 @@ func (electrum *Electrum) ServerInfo() *config.ServerInfo {
 	return electrum.serverInfo
 }
 
-// EstablishConnection connects to a backend and returns an rpc client
+// establishConnection connects to a backend and returns an rpc client
 // or an error if the connection could not be established.
-func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
+func establishConnection(
+	serverInfo *config.ServerInfo, dialer proxy.Dialer) (io.ReadWriteCloser, error) {
 	var conn io.ReadWriteCloser
-	if electrum.serverInfo.TLS {
+	if serverInfo.TLS {
 		var err error
-		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert, electrum.dialer)
+		conn, err = newTLSConnection(serverInfo.Server, serverInfo.PEMCert, dialer)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		var err error
-		conn, err = newTCPConnection(electrum.serverInfo.Server, electrum.dialer)
+		conn, err = newTCPConnection(serverInfo.Server, dialer)
 		if err != nil {
 			return nil, err
 		}
@@ -145,8 +146,7 @@ func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry, dial
 		backends = append(backends, &jsonrpc.Backend{
 			Name: serverInfo.Server,
 			EstablishConnection: func() (io.ReadWriteCloser, error) {
-				e := &Electrum{log, serverInfo, dialer}
-				return e.EstablishConnection()
+				return establishConnection(serverInfo, dialer)
 			},
 		})
 	}
@@ -190,12 +190,12 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func CheckElectrumServer(server string, pemCert string, log *logrus.Entry, dialer proxy.Dialer) error {
+	serverInfo := &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}
 	backends := []*jsonrpc.Backend{
 		{
 			Name: server,
 			EstablishConnection: func() (io.ReadWriteCloser, error) {
-				e := NewElectrum(log, &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer)
-				return e.EstablishConnection()
+				return establishConnection(serverInfo, dialer)
 			},
 		},
 	}
