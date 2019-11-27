@@ -32,9 +32,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// ConnectionError indicates an error when establishing a network connection.
-type ConnectionError error
-
 // Electrum holds information about the electrum backend
 type Electrum struct {
 	log        *logrus.Entry
@@ -60,13 +57,13 @@ func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
 		var err error
 		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert, electrum.socksProxy)
 		if err != nil {
-			return nil, ConnectionError(err)
+			return nil, err
 		}
 	} else {
 		var err error
 		conn, err = newTCPConnection(electrum.serverInfo.Server, electrum.socksProxy)
 		if err != nil {
-			return nil, ConnectionError(err)
+			return nil, err
 		}
 	}
 	return conn, nil
