@@ -44,20 +44,19 @@ func NewSocksProxy(useProxy bool, proxyAddress string) SocksProxy {
 }
 
 // GetTCPProxyDialer returns a tcp connection. The connection is proxied, if useProxy is true.
-func (socksProxy *SocksProxy) GetTCPProxyDialer() (proxy.Dialer, error) {
+func (socksProxy *SocksProxy) GetTCPProxyDialer() proxy.Dialer {
 	if socksProxy.useProxy {
 		socksProxy.log.WithField("address", socksProxy.proxyAddress).
 			Info("Using proxy connection")
 		// Create a proxy that uses Tor's SocksPort.
 		dialer, err := proxy.SOCKS5("tcp", socksProxy.proxyAddress, nil, nil)
 		if err != nil {
-			socksProxy.log.WithError(err).Error("Failed to create tcp connection over socks5 proxy")
-			return nil, err
+			panic("Failed to create tcp connection over socks5 proxy")
 		}
-		return dialer, nil
+		return dialer
 	}
 	socksProxy.log.Info("Using an unproxied tcp client")
-	return &net.Dialer{}, nil
+	return &net.Dialer{}
 }
 
 // GetHTTPClient returns a http client. Requests made with this client are proxied, if useProxy is true.
