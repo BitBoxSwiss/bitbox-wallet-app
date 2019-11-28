@@ -22,14 +22,20 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 )
 
 const defaultProxyAddress = "127.0.0.1:9050"
 
+// ServerInfo holds information about the backend server(s).
+type ServerInfo struct {
+	Server  string `json:"server"`
+	TLS     bool   `json:"tls"`
+	PEMCert string `json:"pemCert"`
+}
+
 // btcCoinConfig holds configurations specific to a btc-based coin.
 type btcCoinConfig struct {
-	ElectrumServers []*rpc.ServerInfo `json:"electrumServers"`
+	ElectrumServers []*ServerInfo `json:"electrumServers"`
 }
 
 // ETHTransactionsSource  where to get Ethereum transactions from. See the list of consts
@@ -178,7 +184,7 @@ func NewDefaultAppConfig() AppConfig {
 			EthereumActive:           true,
 
 			BTC: btcCoinConfig{
-				ElectrumServers: []*rpc.ServerInfo{
+				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "btc.shiftcrypto.ch:443",
 						TLS:     true,
@@ -192,7 +198,7 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			TBTC: btcCoinConfig{
-				ElectrumServers: []*rpc.ServerInfo{
+				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "btc.shiftcrypto.ch:51002",
 						TLS:     true,
@@ -206,7 +212,7 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			RBTC: btcCoinConfig{
-				ElectrumServers: []*rpc.ServerInfo{
+				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "127.0.0.1:52001",
 						TLS:     false,
@@ -215,7 +221,7 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			LTC: btcCoinConfig{
-				ElectrumServers: []*rpc.ServerInfo{
+				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "ltc.shiftcrypto.ch:443",
 						TLS:     true,
@@ -229,7 +235,7 @@ func NewDefaultAppConfig() AppConfig {
 				},
 			},
 			TLTC: btcCoinConfig{
-				ElectrumServers: []*rpc.ServerInfo{
+				ElectrumServers: []*ServerInfo{
 					{
 						Server:  "ltc.shiftcrypto.ch:51004",
 						TLS:     true,
@@ -300,7 +306,7 @@ func (config *Config) SetBtcOnly() {
 // SetBTCElectrumServers sets the BTC configuration to the provided electrumIP and electrumCert
 func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.BTC = btcCoinConfig{
-		ElectrumServers: []*rpc.ServerInfo{
+		ElectrumServers: []*ServerInfo{
 			{
 				Server:  electrumAddress,
 				TLS:     true,
@@ -313,7 +319,7 @@ func (config *Config) SetBTCElectrumServers(electrumAddress, electrumCert string
 // SetTBTCElectrumServers sets the TBTC configuration to the provided electrumIP and electrumCert
 func (config *Config) SetTBTCElectrumServers(electrumAddress, electrumCert string) {
 	config.appConfig.Backend.TBTC = btcCoinConfig{
-		ElectrumServers: []*rpc.ServerInfo{
+		ElectrumServers: []*ServerInfo{
 			{
 				Server:  electrumAddress,
 				TLS:     true,

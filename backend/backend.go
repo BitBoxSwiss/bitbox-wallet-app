@@ -49,7 +49,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -346,7 +345,7 @@ func (backend *Backend) DefaultAppConfig() config.AppConfig {
 	return config.NewDefaultAppConfig()
 }
 
-func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
+func (backend *Backend) defaultProdServers(code string) []*config.ServerInfo {
 	switch code {
 	case coinBTC:
 		return backend.config.AppConfig().Backend.BTC.ElectrumServers
@@ -363,7 +362,7 @@ func (backend *Backend) defaultProdServers(code string) []*rpc.ServerInfo {
 	}
 }
 
-func defaultDevServers(code string) []*rpc.ServerInfo {
+func defaultDevServers(code string) []*config.ServerInfo {
 	const devShiftCA = `-----BEGIN CERTIFICATE-----
 MIIGGjCCBAKgAwIBAgIJAO1AEqR+xvjRMA0GCSqGSIb3DQEBDQUAMIGZMQswCQYD
 VQQGEwJDSDEPMA0GA1UECAwGWnVyaWNoMR0wGwYDVQQKDBRTaGlmdCBDcnlwdG9z
@@ -402,24 +401,24 @@ O3nOxjgSfRAfKWQ2Ny1APKcn6I83P5PFLhtO5I12
 
 	switch code {
 	case coinBTC:
-		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50002", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:50002", TLS: true, PEMCert: devShiftCA}}
 	case coinTBTC:
-		return []*rpc.ServerInfo{
+		return []*config.ServerInfo{
 			{Server: "s1.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 			{Server: "s2.dev.shiftcrypto.ch:51003", TLS: true, PEMCert: devShiftCA},
 		}
 	case coinRBTC:
-		return []*rpc.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
+		return []*config.ServerInfo{{Server: "127.0.0.1:52001", TLS: false, PEMCert: ""}}
 	case coinLTC:
-		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:50004", TLS: true, PEMCert: devShiftCA}}
 	case coinTLTC:
-		return []*rpc.ServerInfo{{Server: "dev.shiftcrypto.ch:51004", TLS: true, PEMCert: devShiftCA}}
+		return []*config.ServerInfo{{Server: "dev.shiftcrypto.ch:51004", TLS: true, PEMCert: devShiftCA}}
 	default:
 		panic(errp.Newf("The given code %s is unknown.", code))
 	}
 }
 
-func (backend *Backend) defaultElectrumXServers(code string) []*rpc.ServerInfo {
+func (backend *Backend) defaultElectrumXServers(code string) []*config.ServerInfo {
 	if backend.arguments.DevServers() {
 		return defaultDevServers(code)
 	}

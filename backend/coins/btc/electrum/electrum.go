@@ -25,44 +25,28 @@ import (
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum/client"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/proxy"
 )
 
-// Electrum holds information about the electrum backend
-type Electrum struct {
-	log        *logrus.Entry
-	serverInfo *rpc.ServerInfo
-	dialer     proxy.Dialer
-}
-
-// NewElectrum creates a new Electrum instance.
-func NewElectrum(log *logrus.Entry, serverInfo *rpc.ServerInfo, dialer proxy.Dialer) *Electrum {
-	return &Electrum{log, serverInfo, dialer}
-}
-
-// ServerInfo returns the server info for this backend.
-func (electrum *Electrum) ServerInfo() *rpc.ServerInfo {
-	return electrum.serverInfo
-}
-
-// EstablishConnection connects to a backend and returns an rpc client
+// establishConnection connects to a backend and returns an rpc client
 // or an error if the connection could not be established.
-func (electrum *Electrum) EstablishConnection() (io.ReadWriteCloser, error) {
+func establishConnection(
+	serverInfo *config.ServerInfo, dialer proxy.Dialer) (io.ReadWriteCloser, error) {
 	var conn io.ReadWriteCloser
-	if electrum.serverInfo.TLS {
+	if serverInfo.TLS {
 		var err error
-		conn, err = newTLSConnection(electrum.serverInfo.Server, electrum.serverInfo.PEMCert, electrum.dialer)
+		conn, err = newTLSConnection(serverInfo.Server, serverInfo.PEMCert, dialer)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		var err error
-		conn, err = newTCPConnection(electrum.serverInfo.Server, electrum.dialer)
+		conn, err = newTCPConnection(serverInfo.Server, dialer)
 		if err != nil {
 			return nil, err
 		}
@@ -128,7 +112,7 @@ func newTCPConnection(address string, dialer proxy.Dialer) (net.Conn, error) {
 
 // NewElectrumConnection connects to an Electrum server and returns a ElectrumClient instance to
 // communicate with it.
-func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) blockchain.Interface {
+func NewElectrumConnection(servers []*config.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) blockchain.Interface {
 	var serverList string
 	for _, serverInfo := range servers {
 		if serverList != "" {
@@ -139,9 +123,15 @@ func NewElectrumConnection(servers []*rpc.ServerInfo, log *logrus.Entry, dialer 
 	log = log.WithFields(logrus.Fields{"group": "electrum", "server-type": "electrumx", "servers": serverList})
 	log.Debug("Connecting to Electrum server")
 
-	backends := []rpc.Backend{}
+	var backends []*jsonrpc.Backend
 	for _, serverInfo := range servers {
-		backends = append(backends, &Electrum{log, serverInfo, dialer})
+		serverInfo := serverInfo
+		backends = append(backends, &jsonrpc.Backend{
+			Name: serverInfo.Server,
+			EstablishConnection: func() (io.ReadWriteCloser, error) {
+				return establishConnection(serverInfo, dialer)
+			},
+		})
 	}
 	jsonrpcClient := jsonrpc.NewRPCClient(backends, nil, log)
 	return client.NewElectrumClient(jsonrpcClient, log)
@@ -183,8 +173,14 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func CheckElectrumServer(server string, pemCert string, log *logrus.Entry, dialer proxy.Dialer) error {
-	backends := []rpc.Backend{
-		NewElectrum(log, &rpc.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}, dialer),
+	serverInfo := &config.ServerInfo{Server: server, TLS: true, PEMCert: pemCert}
+	backends := []*jsonrpc.Backend{
+		{
+			Name: server,
+			EstablishConnection: func() (io.ReadWriteCloser, error) {
+				return establishConnection(serverInfo, dialer)
+			},
+		},
 	}
 	conn, err := backends[0].EstablishConnection()
 	if err != nil {

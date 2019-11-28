@@ -27,10 +27,10 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses"
 	addressesTest "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/addresses/test"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/maketx"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
@@ -39,7 +39,7 @@ import (
 
 var noDust = btcutil.Amount(0)
 
-var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, ".", []*rpc.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
+var tbtc = btc.NewCoin("tbtc", "TBTC", &chaincfg.TestNet3Params, ".", []*config.ServerInfo{}, "https://blockstream.info/testnet/tx/", socksproxy.NewSocksProxy(false, ""))
 
 // For reference, tx vsizes assuming two outputs (normal + change), for N inputs:
 // 1 inputs: 226

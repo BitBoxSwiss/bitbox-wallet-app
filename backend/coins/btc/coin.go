@@ -30,11 +30,11 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
-	"github.com/digitalbitbox/bitbox-wallet-app/util/rpc"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/sirupsen/logrus"
 )
@@ -46,7 +46,7 @@ type Coin struct {
 	unit                  string
 	net                   *chaincfg.Params
 	dbFolder              string
-	servers               []*rpc.ServerInfo
+	servers               []*config.ServerInfo
 	blockExplorerTxPrefix string
 	socksProxy            socksproxy.SocksProxy
 
@@ -64,7 +64,7 @@ func NewCoin(
 	unit string,
 	net *chaincfg.Params,
 	dbFolder string,
-	servers []*rpc.ServerInfo,
+	servers []*config.ServerInfo,
 	blockExplorerTxPrefix string,
 	socksProxy socksproxy.SocksProxy,
 ) *Coin {
