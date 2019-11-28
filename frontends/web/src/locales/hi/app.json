@@ -19,6 +19,7 @@
   "accountInfo": {
     "address": "एड्रेस",
     "extendedPublicKey": "विस्तारित पब्लिक की",
+    "label": "खाता जानकारी",
     "title": "अकाउंट की जानकारी",
     "verify": "डिवाइस पर सत्यापित करें"
   },
@@ -119,7 +120,7 @@
     },
     "flipscreen": "फ्लिप स्क्रीन",
     "orientation": "डिवाइस गलत तरीके से उन्मुख है?",
-    "success": "अपग्रेड सफल हुआ! में जारी है {{rebootSeconds}} सेकंड में..."
+    "success": "अपग्रेड सफल हुआ!  {{rebootSeconds}} सेकंड में में जारी है..."
   },
   "bitbox": {
     "error": {
@@ -233,8 +234,70 @@
   },
   "bitboxBase": {
     "connect": "Base कनेक्ट करें",
+    "connectedBases": "जुड़ी हुई डिवाइसेज",
     "detectedBases": "अपने नेटवर्क पर निम्नलिखित उपकरणों का पता लगा:",
+    "detectedBasesEmpty": "कोई डिवाइसेज नहीं मिले",
     "manualInput": "आपका BitBoxBase नहीं दिख रहा? नीचे मैन्युअल रूप से कनेक्ट करें:",
+    "manualInputInvalid": "अमान्य IP address",
+    "manualInputLabel": "IP address:port",
+    "new": "नया BitBoxBase",
+    "settings": {
+      "advanced": {
+        "confirmSystemPassword": "यह BitBoxBase सिस्टम पासवर्ड को <strong>ssh authentication and sudo access.</strong> उपयोग करने के लिए सेट करेगा\n$t(generic.confirmToContinue)",
+        "connectElectrum": "इलेक्ट्रम कनेक्ट करें",
+        "ipAddress": "IP address",
+        "manual": "Manual update",
+        "port": "Port",
+        "reset": "फ़ैक्टरी सेटिंग्स पर रीसेट करें",
+        "sshAccess": {
+          "button": "SSH password login",
+          "confirm": "क्या आप चाहेंगे {{toggle}}  SSH password authentication?",
+          "inProgress": "Toggling SSH password authentication",
+          "success": "SSH password authentication {{enabled}}",
+          "title": "SSH access"
+        },
+        "subheaders": {
+          "bitcoin": "बिटकॉइन कोर",
+          "electrs": "Electrs",
+          "lightning": "Lightning",
+          "networking": "नेटवर्किंग"
+        },
+        "syncOptions": "Sync विकल्प",
+        "systemPassword": "सिस्टम पासवर्ड सेट करें",
+        "systemPasswordSuccess": "BitBoxBase सिस्टम पासवर्ड सफलतापूर्वक सेट।",
+        "title": "एडवांस सेटिंग"
+      },
+      "backups": {
+        "confirmBackup": "क्या आप एक नया बैकअप बनाना चाहेंगे?",
+        "create": "बैकअप बनाना",
+        "created": "बैकअप सफलतापूर्वक बनाया गया।",
+        "creating": "बैकअप बना रहा है ...",
+        "manage": "बैकअप मैनेज करें",
+        "restore": "बैकअप बहाल करें",
+        "title": "Backups"
+      },
+      "node": {
+        "bitcoinRestarting": "Base सेवाएं फिर से शुरू हो रही हैं ...",
+        "changeName": "नाम परिवर्तित करें",
+        "changeNameTitle": "BitBoxBase होस्टनाम बदलें",
+        "confirmTorEnabled": {
+          "false": "क्या आप निस्चय ही टोर <strong>सक्षम</strong> करना चाहते हैं ?\n $t(bitboxBase.settings.node.warning)",
+          "true": "क्या आप निस्चय ही टोर  <strong>अक्षम</strong> करना चाहते हैं?\n इससे गोपनीयता के बारे में गंभीर और अपरिवर्तनीय प्रभाव पड़ सकता है और इसकी सिफारिश नहीं की जाती है।\n $t(bitboxBase.settings.node.warning)"
+        },
+        "disconnect": "डिस्कनेक्ट",
+        "newName": "नया होस्टनाम दर्ज करें",
+        "password": "पासवर्ड बदलें",
+        "title": "Node",
+        "tor": "टोर",
+        "warning": "कृपया परिवर्तन करने के लिए 1-2 मिनट का समय दें।"
+      },
+      "system": {
+        "confirmUpdate": "क्या आप अपने BitBoxBase को संस्करण {{current}} से {{newVersion}} मे अपडेट करना चाहते हैं ?",
+        "restart": "पुनः आरंभ करें",
+        "shutdown": "Shutdown",
+        "title": "System"
+      }
+    },
     "title": "BitBoxBase"
   },
   "bitboxBaseWizard": {
@@ -251,7 +314,8 @@
     },
     "success": {
       "title": "आप जाने के लिए तैयार हैं!"
-    }
+    },
+    "welcome": "BitBoxBase में आपका स्वागत है"
   },
   "blink": {
     "button": "झपकी"
@@ -266,6 +330,7 @@
     "back": "वापस जाएँ",
     "changepin": "डिवाइस पासवर्ड बदलें",
     "check": "बैकअप की जाँच करें",
+    "continue": "Continue",
     "copy": "कॉपी करें",
     "create": "सर्जन करे",
     "download": "डाउनलोड",
@@ -275,8 +340,10 @@
     "previous": "पिछला",
     "receive": "प्राप्त करें",
     "restore": "पुनर्स्थापित करें",
+    "select": "Select",
     "send": "भेजें",
     "unlock": "अनलॉक",
+    "update": "Update",
     "upgrade": "अपग्रेड"
   },
   "changePin": {
@@ -284,6 +351,7 @@
     "oldLabel": "वर्तमान डिवाइस पासवर्ड"
   },
   "checkSDcard": "माइक्रो एसडी कार्ड की जाँच हो रही है",
+  "clickHere": "यहां क्लिक करे।",
   "confirm": {
     "abortInfo": "टेप करे ",
     "abortInfoRedText": "बीच में ही नष्ट करे",
@@ -359,6 +427,19 @@
   },
   "footer": {
     "appVersion": "एप्लिकेशन वर्जन:"
+  },
+  "generic": {
+    "applying": "configuration लागू करना",
+    "confirmToContinue": "कृपया जारी रखने के लिए पुष्टि करें।",
+    "description": "विवरण",
+    "enable": {
+      "false": "enable",
+      "true": "disable"
+    },
+    "enabled": {
+      "false": "Disabled",
+      "true": "Enabled"
+    }
   },
   "genericError": "एक एरर पाई गई। यदि आपको कोई समस्या दिखाई देती है, तो कृपया एप्लिकेशन को पुनः आरंभ करें।",
   "goal": {
@@ -939,6 +1020,7 @@
       "title-tltc": "Litecoin Testnet Electrum सर्वर्स"
     },
     "expert": {
+      "base": "BitBoxBase Management",
       "coinControl": "कॉइन नियंत्रण सक्षम करें",
       "electrum": {
         "title": "अपना फूल नोड कनेक्ट करें"

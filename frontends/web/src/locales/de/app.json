@@ -19,6 +19,7 @@
   "accountInfo": {
     "address": "Adresse",
     "extendedPublicKey": "Erweiterter Public Key",
+    "label": "Konto Informationen",
     "title": "Konto Informationen",
     "verify": "Auf dem Gerät bestätigen"
   },
@@ -237,6 +238,7 @@
     "detectedBases": "Geräte in Ihrem Netzwerk gefunden",
     "detectedBasesEmpty": "Keine Geräte gefunden",
     "manualInput": "BitBoxBase wird nicht gefunden? Manuell verbinden:",
+    "manualInputInvalid": "Ungültige IP-Adresse",
     "manualInputLabel": "IP-Adresse: Port",
     "new": "Neue BitBoxBase",
     "settings": {
@@ -249,7 +251,7 @@
         "reset": "Auf Werkseinstellungen zurücksetzen",
         "sshAccess": {
           "button": "SSH Passwort Login",
-          "confirm": "",
+          "confirm": "Würden Sie gerne SSH Passwort Authentifizierung {{toggle}}?",
           "inProgress": "",
           "success": "SSH-Passwortauthentifizierung {{enabled}}",
           "title": "SSH-Zugang"
@@ -258,7 +260,7 @@
           "bitcoin": "Bitcoin Core",
           "electrs": "Electrs",
           "lightning": "Lightning",
-          "networking": ""
+          "networking": "Netzwerk"
         },
         "syncOptions": "Synchronisierungs-optionen",
         "systemPassword": "Systempasswort festlegen",
@@ -296,7 +298,7 @@
         "restart": "Neustart",
         "shutdown": "Ausschalten",
         "title": "System",
-        "upToDate": "",
+        "upToDate": "Ihre BitBoxBase ist auf dem aktuellen Stand",
         "update": "Update",
         "updateProgress": {
           "updateApplying": "Update wird installiert...",
@@ -304,7 +306,7 @@
           "updateFailed": "Update fehlgeschlagen",
           "updateNotInProgress": "Update Informationen werden abgerufen ...",
           "updateRebooting": "Neustart ...",
-          "warning": ""
+          "warning": "Wenn fertig, wird Ihre Base automatisch getrennt und neu gestartet."
         },
         "updateSeverity": "",
         "updateTitle": "BitBoxBase updaten"
@@ -318,7 +320,15 @@
   },
   "bitboxBaseWizard": {
     "backups": {
+      "created": "Ihr Backup wurde auf dem <strong>das USB-Stick</strong> erstellt.",
+      "createdTitle": "Konfiguration anwenden",
+      "finalizing": "Die BitBoxBase schließt jetzt das Setup ab. Dies dauert nur wenige Sekunden.",
       "insert": "Stecken Sie einen USB-Stick in die BitBoxBase ein, um ein Backup Ihres Wallets zu erstellen.",
+      "list": {
+        "point1": "Diese Backup enthält vertrauliche Informationen.",
+        "point2": "Erlaubt Ihnen das BitBoxBase-Verwaltungspasswort zurücksetzen.",
+        "point3": "Bitte <strong>entfernen Sie den USB-Stick jetzt</strong> und bewahren Sie diesen an einem sicheren Ort auf."
+      },
       "title": "Wallet Backup"
     },
     "bitcoin": {
@@ -358,7 +368,7 @@
         "pro1": "Am schnellsten",
         "pro2": "Geringere Latenz",
         "pro3": "Ermöglicht VPN Nutzung",
-        "select": "",
+        "select": "Clearnet auswählen",
         "title": "Clearnet"
       },
       "clearnetThenTor": {
@@ -366,24 +376,24 @@
         "label": "Clearnet für den initialen Block-Download (IBD) verwenden, dann zu Tor wechseln",
         "pro1": "Schnellerer initialer Block Download ",
         "pro2": "Belastet das Tor-Netzwerk während des IBD nicht",
-        "select": "",
+        "select": "Clearnet + Tor auswählen",
         "title": "Clearnet dann Tor"
       },
       "title": "Netzwerkeinstellungen wählen",
       "tor": {
         "con1": "Belastet das Tor-Netzwerk",
-        "con2": "",
+        "con2": "Möglicherweise verdächtig in totalitären Rechtssystemen",
         "label1": "Tor für alle Verbindungen verwenden. Unsere empfohlene Option.",
         "label2": "Tor für alle Verbindungen verwenden",
         "pro1": "Privat",
         "pro2": "Schwierig den physischen Standort zu ermitteln",
-        "pro3": "",
-        "select": "",
+        "pro3": "Ermöglicht den Fernzugriff",
+        "select": "Tor auswählen",
         "title": "Tor"
       }
     },
     "pairing": {
-      "failed": "",
+      "failed": "Unbestätigtes Pairing. Bitte trennen Sie Verbindung zur BitBoxBase verbinden Sie sie dann wieder.",
       "paired": "Sie haben auf Ihrer BitBoxBase bestätigt, dass der Code übereinstimmt. ",
       "title": "Pairing Code bestätigen",
       "unpaired": "Neue BitBoxBase-Verbindung erkannt. Um fortzufahren, überprüfen Sie bitte, dass der Code mit dem auf Ihrer BitBoxBase angezeigten Code übereinstimmt."
@@ -400,14 +410,15 @@
         "point2": "",
         "point3": "Standard Hostname",
         "title": ""
-      }
+      },
+      "title": "Setup auswählen"
     },
     "success": {
-      "backupCreated": "Ihr Backup wurde erstellt. Bitte entfernen Sie den USB-Stick jetzt und bewahren Sie diesen an einem sicheren Ort auf.",
       "button": "Zum Dashboard",
+      "text": "Es kann ein oder zwei Minuten dauern, bis alle Dashboard-Informationen auf dem neuesten Stand sind.",
       "title": "Es kann los gehen!"
     },
-    "welcome": ""
+    "welcome": "Willkommen bei deiner BitBoxBase"
   },
   "blink": {
     "button": "Blinken"
@@ -521,6 +532,8 @@
     "appVersion": "App Version:"
   },
   "generic": {
+    "applying": "Konfiguration wird angewendet",
+    "confirmToContinue": "Bitte bestätige, um fortzufahren.",
     "description": "Beschreibung",
     "enable": {
       "false": "aktivieren",
