@@ -213,13 +213,15 @@ class BaseSettings extends Component<Props, State> {
                         <div className={style.dashboardContainer}>
                             <div className={[style.dashboard, expandedDashboard ? style.expanded : ''].join(' ')}>
                                 <div className={style.nameStatus}>
-                                        <div className="subHeader">
-                                            <h3>{baseInfo.hostname}</h3>
-                                        </div>
-                                        <div>
-                                        <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style[statusBadgeColor(baseID)]].join(' ')}>
-                                            </span>{baseUserStatus ? baseUserStatus : 'Unavailable'}</span>
-                                        </div>
+                                    <div className="subHeader">
+                                        <h3>{baseInfo.hostname}</h3>
+                                    </div>
+                                    <div>
+                                        <span className="m-left-quarter text-black flex flex-row flex-items-center">
+                                            <span className={[style.statusBadge, style.large, style[statusBadgeColor(baseID)]].join(' ')}></span>
+                                            {baseUserStatus ? baseUserStatus : 'Unavailable'}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className={style.items}>
                                     <div className={style.item}>
