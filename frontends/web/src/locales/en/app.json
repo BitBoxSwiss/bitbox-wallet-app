@@ -662,7 +662,7 @@
         "title": "How often do I have to make a backup?"
       },
       "whatIsABackup": {
-        "text": "It is a copy of the seed on an micro SD card. The seed together with your recovery password generates your wallet.",
+        "text": "It is a copy of the seed on an microSD card. The seed together with your recovery password generates your wallet.",
         "title": "What is a backup?"
       }
     },
@@ -712,7 +712,7 @@
     },
     "receive": {
       "address": {
-        "text": "You can give the address  to others to send you some coins. Just make you you are sending to the correct address.",
+        "text": "You can give the address to others to send you some coins. Just make sure you are sending to the correct address.",
         "title": "What do I do with an address?"
       },
       "addressChange": {
