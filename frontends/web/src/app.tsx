@@ -33,7 +33,7 @@ import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
-import { BitBoxBase } from './routes/bitboxbase/bitboxbase';
+import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus } from './routes/bitboxbase/bitboxbase';
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
@@ -121,6 +121,9 @@ class App extends Component<Props, State> {
                 case 'detectedChanged':
                     this.onBitBoxBasesDetectedChanged();
                     break;
+                case 'reconnected':
+                    this.onBitBoxBaseReconnected(meta.ID);
+                    break;
                 }
             }
         });
@@ -151,6 +154,11 @@ class App extends Component<Props, State> {
             }
             this.setState({ bitboxBaseIDs });
         });
+    }
+
+    private onBitBoxBaseReconnected = (ID: string) => {
+        setInternalBaseStatus('locked', ID);
+        setBaseUserStatus('OK', ID);
     }
 
     private onAccountsStatusChanged = () => {

@@ -66,9 +66,10 @@ type BitBoxBase struct {
 	status              bitboxbasestatus.Status
 	active              bool //this indicates if the bitboxbase is in use, or being disconnected
 
-	onUnregister func(string)
-	onRemove     func(string)
-	socksProxy   socksproxy.SocksProxy
+	onUnregister  func(string)
+	onRemove      func(string)
+	onReconnected func(string)
+	socksProxy    socksproxy.SocksProxy
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
@@ -78,6 +79,7 @@ func NewBitBoxBase(address string,
 	bitboxBaseConfigDir string,
 	onUnregister func(string),
 	onRemove func(string),
+	onReconnected func(string),
 	socksProxy socksproxy.SocksProxy) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -90,6 +92,7 @@ func NewBitBoxBase(address string,
 		status:              bitboxbasestatus.StatusConnected,
 		onUnregister:        onUnregister,
 		onRemove:            onRemove,
+		onReconnected:       onReconnected,
 		active:              false,
 		socksProxy:          socksProxy,
 	}
@@ -735,6 +738,7 @@ func (base *BitBoxBase) attemptReconnectLoop() {
 				base.log.Println("Could not re-establish noise encrypted RPC connection: ", err)
 			}
 			base.active = true
+			base.onReconnected(base.bitboxBaseID)
 			base.changeStatus(bitboxbasestatus.StatusLocked)
 			base.log.Printf("Reconnected successfully to %s\n", base.address)
 			break
