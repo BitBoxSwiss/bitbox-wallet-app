@@ -53,9 +53,10 @@ type Manager struct {
 
 	baseDeviceBitBoxBase map[string]*bitboxbase.BitBoxBase
 
-	onRegister   func(*bitboxbase.BitBoxBase) error
-	onUnregister func(string)
-	onRemove     func(string)
+	onRegister    func(*bitboxbase.BitBoxBase) error
+	onUnregister  func(string)
+	onRemove      func(string)
+	onReconnected func(string)
 
 	log                 *logrus.Entry
 	config              *config.Config
@@ -70,6 +71,7 @@ func NewManager(
 	onRegister func(*bitboxbase.BitBoxBase) error,
 	onUnregister func(string),
 	onRemove func(string),
+	onReconnected func(string),
 	config *config.Config,
 	bitboxBaseConfigDir string,
 	socksProxy socksproxy.SocksProxy,
@@ -81,6 +83,7 @@ func NewManager(
 		onRegister:           onRegister,
 		onUnregister:         onUnregister,
 		onRemove:             onRemove,
+		onReconnected:        onReconnected,
 		config:               config,
 		bitboxBaseConfigDir:  bitboxBaseConfigDir,
 		socksProxy:           socksProxy,
@@ -111,7 +114,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	}
 
 	manager.log.WithField("host", manager.detectedBases[address]).WithField("address", address)
-	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister, manager.onRemove, manager.socksProxy)
+	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister, manager.onRemove, manager.onReconnected, manager.socksProxy)
 
 	if err != nil {
 		manager.log.WithError(err).Error("Failed to register Base")

@@ -64,7 +64,7 @@ class DetectedBase extends Component<Props> {
                 </span>
                 <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{ip}</span>
                 <a className={[style.baseItemArrow, style.autoLeft].join(' ')} onClick={this.handleConnect}>
-                    <span>Uninitialized</span>
+                    <span>Connect</span>
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"

@@ -19,6 +19,7 @@ import (
 	"crypto/sha256"
 	"encoding/base32"
 	"fmt"
+	"time"
 
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -56,6 +57,7 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 				rpcClient.log.WithError(err).Error("failed to close websocket client")
 			}
 			// Emit EventConnectionLost Event whenever the connection is lost
+			time.Sleep(time.Second)
 			rpcClient.onEvent(bitboxbasestatus.EventConnectionLost)
 		}()
 		client.SetReadLimit(maxMessageSize)

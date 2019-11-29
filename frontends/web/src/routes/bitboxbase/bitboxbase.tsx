@@ -34,7 +34,7 @@ import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
 import { BaseSettings } from './basesettings';
 import * as style from './bitboxbase.css';
-import { BaseStatus, baseStore, RegisteredBaseFields, SharedProps as SharedBaseProps } from './bitboxbaseconnect';
+import { baseStore, BaseUserStatus, RegisteredBaseFields, SharedProps as SharedBaseProps } from './bitboxbaseconnect';
 
 export interface BitBoxBaseProps {
     bitboxBaseID: string | null;
@@ -69,6 +69,8 @@ export interface BitBoxBaseServiceInfo {
     electrsBlocks: number;
 }
 
+export type InternalBaseStatus = '' | 'connected' | 'unpaired' | 'pairingFailed' | 'passwordNotSet' | 'bitcoinPre' | 'locked' | 'initialized' | 'disconnected' | 'connectionLost' | 'reconnecting' | 'offline';
+
 export interface BaseUpdateInfo {
     description: string;
     version: string;
@@ -76,10 +78,12 @@ export interface BaseUpdateInfo {
 }
 
 const initSharedBaseState = (baseID: string) => {
-    const initialStatus: BaseStatus = '';
+    const initialStatus: InternalBaseStatus = '';
+    const initialUserStatus: BaseUserStatus = '';
     const initialState = {[baseID]: {
-        status: initialStatus,
         paired: false,
+        internalStatus: initialStatus,
+        userStatus: initialUserStatus,
     }};
     baseStore.setState({registeredBases: initialState});
 };
@@ -93,8 +97,12 @@ export const updateSharedBaseState = <K extends keyof RegisteredBaseFields>(key:
     baseStore.setState(newState);
 };
 
-export const setBaseStatus = (status: BaseStatus, IP: string) => {
-    updateSharedBaseState('status', status, IP);
+export const setInternalBaseStatus = (internalStatus: InternalBaseStatus, IP: string) => {
+    updateSharedBaseState('internalStatus', internalStatus, IP);
+};
+
+export const setBaseUserStatus = (userStatus: BaseUserStatus, IP: string) => {
+    updateSharedBaseState('userStatus', userStatus, IP);
 };
 
 const defaultPassword = 'ICanHasPasword?';
@@ -163,7 +171,7 @@ class BitBoxBase extends Component<Props, State> {
             hostname: undefined,
             validHostname: false,
             syncingOption: undefined,
-            locked: this.props.bitboxBaseID ? baseStore.state.registeredBases[this.props.bitboxBaseID].status === 'locked' : true,
+            locked: this.props.bitboxBaseID ? baseStore.state.registeredBases[this.props.bitboxBaseID].internalStatus === 'locked' : true,
             updateAvailable: undefined,
             updateInfo: undefined,
             inProgress: false,
@@ -195,6 +203,14 @@ class BitBoxBase extends Component<Props, State> {
                 case 'updateAvailable':
                     this.onUpdateAvailable();
                     break;
+                case 'connectionLost':
+                    // the 'connectionLost' event is emitted whenever the connection closes, but here we want to notify
+                    // the user only if it happened unexpectedly
+                    if (!['Disconnected', 'Unpaired', 'Offline', 'Restarting'].includes(baseStore.state.registeredBases[this.state.bitboxBaseID].userStatus)) {
+                        alertUser('BitBoxBase connection lost');
+                        setBaseUserStatus('Connection lost', this.state.bitboxBaseID);
+                    }
+                    break;
                 default:
                     break;
             }
@@ -225,10 +241,22 @@ class BitBoxBase extends Component<Props, State> {
             if (!this.state.showWizard && ['unpaired', 'pairingFailed', 'passwordNotSet', 'bitcoinPre'].includes(status)) {
                 this.setState({ showWizard: true });
             }
-            const prevStatus = baseStore.state.registeredBases[this.state.bitboxBaseID].status;
-            setBaseStatus(status, this.state.bitboxBaseID);
+            const prevStatus = baseStore.state.registeredBases[this.state.bitboxBaseID].internalStatus;
+            setInternalBaseStatus(status, this.state.bitboxBaseID);
             // check if the base middleware password has been set yet
-            switch (baseStore.state.registeredBases[this.state.bitboxBaseID].status) {
+            switch (baseStore.state.registeredBases[this.state.bitboxBaseID].internalStatus) {
+                case 'unpaired':
+                    setBaseUserStatus('Unpaired', this.state.bitboxBaseID);
+                    break;
+                case 'disconnected':
+                    setBaseUserStatus('Disconnected', this.state.bitboxBaseID);
+                    break;
+                case 'reconnecting':
+                    setBaseUserStatus('Restarting', this.state.bitboxBaseID);
+                    break;
+                case 'offline':
+                    setBaseUserStatus('Offline', this.state.bitboxBaseID);
+                    break;
                 case 'passwordNotSet':
                     // Advance automatically to the change password screen only if noise pairing had already succeeded
                     if (prevStatus === 'unpaired') {
@@ -251,6 +279,7 @@ class BitBoxBase extends Component<Props, State> {
                         locked: true,
                         showWizard: false,
                     });
+                    setBaseUserStatus('OK', this.state.bitboxBaseID);
                     break;
                 case 'initialized':
                     // If we are at the last step of the wizard, don't go to the dashboard yet
@@ -266,6 +295,7 @@ class BitBoxBase extends Component<Props, State> {
                         this.getBaseInfo();
                         this.getServiceInfo();
                     }
+                    setBaseUserStatus('OK', this.state.bitboxBaseID);
                     break;
                 default:
                     break;
@@ -479,7 +509,8 @@ class BitBoxBase extends Component<Props, State> {
                         apiPrefix={this.apiPrefix()}
                         updateAvailable={updateAvailable}
                         updateInfo={updateInfo}
-                        getBaseInfo={this.getBaseInfo} />
+                        getBaseInfo={this.getBaseInfo}
+                        baseUserStatus={baseStore.state.registeredBases[this.state.bitboxBaseID].userStatus} />
                 );
             }
             return (
@@ -514,7 +545,7 @@ class BitBoxBase extends Component<Props, State> {
                                             onClick={() => {
                                                 // Go either to the set password screen or enter password screen
                                                 // depending if password had already been set
-                                                baseStore.state.registeredBases[bitboxBaseID].status === 'passwordNotSet' ?
+                                                baseStore.state.registeredBases[bitboxBaseID].internalStatus === 'passwordNotSet' ?
                                                     this.setState({activeStep: ActiveStep.SetPassword}) :
                                                     this.setState({showWizard: false});
                                                 }
