@@ -53,7 +53,7 @@ type Manager struct {
 
 	baseDeviceBitBoxBase map[string]*bitboxbase.BitBoxBase
 
-	onRegister    func(*bitboxbase.BitBoxBase) error
+	onRegister    func(*bitboxbase.BitBoxBase, string, string) error
 	onUnregister  func(string)
 	onRemove      func(string)
 	onReconnected func(string)
@@ -68,7 +68,7 @@ type Manager struct {
 // inserted. onUnregister is called when the bitboxbase has been removed.
 func NewManager(
 	onDetect func(),
-	onRegister func(*bitboxbase.BitBoxBase) error,
+	onRegister func(*bitboxbase.BitBoxBase, string, string) error,
 	onUnregister func(string),
 	onRemove func(string),
 	onReconnected func(string),
@@ -122,7 +122,8 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	}
 
 	manager.baseDeviceBitBoxBase[bitboxBaseID] = baseDevice
-	if err := manager.onRegister(baseDevice); err != nil {
+	hostname := manager.resolveIP(bitboxBaseID)
+	if err := manager.onRegister(baseDevice, hostname, bitboxBaseID); err != nil {
 		manager.log.WithError(err).Error("Failed to execute on-register")
 		return false, err
 	}
@@ -207,6 +208,21 @@ func (manager *Manager) mdnsScan() {
 		wg.Wait()
 		time.Sleep(time.Second)
 	}
+}
+
+func (manager *Manager) resolveIP(ip string) string {
+	IP, _, err := net.SplitHostPort(ip)
+	if err != nil {
+		manager.log.WithError(err).Error("Failed to split IP and port. Returning hostname as 'uninitialized'", err)
+		return ""
+	}
+	hostname, err := net.LookupAddr(IP)
+	if err != nil {
+		manager.log.WithError(err).Error("Failed to resolve hostname from IP. Returning hostname as 'uninitialized'", err)
+		return ""
+	}
+	manager.log.Printf("Resolved %s to %s", IP, hostname)
+	return hostname[0]
 }
 
 // Start starts a continuous mDNS scan for BitBox Base devices on local network.

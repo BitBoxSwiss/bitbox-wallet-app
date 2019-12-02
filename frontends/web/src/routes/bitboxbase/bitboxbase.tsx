@@ -84,6 +84,7 @@ const initSharedBaseState = (baseID: string) => {
         paired: false,
         internalStatus: initialStatus,
         userStatus: initialUserStatus,
+        hostname: '',
     }};
     baseStore.setState({registeredBases: initialState});
 };
@@ -335,6 +336,7 @@ class BitBoxBase extends Component<Props, State> {
         apiGet(this.apiPrefix() + '/base-info').then(({ success, baseInfo }) => {
             if (success && this.props.bitboxBaseID) {
                 this.setState({ baseInfo });
+                updateSharedBaseState('hostname', baseInfo.hostname, this.state.bitboxBaseID);
             }
         });
     }

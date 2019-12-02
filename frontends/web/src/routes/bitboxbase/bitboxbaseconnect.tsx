@@ -45,6 +45,7 @@ export interface RegisteredBaseFields {
     paired: boolean;
     internalStatus: InternalBaseStatus;
     userStatus: BaseUserStatus;
+    hostname: string;
 }
 
 export interface RegisteredBases {
@@ -257,10 +258,6 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="box slim divide" ref={this.setSortableContainer}>
                                             {
                                                 bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
-                                                    let name: string | undefined;
-                                                    Object.values(detectedBases).includes(baseID) ? name = Object.keys(detectedBases).find(key => detectedBases[key] === baseID) :
-                                                        // FIXME: Resolve a hostname from IP for manual additions
-                                                        name = t('bitboxBase.new');
                                                     return (
                                                         <div className={style.baseItem}>
                                                             <div className={style.baseItemSortable}>
@@ -278,7 +275,9 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                 </svg>
                                                             </div>
                                                             <span className={style.baseItemName}>
-                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
+                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>
+                                                                    {baseStore.state.registeredBases[baseID] && baseStore.state.registeredBases[baseID].hostname}
+                                                                </a>
                                                                 <p className={[style.baseItemIp, 'm-none', 'show-on-small'].join(' ')}>{baseID}</p>
                                                             </span>
                                                             <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
