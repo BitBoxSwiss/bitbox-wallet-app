@@ -489,7 +489,7 @@ class BaseSettings extends Component<Props, State> {
                                             </div>
                                             <div className="box slim divide">
                                                 <CreateBaseBackup apiPrefix={apiPrefix} />
-                                                <SettingsButton>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
+                                                <SettingsButton disabled={true}>{t('bitboxBase.settings.backups.restore')}</SettingsButton>
                                             </div>
                                         </div>
                                     </div>
@@ -507,10 +507,10 @@ class BaseSettings extends Component<Props, State> {
                                                             enabled={baseInfo.IsSSHPasswordLoginEnabled}
                                                             onSuccess={getBaseInfo} />
                                                         <SetBaseSystemPassword apiPrefix={apiPrefix} />
-                                                        <SettingsButton onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
-                                                        <SettingsButton>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
-                                                        <SettingsButton>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
-                                                        <SettingsButton danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
+                                                        <SettingsButton disabled={true} onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
+                                                        <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.syncOptions')}</SettingsButton>
+                                                        <SettingsButton disabled={true}>{t('bitboxBase.settings.advanced.manual')}</SettingsButton>
+                                                        <SettingsButton disabled={true} danger>{t('bitboxBase.settings.advanced.reset')}</SettingsButton>
                                                     </div>
 
                                                 </details>

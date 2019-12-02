@@ -33,17 +33,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// SyncOption is a user provided blockchain sync option during BBB initialization
-type SyncOption string
-
-// SyncOption iota has three options:
-// Accept pre-synchronized blockchain; delete the chainstate and reindex; resync bitcon from scratch with an IBD
-const (
-	SyncOptionPresynced            SyncOption = "preSynced"
-	SyncOptionReindex              SyncOption = "reindex"
-	SyncOptionInitialBlockDownload SyncOption = "initialBlockDownload"
-)
-
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
 	observable.Implementation
