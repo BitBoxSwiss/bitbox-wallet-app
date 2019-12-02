@@ -105,6 +105,26 @@ export const setBaseUserStatus = (userStatus: BaseUserStatus, IP: string) => {
     updateSharedBaseState('userStatus', userStatus, IP);
 };
 
+export const statusBadgeColor = (baseID: string): string => {
+    if (!baseStore.state.registeredBases[baseID]) {
+        return 'offline';
+    }
+    switch (baseStore.state.registeredBases[baseID].userStatus) {
+        case 'Unpaired':
+        case 'Busy':
+        case 'Restarting':
+            return 'busy';
+        case 'OK':
+            return 'online';
+        case 'Warning':
+            return 'warning';
+        case 'Error':
+            return 'error';
+        default:
+            return 'offline';
+    }
+};
+
 const defaultPassword = 'ICanHasPasword?';
 
 enum ActiveStep {

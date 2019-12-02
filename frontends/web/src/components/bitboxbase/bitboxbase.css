@@ -213,22 +213,6 @@
     align-items: center;
 }
 
-.baseItemIndicator .dot {
-    display: inline-block;
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: var(--space-quarter);
-}
-
-.baseItemIndicator .dot.online {
-    background-color: var(--color-success);
-}
-
-.baseItemIndicator .dot.offline {
-    background-color: #CCCCCC;
-}
-
 .baseItemArrow {
     display: flex;
     flex-direction: row;

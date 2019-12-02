@@ -86,6 +86,22 @@
     background-color: var(--color-success);
 }
 
+.statusBadge.offline {
+    background-color: var(--color-gray);
+}
+
+.statusBadge.busy {
+    background-color: var(--color-blue);
+}
+
+.statusBadge.warning {
+    background-color: var(--color-orange);
+}
+
+.statusBadge.error {
+    background-color: var(--color-softred);
+}
+
 .items {
     display: flex;
     flex-direction: row;

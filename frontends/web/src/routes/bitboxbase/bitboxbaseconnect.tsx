@@ -30,7 +30,8 @@ import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { validateIP } from '../../utils/validateIP';
-import { InternalBaseStatus, setInternalBaseStatus, updateSharedBaseState } from './bitboxbase';
+import { InternalBaseStatus, setInternalBaseStatus, statusBadgeColor, updateSharedBaseState } from './bitboxbase';
+import * as baseStyle from './bitboxbase.css';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
@@ -282,14 +283,14 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                             </span>
                                                             <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
                                                             <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
-                                                                <span className={[style.dot, style.online].join(' ')}></span>
+                                                                <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
                                                                     <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                             </div>
                                                             <a className={style.baseItemArrow} onClick={() => this.setStatusAndRedirect(baseID)}>
                                                                 <span className="hide-on-small">Manage</span>
                                                                 <div className="show-on-small">
                                                                     <div className={style.baseItemIndicator}>
-                                                                        <span className={[style.dot, style.online].join(' ')}></span>
+                                                                        <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
                                                                         <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                                     </div>
                                                                 </div>
