@@ -786,7 +786,7 @@ func (backend *Backend) EmitBitBoxBaseReconnected(bitboxBaseID string) {
 }
 
 // bitBoxBaseRegister registers the given bitboxbase at this backend.
-func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error {
+func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase, hostname string, ip string) error {
 	backend.bitboxBases[theBase.Identifier()] = theBase
 	backend.onBitBoxBaseInit(theBase)
 	theBase.Observe(func(event observable.Event) { backend.events <- event })
@@ -794,6 +794,10 @@ func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error
 	case backend.events <- backendEvent{
 		Type: "bitboxbases",
 		Data: "registeredChanged",
+		Meta: map[string]interface{}{
+			"ip":       ip,
+			"hostname": hostname,
+		},
 	}:
 	default:
 	}

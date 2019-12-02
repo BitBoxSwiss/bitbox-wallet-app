@@ -33,7 +33,7 @@ import Info from './routes/account/info/info';
 import Receive from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
-import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus } from './routes/bitboxbase/bitboxbase';
+import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseState } from './routes/bitboxbase/bitboxbase';
 import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitboxbaseconnect';
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
@@ -116,7 +116,7 @@ class App extends Component<Props, State> {
             case 'bitboxbases':
                 switch (data) {
                 case 'registeredChanged':
-                    this.onBitBoxBasesRegisteredChanged();
+                    this.onBitBoxBasesRegisteredChanged(meta);
                     break;
                 case 'detectedChanged':
                     this.onBitBoxBasesDetectedChanged();
@@ -146,7 +146,7 @@ class App extends Component<Props, State> {
         });
     }
 
-    private onBitBoxBasesRegisteredChanged = () => {
+    private onBitBoxBasesRegisteredChanged = (data?) => {
         apiGet('bitboxbases/registered').then(bases => {
             let bitboxBaseIDs = [];
             if (bases !== null) {
@@ -154,6 +154,10 @@ class App extends Component<Props, State> {
             }
             this.setState({ bitboxBaseIDs });
         });
+        let hostname: string;
+        data && data.hostname ? hostname = data.hostname.split('.')[0] : hostname = 'New BitBoxBase';
+        // tslint:disable-next-line: no-unused-expression
+        data && updateSharedBaseState('hostname', hostname, data.ip);
     }
 
     private onBitBoxBaseReconnected = (ID: string) => {
