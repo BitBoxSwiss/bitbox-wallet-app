@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 mkdir build
 bash ./genassets.sh
 make -C server/ windows-legacy
