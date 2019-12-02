@@ -39,12 +39,12 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
-import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo } from './bitboxbase';
+import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo, statusBadgeColor } from './bitboxbase';
 import * as style from './bitboxbase.css';
 import { updateStatus } from './bitboxbase.css';
 
 interface SettingsProps {
-    baseID: string | null;
+    baseID: string;
     baseInfo: BitBoxBaseInfo;
     serviceInfo?: BitBoxBaseServiceInfo;
     disconnect: () => void;
@@ -194,6 +194,7 @@ class BaseSettings extends Component<Props, State> {
             apiPrefix,
             getBaseInfo,
             baseUserStatus,
+            baseID,
         }: RenderableProps<Props>,
         {
             expandedDashboard,
@@ -222,7 +223,7 @@ class BaseSettings extends Component<Props, State> {
                                             <h3>{baseInfo.hostname}</h3>
                                         </div>
                                         <div>
-                                        <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style.online].join(' ')}>
+                                        <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style[statusBadgeColor(baseID)]].join(' ')}>
                                             </span>{baseUserStatus ? baseUserStatus : 'Unavailable'}</span>
                                         </div>
                                 </div>
