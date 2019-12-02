@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e
+
 mkdir build
+bash ./genassets.sh
 make -C server/ windows-legacy
 env -u MAKE -u MAKEFLAGS cmd "/C compile_windows.bat"
-bash ./genassets.sh
 cp build/assets.rcc build/windows/
 cp server/libserver.dll build/windows/
 windeployqt build/windows/BitBox.exe
