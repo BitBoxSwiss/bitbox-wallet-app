@@ -13,10 +13,11 @@
 # limitations under the License.
 
 echo '<!DOCTYPE RCC><RCC version="1.0"><qresource>' > assets.qrc
-find ../web/build/ -type f -maxdepth 1 | sed -e "s|../web/build/||" | awk '{ print "<file alias=\"" $1 "\">../web/build/" $1 "</file>" '} >> assets.qrc
+find ../web/build/ -maxdepth 1 -type f | sed -e "s|../web/build/||" | awk '{ print "<file alias=\"" $1 "\">../web/build/" $1 "</file>" '} >> assets.qrc
 
 echo '<file alias="trayicon.png">resources/trayicon.png</file>' >> assets.qrc
 echo '</qresource></RCC>' >> assets.qrc
 mkdir -p build/
 rcc -binary assets.qrc -o build/assets.rcc
+cat assets.qrc
 rm assets.qrc
