@@ -29,3 +29,14 @@ build_script:
   - make qt-windows
   - cd frontends/qt
   - makensis setup.nsi
+
+# Copy build artifacts back to C:\projects\bitbox-wallet-app, as artifacts can only be relative to that folder.
+after_build:
+  # %APPVEYOR_BUILD_FOLDER% is the path to the git clone.
+- mkdir %APPVEYOR_BUILD_FOLDER%
+- cp %GOPATH%\src\github.com\digitalbitbox\bitbox-wallet-app\frontends\qt\BitBox-installer.exe %APPVEYOR_BUILD_FOLDER%\BitBox-installer.exe
+
+artifacts:
+  - path: BitBox-installer.exe
+    name: BitBoxApp-win64-installer
+    type: File
