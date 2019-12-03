@@ -308,7 +308,7 @@ func (client *ElectrumClient) HeadersSubscribe(
 	success func(*blockchain.Header) error,
 ) {
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
-		response := []*blockchain.Header{}
+		response := []json.RawMessage{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
@@ -317,7 +317,12 @@ func (client *ElectrumClient) HeadersSubscribe(
 			client.log.Error("could not handle header notification")
 			return
 		}
-		if err := success(response[0]); err != nil {
+		header := &blockchain.Header{}
+		if err := json.Unmarshal(response[0], header); err != nil {
+			client.log.WithError(err).Error("could not handle header notification")
+			return
+		}
+		if err := success(header); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
