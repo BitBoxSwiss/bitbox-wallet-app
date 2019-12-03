@@ -25,10 +25,15 @@ import { SetBaseSystemPassword } from '../../components/bitboxbase/setbasesystem
 import { UpdateBaseButton } from '../../components/bitboxbase/updatebasebutton';
 import { CenteredContent } from '../../components/centeredcontent/centeredcontent';
 import { confirmation } from '../../components/confirm/Confirm';
+import { CopyableInput } from '../../components/copy/Copy';
+import { Dialog } from '../../components/dialog/dialog';
+import { Button } from '../../components/forms';
 import { Header } from '../../components/layout/header';
+import { QRCode } from '../../components/qrcode/qrcode';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import * as spinnerStyle from '../../components/spinner/Spinner.css';
+import { TruncateMiddle } from '../../components/truncateMiddle/truncateMiddle';
 import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
@@ -60,6 +65,7 @@ enum UpdateState {
 
 interface State {
     expandedDashboard: boolean;
+    expandedTorAddress: boolean;
     updating?: boolean;
     updateProgress: {
         updateState: UpdateState,
@@ -79,6 +85,7 @@ class BaseSettings extends Component<Props, State> {
         super(props);
         this.state = {
             expandedDashboard: false,
+            expandedTorAddress: false,
             updating: undefined,
             updateProgress: {
                 updateState: UpdateState.updateNotInProgress,
@@ -146,19 +153,28 @@ class BaseSettings extends Component<Props, State> {
     }
 
     private toggleTor = (enableTor: boolean) => {
-        this.setState({ waitDialog: {
-            title: this.props.t('generic.applying'),
-            text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
-        }});
-        apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
-        .then(response => {
-            if (response.success) {
-                this.props.getBaseInfo();
-                this.setState({waitDialog: undefined});
-            } else {
-                alertUser(response.message);
+        const { t, baseInfo } = this.props;
+        confirmation(t(`bitboxBase.settings.node.confirmTorEnabled.${baseInfo.isTorEnabled}`), confirmed => {
+            if (confirmed) {
+                this.setState({ waitDialog: {
+                    title: this.props.t('generic.applying'),
+                    text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
+                }});
+                apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
+                .then(response => {
+                    if (response.success) {
+                        this.props.getBaseInfo();
+                        this.setState({waitDialog: undefined, expandedTorAddress: false});
+                    } else {
+                        alertUser(response.message);
+                    }
+                });
             }
         });
+    }
+
+    public toggleExpandedTorAddress = () => {
+        this.setState({ expandedTorAddress: !this.state.expandedTorAddress });
     }
 
     public componentWillUnmount() {
@@ -179,6 +195,7 @@ class BaseSettings extends Component<Props, State> {
         }: RenderableProps<Props>,
         {
             expandedDashboard,
+            expandedTorAddress,
             updating,
             updateProgress,
             waitDialog,
@@ -190,24 +207,24 @@ class BaseSettings extends Component<Props, State> {
                     <Header title={<SimpleMarkup tagName="h2" markup={t('bitboxBase.settings.title')}/>}/>
                     {
                         waitDialog && (
-                        <WaitDialog title={waitDialog.title}>
-                            {waitDialog.text}
-                        </WaitDialog>
+                            <WaitDialog title={waitDialog.title}>
+                                {waitDialog.text}
+                            </WaitDialog>
                         )
                     }
-
                     <div className="innerContainer scrollableContainer">
                         <div className={style.dashboardContainer}>
                             <div className={[style.dashboard, expandedDashboard ? style.expanded : ''].join(' ')}>
                                 <div className={style.nameStatus}>
-                                        <div className="subHeader">
-                                            <h3>{baseInfo.hostname}</h3>
-                                        </div>
-                                        <div>
-                                        <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style.online].join(' ')}>
-                                            {/* </span>{baseInfo.status}</span> */}
-                                            </span>Online</span>
-                                        </div>
+                                    <div className="subHeader">
+                                        <h3>{baseInfo.hostname}</h3>
+                                    </div>
+                                    <div>
+                                        <span className="m-left-quarter text-black flex flex-row flex-items-center">
+                                            <span className={[style.statusBadge, style.large, style.online].join(' ')}></span>
+                                            Online
+                                        </span>
+                                    </div>
                                 </div>
                                 <div className={style.items}>
                                     <div className={style.item}>
@@ -271,13 +288,14 @@ class BaseSettings extends Component<Props, State> {
                                                         </div>
                                                     </div>
                                                     <div className={style.expandedItem}>
-                                                        <div>
-                                                            <span className="label">Tor Onion address</span>
-                                                            <p>{baseInfo.middlewareTorOnion}</p>
-                                                        </div>
-                                                        <div>
-                                                            <span className="label">Tor port</span>
-                                                            <p>{baseInfo.middlewareTorPort}</p>
+                                                        <div style="text-align: left;">
+                                                            <span className="label">Tor onion address</span>
+                                                            <p>
+                                                                <a onClick={baseInfo.isTorEnabled ? this.toggleExpandedTorAddress :
+                                                                    () => this.toggleTor(true)}>
+                                                                    <TruncateMiddle text={baseInfo.middlewareTorOnion} />
+                                                                </a>
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -433,13 +451,9 @@ class BaseSettings extends Component<Props, State> {
                                             <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
                                                 optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
-                                                onClick={() => {
-                                                    confirmation(t(`bitboxBase.settings.node.confirmTorEnabled.${baseInfo.isTorEnabled}`), confirmed => {
-                                                        if (confirmed) {
-                                                            this.toggleTor(!baseInfo.isTorEnabled);
-                                                        }
-                                                    });
-                                                }}>
+                                                onClick={baseInfo.isTorEnabled ?
+                                                    this.toggleExpandedTorAddress :
+                                                    () => this.toggleTor(true)}>
                                                 {t('bitboxBase.settings.node.tor')}
                                             </SettingsButton>
                                             <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
@@ -522,6 +536,32 @@ class BaseSettings extends Component<Props, State> {
                         }
                     </div>
                 </div>
+                {
+                    expandedTorAddress && (
+                        <Dialog
+                            title={t('bitboxBase.settings.node.tor') + ': ' + t(`generic.enabled.${baseInfo.isTorEnabled}`).toLowerCase()}
+                            onClose={this.toggleExpandedTorAddress}>
+                            {
+                                baseInfo.isTorEnabled && (
+                                    <div className="p-bottom-half">
+                                        <div className="flex flex-row flex-center">
+                                            <QRCode data={baseInfo.middlewareTorOnion} />
+                                        </div>
+                                        <CopyableInput value={baseInfo.middlewareTorOnion} flexibleHeight />
+                                    </div>
+                                )
+                            }
+                            <div className="buttons text-center">
+                                <Button
+                                    danger
+                                    style="width: 100%;"
+                                    onClick={() => this.toggleTor(false)}>
+                                    {t(`generic.enable.${true}`)[0].toUpperCase() + t(`generic.enable.${true}`).slice(1)}
+                                </Button>
+                            </div>
+                        </Dialog>
+                    )
+                }
             </div>
         );
     }

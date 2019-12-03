@@ -7,8 +7,8 @@
 .dashboard {
     width: 100%;
     max-width: var(--content-width);
-    min-height: 278px;
-    height: 278px;
+    min-height: 268px;
+    height: 268px;
     transition: height ease-in-out 0.3s;
     margin: 0 auto;
     padding: 0 var(--space-default);
@@ -21,7 +21,7 @@
 }
 
 .expanded {
-    height: 528px;
+    height: 500px;
 }
 
 .expandButton {
@@ -51,8 +51,8 @@
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-end;
-    height: var(--item-height);
+    align-items: center;
+    height: 36px;
     background-color: var(--color-mediumgray);
     margin-top: var(--space-default);
     padding: 0;
@@ -61,7 +61,7 @@
 
 .nameStatus h3 {
     margin: 0;
-    font-size: 40px !important;
+    /* font-size: 40px !important; */
 }
 
 .nameStatus p:first-child {
@@ -144,8 +144,6 @@
 
 .expandedItem p {
     margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .expandedItem > *:first-child {
@@ -260,4 +258,40 @@ The svg draws a line which forms a minus (-).
 .noHash {
     color: var(--color-gray-alt);
     letter-spacing: 2px;
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        padding: 0 var(--space-half);
+        min-height: 232px;
+        height: 232px;
+    }
+
+    .expanded {
+        height: 874px;
+    }
+
+    .nameStatus {
+        font-size: var(--size-subheader);
+        margin-top: var(--space-half);
+    }
+
+    .items {
+        margin-top: var(--space-half);
+    }
+
+    .item {
+        width: calc((100% - (var(--space-half) * 2)) / 3);
+    }
+
+    .dashboardItem p:not(:last-child) {
+        font-size: var(--size-subheader);
+    }
+
+    .dashboardItem p:last-child {
+        color: var(--color-gray);
+        padding: 0 var(--space-quarter);
+        font-size: var(--size-label);
+        text-align: center;
+    }
 }
