@@ -32,7 +32,7 @@ import { QRCode } from '../../components/qrcode/qrcode';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
 import { SettingsItem } from '../../components/settingsButton/settingsItem';
 import * as spinnerStyle from '../../components/spinner/Spinner.css';
-import { Toggle } from '../../components/toggle/toggle';
+import { TruncateMiddle } from '../../components/truncateMiddle/truncateMiddle';
 import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
@@ -153,17 +153,22 @@ class BaseSettings extends Component<Props, State> {
     }
 
     private toggleTor = (enableTor: boolean) => {
-        this.setState({ waitDialog: {
-            title: this.props.t('generic.applying'),
-            text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
-        }});
-        apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
-        .then(response => {
-            if (response.success) {
-                this.props.getBaseInfo();
-                this.setState({waitDialog: undefined});
-            } else {
-                alertUser(response.message);
+        const { t, baseInfo } = this.props;
+        confirmation(t(`bitboxBase.settings.node.confirmTorEnabled.${baseInfo.isTorEnabled}`), confirmed => {
+            if (confirmed) {
+                this.setState({ waitDialog: {
+                    title: this.props.t('generic.applying'),
+                    text: this.props.t('bitboxBase.settings.node.bitcoinRestarting'),
+                }});
+                apiPost(this.props.apiPrefix + '/enable-tor', enableTor)
+                .then(response => {
+                    if (response.success) {
+                        this.props.getBaseInfo();
+                        this.setState({waitDialog: undefined});
+                    } else {
+                        alertUser(response.message);
+                    }
+                });
             }
         });
     }
@@ -285,13 +290,13 @@ class BaseSettings extends Component<Props, State> {
                                                         </div>
                                                     </div>
                                                     <div className={style.expandedItem}>
-                                                        <div>
+                                                        <div style="text-align: left;">
                                                             <span className="label">Tor Onion address</span>
-                                                            <p><a onClick={this.toggleExpandedTorAddress}>{baseInfo.middlewareTorOnion}</a></p>
-                                                        </div>
-                                                        <div>
-                                                            <span className="label">Tor port</span>
-                                                            <p>{baseInfo.middlewareTorPort}</p>
+                                                            <p>
+                                                                <a onClick={this.toggleExpandedTorAddress}>
+                                                                    <TruncateMiddle text={baseInfo.middlewareTorOnion} />
+                                                                </a>
+                                                            </p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -534,15 +539,22 @@ class BaseSettings extends Component<Props, State> {
                     expandedTorAddress && (
                         <Dialog title={t('bitboxBase.settings.node.tor')} onClose={this.toggleExpandedTorAddress}>
                             <div className="flex flex-row flex-between flex-items-center">
-                                <p>Tor</p>
-                                <label className="m-bottom-none m-right-quarter" style="margin-left: auto;">{t(`generic.enabled.${baseInfo.isTorEnabled}`)}</label>
-                                <Toggle checked={baseInfo.isTorEnabled} onChange={() => {
-                                    confirmation(t(`bitboxBase.settings.node.confirmTorEnabled.${baseInfo.isTorEnabled}`), confirmed => {
-                                        if (confirmed) {
-                                            this.toggleTor(!baseInfo.isTorEnabled);
-                                        }
-                                    });
-                                }} />
+                                <p>Tor: <span className="text-gray">{t(`generic.enabled.${baseInfo.isTorEnabled}`)}</span></p>
+                                <div>
+                                    <button
+                                        style="margin-right: var(--space-quarter);"
+                                        className={[style.smallButton, style.primary].join(' ')}
+                                        disabled={baseInfo.isTorEnabled}
+                                        onClick={() => this.toggleTor(true)}>
+                                        Enable
+                                    </button>
+                                    <button
+                                        className={[style.smallButton, style.danger].join(' ')}
+                                        disabled={!baseInfo.isTorEnabled}
+                                        onClick={() => this.toggleTor(false)}>
+                                        Disable
+                                    </button>
+                                </div>
                             </div>
                             {
                                 baseInfo.isTorEnabled && (

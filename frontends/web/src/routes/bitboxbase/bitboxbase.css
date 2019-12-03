@@ -160,8 +160,6 @@
 
 .expandedItem p {
     margin: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .expandedItem > *:first-child {
@@ -276,6 +274,38 @@ The svg draws a line which forms a minus (-).
 .noHash {
     color: var(--color-gray-alt);
     letter-spacing: 2px;
+}
+
+.smallButton {
+    outline: none;
+    border: none;
+    border-radius: 2px;
+    height: var(--item-height-small);
+    font-size: var(--size-default);
+    color: var(--color-white);
+    padding: 0 var(--space-half);
+    transition: background-color ease 0.2s;
+    will-change: background-color;
+}
+
+.smallButton[disabled] {
+    opacity: 0.4;
+}
+
+.smallButton.primary {
+    background-color: var(--color-blue);
+}
+
+.smallButton:not([disabled]).primary:hover {
+    background-color: var(--color-lightblue);
+}
+
+.smallButton.danger {
+    background-color: var(--color-softred);
+}
+
+.smallButton:not([disabled]).danger:hover {
+    background-color: var(--color-lightred);
 }
 
 @media (max-width: 768px) {
