@@ -27,6 +27,7 @@ import { CenteredContent } from '../../components/centeredcontent/centeredconten
 import { confirmation } from '../../components/confirm/Confirm';
 import { CopyableInput } from '../../components/copy/Copy';
 import { Dialog } from '../../components/dialog/dialog';
+import { Button } from '../../components/forms';
 import { Header } from '../../components/layout/header';
 import { QRCode } from '../../components/qrcode/qrcode';
 import { SettingsButton } from '../../components/settingsButton/settingsButton';
@@ -164,7 +165,7 @@ class BaseSettings extends Component<Props, State> {
                 .then(response => {
                     if (response.success) {
                         this.props.getBaseInfo();
-                        this.setState({waitDialog: undefined});
+                        this.setState({waitDialog: undefined, expandedTorAddress: false});
                     } else {
                         alertUser(response.message);
                     }
@@ -293,7 +294,8 @@ class BaseSettings extends Component<Props, State> {
                                                         <div style="text-align: left;">
                                                             <span className="label">Tor Onion address</span>
                                                             <p>
-                                                                <a onClick={this.toggleExpandedTorAddress}>
+                                                                <a onClick={baseInfo.isTorEnabled ? this.toggleExpandedTorAddress :
+                                                                    () => this.toggleTor(true)}>
                                                                     <TruncateMiddle text={baseInfo.middlewareTorOnion} />
                                                                 </a>
                                                             </p>
@@ -452,7 +454,9 @@ class BaseSettings extends Component<Props, State> {
                                             <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
                                                 optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
-                                                onClick={this.toggleExpandedTorAddress}>
+                                                onClick={baseInfo.isTorEnabled ?
+                                                    this.toggleExpandedTorAddress :
+                                                    () => this.toggleTor(true)}>
                                                 {t('bitboxBase.settings.node.tor')}
                                             </SettingsButton>
                                             <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
@@ -537,25 +541,9 @@ class BaseSettings extends Component<Props, State> {
                 </div>
                 {
                     expandedTorAddress && (
-                        <Dialog title={t('bitboxBase.settings.node.tor')} onClose={this.toggleExpandedTorAddress}>
-                            <div className="flex flex-row flex-between flex-items-center">
-                                <p>Tor: <span className="text-gray">{t(`generic.enabled.${baseInfo.isTorEnabled}`)}</span></p>
-                                <div>
-                                    <button
-                                        style="margin-right: var(--space-quarter);"
-                                        className={[style.smallButton, style.primary].join(' ')}
-                                        disabled={baseInfo.isTorEnabled}
-                                        onClick={() => this.toggleTor(true)}>
-                                        Enable
-                                    </button>
-                                    <button
-                                        className={[style.smallButton, style.danger].join(' ')}
-                                        disabled={!baseInfo.isTorEnabled}
-                                        onClick={() => this.toggleTor(false)}>
-                                        Disable
-                                    </button>
-                                </div>
-                            </div>
+                        <Dialog
+                            title={t('bitboxBase.settings.node.tor') + ': ' + t(`generic.enabled.${baseInfo.isTorEnabled}`).toLowerCase()}
+                            onClose={this.toggleExpandedTorAddress}>
                             {
                                 baseInfo.isTorEnabled && (
                                     <div className="p-bottom-half">
@@ -566,6 +554,14 @@ class BaseSettings extends Component<Props, State> {
                                     </div>
                                 )
                             }
+                            <div className="buttons text-center">
+                                <Button
+                                    danger
+                                    style="width: 100%;"
+                                    onClick={() => this.toggleTor(false)}>
+                                    {t(`generic.enable.${true}`)[0].toUpperCase() + t(`generic.enable.${true}`).slice(1)}
+                                </Button>
+                            </div>
                         </Dialog>
                     )
                 }
