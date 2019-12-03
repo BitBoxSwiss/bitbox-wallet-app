@@ -132,6 +132,10 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	if err = baseDevice.EstablishConnection(); err != nil {
 		return false, err
 	}
+
+	if err = baseDevice.Config().AddRegisteredBase(bitboxBaseID, hostname); err != nil {
+		manager.log.WithError(err).Error("Unable to store Base config file")
+	}
 	return true, nil
 }
 

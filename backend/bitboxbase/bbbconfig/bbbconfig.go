@@ -24,6 +24,17 @@ import (
 
 const configFilename = "bitboxbase.json"
 
+// RegisteredBase has information about BitBoxBases registered with the backend
+type RegisteredBase struct {
+	BaseID   string `json:"baseID"`
+	Hostname string `json:"hostname"`
+}
+
+// RegisteredBasesConfig stores a list of BitBoxBases registered at the backend to persist on App restart
+type RegisteredBasesConfig struct {
+	RegisteredBases []RegisteredBase `json:"registeredBases"`
+}
+
 // BBBConfigurationInterface provides an interface to interact with the persisted BBBConfig
 type BBBConfigurationInterface interface {
 	// ContainsBaseStaticPubkey returns true if a device pubkey has been added before.
@@ -34,6 +45,10 @@ type BBBConfigurationInterface interface {
 	GetAppNoiseStaticKeypair() *noise.DHKey
 	// BBBConfigSetAppNoiseStaticKeypair stores the app keypair. Overwrites keypair if one already exists.
 	SetAppNoiseStaticKeypair(key *noise.DHKey) error
+	// ContainsRegisteredBase returns true if a BitBoxBase is already registered.
+	ContainsRegisteredBase(baseID string) bool
+	// AddRegisteredBase adds a BitBoxBase ID and hostname to the config
+	AddRegisteredBase(baseID string, hostname string) error
 }
 
 // BBBConfig perists the BitBoxBase related configuration in a file.
@@ -50,8 +65,9 @@ type noiseKeypair struct {
 
 // ConfigData holds the persisted app configuration related to BitBoxBases.
 type ConfigData struct {
-	AppNoiseStaticKeypair        *noiseKeypair `json:"appNoiseStaticKeypair"`
-	BitBoxBaseNoiseStaticPubkeys [][]byte      `json:"bitboxBaseNoiseStaticPubkeys"`
+	AppNoiseStaticKeypair        *noiseKeypair    `json:"appNoiseStaticKeypair"`
+	BitBoxBaseNoiseStaticPubkeys [][]byte         `json:"bitboxBaseNoiseStaticPubkeys"`
+	RegisteredBasesConfig        []RegisteredBase `json:"registeredBases"`
 }
 
 // NewBBBConfig creates a new BBBConfig instance. The config will be stored in the given location.
@@ -129,5 +145,36 @@ func (bbbconfig *BBBConfig) SetAppNoiseStaticKeypair(key *noise.DHKey) error {
 		Private: key.Private,
 		Public:  key.Public,
 	}
+	return bbbconfig.storeConfig(configData)
+}
+
+// ContainsRegisteredBase implements BBBConfigurationInterface
+func (bbbconfig *BBBConfig) ContainsRegisteredBase(baseID string) bool {
+	bbbconfig.mu.RLock()
+	defer bbbconfig.mu.RUnlock()
+
+	for _, registeredBase := range bbbconfig.readConfig().RegisteredBasesConfig {
+		if registeredBase.BaseID == baseID {
+			return true
+		}
+	}
+	return false
+}
+
+// AddRegisteredBase implements BBBConfigurationInterface
+func (bbbconfig *BBBConfig) AddRegisteredBase(baseID string, hostname string) error {
+	if bbbconfig.ContainsRegisteredBase(baseID) {
+		return nil
+	}
+
+	bbbconfig.mu.Lock()
+	defer bbbconfig.mu.Unlock()
+
+	newRegisteredBase := RegisteredBase{
+		BaseID:   baseID,
+		Hostname: hostname,
+	}
+	configData := bbbconfig.readConfig()
+	configData.RegisteredBasesConfig = append(configData.RegisteredBasesConfig, newRegisteredBase)
 	return bbbconfig.storeConfig(configData)
 }

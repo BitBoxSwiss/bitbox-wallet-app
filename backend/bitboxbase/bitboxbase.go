@@ -687,6 +687,11 @@ func (base *BitBoxBase) Identifier() string {
 	return base.bitboxBaseID
 }
 
+// Config returns the Base's configuration
+func (base *BitBoxBase) Config() bbbconfig.BBBConfigurationInterface {
+	return base.bbbConfig
+}
+
 // GetRegisterTime implements a getter for the timestamp of when the bitbox base was registered
 func (base *BitBoxBase) GetRegisterTime() time.Time {
 	return base.registerTime
