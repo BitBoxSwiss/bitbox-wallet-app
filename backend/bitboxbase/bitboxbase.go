@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package bitboxbase contains the API to the physical device.
 package bitboxbase
 
 import (
@@ -20,11 +21,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/bbbconfig"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcclient"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/electrum"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	appConfig "github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
@@ -53,18 +55,18 @@ const (
 type BitBoxBase struct {
 	observable.Implementation
 
-	bitboxBaseID        string //This is just the ip currently
-	registerTime        time.Time
-	address             string
-	port                string
-	rpcClient           *rpcclient.RPCClient
-	electrsRPCPort      string
-	network             string
-	log                 *logrus.Entry
-	config              *config.Config
-	bitboxBaseConfigDir string
-	status              bitboxbasestatus.Status
-	active              bool //this indicates if the bitboxbase is in use, or being disconnected
+	bitboxBaseID   string //This is just the ip currently
+	registerTime   time.Time
+	address        string
+	port           string
+	rpcClient      *rpcclient.RPCClient
+	electrsRPCPort string
+	network        string
+	log            *logrus.Entry
+	appConfig      *appConfig.Config
+	bbbConfig      bbbconfig.BBBConfigurationInterface
+	status         bitboxbasestatus.Status
+	active         bool //this indicates if the bitboxbase is in use, or being disconnected
 
 	onUnregister  func(string)
 	onRemove      func(string)
@@ -75,28 +77,28 @@ type BitBoxBase struct {
 //NewBitBoxBase creates a new bitboxBase instance
 func NewBitBoxBase(address string,
 	id string,
-	config *config.Config,
-	bitboxBaseConfigDir string,
+	appConfig *appConfig.Config,
+	bbbConfig bbbconfig.BBBConfigurationInterface,
 	onUnregister func(string),
 	onRemove func(string),
 	onReconnected func(string),
 	socksProxy socksproxy.SocksProxy) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
-		log:                 logging.Get().WithGroup("bitboxbase"),
-		bitboxBaseID:        id,
-		address:             strings.Split(address, ":")[0],
-		port:                strings.Split(address, ":")[1],
-		registerTime:        time.Now(),
-		config:              config,
-		bitboxBaseConfigDir: bitboxBaseConfigDir,
-		status:              bitboxbasestatus.StatusConnected,
-		onUnregister:        onUnregister,
-		onRemove:            onRemove,
-		onReconnected:       onReconnected,
-		active:              false,
-		socksProxy:          socksProxy,
+		log:           logging.Get().WithGroup("bitboxbase"),
+		bitboxBaseID:  id,
+		address:       strings.Split(address, ":")[0],
+		port:          strings.Split(address, ":")[1],
+		registerTime:  time.Now(),
+		appConfig:     appConfig,
+		bbbConfig:     bbbConfig,
+		status:        bitboxbasestatus.StatusConnected,
+		onUnregister:  onUnregister,
+		onRemove:      onRemove,
+		onReconnected: onReconnected,
+		active:        false,
+		socksProxy:    socksProxy,
 	}
-	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister, bitboxBase.Ping)
+	rpcClient, err := rpcclient.NewRPCClient(address, bbbConfig, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister, bitboxBase.Ping)
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
@@ -153,14 +155,14 @@ func (base *BitBoxBase) ConnectElectrum() error {
 
 	// BaseBtcConfig sets the TBTC configs to the provided cert and ip.
 	if base.isTestnet() {
-		base.config.SetTBTCElectrumServers(electrumAddress, electrumCert)
+		base.appConfig.SetTBTCElectrumServers(electrumAddress, electrumCert)
 	} else {
-		base.config.SetBTCElectrumServers(electrumAddress, electrumCert)
+		base.appConfig.SetBTCElectrumServers(electrumAddress, electrumCert)
 	}
 	// Disable Litecoin and Ethereum accounts - we do not want any more traffic hitting other servers
-	base.config.SetBtcOnly()
+	base.appConfig.SetBtcOnly()
 
-	if err := base.config.SetAppConfig(base.config.AppConfig()); err != nil {
+	if err := base.appConfig.SetAppConfig(base.appConfig.AppConfig()); err != nil {
 		return err
 	}
 	return nil
@@ -724,7 +726,7 @@ func (base *BitBoxBase) attemptReconnectLoop() {
 			base.log.Printf("Attempting to reconnect to BitBoxBase at %s. Middleware is not yet reachable.\n", base.address)
 		}
 		if reply {
-			rpcClient, err := rpcclient.NewRPCClient(base.address+":"+base.port, base.bitboxBaseConfigDir, base.changeStatus, base.fireEvent, base.Deregister, base.Ping)
+			rpcClient, err := rpcclient.NewRPCClient(base.address+":"+base.port, base.bbbConfig, base.changeStatus, base.fireEvent, base.Deregister, base.Ping)
 			if err != nil {
 				base.log.Println("Failed to create newRPCClient: ", err)
 			}
