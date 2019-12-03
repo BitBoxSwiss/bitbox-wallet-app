@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,6 +47,8 @@ type ElectrumClient struct {
 
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
+
+	serverVersion *ServerVersion
 
 	close bool
 	log   *logrus.Entry
@@ -95,6 +98,7 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 		if err != nil {
 			return err
 		}
+		electrumClient.serverVersion = version
 		log.WithField("server-version", version).Debug("electrumx server version")
 		return nil
 	})
@@ -130,7 +134,7 @@ func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectio
 // ServerVersion is returned by ServerVersion().
 type ServerVersion struct {
 	Version         string
-	ProtocolVersion string
+	ProtocolVersion *semver.SemVer
 }
 
 func (version *ServerVersion) String() string {
@@ -147,7 +151,16 @@ func (version *ServerVersion) UnmarshalJSON(b []byte) error {
 		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"raw": string(b)})
 	}
 	version.Version = slice[0]
-	version.ProtocolVersion = slice[1]
+	protocolVersion := slice[1]
+	// We expect the protocolVersion to be either major.minor or major.minor.patch.
+	protocolSemVer, err := semver.NewSemVerFromString(protocolVersion)
+	if err != nil {
+		protocolSemVer, err = semver.NewSemVerFromString(protocolVersion + ".0")
+		if err != nil {
+			return err
+		}
+	}
+	version.ProtocolVersion = protocolSemVer
 	return nil
 }
 
