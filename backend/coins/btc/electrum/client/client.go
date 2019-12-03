@@ -98,7 +98,7 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 		log.WithField("server-version", version).Debug("electrumx server version")
 		return nil
 	})
-	rpcClient.RegisterHeartbeat("server.version", clientVersion, clientProtocolVersion)
+	rpcClient.RegisterHeartbeat("server.ping")
 
 	return electrumClient
 }
