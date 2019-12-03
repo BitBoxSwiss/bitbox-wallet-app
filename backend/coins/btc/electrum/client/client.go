@@ -288,11 +288,6 @@ func (client *ElectrumClient) TransactionGet(
 		txHash.String())
 }
 
-// Header is returned by HeadersSubscribe().
-type Header struct {
-	BlockHeight int `json:"block_height"`
-}
-
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
 func (client *ElectrumClient) HeadersSubscribe(
