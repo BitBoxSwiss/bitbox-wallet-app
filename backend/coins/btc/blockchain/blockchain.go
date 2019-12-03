@@ -82,7 +82,7 @@ type ScriptHashHex string
 
 // Header is returned by HeadersSubscribe().
 type Header struct {
-	BlockHeight int `json:"block_height"`
+	BlockHeight int
 }
 
 // Status is the connection status to the blockchain node

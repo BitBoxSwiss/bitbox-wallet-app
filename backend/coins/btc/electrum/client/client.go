@@ -301,6 +301,20 @@ func (client *ElectrumClient) TransactionGet(
 		txHash.String())
 }
 
+type electrumHeader struct {
+	// Provided by v1.4
+	BlockHeight int `json:"block_height"`
+	// Provided by v1.2
+	Height int `json:"height"`
+}
+
+func (h *electrumHeader) height(serverVersion *semver.SemVer) int {
+	if serverVersion.AtLeast(semver.NewSemVer(1, 4, 0)) {
+		return h.Height
+	}
+	return h.BlockHeight
+}
+
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainheaderssubscribe
 func (client *ElectrumClient) HeadersSubscribe(
@@ -317,23 +331,23 @@ func (client *ElectrumClient) HeadersSubscribe(
 			client.log.Error("could not handle header notification")
 			return
 		}
-		header := &blockchain.Header{}
+		header := &electrumHeader{}
 		if err := json.Unmarshal(response[0], header); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
-		if err := success(header); err != nil {
+		if err := success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)}); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
 	})
 	client.rpc.Method(
 		func(responseBytes []byte) error {
-			response := &blockchain.Header{}
-			if err := json.Unmarshal(responseBytes, response); err != nil {
+			header := &electrumHeader{}
+			if err := json.Unmarshal(responseBytes, header); err != nil {
 				return errp.WithStack(err)
 			}
-			return success(response)
+			return success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)})
 		},
 		setupAndTeardown,
 		"blockchain.headers.subscribe")
