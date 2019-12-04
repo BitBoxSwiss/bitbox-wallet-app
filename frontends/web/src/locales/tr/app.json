@@ -7,7 +7,10 @@
     "info": {
       "btc-p2pkh": "Bu eski bir Bitcoin hesabıdır. Ağ ücretlerini düşürdüğü için Segwit Bitcoin hesabını kullanmanız önerilir.",
       "btc-p2wpkh": "Bu Yerel Segwit Bitcoin hesabı, bech32 adres formatı aracılığıyla daha düşük ağ ücretlerine olanak sağlıyor. Son teknolojiyi kullanıyor ancak henüz desteklenmiyor.",
-      "btc-p2wpkh-p2sh": "Bu bir Segwit Bitcoin hesabıdır ve daha düşük ağ ücretleri için önerilir. Önceki uygulamadan yeni yükselttiyseniz, fonlarınızı ayarlarda etkinleştirebileceğiniz Bitcoin Legacy hesabında bulabilirsiniz. En son teknolojiyi denemek ve daha fazla ağ ücreti kazanmak istiyorsanız, Ayarlar'a gidin ve Bech32 adres biçimini kullanan bir Yerel Segwit Bitcoin hesabını etkinleştirin."
+      "btc-p2wpkh-p2sh": "Bu bir Segwit Bitcoin hesabıdır ve daha düşük ağ ücretleri için önerilir. Önceki uygulamadan yeni yükselttiyseniz, fonlarınızı ayarlarda etkinleştirebileceğiniz Bitcoin Legacy hesabında bulabilirsiniz. En son teknolojiyi denemek ve daha fazla ağ ücreti kazanmak istiyorsanız, Ayarlar'a gidin ve Bech32 adres biçimini kullanan bir Yerel Segwit Bitcoin hesabını etkinleştirin.",
+      "tbtc-p2pkh": "$t(account.info.btc-p2pkh)",
+      "tbtc-p2wpkh": "$t(account.info.btc-p2wpkh)",
+      "tbtc-p2wpkh-p2sh": "$t(account.info.btc-p2wpkh-p2sh)"
     },
     "initializing": "Blockchain'den bilgi alınıyor…",
     "openFile": "Dosyayı aç",
@@ -16,6 +19,7 @@
   "accountInfo": {
     "address": "Adres",
     "extendedPublicKey": "Genişletilmiş Genel Anahtar",
+    "label": "Hesap bilgileri",
     "title": "Hesap Bilgileri",
     "verify": "Bu cihazda doğrula"
   },
@@ -36,7 +40,7 @@
     "error": {
       "alreadyExists": "Böyle bir hesap zaten var.",
       "invalidAddress": "Lütfen geçerli bir adres girin",
-      "xprivEntered": "",
+      "xprivEntered": "UYARI: Genişletilmiş bir özel anahtar girdiniz. Lütfen genişletilmiş bir ortak anahtar girin ve özel anahtarlarınızı güvende tutun.",
       "xpubInvalid": "Genişletilmiş Genel Anahtar hatalı biçimlendirilmiş."
     },
     "extendedPublicKey": "Genişletilmiş Genel Anahtar",
@@ -476,7 +480,7 @@
     "button": "Two Factor Authorization (2FA) Etkinleştirme",
     "condition1": "Bir yedeğin var mı?",
     "condition2": "Mobil uygulama doğrulama çalışıyor mu?",
-    "condition3": "",
+    "condition3": "2FA yedekleri ve mobil uygulama eşleştirmesini DEVRE DIŞI bırakır. 2FA'dan çıkmak için cihazın SIFIRLANMASI olması gerekir!",
     "confirm": "Two Factor Authorization (2FA) Etkinleştirme",
     "title": "Two Factor Authorization (2FA) Etkinleştirme"
   },
@@ -520,7 +524,7 @@
     },
     "secrets": {
       "manageBackups": "Yedekleri Yönet",
-      "title": ""
+      "title": "Secrets"
     }
   },
   "deviceTampered": "BitBox'ınıza kurtarma şifresi mi sağlandı? Öyleyse, kurulum işlemini durdurun ve hemen desteğe başvurun. Ekibimiz asla size hazır bir cüzdan vermez veya şifre önerileri yapmaz.",
@@ -649,7 +653,7 @@
         "title": "'Yedeklemeyi kontrol et' nedir?"
       },
       "encrypt": {
-        "text": "",
+        "text": "Hayır, ancak kurtarma şifrenizin cüzdanda depolanan sedden üretilmesi gerekir.",
         "title": "Yedeklemeyi şifreleyebilir miyim?"
       },
       "howOften": {
@@ -689,37 +693,51 @@
         "title": "BitBox'ı nasıl çıkarabilirim?"
       },
       "ejectSD": {
-        "text": "MicroSD kartı BitBox'tan istediğiniz zaman yedekleme oluşturma veya geri yükleme işlemi yapmadığınız sürece kaldırabilirsiniz."
+        "text": "MicroSD kartı BitBox'tan istediğiniz zaman yedekleme oluşturma veya geri yükleme işlemi yapmadığınız sürece kaldırabilirsiniz.",
+        "title": "MicroSD kartı nasıl çıkarabilirim?"
       },
       "hiddenWallet": {
+        "text": "Aynı cihazda, makul bir reddedilebilirlik için kullanabileceğiniz farklı bir cihaz şifresi ve kurtarma şifresiyle korunan ikinci bir cüzdandır. Aynı yedek send hem normal, hem de gizli cüzdanınız için kullanılır, bu nedenle ek bir yedekleme gerekmez.",
         "title": "Gizli cüzdan nedir?"
       },
       "legacyHiddenWallet": {
+        "text": "Önce aşağıdaki düğmeyi tıklayın (BitBox ana cihaz şifresiyle açılmışsa ve 2FA devre dışı bırakılmışsa kullanılabilir), ardından Bitbox'ınızı yeniden takıp kilidini gizli cihaz şifrenizle açın.",
         "title": "Eski gizli cüzdanıma nasıl erişirim?"
+      },
+      "pairing": {
+        "text": "Mobil uygulamamızı iOS veya Android için indirdikten sonra, mobil uygulama ile bu uygulama arasında güvenli bir kanal kuran görüntülenen QR kodunu tararsınız. Tarandıktan sonra mobil uygulamadaki talimatları izleyin.",
+        "title": "Telefonumla güvenli bir şekilde nasıl eşleştirilir"
       }
     },
     "receive": {
       "address": {
+        "text": "Size başkalarının kripto para göndermeleri için adresinizi verebilirsiniz. Sadece doğru adresi gönderdiğinizden emin olun.",
         "title": "Bir adres ile ne yapabilirim?"
       },
       "addressChange": {
+        "text": "İşlem yaptığınız anda, otomatik olarak listeye yeni bir adres eklenir, böylece her zaman kripto para almayan 20 adres bulunur.",
         "title": "Adresler ne zaman değişir?"
       },
       "howVerify": {
+        "text": "BitBox01 için soldaki kenar çubuğundaki BitBox simgesine tıklayın ve Eşleştirme bölümüne bakın. Kılavuz güncellenir ve oradaki talimatları izlemeye devam edebilirsiniz.\nBitBox02 için, gönderme/alma işlemi sırasında adresleri doğrudan cihaz üzerinde doğrulayabilirsiniz.",
         "title": "Bir adresi güvenli bir şekilde nasıl doğrulayabilirim?"
       },
       "why20": {
+        "text": "",
         "title": "Neden sadece 20 adres?"
       },
       "whyMany": {
+        "text": "Gizliliği ve güvenliği sağlamak için, aynı adresi asla iki kez vermeyin. Bir adres kullandıysanız, yeni bir adres için sağ oka tıklayın. Bir seferde 20 adede kadar adres oluşturabilirsiniz. Fatura numaraları gibi adresleri düşünün. Tüm adresler, tek yedekleme senedinden türetilir.",
         "title": "Neden bu kadar çok adres var?"
       },
       "whyVerify": {
+        "text": "Orijinal adresleri oluşturmak ve görüntülemek için bilgisayarınıza güvenmemelisiniz. Büyük bir saldırı, donanım cüzdanınızın daha savunmasız kalmasını sağlar. BitBox01'in güvenli bir şekilde doğrulama düğmesi, adresi QR kodunu da tarayabileceğiniz ve doğrulayabileceğiniz eşleştirilmiş bir cep telefonuna gönderir. BitBox02 için, adres doğrudan BitBox02 ekranında doğrulanabilir.",
         "title": "Neden adresi güvenli bir şekilde doğrulamalıyım?"
       }
     },
     "send": {
       "fee": {
+        "text": "Ücret, işlem miktarına değil işlem miktarına göre belirlenir. Ücret hedefleri, seçtiğiniz her ağ önceliği için Bitcoin Core'un ücret tahmin algoritması ile hesaplanır. Aşağıdaki hedeften farklı bir değere sahiplerse gösterilirler.\nEkonomi: 24 blok (Bitcoin için yaklaşık 4 saat, Litecoin için 1 saat)\nDüşük: 12 blok (Bitcoin için yaklaşık 2 saat, Litecoin için 30 dakika)\nNormal: 6 blok (Bitcoin için yaklaşık 1 saat, Litecoin için 15 dakika)\nYüksek: 2 blok (Bitcoin için yaklaşık 20 dakika, Litecoin için 5 dakika)\n(Bir blok Bitcoin için ortalama on dakika sürer (Litecoin'de 2.5 dakika) ve ağ yükü yukarıdaki periyotlarda önemli ölçüde değişebilir.)",
         "title": "Ücret nasıl belirlenir?"
       },
       "priority": {
@@ -727,36 +745,52 @@
         "title": "Ağ önceliği nedir?"
       },
       "revert": {
+        "text": "Bir işlem imzalanıp gönderildikten sonra (yani ağa yayınlanır), artık geri alınamaz. İmzalamadan önce işlemleri (ücret dahil) doğru bir şekilde doğrulayın!\nAlıcıyı tanıyorsanız ve aynı tutarı (eksi işlem ücretlerini) size geri göndermeye istekliyse, onlara yeni bir alıcı adresi gönderebilirsiniz.",
         "title": "Bir işlemi geri alabilir miyim?"
       },
       "whyFee": {
-        "text": "",
+        "text": "İşlemler madenci tarafından onaylanmak için yarışıyor. Madenciler ücretlerine göre Blockchain'e dahil edilecek işlemleri seçiyorlar.\nMadenciler işlem tarihine oy veriyor. İşlemleri onaylayacak güvenli bir üçüncü taraf olmadığı için (Blockchain'lerin hepsinde), madenciler bilgisayar gücü gibi pahalı bir kaynaktan fedakarlık yaparak işlemleri oyluyorlar. İşlerinin bir ödülü olarak, yeni oluşturulan paraları ve içerdikleri tüm işlemlerin ücretini talep edebilirler.",
         "title": "Neden ağ ücreti var?"
       }
     },
     "settings-electrum": {
       "what": {
+        "text": "Shift sunucularını kullanmak yerine cüzdanınıza kendi tam node'larınızla güç vermek mümkündür.",
         "title": "Bu nedir?"
       }
     },
     "settings": {
       "btc-p2pkh": {
-        "title": ""
+        "text": "Eski bir işlem formatı kullanan ve artık Segwit adresi ve işlem formatları tarafından değiştirilen bir hesap. BitBox'ı eski masaüstü uygulamasıyla kullandıysanız, bu hesap paralarınızı içerecektir. İşlem ücretlerinden tasarruf etmek için paralarınızı bir Bitcoin veya Bitcoin bech32 hesabına aktarmanızı öneririz.",
+        "title": "Bitcoin Legacy nedir?"
       },
       "btc-p2sh": {
         "link": {
-          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/\ntr (New Value)(0)\n"
+          "text": "SegWit'in Faydaları",
+          "url": "https://bitcoincore.org/en/2016/01/26/segwit-benefits/\n"
         },
+        "text": "Bu geriye dönük uyumlu bir segwit hesabıdır (p2sh-p2wpkh). Size ağ ücretlerinden tasarruf sağlayan yeni bir işlem biçimi kullanır. Adres formatı eskilere benzer ve mevcut tüm Bitcoin cüzdan/ borsa/servislerle birlikte kullanılabilir.",
         "title": "Bitcoin hesabı nedir?"
       },
       "btc-p2wpkh": {
         "link": {
-          "text": "Bech32 adaptasyonu"
+          "text": "Bech32 adaptasyonu",
+          "url": "https://en.bitcoin.it/wiki/Bech32_adoption\n\n"
         },
+        "text": "Segwit'in daha ucuz ağ ücretlerinden tam olarak yararlanmak için yeni Bitcoin Bech32 adres biçimini kullanın. Bu formatın henüz her yerde kabul edilmediğini unutmayın.",
         "title": "Bitcoin bech32 nedir?"
       },
       "moreCoins": {
+        "text": "Gelecek birkaç sürümde, Litecoin dışında daha fazla altcoin ekleyeceğiz. Belirli bir madeni para için arıyorsanız, bize aşağıdan bir öneri bırakın.",
         "title": "Daha fazla para ekleyebilir misin?"
+      },
+      "servers": {
+        "text": "Bu uygulama, güncellemeleri kontrol etmek, işlemleri yüklemek ve eşleştirilmiş mobil uygulamalara bilgi göndermek için Shift Cryptosecurity sunucuları ile iletişim kurar.\nBu uygulama aynı zamanda CryptoCompare'den en son döviz kurlarını alıyor. Tüm dönüşümler yerel olarak hesaplanır, bu işleminizin miktarı ile ilgili hiçbir veri iletilmediği anlamına gelir.\nNot: Ethereum ve ERC20 Tokens için Etherscan.io API'lerini kullanıyoruz.",
+        "title": "Bu uygulama hangi sunucularla konuşuyor?"
+      },
+      "whyMultipleAccounts": {
+        "text": "Bazı kripto para birimlerinin çoklu adres ve işlem biçimleri vardır. Bu adresler ekstra hesaplara ayrılmıştır.",
+        "title": "Neden aynı kripto para için birden fazla hesap var?"
       }
     },
     "title": "Kılavuz",
@@ -770,21 +804,25 @@
         "title": "Cihaz şifresini unuttuğumda ne yapmalıyım?"
       },
       "reset": {
+        "text": "15 kez yanlış cihaz şifresi girin. Son birkaç deneme, cihaza uzun süre dokunmayı gerektirir.",
         "title": "Cihazı nasıl sıfırlarım?"
       }
     },
     "waiting": {
       "deviceNotRecognized": {
+        "text": "Cihaz yerleştirildiğinde bir kez yanıp sönmelidir. Etrafına doğru yerleştirildiğinden emin olun. Eğer sorun yaşıyorsanız, lütfen aşağıdaki bağlantıdan bize ulaşın.",
         "title": "BitBox01 tanınmıyor"
       },
       "getDevice": {
         "link": {
-          "url": "https://shiftcrypto.ch/shop\ntr (New Value)(0)\n"
+          "text": "Bir BitBox siparişi verin",
+          "url": "https://shiftcrypto.ch/shop"
         },
         "text": "Online mağazamızda bir BitBox satın alabilirsiniz:",
         "title": "Nasıl bir cihazı nasıl alabilirim?"
       },
       "internet": {
+        "text": "Evet, cüzdanı senkronize etmek, işlemleri göndermek ve en son kurları almak için bir internet bağlantısı gerekir.",
         "title": "Bu uygulama internet bağlantısı gerektiriyor mu?"
       },
       "lostDevice": {
@@ -805,7 +843,12 @@
       }
     }
   },
+  "headerssync": {
+    "blocksSynced": "{{blocks}} blok senkronize edildi"
+  },
   "hiddenWallet": {
+    "info1HTML": "",
+    "info2HTML": "Aşağıdaki gizli cüzdanınızla ilişkilendirmek istediğiniz cihaz şifresini ve kurtarma şifresini tanımlayın. Cihaz şifresi ve kurtarma şifresi <strong>farklı</strong> birincil cüzdanınız için tanımladığınızdan emin olun",
     "passwordLabel": "Gizli kurtarma şifresi",
     "passwordPlaceholder": "Lütfen gizli kurtarma şifresini onaylayın",
     "pinLabel": "Gizli cihaz şifresi",
@@ -901,15 +944,15 @@
     "label": "Sizin adresiniz",
     "ltcLegacy": {
       "button": "Eski adres formatına dönüştür",
-      "info": "",
+      "info": "Litecoin adresleri 3 ile başlayan adreslerden 'M' ile başlayan adreslere geçiyor.",
       "result": "Eski formatı {{address}}:\n{{legacyAddress}}"
     },
     "onlyThisCoin": {
-      "description": "",
-      "warning": ""
+      "description": "Başka token'ları almak için, onları ayarlardan etkinleştirin. Diğer token'ları yatırırsanız, erişilebilir olmayabilir.",
+      "warning": "Sadece bu adresle  {{accountName}} almak istediğinize emin olun"
     },
     "showFull": "Cihazdaki tam adresi göster ve doğrula",
-    "title": "",
+    "title": "{{accountName}} Al",
     "verify": "Adresi güvenli bir şekilde doğrulayın",
     "verifyBitBox01": "Mobil uygulamadaki adresi doğrula",
     "verifyBitBox02": "BitBox02'deki adresi doğrulayın",
@@ -1049,7 +1092,7 @@
     },
     "success": "İşlem imzalandı ve gönderildi.",
     "title": "Gönder {{accountName}}",
-    "toggleCoinControl": ""
+    "toggleCoinControl": "Kripto para kontrolünü aç"
   },
   "settings": {
     "accounts": {
@@ -1093,6 +1136,7 @@
       "electrum": {
         "title": "Kendi tam node'unuza bağlayın"
       },
+      "setProxyAddress": "Proxy adresini ayarla",
       "title": "Uzman Ayarları",
       "useProxy": "Tor proxy'yi etkinleştir"
     },
