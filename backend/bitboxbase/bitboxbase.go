@@ -181,7 +181,9 @@ func (base *BitBoxBase) Deregister() error {
 	// let the frontend know that the base is disconnected
 	base.fireEvent("disconnect")
 	base.onUnregister(base.bitboxBaseID)
-	base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID)
+	if err := base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID); err != nil {
+		base.log.WithError(err).Error("Unable to remove BitBoxBase from config file")
+	}
 	base.active = false
 	return nil
 }
@@ -192,7 +194,9 @@ func (base *BitBoxBase) Deregister() error {
 func (base *BitBoxBase) Remove() {
 	base.fireEvent("disconnect")
 	base.onRemove(base.bitboxBaseID)
-	base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID)
+	if err := base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID); err != nil {
+		base.log.WithError(err).Error("Unable to remove BitBoxBase from config file")
+	}
 	base.active = false
 }
 
@@ -637,7 +641,10 @@ func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 		return rpcmessages.GetBaseInfoResponse{}, reply.ErrorResponse
 	}
 	base.hostname = reply.Hostname
-	// TODO: Add method to bbbconfig.BBBConfigurationInterface to update an existing Base ocnfig with new hostname
+	err = base.bbbConfig.UpdateRegisteredBaseHostname(base.bitboxBaseID, reply.Hostname)
+	if err != nil {
+		base.log.WithError(err).Error("Unable to update BitBoxBase config file")
+	}
 	return reply, nil
 }
 

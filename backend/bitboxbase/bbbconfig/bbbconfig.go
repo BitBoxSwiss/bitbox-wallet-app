@@ -48,6 +48,8 @@ type BBBConfigurationInterface interface {
 	RegisteredBases() []RegisteredBase
 	// RemoveRegisteredBase removes a given Base from the config file
 	RemoveRegisteredBase(baseID string) error
+	// UpdateRegisteredBaseHostname updates the hostname config entry for a given Base if it had changed
+	UpdateRegisteredBaseHostname(baseID string, hostname string) error
 }
 
 // BBBConfig perists the BitBoxBase related configuration in a file.
@@ -202,5 +204,26 @@ func (bbbconfig *BBBConfig) RemoveRegisteredBase(baseID string) error {
 		}
 	}
 
+	return bbbconfig.storeConfig(configData)
+}
+
+// UpdateRegisteredBaseHostname implements BBBConfigurationInterface
+func (bbbconfig *BBBConfig) UpdateRegisteredBaseHostname(baseID string, hostname string) error {
+	if !bbbconfig.ContainsRegisteredBase(baseID) {
+		return nil
+	}
+
+	bbbconfig.mu.Lock()
+	defer bbbconfig.mu.Unlock()
+
+	configData := bbbconfig.readConfig()
+	for i, registeredBase := range configData.RegisteredBases {
+		if registeredBase.BaseID == baseID {
+			if configData.RegisteredBases[i].Hostname == hostname {
+				return nil
+			}
+			configData.RegisteredBases[i].Hostname = hostname
+		}
+	}
 	return bbbconfig.storeConfig(configData)
 }
