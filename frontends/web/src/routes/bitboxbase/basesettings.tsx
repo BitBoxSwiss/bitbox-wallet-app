@@ -457,7 +457,13 @@ class BaseSettings extends Component<Props, State> {
                                                     () => this.toggleTor(true)}>
                                                 {t('bitboxBase.settings.node.tor')}
                                             </SettingsButton>
-                                            <SettingsButton danger onClick={disconnect}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
+                                            <SettingsButton danger onClick={() => {
+                                                    confirmation(t('bitboxBase.settings.node.confirmDisconnect'), confirmed => {
+                                                        if (confirmed) {
+                                                            disconnect();
+                                                        }
+                                                    });
+                                                }}>{t('bitboxBase.settings.node.disconnect')}</SettingsButton>
                                         </div>
                                         </div>
                                         <div className="column column-1-3">
