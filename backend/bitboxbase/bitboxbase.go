@@ -101,7 +101,8 @@ func NewBitBoxBase(address string,
 		active:        false,
 		socksProxy:    socksProxy,
 	}
-	rpcClient, err := rpcclient.NewRPCClient(address, bbbConfig, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister, bitboxBase.Ping)
+	rpcClient, err := rpcclient.NewRPCClient(
+		address, bbbConfig, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Ping)
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
@@ -751,7 +752,8 @@ func (base *BitBoxBase) attemptReconnectLoop() {
 			base.log.Printf("Attempting to reconnect to BitBoxBase at %s. Middleware is not yet reachable.\n", base.address)
 		}
 		if reply {
-			rpcClient, err := rpcclient.NewRPCClient(base.address+":"+base.port, base.bbbConfig, base.changeStatus, base.fireEvent, base.Deregister, base.Ping)
+			rpcClient, err := rpcclient.NewRPCClient(
+				base.address+":"+base.port, base.bbbConfig, base.changeStatus, base.fireEvent, base.Ping)
 			if err != nil {
 				base.log.Println("Failed to create newRPCClient: ", err)
 			}

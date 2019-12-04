@@ -90,7 +90,6 @@ type RPCClient struct {
 	sendCipher, receiveCipher     *noise.CipherState
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
-	onUnregister                  func() error
 	ping                          func() (bool, error)
 	webSocketConnection           *websocket.Conn
 
@@ -105,7 +104,6 @@ func NewRPCClient(address string,
 	bbbConfig bbbconfig.BBBConfigurationInterface,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
-	onUnregister func() error,
 	ping func() (bool, error)) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
@@ -115,7 +113,6 @@ func NewRPCClient(address string,
 		rpcConnection:  newRPCConn(),
 		onChangeStatus: onChangeStatus,
 		onEvent:        onEvent,
-		onUnregister:   onUnregister,
 		ping:           ping,
 	}
 	if success, err := rpcClient.ping(); !success {
