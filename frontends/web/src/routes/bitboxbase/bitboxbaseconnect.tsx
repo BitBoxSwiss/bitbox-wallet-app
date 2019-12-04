@@ -39,7 +39,7 @@ interface BitBoxBaseConnectProps {
 }
 
 // TODO: Couple these to the HSM statuses when they are ready
-export type BaseUserStatus = '' | 'Connection lost' | 'Disconnected' | 'Unpaired' | 'OK' | 'Busy' | 'Restarting' | 'Offline' | 'Warning' | 'Error';
+export type BaseUserStatus = 'Connection lost' | 'Disconnected' | 'Unpaired' | 'OK' | 'Busy' | 'Restarting' | 'Offline' | 'Warning' | 'Error';
 
 export interface RegisteredBaseFields {
     paired: boolean;
@@ -152,6 +152,13 @@ class BitBoxBaseConnect extends Component<Props, State> {
             setInternalBaseStatus(status, baseID);
             route(`/bitboxbase/${baseID}`);
         });
+    }
+
+    private handleConnect = (baseID: string) => {
+        if (!baseStore.state.registeredBases[baseID].internalStatus) {
+            this.connectAndPairNoise(baseID);
+        }
+        this.setStatusAndRedirect(baseID);
     }
 
     private openManualConnectDialog = () => {
@@ -275,7 +282,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                 </svg>
                                                             </div>
                                                             <span className={style.baseItemName}>
-                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>
+                                                                <a className={style.baseItemName} onClick={() => this.handleConnect(baseID)}>
                                                                     {baseStore.state.registeredBases[baseID] && baseStore.state.registeredBases[baseID].hostname}
                                                                 </a>
                                                                 <p className={[style.baseItemIp, 'm-none', 'show-on-small'].join(' ')}>{baseID}</p>
@@ -285,7 +292,9 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                 <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
                                                                     <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                             </div>
-                                                            <a className={style.baseItemArrow} onClick={() => this.setStatusAndRedirect(baseID)}>
+                                                            <a className={style.baseItemArrow} onClick={() =>
+                                                            this.handleConnect(baseID)
+                                                            }>
                                                                 <span className="hide-on-small">Manage</span>
                                                                 <div className="show-on-small">
                                                                     <div className={style.baseItemIndicator}>

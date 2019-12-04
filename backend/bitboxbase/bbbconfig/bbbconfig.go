@@ -30,11 +30,6 @@ type RegisteredBase struct {
 	Hostname string `json:"hostname"`
 }
 
-// RegisteredBasesConfig stores a list of BitBoxBases registered at the backend to persist on App restart
-type RegisteredBasesConfig struct {
-	RegisteredBases []RegisteredBase `json:"registeredBases"`
-}
-
 // BBBConfigurationInterface provides an interface to interact with the persisted BBBConfig
 type BBBConfigurationInterface interface {
 	// ContainsBaseStaticPubkey returns true if a device pubkey has been added before.
@@ -49,6 +44,8 @@ type BBBConfigurationInterface interface {
 	ContainsRegisteredBase(baseID string) bool
 	// AddRegisteredBase adds a BitBoxBase ID and hostname to the config
 	AddRegisteredBase(baseID string, hostname string) error
+	// RegisteredBases returns the IDs and hostnames of Bases registered in the config file
+	RegisteredBases() []RegisteredBase
 }
 
 // BBBConfig perists the BitBoxBase related configuration in a file.
@@ -67,7 +64,7 @@ type noiseKeypair struct {
 type ConfigData struct {
 	AppNoiseStaticKeypair        *noiseKeypair    `json:"appNoiseStaticKeypair"`
 	BitBoxBaseNoiseStaticPubkeys [][]byte         `json:"bitboxBaseNoiseStaticPubkeys"`
-	RegisteredBasesConfig        []RegisteredBase `json:"registeredBases"`
+	RegisteredBases              []RegisteredBase `json:"registeredBases"`
 }
 
 // NewBBBConfig creates a new BBBConfig instance. The config will be stored in the given location.
@@ -153,7 +150,7 @@ func (bbbconfig *BBBConfig) ContainsRegisteredBase(baseID string) bool {
 	bbbconfig.mu.RLock()
 	defer bbbconfig.mu.RUnlock()
 
-	for _, registeredBase := range bbbconfig.readConfig().RegisteredBasesConfig {
+	for _, registeredBase := range bbbconfig.readConfig().RegisteredBases {
 		if registeredBase.BaseID == baseID {
 			return true
 		}
@@ -175,6 +172,14 @@ func (bbbconfig *BBBConfig) AddRegisteredBase(baseID string, hostname string) er
 		Hostname: hostname,
 	}
 	configData := bbbconfig.readConfig()
-	configData.RegisteredBasesConfig = append(configData.RegisteredBasesConfig, newRegisteredBase)
+	configData.RegisteredBases = append(configData.RegisteredBases, newRegisteredBase)
 	return bbbconfig.storeConfig(configData)
+}
+
+// RegisteredBases implements BBBConfigurationInterface
+func (bbbconfig *BBBConfig) RegisteredBases() []RegisteredBase {
+	bbbconfig.mu.RLock()
+	defer bbbconfig.mu.RUnlock()
+
+	return bbbconfig.readConfig().RegisteredBases
 }

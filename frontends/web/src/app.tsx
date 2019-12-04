@@ -116,7 +116,7 @@ class App extends Component<Props, State> {
             case 'bitboxbases':
                 switch (data) {
                 case 'registeredChanged':
-                    this.onBitBoxBasesRegisteredChanged(meta);
+                    this.onBitBoxBasesRegisteredChanged();
                     break;
                 case 'detectedChanged':
                     this.onBitBoxBasesDetectedChanged();
@@ -146,18 +146,16 @@ class App extends Component<Props, State> {
         });
     }
 
-    private onBitBoxBasesRegisteredChanged = (data?) => {
+    private onBitBoxBasesRegisteredChanged = () => {
         apiGet('bitboxbases/registered').then(bases => {
-            let bitboxBaseIDs = [];
+            let bitboxBaseIDs: string[] = [];
             if (bases !== null) {
-                bitboxBaseIDs = bases;
+                // Registered bases are returned in the format {ID: hostname}
+                bitboxBaseIDs = Object.keys(bases);
             }
             this.setState({ bitboxBaseIDs });
+            bitboxBaseIDs.map(ID => updateSharedBaseState('hostname', bases[ID].split('.')[0], ID));
         });
-        let hostname: string;
-        data && data.hostname ? hostname = data.hostname.split('.')[0] : hostname = 'New BitBoxBase';
-        // tslint:disable-next-line: no-unused-expression
-        data && updateSharedBaseState('hostname', hostname, data.ip);
     }
 
     private onBitBoxBaseReconnected = (ID: string) => {

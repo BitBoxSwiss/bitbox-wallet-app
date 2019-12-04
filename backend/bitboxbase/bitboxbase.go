@@ -59,6 +59,7 @@ type BitBoxBase struct {
 	registerTime   time.Time
 	address        string
 	port           string
+	hostname       string
 	rpcClient      *rpcclient.RPCClient
 	electrsRPCPort string
 	network        string
@@ -77,6 +78,7 @@ type BitBoxBase struct {
 //NewBitBoxBase creates a new bitboxBase instance
 func NewBitBoxBase(address string,
 	id string,
+	hostname string,
 	appConfig *appConfig.Config,
 	bbbConfig bbbconfig.BBBConfigurationInterface,
 	onUnregister func(string),
@@ -88,6 +90,7 @@ func NewBitBoxBase(address string,
 		bitboxBaseID:  id,
 		address:       strings.Split(address, ":")[0],
 		port:          strings.Split(address, ":")[1],
+		hostname:      hostname,
 		registerTime:  time.Now(),
 		appConfig:     appConfig,
 		bbbConfig:     bbbConfig,
@@ -274,7 +277,7 @@ func (base *BitBoxBase) ResyncBitcoin() error {
 	return nil
 }
 
-// SetHostname sets the hostname of the bitboxbase
+// SetHostname sets the hostname of the physical BitBoxBase device
 func (base *BitBoxBase) SetHostname(hostname string) error {
 	if !base.active {
 		return errp.New("Attempted a call to non-active base")
@@ -289,6 +292,19 @@ func (base *BitBoxBase) SetHostname(hostname string) error {
 		return &reply
 	}
 	return nil
+}
+
+// SetLocalHostname sets hostname field in the BitBoxBase struct
+// This is necessary for example when restoring Bases from persisted config file
+// when we don't yet have access to authenticated BaseInfo() RPC
+func (base *BitBoxBase) SetLocalHostname(hostname string) {
+	base.hostname = hostname
+}
+
+// GetLocalHostname gets the hostname from the hostname field in the BitBoxBase struct
+// Necessary for the same reasons as setLocalHostname
+func (base *BitBoxBase) GetLocalHostname() string {
+	return base.hostname
 }
 
 // UserAuthenticate returns if a given Username and Password are valid
@@ -617,6 +633,8 @@ func (base *BitBoxBase) BaseInfo() (rpcmessages.GetBaseInfoResponse, error) {
 	if !reply.ErrorResponse.Success {
 		return rpcmessages.GetBaseInfoResponse{}, reply.ErrorResponse
 	}
+	base.hostname = reply.Hostname
+	// TODO: Add method to bbbconfig.BBBConfigurationInterface to update an existing Base ocnfig with new hostname
 	return reply, nil
 }
 

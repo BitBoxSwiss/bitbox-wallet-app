@@ -79,7 +79,7 @@ export interface BaseUpdateInfo {
 
 const initSharedBaseState = (baseID: string) => {
     const initialStatus: InternalBaseStatus = '';
-    const initialUserStatus: BaseUserStatus = '';
+    const initialUserStatus: BaseUserStatus = 'Disconnected';
     const initialState = {...baseStore.state.registeredBases, [baseID]: {
         paired: false,
         internalStatus: initialStatus,
