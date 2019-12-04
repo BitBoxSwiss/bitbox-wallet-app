@@ -46,6 +46,8 @@ type BBBConfigurationInterface interface {
 	AddRegisteredBase(baseID string, hostname string) error
 	// RegisteredBases returns the IDs and hostnames of Bases registered in the config file
 	RegisteredBases() []RegisteredBase
+	// RemoveRegisteredBase removes a given Base from the config file
+	RemoveRegisteredBase(baseID string) error
 }
 
 // BBBConfig perists the BitBoxBase related configuration in a file.
@@ -182,4 +184,23 @@ func (bbbconfig *BBBConfig) RegisteredBases() []RegisteredBase {
 	defer bbbconfig.mu.RUnlock()
 
 	return bbbconfig.readConfig().RegisteredBases
+}
+
+// RemoveRegisteredBase implements BBBConfigurationInterface
+func (bbbconfig *BBBConfig) RemoveRegisteredBase(baseID string) error {
+	if !bbbconfig.ContainsRegisteredBase(baseID) {
+		return nil
+	}
+
+	bbbconfig.mu.Lock()
+	defer bbbconfig.mu.Unlock()
+
+	configData := bbbconfig.readConfig()
+	for i, registeredBase := range configData.RegisteredBases {
+		if registeredBase.BaseID == baseID {
+			configData.RegisteredBases = append(configData.RegisteredBases[:i], configData.RegisteredBases[i+1:]...)
+		}
+	}
+
+	return bbbconfig.storeConfig(configData)
 }

@@ -180,6 +180,7 @@ func (base *BitBoxBase) Deregister() error {
 	// let the frontend know that the base is disconnected
 	base.fireEvent("disconnect")
 	base.onUnregister(base.bitboxBaseID)
+	base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID)
 	base.active = false
 	return nil
 }
@@ -190,6 +191,7 @@ func (base *BitBoxBase) Deregister() error {
 func (base *BitBoxBase) Remove() {
 	base.fireEvent("disconnect")
 	base.onRemove(base.bitboxBaseID)
+	base.bbbConfig.RemoveRegisteredBase(base.bitboxBaseID)
 	base.active = false
 }
 
