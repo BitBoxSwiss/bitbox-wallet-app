@@ -30,18 +30,22 @@ import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiGet, apiPost } from '../../utils/request';
 import { validateIP } from '../../utils/validateIP';
-import { setBaseStatus, updateSharedBaseState } from './bitboxbase';
+import { InternalBaseStatus, setInternalBaseStatus, statusBadgeColor, updateSharedBaseState } from './bitboxbase';
+import * as baseStyle from './bitboxbase.css';
 
 interface BitBoxBaseConnectProps {
     bitboxBaseIDs: string[];
     detectedBases: DetectedBitBoxBases;
 }
 
-export type BaseStatus = '' | 'connected' | 'unpaired' | 'pairingFailed' | 'passwordNotSet' | 'bitcoinPre' | 'locked' | 'initialized';
+// TODO: Couple these to the HSM statuses when they are ready
+export type BaseUserStatus = '' | 'Connection lost' | 'Disconnected' | 'Unpaired' | 'OK' | 'Busy' | 'Restarting' | 'Offline' | 'Warning' | 'Error';
 
 export interface RegisteredBaseFields {
-    paired?: boolean;
-    status?: BaseStatus;
+    paired: boolean;
+    internalStatus: InternalBaseStatus;
+    userStatus: BaseUserStatus;
+    hostname: string;
 }
 
 export interface RegisteredBases {
@@ -145,7 +149,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
     private setStatusAndRedirect = (baseID: string) => {
         apiGet(`bitboxbases/${baseID}/status`)
         .then(({status}) => {
-            setBaseStatus(status, baseID);
+            setInternalBaseStatus(status, baseID);
             route(`/bitboxbase/${baseID}`);
         });
     }
@@ -211,10 +215,11 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="box slim divide">
                                             {
                                                 bases.length ? bases.map(base => (
-                                                    <DetectedBase
+                                                    bitboxBaseIDs.includes(base[1]) ? null :
+                                                    (<DetectedBase
                                                         hostname={base[0]}
                                                         ip={base[1]}
-                                                        connect={this.establishConnection}/>
+                                                        connect={this.establishConnection}/>)
                                                 )) : (
                                                     <p className="text-center p-top-default p-bottom-default">
                                                         <span className={style.emptyBases}>{t('bitboxBase.detectedBasesEmpty')}</span>
@@ -253,10 +258,6 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                         <div className="box slim divide" ref={this.setSortableContainer}>
                                             {
                                                 bitboxBaseIDs.length ?  bitboxBaseIDs.map(baseID => {
-                                                    let name: string | undefined;
-                                                    Object.values(detectedBases).includes(baseID) ? name = Object.keys(detectedBases).find(key => detectedBases[key] === baseID) :
-                                                        // FIXME: Resolve a hostname from IP for manual additions
-                                                        name = t('bitboxBase.new');
                                                     return (
                                                         <div className={style.baseItem}>
                                                             <div className={style.baseItemSortable}>
@@ -274,20 +275,22 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                                 </svg>
                                                             </div>
                                                             <span className={style.baseItemName}>
-                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>{name}</a>
+                                                                <a className={style.baseItemName} onClick={() => this.setStatusAndRedirect(baseID)}>
+                                                                    {baseStore.state.registeredBases[baseID] && baseStore.state.registeredBases[baseID].hostname}
+                                                                </a>
                                                                 <p className={[style.baseItemIp, 'm-none', 'show-on-small'].join(' ')}>{baseID}</p>
                                                             </span>
                                                             <span className={[style.baseItemIp, 'hide-on-small'].join(' ')}>{baseID}</span>
                                                             <div className={[style.baseItemIndicator, 'hide-on-small'].join(' ')}>
-                                                                <span className={[style.dot, style.online].join(' ')}></span>
-                                                                <span>Online</span>
+                                                                <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
+                                                                    <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                             </div>
                                                             <a className={style.baseItemArrow} onClick={() => this.setStatusAndRedirect(baseID)}>
                                                                 <span className="hide-on-small">Manage</span>
                                                                 <div className="show-on-small">
                                                                     <div className={style.baseItemIndicator}>
-                                                                        <span className={[style.dot, style.online].join(' ')}></span>
-                                                                        <span>Online</span>
+                                                                        <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>
+                                                                        <span className="text-gray">{baseStore.state.registeredBases[baseID] ? baseStore.state.registeredBases[baseID].userStatus : 'Disconnected'}</span>
                                                                     </div>
                                                                 </div>
                                                                 <svg

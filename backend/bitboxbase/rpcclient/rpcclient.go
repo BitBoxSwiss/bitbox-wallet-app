@@ -18,7 +18,6 @@
 package rpcclient
 
 import (
-	"net/http"
 	"net/rpc"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
@@ -91,7 +90,8 @@ type RPCClient struct {
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
 	onUnregister                  func() error
-	webSocketConenction           *websocket.Conn
+	ping                          func() (bool, error)
+	webSocketConnection           *websocket.Conn
 
 	//rpc stuff
 	client        *rpc.Client
@@ -104,7 +104,8 @@ func NewRPCClient(address string,
 	bitboxBaseConfigDir string,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
-	onUnregister func() error) (*RPCClient, error) {
+	onUnregister func() error,
+	ping func() (bool, error)) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
 		log:                 logging.Get().WithGroup("bitboxbase"),
@@ -114,8 +115,9 @@ func NewRPCClient(address string,
 		onChangeStatus:      onChangeStatus,
 		onEvent:             onEvent,
 		onUnregister:        onUnregister,
+		ping:                ping,
 	}
-	if success, err := rpcClient.Ping(); !success {
+	if success, err := rpcClient.ping(); !success {
 		return nil, err
 	}
 	return rpcClient, nil
@@ -126,33 +128,18 @@ func (rpcClient *RPCClient) ChannelHash() (string, bool) {
 	return rpcClient.channelHash, rpcClient.channelHashBitBoxBaseVerified
 }
 
-// Ping sends a get request to the bitbox base's middleware root handler and returns true if successful
-func (rpcClient *RPCClient) Ping() (bool, error) {
-	response, err := http.Get("http://" + rpcClient.address + "/")
-	if err != nil {
-		rpcClient.log.WithError(err).Error("No response from middleware")
-		return false, err
-	}
-
-	if response.StatusCode != http.StatusOK {
-		rpcClient.log.Error("Received http status code from middleware other than 200")
-		return false, nil
-	}
-	return true, nil
-}
-
 // EstablishConnection first establishes a websocket connection to the the middleware before we call Connect()
 // to authenticate and encrypt all further traffic with noise.
 func (rpcClient *RPCClient) EstablishConnection() error {
 	rpcClient.log.Printf("connecting to base websocket")
-	if success, err := rpcClient.Ping(); !success {
+	if success, err := rpcClient.ping(); !success {
 		return err
 	}
 	ws, _, err := websocket.DefaultDialer.Dial("ws://"+rpcClient.address+"/ws", nil)
 	if err != nil {
 		return errp.New("rpcClient: failed to create new websocket client")
 	}
-	rpcClient.webSocketConenction = ws
+	rpcClient.webSocketConnection = ws
 	return nil
 }
 
@@ -160,11 +147,11 @@ func (rpcClient *RPCClient) EstablishConnection() error {
 // it then sets the appropriate authentication status based on SetupStatus
 func (rpcClient *RPCClient) Connect() error {
 	rpcClient.log.Printf("initializing noise pairing")
-	if err := rpcClient.initializeNoise(rpcClient.webSocketConenction); err != nil {
+	if err := rpcClient.initializeNoise(rpcClient.webSocketConnection); err != nil {
 		return err
 	}
 	rpcClient.client = rpc.NewClient(rpcClient.rpcConnection)
-	rpcClient.runWebsocket(rpcClient.webSocketConenction, rpcClient.rpcConnection.WriteChan())
+	rpcClient.runWebsocket(rpcClient.webSocketConnection, rpcClient.rpcConnection.WriteChan())
 	setupStatus, err := rpcClient.GetSetupStatus()
 	if err != nil {
 		return err

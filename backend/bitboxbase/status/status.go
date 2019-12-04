@@ -14,7 +14,7 @@
 
 package bitboxbasestatus
 
-// Status represents the BitBox Base status.
+// Status represents the BitBoxBase status.
 type Status string
 
 const (
@@ -26,7 +26,7 @@ const (
 	// been confirmed, we move to StatusBitcoinPre.
 	StatusUnpaired Status = "unpaired"
 
-	// StatusPairingFailed is when the pairing code was rejected on the app or on the BitBox Base.
+	// StatusPairingFailed is when the pairing code was rejected on the app or on the BitBoxBase.
 	StatusPairingFailed Status = "pairingFailed"
 
 	// StatusPasswordNotSet is after status unpaired, if the Base has not been initialized before.
@@ -38,8 +38,20 @@ const (
 	// StatusLocked is before status initialized and after unpairs, passwordNotSet or bitcoinPre
 	StatusLocked Status = "locked"
 
-	// StatusInitialized means the BitBox Base has verfied the pairing
+	// StatusInitialized means the BitBoxBase has verfied the pairing
 	StatusInitialized Status = "initialized"
+
+	// StatusDisconnected means that the Base is online, reachable, and registered with the App backend,
+	// but not connected to the App
+	StatusDisconnected Status = "disconnected"
+
+	// StatusOffline means the Base is registered with the App backend, but the device is offline and not
+	// attempting to reconnect (e.g., after a manual shutdown)
+	StatusOffline Status = "offline"
+
+	// StatusReconnecting means the Base is registered with the App backend, the device is offline or restarting
+	// and the App is actively trying to reconnect (e.g., after a reboot or an update)
+	StatusReconnecting Status = "reconnecting"
 )
 
 // Event represents state change events
@@ -65,4 +77,7 @@ const (
 
 	// EventUpdateAvailable is emitted whenever there is a new update available for the Base
 	EventUpdateAvailable Event = "updateAvailable"
+
+	// EventConnectionLost is emitted whenever the websocket connection is lost to update the app status
+	EventConnectionLost Event = "connectionLost"
 )

@@ -176,7 +176,11 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.config.AppConfig().Backend.Proxy.UseProxy,
 		backend.config.AppConfig().Backend.Proxy.ProxyAddressOrDefault(),
 	)
-	backend.baseManager = mdns.NewManager(backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister, backend.BitBoxBaseDeregister, backend.BitBoxBaseRemove, backend.config, backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
+	backend.baseManager = mdns.NewManager(
+		backend.EmitBitBoxBaseDetected, backend.bitBoxBaseRegister,
+		backend.BitBoxBaseDeregister, backend.BitBoxBaseRemove,
+		backend.EmitBitBoxBaseReconnected, backend.config,
+		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
 	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
 	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
@@ -773,13 +777,20 @@ func (backend *Backend) BitBoxBasesDetected() map[string]string {
 	return backend.baseManager.GetDetectedBases()
 }
 
-// EmitBitBoxBaseDetected saves the IP and Hostname of detected BitBox Bases at this backend
+// EmitBitBoxBaseDetected notifies the frontend that the manager.detectedBases has changed
 func (backend *Backend) EmitBitBoxBaseDetected() {
 	backend.events <- backendEvent{Type: "bitboxbases", Data: "detectedChanged"}
 }
 
+// EmitBitBoxBaseReconnected notifies the frontend that a previously registered Base has successfully reconnected
+func (backend *Backend) EmitBitBoxBaseReconnected(bitboxBaseID string) {
+	backend.events <- backendEvent{Type: "bitboxbases", Data: "reconnected", Meta: map[string]interface{}{
+		"ID": bitboxBaseID,
+	}}
+}
+
 // bitBoxBaseRegister registers the given bitboxbase at this backend.
-func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error {
+func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase, hostname string, ip string) error {
 	backend.bitboxBases[theBase.Identifier()] = theBase
 	backend.onBitBoxBaseInit(theBase)
 	theBase.Observe(func(event observable.Event) { backend.events <- event })
@@ -787,6 +798,10 @@ func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase) error
 	case backend.events <- backendEvent{
 		Type: "bitboxbases",
 		Data: "registeredChanged",
+		Meta: map[string]interface{}{
+			"ip":       ip,
+			"hostname": hostname,
+		},
 	}:
 	default:
 	}

@@ -16,6 +16,7 @@ package bitboxbase
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
@@ -33,6 +34,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// DisconnectType indicates the type of disconnect that should be passed to Disconnect() to determine if we set the Base
+// status to 'offline' or 'reconnecting' which determines subsequent behavior of the backend
+type DisconnectType int
+
+// DisconnectType currently has three possibilities, reboot, shutdown and disconnect
+// DisconnectTypeReboot changes status to StatusReconnecting to tell the backend to attempt to reconnect
+// DisconnectTypeShutdown changes status StatusOffline
+// DisconnectTypeDisconnect changes status StatusDisconnected to indicate that the Base is online, but not connected to
+// the App backend
+const (
+	DisconnectTypeReboot     DisconnectType = 0
+	DisconnectTypeShutdown   DisconnectType = 1
+	DisconnectTypeDisconnect DisconnectType = 2
+)
+
 // BitBoxBase provides the dictated bitboxbase api to communicate with the base
 type BitBoxBase struct {
 	observable.Implementation
@@ -40,6 +56,7 @@ type BitBoxBase struct {
 	bitboxBaseID        string //This is just the ip currently
 	registerTime        time.Time
 	address             string
+	port                string
 	rpcClient           *rpcclient.RPCClient
 	electrsRPCPort      string
 	network             string
@@ -49,9 +66,10 @@ type BitBoxBase struct {
 	status              bitboxbasestatus.Status
 	active              bool //this indicates if the bitboxbase is in use, or being disconnected
 
-	onUnregister func(string)
-	onRemove     func(string)
-	socksProxy   socksproxy.SocksProxy
+	onUnregister  func(string)
+	onRemove      func(string)
+	onReconnected func(string)
+	socksProxy    socksproxy.SocksProxy
 }
 
 //NewBitBoxBase creates a new bitboxBase instance
@@ -61,21 +79,24 @@ func NewBitBoxBase(address string,
 	bitboxBaseConfigDir string,
 	onUnregister func(string),
 	onRemove func(string),
+	onReconnected func(string),
 	socksProxy socksproxy.SocksProxy) (*BitBoxBase, error) {
 	bitboxBase := &BitBoxBase{
 		log:                 logging.Get().WithGroup("bitboxbase"),
 		bitboxBaseID:        id,
 		address:             strings.Split(address, ":")[0],
+		port:                strings.Split(address, ":")[1],
 		registerTime:        time.Now(),
 		config:              config,
 		bitboxBaseConfigDir: bitboxBaseConfigDir,
 		status:              bitboxbasestatus.StatusConnected,
 		onUnregister:        onUnregister,
 		onRemove:            onRemove,
+		onReconnected:       onReconnected,
 		active:              false,
 		socksProxy:          socksProxy,
 	}
-	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister)
+	rpcClient, err := rpcclient.NewRPCClient(address, bitboxBaseConfigDir, bitboxBase.changeStatus, bitboxBase.fireEvent, bitboxBase.Deregister, bitboxBase.Ping)
 	bitboxBase.rpcClient = rpcClient
 
 	return bitboxBase, err
@@ -165,6 +186,29 @@ func (base *BitBoxBase) Remove() {
 	base.fireEvent("disconnect")
 	base.onRemove(base.bitboxBaseID)
 	base.active = false
+}
+
+// Disconnect changes the Base status and takes appropriate action based on DisconnectType
+func (base *BitBoxBase) Disconnect(disconnectType DisconnectType) error {
+	if !base.active {
+		return errp.New("Attempted call to non-active base")
+	}
+	base.Close()
+	base.rpcClient = nil
+	base.active = false
+	switch disconnectType {
+	case DisconnectTypeReboot:
+		base.log.Println("BitBoxBase if rebooting. Will attempt to reconnect automatically.")
+		base.changeStatus(bitboxbasestatus.StatusReconnecting)
+		go base.attemptReconnectLoop()
+	case DisconnectTypeShutdown:
+		base.log.Println("BitBoxBase is shutting down, setting status to 'offline'")
+		base.changeStatus(bitboxbasestatus.StatusOffline)
+	case DisconnectTypeDisconnect:
+		base.log.Println("App is disconnecting from BitBoxBase, setting status to 'disconnected'")
+		base.changeStatus(bitboxbasestatus.StatusDisconnected)
+	}
+	return nil
 }
 
 // ChannelHash returns the bitboxbase's rpcClient noise channel hash
@@ -511,8 +555,7 @@ func (base *BitBoxBase) ShutdownBase() error {
 	if !reply.Success {
 		return &reply
 	}
-	// FIXME: Change backend node management to status: offline
-	err = base.Deregister()
+	err = base.Disconnect(DisconnectTypeShutdown)
 	if err != nil {
 		return err
 	}
@@ -532,8 +575,7 @@ func (base *BitBoxBase) RebootBase() error {
 	if !reply.Success {
 		return &reply
 	}
-	// FIXME: Change backend node management to status: rebooting
-	err = base.Deregister()
+	err = base.Disconnect(DisconnectTypeReboot)
 	if err != nil {
 		return err
 	}
@@ -552,6 +594,10 @@ func (base *BitBoxBase) UpdateBase(args rpcmessages.UpdateBaseArgs) error {
 	}
 	if !reply.Success {
 		return &reply
+	}
+	err = base.Disconnect(DisconnectTypeReboot)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -654,7 +700,49 @@ func (base *BitBoxBase) Close() {
 	base.rpcClient.Stop()
 }
 
-// Ping sends a get requset to the bitbox base middleware root handler and returns true if successful
+// Ping sends a get request to the BitBoxBase middleware root handler and returns true if successful
 func (base *BitBoxBase) Ping() (bool, error) {
-	return base.rpcClient.Ping()
+	response, err := http.Get("http://" + base.address + ":" + base.port + "/")
+	if err != nil {
+		base.log.WithError(err).Error("No response from middleware at: ", base.address)
+		return false, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		base.log.Error("Received http status code from middleware other than 200")
+		return false, nil
+	}
+	return true, nil
+}
+
+// attemptReconnectLoop attempts to reconnect to a rebooting base
+func (base *BitBoxBase) attemptReconnectLoop() {
+	time.Sleep(15 * time.Second) // Wait for Base to shut down before attempting to reconnect
+	for {
+		reply, err := base.Ping()
+		if err != nil {
+			base.log.Printf("Attempting to reconnect to BitBoxBase at %s. Middleware is not yet reachable.\n", base.address)
+		}
+		if reply {
+			rpcClient, err := rpcclient.NewRPCClient(base.address+":"+base.port, base.bitboxBaseConfigDir, base.changeStatus, base.fireEvent, base.Deregister, base.Ping)
+			if err != nil {
+				base.log.Println("Failed to create newRPCClient: ", err)
+			}
+			base.rpcClient = rpcClient
+			err = base.EstablishConnection()
+			if err != nil {
+				base.log.Println("Could not re-establish connection: ", err)
+			}
+			err = base.ConnectRPCClient()
+			if err != nil {
+				base.log.Println("Could not re-establish noise encrypted RPC connection: ", err)
+			}
+			base.active = true
+			base.onReconnected(base.bitboxBaseID)
+			base.changeStatus(bitboxbasestatus.StatusLocked)
+			base.log.Printf("Reconnected successfully to %s\n", base.address)
+			break
+		}
+		time.Sleep(5 * time.Second)
+	}
 }
