@@ -33,7 +33,12 @@ func (device *Device) queryBitBoxBase(request *messages.BitBoxBaseRequest) (
 	})
 }
 
-// BitBoxBaseHeartbeat sends a heartbeat request with the given state and description codes.
+// BitBoxBaseHeartbeat sends a heartbeat request with the given state and
+// description codes.
+//
+// The following descriptionCodes are only available in firmware version >= 4.4.0:
+// `REDIS_ERROR`, `REBOOT`, `SHUTDOWN`, `UPDATE_FAILED` and
+// `NO_NETWORK_CONNECTION`.
 func (device *Device) BitBoxBaseHeartbeat(
 	stateCode messages.BitBoxBaseHeartbeatRequest_StateCode,
 	descriptionCode messages.BitBoxBaseHeartbeatRequest_DescriptionCode,
