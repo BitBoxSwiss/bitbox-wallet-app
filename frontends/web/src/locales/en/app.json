@@ -943,11 +943,6 @@
   },
   "receive": {
     "label": "Your address",
-    "ltcLegacy": {
-      "button": "Convert to the legacy address format",
-      "info": "Litecoin is transitioning from addresses starting with '3' to addresses starting with an 'M'.",
-      "result": "Legacy format of {{address}}:\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "To receive other tokens, enable them in the settings. If you deposit other tokens, they might not be accessible.",
       "warning": "Make sure to only receive {{accountName}} on this address."

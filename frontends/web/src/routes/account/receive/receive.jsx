@@ -122,21 +122,6 @@ export default class Receive extends Component {
         }
     };
 
-    ltcConvertToLegacy = () => {
-        const { receiveAddresses, activeIndex } = this.state;
-        if (receiveAddresses !== null && activeIndex !== null) {
-            apiPost('account/' + this.props.code + '/convert-to-legacy-address',
-                receiveAddresses[activeIndex].addressID)
-                .then(legacyAddress => {
-                    const address = receiveAddresses[activeIndex].address;
-                    this.unregisterEvents();
-                    alertUser(this.props.t('receive.ltcLegacy.result', {
-                        address, legacyAddress
-                    }), this.registerEvents);
-                });
-        }
-    }
-
     getAccount() {
         if (!this.props.accounts) return undefined;
         return this.props.accounts.find(({ code }) => code === this.props.code);
@@ -247,7 +232,7 @@ export default class Receive extends Component {
                         )
                     }
                 </div>
-                <CopyableInput disabled={!enableCopy} value={address} />
+                <CopyableInput disabled={!enableCopy} value={address} flexibleHeight />
                 <div className="buttons">
                     {
                         forceVerification && (
@@ -257,19 +242,6 @@ export default class Receive extends Component {
                                 onClick={this.verifyAddress}>
                                 {t('receive.showFull')}
                             </Button>
-                        )
-                    }
-                    {
-                        code === 'ltc-p2wpkh-p2sh' && (
-                            <div style="margin-top:60px;">
-                                <p>{t('receive.ltcLegacy.info')}</p>
-                                <Button
-                                    primary
-                                    onClick={this.ltcConvertToLegacy}
-                                    className={style.button}>
-                                    {t('receive.ltcLegacy.button')}
-                                </Button>
-                            </div>
                         )
                     }
                     {
@@ -330,7 +302,7 @@ export default class Receive extends Component {
                         {paired === false && t('warning.receivePairing')}
                     </Status>
                     <Header title={<h2>{t('receive.title', { accountName: account.name })}</h2>} />
-                    <div class="innerContainer">
+                    <div class="innerContainer scrollableContainer">
                         <div class="content narrow isVerticallyCentered">
                             <div class="box large text-center">
                                 {content}
