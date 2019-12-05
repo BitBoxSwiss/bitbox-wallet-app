@@ -67,7 +67,6 @@ func NewHandlers(
 	handleFunc("/can-verify-extended-public-key", handlers.ensureAccountInitialized(handlers.getCanVerifyExtendedPublicKey)).Methods("GET")
 	handleFunc("/verify-extended-public-key", handlers.ensureAccountInitialized(handlers.postVerifyExtendedPublicKey)).Methods("POST")
 	handleFunc("/has-secure-output", handlers.ensureAccountInitialized(handlers.getHasSecureOutput)).Methods("GET")
-	handleFunc("/convert-to-legacy-address", handlers.ensureAccountInitialized(handlers.postConvertToLegacyAddress)).Methods("POST")
 	return handlers
 }
 
@@ -499,16 +498,4 @@ func (handlers *Handlers) getHasSecureOutput(r *http.Request) (interface{}, erro
 		"hasSecureOutput": hasSecureOutput,
 		"optional":        optional,
 	}, nil
-}
-
-func (handlers *Handlers) postConvertToLegacyAddress(r *http.Request) (interface{}, error) {
-	var addressID string
-	if err := json.NewDecoder(r.Body).Decode(&addressID); err != nil {
-		return nil, errp.WithStack(err)
-	}
-	address, err := handlers.account.ConvertToLegacyAddress(addressID)
-	if err != nil {
-		return nil, err
-	}
-	return address.EncodeAddress(), nil
 }
