@@ -18,6 +18,7 @@ import (
 	"context"
 	"encoding/json"
 	"math/big"
+	"net/http"
 	"net/url"
 	"strconv"
 	"time"
@@ -72,6 +73,9 @@ func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 		return errp.WithStack(err)
 	}
 	defer func() { _ = response.Body.Close() }()
+	if response.StatusCode != http.StatusOK {
+		return errp.Newf("expected 200 OK, got %d", response.StatusCode)
+	}
 	if err := json.NewDecoder(response.Body).Decode(result); err != nil {
 		return errp.WithStack(err)
 	}
