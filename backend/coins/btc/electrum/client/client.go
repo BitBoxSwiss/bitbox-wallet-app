@@ -31,6 +31,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonrpc"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,6 +47,8 @@ type ElectrumClient struct {
 
 	scriptHashNotificationCallbacks     map[string]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
+
+	serverVersion *ServerVersion
 
 	close bool
 	log   *logrus.Entry
@@ -95,10 +98,11 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 		if err != nil {
 			return err
 		}
+		electrumClient.serverVersion = version
 		log.WithField("server-version", version).Debug("electrumx server version")
 		return nil
 	})
-	rpcClient.RegisterHeartbeat("server.version", clientVersion, clientProtocolVersion)
+	rpcClient.RegisterHeartbeat("server.ping")
 
 	return electrumClient
 }
@@ -130,7 +134,7 @@ func (client *ElectrumClient) RegisterOnConnectionStatusChangedEvent(onConnectio
 // ServerVersion is returned by ServerVersion().
 type ServerVersion struct {
 	Version         string
-	ProtocolVersion string
+	ProtocolVersion *semver.SemVer
 }
 
 func (version *ServerVersion) String() string {
@@ -147,7 +151,16 @@ func (version *ServerVersion) UnmarshalJSON(b []byte) error {
 		return errp.WithContext(errp.New("Unexpected reply"), errp.Context{"raw": string(b)})
 	}
 	version.Version = slice[0]
-	version.ProtocolVersion = slice[1]
+	protocolVersion := slice[1]
+	// We expect the protocolVersion to be either major.minor or major.minor.patch.
+	protocolSemVer, err := semver.NewSemVerFromString(protocolVersion)
+	if err != nil {
+		protocolSemVer, err = semver.NewSemVerFromString(protocolVersion + ".0")
+		if err != nil {
+			return err
+		}
+	}
+	version.ProtocolVersion = protocolSemVer
 	return nil
 }
 
@@ -288,9 +301,18 @@ func (client *ElectrumClient) TransactionGet(
 		txHash.String())
 }
 
-// Header is returned by HeadersSubscribe().
-type Header struct {
+type electrumHeader struct {
+	// Provided by v1.4
 	BlockHeight int `json:"block_height"`
+	// Provided by v1.2
+	Height int `json:"height"`
+}
+
+func (h *electrumHeader) height(serverVersion *semver.SemVer) int {
+	if serverVersion.AtLeast(semver.NewSemVer(1, 4, 0)) {
+		return h.Height
+	}
+	return h.BlockHeight
 }
 
 // HeadersSubscribe does the blockchain.headers.subscribe() RPC call.
@@ -300,7 +322,7 @@ func (client *ElectrumClient) HeadersSubscribe(
 	success func(*blockchain.Header) error,
 ) {
 	client.rpc.SubscribeNotifications("blockchain.headers.subscribe", func(responseBytes []byte) {
-		response := []*blockchain.Header{}
+		response := []json.RawMessage{}
 		if err := json.Unmarshal(responseBytes, &response); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
@@ -309,18 +331,23 @@ func (client *ElectrumClient) HeadersSubscribe(
 			client.log.Error("could not handle header notification")
 			return
 		}
-		if err := success(response[0]); err != nil {
+		header := &electrumHeader{}
+		if err := json.Unmarshal(response[0], header); err != nil {
+			client.log.WithError(err).Error("could not handle header notification")
+			return
+		}
+		if err := success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)}); err != nil {
 			client.log.WithError(err).Error("could not handle header notification")
 			return
 		}
 	})
 	client.rpc.Method(
 		func(responseBytes []byte) error {
-			response := &blockchain.Header{}
-			if err := json.Unmarshal(responseBytes, response); err != nil {
+			header := &electrumHeader{}
+			if err := json.Unmarshal(responseBytes, header); err != nil {
 				return errp.WithStack(err)
 			}
-			return success(response)
+			return success(&blockchain.Header{BlockHeight: header.height(client.serverVersion.ProtocolVersion)})
 		},
 		setupAndTeardown,
 		"blockchain.headers.subscribe")
