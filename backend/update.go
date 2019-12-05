@@ -16,6 +16,7 @@ package backend
 
 import (
 	"encoding/json"
+	"net/http"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -56,7 +57,9 @@ func (backend *Backend) checkForUpdate() (*UpdateFile, error) {
 	defer func() {
 		_ = response.Body.Close()
 	}()
-
+	if response.StatusCode != http.StatusOK {
+		return nil, errp.Newf("expected 200 OK, got %d", response.StatusCode)
+	}
 	var updateFile UpdateFile
 	err = json.NewDecoder(response.Body).Decode(&updateFile)
 	if err != nil {
