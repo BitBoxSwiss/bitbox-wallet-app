@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const bannersURL = "http://localhost:8000/banners.json"
+const bannersURL = "https://shiftcrypto.ch/updates/banners.json"
 
 // MessageKey enumerates the possible keys in the banners json.
 type MessageKey string
@@ -78,6 +78,9 @@ func (banners *Banners) init(httpClient *http.Client) error {
 	defer func() {
 		_ = response.Body.Close()
 	}()
+	if response.StatusCode != http.StatusOK {
+		return errp.Newf("expected 200 OK, got %d", response.StatusCode)
+	}
 	if err := json.NewDecoder(response.Body).Decode(&banners.banners); err != nil {
 		return errp.WithStack(err)
 	}
