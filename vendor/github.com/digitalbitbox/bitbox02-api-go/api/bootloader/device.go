@@ -235,19 +235,41 @@ func (device *Device) flashUnsignedFirmware(firmware []byte, progressCallback fu
 	return nil
 }
 
-func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func(float64)) error {
+// parseSignedFirmware parses a signed firmware file and returns (sigdata, firmware). Errors if the
+// format is invalid, or the firmware magic does not match the expected magic according to the
+// device product.
+func (device *Device) parseSignedFirmware(firmware []byte) ([]byte, []byte, error) {
 	if len(firmware) <= magicLen+sigDataLen {
-		return errp.New("firmware too small")
+		return nil, nil, errp.New("firmware too small")
 	}
 	magic, firmware := firmware[:magicLen], firmware[magicLen:]
 	sigData, firmware := firmware[:sigDataLen], firmware[sigDataLen:]
 
 	expectedMagic, ok := sigDataMagic[device.product]
 	if !ok {
-		return errp.New("unrecognized product")
+		return nil, nil, errp.New("unrecognized product")
 	}
 	if binary.BigEndian.Uint32(magic) != expectedMagic {
-		return errp.New("invalid signing pubkeys data magic")
+		return nil, nil, errp.New("invalid signing pubkeys data magic")
+	}
+	return sigData, firmware, nil
+}
+
+// SignedFirmwareVersion returns the monotonic firmware version contained in the signed firmware
+// format.
+func (device *Device) SignedFirmwareVersion(firmware []byte) (uint32, error) {
+	sigData, _, err := device.parseSignedFirmware(firmware)
+	if err != nil {
+		return 0, err
+	}
+	return binary.LittleEndian.Uint32(sigData[signingPubkeysDataLen:][:4]), nil
+
+}
+
+func (device *Device) flashSignedFirmware(firmware []byte, progressCallback func(float64)) error {
+	sigData, firmware, err := device.parseSignedFirmware(firmware)
+	if err != nil {
+		return err
 	}
 	if err := device.flashUnsignedFirmware(firmware, progressCallback); err != nil {
 		return err
