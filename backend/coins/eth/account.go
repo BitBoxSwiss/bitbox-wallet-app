@@ -23,7 +23,6 @@ import (
 	"time"
 
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts/errors"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/synchronizer"
@@ -681,11 +680,6 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 		return false, false, errp.New("account must be initialized")
 	}
 	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
-}
-
-// ConvertToLegacyAddress implements accounts.Interface.
-func (account *Account) ConvertToLegacyAddress(string) (btcutil.Address, error) {
-	panic("not used")
 }
 
 // Keystores implements accounts.Interface.

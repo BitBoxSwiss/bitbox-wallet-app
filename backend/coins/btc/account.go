@@ -716,23 +716,6 @@ func (account *Account) CanVerifyAddresses() (bool, bool, error) {
 	return account.Keystores().CanVerifyAddresses(account.signingConfiguration, account.Coin())
 }
 
-// ConvertToLegacyAddress converts a ltc p2sh address to the legacy format (starting with
-// '3'). Returns an error for non litecoin p2sh accounts.
-func (account *Account) ConvertToLegacyAddress(addressID string) (btcutil.Address, error) {
-	account.synchronizer.WaitSynchronized()
-	defer account.RLock()()
-	scriptHashHex := blockchain.ScriptHashHex(addressID)
-	address := account.receiveAddresses.LookupByScriptHashHex(scriptHashHex)
-	if address == nil {
-		return nil, errp.New("unknown address not found")
-	}
-	if account.coin.Net() != &ltc.MainNetParams || address.Configuration.ScriptType() != signing.ScriptTypeP2WPKHP2SH {
-		return nil, errp.New("must be an ltc p2sh address")
-	}
-	hash := address.Address.(*btcutil.AddressScriptHash).Hash160()
-	return btcutil.NewAddressScriptHashFromHash(hash[:], &chaincfg.MainNetParams)
-}
-
 // Keystores returns the keystores of the account.
 func (account *Account) Keystores() *keystore.Keystores {
 	return account.keystores

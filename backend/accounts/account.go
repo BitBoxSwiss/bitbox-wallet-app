@@ -16,7 +16,6 @@ package accounts
 
 import (
 	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/rates"
@@ -49,7 +48,6 @@ type Interface interface {
 	GetUnusedReceiveAddresses() []Address
 	CanVerifyAddresses() (bool, bool, error)
 	VerifyAddress(addressID string) (bool, error)
-	ConvertToLegacyAddress(addressID string) (btcutil.Address, error)
 	Keystores() *keystore.Keystores
 	RateUpdater() *rates.RateUpdater
 }
