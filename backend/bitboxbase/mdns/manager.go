@@ -62,7 +62,7 @@ type Manager struct {
 	log                 *logrus.Entry
 	appConfig           *appConfig.Config
 	bitboxBaseConfigDir string
-	bbbConfig           bbbconfig.BBBConfigurationInterface
+	bbbConfig           *bbbconfig.BBBConfig
 	socksProxy          socksproxy.SocksProxy
 }
 

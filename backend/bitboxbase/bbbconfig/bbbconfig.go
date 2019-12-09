@@ -30,28 +30,6 @@ type RegisteredBase struct {
 	Hostname string `json:"hostname"`
 }
 
-// BBBConfigurationInterface provides an interface to interact with the persisted BBBConfig
-type BBBConfigurationInterface interface {
-	// ContainsBaseStaticPubkey returns true if a device pubkey has been added before.
-	ContainsBaseStaticPubkey(pubkey []byte) bool
-	// AddBaseStaticPubkey adds a device pubkey.
-	AddBaseStaticPubkey(pubkey []byte) error
-	// BBBConfigGetAppNoiseStaticKeypair retrieves the app keypair. Returns nil if none has been set before.
-	GetAppNoiseStaticKeypair() *noise.DHKey
-	// BBBConfigSetAppNoiseStaticKeypair stores the app keypair. Overwrites keypair if one already exists.
-	SetAppNoiseStaticKeypair(key *noise.DHKey) error
-	// ContainsRegisteredBase returns true if a BitBoxBase is already registered.
-	ContainsRegisteredBase(baseID string) bool
-	// AddRegisteredBase adds a BitBoxBase ID and hostname to the config
-	AddRegisteredBase(baseID string, hostname string) error
-	// RegisteredBases returns the IDs and hostnames of Bases registered in the config file
-	RegisteredBases() []RegisteredBase
-	// RemoveRegisteredBase removes a given Base from the config file
-	RemoveRegisteredBase(baseID string) error
-	// UpdateRegisteredBaseHostname updates the hostname config entry for a given Base if it had changed
-	UpdateRegisteredBaseHostname(baseID string, hostname string) error
-}
-
 // BBBConfig perists the BitBoxBase related configuration in a file.
 type BBBConfig struct {
 	mu        sync.RWMutex

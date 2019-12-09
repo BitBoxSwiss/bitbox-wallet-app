@@ -65,7 +65,7 @@ type BitBoxBase struct {
 	network        string
 	log            *logrus.Entry
 	appConfig      *appConfig.Config
-	bbbConfig      bbbconfig.BBBConfigurationInterface
+	bbbConfig      *bbbconfig.BBBConfig
 	status         bitboxbasestatus.Status
 	active         bool //this indicates if the bitboxbase is in use, or being disconnected
 
@@ -80,7 +80,7 @@ func NewBitBoxBase(address string,
 	id string,
 	hostname string,
 	appConfig *appConfig.Config,
-	bbbConfig bbbconfig.BBBConfigurationInterface,
+	bbbConfig *bbbconfig.BBBConfig,
 	onUnregister func(string),
 	onRemove func(string),
 	onReconnected func(string),
@@ -716,7 +716,7 @@ func (base *BitBoxBase) Identifier() string {
 }
 
 // Config returns the Base's configuration
-func (base *BitBoxBase) Config() bbbconfig.BBBConfigurationInterface {
+func (base *BitBoxBase) Config() *bbbconfig.BBBConfig {
 	return base.bbbConfig
 }
 

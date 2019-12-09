@@ -82,7 +82,7 @@ func (conn *rpcConn) Close() error {
 type RPCClient struct {
 	log       *logrus.Entry
 	address   string
-	bbbConfig bbbconfig.BBBConfigurationInterface
+	bbbConfig *bbbconfig.BBBConfig
 
 	bitboxBaseNoiseStaticPubkey   []byte
 	channelHash                   string
@@ -101,7 +101,7 @@ type RPCClient struct {
 
 // NewRPCClient returns a new bitboxbase rpcClient.
 func NewRPCClient(address string,
-	bbbConfig bbbconfig.BBBConfigurationInterface,
+	bbbConfig *bbbconfig.BBBConfig,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
 	ping func() (bool, error)) (*RPCClient, error) {
