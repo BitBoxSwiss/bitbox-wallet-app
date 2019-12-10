@@ -15,7 +15,11 @@
 package safello
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
 // Buy holds the infos needed to load the Safello Buy widget.
@@ -47,4 +51,29 @@ func NewBuy(testnet bool, receiveAddressID, receiveAddress string) *Buy {
 		AddressID: receiveAddressID,
 		Address:   receiveAddress,
 	}
+}
+
+// StoreCallbackJSONMessage  a raw safello JSON object as sent by the Safello widget.
+// It is appended at the end of an array of Safello messages.
+// file structure: [sallelo object, sallelo object, ....].
+// The directory the filename is in must exist beforehand.
+// The message must contain a "type" key with a value of either `"ORDER_DONE"` or `"TRANSACTION_ISSUED"`.
+func StoreCallbackJSONMessage(filename string, message map[string]json.RawMessage) error {
+	val, ok := message["type"]
+	if !ok || !(string(val) == `"ORDER_DONE"` || string(val) == `"TRANSACTION_ISSUED"`) {
+		return errp.New("message needs to contain a valid type entry")
+	}
+	messages := []map[string]json.RawMessage{}
+	jsonBytes, err := ioutil.ReadFile(filename) // #nosec G304
+	if err == nil {
+		if err := json.Unmarshal(jsonBytes, &messages); err != nil {
+			return errp.WithStack(err)
+		}
+	}
+	messages = append(messages, message)
+	writeJSONBytes, err := json.Marshal(messages)
+	if err != nil {
+		return errp.WithStack(err)
+	}
+	return ioutil.WriteFile(filename, writeJSONBytes, 0700)
 }

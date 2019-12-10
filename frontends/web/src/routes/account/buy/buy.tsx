@@ -90,8 +90,17 @@ class Buy extends Component<Props, State> {
     private registerEvents = () => {
         document.addEventListener('keydown', this.handleKeyDown);
         window.addEventListener('message', e => {
-            const message = e.data;
-            console.log('Got message from iframe:', message);
+            const data = e.data;
+            if (typeof data !== 'object') {
+                return;
+            }
+            if (!data.type) {
+                return;
+            }
+            if (data.type !== 'ORDER_DONE' && data.type !== 'TRANSACTION_ISSUED') {
+                return;
+            }
+            apiPost('account/' + this.props.code + '/exchange/safello/process-message', data);
         });
     }
 
