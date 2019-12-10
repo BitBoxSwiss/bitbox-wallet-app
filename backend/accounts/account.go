@@ -25,8 +25,14 @@ import (
 // Interface is the API of a Account.
 type Interface interface {
 	Info() *Info
-	// Code is a identifier for the account (to identify the account in databases, apis, etc.).
+	// Code is an identifier for the account *type* (part of account database filenames, apis, etc.).
+	// Type as in btc-p2wpkh, eth-erc20-usdt, etc.
 	Code() string
+	// FilesFolder is path to a directory for account files, like databases, etc. Only available
+	// after Initialize(). It must be unique not only up to the type, but also the exact
+	// keystores/signing configuration (e.g. a btc-p2wpkh account for one xpub/xprv should have a
+	// different ID).
+	FilesFolder() string
 	Coin() coin.Coin
 	// Name returns a human readable long name.
 	Name() string

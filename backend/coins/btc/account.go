@@ -16,6 +16,7 @@ package btc
 
 import (
 	"fmt"
+	"os"
 	"path"
 	"sort"
 
@@ -56,8 +57,11 @@ const (
 type Account struct {
 	locker.Locker
 
-	coin                    *Coin
-	dbFolder                string
+	coin *Coin
+	// folder for all accounts. Full path.
+	dbFolder string
+	// folder for this specific account. It is a subfolder of dbFolder. Full path.
+	dbSubfolder             string
 	code                    string
 	name                    string
 	db                      transactions.DBInterface
@@ -129,6 +133,7 @@ func NewAccount(
 	account := &Account{
 		coin:                    coin,
 		dbFolder:                dbFolder,
+		dbSubfolder:             "", // set in Initialize()
 		code:                    code,
 		name:                    name,
 		forceGapLimits:          forceGapLimits,
@@ -170,17 +175,25 @@ func (account *Account) String() string {
 	return fmt.Sprintf("%s-%s", account.Coin().Code(), account.code)
 }
 
-// Code returns the code of the account.
+// Code implements accounts.Interface.
 func (account *Account) Code() string {
 	return account.code
 }
 
-// Name returns the name of the account.
+// FilesFolder implements accounts.Interface.
+func (account *Account) FilesFolder() string {
+	if account.dbSubfolder == "" {
+		panic("Initialize() must be run first")
+	}
+	return account.dbSubfolder
+}
+
+// Name implements accounts.Interface.
 func (account *Account) Name() string {
 	return account.name
 }
 
-// Coin returns the coin of the account.
+// Coin implements accounts.Interface.
 func (account *Account) Coin() coin.Coin {
 	return account.coin
 }
@@ -292,7 +305,14 @@ func (account *Account) Initialize() error {
 		account.log.Debug("Account has already been initialized")
 		return nil
 	}
-	dbName := fmt.Sprintf("account-%s-%s.db", account.signingConfiguration.Hash(), account.code)
+
+	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
+	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
+		return errp.WithStack(err)
+	}
+
+	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
 	db, err := transactionsdb.NewDB(path.Join(account.dbFolder, dbName))
 	if err != nil {
