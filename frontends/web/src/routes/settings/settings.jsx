@@ -38,6 +38,7 @@ import * as dialogStyle from '../../components/dialog/dialog.css';
 export default class Settings extends Component {
     erc20TokenCodes = {
         usdt: 'Tether USD',
+        usdc: 'USD Coin',
         link: 'Chainlink',
         bat: 'Basic Attention Token',
         mkr: 'Maker',

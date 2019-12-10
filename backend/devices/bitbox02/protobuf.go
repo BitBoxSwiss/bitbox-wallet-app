@@ -44,6 +44,7 @@ var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
 var ethMsgCoinMap = map[string]messages.ETHCoin{
 	"eth":                 messages.ETHCoin_ETH,
 	"eth-erc20-usdt":      messages.ETHCoin_ETH,
+	"eth-erc20-usdc":      messages.ETHCoin_ETH,
 	"eth-erc20-link":      messages.ETHCoin_ETH,
 	"eth-erc20-bat":       messages.ETHCoin_ETH,
 	"eth-erc20-mkr":       messages.ETHCoin_ETH,

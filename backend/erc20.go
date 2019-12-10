@@ -33,6 +33,12 @@ var erc20Tokens = []erc20Token{
 		token: erc20.NewToken("0xdac17f958d2ee523a2206206994597c13d831ec7", 6),
 	},
 	{
+		code:  "eth-erc20-usdc",
+		name:  "USD Coin BETA",
+		unit:  "USDC",
+		token: erc20.NewToken("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 6),
+	},
+	{
 		code:  "eth-erc20-bat",
 		name:  "Basic Attention Token BETA",
 		unit:  "BAT",
