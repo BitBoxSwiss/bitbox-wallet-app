@@ -122,7 +122,7 @@ func (rpcClient *RPCClient) runWebsocket(client *websocket.Conn, writeChan <-cha
 // The resulting pairing code is then displayed to the user to check if it matches what is displayed on the other party's device.
 func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
-	keypair := rpcClient.configGetAppNoiseStaticKeypair()
+	keypair := rpcClient.bbbConfig.GetAppNoiseStaticKeypair()
 	if keypair == nil {
 		rpcClient.log.Info("noise static keypair created")
 		kp, err := cipherSuite.GenerateKeypair(rand.Reader)
@@ -130,7 +130,7 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 			return errp.New("unable to generate a new noise keypair for the wallet app communication with the BitBox Base")
 		}
 		keypair = &kp
-		if err := rpcClient.configSetAppNoiseStaticKeypair(keypair); err != nil {
+		if err := rpcClient.bbbConfig.SetAppNoiseStaticKeypair(keypair); err != nil {
 			rpcClient.log.WithError(err).Error("could not store app noise static keypair")
 			// Not a critical error, ignore.
 		}
@@ -197,7 +197,7 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 		return errp.New("expected 32 byte remote static pubkey")
 	}
 
-	pairingVerificationRequiredByApp := !rpcClient.configContainsBitBoxBaseStaticPubkey(
+	pairingVerificationRequiredByApp := !rpcClient.bbbConfig.ContainsBaseStaticPubkey(
 		rpcClient.bitboxBaseNoiseStaticPubkey)
 	pairingVerificationRequiredByBase := string(responseBytes) == responseNeedsPairing
 
@@ -227,7 +227,7 @@ func (rpcClient *RPCClient) initializeNoise(client *websocket.Conn) error {
 		}
 		rpcClient.channelHashBitBoxBaseVerified = string(responseBytes) == string(responseSuccess)
 		if rpcClient.channelHashBitBoxBaseVerified {
-			err = rpcClient.configAddBitBoxBaseStaticPubkey(rpcClient.bitboxBaseNoiseStaticPubkey)
+			err = rpcClient.bbbConfig.AddBaseStaticPubkey(rpcClient.bitboxBaseNoiseStaticPubkey)
 			if err != nil {
 				rpcClient.log.Error("Pairing Successful, but unable to write bitboxBaseNoiseStaticPubkey to file")
 			}

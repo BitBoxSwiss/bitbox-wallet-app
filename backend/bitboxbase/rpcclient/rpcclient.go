@@ -20,6 +20,7 @@ package rpcclient
 import (
 	"net/rpc"
 
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/bbbconfig"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/rpcmessages"
 	bitboxbasestatus "github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/status"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
@@ -79,9 +80,9 @@ func (conn *rpcConn) Close() error {
 
 // RPCClient handles communication with the BitBox Base's rpc server
 type RPCClient struct {
-	log                 *logrus.Entry
-	address             string
-	bitboxBaseConfigDir string
+	log       *logrus.Entry
+	address   string
+	bbbConfig *bbbconfig.BBBConfig
 
 	bitboxBaseNoiseStaticPubkey   []byte
 	channelHash                   string
@@ -89,7 +90,6 @@ type RPCClient struct {
 	sendCipher, receiveCipher     *noise.CipherState
 	onChangeStatus                func(bitboxbasestatus.Status)
 	onEvent                       func(bitboxbasestatus.Event)
-	onUnregister                  func() error
 	ping                          func() (bool, error)
 	webSocketConnection           *websocket.Conn
 
@@ -101,21 +101,19 @@ type RPCClient struct {
 
 // NewRPCClient returns a new bitboxbase rpcClient.
 func NewRPCClient(address string,
-	bitboxBaseConfigDir string,
+	bbbConfig *bbbconfig.BBBConfig,
 	onChangeStatus func(bitboxbasestatus.Status),
 	onEvent func(bitboxbasestatus.Event),
-	onUnregister func() error,
 	ping func() (bool, error)) (*RPCClient, error) {
 
 	rpcClient := &RPCClient{
-		log:                 logging.Get().WithGroup("bitboxbase"),
-		address:             address,
-		bitboxBaseConfigDir: bitboxBaseConfigDir,
-		rpcConnection:       newRPCConn(),
-		onChangeStatus:      onChangeStatus,
-		onEvent:             onEvent,
-		onUnregister:        onUnregister,
-		ping:                ping,
+		log:            logging.Get().WithGroup("bitboxbase"),
+		address:        address,
+		bbbConfig:      bbbConfig,
+		rpcConnection:  newRPCConn(),
+		onChangeStatus: onChangeStatus,
+		onEvent:        onEvent,
+		ping:           ping,
 	}
 	if success, err := rpcClient.ping(); !success {
 		return nil, err

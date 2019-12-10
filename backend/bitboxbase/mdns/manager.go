@@ -24,7 +24,8 @@ import (
 	"time"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase"
-	"github.com/digitalbitbox/bitbox-wallet-app/backend/config"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/bbbconfig"
+	appConfig "github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
@@ -59,8 +60,9 @@ type Manager struct {
 	onReconnected func(string)
 
 	log                 *logrus.Entry
-	config              *config.Config
+	appConfig           *appConfig.Config
 	bitboxBaseConfigDir string
+	bbbConfig           *bbbconfig.BBBConfig
 	socksProxy          socksproxy.SocksProxy
 }
 
@@ -72,11 +74,11 @@ func NewManager(
 	onUnregister func(string),
 	onRemove func(string),
 	onReconnected func(string),
-	config *config.Config,
+	appConfig *appConfig.Config,
 	bitboxBaseConfigDir string,
 	socksProxy socksproxy.SocksProxy,
 ) *Manager {
-	return &Manager{
+	manager := &Manager{
 		baseDeviceBitBoxBase: map[string]*bitboxbase.BitBoxBase{},
 		onDetect:             onDetect,
 		detectedBases:        map[string]string{},
@@ -84,12 +86,14 @@ func NewManager(
 		onUnregister:         onUnregister,
 		onRemove:             onRemove,
 		onReconnected:        onReconnected,
-		config:               config,
+		appConfig:            appConfig,
 		bitboxBaseConfigDir:  bitboxBaseConfigDir,
 		socksProxy:           socksProxy,
 
 		log: logging.Get().WithGroup("manager"),
 	}
+	manager.bbbConfig = bbbconfig.NewBBBConfig(manager.bitboxBaseConfigDir)
+	return manager
 }
 
 // TryMakeNewBase attempts to create a new bitboxBase connection to the BitBox base. Returns true if successful, false otherwise.
@@ -114,7 +118,10 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	}
 
 	manager.log.WithField("host", manager.detectedBases[address]).WithField("address", address)
-	baseDevice, err := bitboxbase.NewBitBoxBase(address, bitboxBaseID, manager.config, manager.bitboxBaseConfigDir, manager.onUnregister, manager.onRemove, manager.onReconnected, manager.socksProxy)
+	hostname := manager.resolveIP(bitboxBaseID)
+	baseDevice, err := bitboxbase.NewBitBoxBase(
+		address, bitboxBaseID, hostname, manager.appConfig, manager.bbbConfig,
+		manager.onUnregister, manager.onRemove, manager.onReconnected, manager.socksProxy)
 
 	if err != nil {
 		manager.log.WithError(err).Error("Failed to register Base")
@@ -122,7 +129,6 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 	}
 
 	manager.baseDeviceBitBoxBase[bitboxBaseID] = baseDevice
-	hostname := manager.resolveIP(bitboxBaseID)
 	if err := manager.onRegister(baseDevice, hostname, bitboxBaseID); err != nil {
 		manager.log.WithError(err).Error("Failed to execute on-register")
 		return false, err
@@ -130,6 +136,10 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 
 	if err = baseDevice.EstablishConnection(); err != nil {
 		return false, err
+	}
+
+	if err = baseDevice.Config().AddRegisteredBase(bitboxBaseID, hostname); err != nil {
+		manager.log.WithError(err).Error("Unable to store Base config file")
 	}
 	return true, nil
 }
@@ -225,7 +235,20 @@ func (manager *Manager) resolveIP(ip string) string {
 	return hostname[0]
 }
 
+func (manager *Manager) initPersistedBases() {
+	for _, registeredBase := range manager.bbbConfig.RegisteredBases() {
+
+		_, err := manager.TryMakeNewBase(registeredBase.BaseID)
+		if err != nil {
+			manager.log.WithError(err).Errorf("Failed to reinitialize persisted BitBoxBase with ID: %s, hostname: %s", registeredBase.BaseID, registeredBase.Hostname)
+			continue
+		}
+		manager.baseDeviceBitBoxBase[registeredBase.BaseID].SetLocalHostname(registeredBase.Hostname)
+	}
+}
+
 // Start starts a continuous mDNS scan for BitBox Base devices on local network.
 func (manager *Manager) Start() {
+	manager.initPersistedBases()
 	go manager.mdnsScan()
 }

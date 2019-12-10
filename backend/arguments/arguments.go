@@ -85,7 +85,7 @@ func NewArguments(
 
 	bitboxBaseDirectoryPath := path.Join(mainDirectoryPath, "bitboxBase")
 	if err := os.MkdirAll(bitboxBaseDirectoryPath, 0700); err != nil {
-		panic("Cannot create the bitbox02 directory.")
+		panic("Cannot create the bitboxBase directory.")
 	}
 
 	cacheDirectoryPath := path.Join(mainDirectoryPath, "cache")

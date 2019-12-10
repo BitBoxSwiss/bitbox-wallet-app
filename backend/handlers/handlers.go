@@ -25,7 +25,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"sort"
 	"strconv"
 	"time"
 
@@ -502,25 +501,11 @@ func (handlers *Handlers) getBitBoxBasesDetectedHandler(_ *http.Request) (interf
 }
 
 func (handlers *Handlers) getBitBoxBasesRegisteredHandler(_ *http.Request) (interface{}, error) {
-	mapBases := map[int64]string{}
-	//Get Base id and corresponding base register time and create a map
+	jsonRegisteredBases := map[string]string{}
 	for bitboxBaseID, bitboxBase := range handlers.backend.BitBoxBasesRegistered() {
-		mapBases[bitboxBase.GetRegisterTime().Unix()] = bitboxBaseID
+		jsonRegisteredBases[bitboxBaseID] = bitboxBase.GetLocalHostname()
 	}
-	//Create a slice of all registered Timstamps
-	var registerTimes []int64
-	for k := range mapBases {
-		registerTimes = append(registerTimes, k)
-	}
-	//Sort the slice
-	sort.Slice(registerTimes, func(i, j int) bool { return registerTimes[i] < registerTimes[j] })
-	//Create another slice and populate it in the same order as the time slice with the bitboxBase IDs
-	var bitboxBaseIDs []string
-	for _, registerTime := range registerTimes {
-		//var unixRegisterTime = time.Unix(int64(registerTime), 0)
-		bitboxBaseIDs = append(bitboxBaseIDs, mapBases[registerTime])
-	}
-	return bitboxBaseIDs, nil
+	return jsonRegisteredBases, nil
 }
 
 func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (interface{}, error) {
