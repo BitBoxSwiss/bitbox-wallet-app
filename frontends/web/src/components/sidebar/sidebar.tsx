@@ -150,7 +150,6 @@ class Sidebar extends Component<Props> {
         {
             t,
             deviceIDs,
-            bitboxBaseIDs,
             accounts,
             accountsInitialized,
             shown,
@@ -246,7 +245,7 @@ class Sidebar extends Component<Props> {
                             </Link>
                         </div>
                     }
-                    {debug && bitboxBaseIDs.map(bitboxBaseID => (
+                    {/* {debug && bitboxBaseIDs.map(bitboxBaseID => (
                             <div key={bitboxBaseID} className="sidebarItem">
                                 <Link
                                     href={`/bitboxbase/${bitboxBaseID}`}
@@ -260,7 +259,7 @@ class Sidebar extends Component<Props> {
                                 </Link>
                             </div>
                         ))
-                    }
+                    } */}
 
                     {
                         (debug && accountsInitialized && deviceIDs.length === 0) && (
