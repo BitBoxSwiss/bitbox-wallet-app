@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { Balance, BalanceInterface } from '../../components/balance/balance';
 import { Entry } from '../../components/guide/entry';
 import { Guide } from '../../components/guide/guide';
@@ -101,9 +100,6 @@ class Account extends Component<Props, State> {
 
     public componentDidUpdate(prevProps) {
         if (!this.props.code) {
-            if (this.props.accounts && this.props.accounts.length) {
-                route(`/account/${this.props.accounts[0].code}`, true);
-            }
             return;
         }
         if (this.props.code !== prevProps.code) {

@@ -176,6 +176,12 @@ class App extends Component<Props, State> {
                 if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
                     route('/', true);
                 }
+
+                if (getCurrentUrl().match(/^\/account$/)) {
+                    if (accounts && accounts.length) {
+                        route(`/account/${accounts[0].code}`, true);
+                    }
+                }
             });
         });
     }
@@ -214,7 +220,7 @@ class App extends Component<Props, State> {
                             path="/account/:code/info"
                             accounts={accounts} />
                         <Account
-                            path="/account/:code?"
+                            path="/account/:code"
                             code={'' /* dummy to satisfy TS */}
                             devices={devices}
                             accounts={accounts} />
