@@ -1035,7 +1035,7 @@
       "label": "Amount",
       "placeholder": "Enter amount"
     },
-    "button": "Sign and send",
+    "button": "Review",
     "coincontrol": {
       "address": "Address",
       "outpoint": "Outpoint",
