@@ -1,0 +1,79 @@
+.container {
+    position: relative;
+    top: -1px;
+    margin-left: var(--space-quarter);
+    display: inline;
+    font-size: var(--size-small);
+    color: var(--color-primary);
+}
+
+.container .toggler {
+    display: inline-block;
+    width: 15px;
+    text-align: center;
+    border-radius: 2px;
+    border: solid 1px var(--color-primary);
+}
+
+.box {
+    display: block;
+    position: absolute;
+    left: 50%;
+    margin-left: -140px;
+    max-width: 280px;
+    width: 280px;
+    font-size: var(--size-default);
+    color: var(--color-white);
+    background-color: var(--color-lightblue);
+    border-radius: 2px;
+    padding: var(--space-half);
+    cursor: default;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 3000;
+}
+
+.box.top::after {
+    content: " ";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--color-lightblue) transparent transparent transparent;
+}
+
+.box.bottom::after {
+    content: " ";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent var(--color-lightblue) transparent;
+}
+
+.box.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.box.hide {
+    visibility: hidden;
+}
+
+.hover:hover + .box,
+.hover:focus + .box {
+    visibility: visible;
+    opacity: 1;
+}
+
+.box.top {
+    bottom: 175%;
+}
+
+.box.bottom {
+    top: 175%;
+}
