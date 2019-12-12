@@ -6,6 +6,7 @@
 #include <QWebEngineUrlRequestInterceptor>
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QRegularExpression>
 #include <QThread>
 #include <QMutex>
 #include <QResource>
@@ -24,10 +25,21 @@
 #define APPNAME "BitBoxApp"
 
 static QWebEngineView* view;
+static QWebEnginePage* mainPage;
+static QWebEnginePage* externalPage;
 static bool pageLoaded = false;
 static WebClass* webClass;
 static QMutex webClassMutex;
 static QSystemTrayIcon* trayIcon;
+
+class WebEnginePage : public QWebEnginePage {
+public:
+    WebEnginePage(QObject* parent) : QWebEnginePage(parent) {}
+
+    QWebEnginePage* createWindow(QWebEnginePage::WebWindowType type) {
+        return externalPage;
+    }
+};
 
 class RequestInterceptor : public QWebEngineUrlRequestInterceptor {
 public:
@@ -37,10 +49,26 @@ public:
         // Do not block anything.
         return;
 #endif
-        if (info.requestUrl().scheme() != "qrc" && info.requestUrl().scheme() != "blob") {
-            std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
-            info.block(true);
+        // Do not block qrc:/ local pages or js blobs
+        if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob") {
+            return;
         }
+        auto currentUrl = mainPage->requestedUrl().toString();
+        bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^/]+?/buy$"));
+        // We treat the buy page specially, as we need to allow Safello to load in the iframe, as
+        // well as open Safello link externally in the browser.
+        if (onBuyPage) {
+            if (info.firstPartyUrl().toString() == info.requestUrl().toString()) {
+                // A link with target=_blank was clicked.
+                systemOpen(const_cast<char*>(info.requestUrl().toString().toStdString().c_str()));
+                // No need to also load it in our page.
+                info.block(true);
+            }
+            return;
+        }
+
+        std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
+        info.block(true);
     };
 };
 
@@ -117,6 +145,10 @@ int main(int argc, char *argv[])
     } else {
         view->adjustSize();
     }
+
+    externalPage = new QWebEnginePage(view);
+    mainPage = new WebEnginePage(view);
+    view->setPage(mainPage);
 
     pageLoaded = false;
     QObject::connect(view, &QWebEngineView::loadFinished, [](bool ok){ pageLoaded = ok; });

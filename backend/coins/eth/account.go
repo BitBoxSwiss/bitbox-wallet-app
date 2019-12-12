@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"os"
 	"path"
 	"strings"
 	"time"
@@ -50,9 +51,12 @@ var pollInterval = 30 * time.Second
 type Account struct {
 	locker.Locker
 
-	synchronizer            *synchronizer.Synchronizer
-	coin                    *Coin
-	dbFolder                string
+	synchronizer *synchronizer.Synchronizer
+	coin         *Coin
+	// folder for all accounts. Full path.
+	dbFolder string
+	// folder for this specific account. It is a subfolder of dbFolder. Full path.
+	dbSubfolder             string
 	db                      db.Interface
 	code                    string
 	name                    string
@@ -102,6 +106,7 @@ func NewAccount(
 	account := &Account{
 		coin:                    accountCoin,
 		dbFolder:                dbFolder,
+		dbSubfolder:             "", // set in Initialize()
 		code:                    code,
 		name:                    name,
 		getSigningConfiguration: getSigningConfiguration,
@@ -143,6 +148,14 @@ func (account *Account) Code() string {
 	return account.code
 }
 
+// FilesFolder implements accounts.Interface.
+func (account *Account) FilesFolder() string {
+	if account.dbSubfolder == "" {
+		panic("Initialize() must be run first")
+	}
+	return account.dbSubfolder
+}
+
 // Name implements accounts.Interface.
 func (account *Account) Name() string {
 	return account.name
@@ -182,7 +195,13 @@ func (account *Account) Initialize() error {
 		return nil
 	}
 
-	dbName := fmt.Sprintf("account-%s-%s.db", account.signingConfiguration.Hash(), account.code)
+	accountIdentifier := fmt.Sprintf("account-%s-%s", account.signingConfiguration.Hash(), account.code)
+	account.dbSubfolder = path.Join(account.dbFolder, accountIdentifier)
+	if err := os.MkdirAll(account.dbSubfolder, 0700); err != nil {
+		return errp.WithStack(err)
+	}
+
+	dbName := fmt.Sprintf("%s.db", accountIdentifier)
 	account.log.Debugf("Opening the database '%s' to persist the transactions.", dbName)
 	db, err := db.NewDB(path.Join(account.dbFolder, dbName))
 	if err != nil {
