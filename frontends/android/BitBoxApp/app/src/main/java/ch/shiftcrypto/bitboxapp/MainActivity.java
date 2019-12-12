@@ -32,6 +32,7 @@ import android.webkit.ConsoleMessage;
 import android.util.Log;
 
 import java.io.InputStream;
+import java.util.regex.Pattern;
 
 import goserver.Goserver;
 
@@ -139,6 +140,23 @@ public class MainActivity extends AppCompatActivity {
                 } catch(Exception e) {
                 }
                 return super.shouldInterceptRequest(view, request);
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                // Block navigating to any external site inside the app.
+                // This is only called if the whole page is about to change. Changes inside an iframe proceed normally.
+                try {
+                    // Allow opening in external browser instead, for links clicked in the buy page (e.g. links inside the Safello widget).
+                    Pattern pattern = Pattern.compile("^file:///account/[^/]+/buy$");
+                    if (pattern.matcher(view.getUrl()).matches()) {
+                        Util.systemOpen(getApplication(), url);
+                        return true;
+                    }
+                } catch(Exception e) {
+                }
+                log("Blocked: " + url);
+                return true;
             }
         });
 
