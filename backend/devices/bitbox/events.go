@@ -25,6 +25,12 @@ const (
 	// EventPairingTimedout is fired when the pairing timed out.
 	EventPairingTimedout event.Event = "pairingTimedout"
 
+	// EventPullFailed is fired when a message cannot be pulled through the pairing relay server.
+	EventPairingPullMessageFailed event.Event = "pairingPullMessageFailed"
+
+	// EventPairingScanningFailed is fired when the mobile does not respond with success after scanning the pairing code.
+	EventPairingScanningFailed event.Event = "pairingScanningFailed"
+
 	// EventPairingAborted is fired when the pairing aborted.
 	EventPairingAborted event.Event = "pairingAborted"
 

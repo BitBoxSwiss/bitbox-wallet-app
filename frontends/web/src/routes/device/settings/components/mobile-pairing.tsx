@@ -84,6 +84,12 @@ class MobilePairing extends Component<Props, State> {
                     this.setState({ status: 'timeout' });
                 }
                 break;
+            case 'pairingPullMessageFailed':
+                this.setState({ status: 'pullFailed' });
+                break;
+            case 'pairingScanningFailed':
+                this.setState({ status: 'scanningFailed' });
+                break;
             case 'pairingAborted':
                 this.setState({ status: 'aborted' });
                 break;

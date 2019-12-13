@@ -46,13 +46,30 @@ func (device *Device) finishPairing(channel *relay.Channel) {
 	device.fireEvent(EventPairingSuccess, nil)
 }
 
+func (device *Device) handlePairingError(err error, message string) {
+	switch err.Error() {
+	case relay.PullFailedError:
+		device.log.Errorf("Failed to pull the mobile's %s.", message)
+		device.fireEvent(EventPairingPullMessageFailed, nil)
+	case relay.ResponseTimeoutError:
+		device.log.Errorf("Failed to wait for the mobile's %s.", message)
+		device.fireEvent(EventPairingTimedout, nil)
+	default:
+	}
+}
+
 // processPairing processes the pairing after the channel has been displayed as a QR code.
 func (device *Device) processPairing(channel *relay.Channel) {
-	if err := channel.WaitForScanningSuccess(time.Minute); err != nil {
-		device.log.WithError(err).Warning("Failed to wait for the scanning success.")
-		device.fireEvent(EventPairingTimedout, nil)
+	status, err := channel.WaitForScanningSuccess(10 * time.Second)
+	if err != nil {
+		device.handlePairingError(err, "scanning success message")
 		return
 	}
+	if status != "success" {
+		device.log.Error("Scanning unsuccessful")
+		device.fireEvent(EventPairingScanningFailed, nil)
+	}
+
 	deviceInfo, err := device.DeviceInfo()
 	if err != nil {
 		device.log.WithError(err).Error("Failed to check if device is locked or not")
@@ -67,8 +84,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	device.fireEvent(EventPairingStarted, nil)
 	mobileECDHPKhash, err := channel.WaitForMobilePublicKeyHash(2 * time.Minute)
 	if err != nil {
-		device.log.WithError(err).Warning("Failed to wait for the mobile's public key hash.")
-		device.fireEvent(EventPairingTimedout, nil)
+		device.handlePairingError(err, "public key hash")
 		return
 	}
 	bitboxECDHPKhash, err := device.ecdhPKhash(mobileECDHPKhash)
@@ -86,8 +102,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 	}
 	mobileECDHPK, err := channel.WaitForMobilePublicKey(2 * time.Minute)
 	if err != nil {
-		device.log.WithError(err).Error("Failed to wait for the mobile's public key.")
-		device.fireEvent(EventPairingTimedout, nil)
+		device.handlePairingError(err, "public key")
 		return
 	}
 	bitboxECDHPK, err := device.ecdhPK(mobileECDHPK)
@@ -117,8 +132,7 @@ func (device *Device) processPairing(channel *relay.Channel) {
 		challenge, err = channel.WaitForCommand(2 * time.Minute)
 	}
 	if err != nil {
-		device.log.WithError(err).Error("Failed to get challenge request from mobile.")
-		device.fireEvent(EventPairingTimedout, nil)
+		device.handlePairingError(err, "challenge request")
 		return
 	}
 	device.log.Debug("Finished pairing")

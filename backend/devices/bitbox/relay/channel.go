@@ -56,6 +56,13 @@ type Channel struct {
 	log *logrus.Entry
 }
 
+// PullFailedError is used to create an error in case the pull from the relay server fails.
+// It is exported to allow the bitbox package to parse the error message with this content.
+const PullFailedError = "failed to pull data from relay server, the server might be down"
+
+// ResponseTimeoutError is used to create an error in case the pull from the relay server times out.
+const ResponseTimeoutError = "timeout: relay server did not respond"
+
 // NewChannel returns a new channel with the given channel ID, encryption and authentication key.
 func NewChannel(channelID string, encryptionKey []byte, authenticationKey []byte, socksProxy socksproxy.SocksProxy) *Channel {
 	return &Channel{
@@ -155,13 +162,13 @@ func (channel *Channel) waitForValue(duration time.Duration, name string) (strin
 			unlock()
 			message, err := PullOldestMessage(relayServer(), channel)
 			if err != nil {
-				return "", err
+				return "", errp.New(PullFailedError)
 			}
 			if message == nil {
 				if time.Now().Before(deadline) {
 					continue
 				}
-				return "", errp.New("Did not receive a response from the mobile in the given duration.")
+				return "", errp.New(ResponseTimeoutError)
 			}
 			value, found = channel.getValueFromMessage(message, name)
 			if !found {
@@ -177,15 +184,9 @@ func (channel *Channel) waitForValue(duration time.Duration, name string) (strin
 }
 
 // WaitForScanningSuccess waits for the given duration for the scanning success from the mobile.
-// Returns nil if the scanning success was retrieved from the relay server and an error otherwise.
-func (channel *Channel) WaitForScanningSuccess(duration time.Duration) error {
-	value, err := channel.waitForValue(duration, "id")
-	if err != nil {
-		return err
-	} else if value != "success" {
-		return errp.New("Scanning unsuccessful")
-	}
-	return nil
+// Returns an error if no public key hash has been received from the server in the given duration.
+func (channel *Channel) WaitForScanningSuccess(duration time.Duration) (string, error) {
+	return channel.waitForValue(duration, "id")
 }
 
 // WaitForMobilePublicKeyHash waits for the given duration for the public key hash from the mobile.
