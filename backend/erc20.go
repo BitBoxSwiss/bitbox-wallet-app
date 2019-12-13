@@ -33,16 +33,28 @@ var erc20Tokens = []erc20Token{
 		token: erc20.NewToken("0xdac17f958d2ee523a2206206994597c13d831ec7", 6),
 	},
 	{
+		code:  "eth-erc20-usdc",
+		name:  "USD Coin BETA",
+		unit:  "USDC",
+		token: erc20.NewToken("0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", 6),
+	},
+	{
 		code:  "eth-erc20-bat",
 		name:  "Basic Attention Token BETA",
 		unit:  "BAT",
 		token: erc20.NewToken("0x0d8775f648430679a709e98d2b0cb6250d2887ef", 18),
 	},
 	{
-		code:  "eth-erc20-dai",
+		code:  "eth-erc20-sai0x89d2",
+		name:  "Sai BETA",
+		unit:  "SAI",
+		token: erc20.NewToken("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359", 18),
+	},
+	{
+		code:  "eth-erc20-dai0x6b17",
 		name:  "Dai BETA",
 		unit:  "DAI",
-		token: erc20.NewToken("0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359", 18),
+		token: erc20.NewToken("0x6b175474e89094c44da98b954eedeac495271d0f", 18),
 	},
 	{
 		code:  "eth-erc20-link",

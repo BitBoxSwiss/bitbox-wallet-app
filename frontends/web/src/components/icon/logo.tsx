@@ -40,6 +40,10 @@ import LINK from './assets/link-color.svg';
 import LINK_GREY from './assets/link-white.svg';
 import MKR from './assets/mkr-color.svg';
 import MKR_GREY from './assets/mkr-white.svg';
+import SAI from './assets/sai-color.svg';
+import SAI_GREY from './assets/sai-white.svg';
+import USDC from './assets/usdc-color.svg';
+import USDC_GREY from './assets/usdc-white.svg';
 import USDT from './assets/usdt-color.svg';
 import USDT_GREY from './assets/usdt-white.svg';
 import ZRX from './assets/zrx-color.svg';
@@ -74,7 +78,9 @@ const logoMap = {
     'erc20Test': [ETH, ETH_GREY],
 
     'eth-erc20-usdt': [USDT, USDT_GREY],
-    'eth-erc20-dai': [DAI, DAI_GREY],
+    'eth-erc20-usdc': [USDC, USDC_GREY],
+    'eth-erc20-sai0x89d2': [SAI, SAI_GREY],
+    'eth-erc20-dai0x6b17': [DAI, DAI_GREY],
     'eth-erc20-link': [LINK, LINK_GREY],
     'eth-erc20-bat': [BAT, BAT_GREY],
     'eth-erc20-mkr': [MKR, MKR_GREY],

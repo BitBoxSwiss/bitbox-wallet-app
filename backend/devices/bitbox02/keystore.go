@@ -50,7 +50,7 @@ func (keystore *keystore) CosignerIndex() int {
 // SupportsAccount implements keystore.Keystore.
 func (keystore *keystore) SupportsAccount(
 	coin coin.Coin, multisig bool, meta interface{}) bool {
-	switch coin.(type) {
+	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		if (coin.Code() == "ltc" || coin.Code() == "tltc") && !keystore.device.SupportsLTC() {
 			return false
@@ -58,7 +58,10 @@ func (keystore *keystore) SupportsAccount(
 		scriptType := meta.(signing.ScriptType)
 		return !multisig && scriptType != signing.ScriptTypeP2PKH
 	case *eth.Coin:
-		return keystore.device.SupportsETH(coin.Code())
+		if specificCoin.ERC20Token() != nil {
+			return keystore.device.SupportsERC20(specificCoin.ERC20Token().ContractAddress().String())
+		}
+		return keystore.device.SupportsETH(ethMsgCoinMap[coin.Code()])
 	default:
 		return false
 	}

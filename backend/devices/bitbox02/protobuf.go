@@ -42,14 +42,16 @@ var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{
 }
 
 var ethMsgCoinMap = map[string]messages.ETHCoin{
-	"eth":            messages.ETHCoin_ETH,
-	"eth-erc20-usdt": messages.ETHCoin_ETH,
-	"eth-erc20-link": messages.ETHCoin_ETH,
-	"eth-erc20-bat":  messages.ETHCoin_ETH,
-	"eth-erc20-mkr":  messages.ETHCoin_ETH,
-	"eth-erc20-zrx":  messages.ETHCoin_ETH,
-	"eth-erc20-dai":  messages.ETHCoin_ETH,
-	"teth":           messages.ETHCoin_RopstenETH,
-	"reth":           messages.ETHCoin_RinkebyETH,
-	"erc20Test":      messages.ETHCoin_RopstenETH,
+	"eth":                 messages.ETHCoin_ETH,
+	"eth-erc20-usdt":      messages.ETHCoin_ETH,
+	"eth-erc20-usdc":      messages.ETHCoin_ETH,
+	"eth-erc20-link":      messages.ETHCoin_ETH,
+	"eth-erc20-bat":       messages.ETHCoin_ETH,
+	"eth-erc20-mkr":       messages.ETHCoin_ETH,
+	"eth-erc20-zrx":       messages.ETHCoin_ETH,
+	"eth-erc20-sai0x89d2": messages.ETHCoin_ETH,
+	"eth-erc20-dai0x6b17": messages.ETHCoin_ETH,
+	"teth":                messages.ETHCoin_RopstenETH,
+	"reth":                messages.ETHCoin_RinkebyETH,
+	"erc20Test":           messages.ETHCoin_RopstenETH,
 }

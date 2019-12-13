@@ -356,15 +356,41 @@ func (device *Device) Product() common.Product {
 
 // SupportsETH returns true if ETH is supported by the device api.
 // coinCode is eth/teth/reth or eth-erc20-xyz, ...
-func (device *Device) SupportsETH(coinCode string) bool {
+func (device *Device) SupportsETH(coinCode messages.ETHCoin) bool {
 	if *device.product != common.ProductBitBox02Multi {
 		return false
 	}
 	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
 		switch coinCode {
-		case "eth", "reth", "teth":
+		case messages.ETHCoin_ETH, messages.ETHCoin_RopstenETH, messages.ETHCoin_RinkebyETH:
 			return true
-		case "eth-erc20-usdt", "eth-erc20-link", "eth-erc20-bat", "eth-erc20-mkr", "eth-erc20-zrx", "eth-erc20-dai":
+		}
+	}
+	return false
+}
+
+// SupportsERC20 returns true if an ERC20 token is supported by the device api.
+func (device *Device) SupportsERC20(contractAddress string) bool {
+	if *device.product != common.ProductBitBox02Multi {
+		return false
+	}
+	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
+		switch contractAddress {
+		case
+			"0xdAC17F958D2ee523a2206206994597C13D831ec7", // USDT
+			"0x0D8775F648430679A709E98d2b0Cb6250d2887EF", // BAT
+			"0x89d24A6b4CcB1B6fAA2625fE562bDD9a23260359", // SAI
+			"0x514910771AF9Ca656af840dff83E8264EcF986CA", // LINK
+			"0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2", // MKR
+			"0xE41d2489571d322189246DaFA5ebDe1F4699F498": // ZRX
+			return true
+		}
+	}
+	if device.version.AtLeast(semver.NewSemVer(5, 0, 0)) {
+		switch contractAddress {
+		case
+			"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48", // USDC
+			"0x6B175474E89094C44Da98b954EedeAC495271d0F": // DAI
 			return true
 		}
 	}
