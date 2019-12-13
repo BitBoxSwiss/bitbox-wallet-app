@@ -167,6 +167,25 @@ export default class Settings extends Component {
         this.setState({ activeProxyDialog: false });
     }
 
+    setServicesConfig = servicesConfig => {
+        setConfig({
+            backend: { services: servicesConfig },
+        }).then(config => {
+            this.setState({ config });
+        });
+    }
+
+    handleToggleSafello = event => {
+        let config = this.state.config;
+        if (!config) {
+            return;
+        }
+        let services = config.backend.services;
+        services.safello = event.target.checked;
+        this.setServicesConfig(services);
+    }
+
+
     handleRestartDismissMessage = () => {
         this.setState({ restart: false });
     }
@@ -367,6 +386,29 @@ export default class Settings extends Component {
                                                         {
                                                             debug && <SettingsButton link href="/bitboxbase">{t('settings.expert.base')}</SettingsButton>
                                                         }
+                                                    </div>
+                                                </div>
+
+                                                <div className="column column-1-3">
+                                                    <div class="subHeaderContainer">
+                                                        <div class="subHeader">
+                                                            <h3>{t('settings.services.title')}</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div className="box slim divide">
+                                                        <div className={style.currency}>
+                                                            <div>
+                                                                <p className="m-none">Safello</p>
+                                                                <p className="m-none">
+                                                                    <Badge type="generic">BTC</Badge>
+                                                                </p>
+                                                            </div>
+                                                            <Toggle
+                                                                checked={config.backend.services.safello}
+                                                                id="safello"
+                                                                onChange={this.handleToggleSafello} />
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>

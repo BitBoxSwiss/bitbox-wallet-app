@@ -48,6 +48,7 @@ interface AccountProps {
 
 interface LoadedAccountProps {
     safelloBuySupported: boolean;
+    config: any;
 }
 
 export interface AccountInfo {
@@ -242,12 +243,16 @@ class Account extends Component<Props, State> {
         return this.state.balance !== undefined && this.state.transactions !== undefined;
     }
 
+    private supportsBuy = () => {
+        // True if both the backend supports it for this account, as well as the app settings enable it.
+        return this.props.safelloBuySupported && this.props.config.backend.services.safello;
+    }
+
     public render(
         {
             t,
             code,
             accounts,
-            safelloBuySupported,
         }: RenderableProps<Props>,
         {
             transactions,
@@ -307,7 +312,7 @@ class Account extends Component<Props, State> {
                             <div class="flex flex-row flex-between flex-items-center">
                                 <label className="labelXLarge">Available Balance</label>
                                 <div className={style.actionsContainer}>
-                                    { safelloBuySupported && (
+                                    { this.supportsBuy() && (
                                           <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>
                                     )
                                     }
@@ -381,6 +386,7 @@ class Account extends Component<Props, State> {
 
 const loadHOC = load<LoadedAccountProps, AccountProps & TranslateProps>(({ code }) => ({
     safelloBuySupported: `account/${code}/exchange/safello/buy-supported`,
+    config: 'config',
 }))(Account);
 const HOC = translate<AccountProps>()(loadHOC);
 export { HOC as Account };
