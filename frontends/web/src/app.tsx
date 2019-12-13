@@ -38,7 +38,7 @@ import { BitBoxBaseConnect, DetectedBitBoxBases } from './routes/bitboxbase/bitb
 import { Devices, DeviceSwitch } from './routes/device/deviceswitch';
 import ManageBackups from './routes/device/manage-backups/manage-backups';
 import ElectrumSettings from './routes/settings/electrum';
-import Settings from './routes/settings/settings';
+import { Settings } from './routes/settings/settings';
 import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
