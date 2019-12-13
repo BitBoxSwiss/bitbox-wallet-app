@@ -125,5 +125,10 @@ func (device *Device) Reset() error {
 		},
 	}
 	_, err := device.query(request)
-	return err
+	// We only return bb02 errors. Otherwise we assume it's an IO error (read failed) due to the
+	// reboot.
+	if _, ok := errp.Cause(err).(*Error); ok {
+		return err
+	}
+	return nil
 }
