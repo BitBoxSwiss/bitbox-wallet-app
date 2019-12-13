@@ -83,9 +83,14 @@ func (proxy proxyConfig) ProxyAddressOrDefault() string {
 	return defaultProxyAddress
 }
 
+type servicesConfig struct {
+	Safello bool `json:"safello"`
+}
+
 // Backend holds the backend specific configuration.
 type Backend struct {
-	Proxy proxyConfig `json:"proxy"`
+	Proxy    proxyConfig    `json:"proxy"`
+	Services servicesConfig `json:"services"`
 
 	BitcoinP2PKHActive       bool `json:"bitcoinP2PKHActive"`
 	BitcoinP2WPKHP2SHActive  bool `json:"bitcoinP2WPKHP2SHActive"`
@@ -175,6 +180,9 @@ func NewDefaultAppConfig() AppConfig {
 			Proxy: proxyConfig{
 				UseProxy:     false,
 				ProxyAddress: defaultProxyAddress,
+			},
+			Services: servicesConfig{
+				Safello: true,
 			},
 			BitcoinP2PKHActive:       true,
 			BitcoinP2WPKHP2SHActive:  true,
