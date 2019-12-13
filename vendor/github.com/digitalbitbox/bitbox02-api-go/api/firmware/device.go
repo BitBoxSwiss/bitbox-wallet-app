@@ -33,7 +33,7 @@ var (
 	lowestSupportedFirmwareVersion                   = semver.NewSemVer(4, 2, 1)
 	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(4, 2, 2)
 	lowestSupportedFirmwareVersionBitBoxBaseStandard = semver.NewSemVer(4, 3, 0)
-	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(5, 0, 0)
+	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(6, 0, 0)
 )
 
 // Communication contains functions needed to communicate with the device.
