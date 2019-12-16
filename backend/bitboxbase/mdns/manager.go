@@ -27,6 +27,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bitboxbase/bbbconfig"
 	appConfig "github.com/digitalbitbox/bitbox-wallet-app/backend/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 
@@ -49,7 +50,9 @@ type BaseDeviceInfo struct {
 
 // Manager listens for new bitboxbases and handles their (de)registration.
 type Manager struct {
-	onDetect      func()
+	onDetect func()
+	mutex    locker.Locker
+
 	detectedBases map[string]string // Do not change this map to pointer types or anything else, the reflect.DeepEqual comparison in mdnsScan may break
 
 	baseDeviceBitBoxBase map[string]*bitboxbase.BitBoxBase
@@ -98,6 +101,7 @@ func NewManager(
 
 // TryMakeNewBase attempts to create a new bitboxBase connection to the BitBox base. Returns true if successful, false otherwise.
 func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
+	defer manager.mutex.Lock()()
 	for bitboxBaseID, bitboxBase := range manager.baseDeviceBitBoxBase {
 		// Check if bitboxbase was removed.
 		if manager.checkIfRemoved(bitboxBase) {
@@ -146,6 +150,7 @@ func (manager *Manager) TryMakeNewBase(address string) (bool, error) {
 
 // RemoveBase allows external objects to delete a manager entry.
 func (manager *Manager) RemoveBase(bitboxBaseID string) {
+	defer manager.mutex.Lock()()
 	delete(manager.baseDeviceBitBoxBase, bitboxBaseID)
 }
 
@@ -243,12 +248,15 @@ func (manager *Manager) initPersistedBases() {
 			manager.log.WithError(err).Errorf("Failed to reinitialize persisted BitBoxBase with ID: %s, hostname: %s", registeredBase.BaseID, registeredBase.Hostname)
 			continue
 		}
-		manager.baseDeviceBitBoxBase[registeredBase.BaseID].SetLocalHostname(registeredBase.Hostname)
+		func() {
+			defer manager.mutex.RLock()()
+			manager.baseDeviceBitBoxBase[registeredBase.BaseID].SetLocalHostname(registeredBase.Hostname)
+		}()
 	}
 }
 
 // Start starts a continuous mDNS scan for BitBox Base devices on local network.
 func (manager *Manager) Start() {
-	manager.initPersistedBases()
+	go manager.initPersistedBases()
 	go manager.mdnsScan()
 }
