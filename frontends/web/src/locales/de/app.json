@@ -311,7 +311,7 @@
         "updateSeverity": "",
         "updateTitle": "BitBoxBase updaten"
       },
-      "title": "BitBoxBase Einstellungen"
+      "title": "<strong>BitBox</strong>Base Einstellungen"
     },
     "title": "BitBoxBase"
   },
@@ -653,7 +653,7 @@
         "title": "Wie oft muss ich ein Backup erstellen?"
       },
       "whatIsABackup": {
-        "text": "Es ist eine Kopie des Seed auf einer Mikro-SD-Karte. Der Seed zusammen mit Ihrem Wiederherstellungspasswort stellen ihr Wallet wieder her.",
+        "text": "Es ist eine Kopie des Seed auf einer microSD-Karte. Der Seed zusammen mit Ihrem Wiederherstellungspasswort stellen ihr Wallet wieder her.",
         "title": "Was ist ein Backup?"
       }
     },
@@ -810,7 +810,7 @@
           "text": "Bestellen einer BitBox",
           "url": "https://shiftcrypto.ch/shop"
         },
-        "text": "Sie können die BitBox in unserem Online Shop käuflich erwerben.",
+        "text": "Sie können eine BitBox in unserem Online Shop bestellen:",
         "title": "Wie bekomme ich ein Gerät?"
       },
       "internet": {
@@ -826,7 +826,7 @@
         "title": "Ich habe mein Gerät verloren. Was nun?"
       },
       "useWithoutDevice": {
-        "text": "Unglücklicherweise ist dies zum aktuellen Zeitpunkt nicht möglich. ",
+        "text": "Leider ist dies zum aktuellen Zeitpunkt nicht möglich. ",
         "title": "Kann ich die App auch ohne Gerät benutzen?"
       },
       "welcome": {
@@ -934,11 +934,6 @@
   },
   "receive": {
     "label": "Meine Adresse",
-    "ltcLegacy": {
-      "button": "In das alte Adressformat konvertieren",
-      "info": "Litecoin wechselt von Adressen, die mit '3' beginnen, zu Adressen, die mit 'M' beginnen.",
-      "result": "Altes Format von {{address}}:\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "Um andere Token empfangen zu können, aktivieren Sie diese in den Einstellungen. Sollten Sie Token empfangen, welche die BitBoxApp nicht unterstützt, haben Sie möglicherweise keinen Zugang mehr zu diesen. ",
       "warning": "Stellen Sie sicher, dass Sie nur {{accountName}} auf diese Adresse senden."
@@ -1107,7 +1102,7 @@
       "remove-server": "Entfernen",
       "removeConfirm": "Entfernen {{server}}?",
       "reset": "Auf Werkseinstellungen zurücksetzten",
-      "resetConfirm": "Johannes",
+      "resetConfirm": "Möchten Sie alle Server entfernen und die Standardserver installieren?",
       "servers": "Servers",
       "step1": "1",
       "step1-text": "Geben Sie den Endpunkt ein",
@@ -1116,7 +1111,7 @@
       "step3": "3",
       "step3-text": "Überprüfen Sie die Verbindung und fügen Sie den Server hinzu.",
       "step4": "4",
-      "step4-text": "Starten Sie das Wallet neu. Wenn Sie die Standardserver nicht entfernen, wird Ihr eigener Node als Redundanz hinzugefügt.",
+      "step4-text": "Starten Sie die BitBoxApp neu. Wenn Sie die Standardserver nicht entfernen, wird Ihr eigener Node als Redundanz hinzugefügt.",
       "title-btc": "Bitcoin Electrum Server",
       "title-ltc": "Litecoin Electrum Server",
       "title-tbtc": "Bitcoin Testnet Electrum Server",
@@ -1213,7 +1208,7 @@
     "sendPairing": "Bitte aktivieren koppeln Sie Ihre BitBox mit einem Smartphone um Transaktionen sicher verifizieren zu können. Klicken Sie dazu auf \"Geräte verwalten\" im Menü auf der linken Seite."
   },
   "welcome": {
-    "insertBitBox02": "Tippen Sie auf die BitBox02 zum weiter machen. ",
+    "insertBitBox02": "Tippen Sie dann auf die BitBox02 zum weiter machen. ",
     "insertDevice": "Bitte verbinden Sie Ihr Gerät, um loszulegen",
     "title": "Willkommen"
   }
