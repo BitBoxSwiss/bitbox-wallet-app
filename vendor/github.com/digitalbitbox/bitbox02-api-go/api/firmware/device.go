@@ -30,15 +30,14 @@ import (
 //go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
 
 var (
-	lowestSupportedFirmwareVersion                   = semver.NewSemVer(4, 2, 1)
-	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(4, 2, 2)
+	lowestSupportedFirmwareVersion                   = semver.NewSemVer(5, 0, 0)
+	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(5, 0, 0)
 	lowestSupportedFirmwareVersionBitBoxBaseStandard = semver.NewSemVer(4, 3, 0)
 	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(6, 0, 0)
 )
 
 // Communication contains functions needed to communicate with the device.
 type Communication interface {
-	SendFrame(string) error
 	Query([]byte) ([]byte, error)
 	Close()
 }

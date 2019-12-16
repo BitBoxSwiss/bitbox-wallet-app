@@ -105,11 +105,14 @@ func (device *Device) reboot() error {
 			Reboot: &messages.RebootRequest{},
 		},
 	}
-	requestBytesEncrypted, err := device.requestBytesEncrypted(request)
-	if err != nil {
+
+	_, err := device.query(request)
+	// We only return bb02 errors. Otherwise we assume it's an IO error (read failed) due to the
+	// reboot.
+	if _, ok := errp.Cause(err).(*Error); ok {
 		return err
 	}
-	return device.communication.SendFrame(string(requestBytesEncrypted))
+	return nil
 }
 
 // UpgradeFirmware reboots into the bootloader so a firmware can be flashed.
