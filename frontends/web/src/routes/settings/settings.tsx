@@ -14,29 +14,59 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { Link, route } from 'preact-router';
-import { translate } from 'react-i18next';
-import { apiGet, apiPost } from '../../utils/request';
-import { setConfig } from '../../utils/config';
 import { Badge } from '../../components/badge/badge';
-import { debug } from '../../utils/env';
 import { Dialog } from '../../components/dialog/dialog';
-import { Button, Input } from '../../components/forms';
-import { Guide } from '../../components/guide/guide';
-import { Entry } from '../../components/guide/entry';
-import { FiatSelection } from '../../components/fiat/fiat';
-import { Header, Footer } from '../../components/layout';
-import InlineMessage  from '../../components/inlineMessage/InlineMessage';
-import { SwissMadeOpenSource } from '../../components/icon/logo';
-import { Toggle } from '../../components/toggle/toggle';
-import { SettingsButton } from '../../components/settingsButton/settingsButton';
-import * as style from '../../components/fiat/fiat.css';
 import * as dialogStyle from '../../components/dialog/dialog.css';
+import { FiatSelection } from '../../components/fiat/fiat';
+import * as style from '../../components/fiat/fiat.css';
+import { Button, Input } from '../../components/forms';
+import { Entry } from '../../components/guide/entry';
+import { Guide } from '../../components/guide/guide';
+import { SwissMadeOpenSource } from '../../components/icon/logo';
+import InlineMessage from '../../components/inlineMessage/InlineMessage';
+import { Footer, Header } from '../../components/layout';
+import { SettingsButton } from '../../components/settingsButton/settingsButton';
+import { Toggle } from '../../components/toggle/toggle';
+import { translate, TranslateProps } from '../../decorators/translate';
+import { setConfig } from '../../utils/config';
+import { debug } from '../../utils/env';
+import { apiGet, apiPost } from '../../utils/request';
 
-@translate()
-export default class Settings extends Component {
-    erc20TokenCodes = {
+interface SettingsProps {
+    deviceIDs: string[];
+}
+
+type Props = SettingsProps & TranslateProps;
+
+interface State {
+    restart: boolean;
+    config: any;
+    proxyAddress?: string;
+    activeProxyDialog: boolean;
+}
+
+class Settings extends Component<Props, State> {
+    private accountsList = [
+        { name: 'bitcoinP2PKHActive',
+          badges: ['BB01'],
+        },
+        { name: 'bitcoinP2WPKHActive',
+          badges: ['BB01', 'BB02', 'BB02-BTC'],
+        },
+        { name: 'bitcoinP2WPKHP2SHActive',
+          badges: ['BB01', 'BB02', 'BB02-BTC'],
+        },
+        { name: 'litecoinP2WPKHActive',
+          badges: ['BB01', 'BB02'],
+        },
+        { name: 'litecoinP2WPKHP2SHActive',
+          badges: ['BB01', 'BB02'],
+        },
+    ];
+
+    private erc20TokenCodes = {
         usdt: 'Tether USD',
         usdc: 'USD Coin',
         link: 'Chainlink',
@@ -44,33 +74,37 @@ export default class Settings extends Component {
         mkr: 'Maker',
         zrx: '0x',
         sai0x89d2: 'Sai',
-        dai0x6b17: 'Dai'
+        dai0x6b17: 'Dai',
+    };
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            restart: false,
+            config: null,
+            proxyAddress: undefined,
+            activeProxyDialog: false,
+        };
     }
 
-    state = {
-        restart: false,
-        config: null,
-        proxyAddress: undefined,
-        activeProxyDialog: false,
-    }
-
-    componentDidMount() {
+    public componentDidMount() {
         apiGet('config').then(config => {
             this.setState({ config, proxyAddress: config.backend.proxy.proxyAddress });
         });
     }
 
-    componentDidUpdate(prevProps) {
+    public componentDidUpdate(prevProps) {
         if (prevProps.deviceIDs.length && !this.props.deviceIDs.length) {
             route('/', true);
         }
     }
 
-    handleToggleAccount = event => {
+    private handleToggleAccount = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
         setConfig({
             backend: {
-                [event.target.id]: event.target.checked
-            }
+                [target.id]: target.checked,
+            },
         })
             .then(config => {
                 this.setState({ config });
@@ -78,24 +112,26 @@ export default class Settings extends Component {
             });
     }
 
-    handleToggleCoinControl = event => {
+    private handleToggleCoinControl = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
         setConfig({
             frontend: {
-                coinControl: event.target.checked
-            }
+                coinControl: target.checked,
+            },
         })
             .then(config => this.setState({ config }));
     }
 
-    reinitializeAccounts = () => {
+    private reinitializeAccounts = () => {
         apiPost('accounts/reinitialize');
     }
 
-    handleToggleEthereum = event => {
+    private handleToggleEthereum = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
         setConfig({
             backend: {
-                ethereumActive: event.target.checked
-            }
+                ethereumActive: target.checked,
+            },
         })
             .then(config => {
                 this.setState({ config });
@@ -103,35 +139,40 @@ export default class Settings extends Component {
             });
     }
 
-    handleToggleERC20Token = event => {
-        let config = this.state.config;
+    private handleToggleERC20Token = (event: Event) => {
+        const config = this.state.config;
         if (!config || !config.backend.eth) {
             return;
         }
-        const tokenCode = event.target.dataset.tokencode;
-        let eth = config.backend.eth;
-        let activeTokens = eth.activeERC20Tokens.filter(val => val !== tokenCode);
-        if (event.target.checked) {
+        const target = (event.target as HTMLInputElement);
+        const tokenCode = target.dataset.tokencode;
+        const eth = config.backend.eth;
+        const activeTokens = eth.activeERC20Tokens.filter(val => val !== tokenCode);
+        if (target.checked) {
             activeTokens.push(tokenCode);
         }
         eth.activeERC20Tokens = activeTokens;
         setConfig({
-            backend: { eth }
+            backend: { eth },
         })
-            .then(config => {
-                this.setState({ config });
+            .then(newConfig => {
+                this.setState({ config: newConfig });
                 this.reinitializeAccounts();
             });
     }
 
-    handleFormChange = event => {
+    private handleFormChange = (event: Event) => {
+        const target = (event.target as HTMLInputElement);
+        if (target.name !== 'proxyAddress') {
+            return;
+        }
         this.setState({
-            [event.target.name]: event.target.value,
+            [target.name]: target.value,
             restart: false,
         });
     }
 
-    setProxyConfig = proxyConfig => {
+    private setProxyConfig = proxyConfig => {
         setConfig({
             backend: { proxy: proxyConfig },
         }).then(config => {
@@ -139,35 +180,36 @@ export default class Settings extends Component {
         });
     }
 
-    handleToggleProxy = event => {
-        let config = this.state.config;
+    private handleToggleProxy = (event: Event) => {
+        const config = this.state.config;
         if (!config) {
             return;
         }
-        let proxy = config.backend.proxy;
-        proxy.useProxy = event.target.checked;
+        const target = (event.target as HTMLInputElement);
+        const proxy = config.backend.proxy;
+        proxy.useProxy = target.checked;
         this.setProxyConfig(proxy);
     }
 
-    setProxyAddress = () => {
-        let config = this.state.config;
+    private setProxyAddress = () => {
+        const config = this.state.config;
         if (!config) {
             return;
         }
-        let proxy = config.backend.proxy;
+        const proxy = config.backend.proxy;
         proxy.proxyAddress = this.state.proxyAddress;
         this.setProxyConfig(proxy);
     }
 
-    showProxyDialog = () => {
+    private showProxyDialog = () => {
         this.setState({ activeProxyDialog: true });
     }
 
-    hideProxyDialog = () => {
+    private hideProxyDialog = () => {
         this.setState({ activeProxyDialog: false });
     }
 
-    setServicesConfig = servicesConfig => {
+    private setServicesConfig = servicesConfig => {
         setConfig({
             backend: { services: servicesConfig },
         }).then(config => {
@@ -175,59 +217,36 @@ export default class Settings extends Component {
         });
     }
 
-    handleToggleSafello = event => {
-        let config = this.state.config;
+    private handleToggleSafello = (event: Event) => {
+        const config = this.state.config;
         if (!config) {
             return;
         }
-        let services = config.backend.services;
-        services.safello = event.target.checked;
+        const target = (event.target as HTMLInputElement);
+        const services = config.backend.services;
+        services.safello = target.checked;
         this.setServicesConfig(services);
     }
 
-
-    handleRestartDismissMessage = () => {
+    private handleRestartDismissMessage = () => {
         this.setState({ restart: false });
     }
 
-    backHome = () => {
+    private backHome = () => {
         route('/', true);
     }
 
-    render({
-        t,
-        deviceIDs,
-    }, {
-        config,
-        restart,
-        proxyAddress,
-        activeProxyDialog,
-    }) {
+    public render(
+        { t, deviceIDs }: RenderableProps<Props>,
+        { config,
+            restart,
+            proxyAddress,
+            activeProxyDialog }: State,
+    ) {
         if (proxyAddress === undefined) {
             return null;
         }
-        const accountsList = [
-            {
-                name: 'bitcoinP2PKHActive',
-                badges: ['BB01'],
-            },
-            {
-                name: 'bitcoinP2WPKHActive',
-                badges: ['BB01', 'BB02', 'BB02-BTC'],
-            },
-            {
-                name: 'bitcoinP2WPKHP2SHActive',
-                badges: ['BB01', 'BB02', 'BB02-BTC'],
-            },
-            {
-                name: 'litecoinP2WPKHActive',
-                badges: ['BB01', 'BB02'],
-            },
-            {
-                name: 'litecoinP2WPKHP2SHActive',
-                badges: ['BB01', 'BB02'],
-            },
-        ];
+
         return (
             <div class="contentWithGuide">
                 <div class="container">
@@ -270,7 +289,7 @@ export default class Settings extends Component {
                                                     </div>
                                                     <div className="box slim">
                                                         {
-                                                            accountsList.map((account, index) => (
+                                                            this.accountsList.map((account, index) => (
                                                                 <div className={style.currency} key={`available-fiat-${index}`}>
                                                                     <div>
                                                                         <p className="m-none">{t(`settings.accounts.${account.name.replace('Active', '')}`)}</p>
@@ -280,7 +299,7 @@ export default class Settings extends Component {
                                                                                     <Badge
                                                                                         key={`badge-${i}`}
                                                                                         type={badge.includes('BTC') ? 'secondary' : 'primary'}
-                                                                                        className={i > 0 ? 'm-left-quarter': ''}>
+                                                                                        className={i > 0 ? 'm-left-quarter' : ''}>
                                                                                         {badge}
                                                                                     </Badge>
                                                                                 ))
@@ -446,3 +465,6 @@ export default class Settings extends Component {
         );
     }
 }
+
+const HOC = translate<SettingsProps>()(Settings);
+export { HOC as Settings };
