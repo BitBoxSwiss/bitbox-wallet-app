@@ -167,7 +167,7 @@ class App extends Component<Props, State> {
                 route('/', true);
             }
 
-            if (getCurrentUrl().match(/^\/account$/)) {
+            if (getCurrentUrl() === '/account') {
                 if (accounts && accounts.length) {
                     route(`/account/${accounts[0].code}`, true);
                 }
