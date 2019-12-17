@@ -44,12 +44,11 @@ export interface BitBoxBaseInfo {
     status: string;
     hostname: string;
     middlewareLocalIP: string;
-    middlewareLocalPort: string;
+    middlewarePort: string;
     middlewareTorOnion: string;
-    middlewareTorPort: string;
     isTorEnabled: boolean;
     isBitcoindListening: boolean;
-    IsSSHPasswordLoginEnabled: boolean;
+    isSSHPasswordLoginEnabled: boolean;
     freeDiskspace: number;
     totalDiskspace: number;
     baseVersion: string;
