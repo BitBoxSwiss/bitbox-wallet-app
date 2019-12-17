@@ -518,12 +518,12 @@ func (handlers *Handlers) postRegisterTestKeystoreHandler(r *http.Request) (inte
 	}
 	pin := jsonBody["pin"]
 	handlers.backend.RegisterTestKeystore(pin)
-	return true, nil
+	return nil, nil
 }
 
 func (handlers *Handlers) postDeregisterTestKeystoreHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.DeregisterKeystore()
-	return true, nil
+	return nil, nil
 }
 
 func (handlers *Handlers) getRatesHandler(_ *http.Request) (interface{}, error) {
