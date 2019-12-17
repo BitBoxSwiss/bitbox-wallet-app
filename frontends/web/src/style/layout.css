@@ -66,6 +66,10 @@
     margin-right: 605px;
 }
 
+.appContent {
+    height: 100vh;
+}
+
 @media (max-width: 900px) {
     .appContent {
         position: absolute;
@@ -83,13 +87,13 @@
     display: flex;
     flex-direction: row;
     height: 100%;
+    overflow: hidden;
 }
 
 .container {
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
-    height: 100vh;
     position: relative;
     width: 100%;
 }

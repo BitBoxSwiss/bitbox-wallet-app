@@ -202,7 +202,7 @@ class App extends Component<Props, State> {
                     deviceIDs={deviceIDs}
                     bitboxBaseIDs={bitboxBaseIDs}
                     accountsInitialized={accountsInitialized} />
-                <div class="appContent flex-column flex-1" style="min-width: 0;">
+                <div class="appContent flex flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Banner msgKey="bitbox01" />
                     <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
