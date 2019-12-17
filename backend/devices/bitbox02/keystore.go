@@ -42,6 +42,11 @@ type keystore struct {
 	log           *logrus.Entry
 }
 
+// Type implements keystore.Keystore.
+func (keystore *keystore) Type() keystorePkg.Type {
+	return keystorePkg.TypeHardware
+}
+
 // CosignerIndex implements keystore.Keystore.
 func (keystore *keystore) CosignerIndex() int {
 	return keystore.cosignerIndex

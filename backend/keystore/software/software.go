@@ -24,6 +24,7 @@ import (
 	"github.com/btcsuite/btcutil/hdkeychain"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/coins/coin"
+	keystorePkg "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
@@ -63,6 +64,11 @@ func NewKeystoreFromPIN(cosignerIndex int, pin string) *Keystore {
 		panic(errp.WithStack(err))
 	}
 	return NewKeystore(cosignerIndex, master)
+}
+
+// Type implements keystore.Keystore.
+func (keystore *Keystore) Type() keystorePkg.Type {
+	return keystorePkg.TypeSoftware
 }
 
 // Configuration implements keystore.Keystore.
