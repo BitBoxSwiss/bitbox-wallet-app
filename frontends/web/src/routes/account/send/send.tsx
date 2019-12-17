@@ -582,13 +582,13 @@ class Send extends Component<Props, State> {
                                     <div className="columns">
                                         <div className="column column-1-2">
                                             <Input
-                                                label={t('send.amount.label')}
+                                                label={balance ? balance.available.unit : t('send.amount.label')}
                                                 id="amount"
                                                 onInput={this.handleFormChange}
                                                 disabled={sendAll}
                                                 error={amountError}
                                                 value={sendAll ? proposedAmount && proposedAmount.amount : amount}
-                                                placeholder={`${t('send.amount.placeholder')} ` + (balance && `(${balance.available.unit})`)}
+                                                placeholder={t('send.amount.placeholder')}
                                                 labelSection={
                                                     <Checkbox
                                                         label={t('send.maximum')}
@@ -606,7 +606,7 @@ class Send extends Component<Props, State> {
                                                 disabled={sendAll}
                                                 error={amountError}
                                                 value={fiatAmount}
-                                                placeholder={`${t('send.amount.placeholder')} (${fiatUnit})`} />
+                                                placeholder={t('send.amount.placeholder')} />
                                         </div>
                                     </div>
                                     <div className="columns">
