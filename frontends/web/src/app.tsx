@@ -44,7 +44,6 @@ import { apiWebsocket } from './utils/websocket';
 
 interface State {
     accounts: AccountInterface[];
-    accountsInitialized: boolean;
     devices: Devices;
     detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
@@ -55,7 +54,6 @@ type Props = TranslateProps;
 class App extends Component<Props, State> {
     public state = {
         accounts: [],
-        accountsInitialized: false,
         devices: {},
         detectedBases: {},
         bitboxBaseIDs: [],
@@ -167,7 +165,6 @@ class App extends Component<Props, State> {
             if (!accountsInitialized && inAccounts) {
                 route('/', true);
             }
-            this.setState({ accountsInitialized });
             apiGet('accounts').then(accounts => {
                 this.setState({ accounts });
                 if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
@@ -189,7 +186,7 @@ class App extends Component<Props, State> {
 
     public render(
         {}: RenderableProps<Props>,
-        { accounts, devices, bitboxBaseIDs, accountsInitialized, detectedBases }: State,
+        { accounts, devices, bitboxBaseIDs, detectedBases }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
@@ -198,8 +195,7 @@ class App extends Component<Props, State> {
                 <Sidebar
                     accounts={accounts}
                     deviceIDs={deviceIDs}
-                    bitboxBaseIDs={bitboxBaseIDs}
-                    accountsInitialized={accountsInitialized} />
+                    bitboxBaseIDs={bitboxBaseIDs} />
                 <div class="appContent flex flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Banner msgKey="bitbox01" />

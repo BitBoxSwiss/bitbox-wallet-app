@@ -24,6 +24,7 @@ import settingsGrey from '../../assets/icons/settings-alt_disabled.svg';
 import deviceSettings from '../../assets/icons/wallet-light.svg';
 import { SharedProps as SharedPanelProps, store as panelStore } from '../../components/guide/guide';
 import { share } from '../../decorators/share';
+import { subscribe } from '../../decorators/subscribe';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { AccountInterface } from '../../routes/account/account';
 import { debug } from '../../utils/env';
@@ -34,10 +35,13 @@ interface SidebarProps {
     deviceIDs: string[];
     bitboxBaseIDs: string[];
     accounts: AccountInterface[];
-    accountsInitialized: boolean;
 }
 
-type Props = SharedPanelProps & SidebarProps & TranslateProps;
+interface SubscribedProps {
+    keystores: Array<{ type: 'hardware' | 'software' }>;
+}
+
+type Props = SubscribedProps & SharedPanelProps & SidebarProps & TranslateProps;
 
 interface SwipeAttributes {
     x: number;
@@ -151,7 +155,7 @@ class Sidebar extends Component<Props> {
             t,
             deviceIDs,
             accounts,
-            accountsInitialized,
+            keystores,
             shown,
             activeSidebar,
             sidebarStatus,
@@ -262,7 +266,7 @@ class Sidebar extends Component<Props> {
                     } */}
 
                     {
-                        (debug && accountsInitialized && deviceIDs.length === 0) && (
+                        (debug && keystores.some(({ type }) => type === 'software') && deviceIDs.length === 0) && (
                             <div className="sidebarItem">
                                 <a href="#" onClick={eject}>
                                     <div className="single">
@@ -317,6 +321,12 @@ function eject(e: Event): void {
     e.preventDefault();
 }
 
-const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(Sidebar);
+const subscribeHOC = subscribe<SubscribedProps, SharedPanelProps & SidebarProps & TranslateProps>(
+    { keystores: 'keystores' },
+    true,
+    false,
+)(Sidebar);
+
+const guideShareHOC = share<SharedPanelProps, SidebarProps & TranslateProps>(panelStore)(subscribeHOC);
 const translateHOC = translate<SidebarProps>()(guideShareHOC);
 export { translateHOC as Sidebar };

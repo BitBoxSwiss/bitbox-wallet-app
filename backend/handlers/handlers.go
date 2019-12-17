@@ -74,6 +74,7 @@ type Backend interface {
 	AccountsStatus() string
 	Testing() bool
 	Accounts() []accounts.Interface
+	Keystores() *keystore.Keystores
 	CreateAndAddAccount(
 		coin coin.Coin,
 		code string,
@@ -182,6 +183,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
@@ -466,6 +468,19 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 		"accountCode": accountCode,
 		"warningCode": warningCode,
 	}, nil
+}
+
+func (handlers *Handlers) getKeystoresHandler(_ *http.Request) (interface{}, error) {
+	type json struct {
+		Type keystore.Type `json:"type"`
+	}
+	keystores := []*json{}
+	for _, keystore := range handlers.backend.Keystores().Keystores() {
+		keystores = append(keystores, &json{
+			Type: keystore.Type(),
+		})
+	}
+	return keystores, nil
 }
 
 func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, error) {

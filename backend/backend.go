@@ -49,6 +49,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -852,6 +853,10 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
 	}
+	backend.Notify(observable.Event{
+		Subject: "keystores",
+		Action:  action.Reload,
+	})
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
 	}
@@ -862,6 +867,10 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
+	backend.Notify(observable.Event{
+		Subject: "keystores",
+		Action:  action.Reload,
+	})
 	backend.uninitAccounts()
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
