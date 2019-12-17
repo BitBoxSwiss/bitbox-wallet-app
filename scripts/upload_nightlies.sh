@@ -11,7 +11,9 @@ if [ "$TRAVIS_OS_NAME" == "linux" ]; then
             # excluding the .AppImage, since it already has the commit hash
             EXT="${file##*.}"
             if [ $EXT != "AppImage" ]; then
-                sudo mv $file $LINUX_BUILD/$(basename $file ."$EXT")-$(git rev-parse --short HEAD)."$EXT"
+                sudo mv $file $LINUX_BUILD/$(date -I)-$(basename $file ."$EXT")-$(git rev-parse --short HEAD)."$EXT"
+            else
+                sudo mv $file $LINUX_BUILD/$(date -I)-$(basename $file ."$EXT")."$EXT"
             fi
         done
     scp $OPTIONS $LINUX_BUILD/* travis@$DEVSERVER_IP:/var/www/nightlies/$UPLOAD_DIR
@@ -19,7 +21,7 @@ fi
 
 if [ "$TRAVIS_OS_NAME" == "osx" ]; then
     cd $MACOS_BUILD
-    NEW_ARCHIVE=BitBox-macOS-$(git rev-parse --short HEAD).zip
+    NEW_ARCHIVE=$(date -I)-BitBox-macOS-$(git rev-parse --short HEAD).zip
     zip -r $NEW_ARCHIVE BitBox.app
     scp $OPTIONS $NEW_ARCHIVE travis@$DEVSERVER_IP:/var/www/nightlies/$UPLOAD_DIR
 fi
