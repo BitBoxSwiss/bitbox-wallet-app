@@ -30,7 +30,7 @@ import { Account, AccountInterface } from './routes/account/account';
 import { AddAccount } from './routes/account/add/addaccount';
 import { Buy } from './routes/account/buy/buy';
 import Info from './routes/account/info/info';
-import Receive from './routes/account/receive/receive';
+import { Receive } from './routes/account/receive/receive';
 import { Send } from './routes/account/send/send';
 import { InitializeAllAccounts } from './routes/account/summary/initializeall';
 import { BitBoxBase, setBaseUserStatus, setInternalBaseStatus, updateSharedBaseState } from './routes/bitboxbase/bitboxbase';

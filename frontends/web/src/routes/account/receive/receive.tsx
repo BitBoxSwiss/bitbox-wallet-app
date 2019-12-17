@@ -14,39 +14,57 @@
  * limitations under the License.
  */
 
-import { Component, h } from 'preact';
+import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
-import { translate } from 'react-i18next';
-import { isEthereumBased } from '../utils';
-import { apiGet, apiPost } from '../../../utils/request';
-import { Button, ButtonLink } from '../../../components/forms';
-import { Dialog } from '../../../components/dialog/dialog';
-import { Guide } from '../../../components/guide/guide';
-import { Entry } from '../../../components/guide/entry';
 import { alertUser } from '../../../components/alert/Alert';
-import { Header } from '../../../components/layout';
-import Status from '../../../components/status/status';
-import { QRCode } from '../../../components/qrcode/qrcode';
 import { CopyableInput } from '../../../components/copy/Copy';
+import { Dialog } from '../../../components/dialog/dialog';
+import { Button, ButtonLink } from '../../../components/forms';
+import { Entry } from '../../../components/guide/entry';
+import { Guide } from '../../../components/guide/guide';
+import { Header } from '../../../components/layout';
+import { QRCode } from '../../../components/qrcode/qrcode';
+import Status from '../../../components/status/status';
+import { translate, TranslateProps } from '../../../decorators/translate';
+import { apiGet, apiPost } from '../../../utils/request';
+import { Devices } from '../../device/deviceswitch';
+import { AccountInterface } from '../account';
+import { isEthereumBased } from '../utils';
 import * as style from './receive.css';
 
-@translate()
-export default class Receive extends Component {
-    state = {
-        verifying: false,
+interface ReceiveProps {
+    code?: string;
+    devices: Devices;
+    accounts: AccountInterface[];
+    deviceIDs: string[];
+}
 
-        /** @type {number | null} */
-        activeIndex: null,
+interface State {
+    verifying: boolean;
+    activeIndex: number;
+    receiveAddresses: Array<{ addressID: any, address: any }> | null;
+    paired: boolean | null;
+    secureOutput?: {
+        hasSecureOutput: boolean;
+        optional: boolean;
+    };
+}
 
-        /** @type {{ addressID: any, address: any }[] | null} */
-        receiveAddresses: null,
-        paired: null,
+type Props = ReceiveProps & TranslateProps;
 
-        /** @type {{ hasSecureOutput: boolean, optional: boolean } | undefined} */
-        secureOutput: undefined,
+class Receive extends Component<Props, State> {
+    constructor(props) {
+        super(props);
+        this.state = {
+            verifying: false,
+            activeIndex: 0,
+            receiveAddresses: null,
+            paired: null,
+            secureOutput: undefined,
+        };
     }
 
-    componentDidMount() {
+    public componentDidMount() {
         apiGet('account/' + this.props.code + '/has-secure-output').then(secureOutput => {
             this.setState({ secureOutput });
         });
@@ -60,33 +78,33 @@ export default class Receive extends Component {
         }
     }
 
-    componentWillMount() {
+    public componentWillMount() {
         this.registerEvents();
     }
 
-    componentWillUnmount() {
+    public componentWillUnmount() {
         this.unregisterEvents();
     }
 
-    registerEvents = () => {
+    private registerEvents = () => {
         document.addEventListener('keydown', this.handleKeyDown);
     }
 
-    unregisterEvents = () => {
+    private unregisterEvents = () => {
         document.removeEventListener('keydown', this.handleKeyDown);
     }
 
-    handleKeyDown = e => {
+    private handleKeyDown = (e: KeyboardEvent) => {
         if (e.keyCode === 27) {
             if (!this.state.verifying) {
-                console.log('receive.jsx route to /'); // eslint-disable-line no-console
                 route(`/account/${this.props.code}`);
             }
         }
     }
 
-    verifyAddress = () => {
-        const { receiveAddresses, activeIndex, secureOutput } = this.state;
+    private verifyAddress = () => {
+        const { receiveAddresses, activeIndex } = this.state;
+        const secureOutput = this.state.secureOutput;
         if (secureOutput === undefined) {
             return;
         }
@@ -95,7 +113,7 @@ export default class Receive extends Component {
             alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
             return;
         }
-        if (receiveAddresses !== null && activeIndex !== null) {
+        if (receiveAddresses !== null) {
             this.setState({ verifying: true });
             apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
                 this.setState({ verifying: false });
@@ -103,47 +121,46 @@ export default class Receive extends Component {
         }
     }
 
-    previous = e => {
+    private previous = (e: Event) => {
         e.preventDefault();
-        if (!this.state.verifying && this.state.activeIndex !== null && this.state.activeIndex > 0) {
+        const activeIndex = this.state.activeIndex;
+        if (!this.state.verifying && activeIndex > 0) {
             this.setState({
-                activeIndex: this.state.activeIndex - 1,
+                activeIndex: activeIndex - 1,
             });
         }
-    };
+    }
 
-    next = e => {
+    private next = (e: Event) => {
         e.preventDefault();
         const { verifying, activeIndex, receiveAddresses } = this.state;
-        if (!verifying && receiveAddresses !== null && activeIndex !== null && activeIndex < receiveAddresses.length - 1) {
+        if (!verifying && receiveAddresses !== null && activeIndex < receiveAddresses.length - 1) {
             this.setState({
                 activeIndex: activeIndex + 1,
             });
         }
-    };
+    }
 
-    getAccount() {
-        if (!this.props.accounts) return undefined;
+    private getAccount = () => {
         return this.props.accounts.find(({ code }) => code === this.props.code);
     }
 
-    getDevice() {
+    private getDevice = () => {
         if (this.props.deviceIDs.length === 0) {
             return undefined;
         }
         return this.props.devices[this.props.deviceIDs[0]];
     }
 
-    render({
-        t,
-        code,
-    }, {
-        verifying,
-        secureOutput,
-        activeIndex,
-        receiveAddresses,
-        paired,
-    }) {
+    public render(
+        { t,
+            code }: RenderableProps<Props>,
+        { verifying,
+            secureOutput,
+            activeIndex,
+            receiveAddresses,
+            paired }: State,
+    ) {
         if (secureOutput === undefined) {
             return null;
         }
@@ -159,7 +176,7 @@ export default class Receive extends Component {
         }
         // enable copying only after verification has been invoked if verification is possible and not optional.
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
-        let enableCopy = !forceVerification;
+        const enableCopy = !forceVerification;
         let address;
         if (receiveAddresses) {
             address = receiveAddresses[activeIndex].address;
@@ -205,7 +222,7 @@ export default class Receive extends Component {
                             </a>
                         )
                     }
-                    <p class={style.label}>{t('receive.label')} { receiveAddresses.length > 1 ? `(${activeIndex + 1}/${receiveAddresses.length})` : ''}</p>
+                    <p class={style.label}>{t('receive.label')} {receiveAddresses.length > 1 ? `(${activeIndex + 1}/${receiveAddresses.length})` : ''}</p>
                     {
                         receiveAddresses.length > 1 && (
                             <a
@@ -292,8 +309,8 @@ export default class Receive extends Component {
                 }
             </div>
         ) : (
-            t('loading')
-        );
+                t('loading')
+            );
 
         return (
             <div class="contentWithGuide">
@@ -314,11 +331,14 @@ export default class Receive extends Component {
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} /> }
-                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} /> }
-                    { receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} /> }
+                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
+                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
+                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
                 </Guide>
             </div>
         );
     }
 }
+
+const HOC = translate<ReceiveProps>()(Receive);
+export { HOC as Receive };
