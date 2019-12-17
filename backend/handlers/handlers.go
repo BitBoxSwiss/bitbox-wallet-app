@@ -55,6 +55,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -65,6 +66,8 @@ import (
 
 // Backend models the API of the backend.
 type Backend interface {
+	observable.Interface
+
 	Config() *config.Config
 	DefaultAppConfig() config.AppConfig
 	Coin(string) (coin.Coin, error)
@@ -114,7 +117,7 @@ type Handlers struct {
 	// backend to secure the API call. The data is fed into the static javascript app
 	// that is served, so the client knows where and how to connect to.
 	apiData           *ConnectionData
-	backendEvents     <-chan interface{}
+	backendEvents     chan interface{}
 	websocketUpgrader websocket.Upgrader
 	log               *logrus.Entry
 }
@@ -148,9 +151,10 @@ func NewHandlers(
 	log := logging.Get().WithGroup("handlers")
 	router := mux.NewRouter()
 	handlers := &Handlers{
-		Router:  router,
-		backend: backend,
-		apiData: connData,
+		Router:        router,
+		backend:       backend,
+		apiData:       connData,
+		backendEvents: make(chan interface{}, 1000),
 		websocketUpgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
@@ -292,7 +296,17 @@ func NewHandlers(
 
 	apiRouter.HandleFunc("/events", handlers.eventsHandler)
 
-	handlers.backendEvents = backend.Start()
+	// The backend relays events in two ways:
+	// a) old school through the channel returned by Start()
+	// b) new school via observable.
+	// Merge both.
+	events := backend.Start()
+	go func() {
+		for {
+			handlers.backendEvents <- <-events
+		}
+	}()
+	backend.Observe(func(event observable.Event) { handlers.backendEvents <- event })
 
 	return handlers
 }

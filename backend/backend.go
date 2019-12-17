@@ -113,6 +113,8 @@ type Environment interface {
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
+	observable.Implementation
+
 	arguments   *arguments.Arguments
 	environment Environment
 
