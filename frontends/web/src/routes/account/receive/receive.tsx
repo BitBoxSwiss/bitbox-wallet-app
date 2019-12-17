@@ -47,7 +47,7 @@ interface State {
 }
 
 interface LoadedReceiveProps {
-    receiveAddresses: Array<{ addressID: any, address: any }>;
+    receiveAddresses: Array<{ addressID: string, address: string }>;
     secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;
