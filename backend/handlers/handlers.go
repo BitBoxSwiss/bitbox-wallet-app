@@ -71,7 +71,6 @@ type Backend interface {
 	Config() *config.Config
 	DefaultAppConfig() config.AppConfig
 	Coin(string) (coin.Coin, error)
-	AccountsStatus() string
 	Testing() bool
 	Accounts() []accounts.Interface
 	Keystores() *keystore.Keystores
@@ -186,7 +185,6 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/keystores", handlers.getKeystoresHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts", handlers.getAccountsHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/accounts/reinitialize", handlers.postAccountsReinitializeHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/accounts-status", handlers.getAccountsStatusHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/export-account-summary", handlers.postExportAccountSummary).Methods("POST")
 	getAPIRouter(apiRouter)("/account-summary", handlers.getAccountSummary).Methods("GET")
 	getAPIRouter(apiRouter)("/test/register", handlers.postRegisterTestKeystoreHandler).Methods("POST")
@@ -507,10 +505,6 @@ func (handlers *Handlers) getAccountsHandler(_ *http.Request) (interface{}, erro
 func (handlers *Handlers) postAccountsReinitializeHandler(_ *http.Request) (interface{}, error) {
 	handlers.backend.ReinitializeAccounts()
 	return nil, nil
-}
-
-func (handlers *Handlers) getAccountsStatusHandler(_ *http.Request) (interface{}, error) {
-	return handlers.backend.AccountsStatus(), nil
 }
 
 func (handlers *Handlers) getDevicesRegisteredHandler(_ *http.Request) (interface{}, error) {

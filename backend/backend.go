@@ -665,14 +665,6 @@ func (backend *Backend) ReinitializeAccounts() {
 	backend.initAccounts()
 }
 
-// AccountsStatus returns whether the accounts have been initialized.
-func (backend *Backend) AccountsStatus() string {
-	if len(backend.accounts) > 0 {
-		return "initialized"
-	}
-	return "uninitialized"
-}
-
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.arguments.Testing()
