@@ -25,6 +25,7 @@ import { Guide } from '../../../components/guide/guide';
 import { Header } from '../../../components/layout';
 import { QRCode } from '../../../components/qrcode/qrcode';
 import Status from '../../../components/status/status';
+import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiGet, apiPost } from '../../../utils/request';
 import { Devices } from '../../device/deviceswitch';
@@ -42,15 +43,18 @@ interface ReceiveProps {
 interface State {
     verifying: boolean;
     activeIndex: number;
-    receiveAddresses: Array<{ addressID: any, address: any }> | null;
     paired: boolean | null;
-    secureOutput?: {
+}
+
+interface LoadedReceiveProps {
+    receiveAddresses: Array<{ addressID: any, address: any }>;
+    secureOutput: {
         hasSecureOutput: boolean;
         optional: boolean;
     };
 }
 
-type Props = ReceiveProps & TranslateProps;
+type Props = LoadedReceiveProps & ReceiveProps & TranslateProps;
 
 class Receive extends Component<Props, State> {
     constructor(props) {
@@ -58,19 +62,11 @@ class Receive extends Component<Props, State> {
         this.state = {
             verifying: false,
             activeIndex: 0,
-            receiveAddresses: null,
             paired: null,
-            secureOutput: undefined,
         };
     }
 
     public componentDidMount() {
-        apiGet('account/' + this.props.code + '/has-secure-output').then(secureOutput => {
-            this.setState({ secureOutput });
-        });
-        apiGet('account/' + this.props.code + '/receive-addresses').then(receiveAddresses => {
-            this.setState({ receiveAddresses, activeIndex: 0 });
-        });
         if (this.getDevice() === 'bitbox') {
             apiGet('devices/' + this.props.deviceIDs[0] + '/has-mobile-channel').then(paired => {
                 this.setState({ paired });
@@ -103,22 +99,17 @@ class Receive extends Component<Props, State> {
     }
 
     private verifyAddress = () => {
-        const { receiveAddresses, activeIndex } = this.state;
-        const secureOutput = this.state.secureOutput;
-        if (secureOutput === undefined) {
-            return;
-        }
+        const { receiveAddresses, secureOutput } = this.props;
+        const { activeIndex } = this.state;
         if (!secureOutput.hasSecureOutput) {
             this.unregisterEvents();
             alertUser(this.props.t('receive.warning.secureOutput'), this.registerEvents);
             return;
         }
-        if (receiveAddresses !== null) {
-            this.setState({ verifying: true });
-            apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
-                this.setState({ verifying: false });
-            });
-        }
+        this.setState({ verifying: true });
+        apiPost('account/' + this.props.code + '/verify-address', receiveAddresses[activeIndex].addressID).then(() => {
+            this.setState({ verifying: false });
+        });
     }
 
     private previous = (e: Event) => {
@@ -133,8 +124,9 @@ class Receive extends Component<Props, State> {
 
     private next = (e: Event) => {
         e.preventDefault();
-        const { verifying, activeIndex, receiveAddresses } = this.state;
-        if (!verifying && receiveAddresses !== null && activeIndex < receiveAddresses.length - 1) {
+        const { receiveAddresses } = this.props;
+        const { verifying, activeIndex } = this.state;
+        if (!verifying && activeIndex < receiveAddresses.length - 1) {
             this.setState({
                 activeIndex: activeIndex + 1,
             });
@@ -154,16 +146,13 @@ class Receive extends Component<Props, State> {
 
     public render(
         { t,
-            code }: RenderableProps<Props>,
+          code,
+          receiveAddresses,
+          secureOutput }: RenderableProps<Props>,
         { verifying,
-            secureOutput,
-            activeIndex,
-            receiveAddresses,
-            paired }: State,
+          activeIndex,
+          paired }: State,
     ) {
-        if (secureOutput === undefined) {
-            return null;
-        }
         const account = this.getAccount();
         if (account === undefined) {
             return null;
@@ -177,13 +166,12 @@ class Receive extends Component<Props, State> {
         // enable copying only after verification has been invoked if verification is possible and not optional.
         const forceVerification = secureOutput.hasSecureOutput && !secureOutput.optional;
         const enableCopy = !forceVerification;
-        let address;
-        if (receiveAddresses) {
-            address = receiveAddresses[activeIndex].address;
-            if (!enableCopy && !verifying) {
-                address = address.substring(0, 8) + '...';
-            }
+
+        let address = receiveAddresses[activeIndex].address;
+        if (!enableCopy && !verifying) {
+            address = address.substring(0, 8) + '...';
         }
+
         let verifyLabel = t('receive.verify'); // fallback
         const device = this.getDevice();
         if (device === 'bitbox') {
@@ -191,7 +179,7 @@ class Receive extends Component<Props, State> {
         } else if (device === 'bitbox02') {
             verifyLabel = t('receive.verifyBitBox02');
         }
-        const content = receiveAddresses ? (
+        const content = (
             <div style="position: relative;">
                 <div class={style.qrCodeContainer}>
                     <QRCode data={enableCopy ? uriPrefix + address : undefined} />
@@ -308,9 +296,7 @@ class Receive extends Component<Props, State> {
                     )
                 }
             </div>
-        ) : (
-                t('loading')
-            );
+        );
 
         return (
             <div class="contentWithGuide">
@@ -331,14 +317,18 @@ class Receive extends Component<Props, State> {
                     <Entry key="guide.receive.address" entry={t('guide.receive.address')} />
                     <Entry key="guide.receive.whyVerify" entry={t('guide.receive.whyVerify')} />
                     <Entry key="guide.receive.howVerify" entry={t('guide.receive.howVerify')} />
-                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
-                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
-                    {receiveAddresses && receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
+                    {receiveAddresses.length > 1 && <Entry key="guide.receive.whyMany" entry={t('guide.receive.whyMany')} />}
+                    {receiveAddresses.length > 1 && <Entry key="guide.receive.why20" entry={t('guide.receive.why20')} />}
+                    {receiveAddresses.length > 1 && <Entry key="guide.receive.addressChange" entry={t('guide.receive.addressChange')} />}
                 </Guide>
             </div>
         );
     }
 }
 
-const HOC = translate<ReceiveProps>()(Receive);
+const loadHOC = load<LoadedReceiveProps, ReceiveProps & TranslateProps>(({ code }) => ({
+    secureOutput: `account/${code}/has-secure-output`,
+    receiveAddresses: `account/${code}/receive-addresses`,
+}))(Receive);
+const HOC = translate<ReceiveProps>()(loadHOC);
 export { HOC as Receive };
