@@ -186,10 +186,10 @@ func NewBackend(arguments *arguments.Arguments, environment Environment) (*Backe
 		backend.arguments.BitBoxBaseDirectoryPath(), backend.socksProxy)
 
 	backend.ratesUpdater = rates.NewRateUpdater(backend.socksProxy)
-	backend.ratesUpdater.Observe(func(event observable.Event) { backend.events <- event })
+	backend.ratesUpdater.Observe(backend.Notify)
 
 	backend.banners = banners.NewBanners()
-	backend.banners.Observe(func(event observable.Event) { backend.events <- event })
+	backend.banners.Observe(backend.Notify)
 
 	return backend, nil
 }
@@ -550,7 +550,7 @@ func (backend *Backend) Coin(code string) (coin.Coin, error) {
 		return nil, errp.Newf("unknown coin code %s", code)
 	}
 	backend.coins[code] = coin
-	coin.Observe(func(event observable.Event) { backend.events <- event })
+	coin.Observe(backend.Notify)
 	return coin, nil
 }
 
@@ -801,7 +801,7 @@ func (backend *Backend) EmitBitBoxBaseReconnected(bitboxBaseID string) {
 func (backend *Backend) bitBoxBaseRegister(theBase *bitboxbase.BitBoxBase, hostname string, ip string) error {
 	backend.bitboxBases[theBase.Identifier()] = theBase
 	backend.onBitBoxBaseInit(theBase)
-	theBase.Observe(func(event observable.Event) { backend.events <- event })
+	theBase.Observe(backend.Notify)
 	select {
 	case backend.events <- backendEvent{
 		Type: "bitboxbases",
