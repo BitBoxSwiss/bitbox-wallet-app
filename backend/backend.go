@@ -196,7 +196,6 @@ func (backend *Backend) addAccount(account accounts.Interface) {
 	defer backend.accountsLock.Lock()()
 	backend.accounts = append(backend.accounts, account)
 	backend.onAccountInit(account)
-	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 func (backend *Backend) notifyNewTxs(account accounts.Interface) {
@@ -222,6 +221,10 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 	}
 }
 
+func (backend *Backend) emitAccountsStatusChanged() {
+	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
+}
+
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If
 // persist is true, the configuration is fetched and saved in the accounts configuration.
 func (backend *Backend) CreateAndAddAccount(
@@ -230,6 +233,7 @@ func (backend *Backend) CreateAndAddAccount(
 	name string,
 	getSigningConfiguration func() (*signing.Configuration, error),
 	persist bool,
+	emitEvent bool,
 ) error {
 	if persist {
 		configuration, err := getSigningConfiguration()
@@ -265,6 +269,7 @@ func (backend *Backend) CreateAndAddAccount(
 		return backend.notifier.ForAccount(fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code()))
 	}
 
+	accountAdded := false
 	switch specificCoin := coin.(type) {
 	case *btc.Coin:
 		account = btc.NewAccount(
@@ -280,12 +285,17 @@ func (backend *Backend) CreateAndAddAccount(
 			backend.ratesUpdater,
 		)
 		backend.addAccount(account)
+		accountAdded = true
 	case *eth.Coin:
 		account = eth.NewAccount(specificCoin, backend.arguments.CacheDirectoryPath(), code, name,
 			getSigningConfiguration, backend.keystores, getNotifier, onEvent, backend.log, backend.ratesUpdater)
 		backend.addAccount(account)
+		accountAdded = true
 	default:
 		panic("unknown coin type")
+	}
+	if emitEvent && accountAdded {
+		backend.emitAccountsStatusChanged()
 	}
 	return nil
 }
@@ -333,7 +343,7 @@ func (backend *Backend) createAndAddAccount(
 	if backend.arguments.Multisig() {
 		name += " Multisig"
 	}
-	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false)
+	err = backend.CreateAndAddAccount(coin, code, name, getSigningConfiguration, false, false)
 	if err != nil {
 		panic(err)
 	}
@@ -558,7 +568,7 @@ func (backend *Backend) initPersistedAccounts() {
 		getSigningConfiguration := func() (*signing.Configuration, error) {
 			return account.Configuration, nil
 		}
-		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false)
+		err = backend.CreateAndAddAccount(coin, account.Code, account.Name, getSigningConfiguration, false, false)
 		if err != nil {
 			panic(err)
 		}
@@ -652,6 +662,8 @@ func (backend *Backend) initAccounts() {
 
 	backend.initDefaultAccounts()
 	backend.initPersistedAccounts()
+
+	backend.emitAccountsStatusChanged()
 }
 
 // ReinitializeAccounts uninits and then reinits all accounts. This is useful to reload the accounts
@@ -749,6 +761,7 @@ func (backend *Backend) Start() <-chan interface{} {
 		backend.baseManager.Start()
 	}
 	backend.initPersistedAccounts()
+	backend.emitAccountsStatusChanged()
 	return backend.events
 }
 
@@ -836,7 +849,6 @@ func (backend *Backend) uninitAccounts() {
 		account.Close()
 	}
 	backend.accounts = []accounts.Interface{}
-	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
 }
 
 // Keystores returns the keystores registered at this backend.
@@ -864,6 +876,7 @@ func (backend *Backend) DeregisterKeystore() {
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
 	backend.initPersistedAccounts()
+	backend.emitAccountsStatusChanged()
 }
 
 // Register registers the given device at this backend.

@@ -77,6 +77,7 @@ type Backend interface {
 		name string,
 		getSigningConfiguration func() (*signing.Configuration, error),
 		persist bool,
+		emitEvent bool,
 	) error
 	UserLanguage() language.Tag
 	OnAccountInit(f func(accounts.Interface))
@@ -436,7 +437,7 @@ func (handlers *Handlers) postAddAccountHandler(r *http.Request) (interface{}, e
 	}
 	accountCode := fmt.Sprintf("%s-%s", configuration.Hash(), coin.Code())
 	err = handlers.backend.CreateAndAddAccount(
-		coin, accountCode, jsonAccountName, getSigningConfiguration, true)
+		coin, accountCode, jsonAccountName, getSigningConfiguration, true, true)
 	if errp.Cause(err) == backend.ErrAccountAlreadyExists {
 		return map[string]interface{}{"success": false, "errorCode": "alreadyExists"}, nil
 	}

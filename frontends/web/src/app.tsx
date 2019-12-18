@@ -94,16 +94,6 @@ class App extends Component<Props, State> {
                     break;
                 }
                 break;
-            case 'device':
-                switch (data) {
-                case 'keystoreAvailable':
-                    this.onAccountsStatusChanged();
-                    break;
-                case 'keystoreGone':
-                    this.onAccountsStatusChanged();
-                    break;
-                }
-                break;
             case 'devices':
                 switch (data) {
                 case 'registeredChanged':
