@@ -44,20 +44,19 @@ import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
 interface State {
-    devices: Devices;
     detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
 }
 
 interface SubscribedProps {
     accounts: AccountInterface[];
+    devices: Devices;
 }
 
 type Props = SubscribedProps & TranslateProps;
 
 class App extends Component<Props, State> {
     public readonly state: State = {
-        devices: {},
         detectedBases: {},
         bitboxBaseIDs: [],
     };
@@ -75,7 +74,6 @@ class App extends Component<Props, State> {
 
     public componentDidMount() {
         this.maybeRoute();
-        this.onDevicesRegisteredChanged();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
@@ -89,13 +87,6 @@ class App extends Component<Props, State> {
                             accountName: meta.accountName,
                         }),
                     });
-                    break;
-                }
-                break;
-            case 'devices':
-                switch (data) {
-                case 'registeredChanged':
-                    this.onDevicesRegisteredChanged();
                     break;
                 }
                 break;
@@ -117,12 +108,6 @@ class App extends Component<Props, State> {
 
     public componentWillUnmount() {
         this.unsubscribe();
-    }
-
-    private onDevicesRegisteredChanged = () => {
-        apiGet('devices/registered').then(devices => {
-            this.setState({ devices });
-        });
     }
 
     private onBitBoxBasesDetectedChanged = () => {
@@ -173,8 +158,8 @@ class App extends Component<Props, State> {
     }
 
     public render(
-        { accounts }: RenderableProps<Props>,
-        { devices, bitboxBaseIDs, detectedBases }: State,
+        { accounts, devices }: RenderableProps<Props>,
+        { bitboxBaseIDs, detectedBases }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
@@ -253,7 +238,10 @@ class App extends Component<Props, State> {
 }
 
 const subscribeHOC = subscribe<SubscribedProps, TranslateProps>(
-    { accounts: 'accounts' },
+    {
+        accounts: 'accounts',
+        devices: 'devices/registered',
+    },
     true,
     false,
 )(App);

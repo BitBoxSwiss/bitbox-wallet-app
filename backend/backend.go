@@ -927,6 +927,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		return err
 	}
 
+	backend.Notify(observable.Event{
+		Subject: "devices/registered",
+		Action:  action.Reload,
+	})
+	// Old-school
 	select {
 	case backend.events <- backendEvent{
 		Type: "devices",
@@ -934,6 +939,11 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 	}:
 	default:
 	}
+	// New-school
+	backend.Notify(observable.Event{
+		Subject: "devices/registered",
+		Action:  action.Reload,
+	})
 
 	switch theDevice.ProductName() {
 	case bitbox.ProductName:
@@ -948,7 +958,14 @@ func (backend *Backend) Deregister(deviceID string) {
 		backend.onDeviceUninit(deviceID)
 		delete(backend.devices, deviceID)
 		backend.DeregisterKeystore()
+
+		// Old-school
 		backend.events <- backendEvent{Type: "devices", Data: "registeredChanged"}
+		// New-school
+		backend.Notify(observable.Event{
+			Subject: "devices/registered",
+			Action:  action.Reload,
+		})
 	}
 }
 
