@@ -225,7 +225,10 @@ func (backend *Backend) notifyNewTxs(account accounts.Interface) {
 }
 
 func (backend *Backend) emitAccountsStatusChanged() {
-	backend.events <- backendEvent{Type: "backend", Data: "accountsStatusChanged"}
+	backend.Notify(observable.Event{
+		Subject: "accounts",
+		Action:  action.Reload,
+	})
 }
 
 // CreateAndAddAccount creates an account with the given parameters and adds it to the backend. If

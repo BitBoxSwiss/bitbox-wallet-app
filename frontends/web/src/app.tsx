@@ -24,6 +24,7 @@ import { store as panelStore } from './components/guide/guide';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
+import { subscribe } from './decorators/subscribe';
 import { translate, TranslateProps } from './decorators/translate';
 import { i18nEditorActive } from './i18n/i18n';
 import { Account, AccountInterface } from './routes/account/account';
@@ -43,17 +44,19 @@ import { apiGet, apiPost } from './utils/request';
 import { apiWebsocket } from './utils/websocket';
 
 interface State {
-    accounts: AccountInterface[];
     devices: Devices;
     detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
 }
 
-type Props = TranslateProps;
+interface SubscribedProps {
+    accounts: AccountInterface[];
+}
+
+type Props = SubscribedProps & TranslateProps;
 
 class App extends Component<Props, State> {
-    public state = {
-        accounts: [],
+    public readonly state: State = {
         devices: {},
         detectedBases: {},
         bitboxBaseIDs: [],
@@ -71,17 +74,14 @@ class App extends Component<Props, State> {
     }
 
     public componentDidMount() {
+        this.maybeRoute();
         this.onDevicesRegisteredChanged();
         this.onBitBoxBasesRegisteredChanged();
         this.onBitBoxBasesDetectedChanged();
-        this.onAccountsStatusChanged();
         this.unsubscribe = apiWebsocket(({ type, data, meta }) => {
             switch (type) {
             case 'backend':
                 switch (data) {
-                case 'accountsStatusChanged':
-                    this.onAccountsStatusChanged();
-                    break;
                 case 'newTxs':
                     apiPost('notify-user', {
                         text: this.props.t('notification.newTxs', {
@@ -148,21 +148,24 @@ class App extends Component<Props, State> {
         setBaseUserStatus('OK', ID);
     }
 
-    private onAccountsStatusChanged = () => {
-        apiGet('accounts').then(accounts => {
-            this.setState({ accounts });
+    private maybeRoute = () => {
+        const inAccounts = getCurrentUrl().startsWith('/account/');
+        const accounts = this.props.accounts;
+        if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
+            route('/', true);
+        }
 
-            const inAccounts = getCurrentUrl().startsWith('/account/');
-            if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
-                route('/', true);
+        if (getCurrentUrl() === '/account') {
+            if (accounts && accounts.length) {
+                route(`/account/${accounts[0].code}`, true);
             }
+        }
+    }
 
-            if (getCurrentUrl() === '/account') {
-                if (accounts && accounts.length) {
-                    route(`/account/${accounts[0].code}`, true);
-                }
-            }
-        });
+    public componentDidUpdate(prevProps) {
+        if (prevProps.accounts !== this.props.accounts) {
+            this.maybeRoute();
+        }
     }
 
     private toggleSidebar = () => {
@@ -170,8 +173,8 @@ class App extends Component<Props, State> {
     }
 
     public render(
-        {}: RenderableProps<Props>,
-        { accounts, devices, bitboxBaseIDs, detectedBases }: State,
+        { accounts }: RenderableProps<Props>,
+        { devices, bitboxBaseIDs, detectedBases }: State,
     ) {
         const deviceIDs: string[] = Object.keys(devices);
         return (
@@ -249,5 +252,11 @@ class App extends Component<Props, State> {
     }
 }
 
-const HOC = translate()(App);
+const subscribeHOC = subscribe<SubscribedProps, TranslateProps>(
+    { accounts: 'accounts' },
+    true,
+    false,
+)(App);
+
+const HOC = translate()(subscribeHOC);
 export { HOC as App };

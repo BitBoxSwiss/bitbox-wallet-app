@@ -15,7 +15,6 @@
  */
 
 import { Component, h, RenderableProps } from 'preact';
-import { route } from 'preact-router';
 import { Link, Match } from 'preact-router/match';
 import ejectIcon from '../../assets/icons/eject.svg';
 import info from '../../assets/icons/info.svg';
@@ -317,7 +316,6 @@ class Sidebar extends Component<Props> {
 
 function eject(e: Event): void {
     apiPost('test/deregister');
-    route('/', true);
     e.preventDefault();
 }
 
