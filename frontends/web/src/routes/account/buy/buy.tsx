@@ -32,7 +32,6 @@ interface BuyProps {
     accounts: Account[];
     code?: string;
     devices: Devices;
-    deviceIDs: string[];
 }
 
 interface LoadedBuyProps {

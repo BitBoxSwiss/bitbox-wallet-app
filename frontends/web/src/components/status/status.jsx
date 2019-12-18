@@ -71,7 +71,7 @@ export default class Status extends Component {
             return null;
         }
         return (
-            <div className={[style.container, style[type], className ? className : ''].join(' ')}>
+            <div className={[style[type], className ? className : ''].join(' ')}>
                 <div className={style.status}>
                     {children}
                     {
