@@ -45,7 +45,6 @@ import { apiWebsocket } from './utils/websocket';
 interface State {
     accounts: AccountInterface[];
     accountsInitialized: boolean;
-    deviceIDs: string[];
     devices: Devices;
     detectedBases: DetectedBitBoxBases;
     bitboxBaseIDs: string[];
@@ -57,7 +56,6 @@ class App extends Component<Props, State> {
     public state = {
         accounts: [],
         accountsInitialized: false,
-        deviceIDs: [],
         devices: {},
         detectedBases: {},
         bitboxBaseIDs: [],
@@ -135,8 +133,7 @@ class App extends Component<Props, State> {
 
     private onDevicesRegisteredChanged = () => {
         apiGet('devices/registered').then(devices => {
-            const deviceIDs = Object.keys(devices);
-            this.setState({ devices, deviceIDs });
+            this.setState({ devices });
         });
     }
 
@@ -192,8 +189,9 @@ class App extends Component<Props, State> {
 
     public render(
         {}: RenderableProps<Props>,
-        { accounts, devices, deviceIDs, bitboxBaseIDs, accountsInitialized, detectedBases }: State,
+        { accounts, devices, bitboxBaseIDs, accountsInitialized, detectedBases }: State,
     ) {
+        const deviceIDs: string[] = Object.keys(devices);
         return (
             <div className={['app', i18nEditorActive ? 'i18nEditor' : ''].join(' ')}>
                 <TranslationHelper />
@@ -219,8 +217,7 @@ class App extends Component<Props, State> {
                         <Buy
                             path="/account/:code/buy"
                             devices={devices}
-                            accounts={accounts}
-                            deviceIDs={deviceIDs} />
+                            accounts={accounts} />
                         <Info
                             path="/account/:code/info"
                             accounts={accounts} />
