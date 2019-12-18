@@ -22,11 +22,25 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 )
 
+// Type denotes the type of a keystore.
+type Type string
+
+const (
+	// TypeHardware means the keystore is provided by a hardware wallet.
+	TypeHardware Type = "hardware"
+	// TypeSoftware mans the keystore is provided by a software (hot) wallet. Currently only used in
+	// devmode for testing.
+	TypeSoftware Type = "software"
+)
+
 // ErrSigningAborted is used when the user aborts a signing in process (e.g. abort on HW wallet).
 var ErrSigningAborted = errors.New("signing aborted by user")
 
 // Keystore supports hardened key derivation according to BIP32 and signing of transactions.
 type Keystore interface {
+	// Type denotes the type of the keystore.
+	Type() Type
+
 	// CosignerIndex returns the index at which the keystore signs in a multisig configuration.
 	// The returned value is always zero for a singlesig configuration.
 	CosignerIndex() int

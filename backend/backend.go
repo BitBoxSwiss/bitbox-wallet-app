@@ -49,6 +49,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/locker"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/sirupsen/logrus"
@@ -113,6 +114,8 @@ type Environment interface {
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
 type Backend struct {
+	observable.Implementation
+
 	arguments   *arguments.Arguments
 	environment Environment
 
@@ -674,14 +677,6 @@ func (backend *Backend) ReinitializeAccounts() {
 	backend.initAccounts()
 }
 
-// AccountsStatus returns whether the accounts have been initialized.
-func (backend *Backend) AccountsStatus() string {
-	if len(backend.accounts) > 0 {
-		return "initialized"
-	}
-	return "uninitialized"
-}
-
 // Testing returns whether this backend is for testing only.
 func (backend *Backend) Testing() bool {
 	return backend.arguments.Testing()
@@ -862,6 +857,10 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 	if err := backend.keystores.Add(keystore); err != nil {
 		backend.log.Panic("Failed to add a keystore.", err)
 	}
+	backend.Notify(observable.Event{
+		Subject: "keystores",
+		Action:  action.Reload,
+	})
 	if backend.arguments.Multisig() && backend.keystores.Count() != 2 {
 		return
 	}
@@ -872,6 +871,10 @@ func (backend *Backend) RegisterKeystore(keystore keystore.Keystore) {
 func (backend *Backend) DeregisterKeystore() {
 	backend.log.Info("deregistering keystore")
 	backend.keystores = keystore.NewKeystores()
+	backend.Notify(observable.Event{
+		Subject: "keystores",
+		Action:  action.Reload,
+	})
 	backend.uninitAccounts()
 	// TODO: classify accounts by keystore, remove only the ones belonging to the deregistered
 	// keystore. For now we just remove all, then re-add the rest.
