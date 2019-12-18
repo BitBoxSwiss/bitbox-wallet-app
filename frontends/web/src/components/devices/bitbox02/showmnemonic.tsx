@@ -33,7 +33,7 @@ interface State {
 }
 
 class ShowMnemonic extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         inProgress: false,
     };
 

@@ -45,7 +45,7 @@ interface State {
 }
 
 class Restore extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         isConfirming: false,
         activeDialog: false,
         isLoading: false,

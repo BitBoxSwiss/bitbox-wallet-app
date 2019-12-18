@@ -34,7 +34,7 @@ interface State {
 }
 
 class Create extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         creatingBackup: false,
         disabled: false,
     };

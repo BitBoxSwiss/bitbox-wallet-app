@@ -28,7 +28,7 @@ interface SkipForTestingState {
 }
 
 export class SkipForTesting extends Component<SkipForTestingProps, SkipForTestingState> {
-    public state = {
+    public readonly state: SkipForTestingState = {
         testPIN: '',
     };
 

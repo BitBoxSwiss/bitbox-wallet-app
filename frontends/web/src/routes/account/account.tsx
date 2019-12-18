@@ -69,7 +69,7 @@ interface State {
 type Props = LoadedAccountProps & AccountProps & TranslateProps;
 
 class Account extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         initialized: false,
         connected: false,
         transactions: undefined,
