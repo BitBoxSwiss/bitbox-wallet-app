@@ -69,6 +69,10 @@ type Transaction interface {
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
 	NumConfirmations() int
 
+	// NumConfirmationsComplete is the number of confirmations needed for a tx to be considered
+	// complete.
+	NumConfirmationsComplete() int
+
 	// Status is the tx status. See TxStatus docs for details.
 	Status() TxStatus
 

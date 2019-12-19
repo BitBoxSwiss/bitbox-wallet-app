@@ -193,6 +193,11 @@ func (tx *Transaction) NumConfirmations() int {
 	return int(tx.jsonTransaction.Confirmations.BigInt().Int64())
 }
 
+// NumConfirmationsComplete implements accounts.Transaction.
+func (tx *Transaction) NumConfirmationsComplete() int {
+	return ethtypes.NumConfirmationsComplete
+}
+
 // Type implements accounts.Transaction.
 func (tx *Transaction) Type() accounts.TxType {
 	return tx.txType
@@ -203,7 +208,7 @@ func (tx *Transaction) Status() accounts.TxStatus {
 	if tx.jsonTransaction.Failed == "1" {
 		return accounts.TxStatusFailed
 	}
-	if tx.NumConfirmations() >= ethtypes.NumConfirmationsComplete {
+	if tx.NumConfirmations() >= tx.NumConfirmationsComplete() {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending
