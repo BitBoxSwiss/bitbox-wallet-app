@@ -37,7 +37,7 @@ interface State {
 }
 
 class Reset extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         understand: false,
         isConfirming: false,
         activeDialog: false,

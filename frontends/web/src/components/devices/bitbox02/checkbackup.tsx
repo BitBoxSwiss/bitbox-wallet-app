@@ -38,7 +38,7 @@ interface State {
 }
 
 class Check extends Component<Props, State> {
-    public state = {
+    public readonly state: State = {
         activeDialog: false,
         message: '',
         foundBackup: undefined,
