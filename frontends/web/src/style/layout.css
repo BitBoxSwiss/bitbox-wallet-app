@@ -405,6 +405,10 @@
         margin-top: var(--space-quarter);
     }
 
+    .full-width-on-small {
+        width: 100%;
+    }
+
     .hide-on-small {
         display: none;
     }
