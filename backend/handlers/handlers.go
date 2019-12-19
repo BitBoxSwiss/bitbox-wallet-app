@@ -202,8 +202,9 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
-	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
 	devicesRouter("/registered", handlers.getDevicesRegisteredHandler).Methods("GET")
+
+	bitboxBasesRouter := getAPIRouter(apiRouter.PathPrefix("/bitboxbases").Subrouter())
 	bitboxBasesRouter("/registered", handlers.getBitBoxBasesRegisteredHandler).Methods("GET")
 	bitboxBasesRouter("/detected", handlers.getBitBoxBasesDetectedHandler).Methods("GET")
 
