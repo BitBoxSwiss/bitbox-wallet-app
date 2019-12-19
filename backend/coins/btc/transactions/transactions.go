@@ -488,6 +488,11 @@ func (txInfo *TxInfo) NumConfirmations() int {
 	return txInfo.numConfirmations
 }
 
+// NumConfirmationsComplete implements accounts.Transaction.
+func (txInfo *TxInfo) NumConfirmationsComplete() int {
+	return 6
+}
+
 // Type implements accounts.Transaction.
 func (txInfo *TxInfo) Type() accounts.TxType {
 	return txInfo.txType
@@ -495,7 +500,7 @@ func (txInfo *TxInfo) Type() accounts.TxType {
 
 // Status implements accounts.Transaction.
 func (txInfo *TxInfo) Status() accounts.TxStatus {
-	if txInfo.NumConfirmations() >= 6 {
+	if txInfo.NumConfirmations() >= txInfo.NumConfirmationsComplete() {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending

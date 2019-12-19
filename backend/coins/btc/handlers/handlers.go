@@ -107,14 +107,15 @@ func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee boo
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID               string            `json:"id"`
-	NumConfirmations int               `json:"numConfirmations"`
-	Type             string            `json:"type"`
-	Status           accounts.TxStatus `json:"status"`
-	Amount           FormattedAmount   `json:"amount"`
-	Fee              FormattedAmount   `json:"fee"`
-	Time             *string           `json:"time"`
-	Addresses        []string          `json:"addresses"`
+	ID                       string            `json:"id"`
+	NumConfirmations         int               `json:"numConfirmations"`
+	NumConfirmationsComplete int               `json:"numConfirmationsComplete"`
+	Type                     string            `json:"type"`
+	Status                   accounts.TxStatus `json:"status"`
+	Amount                   FormattedAmount   `json:"amount"`
+	Fee                      FormattedAmount   `json:"fee"`
+	Time                     *string           `json:"time"`
+	Addresses                []string          `json:"addresses"`
 
 	// BTC specific fields.
 	VSize        int64           `json:"vsize"`
@@ -158,8 +159,9 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			addresses = append(addresses, addressAndAmount.Address)
 		}
 		txInfoJSON := Transaction{
-			ID:               txInfo.ID(),
-			NumConfirmations: txInfo.NumConfirmations(),
+			ID:                       txInfo.ID(),
+			NumConfirmations:         txInfo.NumConfirmations(),
+			NumConfirmationsComplete: txInfo.NumConfirmationsComplete(),
 			Type: map[accounts.TxType]string{
 				accounts.TxTypeReceive:  "receive",
 				accounts.TxTypeSend:     "send",

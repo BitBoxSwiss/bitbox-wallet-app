@@ -170,6 +170,11 @@ func (txh *TransactionWithConfirmations) NumConfirmations() int {
 	return confs
 }
 
+// NumConfirmationsComplete implements accounts.Transaction.
+func (txh *TransactionWithConfirmations) NumConfirmationsComplete() int {
+	return NumConfirmationsComplete
+}
+
 // Status implements accounts.Transaction.
 func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
 	if txh.NumConfirmations() == 0 {
@@ -178,7 +183,7 @@ func (txh *TransactionWithConfirmations) Status() accounts.TxStatus {
 	if !txh.Success {
 		return accounts.TxStatusFailed
 	}
-	if txh.NumConfirmations() >= NumConfirmationsComplete {
+	if txh.NumConfirmations() >= txh.NumConfirmationsComplete() {
 		return accounts.TxStatusComplete
 	}
 	return accounts.TxStatusPending
