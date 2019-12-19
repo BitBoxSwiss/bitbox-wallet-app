@@ -285,7 +285,7 @@ class BaseSettings extends Component<Props, State> {
                                                         </div>
                                                         <div>
                                                             <span className="label">{t('bitboxBase.settings.advanced.port')}</span>
-                                                            <p>{baseInfo.middlewareLocalPort}</p>
+                                                            <p>{baseInfo.middlewarePort}</p>
                                                         </div>
                                                     </div>
                                                     <div className={style.expandedItem}>
@@ -525,7 +525,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <div className="box slim divide">
                                                         <EnableSSHLogin
                                                             apiPrefix={apiPrefix}
-                                                            enabled={baseInfo.IsSSHPasswordLoginEnabled}
+                                                            enabled={baseInfo.isSSHPasswordLoginEnabled}
                                                             onSuccess={getBaseInfo} />
                                                         <SetBaseSystemPassword apiPrefix={apiPrefix} />
                                                         <SettingsButton disabled={true} onClick={connectElectrum}>{t('bitboxBase.settings.advanced.connectElectrum')}</SettingsButton>
