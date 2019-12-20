@@ -100,17 +100,13 @@
 }
 
 @media (min-width: 1081px) {
-  .showOnMedium {
+  .hideOnMedium {
     display: none;
   }
 }
 
 @media (max-width: 1080px) {
   .showOnMedium {
-    display: block;
-  }
-
-  .hideOnMedium {
     display: none;
   }
 
@@ -120,7 +116,7 @@
   }
 
   .columnGroup:last-child {
-    margin-top: var(--space-half);
+    margin-top: var(--space-quarter);
   }
 
   .type {
@@ -130,8 +126,8 @@
   }
 
   .date {
-    min-width: 115px;
-    width: 115px;
+    min-width: 126px;
+    width: 126px;
   }
 
   .address {
@@ -140,10 +136,10 @@
 
   .fiat,
   .currency {
-    /* margin-right: 36px; */
     justify-content: flex-start;
     min-width: 0;
     width: auto;
+    text-align: right;
   }
 
   .action {
@@ -173,8 +169,8 @@
   }
 
   .type {
-    min-width: 24px;
-    width: 24px;
+    min-width: 26px;
+    width: 26px;
   }
 
   .address {
@@ -183,13 +179,12 @@
   }
 
   .date {
-    min-width: 60px;
-    width: 60px;
+    min-width: 80px;
+    width: 80px;
   }
 
   .status {
     min-width: 100px;
-    margin-left: 3px;
-    /* margin-left: 30px; */
+    margin-left: 2px;
   }
 }

@@ -1,0 +1,30 @@
+.container {
+    transform: rotate(-90deg);
+    background-color: transparent !important;
+}
+
+.background,
+.foreground {
+    fill: none;
+}
+
+.background {
+    stroke: var(--color-mediumgray);
+}
+
+.foreground {
+    
+}
+
+.complete {
+    stroke: var(--color-success);
+}
+
+.pending,
+.generic {
+    stroke: var(--color-primary);
+}
+
+.error {
+    stroke: var(--color-danger);
+}

@@ -21,6 +21,7 @@ import A from '../anchor/anchor';
 import * as style from './transaction.css';
 import * as parentStyle from './transactions.css';
 import { Dialog } from '../dialog/dialog';
+import { ProgressRing } from '../progressRing/progressRing';
 
 @translate()
 export default class Transaction extends Component {
@@ -59,6 +60,7 @@ export default class Transaction extends Component {
         size,
         weight,
         numConfirmations,
+        numConfirmationsComplete,
         time,
         addresses,
         status,
@@ -111,18 +113,14 @@ export default class Transaction extends Component {
         );
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const sDate = time ? this.parseTimeShort(time) : '---';
-        const statusStyle = {
-            complete: style.statusIndicatorComplete,
-            pending: style.statusIndicatorPending,
-            failed: style.statusIndicatorFailed,
-        }[status];
         const statusText = {
             complete: 'Complete',
-            pending: 'Pending',
+            pending: `Pending`,
             failed: 'Failed',
         }[status];
+        const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
         return (
-            <div className={[style.container, style.collapsed, index === 0 ? style.first : ''].join(' ')}>
+            <div className={[style.container, index === 0 ? style.first : ''].join(' ')}>
                 <div className={[parentStyle.columns, style.row].join(' ')}>
                     <div className={parentStyle.columnGroup}>
                         <div className={parentStyle.type}>{arrow}</div>
@@ -130,7 +128,7 @@ export default class Transaction extends Component {
                             <span className={style.columnLabel}>Date:</span>
                             <span className={style.date}>{sDate}</span>
                         </div>
-                        <div className={[parentStyle.address].join(' ')}>
+                        <div className={parentStyle.address}>
                             <span className={style.columnLabel}>Address:</span>
                             <span className={style.address}>
                                 {addresses[0]}
@@ -143,7 +141,7 @@ export default class Transaction extends Component {
                                 }
                             </span>
                         </div>
-                        <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
+                        <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
                                 {
                                     !transactionDialog ? (
@@ -187,7 +185,12 @@ export default class Transaction extends Component {
                     <div className={[parentStyle.columnGroup].join(' ')}>
                         <div className={parentStyle.status}>
                             <span className={style.columnLabel}>Status:</span>
-                            <span className={[style.statusIndicator, statusStyle].join(' ')}></span>
+                            <ProgressRing
+                                className="m-right-quarter"
+                                width={14}
+                                value={progress}
+                                isComplete={numConfirmations >= numConfirmationsComplete}
+                            />
                             <span className={style.status}>{statusText}</span>
                         </div>
                         <div className={parentStyle.fiat}>
@@ -198,7 +201,7 @@ export default class Transaction extends Component {
                         <div className={parentStyle.currency}>
                             <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
                         </div>
-                        <div className={[parentStyle.action, parentStyle.hideOnMedium].join(' ')}>
+                        <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
                                 {
                                     !transactionDialog ? (
@@ -248,15 +251,30 @@ export default class Transaction extends Component {
                                 <p>{arrow}</p>
                             </div>
                             <div className={style.detail}>
-                                <label>Date</label>
-                                <p>{sDate}</p>
+                                <label>{t('transaction.confirmation')}</label>
+                                <p>{numConfirmations}</p>
                             </div>
                             <div className={style.detail}>
                                 <label>Status</label>
-                                <p>
-                                    <span className={[style.statusIndicator, statusStyle].join(' ')} style="display: inline-block;"></span>
-                                    <span className={style.status}>{statusText}</span>
+                                <p className="flex flex-items-center">
+                                    <ProgressRing
+                                        className="m-right-quarter"
+                                        width={14}
+                                        value={progress}
+                                        isComplete={numConfirmations >= numConfirmationsComplete}
+                                    />
+                                    <span className={style.status}>
+                                        {statusText} {
+                                            status === 'pending' && (
+                                                <span>({numConfirmations}/{numConfirmationsComplete})</span>
+                                            )
+                                        }
+                                    </span>
                                 </p>
+                            </div>
+                            <div className={style.detail}>
+                                <label>Date</label>
+                                <p>{sDate}</p>
                             </div>
                             <div className={style.detail}>
                                 <label>Fiat</label>
@@ -291,10 +309,6 @@ export default class Transaction extends Component {
                                         ))
                                     }
                                 </span>
-                            </div>
-                            <div className={style.detail}>
-                                <label>{t('transaction.confirmation')}</label>
-                                <p>{numConfirmations}</p>
                             </div>
                             {
                                 gas ? (
