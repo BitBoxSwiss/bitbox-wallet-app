@@ -57,7 +57,7 @@
 }
 
 .item {
-    color: var(--color-default);
+    color: var(--color-secondary);
     cursor: default;
 }
 
