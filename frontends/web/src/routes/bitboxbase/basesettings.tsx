@@ -39,6 +39,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
+import { verificationProgress } from '../../utils/verificationprogress';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo, statusBadgeColor } from './bitboxbase';
 import * as style from './bitboxbase.css';
 import { updateStatus } from './bitboxbase.css';
@@ -232,7 +233,7 @@ class BaseSettings extends Component<Props, State> {
                                         <div className={style.dashboardItem}>
                                             {
                                                 serviceInfo ?
-                                                <p>{Math.round(100 * serviceInfo.bitcoindVerificationProgress)}%</p>
+                                                <p>{verificationProgress(serviceInfo.bitcoindVerificationProgress)}%</p>
                                                 :
                                                 <div className={style.loadingIconContainer}>
                                                     <img src={loadingStatic} style="width: 24px"/>
