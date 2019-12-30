@@ -452,7 +452,7 @@ class BaseSettings extends Component<Props, State> {
                                                 getBaseInfo={getBaseInfo} />
                                             <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
-                                                optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
+                                                optionalText={t('generic.enabled', {context: baseInfo.isTorEnabled.toString()})}
                                                 onClick={baseInfo.isTorEnabled ?
                                                     this.toggleExpandedTorAddress :
                                                     () => this.toggleTor(true)}>
@@ -547,7 +547,7 @@ class BaseSettings extends Component<Props, State> {
                 {
                     expandedTorAddress && (
                         <Dialog
-                            title={t('bitboxBase.settings.node.tor') + ': ' + t(`generic.enabled.${baseInfo.isTorEnabled}`).toLowerCase()}
+                            title={t('bitboxBase.settings.node.tor') + ': ' + t('generic.enabled', {context: baseInfo.isTorEnabled.toString()}).toLowerCase()}
                             onClose={this.toggleExpandedTorAddress}>
                             {
                                 baseInfo.isTorEnabled && (
@@ -564,7 +564,7 @@ class BaseSettings extends Component<Props, State> {
                                     danger
                                     style="width: 100%;"
                                     onClick={() => this.toggleTor(false)}>
-                                    {t(`generic.enable.${true}`)[0].toUpperCase() + t(`generic.enable.${true}`).slice(1)}
+                                    {t('generic.enable', {context: 'false'})[0].toUpperCase() + t('generic.enable', {context: 'false'}).slice(1)}
                                 </Button>
                             </div>
                         </Dialog>

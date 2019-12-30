@@ -251,9 +251,9 @@
         "reset": "Reset to factory settings",
         "sshAccess": {
           "button": "SSH password login",
-          "confirm": "Would you like to {{toggle}} SSH password authentication?",
+          "confirm": "SSH password authentication: {{action}}\n$t(generic.confirmToContinue)",
           "inProgress": "Toggling SSH password authentication",
-          "success": "SSH password authentication {{enabled}}",
+          "success": "SSH password authentication: {{enabled}}",
           "title": "SSH access"
         },
         "subheaders": {
@@ -549,14 +549,10 @@
     "applying": "Applying configuration",
     "confirmToContinue": "Please confirm to continue.",
     "description": "Description",
-    "enable": {
-      "false": "enable",
-      "true": "disable"
-    },
-    "enabled": {
-      "false": "Disabled",
-      "true": "Enabled"
-    }
+    "enable_false": "Disable",
+    "enable_true": "Enable",
+    "enabled_false": "Disabled",
+    "enabled_true": "Enabled"
   },
   "genericError": "An error occurred. If you notice any issues, please restart the application.",
   "goal": {
