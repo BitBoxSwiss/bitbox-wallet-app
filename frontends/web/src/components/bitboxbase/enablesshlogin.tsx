@@ -76,12 +76,13 @@ class EnableSSHLogin extends Component<Props, State> {
                     <ConfirmBaseRPC
                         apiPrefix={apiPrefix}
                         apiEndpoint="/enable-ssh-password-login"
-                        confirmText={t('bitboxBase.settings.advanced.sshAccess.confirm', { action: t('generic.enable', {context: (!enabled).toString()})})}
+                        confirmText={t('bitboxBase.settings.advanced.sshAccess.confirm')}
                         inProgressText={t('bitboxBase.settings.advanced.sshAccess.inProgress')}
                         successText={t('bitboxBase.settings.advanced.sshAccess.success', { enabled: (t('generic.enabled', {context: (!this.state.enabled).toString()})).toLowerCase() })}
                         dialogTitle={t('bitboxBase.settings.advanced.sshAccess.title')}
                         args={!enabled}
                         toggleDialog={this.toggleDialog}
+                        customButtonText={(t('generic.enable', {context: (!enabled).toString()}))}
                         onSuccess={onSuccess} />
                 }
             </div>

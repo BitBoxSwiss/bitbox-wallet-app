@@ -243,7 +243,7 @@
     "new": "New BitBoxBase",
     "settings": {
       "advanced": {
-        "confirmSystemPassword": "This will set the BitBoxBase system password to use for <strong>ssh authentication and sudo access.</strong>\n$t(generic.confirmToContinue)",
+        "confirmSystemPassword": "Set the BitBoxBase system password to use for <strong>ssh authentication and sudo access.</strong>\n$t(generic.confirmToContinue)",
         "connectElectrum": "Connect Electrum",
         "ipAddress": "IP address",
         "manual": "Manual update",
@@ -251,9 +251,9 @@
         "reset": "Reset to factory settings",
         "sshAccess": {
           "button": "SSH password login",
-          "confirm": "SSH password authentication: {{action}}\n$t(generic.confirmToContinue)",
+          "confirm": "This setting gives you <strong>SSH and sudo access</strong> to your BitBoxBase using a system password that you must set.\nPlease proceed only if you know what you are doing.",
           "inProgress": "Toggling SSH password authentication",
-          "success": "SSH password authentication: {{enabled}}",
+          "success": "SSH password authentication and sudo access: {{enabled}}",
           "title": "SSH access"
         },
         "subheaders": {
@@ -268,7 +268,7 @@
         "title": "Advanced settings"
       },
       "backups": {
-        "confirmBackup": "Would you like to create a new backup?",
+        "confirmBackup": "Create a new backup of your BitBoxBase configuration on an external flash drive.\n\n Please make sure to <strong>insert a flash drive</strong> into your BitBoxBase.",
         "create": "Create backup",
         "created": "Backup created successfully.",
         "creating": "Creating backup...",
@@ -280,7 +280,7 @@
         "bitcoinRestarting": "Base services are restarting...",
         "changeName": "Change name",
         "changeNameTitle": "Change BitBoxBase hostname",
-        "confirmDisconnect": "Your BitBoxBase will be removed from the App and you will have to reconnect to use it again.\nWould you like to continue?",
+        "confirmDisconnect": "Your BitBoxBase will be removed from the App and you will have to reconnect to use it again.\n$t(generic.confirmToContinue)",
         "confirmTorEnabled": {
           "false": "Are you sure you want to <strong>enable</strong> Tor?\n $t(bitboxBase.settings.node.warning)",
           "true": "Are you sure you want to <strong>disable</strong> Tor?\n This can have serious and irreversible implications regarding privacy and is not recommended.\n $t(bitboxBase.settings.node.warning)"
@@ -293,7 +293,7 @@
         "warning": "Please allow 1-2 minutes for changes to take effect."
       },
       "system": {
-        "confirmRestart": "Your BitBoxBase will now <strong>restart</strong> and you will need to reconnect to it once ready.\n $t(generic.confirmToContinue)",
+        "confirmRestart": "Your BitBoxBase will now <strong>restart</strong> and will reconnect automatically once ready. This may take several minutes.\n $t(generic.confirmToContinue)",
         "confirmShutdown": "Your BitBoxBase will now <strong>shut down</strong> and you will have to turn it back on manually.\n $t(generic.confirmToContinue)",
         "confirmUpdate": "Would you like to update your BitBoxBase from version {{current}} to {{newVersion}}?",
         "restart": "Restart",

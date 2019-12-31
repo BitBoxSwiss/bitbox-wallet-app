@@ -27,6 +27,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
 import { apiPost } from '../../utils/request';
+import { confirmation } from '../confirm/Confirm';
 import { Dialog } from '../dialog/dialog';
 import { Button  } from '../forms';
 
@@ -40,12 +41,14 @@ interface ConfirmBaseRPCProps {
     inProgressText: string;
     successText: string;
     dialogTitle: string;
+    customButtonText?: string;
     args?: any;
     toggleDialog: () => void;
     onSuccess?: () => void;
 }
 
 interface State {
+    confirmed: boolean;
     inProgress: boolean;
     success?: boolean;
     failureMessage?: string;
@@ -57,13 +60,24 @@ class ConfirmBaseRPC extends Component<Props, State> {
     constructor(props) {
         super(props);
         this.state = {
+            confirmed: false,
             inProgress: false,
             success: undefined,
         };
     }
 
-    private apiCall = (event: Event) => {
-        event.preventDefault();
+    public componentDidMount() {
+        confirmation(this.props.confirmText, confirmed => {
+            if (confirmed) {
+                this.setState({ confirmed: true });
+                this.apiCall();
+            } else {
+                this.abort();
+            }
+        }, this.props.customButtonText);
+    }
+
+    private apiCall = () => {
         this.setState({ inProgress: true });
         apiPost(this.props.apiPrefix + this.props.apiEndpoint, this.props.args)
         .then(response => {
@@ -81,6 +95,7 @@ class ConfirmBaseRPC extends Component<Props, State> {
     private abort = () => {
         this.props.toggleDialog();
         this.setState({
+            confirmed: false,
             inProgress: false,
             success: undefined,
         });
@@ -88,51 +103,45 @@ class ConfirmBaseRPC extends Component<Props, State> {
 
     public render(
         {
-            confirmText,
             inProgressText,
             successText,
             dialogTitle,
             t,
         }: RenderableProps<Props>,
         {
+            confirmed,
             inProgress,
             success,
             failureMessage,
         }: State,
     ) {
         return (
-            <div>
-                <Dialog onClose={this.abort} title={dialogTitle} small>
-                    <div class="box medium p-top-none">
-                        <form onSubmit={success ? this.abort : this.apiCall}>
-                            <div>
-                                {
-                                    !success && !inProgress &&
-                                    <p>{confirmText}</p>
-                                }
-                                {
-                                    success && <p>{successText}</p>
-                                }
-                                {
-                                    inProgress && !success && <p>{inProgressText}</p>
-                                }
-                                {
-                                    // TODO: Look up user facing message from locales file based on error code
-                                    failureMessage && <p>{failureMessage}</p>
-                                }
-                            </div>
+            confirmed && <Dialog title={dialogTitle} onClose={this.abort}>
+                <div className="columnsContainer half">
+                    <div className="columns">
+                        <div className="column">
+                            {
+                                success && <p>{successText}</p>
+                            }
+                            {
+                                inProgress && !success && <p>{inProgressText}</p>
+                            }
+                            {
+                                // TODO: Look up user facing message from locales file based on error code
+                                failureMessage && <p>{failureMessage}</p>
+                            }
                             <div className="buttons">
                                 <Button
                                     primary
                                     disabled={inProgress}
-                                    type="submit">
-                                    {t('button.ok')}
+                                    onClick={this.abort}>
+                                    {t('button.continue')}
                                 </Button>
                             </div>
-                        </form>
+                        </div>
                     </div>
-                </Dialog>
-            </div>
+                </div>
+            </Dialog>
         );
     }
 }
