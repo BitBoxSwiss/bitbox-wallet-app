@@ -160,6 +160,12 @@
   }
 }
 
+@media (max-width: 768px) {
+  .container {
+    margin: var(--space-default) 0;
+  }
+}
+
 @media (max-width: 666px) {
   .columns >  *,
   .columnGroup > * {
