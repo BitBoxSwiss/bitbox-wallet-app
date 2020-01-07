@@ -169,7 +169,7 @@ class Sidebar extends Component<Props> {
                         <AppLogoInverted className="sidebarLogo" />
                     </div>
                     <div className="sidebarHeaderContainer">
-                        <span className="sidebarHeader">Accounts</span>
+                        <span className="sidebarHeader">{t('sidebar.accounts')}</span>
                         {
                             debug && (
                                 <span className="sidebarHeaderAction">
@@ -231,7 +231,7 @@ class Sidebar extends Component<Props> {
                     }
                     { accounts && accounts.map(this.getAccountLink) }
                     <div className="sidebarHeaderContainer end">
-                        <span className="sidebarHeader">Settings</span>
+                        <span className="sidebarHeader">{t('sidebar.settings')}</span>
                     </div>
                     {debug &&
                         <div className="sidebarItem">

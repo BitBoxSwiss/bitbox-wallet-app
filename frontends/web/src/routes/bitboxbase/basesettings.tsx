@@ -291,7 +291,7 @@ class BaseSettings extends Component<Props, State> {
                                                     </div>
                                                     <div className={style.expandedItem}>
                                                         <div style="text-align: left;">
-                                                            <span className="label">Tor onion address</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.torAddress')}</span>
                                                             <p>
                                                                 <a onClick={baseInfo.isTorEnabled ? this.toggleExpandedTorAddress :
                                                                     () => this.toggleTor(true)}>
@@ -311,17 +311,17 @@ class BaseSettings extends Component<Props, State> {
                                                 <div className="box slim divide">
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
                                                         <div>
-                                                            <span className="label">Status</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.status')}</span>
                                                             <p><span className={[style.statusBadge, style.online].join(' ')}></span>{baseInfo.isBitcoindListening ? 'Listening' : 'Offline'}</p>
                                                         </div>
                                                         <div>
-                                                            <span className="label">Version</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.version')}</span>
                                                             <p>{baseInfo.bitcoindVersion}</p>
                                                         </div>
                                                     </div>
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
                                                         <div>
-                                                            <span className="label">Blocks</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.blocks')}</span>
                                                             {
                                                                 serviceInfo ?
                                                                 <p>{serviceInfo.bitcoindBlocks.toString()}</p>
@@ -330,7 +330,7 @@ class BaseSettings extends Component<Props, State> {
                                                             }
                                                         </div>
                                                         <div>
-                                                            <span className="label">Headers</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.headers')}</span>
                                                             {
                                                                 serviceInfo ?
                                                                 <p>{serviceInfo.bitcoindHeaders.toString()}</p>
@@ -344,18 +344,18 @@ class BaseSettings extends Component<Props, State> {
                                             <div className="column column-1-3">
                                                 <div className="subHeaderContainer">
                                                     <div className="subHeader">
-                                                        <h3>{t('bitboxBase.settings.advanced.subheaders.lightning')} and {t('bitboxBase.settings.advanced.subheaders.electrs')}</h3>
+                                                        <h3>{t('bitboxBase.settings.advanced.subheaders.lightning')} {t('generic.and')} {t('bitboxBase.settings.advanced.subheaders.electrs')}</h3>
                                                     </div>
                                                 </div>
                                                 <div className="box slim divide">
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
                                                         <div>
-                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.lightning')} Version</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.lightning')} {t('bitboxBase.settings.advanced.version').toLowerCase()}</span>
                                                             <p>{baseInfo.lightningdVersion}</p>
                                                         </div>
                                                         <div>
                                                             <span className="label">
-                                                                {t('bitboxBase.settings.advanced.subheaders.lightning')} Blocks
+                                                                {t('bitboxBase.settings.advanced.subheaders.lightning')} {t('bitboxBase.settings.advanced.blocks').toLowerCase()}
                                                             </span>
                                                             {
                                                                 serviceInfo ?
@@ -367,12 +367,12 @@ class BaseSettings extends Component<Props, State> {
                                                     </div>
                                                     <div className={[style.expandedItem, style.equal].join(' ')}>
                                                         <div>
-                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.electrs')} Version</span>
+                                                            <span className="label">{t('bitboxBase.settings.advanced.subheaders.electrs')} {t('bitboxBase.settings.advanced.version').toLowerCase()}</span>
                                                             <p>{baseInfo.electrsVersion}</p>
                                                         </div>
                                                         <div>
                                                             <span className="label">
-                                                                {t('bitboxBase.settings.advanced.subheaders.electrs')} Blocks
+                                                                {t('bitboxBase.settings.advanced.subheaders.electrs')} {t('bitboxBase.settings.advanced.blocks').toLowerCase()}
                                                             </span>
                                                             {
                                                                 serviceInfo ?

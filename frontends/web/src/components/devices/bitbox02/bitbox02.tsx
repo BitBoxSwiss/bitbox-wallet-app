@@ -241,8 +241,8 @@ class BitBox02 extends Component<Props, State> {
                 return true;
             }
             this.setState({ waitDialog: {
-                title: 'Insert microSD card',
-                text: 'Please insert a microSD card into your BitBox02 to continue.',
+                title: this.props.t('bitbox02Wizard.stepInsertSD.insertSDcardTitle'),
+                text: this.props.t('bitbox02Wizard.stepInsertSD.insertSDCard'),
             }});
             return apiPost('devices/bitbox02/' + this.props.deviceID + '/insert-sdcard').then(({ success, errorMessage }) => {
                 this.setState({ sdCardInserted: success, waitDialog: undefined });
@@ -265,7 +265,7 @@ class BitBox02 extends Component<Props, State> {
         apiPost(this.apiPrefix() + '/set-password').then(({ success }) => {
             if (!success) {
                 this.setState({
-                    errorText: 'Passwords did not match, please try again.',
+                    errorText: this.props.t('bitbox02Wizard.noPasswordMatch'),
                     settingPassword: false,
                 }, () => {
                     this.setPassword();
@@ -297,17 +297,17 @@ class BitBox02 extends Component<Props, State> {
     private createBackup = () => {
         this.insertSDCard().then(success1 => {
             if (!success1) {
-                alertUser('creating backup failed, try again');
+                alertUser(this.props.t('bitbox02Wizard.createBackupFailed'));
                 return;
             }
 
             this.setState({ creatingBackup: true, waitDialog: {
-                title: "Confirm today's date on your BitBox02",
-                text: 'This date will be used to create your backup.',
+                title: this.props.t('bitbox02Interact.confirmDate'),
+                text: this.props.t('bitbox02Interact.confirmDateText'),
             }});
             apiPost('devices/bitbox02/' + this.props.deviceID + '/backups/create').then(({ success }) => {
                 if (!success) {
-                    alertUser('creating backup failed, try again');
+                    alertUser(this.props.t('bitbox02Wizard.createBackupFailed'));
                 }
                 this.setState({ creatingBackup: false, waitDialog: undefined });
             });
@@ -322,7 +322,7 @@ class BitBox02 extends Component<Props, State> {
 
     private setDeviceName = () => {
         // this.setState({ waitDialog: { title: this.props.t('bitbox02Settings.deviceName.title') } });
-        this.setState({ waitDialog: { title: 'Confirm name on BitBox02' } });
+        this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName')} });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
         .then(result => {
             this.setState({ waitDialog: undefined });
@@ -335,7 +335,7 @@ class BitBox02 extends Component<Props, State> {
     private restoreFromMnemonic = () => {
         this.setState({ waitDialog: {
             title: this.props.t('bitbox02Interact.followInstructions'),
-            text: 'Please follow instructions on BitBox02 to restore from mnemonic.',
+            text: this.props.t('bitbox02Interact.followInstructionsMnemonic'),
         }});
         apiPost('devices/bitbox02/' + this.props.deviceID + '/restore-from-mnemonic').then(({ success }) => {
             if (!success) {
@@ -490,7 +490,7 @@ class BitBox02 extends Component<Props, State> {
                                             <div className="columns">
                                                 <div className="column column-1-2">
                                                     <div className={style.stepContext} style="min-height: 330px">
-                                                        <h3 className={style.stepSubHeader}>Create</h3>
+                                                        <h3 className={style.stepSubHeader}>{t('button.create')}</h3>
                                                         <p className="text-center">{t('bitbox02Wizard.stepUninitialized.create')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                             <Button
@@ -504,7 +504,7 @@ class BitBox02 extends Component<Props, State> {
                                                 </div>
                                                 <div className="column column-1-2">
                                                     <div className={style.stepContext} style="min-height: 330px">
-                                                        <h3 className={style.stepSubHeader}>Restore</h3>
+                                                        <h3 className={style.stepSubHeader}>{t('button.restore')}</h3>
                                                         <p className="text-center">{t('bitbox02Wizard.stepUninitialized.restore')}</p>
                                                         <div className={['buttons text-center', style.fullWidth].join(' ')}>
                                                             <Button

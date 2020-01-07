@@ -295,7 +295,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
                                                             <a className={style.baseItemArrow} onClick={() =>
                                                             this.handleConnect(baseID)
                                                             }>
-                                                                <span className="hide-on-small">Manage</span>
+                                                                <span className="hide-on-small">{t('bitboxBase.manage')}</span>
                                                                 <div className="show-on-small">
                                                                     <div className={style.baseItemIndicator}>
                                                                         <span className={[baseStyle.statusBadge, baseStyle.large, baseStyle[statusBadgeColor(baseID)]].join(' ')}></span>

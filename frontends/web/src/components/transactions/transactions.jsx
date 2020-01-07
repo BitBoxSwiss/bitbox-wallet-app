@@ -33,21 +33,21 @@ export default class Transactions extends Component {
         return (
             <div className={style.container}>
                 <div className="flex flex-row flex-between flex-items-center">
-                    <label className="labelXLarge">Transaction History</label>
+                    <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
                     {
                         exported ? (
                             <A href={exported} className="labelXLarge labelLink">{t('account.openFile')}</A>
                         ) : (
-                            <A href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>Export</A>
+                            <A href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
                         )
                     }
                 </div>
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
-                    <div className={style.type}>Type</div>
-                    <div className={style.date}>Date</div>
-                    <div className={style.address}>Address</div>
-                    <div className={style.status}>Status</div>
-                    <div className={style.fiat}>Fiat</div>
+                    <div className={style.type}>{t('transaction.details.type')}</div>
+                    <div className={style.date}>{t('transaction.details.date')}</div>
+                    <div className={style.address}>{t('transaction.details.address')}</div>
+                    <div className={style.status}>{t('transaction.details.status')}</div>
+                    <div className={style.fiat}>{t('transaction.details.fiat')}</div>
                     <div className={style.currency}>{unit}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>

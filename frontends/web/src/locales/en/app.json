@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "Connection lost. Retrying…",
+    "export": "Export",
     "exportTransactions": "Export transactions to downloads folder as CSV file",
     "fatalError": "There was an unexpected error.",
     "incoming": "Incoming",
@@ -24,6 +25,7 @@
     "verify": "Verify on device"
   },
   "accountSummary": {
+    "availableBalance": "Available balance",
     "balance": "Balance",
     "exportSummary": "Export accounts summary to downloads folder as CSV file",
     "fiatBalance": "Fiat balance",
@@ -31,7 +33,8 @@
     "noAccount": "There are no accounts to show.",
     "synchronizing": "Synchronizing accounts with their blockchains: ",
     "title": "Accounts summary",
-    "total": "Total"
+    "total": "Total",
+    "transactionHistory": "Transaction history"
   },
   "addAccount": {
     "accountName": "Account name",
@@ -91,7 +94,8 @@
     "restore": {
       "confirmTitle": "Restore backup",
       "error": {
-        "e200": "microSD card not found"
+        "e200": "microSD card not found",
+        "general": "Error restoring the backup"
       },
       "password": {
         "label": "Recovery password or hidden recovery password",
@@ -131,12 +135,17 @@
     }
   },
   "bitbox02Interact": {
-    "followInstructions": "Please follow the instructions on your BitBox02."
+    "confirmDate": "Confirm today's date on your BitBox02",
+    "confirmDateText": "This date will be used to create your backup.",
+    "confirmName": "Confirm name on BitBox02",
+    "followInstructions": "Please follow the instructions on your BitBox02.",
+    "followInstructionsMnemonic": "Please follow the instructions on your BitBox02 to restore from a mnemonic seed."
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Current device name",
       "input": "BitBox02 name",
+      "placeholder": "New device name",
       "title": "Set BitBox02 name"
     },
     "mnemonicPassphrase": {
@@ -170,6 +179,7 @@
       "point3": "Create a backup",
       "text": "Ok, let's create a new wallet!"
     },
+    "createBackupFailed": "Creating backup failed, try again.",
     "initialize": {
       "passwordText": "Now let's set a password for your device. Use the controls on your BitBox to enter and choose a password.",
       "passwordTitle": "Set a password for your BitBox",
@@ -178,6 +188,7 @@
       "title": "Initialize your BitBox"
     },
     "insertSDCard": "<strong>Please make sure you have a microSD card inserted in your BitBox02.</strong>",
+    "noPasswordMatch": "Passwords did not match, please try again.",
     "pairing": {
       "confirmButton": "Continue",
       "failed": "Unconfirmed pairing. Please replug your BitBox02.",
@@ -213,6 +224,10 @@
       "removeMicroSD": "Please remove the microSD card from your BitBox02 and store it in a secure location.",
       "success": "You’ve sucessfully created your backup."
     },
+    "stepInsertSD": {
+      "insertSDCard": "Please insert a microSD card into your BitBox02 to continue.",
+      "insertSDcardTitle": "Insert microSD card"
+    },
     "stepPassword": {
       "title": "Set BitBox02 password",
       "useControls": "Use the controls on your BitBox02 to set a password."
@@ -237,14 +252,17 @@
     "connectedBases": "Connected devices",
     "detectedBases": "Detected devices on your network",
     "detectedBasesEmpty": "No devices found",
+    "manage": "Manage",
     "manualInput": "Connect manually",
     "manualInputInvalid": "Invalid IP address",
     "manualInputLabel": "IP address:port",
     "new": "New BitBoxBase",
     "settings": {
       "advanced": {
+        "blocks": "Blocks",
         "confirmSystemPassword": "Set the BitBoxBase system password to use for <strong>ssh authentication and sudo access.</strong>\n$t(generic.confirmToContinue)",
         "connectElectrum": "Connect Electrum",
+        "headers": "Headers",
         "ipAddress": "IP address",
         "manual": "Manual update",
         "port": "Port",
@@ -256,6 +274,7 @@
           "success": "SSH password authentication and sudo access: {{enabled}}",
           "title": "SSH access"
         },
+        "status": "Status",
         "subheaders": {
           "bitcoin": "Bitcoin Core",
           "electrs": "Electrs",
@@ -265,7 +284,9 @@
         "syncOptions": "Sync options",
         "systemPassword": "Set system password",
         "systemPasswordSuccess": "BitBoxBase system password set successfully.",
-        "title": "Advanced settings"
+        "title": "Advanced settings",
+        "torAddress": "Tor onion address",
+        "version": "Version"
       },
       "backups": {
         "confirmBackup": "Create a new backup of your BitBoxBase configuration on an external flash drive.\n\n Please make sure to <strong>insert a flash drive</strong> into your BitBoxBase.",
@@ -535,7 +556,8 @@
   "deviceTampered": "Has your BitBox been supplied with a recovery password? If so, stop the setup process and contact support immediately. Shift will never give you a ready made wallet or make password recommendations.",
   "dialog": {
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "confirmTitle": "Confirmation"
   },
   "fiat": {
     "default": "default",
@@ -546,6 +568,7 @@
     "appVersion": "App version:"
   },
   "generic": {
+    "and": "and",
     "applying": "Applying configuration",
     "confirmToContinue": "Please confirm to continue.",
     "description": "Description",
@@ -1053,6 +1076,7 @@
       "label": "Amount",
       "placeholder": "Enter amount"
     },
+    "availableBalance": "Available balance",
     "button": "Review",
     "coincontrol": {
       "address": "Address",
@@ -1100,6 +1124,7 @@
       "placeholder": "Calculating fee estimation…"
     },
     "maximum": "Send all",
+    "priority": "Priority",
     "scanQR": "Scan QR code",
     "signprogress": {
       "description": "This is a transaction containing a lot of data. To fully sign the transaction, you will be asked to confirm {{steps}} times.",
@@ -1107,7 +1132,8 @@
     },
     "success": "The transaction has been signed and sent.",
     "title": "Send {{accountName}}",
-    "toggleCoinControl": "Toggle coin control"
+    "toggleCoinControl": "Toggle coin control",
+    "transactionDetails": "Transaction details"
   },
   "settings": {
     "accounts": {
@@ -1167,6 +1193,7 @@
   },
   "setup": "Setup device",
   "sidebar": {
+    "accounts": "Accounts",
     "addAccount": "Add account",
     "bitboxBase": "BitBoxBase",
     "bitboxBaseConnect": "Connect BitBoxBase",
@@ -1195,6 +1222,14 @@
       "send_to_self": "Self"
     },
     "confirmation": "Confirmations",
+    "details": {
+      "address": "Address",
+      "amount": "Amount",
+      "date": "Date",
+      "fiat": "Fiat",
+      "status": "Status",
+      "type": "Type"
+    },
     "explorer": "Transaction ID",
     "explorerTitle": "Open in external block explorer",
     "fee": "Fee",

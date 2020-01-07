@@ -96,7 +96,7 @@ export class SetDeviceName extends Component {
                                             label={t('bitbox02Settings.deviceName.input')}
                                             onInput={this.handleChange}
                                             getRef={ref => this.nameInput = ref}
-                                            placeholder="New Device Name"
+                                            placeholder={t('bitbox02Settings.deviceName.placeholder')}
                                             value={deviceName}
                                             id="deviceName" />
                                     </div>

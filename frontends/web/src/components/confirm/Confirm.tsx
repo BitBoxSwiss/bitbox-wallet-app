@@ -66,7 +66,7 @@ class Confirm extends Component<TranslateProps, State> {
 
     public render({ t }: RenderableProps<TranslateProps>, { message, active, customButtonText }: State) {
         return active ? (
-            <Dialog title="Confirmation" onClose={this.decline}>
+            <Dialog title={t('dialog.confirmTitle')} onClose={this.decline}>
                 <div className="columnsContainer half">
                     <div className="columns">
                         <div className="column">

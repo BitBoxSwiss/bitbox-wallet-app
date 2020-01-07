@@ -310,7 +310,7 @@ class Account extends Component<Props, State> {
                                 {t(`account.info.${code}`, { defaultValue: '' })}
                             </Status>
                             <div class="flex flex-row flex-between flex-items-center">
-                                <label className="labelXLarge">Available Balance</label>
+                                <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                                 <div className={style.actionsContainer}>
                                     { this.supportsBuy() && (
                                           <a href={`/account/${code}/buy`} className={style.buy}><span>{t('button.buy')}</span></a>

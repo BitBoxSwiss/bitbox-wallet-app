@@ -74,7 +74,7 @@ class Backups extends Component<Props, State> {
             this.state.selectedBackup).then(({ success }) => {
                 this.setState({
                     restoring: false,
-                    errorText: success ? '' : 'Error restoring the backup',
+                    errorText: success ? '' : this.props.t('backup.restore.error.general'),
                 });
                 if (this.props.backupOnAfterRestore) {
                     this.props.backupOnAfterRestore(success);

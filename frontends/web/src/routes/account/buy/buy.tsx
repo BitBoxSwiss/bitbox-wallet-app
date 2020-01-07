@@ -133,7 +133,7 @@ class Buy extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div className="flex flex-row flex-between">
-                                <label className="labelXLarge">Available balance</label>
+                                <label className="labelXLarge">{t('accountSummary.availableBalance')}</label>
                             </div>
                             <div className="box large">
                                 <Balance balance={balance} />
