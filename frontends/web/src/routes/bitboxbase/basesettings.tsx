@@ -16,7 +16,6 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import loadingStatic from '../../assets/icons/loading-static.png';
-import { alertUser } from '../../components/alert/Alert';
 import { ChangeBaseHostname } from '../../components/bitboxbase/changebasehostname';
 import { ChangeBasePassword } from '../../components/bitboxbase/changebasepassword';
 import { CreateBaseBackup } from '../../components/bitboxbase/createbasebackup';
@@ -36,6 +35,7 @@ import * as spinnerStyle from '../../components/spinner/Spinner.css';
 import { TruncateMiddle } from '../../components/truncateMiddle/truncateMiddle';
 import WaitDialog from '../../components/wait-dialog/wait-dialog';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
@@ -119,7 +119,7 @@ class BaseSettings extends Component<Props, State> {
                 }
                 this.setState({updateProgress: response.updateProgress});
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
@@ -128,7 +128,7 @@ class BaseSettings extends Component<Props, State> {
         apiPost(this.props.apiPrefix + '/reboot-base')
                 .then(response => {
                     if (!response.success) {
-                        alertUser(response.message);
+                        bbBaseErrorMessage(response.code, this.props.t);
                     }
                 });
             }
@@ -137,7 +137,7 @@ class BaseSettings extends Component<Props, State> {
         apiPost(this.props.apiPrefix + '/shutdown-base')
                 .then(response => {
                     if (!response.success) {
-                        alertUser(response.message);
+                        bbBaseErrorMessage(response.code, this.props.t);
                     }
                 });
             }
@@ -148,7 +148,7 @@ class BaseSettings extends Component<Props, State> {
         .then(response => {
             if (!response.success) {
                 this.setState({updating: false});
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
@@ -167,7 +167,7 @@ class BaseSettings extends Component<Props, State> {
                         this.props.getBaseInfo();
                         this.setState({waitDialog: undefined, expandedTorAddress: false});
                     } else {
-                        alertUser(response.message);
+                        bbBaseErrorMessage(response.code, this.props.t);
                     }
                 });
             }

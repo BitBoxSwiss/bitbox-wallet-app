@@ -16,8 +16,8 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiPost } from '../../utils/request';
-import { alertUser } from '../alert/Alert';
 import { Button } from '../forms';
 import { BitBoxBaseLogo, SwissMadeOpenSource } from '../icon/logo';
 import { Footer, Header } from '../layout';
@@ -47,27 +47,18 @@ class UnlockBitBoxBase extends Component<Props, State> {
         return 'bitboxbases/' + this.props.bitboxBaseID;
     }
 
-    private handleFormChange = password => {
+    private setValidPassword = password => {
         this.setState({ password });
-    }
-
-    private validate = () => {
-        return this.state.password !== '';
     }
 
     private handleSubmit = event => {
         event.preventDefault();
-        if (!this.validate()) {
-            return;
-        }
         apiPost(this.apiPrefix() + '/user-authenticate', {username: 'admin', password: this.state.password })
         .then(response => {
             if (!response.success) {
-                // TODO: Once error codes are implemented on the base, add them with corresponding text to app.json for translation
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
-        this.setState({ password: '' });
     }
 
     public render(
@@ -95,13 +86,13 @@ class UnlockBitBoxBase extends Component<Props, State> {
                                                 type="password"
                                                 label="Password"
                                                 placeholder={t('bitboxBaseUnlock.placeholder')}
-                                                onValidPassword={this.handleFormChange}
-                                                value={password} />
+                                                onValidPassword={this.setValidPassword} />
                                         </div>
                                         <div className="buttons">
                                             <Button
                                                 primary
-                                                type="submit">
+                                                type="submit"
+                                                disabled={!password}>
                                                 {t('button.unlock')}
                                             </Button>
                                         </div>

@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiPost } from '../../utils/request';
 import { alertUser } from '../alert/Alert';
 import { Dialog } from '../dialog/dialog';
@@ -62,7 +63,7 @@ class ChangeBasePassword extends Component<Props, State> {
             if (response.success) {
                 this.setState({ authenticated: true });
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ inProgress: false });
         });
@@ -77,9 +78,9 @@ class ChangeBasePassword extends Component<Props, State> {
         apiPost(this.props.apiPrefix + '/user-change-password', {username: 'admin', password: this.state.oldPassword, newPassword: this.state.newPassword})
         .then(response => {
             if (response.success) {
-                alertUser('Password changed successfully.');
+                alertUser(this.props.t('bitboxBase.settings.node.passwordChangeSuccess'));
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ authenticated: false, active: false, inProgress: false });
         });

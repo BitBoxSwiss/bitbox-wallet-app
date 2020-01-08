@@ -16,8 +16,8 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiPost } from '../../utils/request';
-import { alertUser } from '../alert/Alert';
 import { Dialog } from '../dialog/dialog';
 import { Button, Input } from '../forms';
 import { SettingsButton } from '../settingsButton/settingsButton';
@@ -59,7 +59,7 @@ class ChangeBaseHostname extends Component<Props, State> {
                 this.setState({ active: false, inProgress: false, newHostname: '' });
             } else {
                 this.setState({ active: false, inProgress: false, newHostname: '' });
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }

@@ -72,7 +72,7 @@ class ConfirmBaseRPC extends Component<Props, State> {
                 this.props.onSuccess && this.props.onSuccess();
                 this.setState({ success: true });
             } else {
-                this.setState({ success: false, failureMessage: response.message });
+                this.setState({ success: false, failureMessage: this.props.t(`bitboxBase.errors.${response.code}`, this.props.t('bitboxBase.errors.UNEXPECTED_ERROR')) });
             }
             this.setState({ inProgress: false });
         });
@@ -107,7 +107,7 @@ class ConfirmBaseRPC extends Component<Props, State> {
                         <form onSubmit={success ? this.abort : this.apiCall}>
                             <div>
                                 {
-                                    !success && !inProgress &&
+                                    !success && !inProgress && !failureMessage &&
                                     <p>{confirmText}</p>
                                 }
                                 {
@@ -117,8 +117,8 @@ class ConfirmBaseRPC extends Component<Props, State> {
                                     inProgress && !success && <p>{inProgressText}</p>
                                 }
                                 {
-                                    // TODO: Look up user facing message from locales file based on error code
-                                    failureMessage && <p>{failureMessage}</p>
+                                    failureMessage && !inProgress && !success &&
+                                    <p>{failureMessage}</p>
                                 }
                             </div>
                             <div className="buttons">

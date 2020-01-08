@@ -16,6 +16,7 @@
 
 import { Component, h, RenderableProps } from 'preact';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiPost } from '../../utils/request';
 import { alertUser } from '../alert/Alert';
 import { confirmation } from '../confirm/Confirm';
@@ -56,7 +57,7 @@ class SetBaseSystemPassword extends Component<Props, State> {
             if (response.success) {
                 alertUser(this.props.t('bitboxBase.settings.advanced.systemPasswordSuccess'));
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ inProgress: false, active: false, password: undefined });
         });

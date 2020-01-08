@@ -29,6 +29,7 @@ import * as stepStyle from '../../components/steps/steps.css';
 import { share } from '../../decorators/share';
 import { translate, TranslateProps } from '../../decorators/translate';
 import '../../style/animate.css';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
@@ -349,7 +350,7 @@ class BitBoxBase extends Component<Props, State> {
                     updateInfo: response.info,
                 });
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
@@ -364,9 +365,9 @@ class BitBoxBase extends Component<Props, State> {
     private connectElectrum = () => {
         apiPost(this.apiPrefix() + '/connect-electrum', {
             bitboxBaseID : this.props.bitboxBaseID,
-        }).then(({success}) => {
-            if (!success) {
-                alertUser(success.errorMessage);
+        }).then(response => {
+            if (!response.success) {
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
@@ -374,9 +375,9 @@ class BitBoxBase extends Component<Props, State> {
     private removeBitBoxBase = () => {
         apiPost(this.apiPrefix() + '/disconnect', {
             bitboxBaseID : this.props.bitboxBaseID,
-        }).then(({ success }) => {
-            if (!success) {
-                alertUser('Did not work');
+        }).then(response => {
+            if (!response.success) {
+                bbBaseErrorMessage(response.code, this.props.t);
             } else {
                 this.onDisconnect();
             }
@@ -395,8 +396,7 @@ class BitBoxBase extends Component<Props, State> {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSetup });
             } else {
-                // TODO: Once error codes are implemented on the base, add them with corresponding text to app.json for translation
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ inProgress: false });
         });
@@ -419,7 +419,7 @@ class BitBoxBase extends Component<Props, State> {
             if (response.success) {
                 this.setState({ activeStep: ActiveStep.ChooseSyncingOption });
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ inProgress: false });
         });
@@ -436,7 +436,7 @@ class BitBoxBase extends Component<Props, State> {
                     this.setSyncingOption();
                 }
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.setState({ inProgress: false });
         });
@@ -449,7 +449,7 @@ class BitBoxBase extends Component<Props, State> {
                 if (response.success) {
                     this.setState({ activeStep: ActiveStep.Backup });
                 } else {
-                    alertUser(response.message);
+                    bbBaseErrorMessage(response.code, this.props.t);
                 }
             });
         } else {
@@ -465,7 +465,7 @@ class BitBoxBase extends Component<Props, State> {
                 this.setState({ activeStep: ActiveStep.BackupCreated });
                 this.finalizeSetup();
             } else {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
                 this.setState({ inProgress: false });
             }
         });
@@ -475,7 +475,7 @@ class BitBoxBase extends Component<Props, State> {
         apiPost(this.apiPrefix() + '/finalize-setup-wizard')
         .then(response => {
             if (!response.success) {
-                alertUser(response.message);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
             this.getBaseInfo();
             this.getServiceInfo();

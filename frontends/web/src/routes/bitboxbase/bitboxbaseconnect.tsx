@@ -17,7 +17,6 @@
 import { Component, h, RenderableProps } from 'preact';
 import { route } from 'preact-router';
 import Sortable from 'sortablejs/modular/sortable.core.esm.js';
-import { alertUser } from '../../components/alert/Alert';
 import * as style from '../../components/bitboxbase/bitboxbase.css';
 import { DetectedBase } from '../../components/bitboxbase/detectedbase';
 import { Dialog } from '../../components/dialog/dialog';
@@ -28,6 +27,7 @@ import { Header } from '../../components/layout';
 import { share } from '../../decorators/share';
 import { Store } from '../../decorators/store';
 import { translate, TranslateProps } from '../../decorators/translate';
+import { bbBaseErrorMessage } from '../../utils/bbbaseError';
 import { apiGet, apiPost } from '../../utils/request';
 import { validateIP } from '../../utils/validateIP';
 import { InternalBaseStatus, setInternalBaseStatus, statusBadgeColor, updateSharedBaseState } from './bitboxbase';
@@ -109,24 +109,24 @@ class BitBoxBaseConnect extends Component<Props, State> {
         let ip: string;
         this.state.ipEntry.includes(':') ? ip = this.state.ipEntry : ip = this.state.ipEntry + ':8845';
         apiPost('bitboxbases/establish-connection', { ip })
-        .then(data => {
-            if (data.success) {
+        .then(response => {
+            if (response.success) {
                 this.connectAndPairNoise(ip);
                 this.setStatusAndRedirect(ip);
             } else {
-                alertUser(data.errorMessage);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
 
     private establishConnection = (ip: string) => {
         apiPost('bitboxbases/establish-connection', { ip })
-        .then(data => {
-            if (data.success) {
+        .then(response => {
+            if (response.success) {
                 this.connectAndPairNoise(ip);
                 this.setStatusAndRedirect(ip);
             } else {
-                alertUser(data.errorMessage);
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
@@ -137,11 +137,7 @@ class BitBoxBaseConnect extends Component<Props, State> {
             if (response.success) {
                 updateSharedBaseState('paired', true, ip);
             } else {
-                if (response.message) {
-                    alertUser(response.message);
-                } else {
-                    alertUser(`Could not connect to the BitBoxBase RPC client at ${ip}`);
-                }
+                bbBaseErrorMessage(response.code, this.props.t);
             }
         });
     }
