@@ -367,7 +367,7 @@ class Settings extends Component<Props, State> {
                                                         </div>
                                                         <SettingsButton
                                                             onClick={this.showProxyDialog}
-                                                            optionalText={config.backend.proxy.useProxy ? 'Enabled' : 'Disabled'}>
+                                                             optionalText={t('generic.enabled', {context: config.backend.proxy.useProxy.toString()})}>
                                                             {t('settings.expert.useProxy')}
                                                         </SettingsButton>
                                                         {

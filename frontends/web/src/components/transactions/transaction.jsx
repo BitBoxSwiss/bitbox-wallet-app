@@ -247,7 +247,7 @@ export default class Transaction extends Component {
                     transactionDialog && (
                         <Dialog title="Transaction Details" onClose={this.hideDetails} slim medium>
                             <div className={style.detail}>
-                                <label>Type</label>
+                                <label>{t('transaction.details.type')}</label>
                                 <p>{arrow}</p>
                             </div>
                             <div className={style.detail}>
@@ -255,7 +255,7 @@ export default class Transaction extends Component {
                                 <p>{numConfirmations}</p>
                             </div>
                             <div className={style.detail}>
-                                <label>Status</label>
+                                <label>{t('transaction.details.status')}</label>
                                 <p className="flex flex-items-center">
                                     <ProgressRing
                                         className="m-right-quarter"
@@ -273,11 +273,11 @@ export default class Transaction extends Component {
                                 </p>
                             </div>
                             <div className={style.detail}>
-                                <label>Date</label>
+                                <label>{t('transaction.details.date')}</label>
                                 <p>{sDate}</p>
                             </div>
                             <div className={style.detail}>
-                                <label>Fiat</label>
+                                <label>{t('transaction.details.fiat')}</label>
                                 <p>
                                     <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
                                         <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
@@ -285,7 +285,7 @@ export default class Transaction extends Component {
                                 </p>
                             </div>
                             <div className={style.detail}>
-                                <label>Amount</label>
+                                <label>{t('transaction.details.amount')}</label>
                                 <p>
                                     <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
                                 </p>
@@ -301,7 +301,7 @@ export default class Transaction extends Component {
                                 }
                             </div>
                             <div className={[style.detail, style.addresses].join(' ')}>
-                                <label>Address</label>
+                                <label>{t('transaction.details.address')}</label>
                                 <span>
                                     {
                                         addresses.map(address => (
