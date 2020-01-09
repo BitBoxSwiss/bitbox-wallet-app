@@ -21,11 +21,12 @@ import { Dialog } from '../dialog/dialog';
 import * as dialogStyle from '../dialog/dialog.css';
 import { Button } from '../forms';
 
-let confirmation: (message: string, callback: (response: boolean) => void) => void;
+let confirmation: (message: string, callback: (response: boolean) => void, customButtonText?: string) => void;
 
 interface State {
     active: boolean;
     message?: string;
+    customButtonText?: string;
 }
 
 class Confirm extends Component<TranslateProps, State> {
@@ -39,11 +40,12 @@ class Confirm extends Component<TranslateProps, State> {
         };
     }
 
-    private confirmation = (message: string, callback: (response: boolean) => void) => {
+    private confirmation = (message: string, callback: (response: boolean) => void, customButtonText?: string) => {
         this.callback = callback;
         this.setState({
             active: true,
             message,
+            customButtonText,
         });
     }
 
@@ -62,7 +64,7 @@ class Confirm extends Component<TranslateProps, State> {
         this.respond(true);
     }
 
-    public render({ t }: RenderableProps<TranslateProps>, { message, active }: State) {
+    public render({ t }: RenderableProps<TranslateProps>, { message, active, customButtonText }: State) {
         return active ? (
             <Dialog title="Confirmation" onClose={this.decline}>
                 <div className="columnsContainer half">
@@ -81,7 +83,7 @@ class Confirm extends Component<TranslateProps, State> {
                     </div>
                 </div>
                 <div class={dialogStyle.actions}>
-                    <Button primary onClick={this.accept}>{t('dialog.confirm')}</Button>
+                    <Button primary onClick={this.accept}>{customButtonText ? customButtonText : t('dialog.confirm')}</Button>
                     <Button transparent onClick={this.decline}>{t('dialog.cancel')}</Button>
                 </div>
             </Dialog>

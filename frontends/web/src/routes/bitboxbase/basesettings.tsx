@@ -564,7 +564,7 @@ class BaseSettings extends Component<Props, State> {
                                     danger
                                     style="width: 100%;"
                                     onClick={() => this.toggleTor(false)}>
-                                    {t('generic.enable', {context: 'false'})[0].toUpperCase() + t('generic.enable', {context: 'false'}).slice(1)}
+                                    {t('generic.enable', {context: 'false'})}
                                 </Button>
                             </div>
                         </Dialog>
