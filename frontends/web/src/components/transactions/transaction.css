@@ -1,13 +1,5 @@
 .container {
-    margin: var(--space-half) 0;
-    height: 152px;
-    transition: height ease-out 0.1s, margin ease-out 0.2s;
-    will-change: height, margin;
-}
-
-.container.collapsed {
-    height: 52px;
-    margin: 0 0;
+    margin: 0 0 1px 0;
 }
 
 .row {
@@ -102,38 +94,6 @@
     stroke: var(--color-gray);
     width: 18px;
     height: 18px;
-}
-
-.expandedContent {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding-left: calc(54px + var(--space-quarter));
-    padding-right: calc(60px + var(--space-quarter));
-    height: 99px;
-    margin-top: 1px;
-    background-color: var(--color-white);
-    font-size: var(--size-default);
-    color: var(--color-dark);
-    font-weight: 400;
-}
-
-.collapsed .expandedContent {
-    display: none;
-}
-
-.expandedItems {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-}
-
-.expandedItems > *:not(:last-child) {
-    margin-right: var(--space-default);
-}
-
-.expandedTransactionContainer {
-    margin-top: var(--space-half);
 }
 
 .columnLabel,
@@ -233,59 +193,28 @@
 
 @media (max-width: 1080px) {
     .container {
-        margin: var(--space-half) 0;
-        height: 199px;
-        transition: height ease-out 0.1s, margin ease-out 0.2s;
-        will-change: height, margin;
+        margin: 0 0 var(--space-half) 0;
     }
 
     .container.first {
-        margin-top: 0 !important;
-    }
-    
-    .container.collapsed {
-        height: 99px;
-        margin: var(--space-quarter) 0;
+        
     }
     
     .row {
-        padding: 0 var(--space-half);
-        height: 99px;
+        height: auto;
+        padding: var(--space-half);
     }
 
     .columnLabel {
         display: inline;
     }
 
-    .fiat,
-    .currency {
-        /* width: 100%;
-        display: inline-flex;
-        justify-content: space-between; */
-    }
-
     .action {
         align-items: flex-end;
-    }
-
-    .expandedContent {
-        padding-right: var(--space-half);
     }
 }
 
 @media (max-width: 926px) {
-    .container {
-        height: 249px;
-    }
-
-    .expandedContent {
-        height: 149px;
-    }
-
-    .expandedItems > *:not(:last-child) {
-        margin-right: var(--space-half);
-    }
-
     .inlineLabel {
         display: block;
         margin-bottom: var(--space-quarter);
@@ -303,22 +232,7 @@
     }
 
     .row {
-        padding: 0 var(--space-quarter);
-    }
-
-    .row *,
-    .expandedContent,
-    .inlineLabel {
-        font-size: var(--size-small);
-    }
-
-    .expandedContent {
-        padding-left: calc(var(--space-half) + (var(--space-quarter) / 2));
-        padding-right: calc(var(--space-half));
-    }
-
-    .expandedItems > *:not(:last-child) {
-        margin-right: var(--space-quarter);
+        padding: var(--space-half) var(--space-quarter);
     }
 
     .inlineLabel {
