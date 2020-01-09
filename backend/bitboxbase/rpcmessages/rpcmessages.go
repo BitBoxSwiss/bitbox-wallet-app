@@ -133,7 +133,7 @@ type GetBaseInfoResponse struct {
 	MiddlewareTorOnion        string `json:"middlewareTorOnion"`
 	IsTorEnabled              bool   `json:"isTorEnabled"`
 	IsBitcoindListening       bool   `json:"isBitcoindListening"`
-	IsSSHPasswordLoginEnabled bool   `json:"IsSSHPasswordLoginEnabled"`
+	IsSSHPasswordLoginEnabled bool   `json:"isSSHPasswordLoginEnabled"`
 	FreeDiskspace             int64  `json:"freeDiskspace"`  // in Byte
 	TotalDiskspace            int64  `json:"totalDiskspace"` // in Byte
 	BaseVersion               string `json:"baseVersion"`

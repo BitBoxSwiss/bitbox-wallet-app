@@ -141,10 +141,11 @@ class Buy extends Component<Props, State> {
                             <div className={style.container}>
                                 {/* just to have a space after the above box */}
                             </div>
-                            <div className="box large text-center">
+                            <div className="box large text-center m-bottom-default">
                                 <label className="labelXLarge">Powered by Safello</label>
                                 <Button
                                     primary
+                                    className="m-bottom-half full-width-on-small"
                                     disabled={verifying}
                                     onClick={this.verifyAddress}>
                                     {t('receive.verify')}
@@ -154,6 +155,7 @@ class Buy extends Component<Props, State> {
                                     width="500"
                                     height="720"
                                     frameBorder="0"
+                                    className={style.iframe}
                                     style={"background: url('" + iframeLoadingImg + "') 0px 0px no-repeat;"}
                                     src={safello.url}>
                                 </iframe>
@@ -161,6 +163,7 @@ class Buy extends Component<Props, State> {
                                 <div class="buttons ignore">
                                     <ButtonLink
                                         transparent
+                                        className="full-width-on-small"
                                         href={`/account/${code}`}>
                                         {t('button.back')}
                                     </ButtonLink>
