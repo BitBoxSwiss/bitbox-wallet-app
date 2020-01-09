@@ -39,6 +39,7 @@ import { translate, TranslateProps } from '../../decorators/translate';
 import { apiSubscribe } from '../../utils/event';
 import { apiGet, apiPost } from '../../utils/request';
 import SimpleMarkup from '../../utils/simplemarkup';
+import { verificationProgress } from '../../utils/verificationprogress';
 import { BaseUpdateInfo, BitBoxBaseInfo, BitBoxBaseServiceInfo, statusBadgeColor } from './bitboxbase';
 import * as style from './bitboxbase.css';
 import { updateStatus } from './bitboxbase.css';
@@ -232,7 +233,7 @@ class BaseSettings extends Component<Props, State> {
                                         <div className={style.dashboardItem}>
                                             {
                                                 serviceInfo ?
-                                                <p>{Math.round(100 * serviceInfo.bitcoindVerificationProgress)}%</p>
+                                                <p>{verificationProgress(serviceInfo.bitcoindVerificationProgress)}%</p>
                                                 :
                                                 <div className={style.loadingIconContainer}>
                                                     <img src={loadingStatic} style="width: 24px"/>
@@ -451,7 +452,7 @@ class BaseSettings extends Component<Props, State> {
                                                 getBaseInfo={getBaseInfo} />
                                             <ChangeBasePassword apiPrefix={apiPrefix} />
                                             <SettingsButton
-                                                optionalText={t(`generic.enabled.${baseInfo.isTorEnabled}`)}
+                                                optionalText={t('generic.enabled', {context: baseInfo.isTorEnabled.toString()})}
                                                 onClick={baseInfo.isTorEnabled ?
                                                     this.toggleExpandedTorAddress :
                                                     () => this.toggleTor(true)}>
@@ -546,7 +547,7 @@ class BaseSettings extends Component<Props, State> {
                 {
                     expandedTorAddress && (
                         <Dialog
-                            title={t('bitboxBase.settings.node.tor') + ': ' + t(`generic.enabled.${baseInfo.isTorEnabled}`).toLowerCase()}
+                            title={t('bitboxBase.settings.node.tor') + ': ' + t('generic.enabled', {context: baseInfo.isTorEnabled.toString()}).toLowerCase()}
                             onClose={this.toggleExpandedTorAddress}>
                             {
                                 baseInfo.isTorEnabled && (
@@ -563,7 +564,7 @@ class BaseSettings extends Component<Props, State> {
                                     danger
                                     style="width: 100%;"
                                     onClick={() => this.toggleTor(false)}>
-                                    {t(`generic.enable.${true}`)[0].toUpperCase() + t(`generic.enable.${true}`).slice(1)}
+                                    {t('generic.enable', {context: 'false'})[0].toUpperCase() + t('generic.enable', {context: 'false'}).slice(1)}
                                 </Button>
                             </div>
                         </Dialog>

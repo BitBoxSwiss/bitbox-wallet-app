@@ -21,12 +21,13 @@ import { SettingsButton } from '../settingsButton/settingsButton';
 
 interface EnableSSHLoginProps {
     apiPrefix: string;
-    enabled?: boolean;
+    enabled: boolean;
     onSuccess: () => void; // GetBaseInfo() onSuccess to reflect the successful change
 }
 
 interface State {
     active: boolean;
+    enabled: boolean;
 }
 
 type Props = EnableSSHLoginProps & TranslateProps;
@@ -36,7 +37,16 @@ class EnableSSHLogin extends Component<Props, State> {
         super(props);
         this.state = {
             active: false,
+            // the props update after a successful call, but we want to show the user
+            // text based on the previous value
+            enabled: this.props.enabled,
         };
+    }
+
+    public componentDidUpdate() {
+        if (!this.state.active && this.props.enabled !== this.state.enabled) {
+            this.setState({ enabled: this.props.enabled });
+        }
     }
 
     private toggleDialog = () => {
@@ -58,7 +68,7 @@ class EnableSSHLogin extends Component<Props, State> {
     ) {
         return (
             <div>
-                <SettingsButton onClick={this.toggleDialog} optionalText={t(`generic.enabled.${enabled}`)}>
+                <SettingsButton onClick={this.toggleDialog} optionalText={t('generic.enabled', {context: enabled.toString()})}>
                     {t('bitboxBase.settings.advanced.sshAccess.button')}
                 </SettingsButton>
                 {
@@ -66,9 +76,9 @@ class EnableSSHLogin extends Component<Props, State> {
                     <ConfirmBaseRPC
                         apiPrefix={apiPrefix}
                         apiEndpoint="/enable-ssh-password-login"
-                        confirmText={t('bitboxBase.settings.advanced.sshAccess.confirm', { toggle: t(`generic.enable.${enabled}`)})}
+                        confirmText={t('bitboxBase.settings.advanced.sshAccess.confirm', { action: t('generic.enable', {context: (!enabled).toString()})})}
                         inProgressText={t('bitboxBase.settings.advanced.sshAccess.inProgress')}
-                        successText={t('bitboxBase.settings.advanced.sshAccess.success', {enabled: (t(`generic.enabled.${enabled}`).toLowerCase())})}
+                        successText={t('bitboxBase.settings.advanced.sshAccess.success', { enabled: (t('generic.enabled', {context: (!this.state.enabled).toString()})).toLowerCase() })}
                         dialogTitle={t('bitboxBase.settings.advanced.sshAccess.title')}
                         args={!enabled}
                         toggleDialog={this.toggleDialog}
