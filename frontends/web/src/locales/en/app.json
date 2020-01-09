@@ -1206,6 +1206,11 @@
     "gas": "Gas",
     "pending": "Pending transaction",
     "size": "Size",
+    "status": {
+      "complete": "Complete",
+      "failed": "Failed",
+      "pending": "Pending"
+    },
     "vsize": "Virtual size",
     "weight": "Weight"
   },

@@ -114,9 +114,9 @@ export default class Transaction extends Component {
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
         const sDate = time ? this.parseTimeShort(time) : '---';
         const statusText = {
-            complete: 'Complete',
-            pending: `Pending`,
-            failed: 'Failed',
+            complete: t('transaction.status.complete'),
+            pending: t('transaction.status.pending'),
+            failed: t('transaction.status.failed'),
         }[status];
         const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
         return (

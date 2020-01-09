@@ -34,7 +34,7 @@ const ProgressRing = ({
     value,
     width,
 }: RenderableProps<ProgressRingProps>) => {
-    const radius = (width - 2) / 2;
+    const radius = (width - 3) / 2;
     const circumference = radius * 2 * Math.PI;
     const progress = isError ? 100 : value / 100;
     const offset = circumference * (1 - progress);
@@ -49,7 +49,7 @@ const ProgressRing = ({
                 cx={width / 2}
                 cy={width / 2}
                 r={radius}
-                strokeWidth={2} />
+                strokeWidth={3} />
             <circle
                 className={[
                     style.foreground,
@@ -60,7 +60,7 @@ const ProgressRing = ({
                 cx={width / 2}
                 cy={width / 2}
                 r={radius}
-                strokeWidth={2}
+                strokeWidth={3}
                 strokeDashoffset={offset}
                 strokeDasharray={circumference} />
         </svg>
