@@ -28,7 +28,6 @@ import Toast from '../../../components/toast/Toast';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import '../../../style/animate.css';
 import { apiGet, apiPost } from '../../../utils/request';
-// import SimpleMarkup from '../../../utils/simplemarkup';
 import { apiWebsocket } from '../../../utils/websocket';
 import { alertUser } from '../../alert/Alert';
 import { store as panelStore } from '../../guide/guide';
@@ -321,7 +320,6 @@ class BitBox02 extends Component<Props, State> {
     }
 
     private setDeviceName = () => {
-        // this.setState({ waitDialog: { title: this.props.t('bitbox02Settings.deviceName.title') } });
         this.setState({ waitDialog: { title: this.props.t('bitbox02Interact.confirmName')} });
         apiPost('devices/bitbox02/' + this.props.deviceID + '/set-device-name', { name: this.state.deviceName })
         .then(result => {
@@ -644,32 +642,6 @@ class BitBox02 extends Component<Props, State> {
                                 )
                             }
 
-                            {/* {
-                                (!unlockOnly && appStatus === 'restoreBackup') && (
-                                    <Step
-                                        active={status !== 'initialized' && restoreBackupStatus === 'intro'}
-                                        title={t('backup.restore.confirmTitle')}>
-                                        <div className={style.stepContext}>
-                                            <p>{t('bitbox02Wizard.backup.restoreText')}</p>
-                                            <SimpleMarkup tagName="p" markup={t('bitbox02Wizard.insertSDCard')} />
-                                            <p>{t('bitbox02Wizard.create.info')}</p>
-                                            <ul>
-                                                <li>{t('bitbox02Wizard.backup.point1')}</li>
-                                                <li>{t('bitbox02Wizard.backup.point2')}</li>
-                                            </ul>
-                                        </div>
-                                        <div className="buttons text-center">
-                                            <Button
-                                                primary
-                                                onClick={this.restoreBackup}
-                                                disabled={!sdCardInserted}>
-                                                {t('seedRestore.info.button')}
-                                            </Button>
-                                        </div>
-                                    </Step>
-                                )
-                            } */}
-
                             {
                                 (!unlockOnly && appStatus === 'restoreBackup') && (
                                     <Step
@@ -715,31 +687,6 @@ class BitBox02 extends Component<Props, State> {
                                     </Step>
                                 )
                             }
-
-                            {/* {
-                                (!unlockOnly && appStatus === 'restoreFromMnemonic') && (
-                                    <Step
-                                        active={status !== 'initialized'}
-                                        title={t('backup.restoreFromMnemonic.confirmTitle')}>
-                                        <div className={style.stepContext}>
-                                            <p>{t('bitbox02Wizard.backup.restoreText')}</p>
-                                            <p>{t('bitbox02Wizard.create.info')}</p>
-                                            <ul>
-                                                <li>{t('bitbox02Wizard.restoreFromMnemonic.point1')}</li>
-                                                <li>{t('bitbox02Wizard.restoreFromMnemonic.point2')}</li>
-                                            </ul>
-                                        </div>
-                                        <div className="buttons text-center">
-                                            <Button
-                                                primary
-                                                disabled={restoringFromMnemonic}
-                                                onClick={this.restoreFromMnemonic}>
-                                                {t('backup.restoreFromMnemonic.confirmTitle')}
-                                            </Button>
-                                        </div>
-                                    </Step>
-                                )
-                            } */}
 
                             {
                                 appStatus === 'createWallet' && (
