@@ -225,7 +225,7 @@ class BaseSettings extends Component<Props, State> {
                                         </div>
                                         <div>
                                         <span className="m-left-quarter text-black"><span className={[style.statusBadge, style.large, style[statusBadgeColor(baseID)]].join(' ')}>
-                                            </span>{baseUserStatus ? baseUserStatus : 'Unavailable'}</span>
+                                            </span>{baseUserStatus ? baseUserStatus : t('bitboxBase.settings.dashboard.notAvailable')}</span>
                                         </div>
                                 </div>
                                 <div className={style.items}>
@@ -239,7 +239,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Bitcoin sync status</p>
+                                            <p>{t('bitboxBase.settings.dashboard.syncStatus')}</p>
                                         </div>
                                     </div>
                                     <div className={style.item}>
@@ -252,7 +252,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Connected Bitcoin peers</p>
+                                            <p>{t('bitboxBase.settings.dashboard.peers')}</p>
                                         </div>
                                     </div>
                                     <div className={style.item}>
@@ -265,7 +265,7 @@ class BaseSettings extends Component<Props, State> {
                                                     <img src={loadingStatic} style="width: 24px"/>
                                                 </div>
                                             }
-                                            <p>Active lightning channels</p>
+                                            <p>{t('bitboxBase.settings.dashboard.lightningChannels')}</p>
                                         </div>
                                     </div>
                                 </div>
