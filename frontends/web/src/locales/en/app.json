@@ -289,7 +289,7 @@
         "version": "Version"
       },
       "backups": {
-        "confirmBackup": "Create a new backup of your BitBoxBase configuration on an external flash drive.\n\n Please make sure to <strong>insert a flash drive</strong> into your BitBoxBase.",
+        "confirmBackup": "Create a new backup of your BitBoxBase configuration on an external flash drive.\n\nPlease make sure to <strong>insert a flash drive</strong> into your BitBoxBase.",
         "create": "Create backup",
         "created": "Backup created successfully.",
         "creating": "Creating backup...",
@@ -501,7 +501,7 @@
     "abortInfoRedText": "abort",
     "approveInfo": "Hold 4+ secs to ",
     "approveInfoGreenText": "confirm",
-    "info": "On your BitBox",
+    "info": "Continue on your BitBox. ",
     "infoWhenPaired": "First on the paired mobile and then your BitBox"
   },
   "confirmOnDevice": "Please confirm on your device.",
@@ -1091,7 +1091,7 @@
     },
     "confirm": {
       "selected-coins": "Selected coins",
-      "title": "Confirm transaction",
+      "title": "Confirm and send transaction",
       "total": "Total"
     },
     "customFee": {
