@@ -2,6 +2,7 @@
     position: relative;
     width: 100%;
     top: -18px;
+    margin-bottom: -18px;
 }
 
 .progressBar {
