@@ -38,9 +38,6 @@ class DeviceSwitch extends Component<Props, {}> {
         if (this.props.deviceID !== null && !deviceIDs.includes(this.props.deviceID)) {
             route('/', true);
         }
-        if (this.props.deviceID === null && deviceIDs.length > 0) {
-            route(`/device/${deviceIDs[0]}`, true);
-        }
     }
 
     public render({ deviceID, devices }: RenderableProps<Props>) {

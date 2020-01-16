@@ -70,6 +70,7 @@ class App extends Component<Props, State> {
         if (panelStore.state.activeSidebar) {
             toggleSidebar();
         }
+        this.maybeRoute();
     }
 
     public componentDidMount() {
@@ -134,21 +135,28 @@ class App extends Component<Props, State> {
     }
 
     private maybeRoute = () => {
-        const inAccounts = getCurrentUrl().startsWith('/account/');
+        const currentURL = getCurrentUrl();
+        const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.props.accounts;
-        if (inAccounts && !accounts.some(account => getCurrentUrl().startsWith('/account/' + account.code))) {
+        if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
             route('/', true);
+            return;
         }
-
-        if (getCurrentUrl() === '/account') {
+        if (currentURL === '/' || currentURL === '/account') {
             if (accounts && accounts.length) {
                 route(`/account/${accounts[0].code}`, true);
+                return;
             }
+        }
+        const deviceIDs: string[] = Object.keys(this.props.devices);
+        if (currentURL === '/' && deviceIDs.length > 0) {
+            route(`/device/${deviceIDs[0]}`, true);
+            return;
         }
     }
 
     public componentDidUpdate(prevProps) {
-        if (prevProps.accounts !== this.props.accounts) {
+        if (prevProps.accounts !== this.props.accounts || prevProps.devices !== this.props.devices) {
             this.maybeRoute();
         }
     }
