@@ -763,11 +763,6 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
-// Events returns the push notifications channel.
-func (backend *Backend) Events() <-chan interface{} {
-	return backend.events
-}
-
 // TryMakeNewBase calls TryMakeNewBase() in the manager with the given ip
 func (backend *Backend) TryMakeNewBase(ip string) (bool, error) {
 	return backend.baseManager.TryMakeNewBase(ip)

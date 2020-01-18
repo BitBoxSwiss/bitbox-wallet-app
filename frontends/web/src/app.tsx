@@ -136,20 +136,21 @@ class App extends Component<Props, State> {
 
     private maybeRoute = () => {
         const currentURL = getCurrentUrl();
+        const isIndex = currentURL === '/' || currentURL === '/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.props.accounts;
         if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
             route('/', true);
             return;
         }
-        if (currentURL === '/' || currentURL === '/account') {
+        if (isIndex || currentURL === '/account') {
             if (accounts && accounts.length) {
                 route(`/account/${accounts[0].code}`, true);
                 return;
             }
         }
         const deviceIDs: string[] = Object.keys(this.props.devices);
-        if (currentURL === '/' && deviceIDs.length > 0) {
+        if (isIndex && deviceIDs.length > 0) {
             route(`/device/${deviceIDs[0]}`, true);
             return;
         }
