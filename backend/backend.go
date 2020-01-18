@@ -927,10 +927,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		return err
 	}
 
-	backend.Notify(observable.Event{
-		Subject: "devices/registered",
-		Action:  action.Reload,
-	})
 	// Old-school
 	select {
 	case backend.events <- backendEvent{
