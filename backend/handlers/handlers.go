@@ -313,6 +313,11 @@ func NewHandlers(
 	return handlers
 }
 
+// Events returns the push notifications channel.
+func (handlers *Handlers) Events() <-chan interface{} {
+	return handlers.backendEvents
+}
+
 func writeJSON(w io.Writer, value interface{}) {
 	if err := json.NewEncoder(w).Encode(value); err != nil {
 		panic(err)

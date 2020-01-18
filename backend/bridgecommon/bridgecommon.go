@@ -172,7 +172,11 @@ func Serve(
 
 	token = hex.EncodeToString(random.BytesOrPanic(16))
 
-	events := backend.Events()
+	// the port is unused, as we bridge directly without a server.
+	handlers = backendHandlers.NewHandlers(backend,
+		backendHandlers.NewConnectionData(-1, token))
+
+	events := handlers.Events()
 	go func() {
 		for {
 			select {
@@ -188,10 +192,6 @@ func Serve(
 			}
 		}
 	}()
-
-	// the port is unused, as we bridge directly without a server.
-	handlers = backendHandlers.NewHandlers(backend,
-		backendHandlers.NewConnectionData(-1, token))
 
 }
 

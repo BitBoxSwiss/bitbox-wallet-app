@@ -763,11 +763,6 @@ func (backend *Backend) Start() <-chan interface{} {
 	return backend.events
 }
 
-// Events returns the push notifications channel.
-func (backend *Backend) Events() <-chan interface{} {
-	return backend.events
-}
-
 // TryMakeNewBase calls TryMakeNewBase() in the manager with the given ip
 func (backend *Backend) TryMakeNewBase(ip string) (bool, error) {
 	return backend.baseManager.TryMakeNewBase(ip)
@@ -927,10 +922,6 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		return err
 	}
 
-	backend.Notify(observable.Event{
-		Subject: "devices/registered",
-		Action:  action.Reload,
-	})
 	// Old-school
 	select {
 	case backend.events <- backendEvent{
