@@ -70,6 +70,13 @@ class SigningConfiguration extends Component<Props, State> {
                     <div className={style.textareaContainer}>
                         <CopyableInput flexibleHeight value={info.address} />
                     </div>
+                    <div className="buttons">
+                        <ButtonLink
+                            transparent
+                            href={`/account/${code}`}>
+                            {t('button.back')}
+                        </ButtonLink>
+                    </div>
                 </div>
                     :
                 info.xpubs.map((xpub, index) => {
