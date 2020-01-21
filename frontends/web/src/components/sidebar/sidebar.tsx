@@ -165,9 +165,14 @@ class Sidebar extends Component<Props> {
             <div className={['sidebarContainer', hidden ? 'forceHide' : ''].join(' ')}>
                 <div className={['sidebarOverlay', activeSidebar ? 'active' : ''].join(' ')} onClick={toggleSidebar}></div>
                 <nav className={['sidebar', activeSidebar ? 'forceShow' : '', shown ? 'withGuide' : ''].join(' ')}>
-                    <div className="sidebarLogoContainer">
-                        <AppLogoInverted className="sidebarLogo" />
-                    </div>
+                    <Link
+                        activeClassName=""
+                        href="/"
+                        onClick={this.handleSidebarItemClick}>
+                        <div className="sidebarLogoContainer">
+                            <AppLogoInverted className="sidebarLogo" />
+                        </div>
+                    </Link>
                     <div className="sidebarHeaderContainer">
                         <span className="sidebarHeader">{t('sidebar.accounts')}</span>
                         {
