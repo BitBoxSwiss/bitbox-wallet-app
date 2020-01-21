@@ -14,6 +14,8 @@
 
 syntax = "proto3";
 
+import "common.proto";
+
 enum BTCCoin {
   BTC = 0;
   TBTC = 1;
@@ -21,37 +23,61 @@ enum BTCCoin {
   TLTC = 3;
 };
 
-enum BTCScriptType {
-  SCRIPT_UNKNOWN = 0;
-  SCRIPT_P2PKH = 1;
-  SCRIPT_P2WPKH_P2SH = 2;
-  SCRIPT_P2WPKH = 3;
+
+message BTCScriptConfig {
+  // SimpleType is a "simple" script: one public key, no additional inputs.
+  enum SimpleType {
+    P2WPKH_P2SH = 0;
+    P2WPKH = 1;
+  }
+
+  message Multisig {
+    uint32 threshold = 1;
+    // xpubs are acount-level xpubs. Addresses are going to be derived from it using: m/<change>/<receive>.
+    // The number of xpubs defines the number of cosigners.
+    repeated XPub xpubs = 2;
+    // Index to the xpub of our keystore in xpubs. The keypath to it is provided via
+    // BTCPubRequest/BTCSignInit.
+    uint32 our_xpub_index = 3;
+  }
+
+  oneof config {
+    SimpleType simple_type = 1;
+  }
 }
 
 message BTCPubRequest {
-  repeated uint32 keypath = 1;
-  enum OutputType {
+  enum XPubType {
     TPUB = 0;
     XPUB = 1;
     YPUB = 2;
-    ZPUB = 3;
-    ADDRESS = 4;
+    ZPUB = 3; // zpub
+    VPUB = 4; // vpub
+    UPUB = 5;
+    CAPITAL_VPUB = 6; // Vpub
+    CAPITAL_ZPUB = 7; // Zpub
   }
-  BTCScriptType script_type = 2; // only applies for ADDRESS
-  BTCCoin coin = 3;
-  OutputType output_type = 4;
+
+  BTCCoin coin = 1;
+  repeated uint32 keypath = 2;
+
+  oneof output {
+    XPubType xpub_type = 3;
+    BTCScriptConfig script_config = 4;
+  }
+
   bool display = 5;
 }
 
 
 message BTCSignInitRequest {
   BTCCoin coin = 1;
-  BTCScriptType script_type = 2; // script type for inputs and changes
-  uint32 bip44_account = 3;
-  uint32 version = 4; // reserved, must be 1
+  BTCScriptConfig script_config = 2; // script config for inputs and changes
+  repeated uint32 keypath_account = 3; // prefix to all input and change keypaths.
+  uint32 version = 4; // must be 1 or 2
   uint32 num_inputs = 5;
   uint32 num_outputs = 6;
-  uint32 locktime = 7; // reserved, must be 0
+  uint32 locktime = 7; // must be <500000000
 }
 
 message BTCSignNextResponse {
@@ -71,7 +97,7 @@ message BTCSignInputRequest {
   bytes prevOutHash = 1;
   uint32 prevOutIndex = 2;
   uint64 prevOutValue = 3;
-  uint32 sequence = 4; // reserved, must be 0xffffffff
+  uint32 sequence = 4; // must be 0xffffffff-2, 0xffffffff-1 or 0xffffffff
   repeated uint32 keypath = 6; // all inputs must be ours.
 }
 
@@ -91,4 +117,3 @@ message BTCSignOutputRequest {
   bytes hash = 4; // if ours is false
   repeated uint32 keypath = 5; // if ours is true
 }
-

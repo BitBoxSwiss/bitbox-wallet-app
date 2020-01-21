@@ -102,3 +102,34 @@ func (device *Device) ETHSign(
 	}
 	return signResponse.Sign.Signature, nil
 }
+
+// ETHSignMessage signs an Ethereum message. The provided msg will be prefixed with "\x19Ethereum
+// message\n" + len(msg) in the hardware, e.g. "\x19Ethereum\n5hello" (yes, the len prefix is the
+// ascii representation with no fixed size or delimiter, WTF).
+func (device *Device) ETHSignMessage(
+	coin messages.ETHCoin,
+	keypath []uint32,
+	msg []byte,
+) ([]byte, error) {
+	if len(msg) > 1024 {
+		return nil, errp.New("message too large")
+	}
+	request := &messages.ETHRequest{
+		Request: &messages.ETHRequest_SignMsg{
+			SignMsg: &messages.ETHSignMessageRequest{
+				Coin:    coin,
+				Keypath: keypath,
+				Msg:     msg,
+			},
+		},
+	}
+	response, err := device.queryETH(request)
+	if err != nil {
+		return nil, err
+	}
+	signResponse, ok := response.Response.(*messages.ETHResponse_Sign)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	return signResponse.Sign.Signature, nil
+}
