@@ -618,11 +618,12 @@ func (backend *Backend) initDefaultAccounts() {
 				signing.ScriptTypeP2WPKH)
 
 			TETH, _ := backend.Coin(coinTETH)
-			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(TETH, "teth", "Ethereum Ropsten BETA", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
 			RETH, _ := backend.Coin(coinRETH)
-			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby BETA", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(RETH, "reth", "Ethereum Rinkeby BETA", "m/44'/1'/0'/0", signing.ScriptTypeP2WPKH)
 			erc20TEST, _ := backend.Coin(coinERC20TEST)
-			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(erc20TEST, "erc20Test", "ERC20 TEST", "m/44'/1'/0'/0",
+				signing.ScriptTypeP2WPKH)
 		}
 	} else {
 		if backend.arguments.Multisig() {
@@ -650,12 +651,12 @@ func (backend *Backend) initDefaultAccounts() {
 			ETH, _ := backend.Coin(coinETH)
 			const ethAccountCode = "eth"
 			// Once the BETA label is removed, also remove the 'BETA' string replace in receive.jsx
-			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum BETA", "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+			backend.createAndAddAccount(ETH, ethAccountCode, "Ethereum BETA", "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 
 			if backend.config.AppConfig().Backend.AccountActive(ethAccountCode) {
 				for _, erc20Token := range erc20Tokens {
 					token, _ := backend.Coin(erc20Token.code)
-					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0/0", signing.ScriptTypeP2WPKH)
+					backend.createAndAddAccount(token, erc20Token.code, erc20Token.name, "m/44'/60'/0'/0", signing.ScriptTypeP2WPKH)
 				}
 			}
 		}
