@@ -543,15 +543,7 @@
   "generic": {
     "applying": "configuration लागू करना",
     "confirmToContinue": "कृपया जारी रखने के लिए पुष्टि करें।",
-    "description": "विवरण",
-    "enable": {
-      "false": "enable",
-      "true": "disable"
-    },
-    "enabled": {
-      "false": "Disabled",
-      "true": "Enabled"
-    }
+    "description": "विवरण"
   },
   "genericError": "एक एरर पाई गई। यदि आपको कोई समस्या दिखाई देती है, तो कृपया एप्लिकेशन को पुनः आरंभ करें।",
   "goal": {

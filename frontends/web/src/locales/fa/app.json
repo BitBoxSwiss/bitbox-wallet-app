@@ -543,15 +543,7 @@
   "generic": {
     "applying": "اعمال تنظیمات",
     "confirmToContinue": "لطفاً برای ادامه تأیید کنید.",
-    "description": "شرح",
-    "enable": {
-      "false": "فعال کردن",
-      "true": "غیرفعال کردن"
-    },
-    "enabled": {
-      "false": "غیر فعال کردن",
-      "true": "فعال کردن"
-    }
+    "description": "شرح"
   },
   "genericError": "یک خطا رخ داده است اگر متوجه شدید، لطفا برنامه را مجددا راه اندازی کنید.",
   "goal": {
@@ -1099,7 +1091,7 @@
       "bitcoinP2PKH": "Bitcoin Legacy",
       "bitcoinP2WPKH": "Bitcoin: bech32",
       "bitcoinP2WPKHP2SH": "Bitcoin",
-      "ethereum": "Ethereum",
+      "ethereum": "Ethereum BETA",
       "litecoinP2WPKH": "Litecoin: bech32",
       "litecoinP2WPKHP2SH": "Litecoin",
       "title": "حساب های فعال"

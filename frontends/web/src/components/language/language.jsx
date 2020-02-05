@@ -34,6 +34,7 @@ export default class LanguageSwitcher extends Component {
             { code: 'ja', display: '日本語' },
             { code: 'ms', display: 'Bahasa Melayu' },
             { code: 'pt', display: 'Português' },
+            { code: 'es', display: 'Español' },
             { code: 'ru', display: 'Русский' },
             { code: 'tr', display: 'Türkçe' },
             { code: 'fa', display: 'فارسی' },
