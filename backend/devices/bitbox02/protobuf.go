@@ -29,9 +29,9 @@ var btcMsgCoinMap = map[string]messages.BTCCoin{
 	"tltc": messages.BTCCoin_TLTC,
 }
 
-var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptType{
-	signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptType_SCRIPT_P2WPKH_P2SH,
-	signing.ScriptTypeP2WPKH:     messages.BTCScriptType_SCRIPT_P2WPKH,
+var btcMsgScriptTypeMap = map[signing.ScriptType]messages.BTCScriptConfig_SimpleType{
+	signing.ScriptTypeP2WPKHP2SH: messages.BTCScriptConfig_P2WPKH_P2SH,
+	signing.ScriptTypeP2WPKH:     messages.BTCScriptConfig_P2WPKH,
 }
 
 var btcMsgOutputTypeMap = map[txscript.ScriptClass]messages.BTCOutputType{

@@ -21,7 +21,7 @@ const (
 	// StatusConnected ist the first status, right after the device is connected. We automatically
 	// move to StatusUnpaired (directly if the device is uninitialized, or after unlocking the
 	// device if it is initialzed).
-	StatusConnected = "connected"
+	StatusConnected Status = "connected"
 
 	// StatusUnpaired means the pairing has not been confirmed yet. After the pairing screen has
 	// been confirmed, we move to StatusUninitialized or StatusInitialized depending on the device

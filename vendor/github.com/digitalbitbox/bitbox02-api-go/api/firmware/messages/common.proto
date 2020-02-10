@@ -17,3 +17,20 @@ syntax = "proto3";
 message PubResponse {
   string pub = 1;
 }
+
+message RootFingerprintRequest {
+}
+
+message RootFingerprintResponse {
+  bytes fingerprint = 1;
+}
+
+// See https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki.
+// version field dropped as it will set dynamically based on the context (xpub, ypub, etc.).
+message XPub {
+  bytes depth = 1;
+  bytes parent_fingerprint = 2;
+  uint32 child_num = 3;
+  bytes chain_code = 4;
+  bytes public_key = 5;
+}

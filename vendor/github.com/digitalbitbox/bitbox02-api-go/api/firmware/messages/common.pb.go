@@ -59,17 +59,173 @@ func (m *PubResponse) GetPub() string {
 	return ""
 }
 
+type RootFingerprintRequest struct {
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RootFingerprintRequest) Reset()         { *m = RootFingerprintRequest{} }
+func (m *RootFingerprintRequest) String() string { return proto.CompactTextString(m) }
+func (*RootFingerprintRequest) ProtoMessage()    {}
+func (*RootFingerprintRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_555bd8c177793206, []int{1}
+}
+
+func (m *RootFingerprintRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RootFingerprintRequest.Unmarshal(m, b)
+}
+func (m *RootFingerprintRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RootFingerprintRequest.Marshal(b, m, deterministic)
+}
+func (m *RootFingerprintRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RootFingerprintRequest.Merge(m, src)
+}
+func (m *RootFingerprintRequest) XXX_Size() int {
+	return xxx_messageInfo_RootFingerprintRequest.Size(m)
+}
+func (m *RootFingerprintRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RootFingerprintRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RootFingerprintRequest proto.InternalMessageInfo
+
+type RootFingerprintResponse struct {
+	Fingerprint          []byte   `protobuf:"bytes,1,opt,name=fingerprint,proto3" json:"fingerprint,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *RootFingerprintResponse) Reset()         { *m = RootFingerprintResponse{} }
+func (m *RootFingerprintResponse) String() string { return proto.CompactTextString(m) }
+func (*RootFingerprintResponse) ProtoMessage()    {}
+func (*RootFingerprintResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_555bd8c177793206, []int{2}
+}
+
+func (m *RootFingerprintResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_RootFingerprintResponse.Unmarshal(m, b)
+}
+func (m *RootFingerprintResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_RootFingerprintResponse.Marshal(b, m, deterministic)
+}
+func (m *RootFingerprintResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RootFingerprintResponse.Merge(m, src)
+}
+func (m *RootFingerprintResponse) XXX_Size() int {
+	return xxx_messageInfo_RootFingerprintResponse.Size(m)
+}
+func (m *RootFingerprintResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_RootFingerprintResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RootFingerprintResponse proto.InternalMessageInfo
+
+func (m *RootFingerprintResponse) GetFingerprint() []byte {
+	if m != nil {
+		return m.Fingerprint
+	}
+	return nil
+}
+
+// See https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki.
+// version field dropped as it will set dynamically based on the context (xpub, ypub, etc.).
+type XPub struct {
+	Depth                []byte   `protobuf:"bytes,1,opt,name=depth,proto3" json:"depth,omitempty"`
+	ParentFingerprint    []byte   `protobuf:"bytes,2,opt,name=parent_fingerprint,json=parentFingerprint,proto3" json:"parent_fingerprint,omitempty"`
+	ChildNum             uint32   `protobuf:"varint,3,opt,name=child_num,json=childNum,proto3" json:"child_num,omitempty"`
+	ChainCode            []byte   `protobuf:"bytes,4,opt,name=chain_code,json=chainCode,proto3" json:"chain_code,omitempty"`
+	PublicKey            []byte   `protobuf:"bytes,5,opt,name=public_key,json=publicKey,proto3" json:"public_key,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *XPub) Reset()         { *m = XPub{} }
+func (m *XPub) String() string { return proto.CompactTextString(m) }
+func (*XPub) ProtoMessage()    {}
+func (*XPub) Descriptor() ([]byte, []int) {
+	return fileDescriptor_555bd8c177793206, []int{3}
+}
+
+func (m *XPub) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_XPub.Unmarshal(m, b)
+}
+func (m *XPub) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_XPub.Marshal(b, m, deterministic)
+}
+func (m *XPub) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_XPub.Merge(m, src)
+}
+func (m *XPub) XXX_Size() int {
+	return xxx_messageInfo_XPub.Size(m)
+}
+func (m *XPub) XXX_DiscardUnknown() {
+	xxx_messageInfo_XPub.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_XPub proto.InternalMessageInfo
+
+func (m *XPub) GetDepth() []byte {
+	if m != nil {
+		return m.Depth
+	}
+	return nil
+}
+
+func (m *XPub) GetParentFingerprint() []byte {
+	if m != nil {
+		return m.ParentFingerprint
+	}
+	return nil
+}
+
+func (m *XPub) GetChildNum() uint32 {
+	if m != nil {
+		return m.ChildNum
+	}
+	return 0
+}
+
+func (m *XPub) GetChainCode() []byte {
+	if m != nil {
+		return m.ChainCode
+	}
+	return nil
+}
+
+func (m *XPub) GetPublicKey() []byte {
+	if m != nil {
+		return m.PublicKey
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*PubResponse)(nil), "PubResponse")
+	proto.RegisterType((*RootFingerprintRequest)(nil), "RootFingerprintRequest")
+	proto.RegisterType((*RootFingerprintResponse)(nil), "RootFingerprintResponse")
+	proto.RegisterType((*XPub)(nil), "XPub")
 }
 
 func init() { proto.RegisterFile("common.proto", fileDescriptor_555bd8c177793206) }
 
 var fileDescriptor_555bd8c177793206 = []byte{
-	// 74 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xe2, 0xe2, 0x49, 0xce, 0xcf, 0xcd,
-	0xcd, 0xcf, 0xd3, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x57, 0x92, 0xe7, 0xe2, 0x0e, 0x28, 0x4d, 0x0a,
-	0x4a, 0x2d, 0x2e, 0xc8, 0xcf, 0x2b, 0x4e, 0x15, 0x12, 0xe0, 0x62, 0x2e, 0x28, 0x4d, 0x92, 0x60,
-	0x54, 0x60, 0xd4, 0xe0, 0x0c, 0x02, 0x31, 0x93, 0xd8, 0xc0, 0xea, 0x8c, 0x01, 0x01, 0x00, 0x00,
-	0xff, 0xff, 0xee, 0x8d, 0x87, 0xf0, 0x37, 0x00, 0x00, 0x00,
+	// 229 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x64, 0x90, 0xb1, 0x4b, 0x03, 0x31,
+	0x14, 0x87, 0x39, 0xdb, 0x8a, 0xf7, 0x5a, 0x41, 0x83, 0x68, 0x40, 0xc4, 0xe3, 0xa6, 0x2e, 0xba,
+	0x38, 0x3a, 0x0a, 0x2e, 0x82, 0x94, 0x4c, 0x6e, 0x47, 0x93, 0x3c, 0xbd, 0x60, 0x93, 0x17, 0x73,
+	0xc9, 0xd0, 0x7f, 0xc8, 0xbf, 0x53, 0x9a, 0x1c, 0x78, 0xd0, 0x2d, 0xf9, 0xbe, 0x1f, 0x5f, 0x20,
+	0xb0, 0x52, 0x64, 0x2d, 0xb9, 0x47, 0x1f, 0x28, 0x52, 0x7b, 0x0f, 0xcb, 0x4d, 0x92, 0x02, 0x07,
+	0x4f, 0x6e, 0x40, 0x76, 0x01, 0x33, 0x9f, 0x24, 0xaf, 0x9a, 0x6a, 0x5d, 0x8b, 0xc3, 0xb1, 0xe5,
+	0x70, 0x2d, 0x88, 0xe2, 0xab, 0x71, 0x5f, 0x18, 0x7c, 0x30, 0x2e, 0x0a, 0xfc, 0x49, 0x38, 0xc4,
+	0xf6, 0x19, 0x6e, 0x8e, 0xcc, 0x98, 0x69, 0x60, 0xf9, 0xf9, 0x8f, 0x73, 0x6e, 0x25, 0xa6, 0xa8,
+	0xfd, 0xad, 0x60, 0xfe, 0xb1, 0x49, 0x92, 0x5d, 0xc1, 0x42, 0xa3, 0x8f, 0xfd, 0x38, 0x2a, 0x17,
+	0xf6, 0x00, 0xcc, 0x6f, 0x03, 0xba, 0xd8, 0x4d, 0x3b, 0x27, 0x79, 0x72, 0x59, 0xcc, 0xe4, 0x5d,
+	0x76, 0x0b, 0xb5, 0xea, 0xcd, 0x4e, 0x77, 0x2e, 0x59, 0x3e, 0x6b, 0xaa, 0xf5, 0xb9, 0x38, 0xcb,
+	0xe0, 0x3d, 0x59, 0x76, 0x07, 0xa0, 0xfa, 0xad, 0x71, 0x9d, 0x22, 0x8d, 0x7c, 0x9e, 0x1b, 0x75,
+	0x26, 0x2f, 0xa4, 0xf1, 0xa0, 0x7d, 0x92, 0x3b, 0xa3, 0xba, 0x6f, 0xdc, 0xf3, 0x45, 0xd1, 0x85,
+	0xbc, 0xe1, 0x5e, 0x9e, 0xe6, 0x7f, 0x7a, 0xfa, 0x0b, 0x00, 0x00, 0xff, 0xff, 0xf0, 0x08, 0xfc,
+	0xd3, 0x37, 0x01, 0x00, 0x00,
 }

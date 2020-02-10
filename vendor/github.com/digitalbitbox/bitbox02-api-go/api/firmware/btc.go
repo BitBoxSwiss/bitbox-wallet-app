@@ -20,21 +20,60 @@ import (
 	"github.com/golang/protobuf/proto"
 )
 
-// BTCPub queries the device for a btc, ltc, tbtc, tltc xpub or address.
-func (device *Device) BTCPub(
+// NewBTCScriptConfigSimple is a helper to construct the correct script config for simple script
+// types.
+func NewBTCScriptConfigSimple(typ messages.BTCScriptConfig_SimpleType) *messages.BTCScriptConfig {
+	return &messages.BTCScriptConfig{
+		Config: &messages.BTCScriptConfig_SimpleType_{
+			SimpleType: typ,
+		},
+	}
+}
+
+// BTCXPub queries the device for a btc, ltc, tbtc, tltc xpubs.
+func (device *Device) BTCXPub(
 	coin messages.BTCCoin,
 	keypath []uint32,
-	outputType messages.BTCPubRequest_OutputType,
-	scriptType messages.BTCScriptType,
+	xpubType messages.BTCPubRequest_XPubType,
 	display bool) (string, error) {
 	request := &messages.Request{
 		Request: &messages.Request_BtcPub{
 			BtcPub: &messages.BTCPubRequest{
-				Coin:       coin,
-				Keypath:    keypath,
-				OutputType: outputType,
-				ScriptType: scriptType,
-				Display:    display,
+				Coin:    coin,
+				Keypath: keypath,
+				Output: &messages.BTCPubRequest_XpubType{
+					XpubType: xpubType,
+				},
+				Display: display,
+			},
+		},
+	}
+	response, err := device.query(request)
+	if err != nil {
+		return "", err
+	}
+	pubResponse, ok := response.Response.(*messages.Response_Pub)
+	if !ok {
+		return "", errp.New("unexpected response")
+	}
+	return pubResponse.Pub.Pub, nil
+}
+
+// BTCAddress queries the device for a btc, ltc, tbtc, tltc address.
+func (device *Device) BTCAddress(
+	coin messages.BTCCoin,
+	keypath []uint32,
+	scriptConfig *messages.BTCScriptConfig,
+	display bool) (string, error) {
+	request := &messages.Request{
+		Request: &messages.Request_BtcPub{
+			BtcPub: &messages.BTCPubRequest{
+				Coin:    coin,
+				Keypath: keypath,
+				Output: &messages.BTCPubRequest_ScriptConfig{
+					ScriptConfig: scriptConfig,
+				},
+				Display: display,
 			},
 		},
 	}
@@ -66,7 +105,7 @@ func (device *Device) queryBtcSign(request proto.Message) (
 // BTCSign signs a bitcoin or bitcoin-like transaction. Returns one 64 byte signature per input.
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
-	scriptType messages.BTCScriptType,
+	scriptConfig *messages.BTCScriptConfig,
 	bip44Account uint32,
 	inputs []*messages.BTCSignInputRequest,
 	outputs []*messages.BTCSignOutputRequest,
@@ -74,16 +113,17 @@ func (device *Device) BTCSign(
 	locktime uint32,
 ) ([][]byte, error) {
 	signatures := make([][]byte, len(inputs))
+	panic("need to fix keypath")
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
-				Coin:         coin,
-				ScriptType:   scriptType,
-				Bip44Account: bip44Account,
-				Version:      version,
-				NumInputs:    uint32(len(inputs)),
-				NumOutputs:   uint32(len(outputs)),
-				Locktime:     locktime,
+				Coin:           coin,
+				ScriptConfig:   scriptConfig,
+				KeypathAccount: nil, // TODO
+				Version:        version,
+				NumInputs:      uint32(len(inputs)),
+				NumOutputs:     uint32(len(outputs)),
+				Locktime:       locktime,
 			}}})
 	if err != nil {
 		return nil, err
