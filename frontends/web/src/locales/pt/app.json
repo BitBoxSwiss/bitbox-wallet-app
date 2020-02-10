@@ -362,15 +362,7 @@
   "generic": {
     "applying": "",
     "confirmToContinue": "Confirme para continuar.",
-    "description": "Descrição",
-    "enable": {
-      "false": "habilitar",
-      "true": "desabilitar"
-    },
-    "enabled": {
-      "false": "Desativado",
-      "true": "Ativado"
-    }
+    "description": "Descrição"
   },
   "genericError": "Um erro ocorreu. Se você notar algum problema, por favor, reinicie o aplicativo.",
   "goal": {
@@ -762,11 +754,6 @@
   },
   "receive": {
     "label": "Seu endereço",
-    "ltcLegacy": {
-      "button": "Converter para o formato de endereço legacy",
-      "info": "O Litecoin está transacionando de endereços que começam com '3' para endereços que começam com um 'M'.",
-      "result": "Formato legacy de {{address}}:\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "Para receber outros tokens, ative-os nas configurações. Se você depositar outros tokens, eles podem não ser acessíveis.",
       "warning": "Certifique-se de receber apenas {{accountName}} neste endereço."

@@ -1,6 +1,7 @@
 {
   "account": {
     "disconnect": "Verbindung unterbrochen. Erneut verbinden... ",
+    "export": "Export",
     "exportTransactions": "Exportiere Transaktionen zum Download Ordner als CSV Datei",
     "fatalError": "Ein unerwarteter Fehler ist aufgetreten.",
     "incoming": "Eingehend",
@@ -24,6 +25,7 @@
     "verify": "Auf dem Gerät bestätigen"
   },
   "accountSummary": {
+    "availableBalance": "",
     "balance": "Saldo",
     "exportSummary": "Kontozusammenfassung als CSV Datei zum Download Ordner exportieren",
     "fiatBalance": "Fiat Kontostand",
@@ -31,7 +33,8 @@
     "noAccount": "Keine Konten verfügbar",
     "synchronizing": "Konten werden mit der Blockchain syncro",
     "title": "Kontenübersicht",
-    "total": "Gesamt"
+    "total": "Gesamt",
+    "transactionHistory": "Transaktionsübersicht"
   },
   "addAccount": {
     "accountName": "Konto Name",
@@ -131,12 +134,16 @@
     }
   },
   "bitbox02Interact": {
+    "confirmDate": "Bestätige das heutige Datum auf deiner BitBox02",
+    "confirmDateText": "",
+    "confirmName": "Bestätige den Namen auf deiner BitBox02",
     "followInstructions": "Bitte folge den Anweisungen auf deiner BitBox 02."
   },
   "bitbox02Settings": {
     "deviceName": {
       "current": "Aktueller Gerätename",
       "input": "BitBox 02 Name",
+      "placeholder": "Neuer Gerätename",
       "title": "BitBox 02 Namen einstellen"
     },
     "mnemonicPassphrase": {
@@ -213,6 +220,10 @@
       "removeMicroSD": "Bitte entnehmen Sie Ihre microSD Karte und bewahren Sie diese an einem sicheren Ort auf.",
       "success": "Ihr Backup wurde erfolgreich erstellt."
     },
+    "stepInsertSD": {
+      "insertSDCard": "Bitte stecke die microSD Karte in deine BitBox02 um fortzufahren",
+      "insertSDcardTitle": "MicroSD Karte einstecken"
+    },
     "stepPassword": {
       "title": "BitBox02 Passwort wählen",
       "useControls": "Verwenden Sie die Touch Sensoren an den Seiten Ihrer BitBox02 um ein Passwort zu wählen."
@@ -237,14 +248,17 @@
     "connectedBases": "Verbundene Geräte",
     "detectedBases": "Geräte in Ihrem Netzwerk gefunden",
     "detectedBasesEmpty": "Keine Geräte gefunden",
+    "manage": "Verwalten",
     "manualInput": "BitBoxBase wird nicht gefunden? Manuell verbinden:",
     "manualInputInvalid": "Ungültige IP-Adresse",
     "manualInputLabel": "IP-Adresse: Port",
     "new": "Neue BitBoxBase",
     "settings": {
       "advanced": {
+        "blocks": "Blocks",
         "confirmSystemPassword": "Dadurch wird das BitBoxBase-Systempasswort festgelegt, das für <strong>SSH-Authentifizierung und Sudo-Zugriff verwendet werden soll.</strong>\n$t(generic.confirmToContinue)",
         "connectElectrum": "Electrum verbinden",
+        "headers": "",
         "ipAddress": "IP Adresse",
         "manual": "Manuelles Update",
         "port": "Port",
@@ -534,15 +548,7 @@
   "generic": {
     "applying": "Konfiguration wird angewendet",
     "confirmToContinue": "Bitte bestätige, um fortzufahren.",
-    "description": "Beschreibung",
-    "enable": {
-      "false": "aktivieren",
-      "true": "deaktivieren"
-    },
-    "enabled": {
-      "false": "Deaktiviert",
-      "true": "Aktiviert"
-    }
+    "description": "Beschreibung"
   },
   "genericError": "Ein Fehler ist aufgetreten. Falls Sie Probleme bemerken, starten Sie die Applikation bitte neu.",
   "goal": {
