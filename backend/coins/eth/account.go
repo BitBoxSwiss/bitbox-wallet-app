@@ -183,6 +183,15 @@ func (account *Account) Initialize() error {
 		if err != nil {
 			return false, err
 		}
+		// Derive m/0, first account.
+		relKeyPath, err := signing.NewRelativeKeypath("0")
+		if err != nil {
+			return false, err
+		}
+		signingConfiguration, err = signingConfiguration.Derive(relKeyPath)
+		if err != nil {
+			return false, err
+		}
 		account.signingConfiguration = signingConfiguration
 		account.notifier = account.getNotifier(signingConfiguration)
 		return false, nil
