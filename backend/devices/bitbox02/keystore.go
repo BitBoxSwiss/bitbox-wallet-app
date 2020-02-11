@@ -108,6 +108,13 @@ func (keystore *keystore) VerifyAddress(
 			firmware.NewBTCScriptConfigSimple(msgScriptType),
 			true,
 		)
+		if firmware.IsErrorAbort(err) {
+			// No special action on user abort.
+			return nil
+		}
+		if err != nil {
+			return err
+		}
 	case *eth.Coin:
 		msgCoin, ok := ethMsgCoinMap[coin.Code()]
 		if !ok {
@@ -122,13 +129,17 @@ func (keystore *keystore) VerifyAddress(
 		_, err := keystore.device.ETHPub(
 			msgCoin, configuration.AbsoluteKeypath().ToUInt32(),
 			messages.ETHPubRequest_ADDRESS, true, contractAddress)
+		if firmware.IsErrorAbort(err) {
+			// No special action on user abort.
+			return nil
+		}
 		if err != nil {
 			return err
 		}
 	default:
 		return errp.New("unsupported coin")
 	}
-	return err
+	return nil
 }
 
 // CanVerifyExtendedPublicKey implements keystore.Keystore.
@@ -165,6 +176,10 @@ func (keystore *keystore) VerifyExtendedPublicKey(
 		}
 		_, err := keystore.device.BTCXPub(
 			msgCoin, keyPath.ToUInt32(), msgXPubType, true)
+		if firmware.IsErrorAbort(err) {
+			// No special action taken on user abort.
+			return nil
+		}
 		if err != nil {
 			return err
 		}
