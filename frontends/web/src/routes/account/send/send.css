@@ -33,81 +33,6 @@
     cursor: not-allowed;
 }
 
-.confirmationTitle {
-    margin-bottom: 0;
-}
-
-.confirmationBox {
-    border-radius: 2px;
-    border: solid 1px var(--color-lightgray);
-}
-
-.confirmationBox .block {
-    padding: var(--space-half);
-    overflow: hidden;
-}
-
-.confirmationBox .block.ignorePadding {
-    padding: 0;
-}
-
-.confirmationBox .block:not(:last-child) {
-    border-bottom: solid 0.5px var(--color-lightgray);
-}
-
-.confirmationBox .block:last-child {
-    display: flex;
-    flex-direction: column;
-}
-
-.confirmationBox .block p {
-    margin: 0;
-}
-
-.confirmationBox .block .half {
-    padding: var(--spacing-default);
-    width: 50%;
-}
-
-.confirmationBox .block .half:first-child {
-    border-right: solid 0.5px var(--color-lightgray);
-}
-
-.confirmationBox .block .confirmationLabel {
-    margin-bottom: var(--space-quarter);
-}
-
-.confirmationValueTable {
-    border-collapse: collapse;
-    font-size: var(--size-default);
-    font-weight: 400;
-}
-
-.confirmationValueTable tr:first-child td {
-    padding-bottom: var(--space-quarter);
-}
-
-.confirmationValueTable td {
-    line-height: 1;
-    vertical-align: bottom;
-}
-
-.confirmationValueTable td:first-child {
-    text-align: right;
-    padding-right: var(--spacing-half);
-}
-
-.confirmationValueTable tr > td:last-child {
-    color: var(--color-secondary);
-    font-size: var(--size-label);
-    font-weight: normal;
-}
-
-.confirmationValueTable.total td {
-    font-weight: 400;
-    font-size: var(--size-large);
-}
-
 .confirmationValue {
     font-size: var(--size-default);
     font-weight: 400;
@@ -178,8 +103,10 @@
 
 .confirmItem p {
     margin-top: var(--space-quarter);
+    word-break: break-all;
 }
 
 .total p {
     font-size: var(--size-subheader) !important;
+    margin-bottom: var(--space-quarter);
 }
