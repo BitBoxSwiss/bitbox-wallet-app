@@ -106,20 +106,19 @@ func (device *Device) queryBtcSign(request proto.Message) (
 func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfig *messages.BTCScriptConfig,
-	bip44Account uint32,
+	keypathAccount []uint32,
 	inputs []*messages.BTCSignInputRequest,
 	outputs []*messages.BTCSignOutputRequest,
 	version uint32,
 	locktime uint32,
 ) ([][]byte, error) {
 	signatures := make([][]byte, len(inputs))
-	panic("need to fix keypath")
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
 				Coin:           coin,
 				ScriptConfig:   scriptConfig,
-				KeypathAccount: nil, // TODO
+				KeypathAccount: keypathAccount,
 				Version:        version,
 				NumInputs:      uint32(len(inputs)),
 				NumOutputs:     uint32(len(outputs)),

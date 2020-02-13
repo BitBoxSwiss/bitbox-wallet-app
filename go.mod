@@ -15,7 +15,7 @@ require (
 	github.com/coreos/bbolt v1.3.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200204165823-00a8c608819b
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200213122502-f0d24fed3d66
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.10.5 // indirect
 	github.com/ethereum/go-ethereum v1.9.5
