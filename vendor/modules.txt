@@ -35,7 +35,7 @@ github.com/coreos/bbolt
 github.com/davecgh/go-spew/spew
 # github.com/deckarep/golang-set v1.7.1
 github.com/deckarep/golang-set
-# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200204165823-00a8c608819b
+# github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200213122502-f0d24fed3d66
 github.com/digitalbitbox/bitbox02-api-go/api/bootloader
 github.com/digitalbitbox/bitbox02-api-go/api/common
 github.com/digitalbitbox/bitbox02-api-go/api/firmware

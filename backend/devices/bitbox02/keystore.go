@@ -235,10 +235,6 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return errp.Newf("coin not supported: %s", coin.Code())
 	}
 
-	// account #0
-	// TODO: check that all inputs and change are the same account, and use that one.
-	bip44Account := uint32(hdkeychain.HardenedKeyStart)
-
 	inputs := make([]*messages.BTCSignInputRequest, len(tx.TxIn))
 	for inputIndex, txIn := range tx.TxIn {
 		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
@@ -285,7 +281,7 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 	signatures, err := keystore.device.BTCSign(
 		msgCoin,
 		firmware.NewBTCScriptConfigSimple(msgScriptType),
-		bip44Account,
+		btcProposedTx.TXProposal.AccountConfiguration.AbsoluteKeypath().ToUInt32(),
 		inputs,
 		outputs,
 		uint32(tx.Version),
