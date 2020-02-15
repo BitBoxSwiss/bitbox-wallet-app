@@ -41,6 +41,8 @@ import (
 // etherscan rate limits to one request per 0.2 seconds.
 var callInterval = 210 * time.Millisecond
 
+const apiKey = "8GXVIES9ACAJIH7Q5PFXVHK8KH44HZRWBM"
+
 // EtherScan is a rate-limited etherscan api client. See https://etherscan.io/apis.
 type EtherScan struct {
 	url         string
@@ -68,6 +70,7 @@ func (etherScan *EtherScan) call(params url.Values, result interface{}) error {
 	if err != nil {
 		return errp.WithStack(err)
 	}
+	params.Set("apikey", apiKey)
 	response, err := client.Get(etherScan.url + "?" + params.Encode())
 	if err != nil {
 		return errp.WithStack(err)
