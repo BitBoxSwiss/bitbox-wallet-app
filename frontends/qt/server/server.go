@@ -41,11 +41,15 @@ import "C"
 
 import (
 	"flag"
+	"os"
+	"runtime"
+	"strings"
 	"unsafe"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/bridgecommon"
 	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/system"
 )
 
@@ -76,10 +80,23 @@ func serve(
 	responseCallback C.responseCallback,
 	notifyUserCallback C.notifyUserCallback,
 ) {
+	log := logging.Get().WithGroup("server")
+	log.WithField("args", os.Args).Info("Started Qt application")
 	// workaround: this flag is parsed by qtwebengine, but flag.Parse() quits the app on
 	// unrecognized flags
 	// _ = flag.Int("remote-debugging-port", 0, "")
 	testnet := flag.Bool("testnet", false, "activate testnets")
+
+	if runtime.GOOS == "darwin" {
+		// eat "-psn_xxxx" on Mac, which is passed when starting an app from Finder for the first time.
+		// See also: https://stackoverflow.com/questions/10242115/os-x-strange-psn-command-line-parameter-when-launched-from-finder
+		for _, arg := range os.Args[1:] {
+			trimmed := strings.TrimLeft(arg, "-")
+			if strings.HasPrefix(trimmed, "psn_") {
+				flag.Bool(trimmed, false, "<ignored>")
+			}
+		}
+	}
 
 	gapLimitsReceive := flag.Uint("gapLimitReceive", 0, "gap limit for receive addresses. Do not use this unless you know what this means.")
 	gapLimitsChange := flag.Uint("gapLimitChange", 0, "gap limit for change addresses. Do not use this unless you know what this means.")
