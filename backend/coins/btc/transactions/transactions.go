@@ -295,10 +295,10 @@ func (transactions *Transactions) removeTxForAddress(
 func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
-	defer dbTx.Rollback()
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to begin transaction")
 	}
+	defer dbTx.Rollback()
 	txsSet := map[chainhash.Hash]struct{}{}
 	for _, txInfo := range txs {
 		txsSet[txInfo.TXHash.Hash()] = struct{}{}
