@@ -23,7 +23,7 @@ import (
 func (account *Account) SafelloBuySupported() bool {
 	switch account.coin.Net().Net {
 	case chaincfg.MainNetParams.Net, chaincfg.TestNet3Params.Net:
-		return true
+		return false // Safello suspended services, maybe temporarily, so we keep this around for a bit.
 	}
 	return false
 }
