@@ -53,6 +53,7 @@ public:
         if (info.requestUrl().scheme() == "qrc" || info.requestUrl().scheme() == "blob") {
             return;
         }
+#if 0 // Safello suspended services, maybe temporarily, so we keep this around for a bit.
         auto currentUrl = mainPage->requestedUrl().toString();
         bool onBuyPage = currentUrl.contains(QRegularExpression("^qrc:/account/[^/]+?/buy$"));
         // We treat the buy page specially, as we need to allow Safello to load in the iframe, as
@@ -66,7 +67,7 @@ public:
             }
             return;
         }
-
+#endif
         std::cerr << "Blocked: " << info.requestUrl().toString().toStdString() << std::endl;
         info.block(true);
     };

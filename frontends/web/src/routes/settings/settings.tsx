@@ -209,6 +209,7 @@ class Settings extends Component<Props, State> {
         this.setState({ activeProxyDialog: false });
     }
 
+    /*
     private setServicesConfig = servicesConfig => {
         setConfig({
             backend: { services: servicesConfig },
@@ -227,6 +228,7 @@ class Settings extends Component<Props, State> {
         services.safello = target.checked;
         this.setServicesConfig(services);
     }
+    */
 
     private handleRestartDismissMessage = () => {
         this.setState({ restart: false });
@@ -408,6 +410,7 @@ class Settings extends Component<Props, State> {
                                                     </div>
                                                 </div>
 
+                                                {/* Safello suspended services, maybe temporarily, so we keep this around for a bit.
                                                 <div className="column column-1-3">
                                                     <div class="subHeaderContainer">
                                                         <div class="subHeader">
@@ -430,6 +433,7 @@ class Settings extends Component<Props, State> {
 
                                                     </div>
                                                 </div>
+                                                */}
                                             </div>
                                             {
                                                 restart && (
