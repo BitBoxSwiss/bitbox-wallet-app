@@ -126,7 +126,7 @@
     "error": {
       "e10000": "当前输入的设备密码不正确",
       "e10001": "更改设备密码失败",
-      "e102": "密码必须包含至少8个字符",
+      "e102": "密码必须包含至少4个字符",
       "e112": "隐藏的设备密码不能与主设备密码相同。"
     }
   },
@@ -543,15 +543,7 @@
   "generic": {
     "applying": "应用配置",
     "confirmToContinue": "请确认以继续。",
-    "description": "说明",
-    "enable": {
-      "false": "启用",
-      "true": "禁用"
-    },
-    "enabled": {
-      "false": "已禁用",
-      "true": "已启用"
-    }
+    "description": "说明"
   },
   "genericError": "发生错误。如果发现任何问题，请重新启动应用程序。",
   "goal": {
@@ -942,11 +934,6 @@
   },
   "receive": {
     "label": "你的地址",
-    "ltcLegacy": {
-      "button": "转换为legacy地址格式",
-      "info": "Litecoin莱特币正在从以“ 3”开头的地址转变为以“ M”开头的地址。",
-      "result": "Legacy格式的 {{address}}：\n{{legacyAddress}}"
-    },
     "onlyThisCoin": {
       "description": "要接收其他代币，请先在设置中启用它们。否则如果您存入其他代币，则可能无法访问它们。",
       "warning": "确保只在这个地址上接收 {{accountName}} 。"
@@ -996,7 +983,7 @@
     "creating": "创建钱包中",
     "description": "我理解：",
     "error": {
-      "e102": "密码必须至少包含8个字符。",
+      "e102": "密码必须至少包含4个字符。",
       "e200": "您需要在BitBox中插入microSD卡才能创建钱包，以此才能够进行备份的自动创建。"
     },
     "info": {

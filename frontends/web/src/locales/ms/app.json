@@ -117,7 +117,7 @@
     "error": {
       "e10000": "Kata laluan peranti terkini salah",
       "e10001": "Gagal mengganti kata laluan peranti",
-      "e102": "Kata laluan mestilah terdiri daripada sekurang-kurangnya 8 aksara.",
+      "e102": "Kata laluan mestilah terdiri daripada sekurang-kurangnya 4 aksara.",
       "e112": "Kata laluan peranti tersembunyi tidak boleh sama dengan kata laluan peranti utama."
     }
   },
@@ -668,11 +668,6 @@
   },
   "receive": {
     "label": "Alamat anda",
-    "ltcLegacy": {
-      "button": "Ubah ke format alamat dahulu (legacy)",
-      "info": "Litecoin sedang beralih dari alamat bermula dengan '3' ke alamat bermula dengan 'M'.",
-      "result": "Format Legacy dari {{address}}:\n{{legacyAddress}}"
-    },
     "showFull": "Tunjukkan dan sahkan alamat lengkap",
     "title": "Dapatkan syiling",
     "verify": "Sahkan alamat dengan selamat",
@@ -715,7 +710,7 @@
     "creating": "Membuat dompet",
     "description": "Saya faham bahawa:",
     "error": {
-      "e102": "Kata laluan mestilah terdiri daripada sekurang-kurangnya 8 aksara.",
+      "e102": "Kata laluan mestilah terdiri daripada sekurang-kurangnya 4 aksara.",
       "e200": "Anda perlu memasukkan kad micro SD ke dalam BitBox anda untuk membuat wallet, agar backup boleh dibuat secara automatik."
     },
     "info": {

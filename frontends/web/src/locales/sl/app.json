@@ -111,7 +111,7 @@
       "confirmTitle": "Obvnovite iz seznama besed"
     },
     "showMnemonic": {
-      "description": "Prikazano vam bo do 24 besed, ki tvorijo arhivsko kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta arhivska kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi .",
+      "description": "Prikazano vam bo do 24 besed, ki tvorijo arhivsko kopijo denarnice. Zapišite jih na papir.\n\n<strong>Ne hranite jih digitalno in ne fotografirajte jih.</strong>\n\n<strong>Ne izgovarjajte besed na glas.</strong>\n\n<strong>Ta arhivska kopija ni zaščitena z geslom.</strong>\n\nPo končanem prikazu besed boste morali vsako še potrditi.",
       "title": "Prikaži mnemonično seme"
     },
     "title": "Upravljanje arhivskih kopij"
@@ -130,7 +130,7 @@
     "error": {
       "e10000": "Trenutno geslo naprave je napačno.",
       "e10001": "Gesla naprave ni bilo mogoče zamenjati",
-      "e102": "Geslo mora vsebovati najmanj 8 znakov.",
+      "e102": "Geslo mora vsebovati najmanj 4 znakov.",
       "e112": "Geslo skrite denarnice ne more biti enako kot geslo glavne denarnice."
     }
   },
@@ -144,7 +144,7 @@
   "bitbox02Settings": {
     "deviceName": {
       "current": "Trenutno ime naprave",
-      "input": "Ime BitBox02",
+      "input": "Novo ime",
       "placeholder": "Novo ime naprave",
       "title": "Nastavite ime vaši BitBox02"
     },
@@ -191,7 +191,7 @@
     "noPasswordMatch": "Gesli se nista ujemala. Poskusite znova.",
     "pairing": {
       "confirmButton": "Nadaljujte",
-      "failed": "Seznanjanje ni bilo potrjeno. Prosimo, da ponovno priklopite BitBox02.",
+      "failed": "Seznanjanje je bilo prekinjeno. Ponovno priklopite BitBox02.",
       "paired": "Na napravi ste potrdili, da se koda ujema. Če to drži, lahko nadaljujete s klikom na spodnji gumb.",
       "title": "Potrditev seznanitvene kode",
       "unpaired": "Zaznana je bila nova BitBox02 naprava. Preverite, ali se prikazana koda ujema s prikazom na zaslonu naprave. Če se koda ujema, se na BitBox02 dotaknite pod kljukico in za nadaljevanje kliknite spodnji gumb."
@@ -460,7 +460,7 @@
     "button": "Izzovi utripanje na napravi"
   },
   "bootloader": {
-    "button": "Nadgradite \"firmware\"",
+    "button": "Nadgradi \"firmware\"",
     "progress": "Nadgrajujem: {{progress}}%",
     "success": "Nadgradnja uspešna! Izključite in ponovno priključite napravo v USB režo. Tokrat se ne dotikajte gumba."
   },
@@ -478,7 +478,7 @@
     "next": "Naprej",
     "ok": "OK",
     "previous": "Nazaj",
-    "receive": "Sprejmi",
+    "receive": "Prejmi",
     "restore": "Obnovi",
     "select": "Izberite",
     "send": "Pošlji",
@@ -496,14 +496,14 @@
   "checkSDcard": "preverjanje microSD kartice",
   "clickHere": "Klikni tukaj.",
   "confirm": {
-    "abortInfo": "Dotaknite se",
-    "abortInfoRedText": "prekini",
-    "approveInfo": "Dotaknite se gumba za vsaj 4 sekunde",
-    "approveInfoGreenText": "potrdi",
+    "abortInfo": "Hiter dotik za ",
+    "abortInfoRedText": "prekinitev",
+    "approveInfo": "Dotaknite se gumba za vsaj 4 sekunde ",
+    "approveInfoGreenText": " za potrditev",
     "info": "Nadaljujte na BitBoxu.",
     "infoWhenPaired": "Najprej na seznanjeni mobilni napravi in ​​nato na BitBoxu"
   },
-  "confirmOnDevice": "Potrdite ime na svoji napravi.",
+  "confirmOnDevice": "Nadgradnjo potrdite na BitBox-u",
   "device": {
     "appUpradeRequired": "BitBox ni združljiv s to verzijo namizne aplikacije. Prenesite in namestite najnovejšo različico."
   },
@@ -520,7 +520,7 @@
       "newVersion": {
         "label": "Razpoložljiva različica"
       },
-      "title": "Firmware (strojna sistemska programska oprema)",
+      "title": "Firmware (strojna programska oprema)",
       "upToDate": "Vaša naprava je posodobljena",
       "version": {
         "label": "Različica"
@@ -555,7 +555,7 @@
     },
     "secrets": {
       "manageBackups": "Upravljanje arhivskih kopij",
-      "title": "Skrivnosti (tajnosti)"
+      "title": "Varnost"
     }
   },
   "deviceTampered": "Ali ste prejeli BitBox skupaj z geslom za obnovitev?\nČe je tako, takoj zaustavite postopek namestitve in nas kontaktirajte.\nShift nikoli ne izroča predpripravljene denarnice ali predpripravljenih gesel!.",
@@ -642,7 +642,7 @@
         "url": "https://www.cryptocompare.com"
       },
       "text": "Menjalni tečaji se vsako minuto posodobi s strani CryptoCompare, www.cryptocompare.com.",
-      "title": "Katere (fiat) tečaje prikazujemo?"
+      "title": "Od kod prikazani menjalni tečaji?"
     },
     "accountReload": {
       "text": "Vsi podatki o transakcijah se posodabljajo samodejno.",
@@ -801,7 +801,7 @@
     },
     "settings": {
       "btc-p2pkh": {
-        "text": "Račun, ki uporablja staro obliko naslova in transakcije, ki jo zdaj nadomeščata oblika naslova imenovana Segwit. Če ste BitBox01 uporabljali s staro aplikacijo za namizje, potem bo ta račun vseboval vaše kovance. Priporočamo, da svoje kovance prenesete na račun Bitcoin ali Bitcoin bech32, da prihranite transakcijske stroške (omrežnino).",
+        "text": "Račun, ki uporablja staro obliko naslova in transakcije, ki jo zdaj nadomeščata oblika naslova imenovana Segwit. Če ste BitBox01 uporabljali s staro aplikacijo (črno siva), potem bo ta račun vseboval vaše kovance. Priporočamo, da svoje kovance prenesete na račun Bitcoin ali Bitcoin bech32, da prihranite transakcijske stroške (omrežnino).",
         "title": "Kaj je Bitcoin Legacy?"
       },
       "btc-p2sh": {
@@ -825,7 +825,7 @@
         "title": "Lahko dodate več kovancev?"
       },
       "servers": {
-        "text": "Ta aplikacija komunicira s strežniki Cryptosecurity Shift, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva tudi najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
+        "text": "Ta aplikacija komunicira s strežniki podjetja Shift Cryptosecurity AG, da preveri posodobitve, naloži transakcije in pošilja informacije v uparjene mobilne aplikacije.\nAplikacija pridobiva najnovejše tečaje pri CryptoCompare. Vse konverzije so izračunane lokalno, kar pomeni, da se podatki o znesku vaše transakcije nikoli ne pošljejo ven iz aplikacije.\nOpomba: Za Ethereum in ERC20 žetone uporabljamo API-je Etherscan.io.",
         "title": "S katerimi strežniki govori ta aplikacija?"
       },
       "whyMultipleAccounts": {
@@ -1033,15 +1033,15 @@
   },
   "seed": {
     "agreements": {
-      "funds-access": "Razumem, da ostanem BREZ DOSTOPA do svojih sredstev, če pozabim geslo za obnovitev.",
-      "password-change": "Razumem, da pozneje NI MMOŽNO spremeniti gesla za obnovitev",
-      "password-required": "Geslo za obnovitev je potrebno za obnovitev denarnice iz arhivske kopije"
+      "funds-access": "da ostanem BREZ DOSTOPA do svojih sredstev, če pozabim to geslo!",
+      "password-change": "pozneje NI MOŽNO spremeniti gesla za obnovitev!",
+      "password-required": "je to geslo potrebno za obnovitev denarnice iz arhivske kopije"
     },
     "create": "Ustvari denarnico",
     "creating": "Ustvarjanje denarnice",
     "description": "Razumem da:",
     "error": {
-      "e102": "Geslo mora vsebovati najmanj 8 znakov.",
+      "e102": "Geslo mora vsebovati najmanj 4 znakov.",
       "e200": "Za kreiranje nove denarnice morate v BitBox vstaviti microSD kartico. S tem omogočite samodejno kreiranje arhivske kopije."
     },
     "info": {
@@ -1212,13 +1212,13 @@
       "info1": "Vaša denarnica je arhivirana na microSD kartico. \nOdstranite jo in jo varno shranite.",
       "info2": "Ustvarili ste varno geslo, ki odklene BitBox.",
       "info3": "Ustvarili ste varno geslo za obnovitev denarnice, ki odklene sredstva in obnovi arhivske kopije.",
-      "summary": "Tukaj je povzetek tega, kar ste storili",
-      "title": "Uspelo je"
+      "summary": "Preberite povzetek storjenega:",
+      "title": "Uspelo je!"
     },
     "getstarted": "Začnite",
     "restore": {
       "summary": "Uspešno ste obnovili denarnico.",
-      "title": "Uspelo je"
+      "title": "Uspelo je!"
     }
   },
   "transaction": {
@@ -1227,7 +1227,7 @@
       "send": "Ven",
       "send_to_self": "Sebi"
     },
-    "confirmation": "Potrditve",
+    "confirmation": "Št. potrditev",
     "details": {
       "address": "Naslov",
       "amount": "Znesek",
