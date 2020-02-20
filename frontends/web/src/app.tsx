@@ -136,7 +136,7 @@ class App extends Component<Props, State> {
 
     private maybeRoute = () => {
         const currentURL = getCurrentUrl();
-        const isIndex = currentURL === '/' || currentURL === '/index.html';
+        const isIndex = currentURL === '/' || currentURL === '/index.html' || currentURL === '/android_asset/web/index.html';
         const inAccounts = currentURL.startsWith('/account/');
         const accounts = this.props.accounts;
         if (inAccounts && !accounts.some(account => currentURL.startsWith('/account/' + account.code))) {
