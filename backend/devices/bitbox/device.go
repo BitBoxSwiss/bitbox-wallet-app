@@ -51,7 +51,7 @@ var (
 
 	pinPolicyProd              = NewPasswordPolicy("^[[:print:]]{4,}$")
 	pinPolicyTest              = NewPasswordPolicy("^[[:print:]]{4,}$")
-	recoveryPasswordPolicyProd = NewPasswordPolicy("^[[:print:]]{8,}$")
+	recoveryPasswordPolicyProd = NewPasswordPolicy("^[[:print:]]{4,}$")
 	recoveryPasswordPolicyTest = NewPasswordPolicy("^[[:print:]]{4,}$")
 )
 

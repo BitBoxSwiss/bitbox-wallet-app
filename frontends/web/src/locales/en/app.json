@@ -130,7 +130,7 @@
     "error": {
       "e10000": "Current device password incorrect.",
       "e10001": "Failed to replace device password",
-      "e102": "The password must consist of at least 8 characters.",
+      "e102": "The password must consist of at least 4 characters.",
       "e112": "Hidden device password cannot be the same as the main device password."
     }
   },
@@ -1040,7 +1040,7 @@
     "creating": "Creating wallet",
     "description": "I understand that:",
     "error": {
-      "e102": "The password must consist of at least 8 characters.",
+      "e102": "The password must consist of at least 4 characters.",
       "e200": "You need to insert a microSD card into your BitBox in order to create a wallet, so a backup can be created automatically."
     },
     "info": {

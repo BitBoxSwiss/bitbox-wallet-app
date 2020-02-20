@@ -126,7 +126,7 @@
     "error": {
       "e10000": "Senha atual do dispositivo incorreta.",
       "e10001": "Falha ao substituir a senha do dispositivo",
-      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e102": "A senha deve conter pelo menos 4 caracteres.",
       "e112": "A senha do dispositivo oculto não pode ser igual à senha do dispositivo principal."
     }
   },
@@ -803,7 +803,7 @@
     "creating": "Criando carteira",
     "description": "Eu entendo que:",
     "error": {
-      "e102": "A senha deve conter pelo menos 8 caracteres.",
+      "e102": "A senha deve conter pelo menos 4 caracteres.",
       "e200": "Você precisa inserir um cartão microSD na sua BitBox para criar uma carteira, para que um backup possa ser criado automaticamente."
     },
     "info": {

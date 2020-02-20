@@ -129,7 +129,7 @@
     "error": {
       "e10000": "Aktuelles Gerätepasswort ist falsch.",
       "e10001": "Fehler beim Ändern des Gerätepassworts",
-      "e102": "Das Passwort muss aus 8 Zeichen bestehen.",
+      "e102": "Das Passwort muss aus 4 Zeichen bestehen.",
       "e112": "Das versteckte Gerätepasswort und das normale Gerätepasswort können nicht identisch sein."
     }
   },
@@ -989,7 +989,7 @@
     "creating": "Wallet wird erstellt",
     "description": "Ich bestätige, dass ich folgendes zu Kenntnis genommen habe:",
     "error": {
-      "e102": "Das Passwort muss aus mindestens 8 Zeichen bestehen.",
+      "e102": "Das Passwort muss aus mindestens 4 Zeichen bestehen.",
       "e200": "Sie müssen eine microSD Karte in Ihre BitBox einsetzen, damit ein Backup Ihres Wallets erstellt und auf der Mikro-SD Karte gespeichert werden kann."
     },
     "info": {

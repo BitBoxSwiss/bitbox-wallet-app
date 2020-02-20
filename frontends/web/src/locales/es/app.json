@@ -130,7 +130,7 @@
     "error": {
       "e10000": "Contraseña del dispositivo actual incorrecta.",
       "e10001": "Error al reemplazar la contraseña del dispositivo",
-      "e102": "La contraseña debe contener un mínimo de 8 caracteres.",
+      "e102": "La contraseña debe contener un mínimo de 4 caracteres.",
       "e112": "La contraseña oculta del dispositivo no puede ser la misma que la contraseña principal del dispositivo."
     }
   },
@@ -1040,7 +1040,7 @@
     "creating": "Creando cartera",
     "description": "Entiendo que:",
     "error": {
-      "e102": "La contraseña debe constar de al menos 8 caracteres.",
+      "e102": "La contraseña debe constar de al menos 4 caracteres.",
       "e200": "Debe insertar una tarjeta micro SD en su BitBox para crear una cartera, de modo que se pueda crear una copia de seguridad automáticamente."
     },
     "info": {
