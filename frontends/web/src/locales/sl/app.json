@@ -457,7 +457,7 @@
     "welcome": "Dobrodošli v vaši BitBoxBase"
   },
   "blink": {
-    "button": "Izzovi utripanje na napravi"
+    "button": "Sproži utripanje na napravi"
   },
   "bootloader": {
     "button": "Nadgradi \"firmware\"",
