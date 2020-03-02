@@ -30,10 +30,10 @@ import (
 //go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
 
 var (
-	lowestSupportedFirmwareVersion                   = semver.NewSemVer(6, 0, 0)
-	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(6, 0, 0)
+	lowestSupportedFirmwareVersion                   = semver.NewSemVer(6, 1, 0)
+	lowestSupportedFirmwareVersionBTCOnly            = semver.NewSemVer(6, 1, 0)
 	lowestSupportedFirmwareVersionBitBoxBaseStandard = semver.NewSemVer(4, 3, 0)
-	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(7, 0, 0)
+	lowestNonSupportedFirmwareVersion                = semver.NewSemVer(8, 0, 0)
 )
 
 // Communication contains functions needed to communicate with the device.
@@ -64,6 +64,7 @@ type Logger interface {
 
 const (
 	opICanHasHandShaek          = "h"
+	opHerComezTehHandshaek      = "H"
 	opICanHasPairinVerificashun = "v"
 	opNoiseMsg                  = "n"
 	opAttestation               = "a"
@@ -308,10 +309,23 @@ func (device *Device) query(request proto.Message) (*messages.Response, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if len(responseBytes) == 0 {
+		return nil, errp.New("noise communication failed: empty response")
+	}
+	if device.version.AtLeast(semver.NewSemVer(7, 0, 0)) {
+		// From v7.0.0, encrypted noise responses are framed
+		if string(responseBytes[:1]) != responseSuccess {
+			return nil, errp.New("handshake query failed")
+		}
+		responseBytes = responseBytes[1:]
+	}
+
 	responseBytesDecrypted, err := device.receiveCipher.Decrypt(nil, nil, responseBytes)
 	if err != nil {
 		return nil, errp.WithStack(err)
 	}
+
 	response := &messages.Response{}
 	if err := proto.Unmarshal(responseBytesDecrypted, response); err != nil {
 		return nil, errp.WithStack(err)
