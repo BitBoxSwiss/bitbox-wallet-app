@@ -21,8 +21,24 @@ import (
 
 	"github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
+	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/flynn/noise"
 )
+
+func (device *Device) handshakeQuery(msg []byte) ([]byte, error) {
+	if device.version.AtLeast(semver.NewSemVer(7, 0, 0)) {
+		// From v7.0.0. the handshake request and response are framed.
+		response, err := device.communication.Query(append([]byte(opHerComezTehHandshaek), msg...))
+		if err != nil {
+			return nil, err
+		}
+		if len(response) == 0 || string(response[:1]) != responseSuccess {
+			return nil, errp.New("handshake query failed")
+		}
+		return response[1:], nil
+	}
+	return device.communication.Query(msg)
+}
 
 func (device *Device) pair() error {
 	cipherSuite := noise.NewCipherSuite(noise.DH25519, noise.CipherChaChaPoly, noise.HashSHA256)
@@ -63,7 +79,7 @@ func (device *Device) pair() error {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.communication.Query(msg)
+	responseBytes, err = device.handshakeQuery(msg)
 	if err != nil {
 		return err
 	}
@@ -75,7 +91,7 @@ func (device *Device) pair() error {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err = device.communication.Query(msg)
+	responseBytes, err = device.handshakeQuery(msg)
 	if err != nil {
 		return err
 	}
