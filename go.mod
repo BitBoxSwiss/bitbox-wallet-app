@@ -15,7 +15,7 @@ require (
 	github.com/coreos/bbolt v1.3.0
 	github.com/davecgh/go-spew v1.1.1
 	github.com/deckarep/golang-set v1.7.1 // indirect
-	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200302131152-7817ceb1fccc
+	github.com/digitalbitbox/bitbox02-api-go v0.0.0-20200310170736-49d314b148cc
 	github.com/edsrzf/mmap-go v1.0.0 // indirect
 	github.com/elastic/gosigar v0.10.5 // indirect
 	github.com/ethereum/go-ethereum v1.9.5
@@ -29,7 +29,7 @@ require (
 	github.com/hashicorp/golang-lru v0.5.3 // indirect
 	github.com/huin/goupnp v1.0.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.1 // indirect
-	github.com/karalabe/usb v0.0.0-20190919080040-51dc0efba356
+	github.com/karalabe/usb v0.0.0-20191104083709-911d15fe12a9
 	github.com/kkdai/bstream v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect

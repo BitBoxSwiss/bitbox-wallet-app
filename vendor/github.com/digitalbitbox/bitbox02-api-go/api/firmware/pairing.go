@@ -28,7 +28,7 @@ import (
 func (device *Device) handshakeQuery(msg []byte) ([]byte, error) {
 	if device.version.AtLeast(semver.NewSemVer(7, 0, 0)) {
 		// From v7.0.0. the handshake request and response are framed.
-		response, err := device.communication.Query(append([]byte(opHerComezTehHandshaek), msg...))
+		response, err := device.rawQuery(append([]byte(opHerComezTehHandshaek), msg...))
 		if err != nil {
 			return nil, err
 		}
@@ -37,7 +37,7 @@ func (device *Device) handshakeQuery(msg []byte) ([]byte, error) {
 		}
 		return response[1:], nil
 	}
-	return device.communication.Query(msg)
+	return device.rawQuery(msg)
 }
 
 func (device *Device) pair() error {
@@ -67,7 +67,7 @@ func (device *Device) pair() error {
 	if err != nil {
 		panic(err)
 	}
-	responseBytes, err := device.communication.Query([]byte(opICanHasHandShaek))
+	responseBytes, err := device.rawQuery([]byte(opICanHasHandShaek))
 	if err != nil {
 		return err
 	}
@@ -119,7 +119,7 @@ func (device *Device) pair() error {
 		device.fireEvent(EventChannelHashChanged)
 		device.changeStatus(StatusUnpaired)
 
-		response, err := device.communication.Query([]byte(opICanHasPairinVerificashun))
+		response, err := device.rawQuery([]byte(opICanHasPairinVerificashun))
 		if err != nil {
 			return err
 		}

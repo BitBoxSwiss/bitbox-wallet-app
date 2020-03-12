@@ -15,10 +15,35 @@
 package firmware
 
 import (
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"strings"
+
+	"github.com/btcsuite/btcutil/base58"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware/messages"
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/golang/protobuf/proto"
 )
+
+const multisigNameMaxLen = 30
+
+// queryBTC is like query, but nested one level deeper.
+func (device *Device) queryBTC(request *messages.BTCRequest) (*messages.BTCResponse, error) {
+	response, err := device.query(&messages.Request{
+		Request: &messages.Request_Btc{
+			Btc: request,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	btcResponse, ok := response.Response.(*messages.Response_Btc)
+	if !ok {
+		return nil, errp.New("unexpected reply")
+	}
+	return btcResponse.Btc, nil
+}
 
 // NewBTCScriptConfigSimple is a helper to construct the correct script config for simple script
 // types.
@@ -28,6 +53,63 @@ func NewBTCScriptConfigSimple(typ messages.BTCScriptConfig_SimpleType) *messages
 			SimpleType: typ,
 		},
 	}
+}
+
+// NewXPub parses an xpub string into an XPub protobuf message. The XPub version is not checked an
+// discarded.
+func NewXPub(xpub string) (*messages.XPub, error) {
+	decoded, _, err := base58.CheckDecode(xpub)
+	if err != nil {
+		return nil, err
+	}
+	if len(decoded) != 77 {
+		return nil, errp.New("invalid xpub length")
+	}
+	// CheckDecode shaves of one version byte, but we have 4...
+	decoded = decoded[3:]
+	depth, decoded := decoded[:1], decoded[1:]
+	parentFP, decoded := decoded[:4], decoded[4:]
+	childNum, decoded := decoded[:4], decoded[4:]
+	chainCode, decoded := decoded[:32], decoded[32:]
+	pubkey := decoded[:33]
+	return &messages.XPub{
+		Depth:             depth,
+		ParentFingerprint: parentFP,
+		ChildNum:          binary.BigEndian.Uint32(childNum),
+		ChainCode:         chainCode,
+		PublicKey:         pubkey,
+	}, nil
+}
+
+// NewBTCScriptConfigMultisig is a helper to construct the a multisig script config.
+func NewBTCScriptConfigMultisig(
+	threshold uint32,
+	xpubs []string,
+	ourXPubIndex uint32,
+) (*messages.BTCScriptConfig, error) {
+	xpubsLen := uint32(len(xpubs))
+	if xpubsLen < 2 || xpubsLen > 15 || threshold == 0 || threshold > xpubsLen {
+		return nil, errors.New("2 <= m <= n <= 15 must hold (m = threshold, n = number of signers)")
+	}
+	xpubsConverted := make([]*messages.XPub, len(xpubs))
+	for i, xpub := range xpubs {
+		xpubConverted, err := NewXPub(xpub)
+		if err != nil {
+			return nil, err
+		}
+		xpubsConverted[i] = xpubConverted
+	}
+
+	scriptConfig := &messages.BTCScriptConfig{
+		Config: &messages.BTCScriptConfig_Multisig_{
+			Multisig: &messages.BTCScriptConfig_Multisig{
+				Threshold:    threshold,
+				Xpubs:        xpubsConverted,
+				OurXpubIndex: ourXPubIndex,
+			},
+		},
+	}
+	return scriptConfig, nil
 }
 
 // BTCXPub queries the device for a btc, ltc, tbtc, tltc xpubs.
@@ -154,4 +236,66 @@ func (device *Device) BTCSign(
 			return signatures, nil
 		}
 	}
+}
+
+// BTCIsScriptConfigRegistered returns true if the script config / account is already registered.
+func (device *Device) BTCIsScriptConfigRegistered(
+	coin messages.BTCCoin,
+	scriptConfig *messages.BTCScriptConfig,
+	keypathAccount []uint32,
+) (bool, error) {
+	request := &messages.BTCRequest{
+		Request: &messages.BTCRequest_IsScriptConfigRegistered{
+			IsScriptConfigRegistered: &messages.BTCIsScriptConfigRegisteredRequest{
+				Registration: &messages.BTCScriptConfigRegistration{
+					Coin:         coin,
+					ScriptConfig: scriptConfig,
+					Keypath:      keypathAccount,
+				},
+			},
+		},
+	}
+	response, err := device.queryBTC(request)
+	if err != nil {
+		return false, err
+	}
+	r, ok := response.Response.(*messages.BTCResponse_IsScriptConfigRegistered)
+	if !ok {
+		return false, errp.New("unexpected response")
+	}
+	return r.IsScriptConfigRegistered.IsRegistered, nil
+}
+
+// BTCRegisterScriptConfig returns true if the script config / account is already registered.
+func (device *Device) BTCRegisterScriptConfig(
+	coin messages.BTCCoin,
+	scriptConfig *messages.BTCScriptConfig,
+	keypathAccount []uint32,
+	name string,
+) error {
+	name = strings.TrimSpace(name)
+	if len(name) > multisigNameMaxLen {
+		return fmt.Errorf("name must be %d chars or less", multisigNameMaxLen)
+	}
+	request := &messages.BTCRequest{
+		Request: &messages.BTCRequest_RegisterScriptConfig{
+			RegisterScriptConfig: &messages.BTCRegisterScriptConfigRequest{
+				Registration: &messages.BTCScriptConfigRegistration{
+					Coin:         coin,
+					ScriptConfig: scriptConfig,
+					Keypath:      keypathAccount,
+				},
+				Name: name,
+			},
+		},
+	}
+	response, err := device.queryBTC(request)
+	if err != nil {
+		return err
+	}
+	_, ok := response.Response.(*messages.BTCResponse_Success)
+	if !ok {
+		return errp.New("unexpected response")
+	}
+	return nil
 }
