@@ -24,7 +24,6 @@ import (
 	"github.com/digitalbitbox/bitbox02-api-go/util/errp"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/flynn/noise"
-	"github.com/golang/protobuf/proto"
 )
 
 //go:generate sh -c "protoc --proto_path=messages/ --go_out='import_path=messages,paths=source_relative:messages' messages/*.proto"
@@ -69,7 +68,6 @@ const (
 	opNoiseMsg                  = "n"
 	opAttestation               = "a"
 	opUnlock                    = "u"
-	opInfo                      = "i"
 
 	responseSuccess = "\x00"
 )
@@ -137,10 +135,15 @@ func NewDevice(
 // info uses the opInfo api endpoint to learn about the version, platform/edition, and unlock
 // status (true if unlocked).
 func (device *Device) info() (*semver.SemVer, common.Product, bool, error) {
-	response, err := device.communication.Query([]byte(opInfo))
+
+	// CAREFUL: hwwInfo is called on the raw transport, not on device.rawQuery, which behaves
+	// differently depending on the firmware version. Reason: the version is not
+	// available (this call is used to get the version), so it must work for all firmware versions.
+	response, err := device.communication.Query([]byte(hwwInfo))
 	if err != nil {
 		return nil, "", false, err
 	}
+
 	if len(response) < 4 {
 		return nil, "", false, errp.New("unexpected response")
 	}
@@ -254,7 +257,7 @@ func (device *Device) Init() error {
 	// Before 2.0.0, unlock was invoked automatically by the device before USB communication
 	// started.
 	if device.version.AtLeast(semver.NewSemVer(2, 0, 0)) {
-		_, err := device.communication.Query([]byte(opUnlock))
+		_, err := device.rawQuery([]byte(opUnlock))
 		if err != nil {
 			// Most likely the device has been unplugged.
 			return err
@@ -283,59 +286,6 @@ func (device *Device) Status() Status {
 // Close implements device.Device.
 func (device *Device) Close() {
 	device.communication.Close()
-}
-
-func (device *Device) requestBytesEncrypted(request proto.Message) ([]byte, error) {
-	if device.sendCipher == nil || !device.channelHashDeviceVerified || !device.channelHashAppVerified {
-		return nil, errp.New("handshake must come first")
-	}
-	requestBytes, err := proto.Marshal(request)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-	requestBytesEncrypted := device.sendCipher.Encrypt(nil, nil, requestBytes)
-	if device.version.AtLeast(semver.NewSemVer(4, 0, 0)) {
-		requestBytesEncrypted = append([]byte(opNoiseMsg), requestBytesEncrypted...)
-	}
-	return requestBytesEncrypted, nil
-}
-
-func (device *Device) query(request proto.Message) (*messages.Response, error) {
-	requestBytesEncrypted, err := device.requestBytesEncrypted(request)
-	if err != nil {
-		return nil, err
-	}
-	responseBytes, err := device.communication.Query(requestBytesEncrypted)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(responseBytes) == 0 {
-		return nil, errp.New("noise communication failed: empty response")
-	}
-	if device.version.AtLeast(semver.NewSemVer(7, 0, 0)) {
-		// From v7.0.0, encrypted noise responses are framed
-		if string(responseBytes[:1]) != responseSuccess {
-			return nil, errp.New("handshake query failed")
-		}
-		responseBytes = responseBytes[1:]
-	}
-
-	responseBytesDecrypted, err := device.receiveCipher.Decrypt(nil, nil, responseBytes)
-	if err != nil {
-		return nil, errp.WithStack(err)
-	}
-
-	response := &messages.Response{}
-	if err := proto.Unmarshal(responseBytesDecrypted, response); err != nil {
-		return nil, errp.WithStack(err)
-	}
-
-	if errorResponse, ok := response.Response.(*messages.Response_Error); ok {
-		return nil, errp.WithStack(NewError(errorResponse.Error.Code, errorResponse.Error.Message))
-	}
-
-	return response, nil
 }
 
 // Random requests a random number from the device using protobuf messages
