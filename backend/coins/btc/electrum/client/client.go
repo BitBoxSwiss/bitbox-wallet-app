@@ -45,7 +45,7 @@ const (
 type ElectrumClient struct {
 	rpc *jsonrpc.RPCClient
 
-	scriptHashNotificationCallbacks     map[string]func(string) error
+	scriptHashNotificationCallbacks     map[string][]func(string) error
 	scriptHashNotificationCallbacksLock sync.RWMutex
 
 	serverVersion *ServerVersion
@@ -58,7 +58,7 @@ type ElectrumClient struct {
 func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *ElectrumClient {
 	electrumClient := &ElectrumClient{
 		rpc:                             rpcClient,
-		scriptHashNotificationCallbacks: map[string]func(string) error{},
+		scriptHashNotificationCallbacks: map[string][]func(string) error{},
 		log:                             log.WithField("group", "client"),
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
@@ -80,9 +80,9 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 			scriptHash := response[0]
 			status := response[1]
 			electrumClient.scriptHashNotificationCallbacksLock.RLock()
-			callback, ok := electrumClient.scriptHashNotificationCallbacks[scriptHash]
+			callbacks := electrumClient.scriptHashNotificationCallbacks[scriptHash]
 			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
-			if ok {
+			for _, callback := range callbacks {
 				if err := callback(status); err != nil {
 					electrumClient.log.WithError(err).Error("Failed to execute callback")
 					return
@@ -244,7 +244,13 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 	success func(string) error,
 ) {
 	client.scriptHashNotificationCallbacksLock.Lock()
-	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = success
+	if _, ok := client.scriptHashNotificationCallbacks[string(scriptHashHex)]; !ok {
+		client.scriptHashNotificationCallbacks[string(scriptHashHex)] = []func(string) error{}
+	}
+	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = append(
+		client.scriptHashNotificationCallbacks[string(scriptHashHex)],
+		success,
+	)
 	client.scriptHashNotificationCallbacksLock.Unlock()
 	client.rpc.Method(
 		func(responseBytes []byte) error {
