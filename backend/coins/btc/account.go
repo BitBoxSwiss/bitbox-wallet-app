@@ -667,7 +667,7 @@ func (account *Account) subscribeAddress(
 			}
 		},
 		address.PubkeyScriptHashHex(),
-		func(status string) error { account.onAddressStatus(address, status); return nil },
+		func(status string) { account.onAddressStatus(address, status) },
 	)
 	return nil
 }

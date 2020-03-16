@@ -25,7 +25,7 @@ import (
 type BlockchainMock struct {
 	scriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory) error, func(error))
 	transactionGet       func(chainhash.Hash, func(*wire.MsgTx) error, func(error))
-	scriptHashSubscribe  func(func() func(error), blockchain.ScriptHashHex, func(string) error)
+	scriptHashSubscribe  func(func() func(error), blockchain.ScriptHashHex, func(string))
 	headersSubscribe     func(func() func(error), func(*blockchain.Header) error)
 	transactionBroadcast func(*wire.MsgTx) error
 	relayFee             func(func(btcutil.Amount), func(error))
@@ -53,7 +53,7 @@ func (b *BlockchainMock) TransactionGet(h chainhash.Hash, success func(*wire.Msg
 }
 
 // ScriptHashSubscribe implements Interface.
-func (b *BlockchainMock) ScriptHashSubscribe(setupAndTeardown func() func(error), s blockchain.ScriptHashHex, success func(string) error) {
+func (b *BlockchainMock) ScriptHashSubscribe(setupAndTeardown func() func(error), s blockchain.ScriptHashHex, success func(string)) {
 	if b.scriptHashSubscribe != nil {
 		b.scriptHashSubscribe(setupAndTeardown, s, success)
 	}
