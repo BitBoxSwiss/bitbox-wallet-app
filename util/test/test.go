@@ -17,6 +17,9 @@ package test
 import (
 	"io/ioutil"
 	"os"
+
+	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/sirupsen/logrus"
 )
 
 // TstTempFile gets the filename for creating a temporary file.
@@ -41,4 +44,10 @@ func TstTempDir(name string) string {
 		panic(err)
 	}
 	return f
+}
+
+// TstSetupLogging sets up the global logger to log to stderr during tests.
+// Should be run inside of `TestMain(m *testing.M) {}`.
+func TstSetupLogging() {
+	logging.Set(&logging.Configuration{Output: "STDERR", Level: logrus.DebugLevel})
 }
