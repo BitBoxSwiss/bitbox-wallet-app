@@ -45,7 +45,7 @@ const (
 type ElectrumClient struct {
 	rpc *jsonrpc.RPCClient
 
-	scriptHashNotificationCallbacks     map[string]func(string) error
+	scriptHashNotificationCallbacks     map[string][]func(string)
 	scriptHashNotificationCallbacksLock sync.RWMutex
 
 	serverVersion *ServerVersion
@@ -58,7 +58,7 @@ type ElectrumClient struct {
 func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *ElectrumClient {
 	electrumClient := &ElectrumClient{
 		rpc:                             rpcClient,
-		scriptHashNotificationCallbacks: map[string]func(string) error{},
+		scriptHashNotificationCallbacks: map[string][]func(string){},
 		log:                             log.WithField("group", "client"),
 	}
 	// Install a callback for the scripthash notifications, which directs the response to callbacks
@@ -80,13 +80,10 @@ func NewElectrumClient(rpcClient *jsonrpc.RPCClient, log *logrus.Entry) *Electru
 			scriptHash := response[0]
 			status := response[1]
 			electrumClient.scriptHashNotificationCallbacksLock.RLock()
-			callback, ok := electrumClient.scriptHashNotificationCallbacks[scriptHash]
+			callbacks := electrumClient.scriptHashNotificationCallbacks[scriptHash]
 			electrumClient.scriptHashNotificationCallbacksLock.RUnlock()
-			if ok {
-				if err := callback(status); err != nil {
-					electrumClient.log.WithError(err).Error("Failed to execute callback")
-					return
-				}
+			for _, callback := range callbacks {
+				callback(status)
 			}
 		},
 	)
@@ -241,10 +238,16 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 func (client *ElectrumClient) ScriptHashSubscribe(
 	setupAndTeardown func() func(error),
 	scriptHashHex blockchain.ScriptHashHex,
-	success func(string) error,
+	success func(string),
 ) {
 	client.scriptHashNotificationCallbacksLock.Lock()
-	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = success
+	if _, ok := client.scriptHashNotificationCallbacks[string(scriptHashHex)]; !ok {
+		client.scriptHashNotificationCallbacks[string(scriptHashHex)] = []func(string){}
+	}
+	client.scriptHashNotificationCallbacks[string(scriptHashHex)] = append(
+		client.scriptHashNotificationCallbacks[string(scriptHashHex)],
+		success,
+	)
 	client.scriptHashNotificationCallbacksLock.Unlock()
 	client.rpc.Method(
 		func(responseBytes []byte) error {
@@ -254,9 +257,11 @@ func (client *ElectrumClient) ScriptHashSubscribe(
 				return errp.WithStack(err)
 			}
 			if response == nil {
-				return success("")
+				success("")
+			} else {
+				success(*response)
 			}
-			return success(*response)
+			return nil
 		},
 		setupAndTeardown,
 		"blockchain.scripthash.subscribe",

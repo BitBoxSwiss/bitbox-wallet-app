@@ -68,7 +68,7 @@ func (_m *Interface) ScriptHashGetHistory(_a0 blockchain.ScriptHashHex, _a1 func
 }
 
 // ScriptHashSubscribe provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashSubscribe(_a0 func() func(error), _a1 blockchain.ScriptHashHex, _a2 func(string) error) {
+func (_m *Interface) ScriptHashSubscribe(_a0 func() func(error), _a1 blockchain.ScriptHashHex, _a2 func(string)) {
 	_m.Called(_a0, _a1, _a2)
 }
 

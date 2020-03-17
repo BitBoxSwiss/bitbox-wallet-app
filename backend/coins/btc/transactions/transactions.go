@@ -69,6 +69,9 @@ type Transactions struct {
 	blockchain   blockchain.Interface
 	notifier     accounts.Notifier
 	log          *logrus.Entry
+
+	closed     bool
+	closedLock locker.Locker
 }
 
 // NewTransactions creates a new instance of Transactions.
@@ -100,7 +103,18 @@ func NewTransactions(
 
 // Close cleans up when finished using.
 func (transactions *Transactions) Close() {
+	defer transactions.closedLock.Lock()()
+	if transactions.closed {
+		transactions.log.Debug("account aleady closed")
+		return
+	}
+	transactions.closed = true
 	transactions.unsubscribeHeadersEvent()
+}
+
+func (transactions *Transactions) isClosed() bool {
+	defer transactions.closedLock.RLock()()
+	return transactions.closed
 }
 
 func (transactions *Transactions) txInHistory(
@@ -293,6 +307,10 @@ func (transactions *Transactions) removeTxForAddress(
 // an address changes (a new transaction that touches it appears or disappears). The transactions
 // are downloaded and indexed.
 func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.ScriptHashHex, txs []*blockchain.TxInfo) {
+	if transactions.isClosed() {
+		transactions.log.Debug("UpdateAddressHistory after the instance was closed")
+		return
+	}
 	defer transactions.Lock()()
 	dbTx, err := transactions.db.Begin()
 	if err != nil {
@@ -362,6 +380,11 @@ func (transactions *Transactions) doForTransaction(
 	transactions.blockchain.TransactionGet(
 		txHash,
 		func(tx *wire.MsgTx) error {
+			if transactions.isClosed() {
+				transactions.log.Debug("TransactionGet result ignored after the instance was closed")
+				return nil
+			}
+
 			defer transactions.Lock()()
 			dbTx, err := transactions.db.Begin()
 			if err != nil {
