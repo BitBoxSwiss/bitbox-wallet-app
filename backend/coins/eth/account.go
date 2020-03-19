@@ -20,6 +20,7 @@ import (
 	"math/big"
 	"os"
 	"path"
+	"sort"
 	"strings"
 	"time"
 
@@ -371,10 +372,12 @@ func (account *Account) update() error {
 	if transactionsSource != nil {
 		var err error
 		confirmedTansactions, err = transactionsSource.Transactions(
+			account.blockNumber,
 			account.address.Address, account.blockNumber, account.coin.erc20Token)
 		if err != nil {
 			return err
 		}
+		sort.Sort(byHeight(confirmedTansactions))
 	}
 
 	// Get our stored outgoing transactions. Filter out all transactions from the transactions

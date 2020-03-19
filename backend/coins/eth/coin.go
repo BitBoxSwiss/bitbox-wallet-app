@@ -35,7 +35,9 @@ import (
 // TransactionsSource source of Ethereum transactions. An additional source for this is needed as a
 // normal ETH full node does not expose an API endpoint to get transactions per address.
 type TransactionsSource interface {
-	Transactions(address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
+	Transactions(
+		blockTipHeight *big.Int,
+		address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
 		[]accounts.Transaction, error)
 }
 
