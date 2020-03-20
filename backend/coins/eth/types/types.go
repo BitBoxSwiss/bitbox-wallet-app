@@ -97,8 +97,8 @@ func (txh *TransactionWithMetadata) Timestamp() *time.Time {
 	return nil
 }
 
-// ID implements accounts.Transaction.
-func (txh *TransactionWithMetadata) ID() string {
+// TxID implements accounts.Transaction.
+func (txh *TransactionWithMetadata) TxID() string {
 	return txh.Transaction.Hash().Hex()
 }
 

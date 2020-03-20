@@ -195,8 +195,8 @@ func (tx *Transaction) Timestamp() *time.Time {
 	return &t
 }
 
-// ID implements accounts.Transaction.
-func (tx *Transaction) ID() string {
+// TxID implements accounts.Transaction.
+func (tx *Transaction) TxID() string {
 	return tx.jsonTransaction.Hash.Hex()
 }
 
@@ -259,8 +259,8 @@ func (tx *Transaction) Gas() uint64 {
 	return uint64(tx.jsonTransaction.GasUsed.BigInt().Int64())
 }
 
-// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate entries
-// appear in the etherscan result if the recipient and sender are the same. It also sets the
+// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate
+// entries appear in the etherscan result if the recipient and sender are the same. It also sets the
 // transaction type (send, receive, send to self) based on the account address.
 func prepareTransactions(
 	blockTipHeight *big.Int,
@@ -270,10 +270,10 @@ func prepareTransactions(
 	castTransactions := []accounts.Transaction{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
-		if _, ok := seen[transaction.ID()]; ok {
+		if _, ok := seen[transaction.TxID()]; ok {
 			continue
 		}
-		seen[transaction.ID()] = struct{}{}
+		seen[transaction.TxID()] = struct{}{}
 
 		from := transaction.jsonTransaction.From.Hex()
 		var to string

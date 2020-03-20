@@ -63,8 +63,8 @@ type Transaction interface {
 	// Time of confirmation. nil for unconfirmed tx or when the headers are not synced yet.
 	Timestamp() *time.Time
 
-	// ID is the tx ID.
-	ID() string
+	// TxID is the tx ID.
+	TxID() string
 
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
 	NumConfirmations() int
