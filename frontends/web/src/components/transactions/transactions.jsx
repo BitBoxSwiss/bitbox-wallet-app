@@ -54,7 +54,7 @@ export default class Transactions extends Component {
                 {
                     transactions.length > 0 ? transactions.map((props, index) => (
                         <Transaction
-                            key={props.txID}
+                            key={props.internalID}
                             explorerURL={explorerURL}
                             index={index}
                             {...props} />

@@ -66,6 +66,12 @@ type Transaction interface {
 	// TxID is the tx ID.
 	TxID() string
 
+	// InternalID is an ID for identifying this transaction. Usually it is the same as TxID(), but
+	// e.g. in Ethereum, there can be multiple transaction entries for the same transaction ID
+	// (e.g. an internal/smart contract tx shown semantically, as well as the raw zero value
+	// contract execution tx).
+	InternalID() string
+
 	// NumConfirmations is the number of confirmations. 0 for unconfirmed.
 	NumConfirmations() int
 

@@ -492,6 +492,11 @@ func (txInfo *TxInfo) TxID() string {
 	return txInfo.Tx.TxHash().String()
 }
 
+// InternalID implements accounts.Transaction.
+func (txInfo *TxInfo) InternalID() string {
+	return txInfo.TxID()
+}
+
 // Timestamp implements accounts.Transaction.
 func (txInfo *TxInfo) Timestamp() *time.Time {
 	return txInfo.timestamp

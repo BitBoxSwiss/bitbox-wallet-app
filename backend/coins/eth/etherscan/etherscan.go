@@ -200,6 +200,15 @@ func (tx *Transaction) TxID() string {
 	return tx.jsonTransaction.Hash.Hex()
 }
 
+// InternalID implements accounts.Transaction.
+func (tx *Transaction) InternalID() string {
+	id := tx.TxID()
+	if tx.isInternal {
+		id += "-internal"
+	}
+	return id
+}
+
 // NumConfirmations implements accounts.Transaction.
 func (tx *Transaction) NumConfirmations() int {
 	confs := 0
