@@ -107,7 +107,8 @@ func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee boo
 
 // Transaction is the info returned per transaction by the /transactions endpoint.
 type Transaction struct {
-	ID                       string            `json:"id"`
+	TxID                     string            `json:"txID"`
+	InternalID               string            `json:"internalID"`
 	NumConfirmations         int               `json:"numConfirmations"`
 	NumConfirmationsComplete int               `json:"numConfirmationsComplete"`
 	Type                     string            `json:"type"`
@@ -159,7 +160,8 @@ func (handlers *Handlers) getAccountTransactions(_ *http.Request) (interface{}, 
 			addresses = append(addresses, addressAndAmount.Address)
 		}
 		txInfoJSON := Transaction{
-			ID:                       txInfo.ID(),
+			TxID:                     txInfo.TxID(),
+			InternalID:               txInfo.InternalID(),
 			NumConfirmations:         txInfo.NumConfirmations(),
 			NumConfirmationsComplete: txInfo.NumConfirmationsComplete(),
 			Type: map[accounts.TxType]string{
@@ -257,7 +259,7 @@ func (handlers *Handlers) postExportTransactions(_ *http.Request) (interface{}, 
 				unit,
 				feeString,
 				addressAndAmount.Address,
-				transaction.ID(),
+				transaction.TxID(),
 			})
 			if err != nil {
 				return nil, errp.WithStack(err)

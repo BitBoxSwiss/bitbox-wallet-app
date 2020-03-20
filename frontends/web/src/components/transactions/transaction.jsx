@@ -51,7 +51,7 @@ export default class Transaction extends Component {
         index,
         explorerURL,
         type,
-        id,
+        txID,
         amount,
         fee,
         feeRatePerKb,
@@ -345,7 +345,7 @@ export default class Transaction extends Component {
                             <div className={style.detail}>
                                 <label>{t('transaction.explorer')}</label>
                                 <p className="text-break">
-                                    <A className={style.externalLink} href={ explorerURL + id } title={t('transaction.explorerTitle')}>{id}</A>
+                                    <A className={style.externalLink} href={ explorerURL + txID } title={t('transaction.explorerTitle')}>{txID}</A>
                                 </p>
                             </div>
                         </Dialog>

@@ -123,13 +123,15 @@ func (t *timestamp) UnmarshalJSON(jsonBytes []byte) error {
 }
 
 type jsonTransaction struct {
-	GasUsed       jsonBigInt     `json:"gasUsed"`
-	GasPrice      jsonBigInt     `json:"gasPrice"`
-	Hash          common.Hash    `json:"hash"`
-	Timestamp     timestamp      `json:"timeStamp"`
-	Confirmations jsonBigInt     `json:"confirmations"`
-	From          common.Address `json:"from"`
-	Failed        string         `json:"isError"`
+	// We use this to compute the number of confirmations, not the "confirmations" field, as the
+	// latter is not present in the API result of txlistinternal (internal transactions).
+	BlockNumber jsonBigInt     `json:"blockNumber"`
+	GasUsed     jsonBigInt     `json:"gasUsed"`
+	GasPrice    jsonBigInt     `json:"gasPrice"`
+	Hash        common.Hash    `json:"hash"`
+	Timestamp   timestamp      `json:"timeStamp"`
+	From        common.Address `json:"from"`
+	Failed      string         `json:"isError"`
 
 	// One of them is an empty string / nil, the other is an address.
 	ToAsString              string `json:"to"`
@@ -144,6 +146,9 @@ type jsonTransaction struct {
 type Transaction struct {
 	jsonTransaction jsonTransaction
 	txType          accounts.TxType
+	blockTipHeight  *big.Int
+	// isInternal: true if tx was fetched via `txlistinternal`, false if via `txlist`.
+	isInternal bool
 }
 
 // assertion because not implementing the interface fails silently.
@@ -175,6 +180,10 @@ func (tx *Transaction) UnmarshalJSON(jsonBytes []byte) error {
 
 // Fee implements accounts.Transaction.
 func (tx *Transaction) Fee() *coin.Amount {
+	if tx.isInternal {
+		// EtherScan always returns 0 for gasUsed and contains no gasPrice for internal txs.
+		return nil
+	}
 	fee := new(big.Int).Mul(tx.jsonTransaction.GasUsed.BigInt(), tx.jsonTransaction.GasPrice.BigInt())
 	amount := coin.NewAmount(fee)
 	return &amount
@@ -186,14 +195,29 @@ func (tx *Transaction) Timestamp() *time.Time {
 	return &t
 }
 
-// ID implements accounts.Transaction.
-func (tx *Transaction) ID() string {
+// TxID implements accounts.Transaction.
+func (tx *Transaction) TxID() string {
 	return tx.jsonTransaction.Hash.Hex()
+}
+
+// InternalID implements accounts.Transaction.
+func (tx *Transaction) InternalID() string {
+	id := tx.TxID()
+	if tx.isInternal {
+		id += "-internal"
+	}
+	return id
 }
 
 // NumConfirmations implements accounts.Transaction.
 func (tx *Transaction) NumConfirmations() int {
-	return int(tx.jsonTransaction.Confirmations.BigInt().Int64())
+	confs := 0
+	txHeight := tx.jsonTransaction.BlockNumber.BigInt().Uint64()
+	tipHeight := tx.blockTipHeight.Uint64()
+	if tipHeight > 0 {
+		confs = int(tipHeight - txHeight + 1)
+	}
+	return confs
 }
 
 // NumConfirmationsComplete implements accounts.Transaction.
@@ -244,19 +268,21 @@ func (tx *Transaction) Gas() uint64 {
 	return uint64(tx.jsonTransaction.GasUsed.BigInt().Int64())
 }
 
-// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate entries
-// appear in the etherscan result if the recipient and sender are the same. It also sets the
+// prepareTransactions casts to []accounts.Transactions and removes duplicate entries. Duplicate
+// entries appear in the etherscan result if the recipient and sender are the same. It also sets the
 // transaction type (send, receive, send to self) based on the account address.
 func prepareTransactions(
+	blockTipHeight *big.Int,
+	isInternal bool,
 	transactions []*Transaction, address common.Address) ([]accounts.Transaction, error) {
 	seen := map[string]struct{}{}
 	castTransactions := []accounts.Transaction{}
 	ours := address.Hex()
 	for _, transaction := range transactions {
-		if _, ok := seen[transaction.ID()]; ok {
+		if _, ok := seen[transaction.TxID()]; ok {
 			continue
 		}
-		seen[transaction.ID()] = struct{}{}
+		seen[transaction.TxID()] = struct{}{}
 
 		from := transaction.jsonTransaction.From.Hex()
 		var to string
@@ -279,6 +305,8 @@ func prepareTransactions(
 		default:
 			transaction.txType = accounts.TxTypeReceive
 		}
+		transaction.blockTipHeight = blockTipHeight
+		transaction.isInternal = isInternal
 		castTransactions = append(castTransactions, transaction)
 	}
 	return castTransactions, nil
@@ -287,6 +315,7 @@ func prepareTransactions(
 // Transactions queries EtherScan for transactions for the given account, until endBlock.
 // Provide erc20Token to filter for those. If nil, standard etheruem transactions will be fetched.
 func (etherScan *EtherScan) Transactions(
+	blockTipHeight *big.Int,
 	address common.Address, endBlock *big.Int, erc20Token *erc20.Token) (
 	[]accounts.Transaction, error) {
 	params := url.Values{}
@@ -310,8 +339,28 @@ func (etherScan *EtherScan) Transactions(
 	if err := etherScan.call(params, &result); err != nil {
 		return nil, err
 	}
-
-	return prepareTransactions(result.Result, address)
+	transactionsNormal, err := prepareTransactions(blockTipHeight, false, result.Result, address)
+	if err != nil {
+		return nil, err
+	}
+	var transactionsInternal []accounts.Transaction
+	if erc20Token == nil {
+		// Alo show internal transactions.
+		params.Set("action", "txlistinternal")
+		resultInternal := struct {
+			Result []*Transaction
+		}{}
+		if err := etherScan.call(params, &resultInternal); err != nil {
+			return nil, err
+		}
+		var err error
+		transactionsInternal, err = prepareTransactions(
+			blockTipHeight, true, resultInternal.Result, address)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return append(transactionsNormal, transactionsInternal...), nil
 }
 
 // ----- RPC node proxy methods follow

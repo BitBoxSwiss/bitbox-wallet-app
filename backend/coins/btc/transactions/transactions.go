@@ -487,9 +487,14 @@ func (txInfo *TxInfo) Fee() *coin.Amount {
 	return &fee
 }
 
-// ID implements accounts.Transaction.
-func (txInfo *TxInfo) ID() string {
+// TxID implements accounts.Transaction.
+func (txInfo *TxInfo) TxID() string {
 	return txInfo.Tx.TxHash().String()
+}
+
+// InternalID implements accounts.Transaction.
+func (txInfo *TxInfo) InternalID() string {
+	return txInfo.TxID()
 }
 
 // Timestamp implements accounts.Transaction.
