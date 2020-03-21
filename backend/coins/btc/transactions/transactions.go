@@ -54,10 +54,9 @@ func getScriptHashHex(txOut *wire.TxOut) blockchain.ScriptHashHex {
 type Transactions struct {
 	locker.Locker
 
-	net          *chaincfg.Params
-	db           DBInterface
-	headers      headers.Interface
-	requestedTXs map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx)
+	net     *chaincfg.Params
+	db      DBInterface
+	headers headers.Interface
 
 	// headersTipHeight is the current chain tip height, so we can compute the number of
 	// confirmations of a transaction.
@@ -85,10 +84,9 @@ func NewTransactions(
 	log *logrus.Entry,
 ) *Transactions {
 	transactions := &Transactions{
-		net:          net,
-		db:           db,
-		headers:      headers,
-		requestedTXs: map[chainhash.Hash][]func(DBTxInterface, *wire.MsgTx){},
+		net:     net,
+		db:      db,
+		headers: headers,
 
 		headersTipHeight: headers.TipHeight(),
 
@@ -117,29 +115,8 @@ func (transactions *Transactions) isClosed() bool {
 	return transactions.closed
 }
 
-func (transactions *Transactions) txInHistory(
-	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash) bool {
-	history, err := dbTx.AddressHistory(scriptHashHex)
-	if err != nil {
-		// TODO
-		panic(err)
-	}
-	for _, entry := range history {
-		if txHash == entry.TXHash.Hash() {
-			return true
-		}
-	}
-	return false
-}
-
 func (transactions *Transactions) processTxForAddress(
 	dbTx DBTxInterface, scriptHashHex blockchain.ScriptHashHex, txHash chainhash.Hash, tx *wire.MsgTx, height int) {
-	// Don't process the tx if it is not found in the address history. It could have been removed
-	// from the history before this function was called.
-	if !transactions.txInHistory(dbTx, scriptHashHex, txHash) {
-		return
-	}
-
 	_, _, previousHeight, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve tx info")
@@ -341,13 +318,11 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 	if err := dbTx.PutAddressHistory(scriptHashHex, txs); err != nil {
 		transactions.log.WithError(err).Panic("Failed to store address history")
 	}
-
 	for _, txInfo := range txs {
-		func(txHash chainhash.Hash, height int) {
-			transactions.doForTransaction(dbTx, txHash, func(innerDBTx DBTxInterface, tx *wire.MsgTx) {
-				transactions.processTxForAddress(innerDBTx, scriptHashHex, txHash, tx, height)
-			})
-		}(txInfo.TXHash.Hash(), txInfo.Height)
+		txHash := txInfo.TXHash.Hash()
+		height := txInfo.Height
+		tx := transactions.getTransactionCached(dbTx, txHash)
+		transactions.processTxForAddress(dbTx, scriptHashHex, txHash, tx, height)
 	}
 	if err := dbTx.Commit(); err != nil {
 		transactions.log.WithError(err).Panic("Failed to commit transaction")
@@ -355,28 +330,18 @@ func (transactions *Transactions) UpdateAddressHistory(scriptHashHex blockchain.
 }
 
 // requires transactions lock
-func (transactions *Transactions) doForTransaction(
+func (transactions *Transactions) getTransactionCached(
 	dbTx DBTxInterface,
 	txHash chainhash.Hash,
-	callback func(DBTxInterface, *wire.MsgTx),
-) {
+) *wire.MsgTx {
 	tx, _, _, _, err := dbTx.TxInfo(txHash)
 	if err != nil {
 		transactions.log.WithError(err).Panic("Failed to retrieve transaction info")
 	}
 	if tx != nil {
-		callback(dbTx, tx)
-		return
+		return tx
 	}
-	if transactions.requestedTXs[txHash] == nil {
-		transactions.requestedTXs[txHash] = []func(DBTxInterface, *wire.MsgTx){}
-	}
-	alreadyDownloading := len(transactions.requestedTXs[txHash]) != 0
-	transactions.requestedTXs[txHash] = append(transactions.requestedTXs[txHash], callback)
-	if alreadyDownloading {
-		return
-	}
-	done := transactions.synchronizer.IncRequestsCounter()
+	txChan := make(chan *wire.MsgTx)
 	transactions.blockchain.TransactionGet(
 		txHash,
 		func(tx *wire.MsgTx) error {
@@ -384,27 +349,16 @@ func (transactions *Transactions) doForTransaction(
 				transactions.log.Debug("TransactionGet result ignored after the instance was closed")
 				return nil
 			}
-
-			defer transactions.Lock()()
-			dbTx, err := transactions.db.Begin()
-			if err != nil {
-				transactions.log.WithError(err).Panic("Failed to begin transaction")
-			}
-			defer dbTx.Rollback()
-
-			for _, callback := range transactions.requestedTXs[txHash] {
-				callback(dbTx, tx)
-			}
-			delete(transactions.requestedTXs, txHash)
-			return dbTx.Commit()
+			txChan <- tx
+			return nil
 		},
 		func(err error) {
-			done()
 			if err != nil {
 				panic(err)
 			}
 		},
 	)
+	return <-txChan
 }
 
 // Balance computes the confirmed and unconfirmed balance of the account.

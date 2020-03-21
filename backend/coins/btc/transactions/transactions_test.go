@@ -15,6 +15,7 @@
 package transactions_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/btcsuite/btcd/chaincfg"
@@ -40,32 +41,21 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+func TestMain(m *testing.M) {
+	test.TstSetupLogging()
+	os.Exit(m.Run())
+}
+
 type BlockchainMock struct {
 	blockchainMock.Interface
-	transactions            map[chainhash.Hash]*wire.MsgTx
-	transactionGetCallbacks map[chainhash.Hash][]func()
+	transactions map[chainhash.Hash]*wire.MsgTx
 }
 
 func NewBlockchainMock() *BlockchainMock {
 	blockchainMock := &BlockchainMock{
-		transactions:            map[chainhash.Hash]*wire.MsgTx{},
-		transactionGetCallbacks: map[chainhash.Hash][]func(){},
+		transactions: map[chainhash.Hash]*wire.MsgTx{},
 	}
 	return blockchainMock
-}
-
-func (blockchain *BlockchainMock) CallTransactionGetCallbacks(txHash chainhash.Hash) {
-	callbacks := blockchain.transactionGetCallbacks[txHash]
-	delete(blockchain.transactionGetCallbacks, txHash)
-	for _, callback := range callbacks {
-		callback()
-	}
-}
-
-func (blockchain *BlockchainMock) CallAllTransactionGetCallbacks() {
-	for txHash := range blockchain.transactionGetCallbacks {
-		blockchain.CallTransactionGetCallbacks(txHash)
-	}
 }
 
 func (blockchain *BlockchainMock) RegisterTxs(txs ...*wire.MsgTx) {
@@ -84,17 +74,7 @@ func (blockchain *BlockchainMock) TransactionGet(
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
 	}
-	callbacks, ok := blockchain.transactionGetCallbacks[txHash]
-	if !ok {
-		callbacks = []func(){}
-	}
-	blockchain.transactionGetCallbacks[txHash] = append(callbacks,
-		func() {
-			defer cleanup(nil)
-			if err := success(tx); err != nil {
-				panic(err)
-			}
-		})
+	go func() { _ = success(tx) }()
 }
 
 func (blockchain *BlockchainMock) ConnectionStatus() blockchainpkg.Status {
@@ -152,7 +132,6 @@ func (s *transactionsSuite) updateAddressHistory(
 	}
 
 	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), txs)
-	s.blockchainMock.CallAllTransactionGetCallbacks()
 }
 
 func newTx(
@@ -168,50 +147,6 @@ func newTx(
 		TxOut:    []*wire.TxOut{wire.NewTxOut(int64(amount), toAddress.PubkeyScript())},
 		LockTime: 0,
 	}
-}
-
-// TestUpdateAddressHistorySyncStatus checks that the synchronizer is calling the
-// syncStart/syncFinished callbacks once in the beginning and once after all transactions have
-// processed.
-func (s *transactionsSuite) TestUpdateAddressHistorySyncStatus() {
-	addresses := s.addressChain.EnsureAddresses()
-	address := addresses[0]
-	expectedAmount := btcutil.Amount(123)
-	tx1 := newTx(chainhash.HashH(nil), 0, address, expectedAmount)
-	tx1Hash := tx1.TxHash()
-	tx2 := newTx(chainhash.HashH(nil), 1, address, expectedAmount)
-	tx2Hash := tx2.TxHash()
-	s.blockchainMock.RegisterTxs(tx1, tx2)
-	var syncStarted, syncFinished bool
-	onSyncStarted := func() {
-		if syncStarted {
-			require.FailNow(s.T(), "sync started twice")
-		}
-		syncStarted = true
-	}
-	onSyncFinished := func() {
-		if syncFinished {
-			require.FailNow(s.T(), "sync finished twice")
-		}
-		syncFinished = true
-	}
-	*s.synchronizer = *synchronizer.NewSynchronizer(onSyncStarted, onSyncFinished, s.log)
-	s.notifierMock.On("Put", tx1Hash[:]).Return(nil).Once()
-	s.notifierMock.On("Put", tx2Hash[:]).Return(nil).Once()
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
-		{TXHash: blockchainpkg.TXHash(tx1Hash), Height: 10},
-		{TXHash: blockchainpkg.TXHash(tx2Hash), Height: 10},
-	})
-	require.True(s.T(), syncStarted)
-	require.False(s.T(), syncFinished)
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
-	require.True(s.T(), syncStarted)
-	require.False(s.T(), syncFinished)
-	s.headersMock.On("HeaderByHeight", 10).Return(nil, nil).Once()
-	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
-	require.True(s.T(), syncStarted)
-	require.True(s.T(), syncFinished)
 }
 
 func newBalance(available, incoming btcutil.Amount) *accounts.Balance {
@@ -251,35 +186,6 @@ func (s *transactionsSuite) TestUpdateAddressHistorySingleTxReceive() {
 	require.Len(s.T(), transactions, 1)
 	require.Equal(s.T(), tx1, transactions[0].Tx)
 	require.Equal(s.T(), expectedHeight, transactions[0].Height)
-}
-
-// TestUpdateAddressHistoryOppositeOrder checks that a spend is correctly recognized even if the
-// transactions in the history of an address are processed in the wrong order. If the spending tx is
-// processed before the funding tx, the output is unknown when processing the funds, but after the
-// output has been added, the input spending it needs to be indexed correctly.
-func (s *transactionsSuite) TestUpdateAddressHistoryOppositeOrder() {
-	addresses := s.addressChain.EnsureAddresses()
-	address := addresses[0]
-	address2 := addresses[1]
-	tx1 := newTx(chainhash.HashH(nil), 0, address, 123)
-	tx1Hash := tx1.TxHash()
-	tx2 := newTx(tx1.TxHash(), 0, address2, 123)
-	tx2Hash := tx2.TxHash()
-	s.blockchainMock.RegisterTxs(tx1, tx2)
-	s.notifierMock.On("Put", tx1Hash[:]).Return(nil).Once()
-	s.notifierMock.On("Put", tx2Hash[:]).Return(nil).Once()
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
-		{TXHash: blockchainpkg.TXHash(tx1Hash), Height: 0},
-		{TXHash: blockchainpkg.TXHash(tx2Hash), Height: 0},
-	})
-	// Process tx2 (the spend) before tx1 (the funding). This should result in a zero balance, as
-	// the received funds are spent.
-	s.blockchainMock.CallTransactionGetCallbacks(tx2.TxHash())
-	s.blockchainMock.CallTransactionGetCallbacks(tx1.TxHash())
-	require.Equal(s.T(),
-		newBalance(0, 0),
-		s.transactions.Balance(),
-	)
 }
 
 // TestSpendableOutputs checks that the utxo set is correct. Only confirmed (or unconfirmed outputs
@@ -452,24 +358,4 @@ func (s *transactionsSuite) TestRemoveTransaction() {
 	require.Len(s.T(),
 		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }),
 		2)
-}
-
-// TestRemoveTransactionPendingDownload tests that a tx can be removed from the address history
-// while it is still pending to be indexed.
-func (s *transactionsSuite) TestRemoveTransactionPendingDownload() {
-	address := s.addressChain.EnsureAddresses()[0]
-	tx := newTx(chainhash.HashH(nil), 0, address, 123)
-	s.blockchainMock.RegisterTxs(tx)
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{
-		{TXHash: blockchainpkg.TXHash(tx.TxHash()), Height: 0},
-	})
-	// Callback for processing the tx is not called yet. We remove the tx.
-	s.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), []*blockchainpkg.TxInfo{})
-	// Process the tx now. It should not be indexed anymore.
-	s.blockchainMock.CallAllTransactionGetCallbacks()
-	require.Equal(s.T(),
-		newBalance(0, 0),
-		s.transactions.Balance())
-	require.Empty(s.T(),
-		s.transactions.Transactions(func(blockchainpkg.ScriptHashHex) bool { return false }))
 }
