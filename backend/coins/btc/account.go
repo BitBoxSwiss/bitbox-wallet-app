@@ -448,6 +448,10 @@ func (account *Account) Info() *accounts.Info {
 }
 
 func (account *Account) onNewHeader(header *blockchain.Header) error {
+	if account.isClosed() {
+		account.log.Debug("Ignoring new header after the account was closed")
+		return nil
+	}
 	account.log.WithField("block-height", header.BlockHeight).Debug("Received new header")
 	// Fee estimates change with each block.
 	account.updateFeeTargets()
