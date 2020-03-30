@@ -17,6 +17,7 @@ package rates
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"reflect"
 	"strings"
 	"time"
@@ -81,8 +82,13 @@ func (updater *RateUpdater) update() {
 	}()
 
 	var rates map[string]map[string]float64
-	err = json.NewDecoder(response.Body).Decode(&rates)
+	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
+		updater.last = nil
+		return
+	}
+	if err := json.Unmarshal(responseBody, &rates); err != nil {
+		updater.log.WithError(err).Errorf("could not parse rates response: %s", string(responseBody))
 		updater.last = nil
 		return
 	}
