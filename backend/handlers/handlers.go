@@ -101,7 +101,7 @@ type Backend interface {
 	RatesUpdater() *rates.RateUpdater
 	BitBoxBaseDeregister(bitboxBaseID string)
 	DownloadCert(string) (string, error)
-	CheckElectrumServer(string, string) error
+	CheckElectrumServer(*config.ServerInfo) error
 	RegisterTestKeystore(string)
 	NotifyUser(string)
 	SystemOpen(string) error
@@ -198,7 +198,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/coins/ltc/headers/status", handlers.getHeadersStatus("ltc")).Methods("GET")
 	getAPIRouter(apiRouter)("/coins/btc/headers/status", handlers.getHeadersStatus("btc")).Methods("GET")
 	getAPIRouter(apiRouter)("/certs/download", handlers.postCertsDownloadHandler).Methods("POST")
-	getAPIRouter(apiRouter)("/certs/check", handlers.postCertsCheckHandler).Methods("POST")
+	getAPIRouter(apiRouter)("/electrum/check", handlers.postElectrumCheckHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/bitboxbases/establish-connection", handlers.postEstablishConnectionHandler).Methods("POST")
 
 	devicesRouter := getAPIRouter(apiRouter.PathPrefix("/devices").Subrouter())
@@ -642,18 +642,13 @@ func (handlers *Handlers) postCertsDownloadHandler(r *http.Request) (interface{}
 	}, nil
 }
 
-func (handlers *Handlers) postCertsCheckHandler(r *http.Request) (interface{}, error) {
-	var server struct {
-		Server  string `json:"server"`
-		PEMCert string `json:"pemCert"`
-	}
-	if err := json.NewDecoder(r.Body).Decode(&server); err != nil {
+func (handlers *Handlers) postElectrumCheckHandler(r *http.Request) (interface{}, error) {
+	var serverInfo config.ServerInfo
+	if err := json.NewDecoder(r.Body).Decode(&serverInfo); err != nil {
 		return nil, errp.WithStack(err)
 	}
 
-	if err := handlers.backend.CheckElectrumServer(
-		server.Server,
-		server.PEMCert); err != nil {
+	if err := handlers.backend.CheckElectrumServer(&serverInfo); err != nil {
 		return map[string]interface{}{
 			"success":      false,
 			"errorMessage": err.Error(),

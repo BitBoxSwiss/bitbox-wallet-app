@@ -970,11 +970,11 @@ func (backend *Backend) DownloadCert(server string) (string, error) {
 	return electrum.DownloadCert(server, backend.socksProxy)
 }
 
-// CheckElectrumServer checks if a tls connection can be established with the electrum server, and
+// CheckElectrumServer checks if a connection can be established with the electrum server, and
 // whether the server is an electrum server.
-func (backend *Backend) CheckElectrumServer(server string, pemCert string) error {
+func (backend *Backend) CheckElectrumServer(serverInfo *config.ServerInfo) error {
 	return electrum.CheckElectrumServer(
-		server, pemCert, backend.log, backend.socksProxy.GetTCPProxyDialer())
+		serverInfo, backend.log, backend.socksProxy.GetTCPProxyDialer())
 }
 
 // RegisterTestKeystore adds a keystore derived deterministically from a PIN, for convenience in

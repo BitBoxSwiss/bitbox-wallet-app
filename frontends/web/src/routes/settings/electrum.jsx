@@ -34,6 +34,7 @@ class ElectrumServer extends Component {
             valid: false,
             electrumServer: '',
             electrumCert: '',
+            tls: true,
             loadingCheck: false,
             loadingCert: false,
         };
@@ -41,6 +42,7 @@ class ElectrumServer extends Component {
             this.setState({
                 electrumServer: props.server.server,
                 electrumCert: props.server.pemCert,
+                tls: props.server.tls,
             });
         }
     }
@@ -56,7 +58,7 @@ class ElectrumServer extends Component {
         return {
             server: this.state.electrumServer.trim(),
             pemCert: this.state.electrumCert,
-            tls: true,
+            tls: this.state.tls,
         };
     }
 
@@ -81,7 +83,7 @@ class ElectrumServer extends Component {
 
     check = () => {
         this.setState({ loadingCheck: true });
-        apiPost('certs/check', this.getServer()).then(({ success, errorMessage }) => {
+        apiPost('electrum/check', this.getServer()).then(({ success, errorMessage }) => {
             if (success) {
                 alertUser(this.props.t('settings.electrum.checkSuccess', { host: this.state.electrumServer }));
             } else {
@@ -102,6 +104,7 @@ class ElectrumServer extends Component {
         valid,
         electrumServer,
         electrumCert,
+        tls,
         loadingCheck,
         loadingCert,
     }) {
@@ -111,7 +114,7 @@ class ElectrumServer extends Component {
                     <div class={style.server}>
                         <div>{electrumServer}</div>
                         <div>
-                            <button class={style.primary} disabled={electrumServer === '' || electrumCert === '' || loadingCheck} onClick={this.check}>
+                            <button class={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
                                 {
                                     loadingCheck && (
                                         <div class={style.miniSpinnerContainer}>
@@ -265,7 +268,7 @@ class ElectrumServers extends Component {
                         {
                             electrumServers.map((server, index) => (
                                 <ElectrumServer
-                                    key={server.server}
+                                    key={server.server + server.tls.toString()}
                                     server={server}
                                     onRemove={onRemove(server, index)}
                                 />
