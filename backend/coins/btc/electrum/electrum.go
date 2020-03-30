@@ -173,9 +173,15 @@ func DownloadCert(server string, socksProxy socksproxy.SocksProxy) (string, erro
 // CheckElectrumServer checks if a tls connection can be established with the electrum server, and
 // whether the server is an electrum server.
 func CheckElectrumServer(serverInfo *config.ServerInfo, log *logrus.Entry, dialer proxy.Dialer) error {
+	backendName := serverInfo.Server
+	if serverInfo.TLS {
+		backendName += ":s"
+	} else {
+		backendName += ":p"
+	}
 	backends := []*jsonrpc.Backend{
 		{
-			Name: serverInfo.Server,
+			Name: backendName, // used for logs only
 			EstablishConnection: func() (io.ReadWriteCloser, error) {
 				return establishConnection(serverInfo, dialer)
 			},

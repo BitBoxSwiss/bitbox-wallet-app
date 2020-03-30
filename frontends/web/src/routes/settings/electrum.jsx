@@ -34,7 +34,7 @@ class ElectrumServer extends Component {
             valid: false,
             electrumServer: '',
             electrumCert: '',
-            tls: true,
+            tls: false,
             loadingCheck: false,
             loadingCert: false,
         };
@@ -45,6 +45,14 @@ class ElectrumServer extends Component {
                 tls: props.server.tls,
             });
         }
+    }
+
+    isTLS = () => {
+        if (this.props.server === null) { // in add-mode
+            return this.state.electrumCert !== '';
+        }
+        // in list-mode
+        return this.props.server.tls;
     }
 
     handleFormChange = event => {
@@ -58,7 +66,7 @@ class ElectrumServer extends Component {
         return {
             server: this.state.electrumServer.trim(),
             pemCert: this.state.electrumCert,
-            tls: this.state.tls,
+            tls: this.isTLS(),
         };
     }
 
@@ -112,7 +120,7 @@ class ElectrumServer extends Component {
             return (
                 <li>
                     <div class={style.server}>
-                        <div>{electrumServer}</div>
+                        <div>{electrumServer} {tls ? 'tls' : 'tcp' }</div>
                         <div>
                             <button class={style.primary} disabled={electrumServer === '' || (tls && electrumCert === '') || loadingCheck} onClick={this.check}>
                                 {
@@ -148,6 +156,7 @@ class ElectrumServer extends Component {
                     <p class={style.badge}>{t('settings.electrum.step2')}</p>
                     <div class="flex-1">
                         <p>{t('settings.electrum.step2-text')}</p>
+                        <p>{t('settings.electrum.step2-text-tcp')}</p>
                     </div>
                 </div>
                 <textarea
@@ -350,6 +359,7 @@ export default class ElectrumSettings extends Component {
                 </div>
                 <Guide>
                     <Entry key="guide.settings-electrum.what" entry={t('guide.settings-electrum.what')} />
+                    <Entry key="guide.settings-electrum.whenTCP" entry={t('guide.settings-electrum.whenTCP')} />
                 </Guide>
             </div>
         );
