@@ -798,6 +798,10 @@
       "what": {
         "text": "It is possible to power your wallet with your own full nodes instead of using Shift servers.",
         "title": "What is this?"
+      },
+      "whenTCP": {
+        "text": "It is advisable to always use TLS, even if your node is running on the same machine as this app. When connecting to a tor hidden service, TLS may be skipped.",
+        "title": "Should I use TLS?"
       }
     },
     "settings": {
@@ -1168,6 +1172,7 @@
       "step1-text": "Enter the endpoint.",
       "step2": "2",
       "step2-text": "Enter a certificate of the server's certificate chain. Alternatively, download the remote certificate and compare it visually.",
+      "step2-text-tcp": "You can skip this step if you do not want to use TLS.",
       "step3": "3",
       "step3-text": "Check the connection and add the server.",
       "step4": "4",
