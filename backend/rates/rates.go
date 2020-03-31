@@ -17,6 +17,7 @@ package rates
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"reflect"
 	"strings"
@@ -82,8 +83,14 @@ func (updater *RateUpdater) update() {
 	}()
 
 	var rates map[string]map[string]float64
-	responseBody, err := ioutil.ReadAll(response.Body)
+	const max = 10240
+	responseBody, err := ioutil.ReadAll(io.LimitReader(response.Body, max+1))
 	if err != nil {
+		updater.last = nil
+		return
+	}
+	if len(responseBody) > max {
+		updater.log.Errorf("rates response too long (> %d bytes)", max)
 		updater.last = nil
 		return
 	}
