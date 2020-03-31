@@ -17,6 +17,8 @@ package rates
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"reflect"
 	"strings"
 	"time"
@@ -81,8 +83,19 @@ func (updater *RateUpdater) update() {
 	}()
 
 	var rates map[string]map[string]float64
-	err = json.NewDecoder(response.Body).Decode(&rates)
+	const max = 10240
+	responseBody, err := ioutil.ReadAll(io.LimitReader(response.Body, max+1))
 	if err != nil {
+		updater.last = nil
+		return
+	}
+	if len(responseBody) > max {
+		updater.log.Errorf("rates response too long (> %d bytes)", max)
+		updater.last = nil
+		return
+	}
+	if err := json.Unmarshal(responseBody, &rates); err != nil {
+		updater.log.WithError(err).Errorf("could not parse rates response: %s", string(responseBody))
 		updater.last = nil
 		return
 	}
