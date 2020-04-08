@@ -79,7 +79,7 @@ func (device *Device) rawQueryV7(msg []byte) ([]byte, error) {
 			return nil, errp.New("unexpected NACK response")
 		case hwwRspNotready:
 			time.Sleep(200 * time.Millisecond)
-			responseBytes, err := device.communication.Query(append([]byte(hwwReqRetry), msg...))
+			responseBytes, err := device.communication.Query([]byte(hwwReqRetry))
 			if err != nil {
 				return nil, err
 			}
