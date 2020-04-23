@@ -235,16 +235,44 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		return errp.Newf("coin not supported: %s", coin.Code())
 	}
 
-	inputs := make([]*messages.BTCSignInputRequest, len(tx.TxIn))
+	inputs := make([]*firmware.BTCTxInput, len(tx.TxIn))
 	for inputIndex, txIn := range tx.TxIn {
 		prevOut := btcProposedTx.PreviousOutputs[txIn.PreviousOutPoint]
-		inputs[inputIndex] = &messages.BTCSignInputRequest{
-			PrevOutHash:  txIn.PreviousOutPoint.Hash[:],
-			PrevOutIndex: txIn.PreviousOutPoint.Index,
-			PrevOutValue: uint64(prevOut.Value),
-			Sequence:     txIn.Sequence,
-			Keypath: btcProposedTx.GetAddress(prevOut.ScriptHashHex()).
-				Configuration.AbsoluteKeypath().ToUInt32(),
+
+		prevTx := btcProposedTx.GetPrevTx(txIn.PreviousOutPoint.Hash)
+
+		prevTxInputs := make([]*messages.BTCPrevTxInputRequest, len(prevTx.TxIn))
+		for prevInputIndex, prevTxIn := range prevTx.TxIn {
+			prevTxInputs[prevInputIndex] = &messages.BTCPrevTxInputRequest{
+				PrevOutHash:     prevTxIn.PreviousOutPoint.Hash[:],
+				PrevOutIndex:    prevTxIn.PreviousOutPoint.Index,
+				SignatureScript: prevTxIn.SignatureScript,
+				Sequence:        prevTxIn.Sequence,
+			}
+		}
+		prevTxOuputs := make([]*messages.BTCPrevTxOutputRequest, len(prevTx.TxOut))
+		for prevOutputIndex, prevTxOut := range prevTx.TxOut {
+			prevTxOuputs[prevOutputIndex] = &messages.BTCPrevTxOutputRequest{
+				Value:        uint64(prevTxOut.Value),
+				PubkeyScript: prevTxOut.PkScript,
+			}
+		}
+
+		inputs[inputIndex] = &firmware.BTCTxInput{
+			Input: &messages.BTCSignInputRequest{
+				PrevOutHash:  txIn.PreviousOutPoint.Hash[:],
+				PrevOutIndex: txIn.PreviousOutPoint.Index,
+				PrevOutValue: uint64(prevOut.Value),
+				Sequence:     txIn.Sequence,
+				Keypath: btcProposedTx.GetAddress(prevOut.ScriptHashHex()).
+					Configuration.AbsoluteKeypath().ToUInt32(),
+			},
+			PrevTx: &firmware.BTCPrevTx{
+				Version:  uint32(prevTx.Version),
+				Inputs:   prevTxInputs,
+				Outputs:  prevTxOuputs,
+				Locktime: uint32(prevTx.LockTime),
+			},
 		}
 	}
 	outputs := make([]*messages.BTCSignOutputRequest, len(tx.TxOut))
@@ -282,10 +310,12 @@ func (keystore *keystore) signBTCTransaction(btcProposedTx *btc.ProposedTransact
 		msgCoin,
 		firmware.NewBTCScriptConfigSimple(msgScriptType),
 		btcProposedTx.TXProposal.AccountConfiguration.AbsoluteKeypath().ToUInt32(),
-		inputs,
-		outputs,
-		uint32(tx.Version),
-		tx.LockTime,
+		&firmware.BTCTx{
+			Version:  uint32(tx.Version),
+			Inputs:   inputs,
+			Outputs:  outputs,
+			Locktime: tx.LockTime,
+		},
 	)
 	if firmware.IsErrorAbort(err) {
 		return errp.WithStack(keystorePkg.ErrSigningAborted)
