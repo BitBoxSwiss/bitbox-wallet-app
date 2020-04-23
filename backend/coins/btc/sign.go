@@ -16,6 +16,7 @@ package btc
 
 import (
 	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/btcsuite/btcutil/txsort"
@@ -33,6 +34,7 @@ type ProposedTransaction struct {
 	TXProposal      *maketx.TxProposal
 	PreviousOutputs map[wire.OutPoint]*transactions.SpendableOutput
 	GetAddress      func(blockchain.ScriptHashHex) *addresses.AccountAddress
+	GetPrevTx       func(chainhash.Hash) *wire.MsgTx
 	// Signatures collects the signatures (signatures[transactionInput][cosignerIndex]).
 	Signatures [][]*btcec.Signature
 	SigHashes  *txscript.TxSigHashes
@@ -45,12 +47,14 @@ func SignTransaction(
 	txProposal *maketx.TxProposal,
 	previousOutputs map[wire.OutPoint]*transactions.SpendableOutput,
 	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress,
+	getPrevTx func(chainhash.Hash) *wire.MsgTx,
 	log *logrus.Entry,
 ) error {
 	proposedTransaction := &ProposedTransaction{
 		TXProposal:      txProposal,
 		PreviousOutputs: previousOutputs,
 		GetAddress:      getAddress,
+		GetPrevTx:       getPrevTx,
 		Signatures:      make([][]*btcec.Signature, len(txProposal.Transaction.TxIn)),
 		SigHashes:       txscript.NewTxSigHashes(txProposal.Transaction),
 	}

@@ -18,6 +18,7 @@ package btc
 import (
 	"math/big"
 
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/txscript"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/accounts"
@@ -141,7 +142,23 @@ func (account *Account) SendTx() error {
 		panic("address must be present")
 	}
 	utxos := account.transactions.SpendableOutputs()
-	if err := SignTransaction(account.keystores, txProposal, utxos, getAddress, account.log); err != nil {
+	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
+		txChan := make(chan *wire.MsgTx)
+		account.blockchain.TransactionGet(txHash,
+			func(tx *wire.MsgTx) error {
+				txChan <- tx
+				return nil
+			},
+			func(err error) {
+				if err != nil {
+					panic(err)
+				}
+			},
+		)
+		return <-txChan
+	}
+	if err := SignTransaction(
+		account.keystores, txProposal, utxos, getAddress, getPrevTx, account.log); err != nil {
 		return errp.WithMessage(err, "Failed to sign transaction")
 	}
 	account.log.Info("Signed transaction is broadcasted")
