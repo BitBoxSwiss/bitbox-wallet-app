@@ -23,7 +23,7 @@ import (
 
 // BlockchainMock implements blockchain.Interface for use in tests.
 type BlockchainMock struct {
-	MockScriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory) error, func(error))
+	MockScriptHashGetHistory func(blockchain.ScriptHashHex, func(blockchain.TxHistory), func(error))
 	MockTransactionGet       func(chainhash.Hash, func(*wire.MsgTx), func(error))
 	MockScriptHashSubscribe  func(func() func(error), blockchain.ScriptHashHex, func(string))
 	MockHeadersSubscribe     func(func() func(error), func(*blockchain.Header) error)
@@ -39,7 +39,7 @@ type BlockchainMock struct {
 }
 
 // ScriptHashGetHistory implements Interface.
-func (b *BlockchainMock) ScriptHashGetHistory(s blockchain.ScriptHashHex, success func(blockchain.TxHistory) error, cleanup func(error)) {
+func (b *BlockchainMock) ScriptHashGetHistory(s blockchain.ScriptHashHex, success func(blockchain.TxHistory), cleanup func(error)) {
 	if b.MockScriptHashGetHistory != nil {
 		b.MockScriptHashGetHistory(s, success, cleanup)
 	}
