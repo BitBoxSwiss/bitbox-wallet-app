@@ -68,13 +68,13 @@ func (blockchain *BlockchainMock) RegisterTxs(txs ...*wire.MsgTx) {
 // default behavior by setting the TransactionGetFunc var.
 func (blockchain *BlockchainMock) TransactionGet(
 	txHash chainhash.Hash,
-	success func(*wire.MsgTx) error,
+	success func(*wire.MsgTx),
 	cleanup func(error)) {
 	tx, ok := blockchain.transactions[txHash]
 	if !ok {
 		panic("you need to first register the transaction with the mock backend")
 	}
-	go func() { _ = success(tx) }()
+	go success(tx)
 }
 
 func (blockchain *BlockchainMock) ConnectionStatus() blockchainpkg.Status {

@@ -344,13 +344,12 @@ func (transactions *Transactions) getTransactionCached(
 	txChan := make(chan *wire.MsgTx)
 	transactions.blockchain.TransactionGet(
 		txHash,
-		func(tx *wire.MsgTx) error {
+		func(tx *wire.MsgTx) {
 			if transactions.isClosed() {
 				transactions.log.Debug("TransactionGet result ignored after the instance was closed")
-				return nil
+				return
 			}
 			txChan <- tx
-			return nil
 		},
 		func(err error) {
 			if err != nil {

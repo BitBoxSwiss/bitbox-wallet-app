@@ -87,6 +87,6 @@ func (_m *Interface) TransactionBroadcast(_a0 *wire.MsgTx) error {
 }
 
 // TransactionGet provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) TransactionGet(_a0 chainhash.Hash, _a1 func(*wire.MsgTx) error, _a2 func(error)) {
+func (_m *Interface) TransactionGet(_a0 chainhash.Hash, _a1 func(*wire.MsgTx), _a2 func(error)) {
 	_m.Called(_a0, _a1, _a2)
 }
