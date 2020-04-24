@@ -284,7 +284,7 @@ func parseTX(rawTXHex string) (*wire.MsgTx, error) {
 // See https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchaintransactionget
 func (client *ElectrumClient) TransactionGet(
 	txHash chainhash.Hash,
-	success func(*wire.MsgTx) error,
+	success func(*wire.MsgTx),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -297,7 +297,8 @@ func (client *ElectrumClient) TransactionGet(
 			if err != nil {
 				return err
 			}
-			return success(tx)
+			success(tx)
+			return nil
 		},
 		func() func(error) {
 			return cleanup

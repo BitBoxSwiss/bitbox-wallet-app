@@ -145,9 +145,8 @@ func (account *Account) SendTx() error {
 	getPrevTx := func(txHash chainhash.Hash) *wire.MsgTx {
 		txChan := make(chan *wire.MsgTx)
 		account.blockchain.TransactionGet(txHash,
-			func(tx *wire.MsgTx) error {
+			func(tx *wire.MsgTx) {
 				txChan <- tx
-				return nil
 			},
 			func(err error) {
 				if err != nil {
