@@ -29,7 +29,7 @@ type BlockchainMock struct {
 	MockHeadersSubscribe     func(func() func(error), func(*blockchain.Header) error)
 	MockTransactionBroadcast func(*wire.MsgTx) error
 	MockRelayFee             func(func(btcutil.Amount), func(error))
-	MockEstimateFee          func(int, func(*btcutil.Amount) error, func(error))
+	MockEstimateFee          func(int, func(*btcutil.Amount), func(error))
 	MockHeaders              func(int, int, func([]*wire.BlockHeader, int))
 	MockGetMerkle            func(chainhash.Hash, int, func(merkle []blockchain.TXHash, pos int) error, func(error))
 	MockClose                func()
@@ -82,7 +82,7 @@ func (b *BlockchainMock) RelayFee(success func(btcutil.Amount), cleanup func(err
 }
 
 // EstimateFee implements Interface.
-func (b *BlockchainMock) EstimateFee(i int, success func(*btcutil.Amount) error, cleanup func(error)) {
+func (b *BlockchainMock) EstimateFee(i int, success func(*btcutil.Amount), cleanup func(error)) {
 	if b.MockEstimateFee != nil {
 		b.MockEstimateFee(i, success, cleanup)
 	}
