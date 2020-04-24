@@ -93,12 +93,12 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 	done := transactions.synchronizer.IncRequestsCounter()
 	transactions.blockchain.GetMerkle(
 		txHash, height,
-		func(merkle []blockchain.TXHash, pos int) error {
+		func(merkle []blockchain.TXHash, pos int) {
 			expectedMerkleRoot := hashMerkleRoot(merkle, txHash, pos)
 			if expectedMerkleRoot != header.MerkleRoot {
 				transactions.log.Warning(
 					fmt.Sprintf("Merkle root verification failed for %s", txHash))
-				return nil
+				return
 			}
 			transactions.log.Debugf("Merkle root verification succeeded for %s", txHash)
 
@@ -110,9 +110,11 @@ func (transactions *Transactions) verifyTransaction(txHash chainhash.Hash, heigh
 			}
 			defer dbTx.Rollback()
 			if err := dbTx.MarkTxVerified(txHash, header.Timestamp); err != nil {
-				return err
+				transactions.log.WithError(err).Panic("MarkTxVerified")
 			}
-			return dbTx.Commit()
+			if err := dbTx.Commit(); err != nil {
+				transactions.log.WithError(err).Panic("GetMerkle Commit")
+			}
 		},
 		func(err error) {
 			done()

@@ -533,7 +533,7 @@ func (client *ElectrumClient) Headers(
 // https://github.com/kyuupichan/electrumx/blob/1.3/docs/protocol-methods.rst#blockchaintransactionget_merkle
 func (client *ElectrumClient) GetMerkle(
 	txHash chainhash.Hash, height int,
-	success func(merkle []blockchain.TXHash, pos int) error,
+	success func(merkle []blockchain.TXHash, pos int),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -549,7 +549,8 @@ func (client *ElectrumClient) GetMerkle(
 			if response.BlockHeight != height {
 				return errp.Newf("height should be %d, but got %d", height, response.BlockHeight)
 			}
-			return success(response.Merkle, response.Pos)
+			success(response.Merkle, response.Pos)
+			return nil
 		},
 		func() func(error) {
 			return cleanup
