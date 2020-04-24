@@ -613,10 +613,10 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 	done := account.synchronizer.IncRequestsCounter()
 	account.blockchain.ScriptHashGetHistory(
 		address.PubkeyScriptHashHex(),
-		func(history blockchain.TxHistory) error {
+		func(history blockchain.TxHistory) {
 			if account.isClosed() {
 				account.log.Debug("Ignoring result of ScriptHashGetHistory after the account was closed")
-				return nil
+				return
 			}
 
 			func() {
@@ -628,7 +628,6 @@ func (account *Account) onAddressStatus(address *addresses.AccountAddress, statu
 				account.transactions.UpdateAddressHistory(address.PubkeyScriptHashHex(), history)
 			}()
 			account.ensureAddresses()
-			return nil
 		},
 		func(err error) {
 			done()

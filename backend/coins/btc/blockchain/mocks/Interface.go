@@ -63,7 +63,7 @@ func (_m *Interface) RelayFee(_a0 func(btcutil.Amount), _a1 func(error)) {
 }
 
 // ScriptHashGetHistory provides a mock function with given fields: _a0, _a1, _a2
-func (_m *Interface) ScriptHashGetHistory(_a0 blockchain.ScriptHashHex, _a1 func(blockchain.TxHistory) error, _a2 func(error)) {
+func (_m *Interface) ScriptHashGetHistory(_a0 blockchain.ScriptHashHex, _a1 func(blockchain.TxHistory), _a2 func(error)) {
 	_m.Called(_a0, _a1, _a2)
 }
 

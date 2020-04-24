@@ -214,7 +214,7 @@ func (client *ElectrumClient) ScriptHashGetBalance(
 // https://github.com/kyuupichan/electrumx/blob/159db3f8e70b2b2cbb8e8cd01d1e9df3fe83828f/docs/PROTOCOL.rst#blockchainscripthashget_history
 func (client *ElectrumClient) ScriptHashGetHistory(
 	scriptHashHex blockchain.ScriptHashHex,
-	success func(blockchain.TxHistory) error,
+	success func(blockchain.TxHistory),
 	cleanup func(error),
 ) {
 	client.rpc.Method(
@@ -224,7 +224,8 @@ func (client *ElectrumClient) ScriptHashGetHistory(
 				client.log.WithError(err).Error("Failed to unmarshal JSON response")
 				return errp.WithStack(err)
 			}
-			return success(txs)
+			success(txs)
+			return nil
 		},
 		func() func(error) {
 			return cleanup
