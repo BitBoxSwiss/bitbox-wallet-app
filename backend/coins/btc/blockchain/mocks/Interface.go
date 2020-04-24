@@ -38,7 +38,7 @@ func (_m *Interface) EstimateFee(_a0 int, _a1 func(*btcutil.Amount), _a2 func(er
 }
 
 // GetMerkle provides a mock function with given fields: _a0, _a1, _a2, _a3
-func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]blockchain.TXHash, int) error, _a3 func(error)) {
+func (_m *Interface) GetMerkle(_a0 chainhash.Hash, _a1 int, _a2 func([]blockchain.TXHash, int), _a3 func(error)) {
 	_m.Called(_a0, _a1, _a2, _a3)
 }
 

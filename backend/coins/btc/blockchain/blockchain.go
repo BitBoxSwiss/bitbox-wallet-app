@@ -107,7 +107,7 @@ type Interface interface {
 	RelayFee(func(btcutil.Amount), func(error))
 	EstimateFee(int, func(*btcutil.Amount), func(error))
 	Headers(int, int, func([]*wire.BlockHeader, int))
-	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int) error, func(error))
+	GetMerkle(chainhash.Hash, int, func(merkle []TXHash, pos int), func(error))
 	Close()
 	ConnectionStatus() Status
 	RegisterOnConnectionStatusChangedEvent(func(Status))
