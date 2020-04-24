@@ -181,7 +181,42 @@ func (device *Device) queryBtcSign(request proto.Message) (
 		return nil, errp.New("unexpected response")
 	}
 	return next.BtcSignNext, nil
+}
 
+func (device *Device) nestedQueryBtcSign(request *messages.BTCRequest) (
+	*messages.BTCSignNextResponse, error) {
+	response, err := device.queryBTC(request)
+	if err != nil {
+		return nil, err
+	}
+	next, ok := response.Response.(*messages.BTCResponse_SignNext)
+	if !ok {
+		return nil, errp.New("unexpected response")
+	}
+	return next.SignNext, nil
+}
+
+// BTCPrevTx is the transaction referenced by an input.
+type BTCPrevTx struct {
+	Version  uint32
+	Inputs   []*messages.BTCPrevTxInputRequest
+	Outputs  []*messages.BTCPrevTxOutputRequest
+	Locktime uint32
+}
+
+// BTCTxInput contains the data needed to sign an input.
+type BTCTxInput struct {
+	Input *messages.BTCSignInputRequest
+	// PrevTx must be the transaction referenced by Input.PrevOutHash.
+	PrevTx *BTCPrevTx
+}
+
+// BTCTx is the data needed to sign a btc transaction.
+type BTCTx struct {
+	Version  uint32
+	Inputs   []*BTCTxInput
+	Outputs  []*messages.BTCSignOutputRequest
+	Locktime uint32
 }
 
 // BTCSign signs a bitcoin or bitcoin-like transaction. Returns one 64 byte signature per input.
@@ -189,22 +224,19 @@ func (device *Device) BTCSign(
 	coin messages.BTCCoin,
 	scriptConfig *messages.BTCScriptConfig,
 	keypathAccount []uint32,
-	inputs []*messages.BTCSignInputRequest,
-	outputs []*messages.BTCSignOutputRequest,
-	version uint32,
-	locktime uint32,
+	tx *BTCTx,
 ) ([][]byte, error) {
-	signatures := make([][]byte, len(inputs))
+	signatures := make([][]byte, len(tx.Inputs))
 	next, err := device.queryBtcSign(&messages.Request{
 		Request: &messages.Request_BtcSignInit{
 			BtcSignInit: &messages.BTCSignInitRequest{
 				Coin:           coin,
 				ScriptConfig:   scriptConfig,
 				KeypathAccount: keypathAccount,
-				Version:        version,
-				NumInputs:      uint32(len(inputs)),
-				NumOutputs:     uint32(len(outputs)),
-				Locktime:       locktime,
+				Version:        tx.Version,
+				NumInputs:      uint32(len(tx.Inputs)),
+				NumOutputs:     uint32(len(tx.Outputs)),
+				Locktime:       tx.Locktime,
 			}}})
 	if err != nil {
 		return nil, err
@@ -215,7 +247,7 @@ func (device *Device) BTCSign(
 			inputIndex := next.Index
 			next, err = device.queryBtcSign(&messages.Request{
 				Request: &messages.Request_BtcSignInput{
-					BtcSignInput: inputs[inputIndex],
+					BtcSignInput: tx.Inputs[inputIndex].Input,
 				}})
 			if err != nil {
 				return nil, err
@@ -223,11 +255,49 @@ func (device *Device) BTCSign(
 			if next.HasSignature {
 				signatures[inputIndex] = next.Signature
 			}
+		case messages.BTCSignNextResponse_PREVTX_INIT:
+			prevtx := tx.Inputs[next.Index].PrevTx
+			next, err = device.nestedQueryBtcSign(
+				&messages.BTCRequest{
+					Request: &messages.BTCRequest_PrevtxInit{
+						PrevtxInit: &messages.BTCPrevTxInitRequest{
+							Version:    prevtx.Version,
+							NumInputs:  uint32(len(prevtx.Inputs)),
+							NumOutputs: uint32(len(prevtx.Outputs)),
+							Locktime:   prevtx.Locktime,
+						},
+					},
+				})
+			if err != nil {
+				return nil, err
+			}
+		case messages.BTCSignNextResponse_PREVTX_INPUT:
+			prevtxInput := tx.Inputs[next.Index].PrevTx.Inputs[next.PrevIndex]
+			next, err = device.nestedQueryBtcSign(
+				&messages.BTCRequest{
+					Request: &messages.BTCRequest_PrevtxInput{
+						PrevtxInput: prevtxInput,
+					},
+				})
+			if err != nil {
+				return nil, err
+			}
+		case messages.BTCSignNextResponse_PREVTX_OUTPUT:
+			prevtxOutput := tx.Inputs[next.Index].PrevTx.Outputs[next.PrevIndex]
+			next, err = device.nestedQueryBtcSign(
+				&messages.BTCRequest{
+					Request: &messages.BTCRequest_PrevtxOutput{
+						PrevtxOutput: prevtxOutput,
+					},
+				})
+			if err != nil {
+				return nil, err
+			}
 		case messages.BTCSignNextResponse_OUTPUT:
 			outputIndex := next.Index
 			next, err = device.queryBtcSign(&messages.Request{
 				Request: &messages.Request_BtcSignOutput{
-					BtcSignOutput: outputs[outputIndex],
+					BtcSignOutput: tx.Outputs[outputIndex],
 				}})
 			if err != nil {
 				return nil, err
