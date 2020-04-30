@@ -65,4 +65,5 @@ unix:macx {
     LIBS += -framework CoreFoundation -framework Security
     # QMAKE_RPATHDIR = @executable_path/../Frameworks
     QMAKE_LFLAGS += "-pie -s -w"
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = $$[MACOS_MIN_VERSION]
 }
