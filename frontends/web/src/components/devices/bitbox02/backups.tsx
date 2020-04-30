@@ -17,7 +17,7 @@
 import { Component, h, RenderableProps } from 'preact';
 import * as style from '../../../components/steps/steps.css';
 import Toast from '../../../components/toast/Toast';
-import { load } from '../../../decorators/load';
+import { subscribe } from '../../../decorators/subscribe';
 import { translate, TranslateProps } from '../../../decorators/translate';
 import { apiPost } from '../../../utils/request';
 import { Backup, BackupsListItem } from '../../backups/backup';
@@ -26,7 +26,7 @@ import { Button } from '../../forms';
 import { Check } from './checkbackup';
 import { Create } from './createbackup';
 
-interface LoadedBackupsProps {
+interface SubscribedBackupsProps {
     backups: {
         success: boolean;
         backups?: Backup[];
@@ -42,7 +42,7 @@ interface BackupsProps {
     backupOnAfterRestore?: (success: boolean) => void;
 }
 
-type Props = LoadedBackupsProps & BackupsProps & TranslateProps;
+type Props = SubscribedBackupsProps & BackupsProps & TranslateProps;
 
 interface State {
     selectedBackup?: string;
@@ -166,6 +166,6 @@ class Backups extends Component<Props, State> {
     }
 }
 
-const loadHOC = load<LoadedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);
-const HOC = translate<BackupsProps>()(loadHOC);
+const subscribeHOC = subscribe<SubscribedBackupsProps, BackupsProps & TranslateProps>(({ deviceID }) => ({ backups: 'devices/bitbox02/' + deviceID + '/backups/list' }))(Backups);
+const HOC = translate<BackupsProps>()(subscribeHOC);
 export { HOC as BackupsV2 };

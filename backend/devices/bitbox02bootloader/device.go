@@ -22,6 +22,7 @@ import (
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox02-api-go/api/bootloader"
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
@@ -40,6 +41,8 @@ type Device struct {
 	onEvent func(event.Event, interface{})
 
 	log *logrus.Entry
+
+	observable.Implementation
 }
 
 // EventStatusChanged is fired when the status changes. Check the status using Status().

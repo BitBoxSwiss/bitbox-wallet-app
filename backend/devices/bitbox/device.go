@@ -39,6 +39,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/socksproxy"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
 	"github.com/sirupsen/logrus"
@@ -154,6 +155,8 @@ type Device struct {
 	socksProxy socksproxy.SocksProxy
 
 	log *logrus.Entry
+
+	observable.Implementation
 }
 
 // NewDevice creates a new instance of Device.

@@ -24,6 +24,8 @@ import (
 	keystoreInterface "github.com/digitalbitbox/bitbox-wallet-app/backend/keystore"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/signing"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	bitbox02common "github.com/digitalbitbox/bitbox02-api-go/api/common"
 	"github.com/digitalbitbox/bitbox02-api-go/api/firmware"
 	"github.com/digitalbitbox/bitbox02-api-go/util/semver"
@@ -42,6 +44,8 @@ type Device struct {
 	mu       sync.RWMutex
 	onEvent  func(event.Event, interface{})
 	log      *logrus.Entry
+
+	observable.Implementation
 }
 
 // NewDevice creates a new instance of Device.
@@ -143,5 +147,17 @@ func (device *Device) Reset() error {
 	}
 	device.fireEvent(event.EventKeystoreGone)
 	device.init()
+	return nil
+}
+
+// CreateBackup wraps firmware.Device, but also sending a notification on success.
+func (device *Device) CreateBackup() error {
+	if err := device.Device.CreateBackup(); err != nil {
+		return err
+	}
+	device.Notify(observable.Event{
+		Subject: fmt.Sprintf("devices/bitbox02/%s/backups/list", device.deviceID),
+		Action:  action.Reload,
+	})
 	return nil
 }

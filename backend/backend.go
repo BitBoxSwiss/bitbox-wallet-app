@@ -921,6 +921,7 @@ func (backend *Backend) Register(theDevice device.Interface) error {
 		backend.onDeviceUninit(theDevice.Identifier())
 		return err
 	}
+	theDevice.Observe(backend.Notify)
 
 	// Old-school
 	select {
