@@ -146,7 +146,7 @@
     width: 20px;
 }
 
-@media (min-width: 1322px) {
+@media (min-width: 1200px) {
     .togglersContainer {
         flex-direction: row-reverse;
     }
