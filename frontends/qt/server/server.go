@@ -130,6 +130,9 @@ func serve(
 			},
 			DeviceInfosFunc: usb.DeviceInfos,
 			SystemOpenFunc:  system.Open,
+			UsingMobileDataFunc: func() bool {
+				return false
+			},
 		},
 	)
 }

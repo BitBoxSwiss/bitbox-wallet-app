@@ -7,7 +7,11 @@ import goserver.GoAPIInterface;
 import goserver.Goserver;
 
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Message;
 import android.os.Handler;
 import android.app.Application;
@@ -124,6 +128,22 @@ public class GoViewModel extends AndroidViewModel {
 
         public void systemOpen(String url) throws Exception {
             Util.systemOpen(getApplication(), url);
+        }
+
+        public boolean usingMobileData() {
+            // Adapted from https://stackoverflow.com/a/53243938
+
+            ConnectivityManager cm = (ConnectivityManager)getApplication().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (cm == null) {
+                return false;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+                return capabilities != null && capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+            }
+
+            NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+            return activeNetwork != null && activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE;
         }
     }
 
