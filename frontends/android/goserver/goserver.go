@@ -56,12 +56,13 @@ type GoDeviceInfoInterface interface {
 	Open() (GoReadWriteCloserInterface, error)
 }
 
-// GoEnvironmentInterface adapts backend.Environment to return only one DeviceInfo instead of a slice of
-// them, as a slice of interfaces does not seem to be supported by gomobile yet.
+// GoEnvironmentInterface adapts backend.Environment to return only one DeviceInfo instead of a
+// slice of them, as a slice of interfaces does not seem to be supported by gomobile yet.
 type GoEnvironmentInterface interface {
 	NotifyUser(string)
 	DeviceInfo() GoDeviceInfoInterface
 	SystemOpen(string) error
+	UsingMobileData() bool
 }
 
 // readWriteCloser implements io.ReadWriteCloser, translating from GoReadWriteCloserInterface. All methods
@@ -151,7 +152,8 @@ func Serve(dataDir string, environment GoEnvironmentInterface, goAPI GoAPIInterf
 				}
 				return []usb.DeviceInfo{deviceInfo{i}}
 			},
-			SystemOpenFunc: environment.SystemOpen,
+			SystemOpenFunc:      environment.SystemOpen,
+			UsingMobileDataFunc: environment.UsingMobileData,
 		},
 	)
 }

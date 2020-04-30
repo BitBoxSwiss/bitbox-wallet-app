@@ -73,6 +73,11 @@ func (webdevEnvironment) SystemOpen(url string) error {
 	return system.Open(url)
 }
 
+// UsingMobileData implements backend.Environment
+func (webdevEnvironment) UsingMobileData() bool {
+	return false
+}
+
 func main() {
 	config.SetAppDir("appfolder.dev")
 

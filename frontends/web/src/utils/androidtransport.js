@@ -1,3 +1,5 @@
+import { runningInAndroid } from './env';
+
 /**
  * Copyright 2018 Shift Devices AG
  *
@@ -21,13 +23,6 @@ let currentListeners = [];
 /* The following line declares this as a global variable to eslint */
 /* global android */
 
-/**
- * Returns whether the code is running in QtWebEngine.
- */
-export function runningInAndroid() {
-    // @ts-ignore
-    return typeof android !== 'undefined';
-}
 export function androidCall(query) {
     return new Promise((resolve, reject) => {
         if (runningInAndroid()) {

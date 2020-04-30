@@ -110,6 +110,13 @@ type Environment interface {
 	DeviceInfos() []usb.DeviceInfo
 	// SystemOpen opens a web url in the default browser, or a file url in the default application.
 	SystemOpen(string) error
+	// UsingMobileData returns true if the user is connected to the internet over a mobile data
+	// connection, which might be subject to data limits. Returns false if we are on WiFi/LAN.
+	// Special case: if there is no internet connection at all, this should also return false. This
+	// function can be extended to return an enum if we ever want to deal with lost internet
+	// connections at this level (currently handled at the account-level (see `Offline()` in the
+	// `Account` interface).
+	UsingMobileData() bool
 }
 
 // Backend ties everything together and is the main starting point to use the BitBox wallet library.
