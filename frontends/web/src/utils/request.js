@@ -17,8 +17,9 @@
 import i18n from '../i18n/i18n';
 import { extConfig } from './config';
 import { alertUser } from '../components/alert/Alert';
-import { call, runningInQtWebEngine } from './qttransport';
-import { androidCall, runningInAndroid } from './androidtransport';
+import { call } from './qttransport';
+import { androidCall } from './androidtransport';
+import { runningInAndroid, runningInQtWebEngine } from './env';
 
 export const apiPort = extConfig('{{ API_PORT }}', '8082');
 export const apiToken = extConfig('{{ API_TOKEN }}', '');

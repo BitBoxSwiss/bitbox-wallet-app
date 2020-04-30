@@ -15,8 +15,9 @@
  */
 
 import { apiPort, apiToken, isTLS } from './request';
-import { qtSubscribePushNotifications, runningInQtWebEngine } from './qttransport';
-import { androidSubscribePushNotifications, runningInAndroid } from './androidtransport';
+import { qtSubscribePushNotifications } from './qttransport';
+import { androidSubscribePushNotifications } from './androidtransport';
+import { runningInAndroid, runningInQtWebEngine } from './env';
 
 let socket = null;
 const currentListeners = [];
