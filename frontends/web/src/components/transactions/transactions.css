@@ -99,13 +99,13 @@
   color: var(--color-secondary);
 }
 
-@media (min-width: 1081px) {
+@media (min-width: 1081px) and (max-width: 1199px), (min-width: 1323px) {
   .hideOnMedium {
     display: none;
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1080px), (min-width: 1200px) and (max-width: 1322px) {
   .showOnMedium {
     display: none;
   }
