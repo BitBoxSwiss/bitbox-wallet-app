@@ -112,6 +112,7 @@ export default class Transaction extends Component {
             </svg>
         );
         const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || null;
+        const typeClassName = (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
         const sDate = time ? this.parseTimeShort(time) : '---';
         const statusText = {
             complete: t('transaction.status.complete'),
@@ -194,12 +195,12 @@ export default class Transaction extends Component {
                             <span className={style.status}>{statusText}</span>
                         </div>
                         <div className={parentStyle.fiat}>
-                            <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
+                            <span className={`${style.fiat} ${typeClassName}`}>
                                 <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
                             </span>
                         </div>
                         <div className={parentStyle.currency}>
-                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>
+                            <span className={`${style.currency} ${typeClassName}`}>
                                 {sign}{amount.amount}
                                 {' '}
                                 <span className={style.currencyUnit}>{amount.unit}</span>

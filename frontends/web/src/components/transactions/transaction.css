@@ -79,6 +79,10 @@
     color: var(--color-softred) !important;
 }
 
+.receive {
+    color: var(--color-success);
+}
+
 .currency {
 
 }
