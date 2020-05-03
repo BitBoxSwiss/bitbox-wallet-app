@@ -200,7 +200,9 @@ export default class Transaction extends Component {
                         </div>
                         <div className={parentStyle.currency}>
                             <span className={[style.currency, type === 'send' && style.send].join(' ')}>
-                                {type === 'send' && sign}{amount.amount} {amount.unit}
+                                {type === 'send' && sign}{amount.amount}
+                                {' '}
+                                <span className={style.currencyUnit}>{amount.unit}</span>
                             </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>

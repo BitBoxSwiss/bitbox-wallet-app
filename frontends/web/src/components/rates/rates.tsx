@@ -154,12 +154,12 @@ function Conversion({
             {' '}
             {
                 !skipUnit && !noAction && (
-                    <span className={style.unit} onClick={rotateFiat}>{active}</span>
+                    <span className={style.unitAction} onClick={rotateFiat}>{active}</span>
                 )
             }
             {
                 !skipUnit && noAction && (
-                    <span>{active}</span>
+                    <span className={style.unit}>{active}</span>
                 )
             }
         </span>
