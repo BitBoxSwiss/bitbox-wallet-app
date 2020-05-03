@@ -284,22 +284,30 @@ export default class Transaction extends Component {
                             <div className={style.detail}>
                                 <label>{t('transaction.details.fiat')}</label>
                                 <p>
-                                    <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
-                                        <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
+                                    <span className={`${style.fiat} ${typeClassName}`}>
+                                        <FiatConversion amount={amount} noAction>{sign}</FiatConversion>
                                     </span>
                                 </p>
                             </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.details.amount')}</label>
                                 <p>
-                                    <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
+                                    <span className={`${style.currency} ${typeClassName}`}>
+                                        {sign}{amount.amount}
+                                        {' '}
+                                        <span className={style.currencyUnit}>{amount.unit}</span>
+                                    </span>
                                 </p>
                             </div>
                             <div className={style.detail}>
                                 <label>{t('transaction.fee')}</label>
                                 {
                                     fee && fee.amount ? (
-                                        <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>{fee.amount} {fee.unit}</p>
+                                        <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
+                                            {fee.amount}
+                                            {' '}
+                                            <span className={style.currencyUnit}>{fee.unit}</span>
+                                        </p>
                                     ) : (
                                         <p>---</p>
                                     )
@@ -327,7 +335,11 @@ export default class Transaction extends Component {
                                 weight ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.weight')}</label>
-                                        <p>{weight}</p>
+                                        <p>
+                                            {weight}
+                                            {' '}
+                                            <span className={style.currencyUnit}>WU</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
@@ -335,7 +347,11 @@ export default class Transaction extends Component {
                                 vsize ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.vsize')}</label>
-                                        <p>{vsize}</p>
+                                        <p>
+                                            {vsize}
+                                            {' '}
+                                            <span className={style.currencyUnit}>b</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
@@ -343,7 +359,11 @@ export default class Transaction extends Component {
                                 size ? (
                                     <div className={style.detail}>
                                         <label>{t('transaction.size')}</label>
-                                        <p>{size}</p>
+                                        <p>
+                                            {size}
+                                            {' '}
+                                            <span className={style.currencyUnit}>b</span>
+                                        </p>
                                     </div>
                                 ) : null
                             }
