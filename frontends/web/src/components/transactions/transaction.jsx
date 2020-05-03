@@ -195,11 +195,13 @@ export default class Transaction extends Component {
                         </div>
                         <div className={parentStyle.fiat}>
                             <span className={[style.fiat, type === 'send' && style.send].join(' ')}>
-                                <FiatConversion amount={amount} noAction>{type === 'send' && sign} </FiatConversion>
+                                <FiatConversion amount={amount} noAction>{type === 'send' && sign}</FiatConversion>
                             </span>
                         </div>
                         <div className={parentStyle.currency}>
-                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>{type === 'send' && sign} {amount.amount} {amount.unit}</span>
+                            <span className={[style.currency, type === 'send' && style.send].join(' ')}>
+                                {type === 'send' && sign}{amount.amount} {amount.unit}
+                            </span>
                         </div>
                         <div className={[parentStyle.action, parentStyle.showOnMedium].join(' ')}>
                             <a href="#" className={style.action} onClick={this.showDetails}>
