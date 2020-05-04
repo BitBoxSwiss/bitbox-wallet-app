@@ -1238,6 +1238,7 @@
       "amount": "Amount",
       "date": "Date",
       "fiat": "Fiat",
+      "fiatAmount": "Fiat amount",
       "status": "Status",
       "type": "Type"
     },
