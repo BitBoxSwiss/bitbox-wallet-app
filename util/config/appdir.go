@@ -23,18 +23,6 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 )
 
-// appFolder is what AppDir always returns. It is initialized only once
-// in the initAppFolder func.
-//
-// It is tempting to initialize appFolder in an init func but because
-// the Go code is called from C/C++ using CGO, we take a safer approach
-// and do it in a sync.Once call to make it more future proof and avoid
-// potential bugs where an init is potentially called only after appFolder
-// is being accessed.
-//
-// When replacing the value in tests, make sure initAppFolderOnce below
-// has already been called.
-
 var mu sync.RWMutex
 var appFolder string
 
