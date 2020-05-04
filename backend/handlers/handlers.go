@@ -108,6 +108,7 @@ type Backend interface {
 	ReinitializeAccounts()
 	CheckForUpdateIgnoringErrors() *backend.UpdateFile
 	Banners() *banners.Banners
+	Environment() backend.Environment
 }
 
 // Handlers provides a web api to the backend.
@@ -180,6 +181,7 @@ func NewHandlers(
 	getAPIRouter(apiRouter)("/open", handlers.postOpenHandler).Methods("POST")
 	getAPIRouter(apiRouter)("/update", handlers.getUpdateHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/banners/{key}", handlers.getBannersHandler).Methods("GET")
+	getAPIRouter(apiRouter)("/using-mobile-data", handlers.getUsingMobileDataHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/version", handlers.getVersionHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/testing", handlers.getTestingHandler).Methods("GET")
 	getAPIRouter(apiRouter)("/account-add", handlers.postAddAccountHandler).Methods("POST")
@@ -378,6 +380,10 @@ func (handlers *Handlers) getUpdateHandler(_ *http.Request) (interface{}, error)
 
 func (handlers *Handlers) getBannersHandler(r *http.Request) (interface{}, error) {
 	return handlers.backend.Banners().GetMessage(banners.MessageKey(mux.Vars(r)["key"])), nil
+}
+
+func (handlers *Handlers) getUsingMobileDataHandler(r *http.Request) (interface{}, error) {
+	return handlers.backend.Environment().UsingMobileData(), nil
 }
 
 func (handlers *Handlers) getVersionHandler(_ *http.Request) (interface{}, error) {

@@ -932,6 +932,9 @@
     "successEnable": "Successfully enabled the legacy hidden wallet. Replug your BitBox and enter the hidden device password to access the legacy hidden wallet."
   },
   "loading": "loading…",
+  "mobile": {
+    "usingMobileDataWarning": "Mobile data usage: this app may download up to a few hundred megabytes of blockchain header data after unlocking an account. Please connect to Wi-Fi to avoid using mobile data. After dismissing it, this message won't be shown again."
+  },
   "notification": {
     "newTxs": "New transaction in: {{accountName}}",
     "newTxs_plural": "{{count}} new transactions in: {{accountName}}"

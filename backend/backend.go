@@ -1052,6 +1052,11 @@ func (backend *Backend) SystemOpen(url string) error {
 
 }
 
+// Environment returns the app native environment.
+func (backend *Backend) Environment() Environment {
+	return backend.environment
+}
+
 // Close shuts down the backend. After this, no other method should be called.
 func (backend *Backend) Close() error {
 	errors := []string{}

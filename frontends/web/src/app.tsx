@@ -21,6 +21,7 @@ import { Banner } from './components/banner/banner';
 import { Confirm } from './components/confirm/Confirm';
 import { Container } from './components/container/container';
 import { store as panelStore } from './components/guide/guide';
+import { MobileDataWarning } from './components/mobiledatawarning';
 import { Sidebar, toggleSidebar } from './components/sidebar/sidebar';
 import TranslationHelper from './components/translationhelper/translationhelper';
 import { Update } from './components/update/update';
@@ -181,6 +182,7 @@ class App extends Component<Props, State> {
                 <div class="appContent flex flex-column flex-1" style="min-width: 0;">
                     <Update />
                     <Banner msgKey="bitbox01" />
+                    <MobileDataWarning />
                     <Container toggleSidebar={this.toggleSidebar} onChange={this.handleRoute}>
                         <Send
                             path="/account/:code/send"
