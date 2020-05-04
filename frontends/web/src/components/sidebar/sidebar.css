@@ -217,7 +217,7 @@ a.sidebar-active .single img,
     height: 12px;
 }
 
-@media (min-width: 1322px) {
+@media (min-width: 1200px) {
     .sidebarContainer:not(.forceHide) .sidebar {
         position: relative;
         margin-left: 0;
