@@ -28,7 +28,7 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
 	btctypes "github.com/digitalbitbox/bitbox-wallet-app/backend/coins/btc/types"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/devices/usb"
-	backendHandlers "github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
+	"github.com/digitalbitbox/bitbox-wallet-app/backend/handlers"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/config"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
@@ -44,9 +44,10 @@ type NativeCommunication interface {
 }
 
 var (
-	handlers      *backendHandlers.Handlers
-	communication NativeCommunication
-	token         string
+	backendInstance  *backend.Backend
+	handlersInstance *handlers.Handlers
+	communication    NativeCommunication
+	token            string
 
 	shutdown func()
 )
@@ -71,7 +72,7 @@ func (r *response) WriteHeader(int) {
 
 // BackendCall bridges GET/POST calls (serverless, directly calling the backend handlers).
 func BackendCall(queryID int, jsonQuery string) {
-	if handlers == nil {
+	if handlersInstance == nil {
 		return
 	}
 	query := map[string]string{}
@@ -93,7 +94,7 @@ func BackendCall(queryID int, jsonQuery string) {
 			panic(errp.WithStack(err))
 		}
 		request.Header.Set("Authorization", "Basic "+token)
-		handlers.Router.ServeHTTP(resp, request)
+		handlersInstance.Router.ServeHTTP(resp, request)
 		responseBytes := resp.Body.Bytes()
 		communication.Respond(queryID, string(responseBytes))
 	}()
@@ -155,7 +156,8 @@ func Serve(
 		WithField("version", backend.Version).
 		Info("environment")
 
-	backend, err := backend.NewBackend(
+	var err error
+	backendInstance, err = backend.NewBackend(
 		arguments.NewArguments(
 			config.AppDir(),
 			testnet,
@@ -173,19 +175,21 @@ func Serve(
 	quitChan := make(chan struct{})
 	shutdown = func() {
 		close(quitChan)
-		if err := backend.Close(); err != nil {
+		if err := backendInstance.Close(); err != nil {
 			log.WithError(err).Error("backend.Close failed")
 		}
+		handlersInstance = nil
+		backendInstance = nil
 		shutdown = nil
 	}
 
 	token = hex.EncodeToString(random.BytesOrPanic(16))
 
 	// the port is unused, as we bridge directly without a server.
-	handlers = backendHandlers.NewHandlers(backend,
-		backendHandlers.NewConnectionData(-1, token))
+	handlersInstance = handlers.NewHandlers(backendInstance,
+		handlers.NewConnectionData(-1, token))
 
-	events := handlers.Events()
+	events := handlersInstance.Events()
 	go func() {
 		for {
 			select {
