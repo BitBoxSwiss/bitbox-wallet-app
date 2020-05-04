@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver usbStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             handleIntent(intent);
         }
@@ -229,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
         // DETACHED intent is a broadcast intent which we register here.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(this.broadcastReceiver, filter);
+        registerReceiver(this.usbStateReceiver, filter);
 
         // We call updateDeviceList() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         log("lifecycle: onPause");
-        unregisterReceiver(this.broadcastReceiver);
+        unregisterReceiver(this.usbStateReceiver);
     }
 
     private void handleIntent(Intent intent) {
