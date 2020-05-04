@@ -60,6 +60,13 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Goserver.usingMobileDataChanged();
+         }
+    };
+
     private static String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
@@ -236,6 +243,8 @@ public class MainActivity extends AppCompatActivity {
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
         goViewModel.updateDeviceList();
 
+        // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
+        registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
@@ -243,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         log("lifecycle: onPause");
         unregisterReceiver(this.usbStateReceiver);
+        unregisterReceiver(this.networkStateReceiver);
     }
 
     private void handleIntent(Intent intent) {

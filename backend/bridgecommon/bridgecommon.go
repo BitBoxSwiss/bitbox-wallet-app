@@ -33,6 +33,8 @@ import (
 	"github.com/digitalbitbox/bitbox-wallet-app/util/errp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/jsonp"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/logging"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable"
+	"github.com/digitalbitbox/bitbox-wallet-app/util/observable/action"
 	"github.com/digitalbitbox/bitbox-wallet-app/util/random"
 )
 
@@ -98,6 +100,17 @@ func BackendCall(queryID int, jsonQuery string) {
 		responseBytes := resp.Body.Bytes()
 		communication.Respond(queryID, string(responseBytes))
 	}()
+}
+
+// UsingMobileDataChanged should be called when the network connnection changed.
+func UsingMobileDataChanged() {
+	if backendInstance == nil {
+		return
+	}
+	backendInstance.Notify(observable.Event{
+		Subject: "using-mobile-data",
+		Action:  action.Reload,
+	})
 }
 
 // BackendEnvironment implements backend.Environment.
