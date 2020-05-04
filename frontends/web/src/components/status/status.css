@@ -1,9 +1,13 @@
-.status {
-    position: relative;
+.container {
     margin: 0 auto;
+    position: relative;
     max-width: var(--content-width);
-    padding: var(--space-half) calc(var(--space-default) * 1.5) var(--space-half) var(--space-default);
-    font-size: var(--size-default);
+    padding: calc(var(--space-default) * 1.5);
+}
+
+.status {
+    font-size: var(--size-subheader);
+    max-width: 90%;
 }
 
 .success {
@@ -22,10 +26,13 @@
 }
 
 .close {
+    background: var(--color-darkblue);
     color: var(--color-white);
+    line-height: 1;
+    padding: var(--space-half);
     position: absolute;
-    top: var(--space-half);
-    right: var(--space-default);
+    top: 0;
+    right: 0;
 }
 
 .close svg {
@@ -34,12 +41,11 @@
 }
 
 @media (max-width: 768px) {
-    .status {
-        padding: var(--space-half) var(--space-default) var(--space-half) var(--space-half);
-        font-size: var(--size-default);
+    .container {
+        padding: calc(var(--space-half) * 1.5);
     }
 
-    .close {
-        right: var(--space-half);
+    .status {
+        font-size: var(--size-subheader-mobile);
     }
 }
