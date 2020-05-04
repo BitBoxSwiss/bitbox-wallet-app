@@ -1,1 +1,2 @@
 LIBNAME=libserver
+MACOS_MIN_VERSION := 10.11

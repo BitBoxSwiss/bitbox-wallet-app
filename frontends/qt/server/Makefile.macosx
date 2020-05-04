@@ -8,10 +8,11 @@ GOOS=darwin
 darwin:
 	CGO_CFLAGS="-g ${GODARWINSECFLAGS} ${CFLAGS}" \
 	CGO_LDFLAGS="${GODARWINLDFLAGS} ${LFLAGS}" \
+	MACOSX_DEPLOYMENT_TARGET=${MACOS_MIN_VERSION} \
 	GOARCH=${GOARCH} CGO_ENABLED=${CGO} GOOS=${GOOS} \
 	go build -ldflags='-s' -x -mod=vendor \
 	-buildmode="c-shared" -o ${LIBNAME}.so
 
 clean:
-	-rm ${LIBNAME}.so
-	-rm ${LIBNAME}.h
+	-rm -f ${LIBNAME}.so
+	-rm -f ${LIBNAME}.h

@@ -12,9 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+include ../../env.mk.inc
+
 base:
 	mkdir build
 	./genassets.sh
+	qmake -set MACOS_MIN_VERSION $(MACOS_MIN_VERSION)
 	qmake -o build/Makefile
 	cd build && $(MAKE)
 clean:
