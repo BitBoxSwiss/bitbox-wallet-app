@@ -25,10 +25,21 @@
     color: var(--color-white);
 }
 
-.close {
+.close-success {
+    background: var(--color-darkgreen);
+}
+
+.close-warning {
+    background: var(--color-swissred);
+}
+
+.close-info {
     background: var(--color-darkblue);
+}
+
+.close {
     color: var(--color-white);
-    line-height: 1;
+    line-height: .5;
     padding: var(--space-half);
     position: absolute;
     top: 0;
