@@ -83,6 +83,9 @@ func AppDir() string {
 
 // DownloadsDir returns the absolute path to the Downloads folder in the home folder.
 func DownloadsDir() (string, error) {
+	if runtime.GOOS == "android" {
+		return "", errp.New("android not yet supported")
+	}
 	homeFolder := os.Getenv("HOME")
 	if runtime.GOOS == "windows" && homeFolder == "" {
 		homeFolder = os.Getenv("USERPROFILE")

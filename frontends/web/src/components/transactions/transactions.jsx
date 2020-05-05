@@ -18,6 +18,7 @@ import { Component, h } from 'preact';
 import { translate } from 'react-i18next';
 import Transaction from './transaction';
 import A from '../../components/anchor/anchor';
+import { runningInAndroid } from '../../utils/env';
 import * as style from './transactions.css';
 
 @translate()
@@ -30,16 +31,20 @@ export default class Transactions extends Component {
         exported,
         handleExport,
     }) {
+        // We don't support CSV export on Android yet, as it's a tricky to deal with the Downloads
+        // folder and permissions.
+        const csvExportDisabled = runningInAndroid();
         return (
             <div className={style.container}>
                 <div className="flex flex-row flex-between flex-items-center">
                     <label className="labelXLarge">{t('accountSummary.transactionHistory')}</label>
-                    {
+                    { !csvExportDisabled && (
                         exported ? (
                             <A href={exported} className="labelXLarge labelLink">{t('account.openFile')}</A>
                         ) : (
                             <A href="#" onClick={handleExport} className="labelXLarge labelLink" title={t('account.exportTransactions')}>{t('account.export')}</A>
                         )
+                    )
                     }
                 </div>
                 <div className={[style.columns, style.headers, style.showOnMedium].join(' ')}>
