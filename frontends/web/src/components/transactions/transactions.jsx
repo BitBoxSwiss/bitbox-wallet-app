@@ -27,7 +27,6 @@ export default class Transactions extends Component {
         t,
         explorerURL,
         transactions,
-        unit,
         exported,
         handleExport,
     }) {
@@ -52,8 +51,8 @@ export default class Transactions extends Component {
                     <div className={style.date}>{t('transaction.details.date')}</div>
                     <div className={style.address}>{t('transaction.details.address')}</div>
                     <div className={style.status}>{t('transaction.details.status')}</div>
-                    <div className={style.fiat}>{t('transaction.details.fiat')}</div>
-                    <div className={style.currency}>{unit}</div>
+                    <div className={style.fiat}>{t('transaction.details.fiatAmount')}</div>
+                    <div className={style.currency}>{t('transaction.details.amount')}</div>
                     <div className={style.action}>&nbsp;</div>
                 </div>
                 {
