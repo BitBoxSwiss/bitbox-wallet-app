@@ -181,7 +181,7 @@ class AddAccount extends Component<Props, State> {
                     <div class="innerContainer scrollableContainer">
                         <div class="content padded">
                             <div class="row">
-                                <div class="flex flex-1 flex-row flex-between flex-items-center spaced">
+                                <div class="flex flex-1 flex-row flex-between flex-items-top spaced">
                                     <Input
                                         label={t('addAccount.accountName')}
                                         onInput={linkState(this, 'accountName')}
