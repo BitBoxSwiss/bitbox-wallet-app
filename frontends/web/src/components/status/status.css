@@ -1,8 +1,12 @@
 .container {
     margin: 0 auto;
     position: relative;
-    max-width: var(--content-width);
     padding: calc(var(--space-default) * 1.5);
+    width: 100%;
+}
+
+:global(.padded) .container {
+    max-width: var(--content-width);
 }
 
 .status {
