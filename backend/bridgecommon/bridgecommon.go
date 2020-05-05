@@ -23,6 +23,7 @@ import (
 	"runtime"
 	"runtime/debug"
 	"strings"
+	"sync"
 
 	"github.com/digitalbitbox/bitbox-wallet-app/backend"
 	"github.com/digitalbitbox/bitbox-wallet-app/backend/arguments"
@@ -46,12 +47,15 @@ type NativeCommunication interface {
 }
 
 var (
-	backendInstance  *backend.Backend
-	handlersInstance *handlers.Handlers
-	communication    NativeCommunication
-	token            string
+	// mu guards all global* vars.
+	mu                  sync.RWMutex
+	globalBackend       *backend.Backend
+	globalHandlers      *handlers.Handlers
+	globalCommunication NativeCommunication
 
-	shutdown func()
+	globalToken string
+
+	globalShutdown func()
 )
 
 type response struct {
@@ -74,7 +78,10 @@ func (r *response) WriteHeader(int) {
 
 // BackendCall bridges GET/POST calls (serverless, directly calling the backend handlers).
 func BackendCall(queryID int, jsonQuery string) {
-	if handlersInstance == nil {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	if globalHandlers == nil {
 		return
 	}
 	query := map[string]string{}
@@ -82,7 +89,7 @@ func BackendCall(queryID int, jsonQuery string) {
 	if query["method"] != "POST" && query["method"] != "GET" {
 		panic(errp.Newf("method must be POST or GET, got: %s", query["method"]))
 	}
-	go func() {
+	go func(handlers *handlers.Handlers, communication NativeCommunication) {
 		defer func() {
 			// recover from all panics and log error before panicking again
 			if r := recover(); r != nil {
@@ -95,19 +102,22 @@ func BackendCall(queryID int, jsonQuery string) {
 		if err != nil {
 			panic(errp.WithStack(err))
 		}
-		request.Header.Set("Authorization", "Basic "+token)
-		handlersInstance.Router.ServeHTTP(resp, request)
+		request.Header.Set("Authorization", "Basic "+globalToken)
+		handlers.Router.ServeHTTP(resp, request)
 		responseBytes := resp.Body.Bytes()
 		communication.Respond(queryID, string(responseBytes))
-	}()
+	}(globalHandlers, globalCommunication)
 }
 
 // UsingMobileDataChanged should be called when the network connnection changed.
 func UsingMobileDataChanged() {
-	if backendInstance == nil {
+	mu.RLock()
+	defer mu.RUnlock()
+
+	if globalBackend == nil {
 		return
 	}
-	backendInstance.Notify(observable.Event{
+	globalBackend.Notify(observable.Event{
 		Subject: "using-mobile-data",
 		Action:  action.Reload,
 	})
@@ -156,12 +166,16 @@ func (env *BackendEnvironment) UsingMobileData() bool {
 func Serve(
 	testnet bool,
 	gapLimits *btctypes.GapLimits,
-	theCommunication NativeCommunication,
+	communication NativeCommunication,
 	backendEnvironment backend.Environment) {
-	if shutdown != nil {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if globalShutdown != nil {
 		panic("already running; must call Shutdown()")
 	}
-	communication = theCommunication
+
+	globalCommunication = communication
 	log := logging.Get().WithGroup("server")
 	log.Info("--------------- Started application --------------")
 	log.WithField("goos", runtime.GOOS).
@@ -170,7 +184,7 @@ func Serve(
 		Info("environment")
 
 	var err error
-	backendInstance, err = backend.NewBackend(
+	globalBackend, err = backend.NewBackend(
 		arguments.NewArguments(
 			config.AppDir(),
 			testnet,
@@ -186,23 +200,23 @@ func Serve(
 	}
 
 	quitChan := make(chan struct{})
-	shutdown = func() {
+	globalShutdown = func() {
 		close(quitChan)
-		if err := backendInstance.Close(); err != nil {
+		if err := globalBackend.Close(); err != nil {
 			log.WithError(err).Error("backend.Close failed")
 		}
-		handlersInstance = nil
-		backendInstance = nil
-		shutdown = nil
+		globalHandlers = nil
+		globalBackend = nil
+		globalShutdown = nil
 	}
 
-	token = hex.EncodeToString(random.BytesOrPanic(16))
+	globalToken = hex.EncodeToString(random.BytesOrPanic(16))
 
 	// the port is unused, as we bridge directly without a server.
-	handlersInstance = handlers.NewHandlers(backendInstance,
-		handlers.NewConnectionData(-1, token))
+	globalHandlers = handlers.NewHandlers(globalBackend,
+		handlers.NewConnectionData(-1, globalToken))
 
-	events := handlersInstance.Events()
+	events := globalHandlers.Events()
 	go func() {
 		for {
 			select {
@@ -213,7 +227,11 @@ func Serve(
 				case <-quitChan:
 					return
 				case event := <-events:
-					communication.PushNotify(string(jsonp.MustMarshal(event)))
+					func() {
+						mu.RLock()
+						defer mu.RUnlock()
+						globalCommunication.PushNotify(string(jsonp.MustMarshal(event)))
+					}()
 				}
 			}
 		}
@@ -224,9 +242,12 @@ func Serve(
 // Shutdown is cleaning up after Serve. It is called when the application is closed or goes to
 // sleep.
 func Shutdown() {
+	mu.Lock()
+	defer mu.Unlock()
+
 	log := logging.Get().WithGroup("server")
-	if shutdown != nil {
-		shutdown()
+	if globalShutdown != nil {
+		globalShutdown()
 		log.Info("Shutdown called")
 	} else {
 		log.Info("Shutdown called, but backend not running")
