@@ -20,13 +20,14 @@ import { Amount, FiatConversion } from '../../../components/rates/rates';
 interface Props {
     name: string;
     balance: Amount;
+    code: string;
 }
 
-export const BalanceRow = ({ name, balance }: RenderableProps<Props>) => {
+export const BalanceRow = ({ name, balance, code}: RenderableProps<Props>) => {
     return (
         <tr>
             <td>{name}</td>
-            <td>{balance.amount}</td>
+            <td>{balance.amount} {code.toUpperCase()}</td>
             <td><FiatConversion amount={balance}/></td>
         </tr>
     );
