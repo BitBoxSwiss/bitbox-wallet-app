@@ -71,12 +71,15 @@ export default class Status extends Component {
             return null;
         }
         return (
-            <div className={[style[type], className ? className : ''].join(' ')}>
+            <div className={[style.container, style[type], className ? className : ''].join(' ')}>
                 <div className={style.status}>
                     {children}
                     {
                         dismissable && (
-                            <a href="#" className={style.close} onClick={this.dismiss}>
+                            <a
+                                href="#"
+                                className={`${style.close} ${style[`close-${type}`]}`}
+                                onClick={this.dismiss} >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     width="24"
