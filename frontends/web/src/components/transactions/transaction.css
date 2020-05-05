@@ -79,8 +79,16 @@
     color: var(--color-softred) !important;
 }
 
+.receive {
+    color: var(--color-success);
+}
+
 .currency {
 
+}
+
+.currencyUnit {
+    color: var(--color-secondary);
 }
 
 .action {
