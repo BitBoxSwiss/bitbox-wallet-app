@@ -54,10 +54,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver usbStateReceiver = new BroadcastReceiver() {
         public void onReceive(Context context, Intent intent) {
             handleIntent(intent);
         }
+    };
+
+    private BroadcastReceiver networkStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Goserver.usingMobileDataChanged();
+         }
     };
 
     private static String getMimeType(String url) {
@@ -229,20 +236,23 @@ public class MainActivity extends AppCompatActivity {
         // DETACHED intent is a broadcast intent which we register here.
         IntentFilter filter = new IntentFilter();
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(this.broadcastReceiver, filter);
+        registerReceiver(this.usbStateReceiver, filter);
 
         // We call updateDeviceList() here in case the app was started while the device was already connected.
         // In that case, handleIntent() is not called with ACTION_USB_DEVICE_ATTACHED.
         final GoViewModel goViewModel = ViewModelProviders.of(this).get(GoViewModel.class);
         goViewModel.updateDeviceList();
 
+        // Listen on changes in the network connection. We are interested in if the user is connected to a mobile data connection.
+        registerReceiver(this.networkStateReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         log("lifecycle: onPause");
-        unregisterReceiver(this.broadcastReceiver);
+        unregisterReceiver(this.usbStateReceiver);
+        unregisterReceiver(this.networkStateReceiver);
     }
 
     private void handleIntent(Intent intent) {

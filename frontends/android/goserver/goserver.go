@@ -107,6 +107,11 @@ func BackendCall(queryID int, jsonQuery string) {
 	bridgecommon.BackendCall(queryID, jsonQuery)
 }
 
+// UsingMobileDataChanged exposes `bridgecommon.UsingMobileDataChanged` to Java/Kotlin.
+func UsingMobileDataChanged() {
+	bridgecommon.UsingMobileDataChanged()
+}
+
 type goLogHook struct {
 }
 
