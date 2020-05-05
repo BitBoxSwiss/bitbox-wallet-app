@@ -17,7 +17,6 @@
 import { Component, h, RenderableProps } from 'preact';
 import { load } from '../../../decorators/load';
 import { translate, TranslateProps } from '../../../decorators/translate';
-import RandomNumber from '../../../routes/device/settings/components/randomnumber';
 import { apiGet } from '../../../utils/request';
 import { SwissMadeOpenSource } from '../../icon/logo';
 import { Footer } from '../../layout';
@@ -115,7 +114,6 @@ class Settings extends Component<Props, State> {
                                                 apiPrefix={this.apiPrefix()}
                                                 getInfo={this.getInfo}
                                                 name={(deviceInfo && deviceInfo.name) ? deviceInfo.name : undefined} />
-                                            <RandomNumber apiPrefix={this.apiPrefix()} />
                                         </div>
                                     </div>
                                 </div>
