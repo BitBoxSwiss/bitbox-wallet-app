@@ -552,7 +552,7 @@ func (client *RPCClient) Method(
 	jsonText := client.prepare(success, setupAndTeardown, method, params...)
 	err := client.send(jsonText)
 	if err != nil {
-		client.log.Debugf("Resend triggered in Method (%v)", method)
+		client.log.WithError(err).Debugf("Resend triggered in Method (%v)", method)
 		go client.resendPendingRequestsAndSubscriptions(err.connection)
 	}
 }
